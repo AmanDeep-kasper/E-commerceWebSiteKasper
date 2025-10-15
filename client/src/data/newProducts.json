@@ -1,0 +1,699 @@
+[
+  {
+    "id": "5a6d6b2e-5a6d-4d3a-8d6a-9b8a3b18b7a1",
+    "route": null,
+    "title": "Metal Wall Art - Lord Ganesha Blessings",
+    "slug": "metal-wall-art-lord-ganesha-blessings",
+    "category": "Spiritual & Religious Art",
+    "subcategory": "Lord Ganesha",
+    "tags": ["bestseller", "spiritual", "gift"],
+    "base_sku": "SRA-GAN-001",
+    "material_type": ["metal"],
+    "type": "Unframed",
+    "dimension_cm": { "length": 60, "width": 60 },
+    "weight": "1.5kg",
+    "return_policy": "Eligible for return within 7 days of delivery.",
+    "deliver_by_days": 2,
+    "pricing": {
+      "base_price": 2499,
+      "amazon_price": 2699,
+      "currency": "INR",
+      "discount": { "percent": 10, "active": true }
+    },
+    "stock": {
+      "quantity": 15,
+      "low_stock_alert": 3,
+      "backorder_allowed": false
+    },
+    "options": {
+      "colors": [
+        { "code": "BLK", "name": "black" },
+        { "code": "GLD", "name": "golden" }
+      ],
+      "sizes": [
+        {
+          "code": "60x60cm",
+          "name": "60 x 60 cm",
+          "height_cm": 60,
+          "width_cm": 60
+        }
+      ]
+    },
+    "variants": [
+      {
+        "variant_id": "SRA-GAN-001-BLK-60x60cm",
+        "sku": "SRA-GAN-001-BLK-60x60",
+        "color_code": "BLK",
+        "size_code": "60x60cm",
+        "price": 2499,
+        "stock": {
+          "quantity": 15,
+          "low_stock_alert": 3,
+          "backorder_allowed": false
+        },
+        "images": ["/art1.png", "/art2.jpg", "/art3.jpg", "/art4.jpg"]
+      },
+      {
+        "variant_id": "SRA-GAN-001-GLD-60x60cm",
+        "sku": "SRA-GAN-001-GLD-60x60",
+        "color_code": "GLD",
+        "size_code": "60x60cm",
+        "price": 2499,
+        "stock": {
+          "quantity": 15,
+          "low_stock_alert": 3,
+          "backorder_allowed": false
+        },
+        "images": ["/art1.png", "/art2.jpg", "/art3.jpg", "/art4.jpg"]
+      }
+    ],
+    "media": {
+      "gallery": [
+        { "src": "/art1.png", "alt": "Lord Ganesha Blessings - front" },
+        { "src": "/art2.jpg", "alt": "Lord Ganesha Blessings - wall view" },
+        { "src": "/art3.jpg", "alt": "Lord Ganesha Blessings - detail" },
+        { "src": "/art4.jpg", "alt": "Lord Ganesha Blessings - lifestyle" }
+      ]
+    },
+    "rating": {
+      "average": 0,
+      "reviews_count": 0,
+      "breakdown": { "5": 0, "4": 0, "3": 0, "2": 0, "1": 0 }
+    },
+    "status": "active"
+  },
+
+  {
+    "id": "gaa-abstract-001",
+    "route": "/product/gaa-abstract-001",
+    "title": "Abstract Human Figures Wall Art",
+    "slug": "abstract-human-figures-wall-art",
+    "category": "Geometric & Abstract",
+    "subcategory": "Abstract Human Figures",
+    "tags": ["modern", "abstract", "decor"],
+    "base_sku": "GAA-ABS-001",
+    "material_type": ["metal"],
+    "type": "Unframed",
+    "dimension_cm": { "length": 60, "width": 45 },
+    "weight": "1.3kg",
+    "return_policy": "Eligible for return within 7 days of delivery.",
+    "deliver_by_days": 2,
+    "pricing": {
+      "base_price": 2299,
+      "amazon_price": 2499,
+      "currency": "INR",
+      "discount": { "percent": 8, "active": true }
+    },
+    "stock": {
+      "quantity": 20,
+      "low_stock_alert": 3,
+      "backorder_allowed": false
+    },
+    "options": {
+      "colors": [
+        { "code": "BLK", "name": "black" },
+        { "code": "GLD", "name": "golden" }
+      ],
+      "sizes": [
+        {
+          "code": "60x45cm",
+          "name": "60 x 45 cm",
+          "height_cm": 60,
+          "width_cm": 45
+        }
+      ]
+    },
+    "variants": [
+      {
+        "variant_id": "GAA-ABS-001-BLK-60x45cm",
+        "sku": "GAA-ABS-001-BLK-60x45",
+        "color_code": "BLK",
+        "size_code": "60x45cm",
+        "price": 2299,
+        "stock": {
+          "quantity": 20,
+          "low_stock_alert": 3,
+          "backorder_allowed": false
+        },
+        "images": ["/human1.jpg", "/human2.jpg", "/human3.jpg", "/human4.jpg"]
+      },
+      {
+        "variant_id": "GAA-ABS-001-GLD-60x45cm",
+        "sku": "GAA-ABS-001-GLD-60x45",
+        "color_code": "GLD",
+        "size_code": "60x45cm",
+        "price": 2299,
+        "stock": {
+          "quantity": 20,
+          "low_stock_alert": 3,
+          "backorder_allowed": false
+        },
+        "images": ["/human1.jpg", "/human2.jpg", "/human3.jpg", "/human4.jpg"]
+      }
+    ],
+    "media": {
+      "gallery": [
+        { "src": "/human1.jpg", "alt": "Abstract Human Figures - front" },
+        { "src": "/human2.jpg", "alt": "Abstract Human Figures - wall view" },
+        { "src": "/human3.jpg", "alt": "Abstract Human Figures - detail" },
+        { "src": "/human4.jpg", "alt": "Abstract Human Figures - lifestyle" }
+      ]
+    },
+    "rating": {
+      "average": 4.5,
+      "reviews_count": 2,
+      "breakdown": { "5": 1, "4": 1, "3": 0, "2": 0, "1": 0 }
+    },
+    "status": "active"
+  },
+
+  {
+    "id": "tyq-live-001",
+    "route": "/product/tyq-live-001",
+    "title": "Live Laugh Love Wall Art",
+    "slug": "live-laugh-love-wall-art",
+    "category": "Typography & Quotes",
+    "subcategory": "Motivational",
+    "tags": ["quotes", "motivational", "decor"],
+    "base_sku": "TYQ-MOT-001",
+    "material_type": ["metal"],
+    "type": "Unframed",
+    "dimension_cm": { "length": 50, "width": 40 },
+    "weight": "1.1kg",
+    "return_policy": "Eligible for return within 7 days of delivery.",
+    "deliver_by_days": 2,
+    "pricing": {
+      "base_price": 1899,
+      "amazon_price": 2099,
+      "currency": "INR",
+      "discount": { "percent": 10, "active": true }
+    },
+    "stock": {
+      "quantity": 25,
+      "low_stock_alert": 3,
+      "backorder_allowed": false
+    },
+    "options": {
+      "colors": [
+        { "code": "BLK", "name": "black" },
+        { "code": "GLD", "name": "golden" }
+      ],
+      "sizes": [
+        {
+          "code": "50x40cm",
+          "name": "50 x 40 cm",
+          "height_cm": 50,
+          "width_cm": 40
+        }
+      ]
+    },
+    "variants": [
+      {
+        "variant_id": "TYQ-MOT-001-BLK-50x40cm",
+        "sku": "TYQ-MOT-001-BLK-50x40",
+        "color_code": "BLK",
+        "size_code": "50x40cm",
+        "price": 1899,
+        "stock": {
+          "quantity": 25,
+          "low_stock_alert": 3,
+          "backorder_allowed": false
+        },
+        "images": ["/live1.jpg", "/live2.jpg", "/live3.jpg", "/live4.jpg"]
+      },
+      {
+        "variant_id": "TYQ-MOT-001-GLD-50x40cm",
+        "sku": "TYQ-MOT-001-GLD-50x40",
+        "color_code": "GLD",
+        "size_code": "50x40cm",
+        "price": 1899,
+        "stock": {
+          "quantity": 25,
+          "low_stock_alert": 3,
+          "backorder_allowed": false
+        },
+        "images": ["/live1.jpg", "/live2.jpg", "/live3.jpg", "/live4.jpg"]
+      }
+    ],
+    "media": {
+      "gallery": [
+        { "src": "/live1.jpg", "alt": "Live Laugh Love - front" },
+        { "src": "/live2.jpg", "alt": "Live Laugh Love - wall view" },
+        { "src": "/live3.jpg", "alt": "Live Laugh Love - detail" },
+        { "src": "/live4.jpg", "alt": "Live Laugh Love - lifestyle" }
+      ]
+    },
+    "rating": {
+      "average": 4.5,
+      "reviews_count": 2,
+      "breakdown": { "5": 1, "4": 1, "3": 0, "2": 0, "1": 0 }
+    },
+    "status": "active"
+  },
+
+  {
+    "id": "hal-welcome-001",
+    "route": "/product/hal-welcome-001",
+    "title": "Welcome Sign Wall Art",
+    "slug": "welcome-sign-wall-art",
+    "category": "Home & Living",
+    "subcategory": "Welcome Signs",
+    "tags": ["home", "decor", "welcome"],
+    "base_sku": "HAL-WEL-001",
+    "material_type": ["metal"],
+    "type": "Unframed",
+    "dimension_cm": { "length": 50, "width": 30 },
+    "weight": "1.0kg",
+    "return_policy": "Eligible for return within 7 days of delivery.",
+    "deliver_by_days": 2,
+    "pricing": {
+      "base_price": 1599,
+      "amazon_price": 1799,
+      "currency": "INR",
+      "discount": { "percent": 11, "active": true }
+    },
+    "stock": {
+      "quantity": 25,
+      "low_stock_alert": 3,
+      "backorder_allowed": false
+    },
+    "options": {
+      "colors": [
+        { "code": "BLK", "name": "black" },
+        { "code": "GLD", "name": "golden" }
+      ],
+      "sizes": [
+        {
+          "code": "50x30cm",
+          "name": "50 x 30 cm",
+          "height_cm": 50,
+          "width_cm": 30
+        }
+      ]
+    },
+    "variants": [
+      {
+        "variant_id": "HAL-WEL-001-BLK-50x30cm",
+        "sku": "HAL-WEL-001-BLK-50x30",
+        "color_code": "BLK",
+        "size_code": "50x30cm",
+        "price": 1599,
+        "stock": {
+          "quantity": 25,
+          "low_stock_alert": 3,
+          "backorder_allowed": false
+        },
+        "images": [
+          "/welcome1.jpg",
+          "/welcome2.jpg",
+          "/welcome3.jpg",
+          "/welcome4.jpg"
+        ]
+      },
+      {
+        "variant_id": "HAL-WEL-001-GLD-50x30cm",
+        "sku": "HAL-WEL-001-GLD-50x30",
+        "color_code": "GLD",
+        "size_code": "50x30cm",
+        "price": 1599,
+        "stock": {
+          "quantity": 25,
+          "low_stock_alert": 3,
+          "backorder_allowed": false
+        },
+        "images": [
+          "/welcome1.jpg",
+          "/welcome2.jpg",
+          "/welcome3.jpg",
+          "/welcome4.jpg"
+        ]
+      }
+    ],
+    "media": {
+      "gallery": [
+        { "src": "/welcome1.jpg", "alt": "Welcome Sign - front" },
+        { "src": "/welcome2.jpg", "alt": "Welcome Sign - wall view" },
+        { "src": "/welcome3.jpg", "alt": "Welcome Sign - detail" },
+        { "src": "/welcome4.jpg", "alt": "Welcome Sign - lifestyle" }
+      ]
+    },
+    "rating": {
+      "average": 4.5,
+      "reviews_count": 2,
+      "breakdown": { "5": 1, "4": 1, "3": 0, "2": 0, "1": 0 }
+    },
+    "status": "active"
+  },
+
+  {
+    "id": "fao-wedding-001",
+    "route": "/product/fao-wedding-001",
+    "title": "Wedding Rings Wall Art",
+    "slug": "wedding-rings-wall-art",
+    "category": "Festival & Occasion",
+    "subcategory": "Wedding",
+    "tags": ["wedding", "love", "decor"],
+    "base_sku": "FAO-WED-001",
+    "material_type": ["metal"],
+    "type": "Framed",
+    "dimension_cm": { "length": 55, "width": 35 },
+    "weight": "1.1kg",
+    "return_policy": "Eligible for return within 7 days of delivery.",
+    "deliver_by_days": 2,
+    "pricing": {
+      "base_price": 1899,
+      "amazon_price": 2099,
+      "currency": "INR",
+      "discount": { "percent": 8, "active": true }
+    },
+    "stock": {
+      "quantity": 14,
+      "low_stock_alert": 3,
+      "backorder_allowed": false
+    },
+    "options": {
+      "colors": [
+        { "code": "BLK", "name": "black" },
+        { "code": "GLD", "name": "golden" }
+      ],
+      "sizes": [
+        {
+          "code": "55x35cm",
+          "name": "55 x 35 cm",
+          "height_cm": 55,
+          "width_cm": 35
+        }
+      ]
+    },
+    "variants": [
+      {
+        "variant_id": "FAO-WED-001-BLK-55x35cm",
+        "sku": "FAO-WED-001-BLK-55x35",
+        "color_code": "BLK",
+        "size_code": "55x35cm",
+        "price": 1899,
+        "stock": {
+          "quantity": 14,
+          "low_stock_alert": 3,
+          "backorder_allowed": false
+        },
+        "images": ["/images/wedding1.jpg"]
+      },
+      {
+        "variant_id": "FAO-WED-001-GLD-55x35cm",
+        "sku": "FAO-WED-001-GLD-55x35",
+        "color_code": "GLD",
+        "size_code": "55x35cm",
+        "price": 1899,
+        "stock": {
+          "quantity": 14,
+          "low_stock_alert": 3,
+          "backorder_allowed": false
+        },
+        "images": ["/images/wedding1.jpg"]
+      }
+    ],
+    "media": {
+      "gallery": [
+        { "src": "/images/wedding1.jpg", "alt": "Wedding Rings - front" }
+      ]
+    },
+    "rating": {
+      "average": 4.5,
+      "reviews_count": 2,
+      "breakdown": { "5": 1, "4": 1, "3": 0, "2": 0, "1": 0 }
+    },
+    "status": "active"
+  },
+
+  {
+    "id": "ref-modern-001",
+    "route": "/product/ref-modern-001",
+    "title": "Modern Geometric Mirror Wall Art",
+    "slug": "modern-geometric-mirror-wall-art",
+    "category": "Reflections",
+    "subcategory": "Geometric Mirrors",
+    "tags": ["mirror", "geometric", "modern"],
+    "base_sku": "REF-MIR-001",
+    "material_type": ["metal", "mirror"],
+    "type": "Framed",
+    "dimension_cm": { "length": 60, "width": 40 },
+    "weight": "2.0kg",
+    "return_policy": "Eligible for return within 7 days of delivery.",
+    "deliver_by_days": 2,
+    "pricing": {
+      "base_price": 2499,
+      "amazon_price": 2799,
+      "currency": "INR",
+      "discount": { "percent": 11, "active": true }
+    },
+    "stock": {
+      "quantity": 10,
+      "low_stock_alert": 3,
+      "backorder_allowed": false
+    },
+    "options": {
+      "colors": [
+        { "code": "SIL", "name": "silver" },
+        { "code": "BLK", "name": "black" }
+      ],
+      "sizes": [
+        {
+          "code": "60x40cm",
+          "name": "60 x 40 cm",
+          "height_cm": 60,
+          "width_cm": 40
+        }
+      ]
+    },
+    "variants": [
+      {
+        "variant_id": "REF-MIR-001-SIL-60x40cm",
+        "sku": "REF-MIR-001-SIL-60x40",
+        "color_code": "SIL",
+        "size_code": "60x40cm",
+        "price": 2499,
+        "stock": {
+          "quantity": 10,
+          "low_stock_alert": 3,
+          "backorder_allowed": false
+        },
+        "images": [
+          "/modern1.jpg",
+          "/modern2.jpg",
+          "/modern3.jpg",
+          "/modern4.jpg"
+        ]
+      },
+      {
+        "variant_id": "REF-MIR-001-BLK-60x40cm",
+        "sku": "REF-MIR-001-BLK-60x40",
+        "color_code": "BLK",
+        "size_code": "60x40cm",
+        "price": 2499,
+        "stock": {
+          "quantity": 10,
+          "low_stock_alert": 3,
+          "backorder_allowed": false
+        },
+        "images": [
+          "/modern1.jpg",
+          "/modern2.jpg",
+          "/modern3.jpg",
+          "/modern4.jpg"
+        ]
+      }
+    ],
+    "media": {
+      "gallery": [
+        { "src": "/modern1.jpg", "alt": "Modern Geometric Mirror - front" },
+        { "src": "/modern2.jpg", "alt": "Modern Geometric Mirror - wall view" },
+        { "src": "/modern3.jpg", "alt": "Modern Geometric Mirror - detail" },
+        { "src": "/modern4.jpg", "alt": "Modern Geometric Mirror - lifestyle" }
+      ]
+    },
+    "rating": {
+      "average": 4.5,
+      "reviews_count": 2,
+      "breakdown": { "5": 1, "4": 1, "3": 0, "2": 0, "1": 0 }
+    },
+    "status": "active"
+  },
+
+  {
+    "id": "cln-art-001",
+    "route": "/product/cln-art-001",
+    "title": "Abstract Waves Wall Art - Clone",
+    "slug": "abstract-waves-wall-art-clone",
+    "category": "Clones",
+    "subcategory": "Abstract Clones",
+    "tags": ["abstract", "modern", "clone"],
+    "base_sku": "CLN-ABS-001",
+    "material_type": ["metal"],
+    "type": "Unframed",
+    "dimension_cm": { "length": 60, "width": 40 },
+    "weight": "1.0kg",
+    "return_policy": "Eligible for return within 7 days of delivery.",
+    "deliver_by_days": 2,
+    "pricing": {
+      "base_price": 1499,
+      "amazon_price": 1699,
+      "currency": "INR",
+      "discount": { "percent": 12, "active": true }
+    },
+    "stock": {
+      "quantity": 20,
+      "low_stock_alert": 3,
+      "backorder_allowed": false
+    },
+    "options": {
+      "colors": [
+        { "code": "BLK", "name": "black" },
+        { "code": "SIL", "name": "silver" }
+      ],
+      "sizes": [
+        {
+          "code": "60x40cm",
+          "name": "60 x 40 cm",
+          "height_cm": 60,
+          "width_cm": 40
+        }
+      ]
+    },
+    "variants": [
+      {
+        "variant_id": "CLN-ABS-001-BLK-60x40cm",
+        "sku": "CLN-ABS-001-BLK-60x40",
+        "color_code": "BLK",
+        "size_code": "60x40cm",
+        "price": 1499,
+        "stock": {
+          "quantity": 20,
+          "low_stock_alert": 3,
+          "backorder_allowed": false
+        },
+        "images": ["/waves1.jpg", "/waves2.jpg", "/waves3.jpg", "/waves4.jpg"]
+      },
+      {
+        "variant_id": "CLN-ABS-001-SIL-60x40cm",
+        "sku": "CLN-ABS-001-SIL-60x40",
+        "color_code": "SIL",
+        "size_code": "60x40cm",
+        "price": 1499,
+        "stock": {
+          "quantity": 20,
+          "low_stock_alert": 3,
+          "backorder_allowed": false
+        },
+        "images": ["/waves1.jpg", "/waves2.jpg", "/waves3.jpg", "/waves4.jpg"]
+      }
+    ],
+    "media": {
+      "gallery": [
+        { "src": "/waves1.jpg", "alt": "Abstract Waves - front" },
+        { "src": "/waves2.jpg", "alt": "Abstract Waves - wall view" },
+        { "src": "/waves3.jpg", "alt": "Abstract Waves - detail" },
+        { "src": "/waves4.jpg", "alt": "Abstract Waves - lifestyle" }
+      ]
+    },
+    "rating": {
+      "average": 4.5,
+      "reviews_count": 2,
+      "breakdown": { "5": 1, "4": 1, "3": 0, "2": 0, "1": 0 }
+    },
+    "status": "active"
+  },
+
+  {
+    "id": "dwl-art-001",
+    "route": "/product/dwl-art-001",
+    "title": "Golden Diya Art",
+    "slug": "golden-diya-art",
+    "category": "Festive Collection",
+    "subcategory": "Diwali Decor",
+    "tags": ["diya", "golden", "festival", "light"],
+    "base_sku": "DWL-ART-001",
+    "material_type": ["metal"],
+    "type": "Unframed",
+    "dimension_cm": { "length": 45, "width": 30 },
+    "weight": "0.8kg",
+    "return_policy": "Eligible for return within 7 days of delivery.",
+    "deliver_by_days": 3,
+    "pricing": {
+      "base_price": 1499,
+      "amazon_price": 2999,
+      "currency": "INR",
+      "discount": { "percent": 50, "active": true }
+    },
+    "stock": {
+      "quantity": 25,
+      "low_stock_alert": 3,
+      "backorder_allowed": false
+    },
+    "options": {
+      "colors": [
+        { "code": "GLD", "name": "gold" },
+        { "code": "BLK", "name": "black" }
+      ],
+      "sizes": [
+        {
+          "code": "45x30cm",
+          "name": "45 x 30 cm",
+          "height_cm": 45,
+          "width_cm": 30
+        }
+      ]
+    },
+    "variants": [
+      {
+        "variant_id": "DWL-ART-001-GLD-45x30cm",
+        "sku": "DWL-ART-001-GLD-45x30",
+        "color_code": "GLD",
+        "size_code": "45x30cm",
+        "price": 1499,
+        "stock": {
+          "quantity": 25,
+          "low_stock_alert": 3,
+          "backorder_allowed": false
+        },
+        "images": [
+          "/diwali1.jpg",
+          "/diwali2.jpg",
+          "/Diwali1.png",
+          "/Diwali1.png"
+        ]
+      },
+      {
+        "variant_id": "DWL-ART-001-BLK-45x30cm",
+        "sku": "DWL-ART-001-BLK-45x30",
+        "color_code": "BLK",
+        "size_code": "45x30cm",
+        "price": 1499,
+        "stock": {
+          "quantity": 25,
+          "low_stock_alert": 3,
+          "backorder_allowed": false
+        },
+        "images": [
+          "/diwali1.jpg",
+          "/diwali2.jpg",
+          "/Diwali1.png",
+          "/Diwali1.png"
+        ]
+      }
+    ],
+    "media": {
+      "gallery": [
+        { "src": "/diwali1.jpg", "alt": "Golden Diya - front" },
+        { "src": "/diwali2.jpg", "alt": "Golden Diya - wall view" },
+        { "src": "/Diwali1.png", "alt": "Golden Diya - detail" }
+      ]
+    },
+    "rating": {
+      "average": 5.0,
+      "reviews_count": 2,
+      "breakdown": { "5": 2, "4": 0, "3": 0, "2": 0, "1": 0 }
+    },
+    "status": "active"
+  }
+]

@@ -1,0 +1,29 @@
+# Dependencies
+frontend/node_modules/
+frontend/.env
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.production.local
+frontend/.env.test.local
+
+# Build output
+frontend/build/
+frontend/dist/
+frontend/.next/
+frontend/out/
+
+# Editor / System Files
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+Thumbs.db
+ehthumbs.db
+
+# OS files
+.DS_Store
+Icon?
+._*

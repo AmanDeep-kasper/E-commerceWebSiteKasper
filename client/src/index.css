@@ -1,0 +1,286 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400..700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Ibarra+Real+Nova:wght@400..700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+/* @import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@400;500;600&display=swap"); */
+/* @import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Lato:wght@400;500;700&display=swap"); */
+/* @import url("https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600&display=swap"); */
+@import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=GFS+Didot&display=swap");
+.hero-title {
+  /* font-family: 'Cormorant Garamond', serif; */
+  /* font-family: "DM Serif Display", serif; */
+  font-family: "Cambria", serif;
+}
+
+body {
+  font-family: "Inter", sans-serif;
+}
+
+.hero-subtitle,
+.hero-button {
+  /* font-family: 'Lato', sans-serif; */
+  /* font-family: "Inter", sans-serif; */
+  font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+}
+.font-inter {
+  font-family: "Inter", sans-serif;
+}
+
+.font-didot {
+  font-family: "GFS Didot", serif;
+}
+
+.font-oswa {
+  font-family: "Oswald", sans-serif;
+}
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  10%,
+  45% {
+    opacity: 1;
+  }
+  55%,
+  100% {
+    opacity: 0;
+  }
+}
+
+.card-animation {
+  animation: fadeIn 8s ease-in-out infinite;
+}
+.card-delay {
+  animation-delay: 4s;
+}
+
+@keyframes slide-in {
+  from {
+    transform: translateX(0%);
+  }
+
+  to {
+    transform: translateX(-400%);
+  }
+}
+
+.hero-animation {
+  animation: 10s linear 1s infinite running slide-in;
+}
+
+.flip {
+  -webkit-transform: scaleX(-1);
+  transform: scaleX(-1);
+}
+
+.gradient-btn {
+  position: relative;
+  background: linear-gradient(
+    to right,
+    #d3ab2d,
+    #c19403,
+    #e3d249,
+    #d3a828,
+    #f5d657,
+    #f9db60,
+    #cfa511
+  );
+  color: black; /* Default text color */
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.4s ease;
+  overflow: hidden;
+}
+
+.gradient-btn-content {
+  position: relative;
+  z-index: 2;
+}
+
+/* Gradient border on hover */
+.gradient-btn:hover {
+  border-color: transparent;
+  background: transparent;
+}
+
+.gradient-btn:hover::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 5px;
+  padding: 1px;
+  background: linear-gradient(
+    to right,
+    #d3ab2d,
+    #c19403,
+    #e3d249,
+    #d3a828,
+    #f5d657,
+    #f9db60,
+    #cfa511
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  z-index: 1;
+}
+
+/* Gradient text on hover */
+.gradient-btn:hover .gradient-btn-content {
+  background: linear-gradient(
+    to right,
+    #d3ab2d,
+    #c19403,
+    #e3d249,
+    #d3a828,
+    #f5d657,
+    #f9db60,
+    #cfa511
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+body::-webkit-scrollbar,
+.invisible-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.secondary-btn {
+  position: relative;
+  background: linear-gradient(
+    to right,
+    #d3ab2d,
+    #c19403,
+    #e3d249,
+    #d3a828,
+    #f5d657,
+    #f9db60,
+    #cfa511
+  );
+  border: 1px solid transparent; /* Default border */
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.4s ease;
+  overflow: hidden;
+}
+
+.secondary-btn-content {
+  position: relative;
+  z-index: 2;
+}
+
+/* Gradient border on hover */
+.secondary-btn {
+  border-color: transparent;
+  background: transparent;
+}
+
+.secondary-btn::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 5px;
+  padding: 1px;
+  background: linear-gradient(
+    to right,
+    #d3ab2d,
+    #c19403,
+    #e3d249,
+    #d3a828,
+    #f5d657,
+    #f9db60,
+    #cfa511
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  z-index: 1;
+}
+
+/* Gradient text on hover */
+.secondary-btn .gradient-btn-content {
+  background: linear-gradient(
+    to right,
+    #d3ab2d,
+    #c19403,
+    #e3d249,
+    #d3a828,
+    #f5d657,
+    #f9db60,
+    #cfa511
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.link-border {
+  position: relative;
+}
+
+.link-border:hover::after {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  content: "";
+  height: 1px;
+  width: 50px;
+  background: linear-gradient(
+    to right,
+    #d3ab2d,
+    #c19403,
+    #e3d249,
+    #d3a828,
+    #f5d657,
+    #f9db60,
+    #cfa511
+  );
+}
+
+select,
+::picker(select) {
+  appearance: base-select;
+  border-radius: 5px;
+}
+
+.custom-select {
+  background-color: white;
+  color: black;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+.custom-select:hover {
+  background-color: #f0f0f0; /* Change background on hover */
+}
+
+/* styles.css or globals.css */
+.progress-bar::-webkit-progress-bar {
+  background-color: #d9d9d9; /* unfilled */
+  border-radius: 9999px; /* fully rounded */
+}
+
+.progress-bar::-webkit-progress-value {
+  background-color: #199b0d; /* Tailwind blue-600 */
+  border-radius: 9999px;
+}
+
+.progress-bar::-moz-progress-bar {
+  background-color: #199b0d; /* filled in Firefox */
+  border-radius: 9999px;
+}
