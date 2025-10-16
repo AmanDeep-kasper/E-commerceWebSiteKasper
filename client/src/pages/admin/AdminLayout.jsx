@@ -9,12 +9,14 @@ function AdminLayout() {
       {/* Navbar */}
       <Header />
 
-      <div className="w-full flex items-start h-dvh">
+      {/* <div className="w-full flex items-start h-full"> */}
+      <div className="flex w-full min-h-screen items-stretch">
         {/* Sidebar */}
         <AdminSidebar />
 
         {/* Page content */}
-        <div className="h-dvh flex flex-col gap-4 w-full mx-4 py-4 ">
+        {/* <div className="h-dvh flex flex-col gap-4 w-full mx-4 py-4 "> */}
+          <div className="flex-1 mx-4 py-4">
           <Outlet />
         </div>
       </div>

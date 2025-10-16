@@ -72,10 +72,15 @@ function AdminSidebar() {
   };
 
   return (
+    //   <div
+    //      className={`sticky top-0 right-0 ${
+    //   isCollapsed ? "min-w-[80px]" : "min-w-[240px]"
+    // } bg-[#383838] p-4 h-screen flex flex-col transition-all duration-300`}
+    //   >
     <div
-      className={`sticky top-0 ${
+      className={`bg-[#383838] p-4 min-h-screen flex flex-col transition-all duration-300 ${
         isCollapsed ? "min-w-[80px]" : "min-w-[240px]"
-      } bg-[#383838] p-4 h-full flex flex-col transition-all duration-300`}
+      }`}
     >
       {/* Header */}
       <div className="flex items-center justify-between mb-8 p-2">

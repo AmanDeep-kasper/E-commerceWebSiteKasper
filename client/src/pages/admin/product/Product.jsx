@@ -369,7 +369,7 @@ const Products = () => {
         <div className="flex justify-between mb-[16px]">
           <div className="flex-1 max-w-sm hidden md:block">
             <div className="flex items-center justify-between mb-4 bg-white py-[]16px px-2 rounded-md">
-              <h2 className="text-[25px] font-semibold text-gray-800">
+              <h2 className="text-[20px] font-semibold text-gray-800">
                 All Products
               </h2>
             </div>
@@ -430,7 +430,7 @@ const Products = () => {
                       setPriceOpen(false);
                       setCurrentPage(1);
                     }}
-                    className={`flex items-center justify-between px-4 py-2 hover:bg-gray-100 cursor-pointer ${
+                    className={`flex items-center justify-between px-4 py-2 hover:bg-[#FFEAD2] cursor-pointer ${
                       PriceSelected === category
                         ? "bg-gray-100 text-gray-900"
                         : ""
@@ -468,7 +468,7 @@ const Products = () => {
                       setSelectedSort(p);
                       setOpen(false);
                     }}
-                    className={`flex items-center justify-between px-4 py-2 hover:bg-gray-100 cursor-pointer ${
+                    className={`flex items-center justify-between px-4 py-2 hover:bg-[#FFEAD2] cursor-pointer ${
                       selected === p ? "bg-gray-100 text-gray-900" : ""
                     }`}
                   >

@@ -20,41 +20,127 @@ const AddProduct = () => {
   const { loading, error } = useSelector((state) => state.product);
 
   const [formData, setFormData] = useState({
+    // Basic info
+    type: "",
     title: "",
+    description: "",
+    images: [],
+
+    // Product details
+    SKU: "",
     category: "",
     subcategory: "",
-    SKU: "",
-    dimension: "",
-    basePrice: "",
-    amazonPrice: "",
-    discountPercent: "",
-    materialType: "",
-    stockQuantity: "",
-    color: "",
-    returnPolicy: "",
-    weight: "",
-    type: "Framed",
-    description: "",
     tags: "",
-    deliverBy: "3", // default 3 days
-    bulletPoints: "", // pipe (|) separated string
+    materialType: "",
+    weight: "",
+    stockQuantity: "",
+    returnPolicy: false,
+
+    // Pricing
+    mrp: "",
+    sellingPrice: "",
+    costPrice: "",
+    profit: "",
+    discountPercent: "",
+    discountAmount: "",
+    includesTax: false,
+    taxPercent: "",
+
+    // Product Variants
+    hasVariants: false,
+    variantType: "",
+    variantValue: "",
+    variantQuantity: "",
+    variantReorderLimit: "",
+    variantImage: null,
   });
 
   const [images, setImages] = useState([]);
 
   // handle text fields
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value, type, checked } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
   };
 
   // handle image files
   const handleFileChange = (e) => {
-    setImages(Array.from(e.target.files));
+    const files = Array.from(e.target.files);
+    setFormData((prev) => ({
+      ...prev,
+      images: [...prev.images, ...files],
+    }));
+  };
+
+  //variant image:
+  const handleVariantImageChange = (e) => {
+    const file = e.target.files[0];
+    setFormData((prev) => ({
+      ...prev,
+      variantImage: file,
+    }));
   };
 
   // submit handler
+
   const handleSubmit = (e) => {
     e.preventDefault();
+    console.log("Form Data:", formData);
+
+    //empty
+    setFormData({
+      type: "",
+      title: "",
+      description: "",
+      images: [],
+
+      // Product details
+      SKU: "",
+      category: "",
+      subcategory: "",
+      tags: "",
+      materialType: "",
+      weight: "",
+      stockQuantity: "",
+      returnPolicy: false,
+
+      // Pricing
+      mrp: "",
+      sellingPrice: "",
+      costPrice: "",
+      profit: "",
+      discountPercent: "",
+      discountAmount: "",
+      includesTax: false,
+      taxPercent: "",
+
+      // Product Variants
+      hasVariants: false,
+      variantType: "",
+      variantValue: "",
+      variantQuantity: "",
+      variantReorderLimit: "",
+      variantImage: null,
+    });
+
+    //  and the data save is local storage and saved
+    useEffect(() => {
+      const saved = localStorage.setItem(
+        "addProductForm",
+        JSON.stringify(formData)
+      );
+    }, [formData]);
+
+    useEffect(() => {
+      const saved = localStorage.getItem("addProductForm");
+
+      if (saved) {
+        setFormData(JSON.stringify(saved), console.log(saved));
+      }
+    }, []);
 
     // create FormData for multipart
     const formDataObj = new FormData();
@@ -73,17 +159,89 @@ const AddProduct = () => {
     dispatch(addProduct(formDataObj));
   };
 
+  // this is first drop down
+  const [open, setOpen] = useState(false);
+  // selected option
+  const [selected, setSelected] = useState("Select Price Range");
+
+  // sample data (you can replace this with dynamic data)
+  const price = [
+    "Select Category",
+    "Spiritual & Religious Art",
+    "Nature & Wildlife",
+    "Geometric & Abstract",
+    "Wall Arts",
+    "Typography & Symbols",
+    "Clones",
+    "Festival & Occasion",
+    "Reflection Art",
+  ];
+
+  // Second drop down box
+
+  const Subcategories = [
+    "Lord Ganesha",
+    "Lord Shiva (Natraja/Trishul)",
+    "Buddha",
+    "Om Symbol",
+    "Mandala Art",
+    "Tree of Life",
+    "Islamic Calligraphy (Bismillah, Ayatul Kursi)",
+    "Jesus / Cross / Angel",
+  ];
+
+  const [subdropdown, setSubDropDown] = useState(false);
+
+  const [subselected, setSubSelect] = useState("Select Subcategory");
+
+  // tags drop down box
+
+  const Tags = ["Bestseller", "Spiritual", "Gift"];
+
+  const [tagsbtn, setTagsBtn] = useState(false);
+  const [tags, setTagsDown] = useState("Select Tags");
+
+  //Material Type drop down
+
+  const material = ["Metal"];
+
+  const [materialbtn, setmaterialbtn] = useState(false);
+  const [materialdata, setMaterialData] = useState("Select Material Type");
+
+  //the variants drop down
+  const [variantopen, setVariantOpen] = useState(false);
+  const [variants, setvariants] = useState("Select Option");
+
+  const variant = ["Color", "Dimension"];
+
+  // toggal btn
+  const [isChecked, setIsChecked] = useState(false);
+
+  const handleCheckboxChange = () => {
+    setIsChecked((prev) => !prev);
+  };
+
+  // the hidden items in bottom
+
+  const [itemsopen, setItemsOpen] = useState(false);
+
   return (
-    <div className=" rounded-md min-h-screen ">
+    <form
+      className=" rounded-md min-h-screen "
+      onSubmit={handleSubmit}
+      encType="multipart/form-data"
+    >
       {/* Header */}
-      <Link to={`/admin/products`}>
-        <div className="h-16 bg-white rounded-lg  flex items-center gap-3 px-4">
-          <ArrowLeft className="w-6 h-6 text-gray-800" />
-          <h1 className="text-black text-[20px] font-medium font-['Inter']">
-            Add Product
-          </h1>
-        </div>
-      </Link>
+      <div className="h-16 bg-white rounded-lg  flex items-center gap-3 px-4">
+        <Link to={`/admin/products`}>
+          <div className=" flex items-center">
+            <ArrowLeft className="w-6 h-6 text-gray-800" />
+            <h1 className="text-black text-[20px] font-semibold font-['Inter']">
+              Add Product
+            </h1>
+          </div>
+        </Link>
+      </div>
 
       {/* Product Info Grid */}
       <div className="grid lg:grid-cols-2 gap-6 mt-4">
@@ -102,8 +260,10 @@ const AddProduct = () => {
               >
                 <input
                   type="radio"
-                  name="frameType"
-                  value="Framed"
+                  name="type"
+                  value={option}
+                  checked={formData.type === option}
+                  onChange={handleChange}
                   className="scale-125 text-blue-600 border-gray-300 focus:ring-blue-500"
                 />
 
@@ -113,6 +273,7 @@ const AddProduct = () => {
               </label>
             ))}
           </div>
+
           {/* Product Title */}
           <div className="mb-5">
             <label className="block text-black text-[14px] font-medium mb-2">
@@ -120,6 +281,9 @@ const AddProduct = () => {
             </label>
             <input
               type="text"
+              name="title"
+              value={formData.title}
+              onChange={handleChange}
               placeholder="Enter Product Name"
               className="w-full h-[45px] border border-[#D0D0D0] rounded-md px-3 py-2
           text-[#6B6B6B] text-sm font-normal bg-[#FAFAFA]
@@ -134,6 +298,9 @@ const AddProduct = () => {
             </label>
             <textarea
               placeholder="Description"
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
               rows="3"
               className="w-full border border-[#D0D0D0] rounded-md px-3 py-2
           text-[#6B6B6B] text-sm font-normal bg-[#FAFAFA]
@@ -149,7 +316,7 @@ const AddProduct = () => {
 
             <label
               htmlFor="productImage"
-              className="w-36 h-36 bg-[#ECECF0] border border-neutral-200 rounded-lg 
+              className="w-[137px] h-[137px] bg-[#ECECF0] border border-neutral-200 rounded-lg 
       flex items-center justify-center cursor-pointer hover:bg-gray-200 transition"
             >
               <input
@@ -163,6 +330,30 @@ const AddProduct = () => {
                 <Plus className="text-[#5F5F5F] w-6 h-6" />
               </div>
             </label>
+            {/* Image Preview Section  */}
+            <div className="flex  gap-3">
+              {formData.images.map((img, i) => (
+                <div key={i} className="relative">
+                  <img
+                    src={URL.createObjectURL(img)}
+                    alt={`preview ${i}`}
+                    className="w-[137px] h-[137px] object-cover rounded-lg border border-neutral-200"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setFormData((prev) => ({
+                        ...prev,
+                        images: prev.images.filter((_, index) => index != i),
+                      }));
+                    }}
+                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -181,6 +372,9 @@ const AddProduct = () => {
               <div className="flex">
                 <input
                   type="text"
+                  name="SKU"
+                  value={formData.SKU}
+                  onChange={handleChange}
                   placeholder="Generate SKU ID"
                   className="flex-1 border border-[#D0D0D0] rounded-l-lg h-[45px] px-3  bg-[#FAFAFA] text-sm text-[#6B6B6B] placeholder-[#6B6B6B] focus:outline-none"
                 />
@@ -192,77 +386,136 @@ const AddProduct = () => {
 
             {/* Category */}
             <div>
-              <label className="block text-sm font-medium mb-2">Category</label>
-              <div className="relative w-full ">
-                <select
-                  className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#FAFAFA] 
-      text-sm text-gray-700 focus:outline-none focus:ring-2  appearance-none cursor-pointer "
-                  defaultValue=""
+              <div className="relative inline-block w-full">
+                <label className="block text-sm font-medium mb-2">
+                  Category
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setOpen((prev) => !prev)}
+                  className="w-full border rounded-lg px-4 h-[45px] flex items-center justify-between bg-[#FAFAFA] text-sm text-[#6B6B6B] focus:outline-none placeholder:text-[#6B6B6B]"
                 >
-                  <option value="" disabled hidden>
-                    Select Category
-                  </option>
-                  <option>Spiritual & Religious Art</option>
-                  <option>Nature & Wildlife</option>
-                  <option>Geometric & Abstract</option>
-                  <option>Typography & Symbols</option>
-                  <option>Clones</option>
-                  <option>Festival & Occasion</option>
-                  <option>Reflection Art</option>
-                </select>
+                  <span>{formData.category || "Select Category"}</span>
+                  <ChevronDown
+                    size={18}
+                    className={`text-[#6B6B6B] transition-transform duration-200 ${
+                      open ? "rotate-180" : ""
+                    }`}
+                  />
+                </button>
 
-                {/* Chevron icon */}
-                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
+                {/* Price Dropdown Menu */}
+                {open && (
+                  <ul className="absolute z-10 w-full border rounded-lg bg-white shadow-md max-h-60 overflow-y-auto text-[15px]">
+                    {price.map((p, i) => (
+                      <li
+                        key={i}
+                        onClick={() => {
+                          setFormData((prev) => ({ ...prev, category: p }));
+                          setOpen(false);
+                        }}
+                        className={`flex items-center justify-between px-4 py-2 hover:bg-[#FFEAD2] cursor-pointer ${
+                          formData.category === p
+                            ? "bg-gray-100 text-[#6B6B6B]"
+                            : ""
+                        }`}
+                      >
+                        <span>{p}</span>
+                      </li>
+                    ))}
+
+                    {/* Add Category button inside dropdown */}
+                    <li className="sticky bottom-0 bg-white px-1 py-2 flex justify-center">
+                      <button
+                        type="button"
+                        className="bg-[#DD851F] text-white px-3 py-2 rounded-md hover:bg-orange-600 w-full"
+                      >
+                        + Add Category
+                      </button>
+                    </li>
+                  </ul>
+                )}
               </div>
             </div>
 
             {/* Sub Category */}
             <div>
-              <label className="block text-sm font-medium mb-2">
-                Sub Category
-              </label>
-              <div className="relative w-full">
-                <select
-                  className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#FAFAFA] 
-      text-sm text-[#6B6B6B] focus:outline-none focus:ring-2  appearance-none cursor-pointer"
-                  defaultValue=""
+              <div className="relative inline-block w-full ">
+                <label className="block text-sm font-medium mb-2">
+                  Sub Category
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setSubDropDown((prev) => !prev)}
+                  className="w-full border rounded-lg px-4 h-[45px] flex items-center justify-between bg-[#FAFAFA] text-sm text-[#6B6B6B] focus:outline-none placeholder:text-[#6B6B6B]"
                 >
-                  <option value="" disabled hidden>
-                    Select Subcategory
-                  </option>
-                  <option>Lord Ganesha</option>
-                  <option>Lord Shiva (Natraja/Trishul)</option>
-                  <option>Buddha</option>
-                  <option>Om Symbol</option>
-                  <option>Mandala Art</option>
-                  <option>Tree of Life</option>
-                  <option>Islamic Calligraphy (Bismillah, Ayatul Kursi)</option>
-                  <option>Jesus / cross / Angel</option>
-                </select>
+                  <span>{formData.subcategory || "Select Subcategory"}</span>
+                  <ChevronDown
+                    size={18}
+                    className={`text-[#6B6B6B] transition-transform duration-200 ${
+                      open ? "rotate-180" : ""
+                    }`}
+                  />
+                </button>
 
-                {/* Chevron icon */}
-                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
+                {/* Sub Dropdown Menu */}
+                {subdropdown && (
+                  <ul className="absolute z-10 w-full border rounded-lg bg-white shadow-md max-h-60 overflow-y-auto text-[15px]">
+                    {Subcategories.map((p, i) => (
+                      <li
+                        key={i}
+                        onClick={() => {
+                          setFormData((prev) => ({ ...prev, subcategory: p }));
+                          setSubDropDown(false);
+                        }}
+                        className={`flex items-center justify-between px-4 py-2 hover:bg-[#FFEAD2] cursor-pointer ${
+                          selected === p ? "bg-gray-100 text-[#6B6B6B]" : ""
+                        }`}
+                      >
+                        <span>{p}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
             </div>
+
             {/* Tags */}
             <div>
               <label className="block text-sm font-medium mb-2">Tags</label>
               <div className="relative w-full">
-                <select
-                  className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#FAFAFA] 
-      text-sm text-[#6B6B6B] focus:outline-none focus:ring-2  appearance-none cursor-pointer"
-                  defaultValue=""
+                <button
+                  type="button"
+                  onClick={() => setTagsBtn((prev) => !prev)}
+                  className="w-full border rounded-lg px-4 h-[45px] flex items-center justify-between bg-[#FAFAFA] text-sm text-[#6B6B6B] focus:outline-none placeholder:text-[#6B6B6B]"
                 >
-                  <option value="" disabled hidden>
-                    Select Tags
-                  </option>
-                  <option>Bestseller</option>
-                  <option>Spiritual</option>
-                  <option>Gift</option>
-                </select>
+                  <span>{formData.tags || "Select Tags"}</span>
+                  <ChevronDown
+                    size={18}
+                    className={`text-[#6B6B6B] transition-transform duration-200 ${
+                      open ? "rotate-180" : ""
+                    }`}
+                  />
+                </button>
 
-                {/* Chevron icon */}
-                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
+                {tagsbtn && (
+                  <ul className="absolute z-10 w-full border rounded-lg bg-white shadow-md max-h-60 overflow-y-auto text-[15px]">
+                    {Tags.map((p, i) => (
+                      <li
+                        key={i}
+                        onClick={() => {
+                          setFormData((prev) => ({ ...prev, tags: p }));
+                          setTagsBtn(false);
+                        }}
+                        className={`flex items-center justify-between px-4 py-2 hover:bg-[#FFEAD2] cursor-pointer ${
+                          selected === p ? "bg-gray-100 text-[#6B6B6B]" : ""
+                        }`}
+                      >
+                        <span>{p}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
             </div>
 
@@ -272,19 +525,37 @@ const AddProduct = () => {
                 Material Type
               </label>
               <div className="relative w-full">
-                <select
-                  className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#FAFAFA] 
-      text-sm text-[#6B6B6B] focus:outline-none focus:ring-2  appearance-none cursor-pointer"
-                  defaultValue=""
+                <button
+                  onClick={() => setmaterialbtn((prev) => !prev)}
+                  className="w-full border rounded-lg px-4 h-[45px] flex items-center justify-between bg-[#FAFAFA] text-sm text-[#6B6B6B] focus:outline-none placeholder:text-[#6B6B6B]"
                 >
-                  <option value="" disabled hidden>
-                    Select Material Type
-                  </option>
-                  <option>Metal</option>
-                </select>
+                  <span>{formData.materialType || "Select Material Type"}</span>
+                  <ChevronDown
+                    size={18}
+                    className={`text-[#6B6B6B] transition-transform duration-200 ${
+                      open ? "rotate-180" : ""
+                    }`}
+                  />
+                </button>
 
-                {/* Chevron icon */}
-                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
+                {materialbtn && (
+                  <ul className="absolute z-10 w-full border rounded-lg bg-white shadow-md max-h-60 overflow-y-auto text-[15px]">
+                    {material.map((p, i) => (
+                      <li
+                        key={i}
+                        onClick={() => {
+                          setFormData((prev) => ({ ...prev, materialType: p }));
+                          setmaterialbtn(false);
+                        }}
+                        className={`flex items-center justify-between px-4 py-2 hover:bg-[#FFEAD2] cursor-pointer ${
+                          selected === p ? "bg-gray-100 text-[#6B6B6B]" : ""
+                        }`}
+                      >
+                        <span>{p}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
             </div>
 
@@ -293,6 +564,9 @@ const AddProduct = () => {
               <label className="block text-sm font-medium mb-2">Weight</label>
               <input
                 type="text"
+                name="weight"
+                value={formData.weight}
+                onChange={handleChange}
                 placeholder="Enter Product Weight"
                 className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#FAFAFA] text-sm placeholder-[#6B6B6B] text-gray-600 focus:outline-none"
               />
@@ -305,6 +579,9 @@ const AddProduct = () => {
               </label>
               <input
                 type="number"
+                name="stockQuantity"
+                value={formData.stockQuantity}
+                onChange={handleChange}
                 placeholder="Enter Total Quantity"
                 className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#FAFAFA] text-sm placeholder-[#6B6B6B] text-gray-600 focus:outline-none"
               />
@@ -315,6 +592,9 @@ const AddProduct = () => {
           <div className="mt-5 flex items-center gap-2">
             <input
               type="checkbox"
+              name="returnPolicy"
+              checked={formData.returnPolicy}
+              onChange={handleChange}
               className="w-4 h-4 border-gray-300 text-blue-600 focus:ring-blue-500"
             />
             <span className="text-sm font-medium text-black">
@@ -332,6 +612,9 @@ const AddProduct = () => {
             <label className="block text-sm font-medium mb-2">MRP</label>
             <input
               type="number"
+              name="mrp"
+              value={formData.mrp}
+              onChange={handleChange}
               placeholder="Enter MRP"
               className="w-[380px] h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#FAFAFA] text-sm text-gray-600 focus:outline-none"
             />
@@ -342,6 +625,9 @@ const AddProduct = () => {
             </label>
             <input
               type="number"
+              name="sellingPrice"
+              value={formData.sellingPrice}
+              onChange={handleChange}
               placeholder="Enter Selling Price"
               className="w-[380px] h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#FAFAFA] text-sm text-gray-600 focus:outline-none"
             />
@@ -352,6 +638,9 @@ const AddProduct = () => {
             </label>
             <input
               type="number"
+              name="costPrice"
+              value={formData.costPrice}
+              onChange={handleChange}
               placeholder="Enter Cost Price"
               className="w-[380px] h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#FAFAFA] text-sm text-gray-600 focus:outline-none"
             />
@@ -360,7 +649,10 @@ const AddProduct = () => {
             <label className="block text-sm font-medium mb-2">Profit</label>
             <input
               type="number"
-              placeholder="Auto calculated"
+              name="profit"
+              value={formData.profit}
+              onChange={handleChange}
+              placeholder="₹"
               className="w-[380px] h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#FAFAFA] text-sm text-gray-600 focus:outline-none"
             />
           </div>
@@ -370,6 +662,9 @@ const AddProduct = () => {
               <div className="flex flex-row">
                 <input
                   type="text"
+                  name="discountPercent"
+                  value={formData.discountAmount}
+                  onChange={handleChange}
                   placeholder="Discount %"
                   className="flex-1 border border-[#D0D0D0] rounded-l-lg  px-3 w-[170px] h-[45px] bg-[#FAFAFA] text-sm text-[#6B6B6B] placeholder-[#6B6B6B] focus:outline-none"
                 />
@@ -380,6 +675,9 @@ const AddProduct = () => {
               <div className="flex flex-row">
                 <input
                   type="text"
+                  name="discountAmount"
+                  value={formData.discountAmount}
+                  onChange={handleChange}
                   placeholder="Discount ₹"
                   className="flex-1 border border-[#D0D0D0] rounded-l-lg px-3 w-[170px] h-[45px] bg-[#FAFAFA] text-sm text-[#6B6B6B] placeholder-[#6B6B6B] focus:outline-none"
                 />
@@ -389,22 +687,182 @@ const AddProduct = () => {
               </div>
             </div>
           </div>
-          <div className="flex items-center gap-1 mt-6">
+          <div className="flex items-center gap-2 mt-7">
             <label className="flex items-center gap-2 text-sm font-medium mb-2">
               <input
                 type="checkbox"
+                name="includesTax"
+                value={formData.includesTax}
+                onChange={handleChange}
                 className="w-4 h-4  cursor-pointer"
               />
-             It includesTax?
+              It includesTax?
             </label>
 
             <input
               type="number"
-              placeholder="Enter Cost Price"
+              name="taxPercent"
+              value={formData.taxPercent}
+              onChange={handleChange}
+              placeholder="5%"
               className="w-[243px] h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#FAFAFA] text-sm text-gray-600 focus:outline-none"
             />
           </div>
         </div>
+      </div>
+      <div className="bg-white rounded-2xl border px-3 py-4 ">
+        <div className="mb-5">
+          <h1 className="text-[20px] font-medium">Product Variants</h1>
+          <p className="text-[#727272] text-[16px] font-normal">
+            Add Variants if the product comes in different option like size,
+            color or material
+          </p>
+        </div>
+        <div className="flex items-center gap-3">
+          <label className="flex cursor-pointer select-none items-center">
+            <div className="relative">
+              <input
+                type="checkbox"
+                name="hasVariants"
+                checked={formData.hasVariants}
+                onChange={(e) => {
+                  const checked = e.target.checked;
+                  setFormData((prev) => ({ ...prev, hasVariants: checked }));
+                  setItemsOpen(checked);
+                }}
+                className="sr-only"
+              />
+              <div
+                className={`block h-[18px] w-[34px] rounded-full transition-colors ${
+                  formData.hasVariants ? "bg-[#5BB401]" : "bg-[#E5E7EB]"
+                }`}
+              ></div>
+              <div
+                className={`absolute top-0.5 h-[13px] w-[13px] rounded-full bg-white transition-transform duration-200 ${
+                  formData.hasVariants ? "translate-x-[17px]" : "translate-x-0"
+                }`}
+              ></div>
+            </div>
+          </label>
+          <p className="text-[#2B2B2B] font-normal">
+            This product has Variants
+          </p>
+        </div>
+
+        {itemsopen && (
+          <div className="bg-white rounded-2xl border p-3 mt-6 ">
+            <div className="grid grid-cols-5 gap-x-48 ">
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  Variants
+                </label>
+                <div className="relative w-[280px] ">
+                  <button
+                    type="button"
+                    onClick={() => setVariantOpen((prev) => !prev)}
+                    className="w-full border rounded-lg px-4 h-[45px] flex items-center justify-between bg-[#FAFAFA] text-sm text-[#6B6B6B] focus:outline-none placeholder:text-[#6B6B6B]"
+                  >
+                    <span>{formData.variantType || "Select Option"}</span>
+
+                    <ChevronDown
+                      size={18}
+                      className={`text-[#6B6B6B] transition-transform duration-200 ${
+                        open ? "rotate-180" : ""
+                      }`}
+                    />
+                  </button>
+
+                  {variantopen && (
+                    <ul className="absolute z-10 w-full border rounded-lg bg-white shadow-md max-h-60 overflow-y-auto text-[15px]">
+                      {variant.map((p, i) => (
+                        <li
+                          key={i}
+                          onClick={() => {
+                            setFormData((prev) => ({
+                              ...prev,
+                              variantType: p,
+                            }));
+                            setVariantOpen(false);
+                          }}
+                          className={`flex items-center justify-between px-4 py-2 hover:bg-[#FFEAD2] cursor-pointer ${
+                            selected === p ? "bg-gray-100 text-[#6B6B6B]" : ""
+                          }`}
+                        >
+                          <span>{p}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Value</label>
+                <input
+                  type="number"
+                  name="variantValue"
+                  value={formData.variantValue}
+                  onChange={handleChange}
+                  placeholder="Enter Value"
+                  className="w-[280px] h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#FAFAFA] text-sm text-gray-600 focus:outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  Quantity
+                </label>
+                <input
+                  type="number"
+                  name="variantQuantity"
+                  value={formData.variantQuantity}
+                  onChange={handleChange}
+                  placeholder="Enter Quantity"
+                  className="w-[280px] h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#FAFAFA] text-sm text-gray-600 focus:outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  Reorder Limit
+                </label>
+                <input
+                  type="number"
+                  name="variantReorderLimit"
+                  value={formData.variantReorderLimit}
+                  onChange={handleChange}
+                  placeholder="Enter Reorder limit"
+                  className="w-[280px] h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#FAFAFA] text-sm text-gray-600 focus:outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-black text-sm font-medium mb-2">
+                  Product Image
+                </label>
+
+                <label
+                  htmlFor="productImage"
+                  className="w-[70px] h-[70px] bg-[#ECECF0] border border-neutral-200 rounded-lg flex items-center justify-center cursor-pointer hover:bg-gray-200 transition"
+                >
+                  <input
+                    id="productImage"
+                    type="file"
+                    multiple
+                    className="hidden"
+                    onChange={handleFileChange}
+                  />
+                  <div className="w-[25.55px] h-[25.55px] flex items-center justify-center rounded-full border border-[#D0D0D0] bg-white">
+                    <Plus className="text-[#5F5F5F] w-[10.95px] h-[10.95px]" />
+                  </div>
+                </label>
+              </div>
+            </div>
+            <div className="flex items-center justify-start">
+              {/* <Link to={`/admin/add-product`}> */}
+              <button className="bg-[#DD851F] text-white px-4 py-2 rounded-lg text-sm hover:bg-orange-600">
+                + Add Variants
+              </button>
+              {/* </Link> */}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Buttons */}
@@ -412,11 +870,14 @@ const AddProduct = () => {
         <button className="px-6 py-2 bg-gray-200 rounded-lg text-gray-800 font-medium hover:bg-gray-300">
           Cancel
         </button>
-        <button className="px-6 py-2 bg-lime-600 rounded-lg text-white font-medium hover:bg-lime-700">
+        <button
+          type="submit"
+          className="px-6 py-2 bg-lime-600 rounded-lg text-white font-medium hover:bg-lime-700"
+        >
           Save
         </button>
       </div>
-    </div>
+    </form>
   );
 };
 
