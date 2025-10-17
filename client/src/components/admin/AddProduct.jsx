@@ -12,8 +12,9 @@ import {
   Percent,
   PercentCircle,
   Plus,
+  Trash,
 } from "lucide-react";
-import { Link } from "react-router";
+import { data, Link } from "react-router";
 
 const AddProduct = () => {
   const dispatch = useDispatch();
@@ -52,7 +53,7 @@ const AddProduct = () => {
     variantValue: "",
     variantQuantity: "",
     variantReorderLimit: "",
-    variantImage: null,
+    variantImage: [],
   });
 
   const [images, setImages] = useState([]);
@@ -64,26 +65,106 @@ const AddProduct = () => {
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
+
+    const update = { ...formData, [name]: value };
+    // Convert to numbers for calculation
+
+    const mrp = parseFloat(update.mrp) || 0;
+    const sellingPrice = parseFloat(update.sellingPrice) || 0;
+
+    // Calculate discount only  MRP and Selling Price are valid
+    if (mrp > 0 && sellingPrice >= 0 && sellingPrice <= mrp) {
+      const discountAmount = mrp - sellingPrice;
+      const discountPercent = ((discountAmount / mrp) * 100).toFixed(2);
+
+      update.discountAmount = discountAmount.toFixed(2);
+      update.discountPercent = discountPercent;
+    } else {
+      // reset if invalid
+      update.discountAmount = "";
+      update.discountPercent = "";
+    }
+    setFormData(update);
+
+    // Convert inputs to numbers for calculation
+    // // to generated in profit
+    const sp = parseFloat(update.sellingPrice) || 0;
+    const cp = parseFloat(update.costPrice) || 0;
+
+    // ✅ Calculate Profit and Profit %
+
+    if (sp > 0 && cp > 0) {
+      const profit = sp - cp;
+      update.profit = profit.toFixed(2);
+    } else {
+      update.profit = "";
+    }
+    setFormData(update);
   };
 
   // handle image files
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files);
+    // ✅ Allowed types
+
+    const allowedTypes = [
+      "image/png",
+      "image/jpeg",
+      "image/jpg",
+      "image/webp",
+      "image/svg+xml",
+    ];
+
+    // ✅ Filter invalid types
+    const validFiles = files.filter((file) => allowedTypes.includes(file.type));
+
+    if (validFiles.length !== files.length) {
+      alert("Only PNG, JPG, JPEG, WEBP, and SVG formats are allowed.");
+    }
+
+    // ✅ Filter out duplicates by comparing the name and size (to ensure the same image isn't added twice)
+    const newFiles = validFiles.filter(
+      (file) =>
+        !formData.images.some(
+          (existingFile) =>
+            existingFile.name === file.name && existingFile.size === file.size
+        )
+    );
+
+    // If we have more than 4 images already, prevent adding more
+    if (formData.images.length + newFiles.length > 4) {
+      alert("You can upload a maximum of 4 images.");
+      return; // Prevent further action
+    }
+
+    // ✅ Combine current images with new valid files
+
+    const updateImages = [...formData.images, ...newFiles];
+
     setFormData((prev) => ({
       ...prev,
-      images: [...prev.images, ...files],
+      images: updateImages,
     }));
+    e.target.value = "";
   };
 
   //variant image:
+
+  const [variantImage, setVariantImage] = useState(null);
+
   const handleVariantImageChange = (e) => {
-    const file = e.target.files[0];
+    const files = Array.from(e.target.files); // convert FileList → Array
     setFormData((prev) => ({
       ...prev,
-      variantImage: file,
+      variantImages: [...(prev.variantImage || []), ...files], // merge arrays correctly
     }));
   };
 
+  const removeVariantImage = (index) => {
+    setFormData((prev) => ({
+      variantImage: prev.variantImage.filter(),
+    }));
+  };
   // submit handler
 
   const handleSubmit = (e) => {
@@ -123,7 +204,7 @@ const AddProduct = () => {
       variantValue: "",
       variantQuantity: "",
       variantReorderLimit: "",
-      variantImage: null,
+      variantImage: [],
     });
 
     //  and the data save is local storage and saved
@@ -157,6 +238,14 @@ const AddProduct = () => {
 
     // dispatch thunk
     dispatch(addProduct(formDataObj));
+  };
+
+  // sku id generated in random
+  const generatedSKU = () => {
+    // const prefix = "SKU";
+    const random = Math.floor(100000 + Math.random() * 900000000000); // 6 randome digits
+    const newSKU = `${random}`;
+    setFormData((prev) => ({ ...prev, SKU: newSKU }));
   };
 
   // this is first drop down
@@ -224,6 +313,20 @@ const AddProduct = () => {
   // the hidden items in bottom
 
   const [itemsopen, setItemsOpen] = useState(false);
+
+  // The dropdown in gst
+
+  const [opengstbosx, setOpenGstBox] = useState(false);
+  const [gastrate, setGstRate] = useState("5%");
+
+  const gstRateList = [
+    "0.1%(special Rate)",
+    "3%(Jewelery,gold,etc)",
+    "5%(Essential Goods)",
+    "12%(Processed Goods)",
+    "18%(Standard Rate)",
+    "28%(Luxury items)",
+  ];
 
   return (
     <form
@@ -314,45 +417,55 @@ const AddProduct = () => {
               Product Image
             </label>
 
-            <label
-              htmlFor="productImage"
-              className="w-[137px] h-[137px] bg-[#ECECF0] border border-neutral-200 rounded-lg 
-      flex items-center justify-center cursor-pointer hover:bg-gray-200 transition"
-            >
-              <input
-                id="productImage"
-                type="file"
-                multiple
-                className="hidden"
-                onChange={handleFileChange}
-              />
-              <div className="w-12 h-12 flex items-center justify-center rounded-full border border-[#D0D0D0] bg-white">
-                <Plus className="text-[#5F5F5F] w-6 h-6" />
-              </div>
-            </label>
-            {/* Image Preview Section  */}
-            <div className="flex  gap-3">
+            <div className="flex flex-wrap gap-3 items-start">
+              {/* Image Preview Section */}
               {formData.images.map((img, i) => (
-                <div key={i} className="relative">
+                <div key={i} className="relative group">
                   <img
                     src={URL.createObjectURL(img)}
                     alt={`preview ${i}`}
                     className="w-[137px] h-[137px] object-cover rounded-lg border border-neutral-200"
                   />
+
+                  <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition rounded-lg"></div>
+
+                  {/*Overlay Remove button */}
                   <button
                     type="button"
                     onClick={() => {
                       setFormData((prev) => ({
                         ...prev,
-                        images: prev.images.filter((_, index) => index != i),
+                        images: prev.images.filter((_, index) => index !== i),
                       }));
                     }}
-                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs"
+                    className="absolute top-2 right-2 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition"
                   >
-                    ×
+                    <Trash size={20} />
                   </button>
                 </div>
               ))}
+
+              {/* Upload Box */}
+              {formData.images.length < 4 && (
+                <label
+                  htmlFor="productImage"
+                  className="w-[137px] h-[137px] bg-[#ECECF0] border border-neutral-200 rounded-lg 
+        flex items-center justify-center cursor-pointer hover:bg-gray-200 transition"
+                >
+                  <input
+                    id="productImage"
+                    type="file"
+                    multiple
+                    accept=".png,.jpg,.jpeg,.webp,.svg"
+                    className="hidden"
+                    onChange={handleFileChange}
+                  />
+                  <div className="w-12 h-12 flex items-center justify-center rounded-full border border-[#D0D0D0] bg-white">
+                    
+                    <Plus className="text-[#5F5F5F] w-6 h-6" />
+                  </div>
+                </label>
+              )}
             </div>
           </div>
         </div>
@@ -378,7 +491,11 @@ const AddProduct = () => {
                   placeholder="Generate SKU ID"
                   className="flex-1 border border-[#D0D0D0] rounded-l-lg h-[45px] px-3  bg-[#FAFAFA] text-sm text-[#6B6B6B] placeholder-[#6B6B6B] focus:outline-none"
                 />
-                <button className="bg-amber-600 text-white px-4 rounded-r-lg hover:bg-amber-700">
+                <button
+                  type="button"
+                  className="bg-amber-600 text-white px-4 rounded-r-lg hover:bg-amber-700"
+                  onClick={generatedSKU}
+                >
                   Generate
                 </button>
               </div>
@@ -526,6 +643,7 @@ const AddProduct = () => {
               </label>
               <div className="relative w-full">
                 <button
+                  type="button"
                   onClick={() => setmaterialbtn((prev) => !prev)}
                   className="w-full border rounded-lg px-4 h-[45px] flex items-center justify-between bg-[#FAFAFA] text-sm text-[#6B6B6B] focus:outline-none placeholder:text-[#6B6B6B]"
                 >
@@ -590,16 +708,21 @@ const AddProduct = () => {
 
           {/* Return Eligible Checkbox */}
           <div className="mt-5 flex items-center gap-2">
-            <input
-              type="checkbox"
-              name="returnPolicy"
-              checked={formData.returnPolicy}
-              onChange={handleChange}
-              className="w-4 h-4 border-gray-300 text-blue-600 focus:ring-blue-500"
-            />
-            <span className="text-sm font-medium text-black">
+            <label className="flex items-center gap-2 text-sm font-medium">
+              <input
+                type="checkbox"
+                name="returnPolicy"
+                checked={formData.returnPolicy}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    [e.target.name]: e.target.checked,
+                  }))
+                }
+                className="w-4 h-4 border-gray-300 text-blue-600 focus:ring-blue-500"
+              />
               Eligible for return
-            </span>
+            </label>
           </div>
         </div>
       </div>
@@ -651,7 +774,8 @@ const AddProduct = () => {
               type="number"
               name="profit"
               value={formData.profit}
-              onChange={handleChange}
+              readOnly
+              // onChange={handleChange}
               placeholder="₹"
               className="w-[380px] h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#FAFAFA] text-sm text-gray-600 focus:outline-none"
             />
@@ -663,7 +787,7 @@ const AddProduct = () => {
                 <input
                   type="text"
                   name="discountPercent"
-                  value={formData.discountAmount}
+                  value={formData.discountPercent}
                   onChange={handleChange}
                   placeholder="Discount %"
                   className="flex-1 border border-[#D0D0D0] rounded-l-lg  px-3 w-[170px] h-[45px] bg-[#FAFAFA] text-sm text-[#6B6B6B] placeholder-[#6B6B6B] focus:outline-none"
@@ -698,15 +822,43 @@ const AddProduct = () => {
               />
               It includesTax?
             </label>
+            <div>
+              <div className="relative inline-block w-[243px] h-[45px] ">
+                <button
+                  type="button"
+                  onClick={() => setOpenGstBox((prev) => !prev)}
+                  className="w-full border rounded-lg px-4 h-[45px] flex items-center justify-between bg-[#FAFAFA] text-sm text-[#6B6B6B] focus:outline-none placeholder:text-[#6B6B6B]"
+                >
+                  <span>{formData.taxPercent || "5%"}</span>
+                  <ChevronDown
+                    size={18}
+                    className={`text-[#6B6B6B] transition-transform duration-200 ${
+                      open ? "rotate-180" : ""
+                    }`}
+                  />
+                </button>
 
-            <input
-              type="number"
-              name="taxPercent"
-              value={formData.taxPercent}
-              onChange={handleChange}
-              placeholder="5%"
-              className="w-[243px] h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#FAFAFA] text-sm text-gray-600 focus:outline-none"
-            />
+                {/* Sub Dropdown Menu */}
+                {opengstbosx && (
+                  <ul className="absolute z-10 w-full border rounded-lg bg-white shadow-md max-h-60 overflow-y-auto text-[15px]">
+                    {gstRateList.map((p, i) => (
+                      <li
+                        key={i}
+                        onClick={() => {
+                          setFormData((prev) => ({ ...prev, taxPercent: p }));
+                          setOpenGstBox(false);
+                        }}
+                        className={`flex items-center justify-between px-4 py-2 hover:bg-[#FFEAD2] cursor-pointer ${
+                          selected === p ? "bg-gray-100 text-[#6B6B6B]" : ""
+                        }`}
+                      >
+                        <span>{p}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -833,33 +985,76 @@ const AddProduct = () => {
                 />
               </div>
               <div>
+                <label className="block text-sm font-medium mb-2">
+                  Product Image
+                </label>
+
+                <div className="relative w-[60px] h-[60px]">
+                  {!variantImage ? (
+                    // ✅ Upload box visible initially
+                    <label
+                      htmlFor="variantImage"
+                      className="w-[60px] h-[60px] bg-[#ECECF0] border border-neutral-200 rounded-lg 
+              flex items-center justify-center cursor-pointer hover:bg-gray-200 transition"
+                    >
+                      <input
+                        id="variantImage"
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handleVariantImageChange}
+                      />
+                      <div className="w-[22px] h-[22px] flex items-center justify-center rounded-full border border-[#D0D0D0] bg-white">
+                        <Plus className="text-[#5F5F5F] w-[9px] h-[9px]" />
+                      </div>
+                    </label>
+                  ) : (
+                    // ✅ Display uploaded image (input hidden)
+                    <div className="relative">
+                      <img
+                        src={URL.createObjectURL(variantImage)}
+                        alt="Variant"
+                        className="w-[60px] h-[60px] object-cover rounded-lg border border-neutral-200"
+                      />
+
+                      {/* Remove Button */}
+                      <button
+                        type="button"
+                        onClick={removeVariantImage}
+                        className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px]"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+              {/* <div>
                 <label className="block text-black text-sm font-medium mb-2">
                   Product Image
                 </label>
 
                 <label
                   htmlFor="productImage"
-                  className="w-[70px] h-[70px] bg-[#ECECF0] border border-neutral-200 rounded-lg flex items-center justify-center cursor-pointer hover:bg-gray-200 transition"
+                  className="w-[60px] h-[60px] bg-[#ECECF0] border border-neutral-200 rounded-lg flex items-center justify-center cursor-pointer hover:bg-gray-200 transition "
                 >
                   <input
                     id="productImage"
                     type="file"
                     multiple
                     className="hidden"
-                    onChange={handleFileChange}
+                    onChange={handleVariantImageChange}
                   />
-                  <div className="w-[25.55px] h-[25.55px] flex items-center justify-center rounded-full border border-[#D0D0D0] bg-white">
-                    <Plus className="text-[#5F5F5F] w-[10.95px] h-[10.95px]" />
+                  <div className="w-[22px] h-[22px] flex items-center justify-center rounded-full border border-[#D0D0D0] bg-white">
+                    <Plus className="text-[#5F5F5F] w-[9px] h-[9px]" />
                   </div>
                 </label>
-              </div>
+              </div> */}
             </div>
-            <div className="flex items-center justify-start">
-              {/* <Link to={`/admin/add-product`}> */}
+            <div className="flex items-center justify-start mt-3">
               <button className="bg-[#DD851F] text-white px-4 py-2 rounded-lg text-sm hover:bg-orange-600">
                 + Add Variants
               </button>
-              {/* </Link> */}
             </div>
           </div>
         )}

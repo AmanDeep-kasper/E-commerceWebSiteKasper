@@ -108,7 +108,7 @@ function AdminSidebar() {
               isCollapsed ? "justify-center" : ""
             } gap-3 p-3 mb-1 rounded-lg transition-all duration-200 ${
               isActive(path)
-                ? "bg-blue-600 text-white shadow-lg"
+                ? "bg-[#DD851F] text-white shadow-lg"
                 : "text-gray-300 hover:bg-neutral-600 hover:text-white"
             }`}
             key={name}
