@@ -15,6 +15,7 @@ import {
   Trash,
 } from "lucide-react";
 import { data, Link } from "react-router";
+import AddCategoryPopUp from "./AddCategoryPopUp";
 
 const AddProduct = () => {
   const dispatch = useDispatch();
@@ -171,14 +172,41 @@ const AddProduct = () => {
     e.preventDefault();
     console.log("Form Data:", formData);
 
-    //empty
+    // Create FormData object for multipart/form-data
+    const formDataObj = new FormData();
+    Object.keys(formData).forEach((key) => {
+      if (Array.isArray(formData[key])) {
+        formData[key].forEach((item) => formDataObj.append(key, item));
+      } else {
+        formDataObj.append(key, formData[key]);
+      }
+    });
+
+    // Dispatch thunk to save data
+    dispatch(addProduct(formDataObj));
+
+    // Save current form data to localStorage
+    localStorage.setItem("addProductForm", JSON.stringify(formData));
+
+    // Load saved form data from localStorage on mount
+    useEffect(() => {
+      const saved = localStorage.getItem("addProductForm");
+      if (saved) {
+        setFormData(JSON.parse(saved));
+        console.log("Loaded saved form:", saved);
+      }
+    }, []);
+
+    // Save form data to localStorage whenever it changes
+    useEffect(() => {
+      localStorage.setItem("addProductForm", JSON.stringify(formData));
+    }, [formData]);
+    // Reset form
     setFormData({
       type: "",
       title: "",
       description: "",
       images: [],
-
-      // Product details
       SKU: "",
       category: "",
       subcategory: "",
@@ -187,8 +215,6 @@ const AddProduct = () => {
       weight: "",
       stockQuantity: "",
       returnPolicy: false,
-
-      // Pricing
       mrp: "",
       sellingPrice: "",
       costPrice: "",
@@ -197,8 +223,6 @@ const AddProduct = () => {
       discountAmount: "",
       includesTax: false,
       taxPercent: "",
-
-      // Product Variants
       hasVariants: false,
       variantType: "",
       variantValue: "",
@@ -206,38 +230,6 @@ const AddProduct = () => {
       variantReorderLimit: "",
       variantImage: [],
     });
-
-    //  and the data save is local storage and saved
-    useEffect(() => {
-      const saved = localStorage.setItem(
-        "addProductForm",
-        JSON.stringify(formData)
-      );
-    }, [formData]);
-
-    useEffect(() => {
-      const saved = localStorage.getItem("addProductForm");
-
-      if (saved) {
-        setFormData(JSON.stringify(saved), console.log(saved));
-      }
-    }, []);
-
-    // create FormData for multipart
-    const formDataObj = new FormData();
-    Object.keys(formData).forEach((key) => {
-      formDataObj.append(key, formData[key]);
-    });
-
-    // append multiple images
-    if (images.length > 0) {
-      images.forEach((file) => {
-        formDataObj.append("images", file);
-      });
-    }
-
-    // dispatch thunk
-    dispatch(addProduct(formDataObj));
   };
 
   // sku id generated in random
@@ -328,594 +320,200 @@ const AddProduct = () => {
     "28%(Luxury items)",
   ];
 
+  // Category dropdown
+  // const [addopen, setAddOpen] = useState(false);
+  // const [addprice, setAddPrice] = useState(["Painting", "Sculpture"]); // example categories
+
+  // Modal for adding new category
+  const [showCategoryModal, setShowCategoryModal] = useState(false);
+  const [newCategory, setNewCategory] = useState("");
+
   return (
-    <form
-      className=" rounded-md min-h-screen "
-      onSubmit={handleSubmit}
-      encType="multipart/form-data"
-    >
-      {/* Header */}
-      <div className="h-16 bg-white rounded-lg  flex items-center gap-3 px-4">
-        <Link to={`/admin/products`}>
-          <div className=" flex items-center">
-            <ArrowLeft className="w-6 h-6 text-gray-800" />
-            <h1 className="text-black text-[20px] font-semibold font-['Inter']">
-              Add Product
-            </h1>
-          </div>
-        </Link>
-      </div>
+    <>
+      {showCategoryModal && (
+        <AddCategoryPopUp
+          setNewCategory={setNewCategory}
+          newCategory={newCategory}
+          setShowCategoryModal={setShowCategoryModal}
+        />
+      )}
 
-      {/* Product Info Grid */}
-      <div className="grid lg:grid-cols-2 gap-6 mt-4">
-        {/* Left Section */}
-        <div className="bg-white rounded-2xl border p-6">
-          <h2 className="flex items-center gap-2 text-[20px] font-medium font-['Inter'] mb-4">
-            <Package className="w-6 h-6 text-gray-700" />
-            Basic Information
-          </h2>
-
-          <div className="flex gap-6 mb-5 ">
-            {["Framed", "Unframed"].map((option) => (
-              <label
-                key={option}
-                className="flex items-center gap-2 cursor-pointer"
-              >
-                <input
-                  type="radio"
-                  name="type"
-                  value={option}
-                  checked={formData.type === option}
-                  onChange={handleChange}
-                  className="scale-125 text-blue-600 border-gray-300 focus:ring-blue-500"
-                />
-
-                <span className="text-stone-600 text-sm font-normal">
-                  {option}
-                </span>
-              </label>
-            ))}
-          </div>
-
-          {/* Product Title */}
-          <div className="mb-5">
-            <label className="block text-black text-[14px] font-medium mb-2">
-              Product Title
-            </label>
-            <input
-              type="text"
-              name="title"
-              value={formData.title}
-              onChange={handleChange}
-              placeholder="Enter Product Name"
-              className="w-full h-[45px] border border-[#D0D0D0] rounded-md px-3 py-2
-          text-[#6B6B6B] text-sm font-normal bg-[#FAFAFA]
-          focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400"
-            />
-          </div>
-
-          {/* Description */}
-          <div className="mb-5">
-            <label className="block text-black text-[14px] font-medium mb-2">
-              Description
-            </label>
-            <textarea
-              placeholder="Description"
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              rows="3"
-              className="w-full border border-[#D0D0D0] rounded-md px-3 py-2
-          text-[#6B6B6B] text-sm font-normal bg-[#FAFAFA]
-          focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 resize-none"
-            ></textarea>
-          </div>
-
-          {/* Product Image Upload */}
-          <div>
-            <label className="block text-black text-sm font-medium mb-2">
-              Product Image
-            </label>
-
-            <div className="flex flex-wrap gap-3 items-start">
-              {/* Image Preview Section */}
-              {formData.images.map((img, i) => (
-                <div key={i} className="relative group">
-                  <img
-                    src={URL.createObjectURL(img)}
-                    alt={`preview ${i}`}
-                    className="w-[137px] h-[137px] object-cover rounded-lg border border-neutral-200"
-                  />
-
-                  <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition rounded-lg"></div>
-
-                  {/*Overlay Remove button */}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setFormData((prev) => ({
-                        ...prev,
-                        images: prev.images.filter((_, index) => index !== i),
-                      }));
-                    }}
-                    className="absolute top-2 right-2 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition"
-                  >
-                    <Trash size={20} />
-                  </button>
-                </div>
-              ))}
-
-              {/* Upload Box */}
-              {formData.images.length < 4 && (
-                <label
-                  htmlFor="productImage"
-                  className="w-[137px] h-[137px] bg-[#ECECF0] border border-neutral-200 rounded-lg 
-        flex items-center justify-center cursor-pointer hover:bg-gray-200 transition"
-                >
-                  <input
-                    id="productImage"
-                    type="file"
-                    multiple
-                    accept=".png,.jpg,.jpeg,.webp,.svg"
-                    className="hidden"
-                    onChange={handleFileChange}
-                  />
-                  <div className="w-12 h-12 flex items-center justify-center rounded-full border border-[#D0D0D0] bg-white">
-                    
-                    <Plus className="text-[#5F5F5F] w-6 h-6" />
-                  </div>
-                </label>
-              )}
+      <form
+        className=" rounded-md min-h-screen "
+        onSubmit={handleSubmit}
+        encType="multipart/form-data">
+        {/* Header */}
+        <div className="h-16 bg-white rounded-lg  flex items-center gap-3 px-4">
+          <Link to={`/admin/products`}>
+            <div className=" flex items-center">
+              <ArrowLeft className="w-6 h-6 text-gray-800" />
+              <h1 className="text-black text-[20px] font-semibold font-['Inter']">
+                Add Product
+              </h1>
             </div>
-          </div>
+          </Link>
         </div>
 
-        {/* /////////////////////////////////////////// */}
-        {/* Right Section */}
+        {/* Product Info Grid */}
+        <div className="grid lg:grid-cols-2 gap-6 mt-4">
+          {/* Left Section */}
+          <div className="bg-white rounded-2xl border p-6">
+            <h2 className="flex items-center gap-2 text-[20px] font-medium font-['Inter'] mb-4">
+              <Package className="w-6 h-6 text-gray-700" />
+              Basic Information
+            </h2>
 
-        <div className="bg-white rounded-2xl border p-6">
-          <h2 className="text-black text-[20px] font-medium mb-4">
-            Product Details
-          </h2>
+            <div className="flex gap-6 mb-5 ">
+              {["Framed", "Unframed"].map((option) => (
+                <label
+                  key={option}
+                  className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="type"
+                    value={option}
+                    checked={formData.type === option}
+                    onChange={handleChange}
+                    className="scale-125 text-blue-600 border-gray-300 focus:ring-blue-500"
+                  />
 
-          <div className="grid grid-cols-2 gap-6">
-            {/* SKU ID */}
-            <div>
-              <label className="block text-sm font-medium mb-2">SKU ID</label>
-              <div className="flex">
-                <input
-                  type="text"
-                  name="SKU"
-                  value={formData.SKU}
-                  onChange={handleChange}
-                  placeholder="Generate SKU ID"
-                  className="flex-1 border border-[#D0D0D0] rounded-l-lg h-[45px] px-3  bg-[#FAFAFA] text-sm text-[#6B6B6B] placeholder-[#6B6B6B] focus:outline-none"
-                />
-                <button
-                  type="button"
-                  className="bg-amber-600 text-white px-4 rounded-r-lg hover:bg-amber-700"
-                  onClick={generatedSKU}
-                >
-                  Generate
-                </button>
-              </div>
-            </div>
-
-            {/* Category */}
-            <div>
-              <div className="relative inline-block w-full">
-                <label className="block text-sm font-medium mb-2">
-                  Category
+                  <span className="text-stone-600 text-sm font-normal">
+                    {option}
+                  </span>
                 </label>
-                <button
-                  type="button"
-                  onClick={() => setOpen((prev) => !prev)}
-                  className="w-full border rounded-lg px-4 h-[45px] flex items-center justify-between bg-[#FAFAFA] text-sm text-[#6B6B6B] focus:outline-none placeholder:text-[#6B6B6B]"
-                >
-                  <span>{formData.category || "Select Category"}</span>
-                  <ChevronDown
-                    size={18}
-                    className={`text-[#6B6B6B] transition-transform duration-200 ${
-                      open ? "rotate-180" : ""
-                    }`}
-                  />
-                </button>
-
-                {/* Price Dropdown Menu */}
-                {open && (
-                  <ul className="absolute z-10 w-full border rounded-lg bg-white shadow-md max-h-60 overflow-y-auto text-[15px]">
-                    {price.map((p, i) => (
-                      <li
-                        key={i}
-                        onClick={() => {
-                          setFormData((prev) => ({ ...prev, category: p }));
-                          setOpen(false);
-                        }}
-                        className={`flex items-center justify-between px-4 py-2 hover:bg-[#FFEAD2] cursor-pointer ${
-                          formData.category === p
-                            ? "bg-gray-100 text-[#6B6B6B]"
-                            : ""
-                        }`}
-                      >
-                        <span>{p}</span>
-                      </li>
-                    ))}
-
-                    {/* Add Category button inside dropdown */}
-                    <li className="sticky bottom-0 bg-white px-1 py-2 flex justify-center">
-                      <button
-                        type="button"
-                        className="bg-[#DD851F] text-white px-3 py-2 rounded-md hover:bg-orange-600 w-full"
-                      >
-                        + Add Category
-                      </button>
-                    </li>
-                  </ul>
-                )}
-              </div>
+              ))}
             </div>
 
-            {/* Sub Category */}
-            <div>
-              <div className="relative inline-block w-full ">
-                <label className="block text-sm font-medium mb-2">
-                  Sub Category
-                </label>
-                <button
-                  type="button"
-                  onClick={() => setSubDropDown((prev) => !prev)}
-                  className="w-full border rounded-lg px-4 h-[45px] flex items-center justify-between bg-[#FAFAFA] text-sm text-[#6B6B6B] focus:outline-none placeholder:text-[#6B6B6B]"
-                >
-                  <span>{formData.subcategory || "Select Subcategory"}</span>
-                  <ChevronDown
-                    size={18}
-                    className={`text-[#6B6B6B] transition-transform duration-200 ${
-                      open ? "rotate-180" : ""
-                    }`}
-                  />
-                </button>
-
-                {/* Sub Dropdown Menu */}
-                {subdropdown && (
-                  <ul className="absolute z-10 w-full border rounded-lg bg-white shadow-md max-h-60 overflow-y-auto text-[15px]">
-                    {Subcategories.map((p, i) => (
-                      <li
-                        key={i}
-                        onClick={() => {
-                          setFormData((prev) => ({ ...prev, subcategory: p }));
-                          setSubDropDown(false);
-                        }}
-                        className={`flex items-center justify-between px-4 py-2 hover:bg-[#FFEAD2] cursor-pointer ${
-                          selected === p ? "bg-gray-100 text-[#6B6B6B]" : ""
-                        }`}
-                      >
-                        <span>{p}</span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-            </div>
-
-            {/* Tags */}
-            <div>
-              <label className="block text-sm font-medium mb-2">Tags</label>
-              <div className="relative w-full">
-                <button
-                  type="button"
-                  onClick={() => setTagsBtn((prev) => !prev)}
-                  className="w-full border rounded-lg px-4 h-[45px] flex items-center justify-between bg-[#FAFAFA] text-sm text-[#6B6B6B] focus:outline-none placeholder:text-[#6B6B6B]"
-                >
-                  <span>{formData.tags || "Select Tags"}</span>
-                  <ChevronDown
-                    size={18}
-                    className={`text-[#6B6B6B] transition-transform duration-200 ${
-                      open ? "rotate-180" : ""
-                    }`}
-                  />
-                </button>
-
-                {tagsbtn && (
-                  <ul className="absolute z-10 w-full border rounded-lg bg-white shadow-md max-h-60 overflow-y-auto text-[15px]">
-                    {Tags.map((p, i) => (
-                      <li
-                        key={i}
-                        onClick={() => {
-                          setFormData((prev) => ({ ...prev, tags: p }));
-                          setTagsBtn(false);
-                        }}
-                        className={`flex items-center justify-between px-4 py-2 hover:bg-[#FFEAD2] cursor-pointer ${
-                          selected === p ? "bg-gray-100 text-[#6B6B6B]" : ""
-                        }`}
-                      >
-                        <span>{p}</span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-            </div>
-
-            {/* Material */}
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                Material Type
+            {/* Product Title */}
+            <div className="mb-5">
+              <label className="block text-black text-[14px] font-medium mb-2">
+                Product Title
               </label>
-              <div className="relative w-full">
-                <button
-                  type="button"
-                  onClick={() => setmaterialbtn((prev) => !prev)}
-                  className="w-full border rounded-lg px-4 h-[45px] flex items-center justify-between bg-[#FAFAFA] text-sm text-[#6B6B6B] focus:outline-none placeholder:text-[#6B6B6B]"
-                >
-                  <span>{formData.materialType || "Select Material Type"}</span>
-                  <ChevronDown
-                    size={18}
-                    className={`text-[#6B6B6B] transition-transform duration-200 ${
-                      open ? "rotate-180" : ""
-                    }`}
-                  />
-                </button>
-
-                {materialbtn && (
-                  <ul className="absolute z-10 w-full border rounded-lg bg-white shadow-md max-h-60 overflow-y-auto text-[15px]">
-                    {material.map((p, i) => (
-                      <li
-                        key={i}
-                        onClick={() => {
-                          setFormData((prev) => ({ ...prev, materialType: p }));
-                          setmaterialbtn(false);
-                        }}
-                        className={`flex items-center justify-between px-4 py-2 hover:bg-[#FFEAD2] cursor-pointer ${
-                          selected === p ? "bg-gray-100 text-[#6B6B6B]" : ""
-                        }`}
-                      >
-                        <span>{p}</span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-            </div>
-
-            {/* Weight */}
-            <div>
-              <label className="block text-sm font-medium mb-2">Weight</label>
               <input
                 type="text"
-                name="weight"
-                value={formData.weight}
+                name="title"
+                value={formData.title}
                 onChange={handleChange}
-                placeholder="Enter Product Weight"
-                className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#FAFAFA] text-sm placeholder-[#6B6B6B] text-gray-600 focus:outline-none"
+                placeholder="Enter Product Name"
+                className="w-full h-[45px] border border-[#D0D0D0] rounded-md px-3 py-2
+          text-[#6B6B6B] text-sm font-normal bg-[#FAFAFA]
+          focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400"
               />
             </div>
 
-            {/* Stock */}
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                Stock Quantity
+            {/* Description */}
+            <div className="mb-5">
+              <label className="block text-black text-[14px] font-medium mb-2">
+                Description
               </label>
-              <input
-                type="number"
-                name="stockQuantity"
-                value={formData.stockQuantity}
+              <textarea
+                placeholder="Description"
+                name="description"
+                value={formData.description}
                 onChange={handleChange}
-                placeholder="Enter Total Quantity"
-                className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#FAFAFA] text-sm placeholder-[#6B6B6B] text-gray-600 focus:outline-none"
-              />
+                rows="3"
+                className="w-full border border-[#D0D0D0] rounded-md px-3 py-2
+          text-[#6B6B6B] text-sm font-normal bg-[#FAFAFA]
+          focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 resize-none"></textarea>
             </div>
-          </div>
 
-          {/* Return Eligible Checkbox */}
-          <div className="mt-5 flex items-center gap-2">
-            <label className="flex items-center gap-2 text-sm font-medium">
-              <input
-                type="checkbox"
-                name="returnPolicy"
-                checked={formData.returnPolicy}
-                onChange={(e) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    [e.target.name]: e.target.checked,
-                  }))
-                }
-                className="w-4 h-4 border-gray-300 text-blue-600 focus:ring-blue-500"
-              />
-              Eligible for return
-            </label>
-          </div>
-        </div>
-      </div>
-
-      {/* Pricing Section */}
-      <div className="bg-white rounded-2xl border p-6 mt-6">
-        <h2 className="text-black text-xl font-medium mb-4">Pricing</h2>
-        <div className="grid grid-cols-3 gap-5">
-          <div>
-            <label className="block text-sm font-medium mb-2">MRP</label>
-            <input
-              type="number"
-              name="mrp"
-              value={formData.mrp}
-              onChange={handleChange}
-              placeholder="Enter MRP"
-              className="w-[380px] h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#FAFAFA] text-sm text-gray-600 focus:outline-none"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-2">
-              Selling Price (₹)
-            </label>
-            <input
-              type="number"
-              name="sellingPrice"
-              value={formData.sellingPrice}
-              onChange={handleChange}
-              placeholder="Enter Selling Price"
-              className="w-[380px] h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#FAFAFA] text-sm text-gray-600 focus:outline-none"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-2">
-              Cost Price (₹)
-            </label>
-            <input
-              type="number"
-              name="costPrice"
-              value={formData.costPrice}
-              onChange={handleChange}
-              placeholder="Enter Cost Price"
-              className="w-[380px] h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#FAFAFA] text-sm text-gray-600 focus:outline-none"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-2">Profit</label>
-            <input
-              type="number"
-              name="profit"
-              value={formData.profit}
-              readOnly
-              // onChange={handleChange}
-              placeholder="₹"
-              className="w-[380px] h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#FAFAFA] text-sm text-gray-600 focus:outline-none"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-2">Discount</label>
-            <div className="flex  items-center gap-2">
-              <div className="flex flex-row">
-                <input
-                  type="text"
-                  name="discountPercent"
-                  value={formData.discountPercent}
-                  onChange={handleChange}
-                  placeholder="Discount %"
-                  className="flex-1 border border-[#D0D0D0] rounded-l-lg  px-3 w-[170px] h-[45px] bg-[#FAFAFA] text-sm text-[#6B6B6B] placeholder-[#6B6B6B] focus:outline-none"
-                />
-                <div className="bg-[#D0D0D0] text-[#000000] px-4  py-[13px] w-[46px] rounded-r-lg">
-                  <PercentCircle size={"16px"} />
-                </div>
-              </div>
-              <div className="flex flex-row">
-                <input
-                  type="text"
-                  name="discountAmount"
-                  value={formData.discountAmount}
-                  onChange={handleChange}
-                  placeholder="Discount ₹"
-                  className="flex-1 border border-[#D0D0D0] rounded-l-lg px-3 w-[170px] h-[45px] bg-[#FAFAFA] text-sm text-[#6B6B6B] placeholder-[#6B6B6B] focus:outline-none"
-                />
-                <div className="bg-[#D0D0D0] text-[#000000]  px-4 py-[13px] w-[46px] rounded-r-lg ">
-                  <IndianRupeeIcon size={"16px"} />
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="flex items-center gap-2 mt-7">
-            <label className="flex items-center gap-2 text-sm font-medium mb-2">
-              <input
-                type="checkbox"
-                name="includesTax"
-                value={formData.includesTax}
-                onChange={handleChange}
-                className="w-4 h-4  cursor-pointer"
-              />
-              It includesTax?
-            </label>
+            {/* Product Image Upload */}
             <div>
-              <div className="relative inline-block w-[243px] h-[45px] ">
-                <button
-                  type="button"
-                  onClick={() => setOpenGstBox((prev) => !prev)}
-                  className="w-full border rounded-lg px-4 h-[45px] flex items-center justify-between bg-[#FAFAFA] text-sm text-[#6B6B6B] focus:outline-none placeholder:text-[#6B6B6B]"
-                >
-                  <span>{formData.taxPercent || "5%"}</span>
-                  <ChevronDown
-                    size={18}
-                    className={`text-[#6B6B6B] transition-transform duration-200 ${
-                      open ? "rotate-180" : ""
-                    }`}
-                  />
-                </button>
+              <label className="block text-black text-sm font-medium mb-2">
+                Product Image
+              </label>
 
-                {/* Sub Dropdown Menu */}
-                {opengstbosx && (
-                  <ul className="absolute z-10 w-full border rounded-lg bg-white shadow-md max-h-60 overflow-y-auto text-[15px]">
-                    {gstRateList.map((p, i) => (
-                      <li
-                        key={i}
-                        onClick={() => {
-                          setFormData((prev) => ({ ...prev, taxPercent: p }));
-                          setOpenGstBox(false);
-                        }}
-                        className={`flex items-center justify-between px-4 py-2 hover:bg-[#FFEAD2] cursor-pointer ${
-                          selected === p ? "bg-gray-100 text-[#6B6B6B]" : ""
-                        }`}
-                      >
-                        <span>{p}</span>
-                      </li>
-                    ))}
-                  </ul>
+              <div className="flex flex-wrap gap-3 items-start">
+                {/* Image Preview Section */}
+                {formData.images.map((img, i) => (
+                  <div key={i} className="relative group">
+                    <img
+                      src={URL.createObjectURL(img)}
+                      alt={`preview ${i}`}
+                      className="w-[137px] h-[137px] object-cover rounded-lg border border-neutral-200"
+                    />
+
+                    <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition rounded-lg"></div>
+
+                    {/*Overlay Remove button */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setFormData((prev) => ({
+                          ...prev,
+                          images: prev.images.filter((_, index) => index !== i),
+                        }));
+                      }}
+                      className="absolute top-2 right-2 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
+                      <Trash size={20} />
+                    </button>
+                  </div>
+                ))}
+
+                {/* Upload Box */}
+                {formData.images.length < 4 && (
+                  <label
+                    htmlFor="productImage"
+                    className="w-[137px] h-[137px] bg-[#ECECF0] border border-neutral-200 rounded-lg 
+        flex items-center justify-center cursor-pointer hover:bg-gray-200 transition">
+                    <input
+                      id="productImage"
+                      type="file"
+                      multiple
+                      accept=".png,.jpg,.jpeg,.webp,.svg"
+                      className="hidden"
+                      onChange={handleFileChange}
+                    />
+                    <div className="w-12 h-12 flex items-center justify-center rounded-full border border-[#D0D0D0] bg-white">
+                      <Plus className="text-[#5F5F5F] w-6 h-6" />
+                    </div>
+                  </label>
                 )}
               </div>
             </div>
           </div>
-        </div>
-      </div>
-      <div className="bg-white rounded-2xl border px-3 py-4 ">
-        <div className="mb-5">
-          <h1 className="text-[20px] font-medium">Product Variants</h1>
-          <p className="text-[#727272] text-[16px] font-normal">
-            Add Variants if the product comes in different option like size,
-            color or material
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
-          <label className="flex cursor-pointer select-none items-center">
-            <div className="relative">
-              <input
-                type="checkbox"
-                name="hasVariants"
-                checked={formData.hasVariants}
-                onChange={(e) => {
-                  const checked = e.target.checked;
-                  setFormData((prev) => ({ ...prev, hasVariants: checked }));
-                  setItemsOpen(checked);
-                }}
-                className="sr-only"
-              />
-              <div
-                className={`block h-[18px] w-[34px] rounded-full transition-colors ${
-                  formData.hasVariants ? "bg-[#5BB401]" : "bg-[#E5E7EB]"
-                }`}
-              ></div>
-              <div
-                className={`absolute top-0.5 h-[13px] w-[13px] rounded-full bg-white transition-transform duration-200 ${
-                  formData.hasVariants ? "translate-x-[17px]" : "translate-x-0"
-                }`}
-              ></div>
-            </div>
-          </label>
-          <p className="text-[#2B2B2B] font-normal">
-            This product has Variants
-          </p>
-        </div>
 
-        {itemsopen && (
-          <div className="bg-white rounded-2xl border p-3 mt-6 ">
-            <div className="grid grid-cols-5 gap-x-48 ">
+          {/* /////////////////////////////////////////// */}
+          {/* Right Section */}
+
+          <div className="bg-white rounded-2xl border p-6">
+            <h2 className="text-black text-[20px] font-medium mb-4">
+              Product Details
+            </h2>
+
+            <div className="grid grid-cols-2 gap-6">
+              {/* SKU ID */}
               <div>
-                <label className="block text-sm font-medium mb-2">
-                  Variants
-                </label>
-                <div className="relative w-[280px] ">
+                <label className="block text-sm font-medium mb-2">SKU ID</label>
+                <div className="flex">
+                  <input
+                    type="text"
+                    name="SKU"
+                    value={formData.SKU}
+                    onChange={handleChange}
+                    placeholder="Generate SKU ID"
+                    className="flex-1 border border-[#D0D0D0] rounded-l-lg h-[45px] px-3  bg-[#FAFAFA] text-sm text-[#6B6B6B] placeholder-[#6B6B6B] focus:outline-none"
+                  />
                   <button
                     type="button"
-                    onClick={() => setVariantOpen((prev) => !prev)}
-                    className="w-full border rounded-lg px-4 h-[45px] flex items-center justify-between bg-[#FAFAFA] text-sm text-[#6B6B6B] focus:outline-none placeholder:text-[#6B6B6B]"
-                  >
-                    <span>{formData.variantType || "Select Option"}</span>
+                    className="bg-amber-600 text-white px-4 rounded-r-lg hover:bg-amber-700"
+                    onClick={generatedSKU}>
+                    Generate
+                  </button>
+                </div>
+              </div>
 
+              {/* Category */}
+              <div>
+                <div className="relative inline-block w-full">
+                  <label className="block text-sm font-medium mb-2">
+                    Category
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setOpen((prev) => !prev)}
+                    className="w-full border rounded-lg px-4 h-[45px] flex items-center justify-between bg-[#FAFAFA] text-sm text-[#6B6B6B] focus:outline-none placeholder:text-[#6B6B6B]">
+                    <span>{formData.category || "Select Category"}</span>
                     <ChevronDown
                       size={18}
                       className={`text-[#6B6B6B] transition-transform duration-200 ${
@@ -924,22 +522,74 @@ const AddProduct = () => {
                     />
                   </button>
 
-                  {variantopen && (
+                  {/* Price Dropdown Menu */}
+                  {open && (
                     <ul className="absolute z-10 w-full border rounded-lg bg-white shadow-md max-h-60 overflow-y-auto text-[15px]">
-                      {variant.map((p, i) => (
+                      {price.map((p, i) => (
+                        <li
+                          key={i}
+                          onClick={() => {
+                            setFormData((prev) => ({ ...prev, category: p }));
+                            setOpen(false);
+                          }}
+                          className={`flex items-center justify-between px-4 py-2 hover:bg-[#FFEAD2] cursor-pointer ${
+                            formData.category === p
+                              ? "bg-gray-100 text-[#6B6B6B]"
+                              : ""
+                          }`}>
+                          <span>{p}</span>
+                        </li>
+                      ))}
+
+                      {/* Add Category button inside dropdown */}
+                      <li className="sticky bottom-0 bg-white px-1 py-2 flex justify-center">
+                        <button
+                          type="button"
+                          className="bg-[#DD851F] text-white px-3 py-2 rounded-md hover:bg-orange-600 w-full"
+                          onClick={() => setShowCategoryModal(true)}>
+                          + Add Category
+                        </button>
+                      </li>
+                    </ul>
+                  )}
+                </div>
+              </div>
+
+              {/* Sub Category */}
+              <div>
+                <div className="relative inline-block w-full ">
+                  <label className="block text-sm font-medium mb-2">
+                    Sub Category
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setSubDropDown((prev) => !prev)}
+                    className="w-full border rounded-lg px-4 h-[45px] flex items-center justify-between bg-[#FAFAFA] text-sm text-[#6B6B6B] focus:outline-none placeholder:text-[#6B6B6B]">
+                    <span>{formData.subcategory || "Select Subcategory"}</span>
+                    <ChevronDown
+                      size={18}
+                      className={`text-[#6B6B6B] transition-transform duration-200 ${
+                        open ? "rotate-180" : ""
+                      }`}
+                    />
+                  </button>
+
+                  {/* Sub Dropdown Menu */}
+                  {subdropdown && (
+                    <ul className="absolute z-10 w-full border rounded-lg bg-white shadow-md max-h-60 overflow-y-auto text-[15px]">
+                      {Subcategories.map((p, i) => (
                         <li
                           key={i}
                           onClick={() => {
                             setFormData((prev) => ({
                               ...prev,
-                              variantType: p,
+                              subcategory: p,
                             }));
-                            setVariantOpen(false);
+                            setSubDropDown(false);
                           }}
                           className={`flex items-center justify-between px-4 py-2 hover:bg-[#FFEAD2] cursor-pointer ${
                             selected === p ? "bg-gray-100 text-[#6B6B6B]" : ""
-                          }`}
-                        >
+                          }`}>
                           <span>{p}</span>
                         </li>
                       ))}
@@ -947,89 +597,437 @@ const AddProduct = () => {
                   )}
                 </div>
               </div>
-              <div>
-                <label className="block text-sm font-medium mb-2">Value</label>
-                <input
-                  type="number"
-                  name="variantValue"
-                  value={formData.variantValue}
-                  onChange={handleChange}
-                  placeholder="Enter Value"
-                  className="w-[280px] h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#FAFAFA] text-sm text-gray-600 focus:outline-none"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-2">
-                  Quantity
-                </label>
-                <input
-                  type="number"
-                  name="variantQuantity"
-                  value={formData.variantQuantity}
-                  onChange={handleChange}
-                  placeholder="Enter Quantity"
-                  className="w-[280px] h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#FAFAFA] text-sm text-gray-600 focus:outline-none"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-2">
-                  Reorder Limit
-                </label>
-                <input
-                  type="number"
-                  name="variantReorderLimit"
-                  value={formData.variantReorderLimit}
-                  onChange={handleChange}
-                  placeholder="Enter Reorder limit"
-                  className="w-[280px] h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#FAFAFA] text-sm text-gray-600 focus:outline-none"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-2">
-                  Product Image
-                </label>
 
-                <div className="relative w-[60px] h-[60px]">
-                  {!variantImage ? (
-                    // ✅ Upload box visible initially
-                    <label
-                      htmlFor="variantImage"
-                      className="w-[60px] h-[60px] bg-[#ECECF0] border border-neutral-200 rounded-lg 
-              flex items-center justify-center cursor-pointer hover:bg-gray-200 transition"
-                    >
-                      <input
-                        id="variantImage"
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={handleVariantImageChange}
-                      />
-                      <div className="w-[22px] h-[22px] flex items-center justify-center rounded-full border border-[#D0D0D0] bg-white">
-                        <Plus className="text-[#5F5F5F] w-[9px] h-[9px]" />
-                      </div>
-                    </label>
-                  ) : (
-                    // ✅ Display uploaded image (input hidden)
-                    <div className="relative">
-                      <img
-                        src={URL.createObjectURL(variantImage)}
-                        alt="Variant"
-                        className="w-[60px] h-[60px] object-cover rounded-lg border border-neutral-200"
-                      />
+              {/* Tags */}
+              <div>
+                <label className="block text-sm font-medium mb-2">Tags</label>
+                <div className="relative w-full">
+                  <button
+                    type="button"
+                    onClick={() => setTagsBtn((prev) => !prev)}
+                    className="w-full border rounded-lg px-4 h-[45px] flex items-center justify-between bg-[#FAFAFA] text-sm text-[#6B6B6B] focus:outline-none placeholder:text-[#6B6B6B]">
+                    <span>{formData.tags || "Select Tags"}</span>
+                    <ChevronDown
+                      size={18}
+                      className={`text-[#6B6B6B] transition-transform duration-200 ${
+                        open ? "rotate-180" : ""
+                      }`}
+                    />
+                  </button>
 
-                      {/* Remove Button */}
-                      <button
-                        type="button"
-                        onClick={removeVariantImage}
-                        className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px]"
-                      >
-                        ×
-                      </button>
-                    </div>
+                  {tagsbtn && (
+                    <ul className="absolute z-10 w-full border rounded-lg bg-white shadow-md max-h-60 overflow-y-auto text-[15px]">
+                      {Tags.map((p, i) => (
+                        <li
+                          key={i}
+                          onClick={() => {
+                            setFormData((prev) => ({ ...prev, tags: p }));
+                            setTagsBtn(false);
+                          }}
+                          className={`flex items-center justify-between px-4 py-2 hover:bg-[#FFEAD2] cursor-pointer ${
+                            selected === p ? "bg-gray-100 text-[#6B6B6B]" : ""
+                          }`}>
+                          <span>{p}</span>
+                        </li>
+                      ))}
+                    </ul>
                   )}
                 </div>
               </div>
-              {/* <div>
+
+              {/* Material */}
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  Material Type
+                </label>
+                <div className="relative w-full">
+                  <button
+                    type="button"
+                    onClick={() => setmaterialbtn((prev) => !prev)}
+                    className="w-full border rounded-lg px-4 h-[45px] flex items-center justify-between bg-[#FAFAFA] text-sm text-[#6B6B6B] focus:outline-none placeholder:text-[#6B6B6B]">
+                    <span>
+                      {formData.materialType || "Select Material Type"}
+                    </span>
+                    <ChevronDown
+                      size={18}
+                      className={`text-[#6B6B6B] transition-transform duration-200 ${
+                        open ? "rotate-180" : ""
+                      }`}
+                    />
+                  </button>
+
+                  {materialbtn && (
+                    <ul className="absolute z-10 w-full border rounded-lg bg-white shadow-md max-h-60 overflow-y-auto text-[15px]">
+                      {material.map((p, i) => (
+                        <li
+                          key={i}
+                          onClick={() => {
+                            setFormData((prev) => ({
+                              ...prev,
+                              materialType: p,
+                            }));
+                            setmaterialbtn(false);
+                          }}
+                          className={`flex items-center justify-between px-4 py-2 hover:bg-[#FFEAD2] cursor-pointer ${
+                            selected === p ? "bg-gray-100 text-[#6B6B6B]" : ""
+                          }`}>
+                          <span>{p}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              </div>
+
+              {/* Weight */}
+              <div>
+                <label className="block text-sm font-medium mb-2">Weight</label>
+                <input
+                  type="text"
+                  name="weight"
+                  value={formData.weight}
+                  onChange={handleChange}
+                  placeholder="Enter Product Weight"
+                  className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#FAFAFA] text-sm placeholder-[#6B6B6B] text-gray-600 focus:outline-none"
+                />
+              </div>
+
+              {/* Stock */}
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  Stock Quantity
+                </label>
+                <input
+                  type="number"
+                  name="stockQuantity"
+                  value={formData.stockQuantity}
+                  onChange={handleChange}
+                  placeholder="Enter Total Quantity"
+                  className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#FAFAFA] text-sm placeholder-[#6B6B6B] text-gray-600 focus:outline-none"
+                />
+              </div>
+            </div>
+
+            {/* Return Eligible Checkbox */}
+            <div className="mt-5 flex items-center gap-2">
+              <label className="flex items-center gap-2 text-sm font-medium">
+                <input
+                  type="checkbox"
+                  name="returnPolicy"
+                  checked={formData.returnPolicy}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      [e.target.name]: e.target.checked,
+                    }))
+                  }
+                  className="w-4 h-4 border-gray-300 text-blue-600 focus:ring-blue-500"
+                />
+                Eligible for return
+              </label>
+            </div>
+          </div>
+        </div>
+
+        {/* Pricing Section */}
+        <div className="bg-white rounded-2xl border p-6 mt-6">
+          <h2 className="text-black text-xl font-medium mb-4">Pricing</h2>
+          <div className="grid grid-cols-3 gap-5">
+            <div>
+              <label className="block text-sm font-medium mb-2">MRP</label>
+              <input
+                type="number"
+                name="mrp"
+                value={formData.mrp}
+                onChange={handleChange}
+                placeholder="Enter MRP"
+                className="w-[380px] h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#FAFAFA] text-sm text-gray-600 focus:outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                Selling Price (₹)
+              </label>
+              <input
+                type="number"
+                name="sellingPrice"
+                value={formData.sellingPrice}
+                onChange={handleChange}
+                placeholder="Enter Selling Price"
+                className="w-[380px] h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#FAFAFA] text-sm text-gray-600 focus:outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                Cost Price (₹)
+              </label>
+              <input
+                type="number"
+                name="costPrice"
+                value={formData.costPrice}
+                onChange={handleChange}
+                placeholder="Enter Cost Price"
+                className="w-[380px] h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#FAFAFA] text-sm text-gray-600 focus:outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Profit</label>
+              <input
+                type="number"
+                name="profit"
+                value={formData.profit}
+                readOnly
+                // onChange={handleChange}
+                placeholder="₹"
+                className="w-[380px] h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#FAFAFA] text-sm text-gray-600 focus:outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Discount</label>
+              <div className="flex  items-center gap-2">
+                <div className="flex flex-row">
+                  <input
+                    type="text"
+                    name="discountPercent"
+                    value={formData.discountPercent}
+                    onChange={handleChange}
+                    placeholder="Discount %"
+                    className="flex-1 border border-[#D0D0D0] rounded-l-lg  px-3 w-[170px] h-[45px] bg-[#FAFAFA] text-sm text-[#6B6B6B] placeholder-[#6B6B6B] focus:outline-none"
+                  />
+                  <div className="bg-[#D0D0D0] text-[#000000] px-4  py-[13px] w-[46px] rounded-r-lg">
+                    <PercentCircle size={"16px"} />
+                  </div>
+                </div>
+                <div className="flex flex-row">
+                  <input
+                    type="text"
+                    name="discountAmount"
+                    value={formData.discountAmount}
+                    onChange={handleChange}
+                    placeholder="Discount ₹"
+                    className="flex-1 border border-[#D0D0D0] rounded-l-lg px-3 w-[170px] h-[45px] bg-[#FAFAFA] text-sm text-[#6B6B6B] placeholder-[#6B6B6B] focus:outline-none"
+                  />
+                  <div className="bg-[#D0D0D0] text-[#000000]  px-4 py-[13px] w-[46px] rounded-r-lg ">
+                    <IndianRupeeIcon size={"16px"} />
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 mt-7">
+              <label className="flex items-center gap-2 text-sm font-medium mb-2">
+                <input
+                  type="checkbox"
+                  name="includesTax"
+                  value={formData.includesTax}
+                  onChange={handleChange}
+                  className="w-4 h-4  cursor-pointer"
+                />
+                It includesTax?
+              </label>
+              <div>
+                <div className="relative inline-block w-[243px] h-[45px] ">
+                  <button
+                    type="button"
+                    onClick={() => setOpenGstBox((prev) => !prev)}
+                    className="w-full border rounded-lg px-4 h-[45px] flex items-center justify-between bg-[#FAFAFA] text-sm text-[#6B6B6B] focus:outline-none placeholder:text-[#6B6B6B]">
+                    <span>{formData.taxPercent || "5%"}</span>
+                    <ChevronDown
+                      size={18}
+                      className={`text-[#6B6B6B] transition-transform duration-200 ${
+                        open ? "rotate-180" : ""
+                      }`}
+                    />
+                  </button>
+
+                  {/* Sub Dropdown Menu */}
+                  {opengstbosx && (
+                    <ul className="absolute z-10 w-full border rounded-lg bg-white shadow-md max-h-60 overflow-y-auto text-[15px]">
+                      {gstRateList.map((p, i) => (
+                        <li
+                          key={i}
+                          onClick={() => {
+                            setFormData((prev) => ({ ...prev, taxPercent: p }));
+                            setOpenGstBox(false);
+                          }}
+                          className={`flex items-center justify-between px-4 py-2 hover:bg-[#FFEAD2] cursor-pointer ${
+                            selected === p ? "bg-gray-100 text-[#6B6B6B]" : ""
+                          }`}>
+                          <span>{p}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="bg-white rounded-2xl border px-3 py-4 ">
+          <div className="mb-5">
+            <h1 className="text-[20px] font-medium">Product Variants</h1>
+            <p className="text-[#727272] text-[16px] font-normal">
+              Add Variants if the product comes in different option like size,
+              color or material
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <label className="flex cursor-pointer select-none items-center">
+              <div className="relative">
+                <input
+                  type="checkbox"
+                  name="hasVariants"
+                  checked={formData.hasVariants}
+                  onChange={(e) => {
+                    const checked = e.target.checked;
+                    setFormData((prev) => ({ ...prev, hasVariants: checked }));
+                    setItemsOpen(checked);
+                  }}
+                  className="sr-only"
+                />
+                <div
+                  className={`block h-[18px] w-[34px] rounded-full transition-colors ${
+                    formData.hasVariants ? "bg-[#5BB401]" : "bg-[#E5E7EB]"
+                  }`}></div>
+                <div
+                  className={`absolute top-0.5 h-[13px] w-[13px] rounded-full bg-white transition-transform duration-200 ${
+                    formData.hasVariants
+                      ? "translate-x-[17px]"
+                      : "translate-x-0"
+                  }`}></div>
+              </div>
+            </label>
+            <p className="text-[#2B2B2B] font-normal">
+              This product has Variants
+            </p>
+          </div>
+
+          {itemsopen && (
+            <div className="bg-white rounded-2xl border p-3 mt-6 ">
+              <div className="grid grid-cols-5 gap-x-48 ">
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    Variants
+                  </label>
+                  <div className="relative w-[280px] ">
+                    <button
+                      type="button"
+                      onClick={() => setVariantOpen((prev) => !prev)}
+                      className="w-full border rounded-lg px-4 h-[45px] flex items-center justify-between bg-[#FAFAFA] text-sm text-[#6B6B6B] focus:outline-none placeholder:text-[#6B6B6B]">
+                      <span>{formData.variantType || "Select Option"}</span>
+
+                      <ChevronDown
+                        size={18}
+                        className={`text-[#6B6B6B] transition-transform duration-200 ${
+                          open ? "rotate-180" : ""
+                        }`}
+                      />
+                    </button>
+
+                    {variantopen && (
+                      <ul className="absolute z-10 w-full border rounded-lg bg-white shadow-md max-h-60 overflow-y-auto text-[15px]">
+                        {variant.map((p, i) => (
+                          <li
+                            key={i}
+                            onClick={() => {
+                              setFormData((prev) => ({
+                                ...prev,
+                                variantType: p,
+                              }));
+                              setVariantOpen(false);
+                            }}
+                            className={`flex items-center justify-between px-4 py-2 hover:bg-[#FFEAD2] cursor-pointer ${
+                              selected === p ? "bg-gray-100 text-[#6B6B6B]" : ""
+                            }`}>
+                            <span>{p}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    Value
+                  </label>
+                  <input
+                    type="number"
+                    name="variantValue"
+                    value={formData.variantValue}
+                    onChange={handleChange}
+                    placeholder="Enter Value"
+                    className="w-[280px] h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#FAFAFA] text-sm text-gray-600 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    Quantity
+                  </label>
+                  <input
+                    type="number"
+                    name="variantQuantity"
+                    value={formData.variantQuantity}
+                    onChange={handleChange}
+                    placeholder="Enter Quantity"
+                    className="w-[280px] h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#FAFAFA] text-sm text-gray-600 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    Reorder Limit
+                  </label>
+                  <input
+                    type="number"
+                    name="variantReorderLimit"
+                    value={formData.variantReorderLimit}
+                    onChange={handleChange}
+                    placeholder="Enter Reorder limit"
+                    className="w-[280px] h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#FAFAFA] text-sm text-gray-600 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    Product Image
+                  </label>
+
+                  <div className="relative w-[60px] h-[60px]">
+                    {!variantImage ? (
+                      // ✅ Upload box visible initially
+                      <label
+                        htmlFor="variantImage"
+                        className="w-[60px] h-[60px] bg-[#ECECF0] border border-neutral-200 rounded-lg 
+              flex items-center justify-center cursor-pointer hover:bg-gray-200 transition">
+                        <input
+                          id="variantImage"
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={handleVariantImageChange}
+                        />
+                        <div className="w-[22px] h-[22px] flex items-center justify-center rounded-full border border-[#D0D0D0] bg-white">
+                          <Plus className="text-[#5F5F5F] w-[9px] h-[9px]" />
+                        </div>
+                      </label>
+                    ) : (
+                      // ✅ Display uploaded image (input hidden)
+                      <div className="relative">
+                        <img
+                          src={URL.createObjectURL(variantImage)}
+                          alt="Variant"
+                          className="w-[60px] h-[60px] object-cover rounded-lg border border-neutral-200"
+                        />
+
+                        {/* Remove Button */}
+                        <button
+                          type="button"
+                          onClick={removeVariantImage}
+                          className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px]">
+                          ×
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                {/* <div>
                 <label className="block text-black text-sm font-medium mb-2">
                   Product Image
                 </label>
@@ -1050,29 +1048,29 @@ const AddProduct = () => {
                   </div>
                 </label>
               </div> */}
+              </div>
+              <div className="flex items-center justify-start mt-3">
+                <button className="bg-[#DD851F] text-white px-4 py-2 rounded-lg text-sm hover:bg-orange-600">
+                  + Add Variants
+                </button>
+              </div>
             </div>
-            <div className="flex items-center justify-start mt-3">
-              <button className="bg-[#DD851F] text-white px-4 py-2 rounded-lg text-sm hover:bg-orange-600">
-                + Add Variants
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
 
-      {/* Buttons */}
-      <div className="flex justify-end gap-4 mt-6">
-        <button className="px-6 py-2 bg-gray-200 rounded-lg text-gray-800 font-medium hover:bg-gray-300">
-          Cancel
-        </button>
-        <button
-          type="submit"
-          className="px-6 py-2 bg-lime-600 rounded-lg text-white font-medium hover:bg-lime-700"
-        >
-          Save
-        </button>
-      </div>
-    </form>
+        {/* Buttons */}
+        <div className="flex justify-end gap-4 mt-6">
+          <button className="px-6 py-2 bg-gray-200 rounded-lg text-gray-800 font-medium hover:bg-gray-300">
+            Cancel
+          </button>
+          <button
+            type="submit"
+            className="px-6 py-2 bg-lime-600 rounded-lg text-white font-medium hover:bg-lime-700">
+            Save
+          </button>
+        </div>
+      </form>
+    </>
   );
 };
 
