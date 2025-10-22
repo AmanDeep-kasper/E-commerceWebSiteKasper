@@ -166,6 +166,14 @@ const AddProduct = () => {
       variantImage: prev.variantImage.filter(),
     }));
   };
+
+  // handle variant form
+  const handleVariantChange = (index, field, value) => {
+    const newVariants = [...formData.variants];
+    newVariants[index][field] = value;
+    setFormData({ ...formData, variants: newVariants });
+  };
+
   // submit handler
 
   const handleSubmit = (e) => {
@@ -174,8 +182,19 @@ const AddProduct = () => {
 
     // Create FormData object for multipart/form-data
     const formDataObj = new FormData();
+
     Object.keys(formData).forEach((key) => {
-      if (Array.isArray(formData[key])) {
+      if (key === "variants") {
+        formData.variants.forEach((variant, index) => {
+          Object.keys(variant).forEach((vKey) => {
+            if (variant[vKey] instanceof File) {
+              formDataObj.append(`variants[${index}][${vKey}]`, variant[vKey]);
+            } else {
+              formDataObj.append(`variants[${index}][${vKey}]`, variant[vKey]);
+            }
+          });
+        });
+      } else if (Array.isArray(formData[key])) {
         formData[key].forEach((item) => formDataObj.append(key, item));
       } else {
         formDataObj.append(key, formData[key]);
@@ -188,19 +207,6 @@ const AddProduct = () => {
     // Save current form data to localStorage
     localStorage.setItem("addProductForm", JSON.stringify(formData));
 
-    // Load saved form data from localStorage on mount
-    useEffect(() => {
-      const saved = localStorage.getItem("addProductForm");
-      if (saved) {
-        setFormData(JSON.parse(saved));
-        console.log("Loaded saved form:", saved);
-      }
-    }, []);
-
-    // Save form data to localStorage whenever it changes
-    useEffect(() => {
-      localStorage.setItem("addProductForm", JSON.stringify(formData));
-    }, [formData]);
     // Reset form
     setFormData({
       type: "",
@@ -224,11 +230,15 @@ const AddProduct = () => {
       includesTax: false,
       taxPercent: "",
       hasVariants: false,
-      variantType: "",
-      variantValue: "",
-      variantQuantity: "",
-      variantReorderLimit: "",
-      variantImage: [],
+      variants: [
+        {
+          variantType: "",
+          variantValue: "",
+          variantQuantity: "",
+          variantReorderLimit: "",
+          variantImage: null,
+        },
+      ],
     });
   };
 
@@ -241,13 +251,13 @@ const AddProduct = () => {
   };
 
   // this is first drop down
-  const [open, setOpen] = useState(false);
+  const [categoriesopen, setCategoriesOpen] = useState(false);
   // selected option
   const [selected, setSelected] = useState("Select Price Range");
 
   // sample data (you can replace this with dynamic data)
-  const price = [
-    "Select Category",
+
+  const [categories, setCategories] = useState([
     "Spiritual & Religious Art",
     "Nature & Wildlife",
     "Geometric & Abstract",
@@ -256,11 +266,11 @@ const AddProduct = () => {
     "Clones",
     "Festival & Occasion",
     "Reflection Art",
-  ];
+  ]);
 
   // Second drop down box
 
-  const Subcategories = [
+  const [subcategories, setSubcategories] = useState([
     "Lord Ganesha",
     "Lord Shiva (Natraja/Trishul)",
     "Buddha",
@@ -269,7 +279,7 @@ const AddProduct = () => {
     "Tree of Life",
     "Islamic Calligraphy (Bismillah, Ayatul Kursi)",
     "Jesus / Cross / Angel",
-  ];
+  ]);
 
   const [subdropdown, setSubDropDown] = useState(false);
 
@@ -291,7 +301,7 @@ const AddProduct = () => {
 
   //the variants drop down
   const [variantopen, setVariantOpen] = useState(false);
-  const [variants, setvariants] = useState("Select Option");
+  // const [variants, setvariants] = useState("Select Option");
 
   const variant = ["Color", "Dimension"];
 
@@ -320,13 +330,21 @@ const AddProduct = () => {
     "28%(Luxury items)",
   ];
 
-  // Category dropdown
-  // const [addopen, setAddOpen] = useState(false);
-  // const [addprice, setAddPrice] = useState(["Painting", "Sculpture"]); // example categories
-
   // Modal for adding new category
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [newCategory, setNewCategory] = useState("");
+
+  // Add  new variant form onclick
+
+  const [variants, setVariants] = useState([
+    {
+      variantType: "",
+      variantValue: "",
+      variantQuantity: "",
+      variantReorderLimit: "",
+      variantImage: null,
+    },
+  ]);
 
   return (
     <>
@@ -335,6 +353,10 @@ const AddProduct = () => {
           setNewCategory={setNewCategory}
           newCategory={newCategory}
           setShowCategoryModal={setShowCategoryModal}
+          categories={categories}
+          setCategories={setCategories}
+          subcategories={subcategories}
+          setSubcategories={setSubcategories}
         />
       )}
 
@@ -511,7 +533,7 @@ const AddProduct = () => {
                   </label>
                   <button
                     type="button"
-                    onClick={() => setOpen((prev) => !prev)}
+                    onClick={() => setCategoriesOpen((prev) => !prev)}
                     className="w-full border rounded-lg px-4 h-[45px] flex items-center justify-between bg-[#FAFAFA] text-sm text-[#6B6B6B] focus:outline-none placeholder:text-[#6B6B6B]">
                     <span>{formData.category || "Select Category"}</span>
                     <ChevronDown
@@ -523,9 +545,9 @@ const AddProduct = () => {
                   </button>
 
                   {/* Price Dropdown Menu */}
-                  {open && (
+                  {categoriesopen && (
                     <ul className="absolute z-10 w-full border rounded-lg bg-white shadow-md max-h-60 overflow-y-auto text-[15px]">
-                      {price.map((p, i) => (
+                      {categories.map((p, i) => (
                         <li
                           key={i}
                           onClick={() => {
@@ -577,7 +599,7 @@ const AddProduct = () => {
                   {/* Sub Dropdown Menu */}
                   {subdropdown && (
                     <ul className="absolute z-10 w-full border rounded-lg bg-white shadow-md max-h-60 overflow-y-auto text-[15px]">
-                      {Subcategories.map((p, i) => (
+                      {subcategories.map((p, i) => (
                         <li
                           key={i}
                           onClick={() => {
@@ -1050,7 +1072,9 @@ const AddProduct = () => {
               </div> */}
               </div>
               <div className="flex items-center justify-start mt-3">
-                <button className="bg-[#DD851F] text-white px-4 py-2 rounded-lg text-sm hover:bg-orange-600">
+                <button
+                  className="bg-[#DD851F] text-white px-4 py-2 rounded-lg text-sm hover:bg-orange-600"
+                  >
                   + Add Variants
                 </button>
               </div>
