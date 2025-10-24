@@ -4,6 +4,8 @@ import { Navigate, useNavigate } from "react-router";
 import { toast } from "react-toastify";
 import { useDispatch, useSelector } from "react-redux";
 import { addProduct } from "../../redux/cart/productSlice";
+import { v4 as uuidv4 } from "uuid";
+
 import {
   ArrowLeft,
   ChevronDown,
@@ -237,6 +239,7 @@ const AddProduct = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    // Validation
     if (
       !formData.title.trim() ||
       !formData.category.trim() ||
@@ -253,14 +256,22 @@ const AddProduct = () => {
       });
       return;
     }
-    console.log("Form Data:", formData);
+
+    // Add unique uuid to formData
+
+    const formDataWithUUID = {
+      ...formData,
+      uuid: uuidv4(), // <-- generates unique id
+    };
+
+    console.log("Form Data with UUID:", formDataWithUUID);
 
     // Create FormData object for multipart/form-data
     const formDataObj = new FormData();
 
-    Object.keys(formData).forEach((key) => {
+    Object.keys(formDataWithUUID).forEach((key) => {
       if (key === "variants") {
-        formData.variants.forEach((variant, index) => {
+        formDataWithUUID.variants.forEach((variant, index) => {
           Object.keys(variant).forEach((vKey) => {
             if (variant[vKey] instanceof File) {
               formDataObj.append(`variants[${index}][${vKey}]`, variant[vKey]);
@@ -269,18 +280,18 @@ const AddProduct = () => {
             }
           });
         });
-      } else if (Array.isArray(formData[key])) {
-        formData[key].forEach((item) => formDataObj.append(key, item));
+      } else if (Array.isArray(formDataWithUUID[key])) {
+        formDataWithUUID[key].forEach((item) => formDataObj.append(key, item));
       } else {
-        formDataObj.append(key, formData[key]);
+        formDataObj.append(key, formDataWithUUID[key]);
       }
     });
 
-    // Dispatch thunk to save data
+    // Dispatch to save data
     dispatch(addProduct(formDataObj));
 
     // Save current form data to localStorage
-    localStorage.setItem("addProductForm", JSON.stringify(formData));
+    localStorage.setItem("addProductForm", JSON.stringify(formDataWithUUID));
 
     // Reset form
     setFormData({
@@ -326,25 +337,9 @@ const AddProduct = () => {
       className: "bg-[#EEFFEF] text-black rounded-lg",
     });
 
-    if (
-      !formData.title.trim() ||
-      !formData.category.trim() ||
-      !formData.subcategory.trim()
-    ) {
-      toast.error("Please fill in all required fields!", {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        className: "bg-[#EEFFEF] text-white rounded-lg",
-      });
-      return;
-    }
-
+    // Navigate after 1s
     setTimeout(() => {
-      navigate("/admin/products"); // replace with your actual route
+      navigate("/admin/products");
     }, 1000);
   };
 
@@ -453,6 +448,7 @@ const AddProduct = () => {
         onSubmit={handleSubmit}
         encType="multipart/form-data">
         {/* Header */}
+
         <div className="h-16 bg-white rounded-lg  flex items-center gap-3 px-4">
           <Link to={`/admin/products`}>
             <div className=" flex items-center">
@@ -1229,6 +1225,7 @@ const AddProduct = () => {
           </button>
         </div>
       </form>
+      
     </>
   );
 };

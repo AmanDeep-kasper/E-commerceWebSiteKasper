@@ -535,7 +535,8 @@ import "swiper/css/thumbs";
 import EmptyState from "../components/EmptyState";
 
 function ProductDetails() {
-  const { uuid } = useParams();
+  // const { uuid } = useParams();
+  const { sku } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [isLoading, setIsLoading] = useState(false);
@@ -547,12 +548,17 @@ function ProductDetails() {
   const { wishlistItems } = useSelector((s) => s.wishlist);
 
   // find product by uuid
-  const product = useMemo(() => products.find((p) => p.uuid === uuid), [uuid]);
+  // const product = useMemo(() => products.find((p) => p.uuid === uuid), [uuid]);
+  const product = useMemo(() => products.find((p) => p.sku === sku), [sku]);
   const [selectedVariant, setSelectedVariant] = useState(product.variants[0]);
+  // const [inCart, setInCart] = useState(
+  //   cartItems.some(
+  //     (item) =>
+  //       item.uuid === uuid && item.variantId === selectedVariant.variantId
+  //   )
   const [inCart, setInCart] = useState(
     cartItems.some(
-      (item) =>
-        item.uuid === uuid && item.variantId === selectedVariant.variantId
+      (item) => item.sku === sku && item.variantId === selectedVariant.variantId
     )
   );
   if (!product) {
@@ -619,30 +625,54 @@ function ProductDetails() {
   useEffect(() => {
     const isInWishlist = wishlistItems.some(
       (item) =>
-        item.uuid === product.uuid &&
-        item.variantId === selectedVariant.variantId
+        item.sku === product.sku && item.variantId === selectedVariant.variantId
     );
     setInWishlist(isInWishlist);
-  }, [wishlistItems, product.uuid, selectedVariant.variantId]);
+  }, [wishlistItems, product.sku, selectedVariant.variantId]);
+
+  // useEffect(() => {
+  //   const isInWishlist = wishlistItems.some(
+  //     (item) =>
+  //       item.uuid === product.uuid &&
+  //       item.variantId === selectedVariant.variantId
+  //   );
+  //   setInWishlist(isInWishlist);
+  // }, [wishlistItems, product.uuid, selectedVariant.variantId]);
 
   useEffect(() => {
     setInCart(
       cartItems.some(
         (item) =>
-          item.uuid === product.uuid &&
+          item.sku === product.sku &&
           item.variantId === selectedVariant.variantId
       )
     );
-  }, [cartItems, product.uuid, selectedVariant.variantId]);
+  }, [cartItems, product.sku, selectedVariant.variantId]);
+  // useEffect(() => {
+  //   setInCart(
+  //     cartItems.some(
+  //       (item) =>
+  //         item.uuid === product.uuid &&
+  //         item.variantId === selectedVariant.variantId
+  //     )
+  //   );
+  // }, [cartItems, product.uuid, selectedVariant.variantId]);
 
   useEffect(() => {
     const found = cartItems.find(
       (item) =>
-        item.uuid === product.uuid &&
-        item.variantId === selectedVariant.variantId
+        item.sku === product.sku && item.variantId === selectedVariant.variantId
     );
     setTotalCartItems(found ? found.quantity : 0);
-  }, [cartItems, product.uuid, selectedVariant.variantId]);
+  }, [cartItems, product.sku, selectedVariant.variantId]);
+  // useEffect(() => {
+  //   const found = cartItems.find(
+  //     (item) =>
+  //       item.uuid === product.uuid &&
+  //       item.variantId === selectedVariant.variantId
+  //   );
+  //   setTotalCartItems(found ? found.quantity : 0);
+  // }, [cartItems, product.uuid, selectedVariant.variantId]);
 
   return (
     <>
@@ -668,8 +698,7 @@ function ProductDetails() {
                   0: { direction: "horizontal", slidesPerView: 4 },
                   768: { direction: "vertical" },
                 }}
-                className="!w-full !h-auto md:!h-[460px]"
-              >
+                className="!w-full !h-auto md:!h-[460px]">
                 {selectedVariant.images?.map((img, idx) => (
                   <SwiperSlide key={idx} className="!w-auto !h-auto">
                     {/* Outer wrapper holds border + ring */}
@@ -683,8 +712,7 @@ function ProductDetails() {
                       onClick={() => {
                         setMainImageIndex(idx);
                         thumbsSwiper.slideTo(idx);
-                      }}
-                    >
+                      }}>
                       <div className="w-full h-full overflow-hidden rounded-md">
                         <img
                           src={
@@ -717,8 +745,7 @@ function ProductDetails() {
                   setMainImageIndex(swiper.activeIndex)
                 }
                 initialSlide={mainImageIndex}
-                className="xl:min-w-[600px] xl:h-[600px] md:!w-[500px] w-full"
-              >
+                className="xl:min-w-[600px] xl:h-[600px] md:!w-[500px] w-full">
                 {selectedVariant.images?.map((img, idx) => (
                   <SwiperSlide key={idx}>
                     <img
@@ -770,8 +797,7 @@ function ProductDetails() {
                       })
                     );
                   }
-                }}
-              >
+                }}>
                 <Heart
                   className="w-8 h-8 p-1 cursor-pointer"
                   fill={
@@ -827,8 +853,7 @@ function ProductDetails() {
                   className="text-sm font-medium text-[#D49A06] hover:text-[#B78605] transition-colors underline"
                   onClick={() =>
                     document.getElementById("reviews-section").scrollIntoView()
-                  }
-                >
+                  }>
                   See all reviews
                 </button>
               </div>
@@ -892,8 +917,7 @@ function ProductDetails() {
                 : "bg-gray-100 hover:bg-gray-200"
             }
           `}
-                    onClick={() => handleVariantSelect("color", color)}
-                  >
+                    onClick={() => handleVariantSelect("color", color)}>
                     {color}
                   </button>
                 ))}
@@ -914,8 +938,7 @@ function ProductDetails() {
                 : "bg-gray-100 hover:bg-gray-200"
             }
           `}
-                    onClick={() => handleVariantSelect("dimension", dimension)}
-                  >
+                    onClick={() => handleVariantSelect("dimension", dimension)}>
                     {dimension}
                   </button>
                 ))}
@@ -936,8 +959,7 @@ function ProductDetails() {
                 : "bg-gray-100 hover:bg-gray-200"
             }
           `}
-                    onClick={() => handleVariantSelect("type", t)}
-                  >
+                    onClick={() => handleVariantSelect("type", t)}>
                     {t}
                   </button>
                 ))}
@@ -948,8 +970,7 @@ function ProductDetails() {
               {selectedVariant.stockQuantity <= 0 ? (
                 <button
                   disabled
-                  className="px-6 py-2 bg-gray-300 text-gray-600 rounded-full cursor-not-allowed"
-                >
+                  className="px-6 py-2 bg-gray-300 text-gray-600 rounded-full cursor-not-allowed">
                   Out of Stock
                 </button>
               ) : inCart ? (
@@ -966,8 +987,7 @@ function ProductDetails() {
                       );
                     }}
                     className="w-6 h-6 flex items-center justify-center"
-                    disabled={isLoading}
-                  >
+                    disabled={isLoading}>
                     {cartItems.find(
                       (i) =>
                         i.uuid === product.uuid &&
@@ -1000,8 +1020,7 @@ function ProductDetails() {
                       );
                     }}
                     className="w-6 h-6 flex items-center justify-center"
-                    disabled={isLoading}
-                  >
+                    disabled={isLoading}>
                     <Plus size={16} />
                   </button>
                 </div>
@@ -1031,8 +1050,7 @@ function ProductDetails() {
                     }, 200);
                   }}
                   disabled={isLoading}
-                  className="px-6 py-2 bg-[#ebb100] hover:bg-[#d9a300] text-black rounded-full"
-                >
+                  className="px-6 py-2 bg-[#ebb100] hover:bg-[#d9a300] text-black rounded-full">
                   {isLoading ? "Adding..." : "Add to Cart"}
                 </button>
               )}
@@ -1041,8 +1059,7 @@ function ProductDetails() {
               <button
                 className="border border-gray-700 text-gray-700 px-4 py-2 rounded-full hover:bg-gray-50"
                 onClick={() => handleBuyNow(product, selectedVariant)}
-                disabled={selectedVariant.stockQuantity <= 0 || isLoading}
-              >
+                disabled={selectedVariant.stockQuantity <= 0 || isLoading}>
                 Buy now
               </button>
             </div>
@@ -1074,8 +1091,7 @@ function ProductDetails() {
                       className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400"
                       fill="none"
                       viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
+                      stroke="currentColor">
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
@@ -1124,8 +1140,7 @@ function ProductDetails() {
                     product.stockQuantity > 0
                       ? "text-green-600"
                       : "text-red-600"
-                  }`}
-                >
+                  }`}>
                   <span className="text-[#6C6B6B]">Stock -</span>{" "}
                   {product.stockQuantity
                     ? `${product.stockQuantity} available`
@@ -1157,7 +1172,7 @@ function ProductDetails() {
                 <div className="mt-4">
                   <Reviews reviews={product?.reviews} avgRating={avgRating} />
                 </div>
-                <CustomerReview reviews={product?.reviews} id={uuid} />
+                <CustomerReview reviews={product?.reviews} id={sku} />
               </div>
             </div>
           </div>

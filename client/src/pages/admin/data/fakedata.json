@@ -1,0 +1,532 @@
+[
+    {
+        "uuid": "dwl-art-011",
+        "route": "/product/dwl-art-011",
+        "title": "Mountain Range Metal Wall Art",
+        "category": "Nature Collection",
+        "subcategory": "Landscape Decor",
+        "tags": [
+            "mountain",
+            "nature",
+            "landscape",
+            "metal"
+        ],
+        "SKU": "DWL-ART-011",
+        "basePrice": 1599,
+        "amazonPrice": 3099,
+        "discountPercent": 48,
+        "stockQuantity": 12,
+        "returnPolicy": "Eligible for return within 7 days of delivery.",
+        "deliverBy": 5,
+        "materialType": "metal",
+        "weight": "1.3kg",
+        "description": "Stylish mountain range wall art that brings a calm, adventurous vibe to your room.",
+        "image": [
+            "/mountain1.jpg"
+        ],
+        "variants": [
+            {
+                "variantId": "dwl-art-011-v1",
+                "dimension": "55L x 35W cm",
+                "color": "black",
+                "type": "Unframed",
+                "price": 1599,
+                "stockQuantity": 7,
+                "images": [
+                    "/mountain2.jpg"
+                ]
+            },
+            {
+                "variantId": "dwl-art-011-v2",
+                "dimension": "75L x 45W cm",
+                "color": "gold",
+                "type": "Framed",
+                "price": 2199,
+                "stockQuantity": 5,
+                "images": [
+                    "/mountain3.jpg"
+                ]
+            }
+        ],
+        "sellingPrice": 1599,
+        "costPrice": 831,
+        "reviews": []
+    },
+    {
+        "uuid": "dwl-art-012",
+        "route": "/product/dwl-art-012",
+        "title": "Elephant Family Metal Art",
+        "category": "Animal Collection",
+        "subcategory": "Wildlife Decor",
+        "tags": [
+            "elephant",
+            "wildlife",
+            "animal",
+            "family"
+        ],
+        "SKU": "DWL-ART-012",
+        "basePrice": 1499,
+        "amazonPrice": 2999,
+        "discountPercent": 50,
+        "stockQuantity": 14,
+        "returnPolicy": "Eligible for return within 7 days of delivery.",
+        "deliverBy": 4,
+        "materialType": "metal",
+        "weight": "1.4kg",
+        "description": "Elegant elephant family artwork that adds warmth and strength to any space.",
+        "image": [
+            "/elephant1.jpg"
+        ],
+        "variants": [
+            {
+                "variantId": "dwl-art-012-v1",
+                "dimension": "60L x 40W cm",
+                "color": "black",
+                "type": "Unframed",
+                "price": 1499,
+                "stockQuantity": 8,
+                "images": [
+                    "/elephant2.jpg"
+                ]
+            },
+            {
+                "variantId": "dwl-art-012-v2",
+                "dimension": "80L x 55W cm",
+                "color": "bronze",
+                "type": "Framed",
+                "price": 2199,
+                "stockQuantity": 6,
+                "images": [
+                    "/elephant3.jpg"
+                ]
+            }
+        ],
+        "sellingPrice": 1499,
+        "costPrice": 749,
+        "reviews": []
+    },
+    {
+        "uuid": "dwl-art-013",
+        "route": "/product/dwl-art-013",
+        "title": "Deer Silhouette Wall Art",
+        "category": "Nature Collection",
+        "subcategory": "Wildlife Decor",
+        "tags": [
+            "deer",
+            "forest",
+            "wildlife",
+            "silhouette"
+        ],
+        "SKU": "DWL-ART-013",
+        "basePrice": 1399,
+        "amazonPrice": 2699,
+        "discountPercent": 48,
+        "stockQuantity": 10,
+        "returnPolicy": "Eligible for return within 5 days of delivery.",
+        "deliverBy": 4,
+        "materialType": "metal",
+        "weight": "1.1kg",
+        "description": "Minimalist deer silhouette metal art for a calm and nature-inspired home.",
+        "image": [
+            "/deer1.jpg"
+        ],
+        "variants": [
+            {
+                "variantId": "dwl-art-013-v1",
+                "dimension": "50L x 35W cm",
+                "color": "black",
+                "type": "Unframed",
+                "price": 1399,
+                "stockQuantity": 6,
+                "images": [
+                    "/deer2.jpg"
+                ]
+            },
+            {
+                "variantId": "dwl-art-013-v2",
+                "dimension": "70L x 45W cm",
+                "color": "gold",
+                "type": "Framed",
+                "price": 1999,
+                "stockQuantity": 4,
+                "images": [
+                    "/deer3.jpg"
+                ]
+            }
+        ],
+        "sellingPrice": 1399,
+        "costPrice": 672,
+        "reviews": []
+    },
+    {
+        "uuid": "dwl-art-014",
+        "route": "/product/dwl-art-014",
+        "title": "Butterfly Garden Metal Art",
+        "category": "Nature Collection",
+        "subcategory": "Floral Decor",
+        "tags": [
+            "butterfly",
+            "garden",
+            "floral",
+            "colorful"
+        ],
+        "SKU": "DWL-ART-014",
+        "basePrice": 1499,
+        "amazonPrice": 3099,
+        "discountPercent": 52,
+        "stockQuantity": 11,
+        "returnPolicy": "Eligible for return within 7 days of delivery.",
+        "deliverBy": 5,
+        "materialType": "metal",
+        "weight": "1.2kg",
+        "description": "Delicate butterfly garden artwork bringing a lively and colorful touch to walls.",
+        "image": [
+            "/butterfly1.jpg"
+        ],
+        "variants": [
+            {
+                "variantId": "dwl-art-014-v1",
+                "dimension": "55L x 35W cm",
+                "color": "black",
+                "type": "Unframed",
+                "price": 1499,
+                "stockQuantity": 6,
+                "images": [
+                    "/butterfly2.jpg"
+                ]
+            },
+            {
+                "variantId": "dwl-art-014-v2",
+                "dimension": "75L x 45W cm",
+                "color": "gold",
+                "type": "Framed",
+                "price": 2099,
+                "stockQuantity": 5,
+                "images": [
+                    "/butterfly3.jpg"
+                ]
+            }
+        ],
+        "sellingPrice": 1499,
+        "costPrice": 749,
+        "reviews": []
+    },
+    {
+        "uuid": "dwl-art-015",
+        "route": "/product/dwl-art-015",
+        "title": "Lord Shiva Trishul Art",
+        "category": "Spiritual Collection",
+        "subcategory": "Devotional Decor",
+        "tags": [
+            "shiva",
+            "trishul",
+            "spiritual",
+            "metal"
+        ],
+        "SKU": "DWL-ART-015",
+        "basePrice": 1699,
+        "amazonPrice": 3499,
+        "discountPercent": 51,
+        "stockQuantity": 9,
+        "returnPolicy": "Eligible for return within 5 days of delivery.",
+        "deliverBy": 4,
+        "materialType": "metal",
+        "weight": "1.3kg",
+        "description": "Sacred Trishul artwork symbolizing Lord Shiva’s divine power and energy.",
+        "image": [
+            "/shiva1.jpg"
+        ],
+        "variants": [
+            {
+                "variantId": "dwl-art-015-v1",
+                "dimension": "60L x 40W cm",
+                "color": "black",
+                "type": "Unframed",
+                "price": 1699,
+                "stockQuantity": 5,
+                "images": [
+                    "/shiva2.jpg"
+                ]
+            },
+            {
+                "variantId": "dwl-art-015-v2",
+                "dimension": "85L x 55W cm",
+                "color": "silver",
+                "type": "Framed",
+                "price": 2399,
+                "stockQuantity": 4,
+                "images": [
+                    "/shiva3.jpg"
+                ]
+            }
+        ],
+        "sellingPrice": 1699,
+        "costPrice": 849,
+        "reviews": []
+    },
+    {
+        "uuid": "dwl-art-016",
+        "route": "/product/dwl-art-016",
+        "title": "Krishna Flute Metal Artwork",
+        "category": "Spiritual Collection",
+        "subcategory": "Divine Decor",
+        "tags": [
+            "krishna",
+            "flute",
+            "spiritual",
+            "artwork"
+        ],
+        "SKU": "DWL-ART-016",
+        "basePrice": 1599,
+        "amazonPrice": 3299,
+        "discountPercent": 52,
+        "stockQuantity": 10,
+        "returnPolicy": "Eligible for return within 7 days of delivery.",
+        "deliverBy": 3,
+        "materialType": "metal",
+        "weight": "1.2kg",
+        "description": "Beautiful Krishna flute metal art radiating serenity and devotion.",
+        "image": [
+            "/krishna1.jpg"
+        ],
+        "variants": [
+            {
+                "variantId": "dwl-art-016-v1",
+                "dimension": "50L x 35W cm",
+                "color": "black",
+                "type": "Unframed",
+                "price": 1599,
+                "stockQuantity": 6,
+                "images": [
+                    "/krishna2.jpg"
+                ]
+            },
+            {
+                "variantId": "dwl-art-016-v2",
+                "dimension": "75L x 45W cm",
+                "color": "gold",
+                "type": "Framed",
+                "price": 2199,
+                "stockQuantity": 4,
+                "images": [
+                    "/krishna3.jpg"
+                ]
+            }
+        ],
+        "sellingPrice": 1599,
+        "costPrice": 789,
+        "reviews": []
+    },
+    {
+        "uuid": "dwl-art-017",
+        "route": "/product/dwl-art-017",
+        "title": "Horse Gallop Wall Sculpture",
+        "category": "Animal Collection",
+        "subcategory": "Energy Decor",
+        "tags": [
+            "horse",
+            "energy",
+            "freedom",
+            "motion"
+        ],
+        "SKU": "DWL-ART-017",
+        "basePrice": 1699,
+        "amazonPrice": 3399,
+        "discountPercent": 50,
+        "stockQuantity": 10,
+        "returnPolicy": "Eligible for return within 7 days of delivery.",
+        "deliverBy": 5,
+        "materialType": "metal",
+        "weight": "1.5kg",
+        "description": "Dynamic horse gallop metal sculpture symbolizing strength and determination.",
+        "image": [
+            "/horse1.jpg"
+        ],
+        "variants": [
+            {
+                "variantId": "dwl-art-017-v1",
+                "dimension": "65L x 40W cm",
+                "color": "black",
+                "type": "Unframed",
+                "price": 1699,
+                "stockQuantity": 7,
+                "images": [
+                    "/horse2.jpg"
+                ]
+            },
+            {
+                "variantId": "dwl-art-017-v2",
+                "dimension": "85L x 55W cm",
+                "color": "bronze",
+                "type": "Framed",
+                "price": 2299,
+                "stockQuantity": 3,
+                "images": [
+                    "/horse3.jpg"
+                ]
+            }
+        ],
+        "sellingPrice": 1699,
+        "costPrice": 849,
+        "reviews": []
+    },
+    {
+        "uuid": "dwl-art-018",
+        "route": "/product/dwl-art-018",
+        "title": "Leaf Pattern Metal Wall Art",
+        "category": "Nature Collection",
+        "subcategory": "Botanical Decor",
+        "tags": [
+            "leaf",
+            "nature",
+            "botanical",
+            "art"
+        ],
+        "SKU": "DWL-ART-018",
+        "basePrice": 1399,
+        "amazonPrice": 2799,
+        "discountPercent": 50,
+        "stockQuantity": 11,
+        "returnPolicy": "Eligible for return within 7 days of delivery.",
+        "deliverBy": 4,
+        "materialType": "metal",
+        "weight": "1.1kg",
+        "description": "Elegant leaf-pattern wall art symbolizing natural growth and beauty.",
+        "image": [
+            "/leaf1.jpg"
+        ],
+        "variants": [
+            {
+                "variantId": "dwl-art-018-v1",
+                "dimension": "50L x 35W cm",
+                "color": "black",
+                "type": "Unframed",
+                "price": 1399,
+                "stockQuantity": 7,
+                "images": [
+                    "/leaf2.jpg"
+                ]
+            },
+            {
+                "variantId": "dwl-art-018-v2",
+                "dimension": "70L x 45W cm",
+                "color": "gold",
+                "type": "Framed",
+                "price": 1999,
+                "stockQuantity": 4,
+                "images": [
+                    "/leaf3.jpg"
+                ]
+            }
+        ],
+        "sellingPrice": 1399,
+        "costPrice": 672,
+        "reviews": []
+    },
+    {
+        "uuid": "dwl-art-019",
+        "route": "/product/dwl-art-019",
+        "title": "Om Symbol Metal Art",
+        "category": "Spiritual Collection",
+        "subcategory": "Meditation Decor",
+        "tags": [
+            "om",
+            "spiritual",
+            "yoga",
+            "peace"
+        ],
+        "SKU": "DWL-ART-019",
+        "basePrice": 1499,
+        "amazonPrice": 2999,
+        "discountPercent": 50,
+        "stockQuantity": 9,
+        "returnPolicy": "Eligible for return within 7 days of delivery.",
+        "deliverBy": 3,
+        "materialType": "metal",
+        "weight": "1kg",
+        "description": "Divine Om symbol metal wall art for meditation and positive energy.",
+        "image": [
+            "/om1.jpg"
+        ],
+        "variants": [
+            {
+                "variantId": "dwl-art-019-v1",
+                "dimension": "50L x 35W cm",
+                "color": "black",
+                "type": "Unframed",
+                "price": 1499,
+                "stockQuantity": 6,
+                "images": [
+                    "/om2.jpg"
+                ]
+            },
+            {
+                "variantId": "dwl-art-019-v2",
+                "dimension": "75L x 45W cm",
+                "color": "gold",
+                "type": "Framed",
+                "price": 2099,
+                "stockQuantity": 3,
+                "images": [
+                    "/om3.jpg"
+                ]
+            }
+        ],
+        "sellingPrice": 1499,
+        "costPrice": 749,
+        "reviews": []
+    },
+    {
+        "uuid": "dwl-art-020",
+        "route": "/product/dwl-art-020",
+        "title": "Phoenix Rising Metal Art",
+        "category": "Mythical Collection",
+        "subcategory": "Fantasy Decor",
+        "tags": [
+            "phoenix",
+            "fire",
+            "mythical",
+            "rebirth"
+        ],
+        "SKU": "DWL-ART-020",
+        "basePrice": 1799,
+        "amazonPrice": 3599,
+        "discountPercent": 50,
+        "stockQuantity": 8,
+        "returnPolicy": "Eligible for return within 5 days of delivery.",
+        "deliverBy": 6,
+        "materialType": "metal",
+        "weight": "1.5kg",
+        "description": "Majestic phoenix rising metal artwork representing rebirth and strength.",
+        "image": [
+            "/phoenix1.jpg"
+        ],
+        "variants": [
+            {
+                "variantId": "dwl-art-020-v1",
+                "dimension": "60L x 40W cm",
+                "color": "black",
+                "type": "Unframed",
+                "price": 1799,
+                "stockQuantity": 5,
+                "images": [
+                    "/phoenix2.jpg"
+                ]
+            },
+            {
+                "variantId": "dwl-art-020-v2",
+                "dimension": "85L x 55W cm",
+                "color": "gold",
+                "type": "Framed",
+                "price": 2399,
+                "stockQuantity": 3,
+                "images": [
+                    "/phoenix3.jpg"
+                ]
+            }
+        ],
+        "sellingPrice": 1799,
+        "costPrice": 899,
+        "reviews": []
+    }
+]

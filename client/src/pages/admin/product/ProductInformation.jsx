@@ -1,6 +1,6 @@
-import React, { use, useMemo } from "react";
-import { useParams } from "react-router";
-import products from "../../../data/products.json";
+import React, { use, useMemo, useState } from "react";
+import { Link, useParams } from "react-router";
+// import products from "../../../data/products.json";
 import AdminSidebar from "../components/AdminSidebar";
 import Header from "../components/Header";
 import {
@@ -16,177 +16,141 @@ import {
   Type,
   Edit3,
   Trash2,
+  ArrowLeft,
 } from "lucide-react";
 
 function ProductInformation() {
-  //   const product = {
-  //     name: "Adiyogi Shiva Metal Wall Art",
-  //     category: "Spiritual & Religious",
-  //     subcategory: "Lord Shiva",
-  //     sku: "ASM65UF",
-  //     tags: "Bestseller",
-  //     size: "60L x 60W cm",
-  //     material: "Metal",
-  //     color: "Black",
-  //     amazonPrice: "₹2,500",
-  //     basePrice: "₹2,030",
-  //     discount: "66%",
-  //     stockStatus: "In stock",
-  //     stockQty: "100",
-  //     returnPolicy: "14 Days",
-  //     weight: "300 gm",
-  //     type: "Unframed",
-  //   };
+  // const { uuid } = useParams();
+  const { sku } = useParams();
 
-  const { uuid } = useParams();
+  // const product = useMemo(() => products.find((p) => p.sku == sku), [sku]);
 
-  const product = useMemo(() => products.find((p) => p.uuid == uuid), [uuid]);
+  /////////////////////////
+  const [variants, setVariants] = useState([
+    { name: "Color", value: "Black", quantity: 20, reorder: 10 },
+    { name: "Color", value: "Green", quantity: 20, reorder: 10 },
+    { name: "Dimension", value: "60L x 80W cm", quantity: 20, reorder: 10 },
+    { name: "Dimension", value: "55L x 35W cm", quantity: 20, reorder: 10 },
+  ]);
+
+  const [reviews, setReviews] = useState([
+    {
+      name: "Rajesh Sharma",
+      rating: 5,
+      comment: "Beautiful craftsmanship",
+      date: "2 days ago",
+    },
+    {
+      name: "Priya Kumari",
+      rating: 4,
+      comment: "Perfect for living room",
+      date: "5 days ago",
+    },
+  ]);
   return (
-    <div className="bg-white border rounded-xl shadow-sm p-6">
-      {/* Header with icon */}
-      <div className="flex items-center gap-2 mb-6">
-        <Package className="w-5 h-5" />
-        <h2 className="text-lg font-semibold">Product Information</h2>
-      </div>
-
-      {/* Product Info */}
-      <div className="flex items-center gap-4 mb-6">
-        <img
-          src={product.image[0]}
-          alt={product.title}
-          className="w-14 h-14 rounded object-cover"
-        />
-        <div>
-          <h3 className="text-sm font-medium">{product.title}</h3>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-6">
-        <div className="space-y-1">
-          <div className="flex items-center gap-1 text-gray-500">
-            <Tag className="w-4 h-4" />
-            <span>Category</span>
-          </div>
-          <p className="font-medium">{product.category}</p>
-        </div>
-        <div className="space-y-1">
-          <div className="flex items-center gap-1 text-gray-500">
-            <Tag className="w-4 h-4" />
-            <span>Subcategory</span>
-          </div>
-          <p className="font-medium">{product.subcategory}</p>
-        </div>
-        <div className="space-y-1">
-          <div className="flex items-center gap-1 text-gray-500">
-            <Database className="w-4 h-4" />
-            <span>SKU</span>
-          </div>
-          <p className="font-medium">{product.SKU}</p>
-        </div>
-        <div className="space-y-1">
-          <div className="flex items-center gap-1 text-gray-500">
-            <Tag className="w-4 h-4" />
-            <span>Tags</span>
-          </div>
-          <p className="font-medium">{product.tags[0]}</p>
-        </div>
-      </div>
-
-      <hr className="my-6 border-gray-200" />
-
-      {/* Product Specs */}
-      <div className="mb-6">
-        <div className="flex items-center gap-2 mb-4">
-          <Box className="w-5 h-5" />
-          <h2 className="text-sm font-semibold">Products Specs</h2>
-        </div>
-
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-sm">
-          <div className="space-y-1">
-            <div className="flex items-center gap-1 text-gray-500">
-              <Box className="w-4 h-4" />
-              <span>Product Size</span>
-            </div>
-            <p className="font-medium">{product.dimension}</p>
-          </div>
-          <div className="space-y-1">
-            <div className="flex items-center gap-1 text-gray-500">
-              <IndianRupee className="w-4 h-4" />
-              <span>Amazon Price (₹)</span>
-            </div>
-            <p className="font-medium">{product.amazonPrice}</p>
-          </div>
-          <div className="space-y-1">
-            <div className="flex items-center gap-1 text-gray-500">
-              <Percent className="w-4 h-4" />
-              <span>Discount (%)</span>
-            </div>
-            <p className="font-medium">{product.discountPercent}</p>
-          </div>
-          <div className="space-y-1">
-            <div className="flex items-center gap-1 text-gray-500">
-              <Type className="w-4 h-4" />
-              <span>Material Type</span>
-            </div>
-            <p className="font-medium">{product.materialType[0]}</p>
-          </div>
-          <div className="space-y-1">
-            <div className="flex items-center gap-1 text-gray-500">
-              <IndianRupee className="w-4 h-4" />
-              <span>Base Price (₹)</span>
-            </div>
-            <p className="font-medium">{product.basePrice}</p>
-          </div>
-          <div className="space-y-1">
-            <div className="flex items-center gap-1 text-gray-500">
-              <Database className="w-4 h-4" />
-              <span>Stock Status</span>
-            </div>
-            <p className="font-medium">
-              {product.stockQuantity > 0 ? "In Stock" : "Out of Stock"}
-            </p>
-          </div>
-          <div className="space-y-1">
-            <div className="flex items-center gap-1 text-gray-500">
-              <Palette className="w-4 h-4" />
-              <span>Color</span>
-            </div>
-            <p className="font-medium">{product.color[0]}</p>
-          </div>
-          <div className="space-y-1">
-            <div className="flex items-center gap-1 text-gray-500">
-              <Database className="w-4 h-4" />
-              <span>Stock Quantity</span>
-            </div>
-            <p className="font-medium">{product.stockQuantity}</p>
-          </div>
-          <div className="space-y-1">
-            <div className="flex items-center gap-1 text-gray-500">
-              <RefreshCw className="w-4 h-4" />
-              <span>Return Policy</span>
-            </div>
-            <p className="font-medium">{product.returnPolicy}</p>
-          </div>
-          <div className="space-y-1">
-            <div className="flex items-center gap-1 text-gray-500">
-              <Scale className="w-4 h-4" />
-              <span>Weight</span>
-            </div>
-            <p className="font-medium">{product.weight}</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Footer Actions */}
-      <div className="mt-8 flex items-center justify-end gap-2">
-        <button className="inline-flex items-center gap-2 rounded-md border px-3 py-1.5 text-sm hover:bg-gray-50">
-          <Edit3 className="w-4 h-4" />
+    <div className="min-h-screen  bg-gray-50">
+      {/* Header */}
+      <div className="h-16 bg-white rounded-lg flex items-center justify-between gap-3 px-4">
+        <Link to="/admin/products" className="flex items-center gap-2">
+          <ArrowLeft className="w-6 h-6 text-gray-800" />
+          <h1 className="text-black text-xl font-semibold">Demo... Product</h1>
+        </Link>
+        <button className="bg-[#F8F8F8] px-5 py-1.5 border text-base rounded-lg">
           Edit
         </button>
-        <button className="inline-flex items-center gap-2 rounded-md px-3 py-1.5 text-sm bg-amber-500 text-white hover:bg-amber-600">
-          <Trash2 className="w-4 h-4" />
-          Delete
-        </button>
+      </div>
+
+      {/* Product Info Grid */}
+      <div className="grid lg:grid-cols-2 gap-6 mt-4">
+        {/* Left Section */}
+        <div className="bg-white rounded-2xl border p-5 flex flex-col gap-4">
+          <div className="flex items-center gap-3">
+            <h2 className="flex items-center gap-2 text-lg font-medium">
+              <Package className="w-6 h-6 text-gray-700" />
+              Basic Information
+            </h2>
+            <span className="bg-purple-100 px-3 py-1 rounded-full text-purple-700 text-sm font-medium">
+              Framed
+            </span>
+          </div>
+
+          <p className="text-[#797979] font-medium text-base"> Description</p>
+          <p className="text-[#2C2C2C] font-medium text-base">
+            Elegant laser-cut Lord Ganesha design symbolizing blessings and
+            prosperity.
+          </p>
+          <div>
+            <label className="block text-black text-sm font-medium mb-2">
+              Product Image
+            </label>
+            <img
+              src="https://plus.unsplash.com/premium_photo-1664392147011-2a720f214e01?ixlib=rb-4.1.0&auto=format&fit=crop&q=80&w=578"
+              alt="Product"
+              className="w-40 h-auto object-cover rounded-lg border border-neutral-200"
+            />
+          </div>
+        </div>
+
+        {/* Right Section */}
+        <div className="bg-white rounded-2xl border p-6 flex flex-col gap-4">
+          <h2 className="text-black text-lg font-medium mb-2">
+            Product Details
+          </h2>
+
+          <div className="grid grid-cols-3 gap-4">
+
+            <div className="flex flex-wrap items-center justify-evenly">
+              <div>
+                
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Variants Section */}
+      <div className="mt-6 bg-white rounded-xl p-4">
+        <h2 className="text-lg font-medium mb-2">Variants</h2>
+        <table className="w-full border border-gray-200 rounded">
+          <thead className="bg-gray-100">
+            <tr>
+              {["Name", "Value", "Quantity", "Reorder Limit"].map((col) => (
+                <th key={col} className="text-left p-2">
+                  {col}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {variants.map((variant, idx) => (
+              <tr key={idx} className="border-t">
+                <td className="p-2">{variant.name}</td>
+                <td className="p-2">{variant.value}</td>
+                <td className="p-2">{variant.quantity}</td>
+                <td className="p-2">{variant.reorder}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Customer Reviews */}
+      <div className="mt-6 bg-white rounded-xl p-4">
+        <h2 className="text-lg font-medium mb-2">Customer Reviews</h2>
+        {reviews.map((review, idx) => (
+          <div key={idx} className="border-b border-gray-200 py-2">
+            <div className="flex justify-between items-center mb-1">
+              <span className="font-medium">{review.name}</span>
+              <span className="text-sm text-gray-500">{review.date}</span>
+            </div>
+            <div className="flex items-center gap-1 mb-1">
+              {Array.from({ length: review.rating }).map((_, i) => (
+                <div key={i} className="w-3 h-3 bg-yellow-400 rounded-sm" />
+              ))}
+            </div>
+            <p>{review.comment}</p>
+          </div>
+        ))}
       </div>
     </div>
   );

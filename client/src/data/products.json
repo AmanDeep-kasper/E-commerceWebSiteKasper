@@ -5,7 +5,12 @@
     "title": "Abstract Geometry Metal Wall Art",
     "category": "Modern Collection",
     "subcategory": "Abstract Decor",
-    "tags": ["geometry", "modern", "abstract", "metal"],
+    "tags": [
+      "geometry",
+      "modern",
+      "abstract",
+      "metal"
+    ],
     "SKU": "DWL-ART-001",
     "basePrice": 1499,
     "amazonPrice": 2999,
@@ -16,7 +21,9 @@
     "materialType": "metal",
     "weight": "1.2kg",
     "description": "Minimalist geometric wall art design for modern interiors.",
-    "image": ["/polygonAnimal1.jpg"],
+    "image": [
+      "/polygonAnimal1.jpg"
+    ],
     "variants": [
       {
         "variantId": "dwl-art-001-v1",
@@ -25,7 +32,9 @@
         "type": "Unframed",
         "price": 1499,
         "stockQuantity": 6,
-        "images": ["/polygonAnimal2.jpg"]
+        "images": [
+          "/polygonAnimal2.jpg"
+        ]
       },
       {
         "variantId": "dwl-art-001-v2",
@@ -34,9 +43,13 @@
         "type": "Framed",
         "price": 1999,
         "stockQuantity": 5,
-        "images": ["/polygonAnimal3.jpg"]
+        "images": [
+          "/polygonAnimal3.jpg"
+        ]
       }
     ],
+    "sellingPrice": 1499,
+    "costPrice": 749,
     "reviews": []
   },
   {
@@ -45,7 +58,12 @@
     "title": "Floral Bloom Metal Artwork",
     "category": "Nature Collection",
     "subcategory": "Floral Decor",
-    "tags": ["flower", "bloom", "nature", "petals"],
+    "tags": [
+      "flower",
+      "bloom",
+      "nature",
+      "petals"
+    ],
     "SKU": "DWL-ART-002",
     "basePrice": 1299,
     "amazonPrice": 2599,
@@ -56,7 +74,9 @@
     "materialType": "metal",
     "weight": "1kg",
     "description": "Elegant floral design crafted with fine metal detailing.",
-    "image": ["/forest1.jpg"],
+    "image": [
+      "/forest1.jpg"
+    ],
     "variants": [
       {
         "variantId": "dwl-art-002-v1",
@@ -65,7 +85,9 @@
         "type": "Unframed",
         "price": 1299,
         "stockQuantity": 10,
-        "images": ["/forest2.jpg"]
+        "images": [
+          "/forest2.jpg"
+        ]
       },
       {
         "variantId": "dwl-art-002-v2",
@@ -74,9 +96,13 @@
         "type": "Framed",
         "price": 1799,
         "stockQuantity": 6,
-        "images": ["/forest3.jpg"]
+        "images": [
+          "/forest3.jpg"
+        ]
       }
     ],
+    "sellingPrice": 1299,
+    "costPrice": 649,
     "reviews": []
   },
   {
@@ -85,7 +111,12 @@
     "title": "Tree of Life Metal Wall Art",
     "category": "Spiritual Collection",
     "subcategory": "Nature Decor",
-    "tags": ["tree", "life", "roots", "spiritual"],
+    "tags": [
+      "tree",
+      "life",
+      "roots",
+      "spiritual"
+    ],
     "SKU": "DWL-ART-003",
     "basePrice": 1699,
     "amazonPrice": 3299,
@@ -96,7 +127,9 @@
     "materialType": "metal",
     "weight": "1.3kg",
     "description": "Symbolic Tree of Life wall art that represents harmony and growth.",
-    "image": ["/tree1.jpg"],
+    "image": [
+      "/tree1.jpg"
+    ],
     "variants": [
       {
         "variantId": "dwl-art-003-v1",
@@ -105,7 +138,9 @@
         "type": "Unframed",
         "price": 1699,
         "stockQuantity": 7,
-        "images": ["/tree2.jpg"]
+        "images": [
+          "/tree2.jpg"
+        ]
       },
       {
         "variantId": "dwl-art-003-v2",
@@ -114,9 +149,13 @@
         "type": "Framed",
         "price": 2299,
         "stockQuantity": 3,
-        "images": ["/tree3.jpg"]
+        "images": [
+          "/tree3.jpg"
+        ]
       }
     ],
+    "sellingPrice": 1699,
+    "costPrice": 881,
     "reviews": []
   },
   {
@@ -125,7 +164,12 @@
     "title": "Lakshmi Artwork",
     "category": "Festive Collection",
     "subcategory": "Diwali Decor",
-    "tags": ["lakshmi", "goddess", "wealth", "festival"],
+    "tags": [
+      "lakshmi",
+      "goddess",
+      "wealth",
+      "festival"
+    ],
     "SKU": "DWL-ART-004",
     "basePrice": 1349,
     "amazonPrice": 2999,
@@ -136,7 +180,9 @@
     "materialType": "metal",
     "weight": "0.95kg",
     "description": "Sacred Lakshmi artwork symbolizing prosperity and blessings.",
-    "image": ["/couple1.jpg"],
+    "image": [
+      "/couple1.jpg"
+    ],
     "variants": [
       {
         "variantId": "dwl-art-004-v1",
@@ -145,7 +191,9 @@
         "type": "Unframed",
         "price": 1349,
         "stockQuantity": 10,
-        "images": ["/couple2.jpg"]
+        "images": [
+          "/couple2.jpg"
+        ]
       },
       {
         "variantId": "dwl-art-004-v2",
@@ -154,9 +202,13 @@
         "type": "Framed",
         "price": 1899,
         "stockQuantity": 8,
-        "images": ["/couple3.jpg"]
+        "images": [
+          "/couple3.jpg"
+        ]
       }
     ],
+    "sellingPrice": 1349,
+    "costPrice": 607,
     "reviews": []
   },
   {
@@ -165,7 +217,12 @@
     "title": "Buddha Metal Wall Sculpture",
     "category": "Spiritual Collection",
     "subcategory": "Meditation Decor",
-    "tags": ["buddha", "peace", "spiritual", "meditation"],
+    "tags": [
+      "buddha",
+      "peace",
+      "spiritual",
+      "meditation"
+    ],
     "SKU": "DWL-ART-005",
     "basePrice": 1799,
     "amazonPrice": 3499,
@@ -176,7 +233,9 @@
     "materialType": "metal",
     "weight": "1.5kg",
     "description": "Peaceful Buddha wall art that radiates calmness and positivity.",
-    "image": ["/buddha1.jpg"],
+    "image": [
+      "/buddha1.jpg"
+    ],
     "variants": [
       {
         "variantId": "dwl-art-005-v1",
@@ -185,7 +244,9 @@
         "type": "Unframed",
         "price": 1799,
         "stockQuantity": 6,
-        "images": ["/buddha2.jpg"]
+        "images": [
+          "/buddha2.jpg"
+        ]
       },
       {
         "variantId": "dwl-art-005-v2",
@@ -194,9 +255,13 @@
         "type": "Framed",
         "price": 2399,
         "stockQuantity": 2,
-        "images": ["/buddha3.jpg"]
+        "images": [
+          "/buddha3.jpg"
+        ]
       }
     ],
+    "sellingPrice": 1799,
+    "costPrice": 918,
     "reviews": []
   },
   {
@@ -205,7 +270,12 @@
     "title": "Peacock Metal Artwork",
     "category": "Nature Collection",
     "subcategory": "Bird Decor",
-    "tags": ["peacock", "feathers", "bird", "colorful"],
+    "tags": [
+      "peacock",
+      "feathers",
+      "bird",
+      "colorful"
+    ],
     "SKU": "DWL-ART-006",
     "basePrice": 1599,
     "amazonPrice": 3199,
@@ -216,7 +286,9 @@
     "materialType": "metal",
     "weight": "1.4kg",
     "description": "Vibrant peacock artwork crafted with detailed feather patterns.",
-    "image": ["/peacock1.jpg"],
+    "image": [
+      "/peacock1.jpg"
+    ],
     "variants": [
       {
         "variantId": "dwl-art-006-v1",
@@ -225,7 +297,9 @@
         "type": "Unframed",
         "price": 1599,
         "stockQuantity": 9,
-        "images": ["/peacock1.jpg"]
+        "images": [
+          "/peacock1.jpg"
+        ]
       },
       {
         "variantId": "dwl-art-006-v2",
@@ -234,9 +308,13 @@
         "type": "Framed",
         "price": 2199,
         "stockQuantity": 5,
-        "images": ["/peacock1.jpg"]
+        "images": [
+          "/peacock1.jpg"
+        ]
       }
     ],
+    "sellingPrice": 1599,
+    "costPrice": 799,
     "reviews": []
   },
   {
@@ -245,7 +323,12 @@
     "title": "Mandala Circle Wall Art",
     "category": "Bohemian Collection",
     "subcategory": "Mandala Decor",
-    "tags": ["mandala", "circle", "spiritual", "boho"],
+    "tags": [
+      "mandala",
+      "circle",
+      "spiritual",
+      "boho"
+    ],
     "SKU": "DWL-ART-007",
     "basePrice": 1399,
     "amazonPrice": 2899,
@@ -256,7 +339,9 @@
     "materialType": "metal",
     "weight": "1kg",
     "description": "Bohemian mandala wall art to add elegance and calmness to spaces.",
-    "image": ["/mandala1.jpg"],
+    "image": [
+      "/mandala1.jpg"
+    ],
     "variants": [
       {
         "variantId": "dwl-art-007-v1",
@@ -265,7 +350,9 @@
         "type": "Unframed",
         "price": 1399,
         "stockQuantity": 6,
-        "images": ["/mandala2.jpg"]
+        "images": [
+          "/mandala2.jpg"
+        ]
       },
       {
         "variantId": "dwl-art-007-v2",
@@ -274,9 +361,13 @@
         "type": "Framed",
         "price": 1999,
         "stockQuantity": 3,
-        "images": ["/mandala3.jpg"]
+        "images": [
+          "/mandala3.jpg"
+        ]
       }
     ],
+    "sellingPrice": 1399,
+    "costPrice": 672,
     "reviews": []
   },
   {
@@ -285,7 +376,12 @@
     "title": "Couple Love Silhouette",
     "category": "Romantic Collection",
     "subcategory": "Love Decor",
-    "tags": ["love", "couple", "romantic", "silhouette"],
+    "tags": [
+      "love",
+      "couple",
+      "romantic",
+      "silhouette"
+    ],
     "SKU": "DWL-ART-008",
     "basePrice": 1499,
     "amazonPrice": 2999,
@@ -296,7 +392,9 @@
     "materialType": "metal",
     "weight": "1.1kg",
     "description": "Romantic couple silhouette artwork for bedroom and living spaces.",
-    "image": ["/couple1.jpg"],
+    "image": [
+      "/couple1.jpg"
+    ],
     "variants": [
       {
         "variantId": "dwl-art-008-v1",
@@ -305,7 +403,9 @@
         "type": "Unframed",
         "price": 1499,
         "stockQuantity": 8,
-        "images": ["/couple2.jpg"]
+        "images": [
+          "/couple2.jpg"
+        ]
       },
       {
         "variantId": "dwl-art-008-v2",
@@ -314,9 +414,13 @@
         "type": "Framed",
         "price": 2099,
         "stockQuantity": 5,
-        "images": ["/couple3.jpg"]
+        "images": [
+          "/couple3.jpg"
+        ]
       }
     ],
+    "sellingPrice": 1499,
+    "costPrice": 749,
     "reviews": []
   },
   {
@@ -325,7 +429,12 @@
     "title": "Ganesh Wall Hanging",
     "category": "Festive Collection",
     "subcategory": "Spiritual Decor",
-    "tags": ["ganesh", "gods", "festival", "spiritual"],
+    "tags": [
+      "ganesh",
+      "gods",
+      "festival",
+      "spiritual"
+    ],
     "SKU": "DWL-ART-009",
     "basePrice": 1599,
     "amazonPrice": 3099,
@@ -336,7 +445,9 @@
     "materialType": "metal",
     "weight": "1.2kg",
     "description": "Sacred Ganesh wall hanging for good fortune and blessings.",
-    "image": ["/ganesha1.jpg"],
+    "image": [
+      "/ganesha1.jpg"
+    ],
     "variants": [
       {
         "variantId": "dwl-art-009-v1",
@@ -345,7 +456,9 @@
         "type": "Unframed",
         "price": 1599,
         "stockQuantity": 6,
-        "images": ["/ganesha1.jpg"]
+        "images": [
+          "/ganesha1.jpg"
+        ]
       },
       {
         "variantId": "dwl-art-009-v2",
@@ -354,9 +467,13 @@
         "type": "Framed",
         "price": 2199,
         "stockQuantity": 4,
-        "images": ["/ganesha1.jpg"]
+        "images": [
+          "/ganesha1.jpg"
+        ]
       }
     ],
+    "sellingPrice": 1599,
+    "costPrice": 831,
     "reviews": []
   },
   {
@@ -365,7 +482,12 @@
     "title": "Sunburst Metal Art",
     "category": "Modern Collection",
     "subcategory": "Abstract Decor",
-    "tags": ["sun", "burst", "energy", "modern"],
+    "tags": [
+      "sun",
+      "burst",
+      "energy",
+      "modern"
+    ],
     "SKU": "DWL-ART-010",
     "basePrice": 1799,
     "amazonPrice": 3599,
@@ -376,7 +498,9 @@
     "materialType": "metal",
     "weight": "1.6kg",
     "description": "Radiant sunburst design adding a striking focal point to interiors.",
-    "image": ["/sun1.jpg"],
+    "image": [
+      "/sun1.jpg"
+    ],
     "variants": [
       {
         "variantId": "dwl-art-010-v1",
@@ -385,7 +509,9 @@
         "type": "Unframed",
         "price": 1799,
         "stockQuantity": 7,
-        "images": ["/sun2.jpg"]
+        "images": [
+          "/sun2.jpg"
+        ]
       },
       {
         "variantId": "dwl-art-010-v2",
@@ -394,9 +520,13 @@
         "type": "Framed",
         "price": 2399,
         "stockQuantity": 3,
-        "images": ["/sun3.jpg"]
+        "images": [
+          "/sun3.jpg"
+        ]
       }
     ],
+    "sellingPrice": 1799,
+    "costPrice": 899,
     "reviews": []
   }
 ]
