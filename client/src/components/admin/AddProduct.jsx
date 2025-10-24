@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import axiosInstance from "../../api/axiosInstance";
+import { Navigate, useNavigate } from "react-router";
 import { toast } from "react-toastify";
 import { useDispatch, useSelector } from "react-redux";
 import { addProduct } from "../../redux/cart/productSlice";
@@ -18,6 +19,7 @@ import { data, Link } from "react-router";
 import AddCategoryPopUp from "./AddCategoryPopUp";
 
 const AddProduct = () => {
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const { loading, error } = useSelector((state) => state.product);
 
@@ -50,11 +52,15 @@ const AddProduct = () => {
 
     // Product Variants
     hasVariants: false,
-    variantType: "",
-    variantValue: "",
-    variantQuantity: "",
-    variantReorderLimit: "",
-    variantImage: [],
+    variants: [
+      {
+        variantType: "",
+        variantValue: "",
+        variantQuantity: "",
+        variantReorderLimit: "",
+        variantImage: [],
+      },
+    ],
   });
 
   const [images, setImages] = useState([]);
@@ -151,33 +157,102 @@ const AddProduct = () => {
 
   //variant image:
 
-  const [variantImage, setVariantImage] = useState(null);
+  const [variantImage, setVariantImage] = useState([]);
 
-  const handleVariantImageChange = (e) => {
-    const files = Array.from(e.target.files); // convert FileList → Array
+  const [downvariantopen, setDownVariantOpen] = useState(false);
+
+  //the variants drop down
+  const [variantopen, setVariantOpen] = useState(null); // track which dropdown is open
+  const variantOptions = ["Size", "Color", "Weight", "Material"];
+
+  // ✅ Handle field change for a specific variant
+  const handleVariantChange = (index, field, value) => {
+    const updateVariants = [...formData.variants];
+    updateVariants[index][field] = value;
+    setFormData((prev) => ({ ...prev, variants: updateVariants }));
+  };
+
+  // ✅ Handle image upload per variant
+  const handleVariantImageChange = (e, index) => {
+    const files = Array.from(e.target.files);
+    if (!files.length) return;
+
+    // Add preview URLs only once
+    const filesWithPreview = files.map((file) => {
+      if (!file.preview) file.preview = URL.createObjectURL(file);
+      return file;
+    });
+
+    setFormData((prev) => {
+      const updatedVariants = [...prev.variants];
+      const existing = updatedVariants[index].variantImage || [];
+
+      // Filter duplicates by name + size
+      const unique = [...existing, ...filesWithPreview].filter(
+        (v, i, self) =>
+          i === self.findIndex((t) => t.name === v.name && t.size === v.size)
+      );
+
+      updatedVariants[index].variantImage = unique.slice(0, 4);
+      return { ...prev, variants: updatedVariants };
+    });
+
+    // Reset input so selecting same file again works
+    e.target.value = "";
+  };
+
+  // ✅ Remove a specific image from a specific variant
+  const removeVariantImage = (variantIndex, imgIndex) => {
+    setFormData((prev) => {
+      const updatedVariants = [...prev.variants];
+      const images = [...updatedVariants[variantIndex].variantImage];
+
+      // remove only the clicked image
+      images.splice(imgIndex, 1);
+
+      updatedVariants[variantIndex].variantImage = images;
+      return { ...prev, variants: updatedVariants };
+    });
+  };
+
+  // ✅ Add new variant section dynamically
+  const addVariant = () => {
     setFormData((prev) => ({
       ...prev,
-      variantImages: [...(prev.variantImage || []), ...files], // merge arrays correctly
+      variants: [
+        ...prev.variants,
+        {
+          variantType: "",
+          variantValue: "",
+          variantQuantity: "",
+          variantReorderLimit: "",
+          variantImage: [],
+        },
+      ],
     }));
-  };
-
-  const removeVariantImage = (index) => {
-    setFormData((prev) => ({
-      variantImage: prev.variantImage.filter(),
-    }));
-  };
-
-  // handle variant form
-  const handleVariantChange = (index, field, value) => {
-    const newVariants = [...formData.variants];
-    newVariants[index][field] = value;
-    setFormData({ ...formData, variants: newVariants });
   };
 
   // submit handler
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    if (
+      !formData.title.trim() ||
+      !formData.category.trim() ||
+      !formData.subcategory.trim()
+    ) {
+      toast.error("Please fill in all required fields!", {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        className: "bg-red-700 text-white rounded-lg",
+      });
+      return;
+    }
     console.log("Form Data:", formData);
 
     // Create FormData object for multipart/form-data
@@ -236,10 +311,41 @@ const AddProduct = () => {
           variantValue: "",
           variantQuantity: "",
           variantReorderLimit: "",
-          variantImage: null,
+          variantImage: [],
         },
       ],
     });
+
+    toast.success("Product added successfully!", {
+      position: "top-right",
+      autoClose: 2000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      className: "bg-[#EEFFEF] text-black rounded-lg",
+    });
+
+    if (
+      !formData.title.trim() ||
+      !formData.category.trim() ||
+      !formData.subcategory.trim()
+    ) {
+      toast.error("Please fill in all required fields!", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        className: "bg-[#EEFFEF] text-white rounded-lg",
+      });
+      return;
+    }
+
+    setTimeout(() => {
+      navigate("/admin/products"); // replace with your actual route
+    }, 1000);
   };
 
   // sku id generated in random
@@ -299,12 +405,6 @@ const AddProduct = () => {
   const [materialbtn, setmaterialbtn] = useState(false);
   const [materialdata, setMaterialData] = useState("Select Material Type");
 
-  //the variants drop down
-  const [variantopen, setVariantOpen] = useState(false);
-  // const [variants, setvariants] = useState("Select Option");
-
-  const variant = ["Color", "Dimension"];
-
   // toggal btn
   const [isChecked, setIsChecked] = useState(false);
 
@@ -333,18 +433,6 @@ const AddProduct = () => {
   // Modal for adding new category
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [newCategory, setNewCategory] = useState("");
-
-  // Add  new variant form onclick
-
-  const [variants, setVariants] = useState([
-    {
-      variantType: "",
-      variantValue: "",
-      variantQuantity: "",
-      variantReorderLimit: "",
-      variantImage: null,
-    },
-  ]);
 
   return (
     <>
@@ -552,7 +640,7 @@ const AddProduct = () => {
                           key={i}
                           onClick={() => {
                             setFormData((prev) => ({ ...prev, category: p }));
-                            setOpen(false);
+                            setCategoriesOpen(false);
                           }}
                           className={`flex items-center justify-between px-4 py-2 hover:bg-[#FFEAD2] cursor-pointer ${
                             formData.category === p
@@ -924,157 +1012,204 @@ const AddProduct = () => {
           </div>
 
           {itemsopen && (
-            <div className="bg-white rounded-2xl border p-3 mt-6 ">
-              <div className="grid grid-cols-5 gap-x-48 ">
-                <div>
-                  <label className="block text-sm font-medium mb-2">
-                    Variants
-                  </label>
-                  <div className="relative w-[280px] ">
-                    <button
-                      type="button"
-                      onClick={() => setVariantOpen((prev) => !prev)}
-                      className="w-full border rounded-lg px-4 h-[45px] flex items-center justify-between bg-[#FAFAFA] text-sm text-[#6B6B6B] focus:outline-none placeholder:text-[#6B6B6B]">
-                      <span>{formData.variantType || "Select Option"}</span>
-
-                      <ChevronDown
-                        size={18}
-                        className={`text-[#6B6B6B] transition-transform duration-200 ${
-                          open ? "rotate-180" : ""
-                        }`}
-                      />
-                    </button>
-
-                    {variantopen && (
-                      <ul className="absolute z-10 w-full border rounded-lg bg-white shadow-md max-h-60 overflow-y-auto text-[15px]">
-                        {variant.map((p, i) => (
-                          <li
-                            key={i}
-                            onClick={() => {
-                              setFormData((prev) => ({
-                                ...prev,
-                                variantType: p,
-                              }));
-                              setVariantOpen(false);
-                            }}
-                            className={`flex items-center justify-between px-4 py-2 hover:bg-[#FFEAD2] cursor-pointer ${
-                              selected === p ? "bg-gray-100 text-[#6B6B6B]" : ""
-                            }`}>
-                            <span>{p}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2">
-                    Value
-                  </label>
-                  <input
-                    type="number"
-                    name="variantValue"
-                    value={formData.variantValue}
-                    onChange={handleChange}
-                    placeholder="Enter Value"
-                    className="w-[280px] h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#FAFAFA] text-sm text-gray-600 focus:outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2">
-                    Quantity
-                  </label>
-                  <input
-                    type="number"
-                    name="variantQuantity"
-                    value={formData.variantQuantity}
-                    onChange={handleChange}
-                    placeholder="Enter Quantity"
-                    className="w-[280px] h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#FAFAFA] text-sm text-gray-600 focus:outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2">
-                    Reorder Limit
-                  </label>
-                  <input
-                    type="number"
-                    name="variantReorderLimit"
-                    value={formData.variantReorderLimit}
-                    onChange={handleChange}
-                    placeholder="Enter Reorder limit"
-                    className="w-[280px] h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#FAFAFA] text-sm text-gray-600 focus:outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2">
-                    Product Image
-                  </label>
-
-                  <div className="relative w-[60px] h-[60px]">
-                    {!variantImage ? (
-                      // ✅ Upload box visible initially
-                      <label
-                        htmlFor="variantImage"
-                        className="w-[60px] h-[60px] bg-[#ECECF0] border border-neutral-200 rounded-lg 
-              flex items-center justify-center cursor-pointer hover:bg-gray-200 transition">
-                        <input
-                          id="variantImage"
-                          type="file"
-                          accept="image/*"
-                          className="hidden"
-                          onChange={handleVariantImageChange}
-                        />
-                        <div className="w-[22px] h-[22px] flex items-center justify-center rounded-full border border-[#D0D0D0] bg-white">
-                          <Plus className="text-[#5F5F5F] w-[9px] h-[9px]" />
-                        </div>
+            <div>
+              {formData.variants.map((variant, index) => (
+                <div
+                  key={index}
+                  className="bg-white rounded-2xl border p-3 mt-6 transition-all">
+                  <div className="grid grid-cols-5 gap-x-48">
+                    {/* Variant Type */}
+                    <div>
+                      <label className="block text-sm font-medium mb-2">
+                        Variants
                       </label>
-                    ) : (
-                      // ✅ Display uploaded image (input hidden)
-                      <div className="relative">
-                        <img
-                          src={URL.createObjectURL(variantImage)}
-                          alt="Variant"
-                          className="w-[60px] h-[60px] object-cover rounded-lg border border-neutral-200"
-                        />
-
-                        {/* Remove Button */}
+                      <div className="relative w-[280px]">
                         <button
                           type="button"
-                          onClick={removeVariantImage}
-                          className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px]">
-                          ×
+                          onClick={() =>
+                            setVariantOpen(variantopen === index ? null : index)
+                          }
+                          className="w-full border rounded-lg px-4 h-[45px] flex items-center justify-between bg-[#FAFAFA] text-sm text-[#6B6B6B]">
+                          <span>{variant.variantType || "Select Option"}</span>
+                          <ChevronDown
+                            size={18}
+                            className={`text-[#6B6B6B] transition-transform duration-200 ${
+                              variantopen === index ? "rotate-180" : ""
+                            }`}
+                          />
                         </button>
+
+                        {variantopen === index && (
+                          <ul className="absolute z-10 w-full border rounded-lg bg-white shadow-md max-h-60 overflow-y-auto text-[15px]">
+                            {variantOptions.map((opt, i) => (
+                              <li
+                                key={i}
+                                onClick={() => {
+                                  handleVariantChange(
+                                    index,
+                                    "variantType",
+                                    opt
+                                  );
+                                  setVariantOpen(false);
+                                }}
+                                className="px-4 py-2 hover:bg-[#FFEAD2] cursor-pointer">
+                                {opt}
+                              </li>
+                            ))}
+                          </ul>
+                        )}
                       </div>
-                    )}
+                    </div>
+
+                    {/* Value */}
+                    <div>
+                      <label className="block text-sm font-medium mb-2">
+                        Value
+                      </label>
+                      <input
+                        type="text"
+                        // name="variantValue"
+                        value={variant.variantValue}
+                        onChange={(e) =>
+                          handleVariantChange(
+                            index,
+                            "variantValue",
+                            e.target.value
+                          )
+                        }
+                        placeholder="Enter Value"
+                        className="w-[280px] h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#FAFAFA] text-sm text-gray-600"
+                      />
+                    </div>
+
+                    {/* Quantity */}
+                    <div>
+                      <label className="block text-sm font-medium mb-2">
+                        Quantity
+                      </label>
+                      <input
+                        type="number"
+                        // name="variantQuantity"
+                        value={variant.variantQuantity}
+                        onChange={(e) =>
+                          handleVariantChange(
+                            index,
+                            "variantQuantity",
+                            e.target.value
+                          )
+                        }
+                        placeholder="Enter Quantity"
+                        className="w-[280px] h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#FAFAFA] text-sm text-gray-600"
+                      />
+                    </div>
+
+                    {/* Reorder Limit */}
+                    <div>
+                      <label className="block text-sm font-medium mb-2">
+                        Reorder Limit
+                      </label>
+                      <input
+                        type="number"
+                        // name="variantReorderLimit"
+                        value={variant.variantReorderLimit}
+                        onChange={(e) =>
+                          handleVariantChange(
+                            index,
+                            "variantReorderLimit",
+                            e.target.value
+                          )
+                        }
+                        placeholder="Enter Reorder Limit"
+                        className="w-[280px] h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#FAFAFA] text-sm text-gray-600"
+                      />
+                    </div>
+
+                    {/* Product Image */}
+                    <div>
+                      <label className="block text-sm font-medium mb-2">
+                        Product Image
+                      </label>
+
+                      <div className="relative w-[60px] h-[60px]">
+                        {/* ✅ Show first image if uploaded */}
+                        {variant.variantImage?.length > 0 ? (
+                          <div className="relative w-[60px] h-[60px]">
+                            <img
+                              src={
+                                typeof variant.variantImage[0] === "string"
+                                  ? variant.variantImage[0]
+                                  : variant.variantImage[0].preview ||
+                                    URL.createObjectURL(variant.variantImage[0])
+                              }
+                              alt="Variant"
+                              className="w-[60px] h-[60px] object-cover rounded-lg border border-neutral-200"
+                            />
+
+                            {/* ✅ Overlay for extra images */}
+                            {variant.variantImage.length > 1 && (
+                              <div className="absolute inset-0 bg-black/50 flex items-center justify-center text-white text-xs font-medium rounded-lg">
+                                +{variant.variantImage.length - 1}
+                              </div>
+                            )}
+
+                            <button
+                              type="button"
+                              onClick={() => removeVariantImage(index, 0)}
+                              className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px]">
+                              ×
+                            </button>
+
+                            {/* ✅ Hide upload if already 4 images */}
+                            {variant.variantImage.length < 4 && (
+                              <label
+                                htmlFor={`variantImage-${index}`}
+                                className="absolute bottom-5 left-20 -translate-x-1/2 w-6 h-6 bg-white border border-gray-300 rounded-full flex items-center justify-center cursor-pointer hover:bg-gray-100">
+                                <input
+                                  id={`variantImage-${index}`}
+                                  type="file"
+                                  accept="image/*"
+                                  multiple
+                                  className="hidden"
+                                  onChange={(e) =>
+                                    handleVariantImageChange(e, index)
+                                  }
+                                />
+                                <Plus className="text-gray-500 w-3 h-3" />
+                              </label>
+                            )}
+                          </div>
+                        ) : (
+                          // ✅ Upload button if no image yet
+                          <label
+                            htmlFor={`variantImage-${index}`}
+                            className="w-[60px] h-[60px] bg-[#ECECF0] border border-neutral-200 rounded-lg flex items-center justify-center cursor-pointer hover:bg-gray-200">
+                            <input
+                              id={`variantImage-${index}`}
+                              type="file"
+                              accept="image/*"
+                              multiple
+                              className="hidden"
+                              onChange={(e) =>
+                                handleVariantImageChange(e, index)
+                              }
+                            />
+                            <div className="w-[22px] h-[22px] flex items-center justify-center rounded-full border border-[#D0D0D0] bg-white">
+                              <Plus className="text-[#5F5F5F] w-[9px] h-[9px]" />
+                            </div>
+                          </label>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 </div>
-                {/* <div>
-                <label className="block text-black text-sm font-medium mb-2">
-                  Product Image
-                </label>
+              ))}
 
-                <label
-                  htmlFor="productImage"
-                  className="w-[60px] h-[60px] bg-[#ECECF0] border border-neutral-200 rounded-lg flex items-center justify-center cursor-pointer hover:bg-gray-200 transition "
-                >
-                  <input
-                    id="productImage"
-                    type="file"
-                    multiple
-                    className="hidden"
-                    onChange={handleVariantImageChange}
-                  />
-                  <div className="w-[22px] h-[22px] flex items-center justify-center rounded-full border border-[#D0D0D0] bg-white">
-                    <Plus className="text-[#5F5F5F] w-[9px] h-[9px]" />
-                  </div>
-                </label>
-              </div> */}
-              </div>
+              {/* Add Variant Button */}
               <div className="flex items-center justify-start mt-3">
                 <button
-                  className="bg-[#DD851F] text-white px-4 py-2 rounded-lg text-sm hover:bg-orange-600"
-                  >
+                  type="button"
+                  onClick={addVariant}
+                  className="bg-[#DD851F] text-white px-4 py-2 rounded-lg text-sm hover:bg-orange-600">
                   + Add Variants
                 </button>
               </div>

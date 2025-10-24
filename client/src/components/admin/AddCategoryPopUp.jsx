@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { toast } from "react-toastify";
 
 const AddCategoryPopUp = ({
   setShowCategoryModal,
@@ -17,9 +18,33 @@ const AddCategoryPopUp = ({
     if (subCategoryInput.trim()) {
       setSubcategories([...subcategories, subCategoryInput.trim()]); // Add to array
     }
+
+    if (!categoryInput.trim() || !subCategoryInput.trim()) {
+      toast.error("Please fill in all fields!", {
+        className: "bg-red-700 text-white rounded-lg",
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+      return;
+    }
+
+    toast.success("Category added successfully!", {
+      className: "bg-[#EEFFEF] text-black rounded-lg",
+      position: "top-right",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+    });
+
+    setShowCategoryModal(false); // Close popup
     setCategoryInput(""); // Clear input
     setSubCategoryInput("");
-    setShowCategoryModal(false); // Close popup
   };
 
   return (
