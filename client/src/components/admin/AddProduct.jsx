@@ -425,38 +425,6 @@ const AddProduct = () => {
     "28%(Luxury items)",
   ];
 
-
-  const [popupform, setPopUpForm] = useState(false);
-
-  return (
-   
-      <form
-        className=" rounded-md min-h-screen relative"
-        onSubmit={handleSubmit}
-        encType="multipart/form-data"
-      >
-        {/* Header */}
-        <div className="h-16 bg-white rounded-lg  flex items-center gap-3 px-4">
-          <Link to={`/admin/products`}>
-            <div className=" flex items-center">
-              <ArrowLeft className="w-6 h-6 text-gray-800" />
-              <h1 className="text-black text-[20px] font-semibold font-['Inter']">
-                Add Product
-              </h1>
-            </div>
-          </Link>
-        </div>
-
-        {/* Product Info Grid */}
-        <div className="grid lg:grid-cols-2 gap-6 mt-4">
-          {/* Left Section */}
-          <div className="bg-white rounded-2xl border p-6">
-            <h2 className="flex items-center gap-2 text-[20px] font-medium font-['Inter'] mb-4">
-              <Package className="w-6 h-6 text-gray-700" />
-              Basic Information
-            </h2>
-
-
   // Modal for adding new category
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [newCategory, setNewCategory] = useState("");
@@ -501,17 +469,11 @@ const AddProduct = () => {
               Basic Information
             </h2>
 
-
             <div className="flex gap-6 mb-5 ">
               {["Framed", "Unframed"].map((option) => (
                 <label
                   key={option}
-
-                  className="flex items-center gap-2 cursor-pointer"
-                >
-
-                  
-
+                  className="flex items-center gap-2 cursor-pointer">
                   <input
                     type="radio"
                     name="type"
@@ -558,12 +520,7 @@ const AddProduct = () => {
                 rows="3"
                 className="w-full border border-[#D0D0D0] rounded-md px-3 py-2
           text-[#6B6B6B] text-sm font-normal bg-[#FAFAFA]
-
-          focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 resize-none"
-              ></textarea>
-
-          
-
+          focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 resize-none"></textarea>
             </div>
 
             {/* Product Image Upload */}
@@ -593,12 +550,7 @@ const AddProduct = () => {
                           images: prev.images.filter((_, index) => index !== i),
                         }));
                       }}
-
-                      className="absolute top-2 right-2 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition"
-                    >
-
                       className="absolute top-2 right-2 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
-
                       <Trash size={20} />
                     </button>
                   </div>
@@ -609,12 +561,7 @@ const AddProduct = () => {
                   <label
                     htmlFor="productImage"
                     className="w-[137px] h-[137px] bg-[#ECECF0] border border-neutral-200 rounded-lg 
-
-        flex items-center justify-center cursor-pointer hover:bg-gray-200 transition"
-                  >
-
         flex items-center justify-center cursor-pointer hover:bg-gray-200 transition">
-
                     <input
                       id="productImage"
                       type="file"
@@ -656,12 +603,7 @@ const AddProduct = () => {
                   <button
                     type="button"
                     className="bg-amber-600 text-white px-4 rounded-r-lg hover:bg-amber-700"
-
-                    onClick={generatedSKU}
-                  >
-
                     onClick={generatedSKU}>
-
                     Generate
                   </button>
                 </div>
@@ -675,14 +617,8 @@ const AddProduct = () => {
                   </label>
                   <button
                     type="button"
-
-                    onClick={() => setOpen((prev) => !prev)}
-                    className="w-full border rounded-lg px-4 h-[45px] flex items-center justify-between bg-[#FAFAFA] text-sm text-[#6B6B6B] focus:outline-none placeholder:text-[#6B6B6B]"
-                  >
-
                     onClick={() => setCategoriesOpen((prev) => !prev)}
                     className="w-full border rounded-lg px-4 h-[45px] flex items-center justify-between bg-[#FAFAFA] text-sm text-[#6B6B6B] focus:outline-none placeholder:text-[#6B6B6B]">
-
                     <span>{formData.category || "Select Category"}</span>
                     <ChevronDown
                       size={18}
@@ -693,35 +629,20 @@ const AddProduct = () => {
                   </button>
 
                   {/* Price Dropdown Menu */}
-
-                  {open && (
-                    <ul className="absolute z-10 w-full border rounded-lg bg-white shadow-md max-h-60 overflow-y-auto text-[15px]">
-                      {price.map((p, i) => (
-
                   {categoriesopen && (
                     <ul className="absolute z-10 w-full border rounded-lg bg-white shadow-md max-h-60 overflow-y-auto text-[15px]">
                       {categories.map((p, i) => (
-
                         <li
                           key={i}
                           onClick={() => {
                             setFormData((prev) => ({ ...prev, category: p }));
-
-                            setOpen(false);
-
                             setCategoriesOpen(false);
-
                           }}
                           className={`flex items-center justify-between px-4 py-2 hover:bg-[#FFEAD2] cursor-pointer ${
                             formData.category === p
                               ? "bg-gray-100 text-[#6B6B6B]"
                               : ""
-
-                          }`}
-                        >
-
-                          }`{"}"}>
-
+                          }`}>
                           <span>{p}</span>
                         </li>
                       ))}
@@ -731,11 +652,7 @@ const AddProduct = () => {
                         <button
                           type="button"
                           className="bg-[#DD851F] text-white px-3 py-2 rounded-md hover:bg-orange-600 w-full"
-
-                        >
-
                           onClick={() => setShowCategoryModal(true)}>
-
                           + Add Category
                         </button>
                       </li>
@@ -753,12 +670,7 @@ const AddProduct = () => {
                   <button
                     type="button"
                     onClick={() => setSubDropDown((prev) => !prev)}
-
-                    className="w-full border rounded-lg px-4 h-[45px] flex items-center justify-between bg-[#FAFAFA] text-sm text-[#6B6B6B] focus:outline-none placeholder:text-[#6B6B6B]"
-                  >
-
                     className="w-full border rounded-lg px-4 h-[45px] flex items-center justify-between bg-[#FAFAFA] text-sm text-[#6B6B6B] focus:outline-none placeholder:text-[#6B6B6B]">
-
                     <span>{formData.subcategory || "Select Subcategory"}</span>
                     <ChevronDown
                       size={18}
@@ -771,11 +683,7 @@ const AddProduct = () => {
                   {/* Sub Dropdown Menu */}
                   {subdropdown && (
                     <ul className="absolute z-10 w-full border rounded-lg bg-white shadow-md max-h-60 overflow-y-auto text-[15px]">
-
                       {subcategories.map((p, i) => (
-
-                      {subcategories.map((p, i) => (
-
                         <li
                           key={i}
                           onClick={() => {
@@ -803,12 +711,7 @@ const AddProduct = () => {
                   <button
                     type="button"
                     onClick={() => setTagsBtn((prev) => !prev)}
-
-                    className="w-full border rounded-lg px-4 h-[45px] flex items-center justify-between bg-[#FAFAFA] text-sm text-[#6B6B6B] focus:outline-none placeholder:text-[#6B6B6B]"
-                  >
-
                     className="w-full border rounded-lg px-4 h-[45px] flex items-center justify-between bg-[#FAFAFA] text-sm text-[#6B6B6B] focus:outline-none placeholder:text-[#6B6B6B]">
-
                     <span>{formData.tags || "Select Tags"}</span>
                     <ChevronDown
                       size={18}
@@ -829,12 +732,7 @@ const AddProduct = () => {
                           }}
                           className={`flex items-center justify-between px-4 py-2 hover:bg-[#FFEAD2] cursor-pointer ${
                             selected === p ? "bg-gray-100 text-[#6B6B6B]" : ""
-
-                          }`}
-                        >
-
                           }`}>
-
                           <span>{p}</span>
                         </li>
                       ))}
@@ -852,12 +750,7 @@ const AddProduct = () => {
                   <button
                     type="button"
                     onClick={() => setmaterialbtn((prev) => !prev)}
-
-                    className="w-full border rounded-lg px-4 h-[45px] flex items-center justify-between bg-[#FAFAFA] text-sm text-[#6B6B6B] focus:outline-none placeholder:text-[#6B6B6B]"
-                  >
-
                     className="w-full border rounded-lg px-4 h-[45px] flex items-center justify-between bg-[#FAFAFA] text-sm text-[#6B6B6B] focus:outline-none placeholder:text-[#6B6B6B]">
-
                     <span>
                       {formData.materialType || "Select Material Type"}
                     </span>
@@ -883,12 +776,7 @@ const AddProduct = () => {
                           }}
                           className={`flex items-center justify-between px-4 py-2 hover:bg-[#FFEAD2] cursor-pointer ${
                             selected === p ? "bg-gray-100 text-[#6B6B6B]" : ""
-
-                          }`}
-                        >
-
                           }`}>
-
                           <span>{p}</span>
                         </li>
                       ))}
@@ -1047,12 +935,7 @@ const AddProduct = () => {
                   <button
                     type="button"
                     onClick={() => setOpenGstBox((prev) => !prev)}
-
-                    className="w-full border rounded-lg px-4 h-[45px] flex items-center justify-between bg-[#FAFAFA] text-sm text-[#6B6B6B] focus:outline-none placeholder:text-[#6B6B6B]"
-                  >
-
                     className="w-full border rounded-lg px-4 h-[45px] flex items-center justify-between bg-[#FAFAFA] text-sm text-[#6B6B6B] focus:outline-none placeholder:text-[#6B6B6B]">
-
                     <span>{formData.taxPercent || "5%"}</span>
                     <ChevronDown
                       size={18}
@@ -1074,12 +957,7 @@ const AddProduct = () => {
                           }}
                           className={`flex items-center justify-between px-4 py-2 hover:bg-[#FFEAD2] cursor-pointer ${
                             selected === p ? "bg-gray-100 text-[#6B6B6B]" : ""
-
-                          }`}
-                        >
-
                           }`}>
-
                           <span>{p}</span>
                         </li>
                       ))}
@@ -1115,23 +993,13 @@ const AddProduct = () => {
                 <div
                   className={`block h-[18px] w-[34px] rounded-full transition-colors ${
                     formData.hasVariants ? "bg-[#5BB401]" : "bg-[#E5E7EB]"
-
-                  }`}
-                ></div>
-
                   }`}></div>
-
                 <div
                   className={`absolute top-0.5 h-[13px] w-[13px] rounded-full bg-white transition-transform duration-200 ${
                     formData.hasVariants
                       ? "translate-x-[17px]"
                       : "translate-x-0"
-
-                  }`}
-                ></div>
-
                   }`}></div>
-
               </div>
             </label>
             <p className="text-[#2B2B2B] font-normal">
@@ -1140,140 +1008,6 @@ const AddProduct = () => {
           </div>
 
           {itemsopen && (
-
-            <div className="bg-white rounded-2xl border p-3 mt-6 ">
-              <div className="grid grid-cols-5 gap-x-48 ">
-                <div>
-                  <label className="block text-sm font-medium mb-2">
-                    Variants
-                  </label>
-                  <div className="relative w-[280px] ">
-                    <button
-                      type="button"
-                      onClick={() => setVariantOpen((prev) => !prev)}
-                      className="w-full border rounded-lg px-4 h-[45px] flex items-center justify-between bg-[#FAFAFA] text-sm text-[#6B6B6B] focus:outline-none placeholder:text-[#6B6B6B]"
-                    >
-                      <span>{formData.variantType || "Select Option"}</span>
-
-                      <ChevronDown
-                        size={18}
-                        className={`text-[#6B6B6B] transition-transform duration-200 ${
-                          open ? "rotate-180" : ""
-                        }`}
-                      />
-                    </button>
-
-                    {variantopen && (
-                      <ul className="absolute z-10 w-full border rounded-lg bg-white shadow-md max-h-60 overflow-y-auto text-[15px]">
-                        {variant.map((p, i) => (
-                          <li
-                            key={i}
-                            onClick={() => {
-                              setFormData((prev) => ({
-                                ...prev,
-                                variantType: p,
-                              }));
-                              setVariantOpen(false);
-                            }}
-                            className={`flex items-center justify-between px-4 py-2 hover:bg-[#FFEAD2] cursor-pointer ${
-                              selected === p ? "bg-gray-100 text-[#6B6B6B]" : ""
-                            }`}
-                          >
-                            <span>{p}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2">
-                    Value
-                  </label>
-                  <input
-                    type="number"
-                    name="variantValue"
-                    value={formData.variantValue}
-                    onChange={handleChange}
-                    placeholder="Enter Value"
-                    className="w-[280px] h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#FAFAFA] text-sm text-gray-600 focus:outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2">
-                    Quantity
-                  </label>
-                  <input
-                    type="number"
-                    name="variantQuantity"
-                    value={formData.variantQuantity}
-                    onChange={handleChange}
-                    placeholder="Enter Quantity"
-                    className="w-[280px] h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#FAFAFA] text-sm text-gray-600 focus:outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2">
-                    Reorder Limit
-                  </label>
-                  <input
-                    type="number"
-                    name="variantReorderLimit"
-                    value={formData.variantReorderLimit}
-                    onChange={handleChange}
-                    placeholder="Enter Reorder limit"
-                    className="w-[280px] h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#FAFAFA] text-sm text-gray-600 focus:outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2">
-                    Product Image
-                  </label>
-
-                  <div className="relative w-[60px] h-[60px]">
-                    {!variantImage ? (
-                      // ✅ Upload box visible initially
-                      <label
-                        htmlFor="variantImage"
-                        className="w-[60px] h-[60px] bg-[#ECECF0] border border-neutral-200 rounded-lg 
-              flex items-center justify-center cursor-pointer hover:bg-gray-200 transition"
-                      >
-                        <input
-                          id="variantImage"
-                          type="file"
-                          accept="image/*"
-                          className="hidden"
-                          onChange={handleVariantImageChange}
-                        />
-                        <div className="w-[22px] h-[22px] flex items-center justify-center rounded-full border border-[#D0D0D0] bg-white">
-                          <Plus className="text-[#5F5F5F] w-[9px] h-[9px]" />
-                        </div>
-                      </label>
-                    ) : (
-                      // ✅ Display uploaded image (input hidden)
-                      <div className="relative">
-                        <img
-                          src={URL.createObjectURL(variantImage)}
-                          alt="Variant"
-                          className="w-[60px] h-[60px] object-cover rounded-lg border border-neutral-200"
-                        />
-
-                        {/* Remove Button */}
-                        <button
-                          type="button"
-                          onClick={removeVariantImage}
-                          className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px]"
-                        >
-                          ×
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-              <div className="flex items-center justify-start mt-3">
-                <button className="bg-[#DD851F] text-white px-4 py-2 rounded-lg text-sm hover:bg-orange-600">
-
             <div>
               {formData.variants.map((variant, index) => (
                 <div
@@ -1472,7 +1206,6 @@ const AddProduct = () => {
                   type="button"
                   onClick={addVariant}
                   className="bg-[#DD851F] text-white px-4 py-2 rounded-lg text-sm hover:bg-orange-600">
-
                   + Add Variants
                 </button>
               </div>
@@ -1487,20 +1220,12 @@ const AddProduct = () => {
           </button>
           <button
             type="submit"
-
-            className="px-6 py-2 bg-lime-600 rounded-lg text-white font-medium hover:bg-lime-700"
-          >
-
             className="px-6 py-2 bg-lime-600 rounded-lg text-white font-medium hover:bg-lime-700">
-
             Save
           </button>
         </div>
       </form>
-
-
       
-
     </>
   );
 };
