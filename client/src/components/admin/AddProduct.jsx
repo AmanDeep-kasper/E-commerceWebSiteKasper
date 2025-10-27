@@ -429,7 +429,7 @@ const AddProduct = () => {
   const [popupform, setPopUpForm] = useState(false);
 
   return (
-    <>
+   
       <form
         className=" rounded-md min-h-screen relative"
         onSubmit={handleSubmit}
@@ -510,7 +510,7 @@ const AddProduct = () => {
                   className="flex items-center gap-2 cursor-pointer"
                 >
 
-                  className="flex items-center gap-2 cursor-pointer">
+                  
 
                   <input
                     type="radio"
@@ -562,7 +562,7 @@ const AddProduct = () => {
           focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 resize-none"
               ></textarea>
 
-          focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 resize-none"></textarea>
+          
 
             </div>
 
@@ -720,7 +720,7 @@ const AddProduct = () => {
                           }`}
                         >
 
-                          }`}>
+                          }`{"}"}>
 
                           <span>{p}</span>
                         </li>
