@@ -425,7 +425,7 @@ const AddProduct = () => {
     "28%(Luxury items)",
   ];
 
-<<<<<<< HEAD
+
   const [popupform, setPopUpForm] = useState(false);
 
   return (
@@ -456,7 +456,7 @@ const AddProduct = () => {
               Basic Information
             </h2>
 
-=======
+
   // Modal for adding new category
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [newCategory, setNewCategory] = useState("");
@@ -501,17 +501,17 @@ const AddProduct = () => {
               Basic Information
             </h2>
 
->>>>>>> 65c8902c9f20b8ea5111c298bd6ad90591de1fe5
+
             <div className="flex gap-6 mb-5 ">
               {["Framed", "Unframed"].map((option) => (
                 <label
                   key={option}
-<<<<<<< HEAD
+
                   className="flex items-center gap-2 cursor-pointer"
                 >
-=======
+
                   className="flex items-center gap-2 cursor-pointer">
->>>>>>> 65c8902c9f20b8ea5111c298bd6ad90591de1fe5
+
                   <input
                     type="radio"
                     name="type"
@@ -558,12 +558,12 @@ const AddProduct = () => {
                 rows="3"
                 className="w-full border border-[#D0D0D0] rounded-md px-3 py-2
           text-[#6B6B6B] text-sm font-normal bg-[#FAFAFA]
-<<<<<<< HEAD
+
           focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 resize-none"
               ></textarea>
-=======
+
           focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 resize-none"></textarea>
->>>>>>> 65c8902c9f20b8ea5111c298bd6ad90591de1fe5
+
             </div>
 
             {/* Product Image Upload */}
@@ -593,12 +593,12 @@ const AddProduct = () => {
                           images: prev.images.filter((_, index) => index !== i),
                         }));
                       }}
-<<<<<<< HEAD
+
                       className="absolute top-2 right-2 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition"
                     >
-=======
+
                       className="absolute top-2 right-2 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
->>>>>>> 65c8902c9f20b8ea5111c298bd6ad90591de1fe5
+
                       <Trash size={20} />
                     </button>
                   </div>
@@ -609,12 +609,12 @@ const AddProduct = () => {
                   <label
                     htmlFor="productImage"
                     className="w-[137px] h-[137px] bg-[#ECECF0] border border-neutral-200 rounded-lg 
-<<<<<<< HEAD
+
         flex items-center justify-center cursor-pointer hover:bg-gray-200 transition"
                   >
-=======
+
         flex items-center justify-center cursor-pointer hover:bg-gray-200 transition">
->>>>>>> 65c8902c9f20b8ea5111c298bd6ad90591de1fe5
+
                     <input
                       id="productImage"
                       type="file"
@@ -656,12 +656,12 @@ const AddProduct = () => {
                   <button
                     type="button"
                     className="bg-amber-600 text-white px-4 rounded-r-lg hover:bg-amber-700"
-<<<<<<< HEAD
+
                     onClick={generatedSKU}
                   >
-=======
+
                     onClick={generatedSKU}>
->>>>>>> 65c8902c9f20b8ea5111c298bd6ad90591de1fe5
+
                     Generate
                   </button>
                 </div>
@@ -675,14 +675,14 @@ const AddProduct = () => {
                   </label>
                   <button
                     type="button"
-<<<<<<< HEAD
+
                     onClick={() => setOpen((prev) => !prev)}
                     className="w-full border rounded-lg px-4 h-[45px] flex items-center justify-between bg-[#FAFAFA] text-sm text-[#6B6B6B] focus:outline-none placeholder:text-[#6B6B6B]"
                   >
-=======
+
                     onClick={() => setCategoriesOpen((prev) => !prev)}
                     className="w-full border rounded-lg px-4 h-[45px] flex items-center justify-between bg-[#FAFAFA] text-sm text-[#6B6B6B] focus:outline-none placeholder:text-[#6B6B6B]">
->>>>>>> 65c8902c9f20b8ea5111c298bd6ad90591de1fe5
+
                     <span>{formData.category || "Select Category"}</span>
                     <ChevronDown
                       size={18}
@@ -693,35 +693,35 @@ const AddProduct = () => {
                   </button>
 
                   {/* Price Dropdown Menu */}
-<<<<<<< HEAD
+
                   {open && (
                     <ul className="absolute z-10 w-full border rounded-lg bg-white shadow-md max-h-60 overflow-y-auto text-[15px]">
                       {price.map((p, i) => (
-=======
+
                   {categoriesopen && (
                     <ul className="absolute z-10 w-full border rounded-lg bg-white shadow-md max-h-60 overflow-y-auto text-[15px]">
                       {categories.map((p, i) => (
->>>>>>> 65c8902c9f20b8ea5111c298bd6ad90591de1fe5
+
                         <li
                           key={i}
                           onClick={() => {
                             setFormData((prev) => ({ ...prev, category: p }));
-<<<<<<< HEAD
+
                             setOpen(false);
-=======
+
                             setCategoriesOpen(false);
->>>>>>> 65c8902c9f20b8ea5111c298bd6ad90591de1fe5
+
                           }}
                           className={`flex items-center justify-between px-4 py-2 hover:bg-[#FFEAD2] cursor-pointer ${
                             formData.category === p
                               ? "bg-gray-100 text-[#6B6B6B]"
                               : ""
-<<<<<<< HEAD
+
                           }`}
                         >
-=======
+
                           }`}>
->>>>>>> 65c8902c9f20b8ea5111c298bd6ad90591de1fe5
+
                           <span>{p}</span>
                         </li>
                       ))}
@@ -731,11 +731,11 @@ const AddProduct = () => {
                         <button
                           type="button"
                           className="bg-[#DD851F] text-white px-3 py-2 rounded-md hover:bg-orange-600 w-full"
-<<<<<<< HEAD
+
                         >
-=======
+
                           onClick={() => setShowCategoryModal(true)}>
->>>>>>> 65c8902c9f20b8ea5111c298bd6ad90591de1fe5
+
                           + Add Category
                         </button>
                       </li>
@@ -753,12 +753,12 @@ const AddProduct = () => {
                   <button
                     type="button"
                     onClick={() => setSubDropDown((prev) => !prev)}
-<<<<<<< HEAD
+
                     className="w-full border rounded-lg px-4 h-[45px] flex items-center justify-between bg-[#FAFAFA] text-sm text-[#6B6B6B] focus:outline-none placeholder:text-[#6B6B6B]"
                   >
-=======
+
                     className="w-full border rounded-lg px-4 h-[45px] flex items-center justify-between bg-[#FAFAFA] text-sm text-[#6B6B6B] focus:outline-none placeholder:text-[#6B6B6B]">
->>>>>>> 65c8902c9f20b8ea5111c298bd6ad90591de1fe5
+
                     <span>{formData.subcategory || "Select Subcategory"}</span>
                     <ChevronDown
                       size={18}
@@ -771,11 +771,11 @@ const AddProduct = () => {
                   {/* Sub Dropdown Menu */}
                   {subdropdown && (
                     <ul className="absolute z-10 w-full border rounded-lg bg-white shadow-md max-h-60 overflow-y-auto text-[15px]">
-<<<<<<< HEAD
-                      {Subcategories.map((p, i) => (
-=======
+
                       {subcategories.map((p, i) => (
->>>>>>> 65c8902c9f20b8ea5111c298bd6ad90591de1fe5
+
+                      {subcategories.map((p, i) => (
+
                         <li
                           key={i}
                           onClick={() => {
@@ -803,12 +803,12 @@ const AddProduct = () => {
                   <button
                     type="button"
                     onClick={() => setTagsBtn((prev) => !prev)}
-<<<<<<< HEAD
+
                     className="w-full border rounded-lg px-4 h-[45px] flex items-center justify-between bg-[#FAFAFA] text-sm text-[#6B6B6B] focus:outline-none placeholder:text-[#6B6B6B]"
                   >
-=======
+
                     className="w-full border rounded-lg px-4 h-[45px] flex items-center justify-between bg-[#FAFAFA] text-sm text-[#6B6B6B] focus:outline-none placeholder:text-[#6B6B6B]">
->>>>>>> 65c8902c9f20b8ea5111c298bd6ad90591de1fe5
+
                     <span>{formData.tags || "Select Tags"}</span>
                     <ChevronDown
                       size={18}
@@ -829,12 +829,12 @@ const AddProduct = () => {
                           }}
                           className={`flex items-center justify-between px-4 py-2 hover:bg-[#FFEAD2] cursor-pointer ${
                             selected === p ? "bg-gray-100 text-[#6B6B6B]" : ""
-<<<<<<< HEAD
+
                           }`}
                         >
-=======
+
                           }`}>
->>>>>>> 65c8902c9f20b8ea5111c298bd6ad90591de1fe5
+
                           <span>{p}</span>
                         </li>
                       ))}
@@ -852,12 +852,12 @@ const AddProduct = () => {
                   <button
                     type="button"
                     onClick={() => setmaterialbtn((prev) => !prev)}
-<<<<<<< HEAD
+
                     className="w-full border rounded-lg px-4 h-[45px] flex items-center justify-between bg-[#FAFAFA] text-sm text-[#6B6B6B] focus:outline-none placeholder:text-[#6B6B6B]"
                   >
-=======
+
                     className="w-full border rounded-lg px-4 h-[45px] flex items-center justify-between bg-[#FAFAFA] text-sm text-[#6B6B6B] focus:outline-none placeholder:text-[#6B6B6B]">
->>>>>>> 65c8902c9f20b8ea5111c298bd6ad90591de1fe5
+
                     <span>
                       {formData.materialType || "Select Material Type"}
                     </span>
@@ -883,12 +883,12 @@ const AddProduct = () => {
                           }}
                           className={`flex items-center justify-between px-4 py-2 hover:bg-[#FFEAD2] cursor-pointer ${
                             selected === p ? "bg-gray-100 text-[#6B6B6B]" : ""
-<<<<<<< HEAD
+
                           }`}
                         >
-=======
+
                           }`}>
->>>>>>> 65c8902c9f20b8ea5111c298bd6ad90591de1fe5
+
                           <span>{p}</span>
                         </li>
                       ))}
@@ -1047,12 +1047,12 @@ const AddProduct = () => {
                   <button
                     type="button"
                     onClick={() => setOpenGstBox((prev) => !prev)}
-<<<<<<< HEAD
+
                     className="w-full border rounded-lg px-4 h-[45px] flex items-center justify-between bg-[#FAFAFA] text-sm text-[#6B6B6B] focus:outline-none placeholder:text-[#6B6B6B]"
                   >
-=======
+
                     className="w-full border rounded-lg px-4 h-[45px] flex items-center justify-between bg-[#FAFAFA] text-sm text-[#6B6B6B] focus:outline-none placeholder:text-[#6B6B6B]">
->>>>>>> 65c8902c9f20b8ea5111c298bd6ad90591de1fe5
+
                     <span>{formData.taxPercent || "5%"}</span>
                     <ChevronDown
                       size={18}
@@ -1074,12 +1074,12 @@ const AddProduct = () => {
                           }}
                           className={`flex items-center justify-between px-4 py-2 hover:bg-[#FFEAD2] cursor-pointer ${
                             selected === p ? "bg-gray-100 text-[#6B6B6B]" : ""
-<<<<<<< HEAD
+
                           }`}
                         >
-=======
+
                           }`}>
->>>>>>> 65c8902c9f20b8ea5111c298bd6ad90591de1fe5
+
                           <span>{p}</span>
                         </li>
                       ))}
@@ -1115,23 +1115,23 @@ const AddProduct = () => {
                 <div
                   className={`block h-[18px] w-[34px] rounded-full transition-colors ${
                     formData.hasVariants ? "bg-[#5BB401]" : "bg-[#E5E7EB]"
-<<<<<<< HEAD
+
                   }`}
                 ></div>
-=======
+
                   }`}></div>
->>>>>>> 65c8902c9f20b8ea5111c298bd6ad90591de1fe5
+
                 <div
                   className={`absolute top-0.5 h-[13px] w-[13px] rounded-full bg-white transition-transform duration-200 ${
                     formData.hasVariants
                       ? "translate-x-[17px]"
                       : "translate-x-0"
-<<<<<<< HEAD
+
                   }`}
                 ></div>
-=======
+
                   }`}></div>
->>>>>>> 65c8902c9f20b8ea5111c298bd6ad90591de1fe5
+
               </div>
             </label>
             <p className="text-[#2B2B2B] font-normal">
@@ -1140,7 +1140,7 @@ const AddProduct = () => {
           </div>
 
           {itemsopen && (
-<<<<<<< HEAD
+
             <div className="bg-white rounded-2xl border p-3 mt-6 ">
               <div className="grid grid-cols-5 gap-x-48 ">
                 <div>
@@ -1273,7 +1273,7 @@ const AddProduct = () => {
               </div>
               <div className="flex items-center justify-start mt-3">
                 <button className="bg-[#DD851F] text-white px-4 py-2 rounded-lg text-sm hover:bg-orange-600">
-=======
+
             <div>
               {formData.variants.map((variant, index) => (
                 <div
@@ -1472,7 +1472,7 @@ const AddProduct = () => {
                   type="button"
                   onClick={addVariant}
                   className="bg-[#DD851F] text-white px-4 py-2 rounded-lg text-sm hover:bg-orange-600">
->>>>>>> 65c8902c9f20b8ea5111c298bd6ad90591de1fe5
+
                   + Add Variants
                 </button>
               </div>
@@ -1487,20 +1487,20 @@ const AddProduct = () => {
           </button>
           <button
             type="submit"
-<<<<<<< HEAD
+
             className="px-6 py-2 bg-lime-600 rounded-lg text-white font-medium hover:bg-lime-700"
           >
-=======
+
             className="px-6 py-2 bg-lime-600 rounded-lg text-white font-medium hover:bg-lime-700">
->>>>>>> 65c8902c9f20b8ea5111c298bd6ad90591de1fe5
+
             Save
           </button>
         </div>
       </form>
-<<<<<<< HEAD
-=======
+
+
       
->>>>>>> 65c8902c9f20b8ea5111c298bd6ad90591de1fe5
+
     </>
   );
 };
