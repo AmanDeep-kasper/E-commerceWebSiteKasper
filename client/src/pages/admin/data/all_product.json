@@ -1,0 +1,264 @@
+[
+    {
+        "id": 1,
+        "title": " Abstract Ganesh Canvas Wall Art",
+        "sku": "ART001",
+        "category": "Spiritual & Religious Art",
+        "quantity": 45,
+        "sellingPrice": 599,
+        "costPrice": 499,
+        "variants": [
+            "Red",
+            "Green"
+        ]
+    },
+    {
+        "id": 2,
+        "title": "Forest Whisper Painting",
+        "sku": "ART002",
+        "category": "Nature & Wildlife",
+        "quantity": 30,
+        "sellingPrice": 699,
+        "costPrice": 549,
+        "variants": [
+            "Blue",
+            "Brown"
+        ]
+    },
+    {
+        "id": 3,
+        "title": " Abstract Lines Canvas",
+        "sku": "ART003",
+        "category": "Geometric & Abstract",
+        "quantity": 50,
+        "sellingPrice": 399,
+        "costPrice": 299,
+        "variants": [
+            "Yellow",
+            "Black"
+        ]
+    },
+    {
+        "id": 4,
+        "title": " Golden Horizon Wall Art",
+        "sku": "ART004",
+        "category": "Wall Arts",
+        "quantity": 20,
+        "sellingPrice": 899,
+        "costPrice": 749,
+        "variants": [
+            "Gold",
+            "White"
+        ]
+    },
+    {
+        "id": 5,
+        "title": "Motivational Quote Canvas",
+        "sku": "ART005",
+        "category": "Typography & Symbols",
+        "quantity": 40,
+        "sellingPrice": 349,
+        "costPrice": 299,
+        "variants": [
+            "Black",
+            "White"
+        ]
+    },
+    {
+        "id": 6,
+        "title": " Mind Clone Art",
+        "sku": "ART006",
+        "category": "Clones",
+        "quantity": 35,
+        "sellingPrice": 799,
+        "costPrice": 699,
+        "variants": [
+            "Red",
+            "Blue"
+        ]
+    },
+    {
+        "id": 7,
+        "title": " Festival Lights Canvas",
+        "sku": "ART007",
+        "category": "Festival & Occasion",
+        "quantity": 25,
+        "sellingPrice": 649,
+        "costPrice": 549,
+        "variants": [
+            "Multicolor",
+            "White"
+        ]
+    },
+    {
+        "id": 8,
+        "title": " Calm Reflection Wall Art",
+        "sku": "ART008",
+        "category": "Reflection Art",
+        "quantity": 30,
+        "sellingPrice": 549,
+        "costPrice": 449,
+        "variants": [
+            "Blue",
+            "Green"
+        ]
+    },
+    {
+        "id": 9,
+        "title": " Mystic Path Canvas",
+        "sku": "ART009",
+        "category": "Spiritual & Religious Art",
+        "quantity": 40,
+        "sellingPrice": 499,
+        "costPrice": 399,
+        "variants": [
+            "Red",
+            "Yellow"
+        ]
+    },
+    {
+        "id": 10,
+        "title": "Nature & Wildlife - Wildlife Wonders Painting",
+        "sku": "ART010",
+        "category": "Nature & Wildlife",
+        "quantity": 20,
+        "sellingPrice": 649,
+        "costPrice": 549,
+        "variants": [
+            "Brown",
+            "Green"
+        ]
+    },
+    {
+        "id": 11,
+        "title": " Abstract Waves Canvas",
+        "sku": "ART011",
+        "category": "Geometric & Abstract",
+        "quantity": 45,
+        "sellingPrice": 389,
+        "costPrice": 299,
+        "variants": [
+            "Black",
+            "White"
+        ]
+    },
+    {
+        "id": 12,
+        "title": "Wall Sunset Painting",
+        "sku": "ART012",
+        "category": "Wall Arts",
+        "quantity": 25,
+        "sellingPrice": 719,
+        "costPrice": 599,
+        "variants": [
+            "Orange",
+            "Yellow"
+        ]
+    },
+    {
+        "id": 13,
+        "title": " Inspirational Typography Canvas",
+        "sku": "ART013",
+        "category": "Typography & Symbols",
+        "quantity": 35,
+        "sellingPrice": 299,
+        "costPrice": 249,
+        "variants": [
+            "Black",
+            "Blue"
+        ]
+    },
+    {
+        "id": 14,
+        "title": " Future Mind Clone Art",
+        "sku": "ART014",
+        "category": "Clones",
+        "quantity": 30,
+        "sellingPrice": 899,
+        "costPrice": 749,
+        "variants": [
+            "Red",
+            "Black"
+        ]
+    },
+    {
+        "id": 15,
+        "title": " Festival Vibes Canvas",
+        "sku": "ART015",
+        "category": "Festival & Occasion",
+        "quantity": 20,
+        "sellingPrice": 599,
+        "costPrice": 499,
+        "variants": [
+            "Multicolor",
+            "Yellow"
+        ]
+    },
+    {
+        "id": 16,
+        "title": " Reflective Horizon Wall Art",
+        "sku": "ART016",
+        "category": "Reflection Art",
+        "quantity": 25,
+        "sellingPrice": 699,
+        "costPrice": 599,
+        "variants": [
+            "Blue",
+            "White"
+        ]
+    },
+    {
+        "id": 17,
+        "title": " Divine Meditation Canvas",
+        "sku": "ART017",
+        "category": "Spiritual & Religious Art",
+        "quantity": 40,
+        "sellingPrice": 549,
+        "costPrice": 449,
+        "variants": [
+            "Red",
+            "Green"
+        ]
+    },
+    {
+        "id": 18,
+        "title": "Forest Birds Painting",
+        "sku": "ART018",
+        "category": "Nature & Wildlife",
+        "quantity": 30,
+        "sellingPrice": 699,
+        "costPrice": 599,
+        "variants": [
+            "Blue",
+            "Brown"
+        ]
+    },
+    {
+        "id": 19,
+        "title": " Geometric Patterns Canvas",
+        "sku": "ART019",
+        "category": "Geometric & Abstract",
+        "quantity": 45,
+        "sellingPrice": 399,
+        "costPrice": 299,
+        "variants": [
+            "Black",
+            "Yellow"
+        ]
+    },
+    {
+        "id": 20,
+        "title": " Wall Serenity Painting",
+        "sku": "ART020",
+        "category": "Wall Arts",
+        "quantity": 20,
+        "sellingPrice": 799,
+        "costPrice": 699,
+        "variants": [
+            "White",
+            "Gold"
+        ]
+    }
+]
+
+

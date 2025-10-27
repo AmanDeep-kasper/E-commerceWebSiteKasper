@@ -236,21 +236,23 @@ import {
   Trash,
   Trash2,
 } from "lucide-react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
+import productData from "../data/all_product.json";
 
 const Products = () => {
-  const [products] = useState(() =>
-    Array.from({ length: 20 }).map((_, i) => ({
-      id: i + 1,
-      title: `Live Laugh Love Wall Art ${i + 1}`,
-      sku: `MMWA00${i + 1}`,
-      category: "Lord Ganesh",
-      quantity: 45,
-      SallingPrice: 599,
-      CostPrice: 499,
-      variant: "Dimension - 65L x 60W cm",
-    }))
-  );
+  const [products] = useState(productData);
+  //  const [products] = useState(() =>
+  //     Array.from({ length: 20 }).map((_, i) => ({
+  //       id: i + 1,
+  //       title: `Live Laugh Love Wall Art ${i + 1}`,
+  //       sku: `MMWA00${i + 1}`,
+  //       category: "Lord Ganesh",
+  //       quantity: 45,
+  //       SallingPrice: 599,
+  //       CostPrice: 499,
+  //       variant: "Dimension - 65L x 60W cm",
+  //     }))
+  //   );
 
   // ✅ Delete button + selected items
   const [selectedItems, setSelectedItems] = useState([]);
@@ -272,26 +274,9 @@ const Products = () => {
   //////////////////////////////
   const [PriceOpen, setPriceOpen] = useState(false);
   const [PriceSelected, setPriceSelected] = useState("Categories");
-
-  const categories = [
-    "Spiritual & Religious Art",
-    "Nature & Wildlife",
-    "Geometric & Abstract",
-    "Wall Arts",
-    "Typography & Symbols",
-    "Clones",
-    "Festival & Occasion",
-    "Reflection Art",
-  ];
+  /////////////////////////////////
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState("Price: Low → High");
-
-  const price = [
-    "Price: Low → High",
-    "Price: High → Low",
-    "Alphabetical (A–Z)",
-    "Alphabetical (Z–A)",
-  ];
 
   // ✅ Single checkbox toggle
   const handleCheckboxChange = (id) => {
@@ -319,24 +304,45 @@ const Products = () => {
 
   // 🔹 Filter products by debouncedSearch
   let filteredProducts = products.filter((p) =>
-    p.title.toLowerCase().includes(debouncedSearch.toLowerCase())
+    (p.title || "")
+      .toLowerCase()
+      .includes((debouncedSearch || "").toLowerCase())
   );
 
   const [selectedCategory, setSelectedCategory] = useState("All Categories");
   const [selectedSort, setSelectedSort] = useState("Price: Low → High");
   // Apply category filter
+  const categories = [
+    "Spiritual & Religious Art",
+    "Nature & Wildlife",
+    "Geometric & Abstract",
+    "Wall Arts",
+    "Typography & Symbols",
+    "Clones",
+    "Festival & Occasion",
+    "Reflection Art",
+  ];
+  /////////////////////////
+
+  // let filteredProduct= [...products];
 
   if (selectedCategory != "All Categories") {
     filteredProducts = filteredProducts.filter(
       (p) => p.category === selectedCategory
     );
   }
-
+  ///////////////////////////////////
+  const price = [
+    "Price: Low → High",
+    "Price: High → Low",
+    "Alphabetical (A–Z)",
+    "Alphabetical (Z–A)",
+  ];
   // Apply sorting
   if (selectedSort === "Price: Low → High") {
-    filteredProducts.sort((a, b) => a.SallingPrice - b.SallingPrice);
+    filteredProducts.sort((a, b) => a.sellingPrice - b.sellingPrice);
   } else if (selectedSort === "Price: High → Low") {
-    filteredProducts.sort((a, b) => b.SallingPrice - a.SallingPrice);
+    filteredProducts.sort((a, b) => b.sellingPrice - a.sellingPrice);
   } else if (selectedSort === "Alphabetical (A–Z)") {
     filteredProducts.sort((a, b) => a.title.localeCompare(b.title));
   } else if (selectedSort === "Alphabetical (Z–A)") {
@@ -356,6 +362,10 @@ const Products = () => {
   const allVisibleSelected =
     currentItems.length > 0 &&
     currentItems.every((item) => selectedItems.includes(item.id));
+
+  // navigate the section in product detlis page
+
+  const navigate = useNavigate();
 
   return (
     <>
@@ -408,8 +418,7 @@ const Products = () => {
           <div className="relative inline-block w-56">
             <button
               onClick={() => setPriceOpen((prev) => !prev)}
-              className="w-full border rounded-lg px-4 py-2 flex items-center justify-between bg-[#F8F8F8] text-[15px] text-gray-800 focus:outline-none"
-            >
+              className="w-full border rounded-lg px-4 py-2 flex items-center justify-between bg-[#F8F8F8] text-[15px] text-gray-800 focus:outline-none">
               <span>{selectedCategory}</span>
               <ChevronDown
                 size={18}
@@ -434,8 +443,7 @@ const Products = () => {
                       PriceSelected === category
                         ? "bg-gray-100 text-gray-900"
                         : ""
-                    }`}
-                  >
+                    }`}>
                     <span>{category}</span>
                   </li>
                 ))}
@@ -447,9 +455,8 @@ const Products = () => {
           <div className="relative inline-block w-56">
             <button
               onClick={() => setOpen((prev) => !prev)}
-              className="w-full border rounded-lg px-4 py-2 flex items-center justify-between bg-[#F8F8F8] text-[15px] text-gray-800 focus:outline-none"
-            >
-              <span>{selected}</span>
+              className="w-full border rounded-lg px-4 py-2 flex items-center justify-between bg-[#F8F8F8] text-[15px] text-gray-800 focus:outline-none">
+              <span>{selectedSort}</span>
               <ChevronDown
                 size={18}
                 className={`text-gray-500 transition-transform duration-200 ${
@@ -469,9 +476,8 @@ const Products = () => {
                       setOpen(false);
                     }}
                     className={`flex items-center justify-between px-4 py-2 hover:bg-[#FFEAD2] cursor-pointer ${
-                      selected === p ? "bg-gray-100 text-gray-900" : ""
-                    }`}
-                  >
+                      selectedSort === p ? "bg-gray-100 text-gray-900" : ""
+                    }`}>
                     <span>{p}</span>
                   </li>
                 ))}
@@ -505,6 +511,7 @@ const Products = () => {
                 <th className="px-4 py-3 font-normal">Action</th>
               </tr>
             </thead>
+
             <tbody>
               {currentItems.map((item) => (
                 <tr
@@ -512,7 +519,17 @@ const Products = () => {
                   className={`border-t hover:bg-gray-50 transition group ${
                     selectedItems.includes(item.id) ? "bg-red-50" : ""
                   }`}
-                >
+                  onClick={(e) => {
+                    if (
+                      e.target.tagName !== "INPUT" &&
+                      e.target.tagName !== "BUTTON" &&
+                      e.target.tagName !== "svg" &&
+                      e.target.tagName !== "path"
+                    ) {
+                      // navigate(`/admin/product-info/:uuid${item.sku}`);
+                      navigate(`/admin/product-info/${item.sku}`);
+                    }
+                  }}>
                   <td className="px-4 py-3">
                     <input
                       type="checkbox"
@@ -530,7 +547,7 @@ const Products = () => {
                           {item.title}
                         </span>
                         <p className="text-[14px] text-gray-500">
-                          {item.variant}
+                          {` ${item.variants}`}
                         </p>
                       </div>
                     </div>
@@ -546,10 +563,10 @@ const Products = () => {
                     {item.quantity}
                   </td>
                   <td className="px-4 py-3 text-[16px] text-[#1F2937]">
-                    ₹{item.SallingPrice}
+                    ₹{item.sellingPrice}
                   </td>
                   <td className="px-4 py-3 text-[16px] text-[#1F2937]">
-                    ₹{item.CostPrice}
+                    ₹{item.costPrice}
                   </td>
 
                   {/* Centered action icons (hidden until hover) */}
@@ -573,8 +590,7 @@ const Products = () => {
             <button
               className="px-3 py-1 border rounded"
               onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-              disabled={currentPage === 1}
-            >
+              disabled={currentPage === 1}>
               ‹
             </button>
             {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
@@ -583,16 +599,14 @@ const Products = () => {
                 className={`px-3 py-1 border rounded ${
                   page === currentPage ? "bg-[#212121] text-white" : ""
                 }`}
-                onClick={() => setCurrentPage(page)}
-              >
+                onClick={() => setCurrentPage(page)}>
                 {page}
               </button>
             ))}
             <button
               className="px-3 py-1 border rounded"
               onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
-              disabled={currentPage === totalPages}
-            >
+              disabled={currentPage === totalPages}>
               ›
             </button>
           </div>
