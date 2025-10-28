@@ -3,530 +3,580 @@
     "uuid": "dwl-art-001",
     "route": "/product/dwl-art-001",
     "title": "Abstract Geometry Metal Wall Art",
+    "description": "Minimalist geometric wall art design for modern interiors.",
+    "type": "Wall Art",
     "category": "Modern Collection",
     "subcategory": "Abstract Decor",
-    "tags": [
-      "geometry",
-      "modern",
-      "abstract",
-      "metal"
-    ],
+    "tags": ["geometry", "modern", "abstract", "metal"],
+    "images": ["/polygonAnimal1.jpg"],
+    "image": ["/polygonAnimal1.jpg"],
     "SKU": "DWL-ART-001",
-    "basePrice": 1499,
-    "amazonPrice": 2999,
-    "discountPercent": 50,
+    "materialType": "metal",
+    "weight": "1.2kg",
     "stockQuantity": 9,
     "returnPolicy": "Eligible for return within 7 days of delivery.",
     "deliverBy": 5,
-    "materialType": "metal",
-    "weight": "1.2kg",
-    "description": "Minimalist geometric wall art design for modern interiors.",
-    "image": [
-      "/polygonAnimal1.jpg"
-    ],
+    "hasVariants": true,
+    "basePrice": 1499,
+    "amazonPrice": 2999,
+    "mrp": 2999,
+    "sellingPrice": 1499,
+    "costPrice": 749,
+    "profit": 750,
+    "discountPercent": 50,
+    "discountAmount": 1500,
+    "includesTax": false,
+    "taxPercent": "",
     "variants": [
       {
         "variantId": "dwl-art-001-v1",
+        "variantType": "Unframed",
+        "variantValue": "black",
         "dimension": "45L x 30W cm",
         "color": "black",
         "type": "Unframed",
         "price": 1499,
         "stockQuantity": 6,
-        "images": [
-          "/polygonAnimal2.jpg"
-        ]
+        "variantReorderLimit": "",
+        "variantImage": ["/polygonAnimal2.jpg"],
+        "images": ["/polygonAnimal2.jpg"]
       },
       {
         "variantId": "dwl-art-001-v2",
+        "variantType": "Framed",
+        "variantValue": "gold",
         "dimension": "65L x 40W cm",
         "color": "gold",
         "type": "Framed",
         "price": 1999,
         "stockQuantity": 5,
-        "images": [
-          "/polygonAnimal3.jpg"
-        ]
+        "variantReorderLimit": "",
+        "variantImage": ["/polygonAnimal3.jpg"],
+        "images": ["/polygonAnimal3.jpg"]
       }
     ],
-    "sellingPrice": 1499,
-    "costPrice": 749,
     "reviews": []
   },
   {
     "uuid": "dwl-art-002",
     "route": "/product/dwl-art-002",
     "title": "Floral Bloom Metal Artwork",
+    "description": "Elegant floral design crafted with fine metal detailing.",
+    "type": "Wall Art",
     "category": "Nature Collection",
     "subcategory": "Floral Decor",
-    "tags": [
-      "flower",
-      "bloom",
-      "nature",
-      "petals"
-    ],
+    "tags": ["flower", "bloom", "nature", "petals"],
+    "images": ["/forest1.jpg"],
+    "image": ["/forest1.jpg"],
     "SKU": "DWL-ART-002",
-    "basePrice": 1299,
-    "amazonPrice": 2599,
-    "discountPercent": 50,
+    "materialType": "metal",
+    "weight": "1kg",
     "stockQuantity": 16,
     "returnPolicy": "Eligible for return within 10 days of delivery.",
     "deliverBy": 4,
-    "materialType": "metal",
-    "weight": "1kg",
-    "description": "Elegant floral design crafted with fine metal detailing.",
-    "image": [
-      "/forest1.jpg"
-    ],
+    "hasVariants": true,
+    "basePrice": 1299,
+    "amazonPrice": 2599,
+    "mrp": 2599,
+    "sellingPrice": 1299,
+    "costPrice": 649,
+    "profit": 650,
+    "discountPercent": 50,
+    "discountAmount": 1300,
+    "includesTax": false,
+    "taxPercent": "",
     "variants": [
       {
         "variantId": "dwl-art-002-v1",
+        "variantType": "Unframed",
+        "variantValue": "black",
         "dimension": "50L x 35W cm",
         "color": "black",
         "type": "Unframed",
         "price": 1299,
         "stockQuantity": 10,
-        "images": [
-          "/forest2.jpg"
-        ]
+        "variantReorderLimit": "",
+        "variantImage": ["/forest2.jpg"],
+        "images": ["/forest2.jpg"]
       },
       {
         "variantId": "dwl-art-002-v2",
+        "variantType": "Framed",
+        "variantValue": "silver",
         "dimension": "70L x 45W cm",
         "color": "silver",
         "type": "Framed",
         "price": 1799,
         "stockQuantity": 6,
-        "images": [
-          "/forest3.jpg"
-        ]
+        "variantReorderLimit": "",
+        "variantImage": ["/forest3.jpg"],
+        "images": ["/forest3.jpg"]
       }
     ],
-    "sellingPrice": 1299,
-    "costPrice": 649,
     "reviews": []
   },
   {
     "uuid": "dwl-art-003",
     "route": "/product/dwl-art-003",
     "title": "Tree of Life Metal Wall Art",
+    "description": "Symbolic Tree of Life wall art that represents harmony and growth.",
+    "type": "Wall Art",
     "category": "Spiritual Collection",
     "subcategory": "Nature Decor",
-    "tags": [
-      "tree",
-      "life",
-      "roots",
-      "spiritual"
-    ],
+    "tags": ["tree", "life", "roots", "spiritual"],
+    "images": ["/tree1.jpg"],
+    "image": ["/tree1.jpg"],
     "SKU": "DWL-ART-003",
-    "basePrice": 1699,
-    "amazonPrice": 3299,
-    "discountPercent": 48,
+    "materialType": "metal",
+    "weight": "1.3kg",
     "stockQuantity": 10,
     "returnPolicy": "Eligible for return within 7 days of delivery.",
     "deliverBy": 6,
-    "materialType": "metal",
-    "weight": "1.3kg",
-    "description": "Symbolic Tree of Life wall art that represents harmony and growth.",
-    "image": [
-      "/tree1.jpg"
-    ],
+    "hasVariants": true,
+    "basePrice": 1699,
+    "amazonPrice": 3299,
+    "mrp": 3299,
+    "sellingPrice": 1699,
+    "costPrice": 881,
+    "profit": 818,
+    "discountPercent": 48,
+    "discountAmount": 1600,
+    "includesTax": false,
+    "taxPercent": "",
     "variants": [
       {
         "variantId": "dwl-art-003-v1",
+        "variantType": "Unframed",
+        "variantValue": "black",
         "dimension": "60L x 40W cm",
         "color": "black",
         "type": "Unframed",
         "price": 1699,
         "stockQuantity": 7,
-        "images": [
-          "/tree2.jpg"
-        ]
+        "variantReorderLimit": "",
+        "variantImage": ["/tree2.jpg"],
+        "images": ["/tree2.jpg"]
       },
       {
         "variantId": "dwl-art-003-v2",
+        "variantType": "Framed",
+        "variantValue": "gold",
         "dimension": "80L x 55W cm",
         "color": "gold",
         "type": "Framed",
         "price": 2299,
         "stockQuantity": 3,
-        "images": [
-          "/tree3.jpg"
-        ]
+        "variantReorderLimit": "",
+        "variantImage": ["/tree3.jpg"],
+        "images": ["/tree3.jpg"]
       }
     ],
-    "sellingPrice": 1699,
-    "costPrice": 881,
     "reviews": []
   },
   {
     "uuid": "dwl-art-004",
     "route": "/product/dwl-art-004",
     "title": "Lakshmi Artwork",
+    "description": "Sacred Lakshmi artwork symbolizing prosperity and blessings.",
+    "type": "Wall Art",
     "category": "Festive Collection",
     "subcategory": "Diwali Decor",
-    "tags": [
-      "lakshmi",
-      "goddess",
-      "wealth",
-      "festival"
-    ],
+    "tags": ["lakshmi", "goddess", "wealth", "festival"],
+    "images": ["/couple1.jpg"],
+    "image": ["/couple1.jpg"],
     "SKU": "DWL-ART-004",
-    "basePrice": 1349,
-    "amazonPrice": 2999,
-    "discountPercent": 55,
+    "materialType": "metal",
+    "weight": "0.95kg",
     "stockQuantity": 18,
     "returnPolicy": "Eligible for return within 7 days of delivery.",
     "deliverBy": 3,
-    "materialType": "metal",
-    "weight": "0.95kg",
-    "description": "Sacred Lakshmi artwork symbolizing prosperity and blessings.",
-    "image": [
-      "/couple1.jpg"
-    ],
+    "hasVariants": true,
+    "basePrice": 1349,
+    "amazonPrice": 2999,
+    "mrp": 2999,
+    "sellingPrice": 1349,
+    "costPrice": 607,
+    "profit": 742,
+    "discountPercent": 55,
+    "discountAmount": 1650,
+    "includesTax": false,
+    "taxPercent": "",
     "variants": [
       {
         "variantId": "dwl-art-004-v1",
+        "variantType": "Unframed",
+        "variantValue": "black",
         "dimension": "55L x 35W cm",
         "color": "black",
         "type": "Unframed",
         "price": 1349,
         "stockQuantity": 10,
-        "images": [
-          "/couple2.jpg"
-        ]
+        "variantReorderLimit": "",
+        "variantImage": ["/couple2.jpg"],
+        "images": ["/couple2.jpg"]
       },
       {
         "variantId": "dwl-art-004-v2",
+        "variantType": "Framed",
+        "variantValue": "gold",
         "dimension": "75L x 45W cm",
         "color": "gold",
         "type": "Framed",
         "price": 1899,
         "stockQuantity": 8,
-        "images": [
-          "/couple3.jpg"
-        ]
+        "variantReorderLimit": "",
+        "variantImage": ["/couple3.jpg"],
+        "images": ["/couple3.jpg"]
       }
     ],
-    "sellingPrice": 1349,
-    "costPrice": 607,
     "reviews": []
   },
   {
     "uuid": "dwl-art-005",
     "route": "/product/dwl-art-005",
     "title": "Buddha Metal Wall Sculpture",
+    "description": "Peaceful Buddha wall art that radiates calmness and positivity.",
+    "type": "Wall Art",
     "category": "Spiritual Collection",
     "subcategory": "Meditation Decor",
-    "tags": [
-      "buddha",
-      "peace",
-      "spiritual",
-      "meditation"
-    ],
+    "tags": ["buddha", "peace", "spiritual", "meditation"],
+    "images": ["/buddha1.jpg"],
+    "image": ["/buddha1.jpg"],
     "SKU": "DWL-ART-005",
-    "basePrice": 1799,
-    "amazonPrice": 3499,
-    "discountPercent": 49,
+    "materialType": "metal",
+    "weight": "1.5kg",
     "stockQuantity": 8,
     "returnPolicy": "Eligible for return within 5 days of delivery.",
     "deliverBy": 4,
-    "materialType": "metal",
-    "weight": "1.5kg",
-    "description": "Peaceful Buddha wall art that radiates calmness and positivity.",
-    "image": [
-      "/buddha1.jpg"
-    ],
+    "hasVariants": true,
+    "basePrice": 1799,
+    "amazonPrice": 3499,
+    "mrp": 3499,
+    "sellingPrice": 1799,
+    "costPrice": 918,
+    "profit": 881,
+    "discountPercent": 49,
+    "discountAmount": 1700,
+    "includesTax": false,
+    "taxPercent": "",
     "variants": [
       {
         "variantId": "dwl-art-005-v1",
+        "variantType": "Unframed",
+        "variantValue": "black",
         "dimension": "60L x 40W cm",
         "color": "black",
         "type": "Unframed",
         "price": 1799,
         "stockQuantity": 6,
-        "images": [
-          "/buddha2.jpg"
-        ]
+        "variantReorderLimit": "",
+        "variantImage": ["/buddha2.jpg"],
+        "images": ["/buddha2.jpg"]
       },
       {
         "variantId": "dwl-art-005-v2",
+        "variantType": "Framed",
+        "variantValue": "gold",
         "dimension": "90L x 55W cm",
         "color": "gold",
         "type": "Framed",
         "price": 2399,
         "stockQuantity": 2,
-        "images": [
-          "/buddha3.jpg"
-        ]
+        "variantReorderLimit": "",
+        "variantImage": ["/buddha3.jpg"],
+        "images": ["/buddha3.jpg"]
       }
     ],
-    "sellingPrice": 1799,
-    "costPrice": 918,
     "reviews": []
   },
   {
     "uuid": "dwl-art-006",
     "route": "/product/dwl-art-006",
-    "title": "Peacock Metal Artwork",
+    "title": "Peacock Radiance Metal Artwork",
+    "description": "Vibrant peacock metal art with detailed feather textures and elegance.",
+    "type": "Wall Art",
     "category": "Nature Collection",
     "subcategory": "Bird Decor",
-    "tags": [
-      "peacock",
-      "feathers",
-      "bird",
-      "colorful"
-    ],
+    "tags": ["peacock", "colorful", "feathers", "bird"],
+    "images": ["/peacock1.jpg"],
+    "image": ["/peacock1.jpg"],
     "SKU": "DWL-ART-006",
-    "basePrice": 1599,
-    "amazonPrice": 3199,
-    "discountPercent": 50,
-    "stockQuantity": 14,
+    "materialType": "metal",
+    "weight": "1.3kg",
+    "stockQuantity": 10,
     "returnPolicy": "Eligible for return within 7 days of delivery.",
     "deliverBy": 5,
-    "materialType": "metal",
-    "weight": "1.4kg",
-    "description": "Vibrant peacock artwork crafted with detailed feather patterns.",
-    "image": [
-      "/peacock1.jpg"
-    ],
+    "hasVariants": true,
+    "basePrice": 1599,
+    "amazonPrice": 3199,
+    "mrp": 3199,
+    "sellingPrice": 1599,
+    "costPrice": 790,
+    "profit": 809,
+    "discountPercent": 50,
+    "discountAmount": 1600,
+    "includesTax": false,
+    "taxPercent": "",
     "variants": [
       {
         "variantId": "dwl-art-006-v1",
+        "variantType": "Unframed",
+        "variantValue": "blue",
         "dimension": "55L x 35W cm",
-        "color": "white",
+        "color": "blue",
         "type": "Unframed",
         "price": 1599,
-        "stockQuantity": 9,
-        "images": [
-          "/peacock1.jpg"
-        ]
+        "stockQuantity": 6,
+        "variantReorderLimit": "",
+        "variantImage": ["/peacock2.jpg"],
+        "images": ["/peacock2.jpg"]
       },
       {
         "variantId": "dwl-art-006-v2",
+        "variantType": "Framed",
+        "variantValue": "emerald",
         "dimension": "80L x 50W cm",
-        "color": "silver",
+        "color": "emerald",
         "type": "Framed",
-        "price": 2199,
-        "stockQuantity": 5,
-        "images": [
-          "/peacock1.jpg"
-        ]
+        "price": 2099,
+        "stockQuantity": 4,
+        "variantReorderLimit": "",
+        "variantImage": ["/peacock3.jpg"],
+        "images": ["/peacock3.jpg"]
       }
     ],
-    "sellingPrice": 1599,
-    "costPrice": 799,
     "reviews": []
   },
   {
     "uuid": "dwl-art-007",
     "route": "/product/dwl-art-007",
-    "title": "Mandala Circle Wall Art",
-    "category": "Bohemian Collection",
-    "subcategory": "Mandala Decor",
-    "tags": [
-      "mandala",
-      "circle",
-      "spiritual",
-      "boho"
-    ],
+    "title": "Elephant Heritage Metal Art",
+    "description": "Traditional Indian elephant artwork bringing strength and royalty to interiors.",
+    "type": "Wall Art",
+    "category": "Cultural Collection",
+    "subcategory": "Animal Decor",
+    "tags": ["elephant", "heritage", "royal", "traditional"],
+    "images": ["/elephant1.jpg"],
+    "image": ["/elephant1.jpg"],
     "SKU": "DWL-ART-007",
-    "basePrice": 1399,
-    "amazonPrice": 2899,
-    "discountPercent": 52,
-    "stockQuantity": 9,
-    "returnPolicy": "Eligible for return within 7 days of delivery.",
-    "deliverBy": 6,
     "materialType": "metal",
-    "weight": "1kg",
-    "description": "Bohemian mandala wall art to add elegance and calmness to spaces.",
-    "image": [
-      "/mandala1.jpg"
-    ],
+    "weight": "1.8kg",
+    "stockQuantity": 14,
+    "returnPolicy": "Eligible for return within 7 days of delivery.",
+    "deliverBy": 4,
+    "hasVariants": true,
+    "basePrice": 1699,
+    "amazonPrice": 3299,
+    "mrp": 3299,
+    "sellingPrice": 1699,
+    "costPrice": 850,
+    "profit": 849,
+    "discountPercent": 48,
+    "discountAmount": 1600,
+    "includesTax": false,
+    "taxPercent": "",
     "variants": [
       {
         "variantId": "dwl-art-007-v1",
-        "dimension": "45L x 45W cm",
-        "color": "black",
+        "variantType": "Unframed",
+        "variantValue": "bronze",
+        "dimension": "60L x 40W cm",
+        "color": "bronze",
         "type": "Unframed",
-        "price": 1399,
-        "stockQuantity": 6,
-        "images": [
-          "/mandala2.jpg"
-        ]
+        "price": 1699,
+        "stockQuantity": 8,
+        "variantReorderLimit": "",
+        "variantImage": ["/elephant2.jpg"],
+        "images": ["/elephant2.jpg"]
       },
       {
         "variantId": "dwl-art-007-v2",
-        "dimension": "65L x 65W cm",
-        "color": "gold",
+        "variantType": "Framed",
+        "variantValue": "silver",
+        "dimension": "85L x 55W cm",
+        "color": "silver",
         "type": "Framed",
-        "price": 1999,
-        "stockQuantity": 3,
-        "images": [
-          "/mandala3.jpg"
-        ]
+        "price": 2299,
+        "stockQuantity": 6,
+        "variantReorderLimit": "",
+        "variantImage": ["/elephant3.jpg"],
+        "images": ["/elephant3.jpg"]
       }
     ],
-    "sellingPrice": 1399,
-    "costPrice": 672,
     "reviews": []
   },
   {
     "uuid": "dwl-art-008",
     "route": "/product/dwl-art-008",
-    "title": "Couple Love Silhouette",
-    "category": "Romantic Collection",
-    "subcategory": "Love Decor",
-    "tags": [
-      "love",
-      "couple",
-      "romantic",
-      "silhouette"
-    ],
+    "title": "Lotus Serenity Metal Wall Art",
+    "description": "Elegant lotus metal wall piece symbolizing purity and peace.",
+    "type": "Wall Art",
+    "category": "Spiritual Collection",
+    "subcategory": "Floral Decor",
+    "tags": ["lotus", "flower", "spiritual", "peace"],
+    "images": ["/lotus1.jpg"],
+    "image": ["/lotus1.jpg"],
     "SKU": "DWL-ART-008",
-    "basePrice": 1499,
-    "amazonPrice": 2999,
-    "discountPercent": 50,
-    "stockQuantity": 13,
-    "returnPolicy": "Eligible for return within 7 days of delivery.",
-    "deliverBy": 3,
     "materialType": "metal",
-    "weight": "1.1kg",
-    "description": "Romantic couple silhouette artwork for bedroom and living spaces.",
-    "image": [
-      "/couple1.jpg"
-    ],
+    "weight": "1.2kg",
+    "stockQuantity": 11,
+    "returnPolicy": "Eligible for return within 7 days of delivery.",
+    "deliverBy": 4,
+    "hasVariants": true,
+    "basePrice": 1399,
+    "amazonPrice": 2799,
+    "mrp": 2799,
+    "sellingPrice": 1399,
+    "costPrice": 700,
+    "profit": 699,
+    "discountPercent": 50,
+    "discountAmount": 1400,
+    "includesTax": false,
+    "taxPercent": "",
     "variants": [
       {
         "variantId": "dwl-art-008-v1",
+        "variantType": "Unframed",
+        "variantValue": "white",
         "dimension": "50L x 35W cm",
-        "color": "black",
+        "color": "white",
         "type": "Unframed",
-        "price": 1499,
-        "stockQuantity": 8,
-        "images": [
-          "/couple2.jpg"
-        ]
+        "price": 1399,
+        "stockQuantity": 7,
+        "variantReorderLimit": "",
+        "variantImage": ["/lotus2.jpg"],
+        "images": ["/lotus2.jpg"]
       },
       {
         "variantId": "dwl-art-008-v2",
-        "dimension": "70L x 45W cm",
-        "color": "silver",
+        "variantType": "Framed",
+        "variantValue": "gold",
+        "dimension": "75L x 45W cm",
+        "color": "gold",
         "type": "Framed",
-        "price": 2099,
-        "stockQuantity": 5,
-        "images": [
-          "/couple3.jpg"
-        ]
+        "price": 1899,
+        "stockQuantity": 4,
+        "variantReorderLimit": "",
+        "variantImage": ["/lotus3.jpg"],
+        "images": ["/lotus3.jpg"]
       }
     ],
-    "sellingPrice": 1499,
-    "costPrice": 749,
     "reviews": []
   },
   {
     "uuid": "dwl-art-009",
     "route": "/product/dwl-art-009",
-    "title": "Ganesh Wall Hanging",
-    "category": "Festive Collection",
-    "subcategory": "Spiritual Decor",
-    "tags": [
-      "ganesh",
-      "gods",
-      "festival",
-      "spiritual"
-    ],
+    "title": "Sunburst Radiance Metal Artwork",
+    "description": "A striking sunburst pattern that adds warmth and energy to walls.",
+    "type": "Wall Art",
+    "category": "Modern Collection",
+    "subcategory": "Abstract Decor",
+    "tags": ["sun", "energy", "burst", "modern"],
+    "images": ["/sun1.jpg"],
+    "image": ["/sun1.jpg"],
     "SKU": "DWL-ART-009",
-    "basePrice": 1599,
-    "amazonPrice": 3099,
-    "discountPercent": 48,
+    "materialType": "metal",
+    "weight": "1.6kg",
     "stockQuantity": 10,
     "returnPolicy": "Eligible for return within 7 days of delivery.",
-    "deliverBy": 4,
-    "materialType": "metal",
-    "weight": "1.2kg",
-    "description": "Sacred Ganesh wall hanging for good fortune and blessings.",
-    "image": [
-      "/ganesha1.jpg"
-    ],
+    "deliverBy": 6,
+    "hasVariants": true,
+    "basePrice": 1799,
+    "amazonPrice": 3599,
+    "mrp": 3599,
+    "sellingPrice": 1799,
+    "costPrice": 899,
+    "profit": 900,
+    "discountPercent": 50,
+    "discountAmount": 1800,
+    "includesTax": false,
+    "taxPercent": "",
     "variants": [
       {
         "variantId": "dwl-art-009-v1",
-        "dimension": "55L x 35W cm",
-        "color": "black",
+        "variantType": "Unframed",
+        "variantValue": "copper",
+        "dimension": "65L x 40W cm",
+        "color": "copper",
         "type": "Unframed",
-        "price": 1599,
+        "price": 1799,
         "stockQuantity": 6,
-        "images": [
-          "/ganesha1.jpg"
-        ]
+        "variantReorderLimit": "",
+        "variantImage": ["/sun2.jpg"],
+        "images": ["/sun2.jpg"]
       },
       {
         "variantId": "dwl-art-009-v2",
-        "dimension": "75L x 45W cm",
+        "variantType": "Framed",
+        "variantValue": "gold",
+        "dimension": "90L x 55W cm",
         "color": "gold",
         "type": "Framed",
-        "price": 2199,
+        "price": 2399,
         "stockQuantity": 4,
-        "images": [
-          "/ganesha1.jpg"
-        ]
+        "variantReorderLimit": "",
+        "variantImage": ["/sun3.jpg"],
+        "images": ["/sun3.jpg"]
       }
     ],
-    "sellingPrice": 1599,
-    "costPrice": 831,
     "reviews": []
   },
   {
     "uuid": "dwl-art-010",
     "route": "/product/dwl-art-010",
-    "title": "Sunburst Metal Art",
-    "category": "Modern Collection",
-    "subcategory": "Abstract Decor",
-    "tags": [
-      "sun",
-      "burst",
-      "energy",
-      "modern"
-    ],
+    "title": "Feather Whisper Wall Art",
+    "description": "Soft feather pattern that conveys calmness and elegance.",
+    "type": "Wall Art",
+    "category": "Bohemian Collection",
+    "subcategory": "Nature Decor",
+    "tags": ["feather", "boho", "soft", "natural"],
+    "images": ["/feather1.jpg"],
+    "image": ["/feather1.jpg"],
     "SKU": "DWL-ART-010",
-    "basePrice": 1799,
-    "amazonPrice": 3599,
-    "discountPercent": 50,
-    "stockQuantity": 10,
-    "returnPolicy": "Eligible for return within 7 days of delivery.",
-    "deliverBy": 6,
     "materialType": "metal",
-    "weight": "1.6kg",
-    "description": "Radiant sunburst design adding a striking focal point to interiors.",
-    "image": [
-      "/sun1.jpg"
-    ],
+    "weight": "1kg",
+    "stockQuantity": 12,
+    "returnPolicy": "Eligible for return within 7 days of delivery.",
+    "deliverBy": 5,
+    "hasVariants": true,
+    "basePrice": 1499,
+    "amazonPrice": 2999,
+    "mrp": 2999,
+    "sellingPrice": 1499,
+    "costPrice": 749,
+    "profit": 750,
+    "discountPercent": 50,
+    "discountAmount": 1500,
+    "includesTax": false,
+    "taxPercent": "",
     "variants": [
       {
         "variantId": "dwl-art-010-v1",
-        "dimension": "60L x 40W cm",
-        "color": "black",
+        "variantType": "Unframed",
+        "variantValue": "silver",
+        "dimension": "45L x 35W cm",
+        "color": "silver",
         "type": "Unframed",
-        "price": 1799,
+        "price": 1499,
         "stockQuantity": 7,
-        "images": [
-          "/sun2.jpg"
-        ]
+        "variantReorderLimit": "",
+        "variantImage": ["/feather2.jpg"],
+        "images": ["/feather2.jpg"]
       },
       {
         "variantId": "dwl-art-010-v2",
-        "dimension": "85L x 55W cm",
-        "color": "gold",
+        "variantType": "Framed",
+        "variantValue": "rose gold",
+        "dimension": "70L x 45W cm",
+        "color": "rose gold",
         "type": "Framed",
-        "price": 2399,
-        "stockQuantity": 3,
-        "images": [
-          "/sun3.jpg"
-        ]
+        "price": 1999,
+        "stockQuantity": 5,
+        "variantReorderLimit": "",
+        "variantImage": ["/feather3.jpg"],
+        "images": ["/feather3.jpg"]
       }
     ],
-    "sellingPrice": 1799,
-    "costPrice": 899,
     "reviews": []
   }
 ]

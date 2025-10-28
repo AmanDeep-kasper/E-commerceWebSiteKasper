@@ -237,7 +237,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { Link, useNavigate } from "react-router";
-import productData from "../data/all_product.json";
+import productData from "../../../data/products.json";
 
 const Products = () => {
   const [products] = useState(productData);
@@ -279,12 +279,12 @@ const Products = () => {
   const [selected, setSelected] = useState("Price: Low → High");
 
   // ✅ Single checkbox toggle
-  const handleCheckboxChange = (id) => {
+  const handleCheckboxChange = (tittle) => {
     setSelectedItems(
       (prev) =>
-        prev.includes(id)
-          ? prev.filter((x) => x !== id) // Unselect if already selected
-          : [...prev, id] // Add if not selected
+        prev.includes(tittle)
+          ? prev.filter((x) => x !== tittle) // Unselect if already selected
+          : [...prev, tittle] // Add if not selected
     );
   };
 
@@ -418,7 +418,8 @@ const Products = () => {
           <div className="relative inline-block w-56">
             <button
               onClick={() => setPriceOpen((prev) => !prev)}
-              className="w-full border rounded-lg px-4 py-2 flex items-center justify-between bg-[#F8F8F8] text-[15px] text-gray-800 focus:outline-none">
+              className="w-full border rounded-lg px-4 py-2 flex items-center justify-between bg-[#F8F8F8] text-[15px] text-gray-800 focus:outline-none"
+            >
               <span>{selectedCategory}</span>
               <ChevronDown
                 size={18}
@@ -443,7 +444,8 @@ const Products = () => {
                       PriceSelected === category
                         ? "bg-gray-100 text-gray-900"
                         : ""
-                    }`}>
+                    }`}
+                  >
                     <span>{category}</span>
                   </li>
                 ))}
@@ -455,7 +457,8 @@ const Products = () => {
           <div className="relative inline-block w-56">
             <button
               onClick={() => setOpen((prev) => !prev)}
-              className="w-full border rounded-lg px-4 py-2 flex items-center justify-between bg-[#F8F8F8] text-[15px] text-gray-800 focus:outline-none">
+              className="w-full border rounded-lg px-4 py-2 flex items-center justify-between bg-[#F8F8F8] text-[15px] text-gray-800 focus:outline-none"
+            >
               <span>{selectedSort}</span>
               <ChevronDown
                 size={18}
@@ -477,7 +480,8 @@ const Products = () => {
                     }}
                     className={`flex items-center justify-between px-4 py-2 hover:bg-[#FFEAD2] cursor-pointer ${
                       selectedSort === p ? "bg-gray-100 text-gray-900" : ""
-                    }`}>
+                    }`}
+                  >
                     <span>{p}</span>
                   </li>
                 ))}
@@ -515,7 +519,7 @@ const Products = () => {
             <tbody>
               {currentItems.map((item) => (
                 <tr
-                  key={item.id}
+                  key={item.uuid || item.id || item.route}
                   className={`border-t hover:bg-gray-50 transition group ${
                     selectedItems.includes(item.id) ? "bg-red-50" : ""
                   }`}
@@ -527,14 +531,15 @@ const Products = () => {
                       e.target.tagName !== "path"
                     ) {
                       // navigate(`/admin/product-info/:uuid${item.sku}`);
-                      navigate(`/admin/product-info/${item.sku}`);
+                      navigate(`/admin/product-info/${item.uuid}`);
                     }
-                  }}>
+                  }}
+                >
                   <td className="px-4 py-3">
                     <input
                       type="checkbox"
-                      checked={selectedItems.includes(item.id)}
-                      onChange={() => handleCheckboxChange(item.id)}
+                      checked={selectedItems.includes(item.title)}
+                      onChange={() => handleCheckboxChange(item.title)}
                       className="w-4 h-4"
                     />
                   </td>
@@ -554,13 +559,13 @@ const Products = () => {
                   </td>
 
                   <td className="px-4 py-3 text-[16px] text-[#1F2937]">
-                    {item.sku}
+                    {item.SKU}
                   </td>
                   <td className="px-4 py-3 text-[16px] text-[#1F2937]">
                     {item.category}
                   </td>
                   <td className="px-4 py-3 text-[16px] text-[#1F2937]">
-                    {item.quantity}
+                    {item.stockQuantity}
                   </td>
                   <td className="px-4 py-3 text-[16px] text-[#1F2937]">
                     ₹{item.sellingPrice}
@@ -590,7 +595,8 @@ const Products = () => {
             <button
               className="px-3 py-1 border rounded"
               onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-              disabled={currentPage === 1}>
+              disabled={currentPage === 1}
+            >
               ‹
             </button>
             {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
@@ -599,14 +605,16 @@ const Products = () => {
                 className={`px-3 py-1 border rounded ${
                   page === currentPage ? "bg-[#212121] text-white" : ""
                 }`}
-                onClick={() => setCurrentPage(page)}>
+                onClick={() => setCurrentPage(page)}
+              >
                 {page}
               </button>
             ))}
             <button
               className="px-3 py-1 border rounded"
               onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
-              disabled={currentPage === totalPages}>
+              disabled={currentPage === totalPages}
+            >
               ›
             </button>
           </div>
