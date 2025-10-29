@@ -58,7 +58,8 @@ const AddProduct = () => {
     variants: [
       {
         variantType: "",
-        variantValue: [],
+        variantName: "",
+        variantValue: "",
         variantQuantity: "",
         variantReorderLimit: "",
         variantImage: [],
@@ -166,12 +167,12 @@ const AddProduct = () => {
 
   //the variants drop down
   const [variantopen, setVariantOpen] = useState(null); // track which dropdown is open
-  const variantOptions = ["Size", "Color", "Weight", "Material"];
+  const variantOptions = ["Color", "Dimension", "Size", "Material", "Weight"];
 
   // ✅ Handle field change for a specific variant
   const handleVariantChange = (index, field, value) => {
     setFormData((prev) => {
-      const updateVariants = [...formData.variants];
+      const updateVariants = [...prev.variants];
       updateVariants[index][field] = value;
       return { ...prev, variants: updateVariants };
     });
@@ -228,7 +229,8 @@ const AddProduct = () => {
         ...prev.variants,
         {
           variantType: "",
-          variantValue: [],
+          variantName: "",
+          variantValue: "",
           variantQuantity: "",
           variantReorderLimit: "",
           variantImage: [],
@@ -322,6 +324,7 @@ const AddProduct = () => {
       variants: [
         {
           variantType: "",
+          variantName: "",
           variantValue: "",
           variantQuantity: "",
           variantReorderLimit: "",
@@ -432,6 +435,12 @@ const AddProduct = () => {
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [showsubCategoryModal, setShowSubCategoryModal] = useState(false);
   const [newCategory, setNewCategory] = useState("");
+
+  // the new variants framed dropdown box
+
+  const [variantTypeOpen, setVariantTypeOpen] = useState(null);
+
+  const variantsType = ["Framed", "Unframed"];
 
   return (
     <>
@@ -1057,251 +1066,314 @@ const AddProduct = () => {
             <div>
               <div className="bg-white rounded-2xl border p-3 mt-6 transition-all">
                 {formData.variants.map((variant, index) => (
-                  <div key={index} className="grid grid-cols-5 gap-x-48 mb-2">
-                    {/* Variant Type */}
+                  <div>
+                    <div
+                      key={index}
+                      className="grid grid-cols-6 mb-6 items-start justify-center"
+                    >
+                      {/* Variant Type */}
 
-                    <div>
-                      <label className="block text-sm font-medium mb-2">
-                        Variants
-                      </label>
-                      <div className="relative w-[280px]">
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setVariantOpen(variantopen === index ? null : index)
-                          }
-                          className="w-full border rounded-lg px-4 h-[45px] flex items-center justify-between bg-[#FAFAFA] text-sm text-[#6B6B6B]"
-                        >
-                          <span>{variant.variantType || "Select Option"}</span>
-                          <ChevronDown
-                            size={18}
-                            className={`text-[#6B6B6B] transition-transform duration-200 ${
-                              variantopen === index ? "rotate-180" : ""
-                            }`}
-                          />
-                        </button>
+                      <div className="mb-5">
+                        <label className="block text-sm font-medium mb-2">
+                          Variant Type
+                        </label>
+                        <div className="relative w-[220px]">
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setVariantTypeOpen(
+                                variantTypeOpen === index ? null : index
+                              )
+                            }
+                            className="w-full border rounded-lg px-4 h-[45px] flex items-center justify-between bg-[#FAFAFA] text-sm text-[#6B6B6B]"
+                          >
+                            <span>
+                              {variant.variantType || "Select Variant Type"}
+                            </span>
+                            <ChevronDown
+                              size={18}
+                              className={`text-[#6B6B6B] transition-transform duration-200 ${
+                                variantTypeOpen === index ? "rotate-180" : ""
+                              }`}
+                            />
+                          </button>
 
-                        {variantopen === index && (
-                          <ul className="absolute z-10 w-full border rounded-lg bg-white shadow-md max-h-60 overflow-y-auto text-[15px]">
-                            {variantOptions.map((opt, i) => (
-                              <li
-                                key={i}
-                                onClick={() => {
-                                  handleVariantChange(
-                                    index,
-                                    "variantType",
-                                    opt
-                                  );
-                                  setVariantOpen(false);
-                                }}
-                                className="px-4 py-2 hover:bg-[#FFEAD2] cursor-pointer"
-                              >
-                                {opt}
-                              </li>
-                            ))}
-                          </ul>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Value */}
-                    <div>
-                      <label className="block text-sm font-medium mb-2">
-                        value
-                      </label>
-                      <div
-                        className="flex flex-wrap items-center gap-2 w-[280px] min-h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#FAFAFA] text-sm text-gray-700"
-                        onClick={() =>
-                          document.getElementById(`tagInput-${index}`).focus()
-                        }
-                      >
-                        {/* Display Selected Tags */}
-                        {variant.variantValue?.length > 0 &&
-                          variant.variantValue.map((tag, tIndex) => (
-                            <span
-                              key={tIndex}
-                              className="flex items-center gap-1 bg-gray-100 text-gray-800 px-3 py-1 rounded-full"
-                            >
-                              {tag}
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  const updatedTags =
-                                    variant.variantValue.filter(
-                                      (_, i) => i !== tIndex
+                          {variantTypeOpen === index && (
+                            <ul className="absolute z-10 w-full border rounded-lg bg-white shadow-md max-h-60 overflow-y-auto text-[15px]">
+                              {["Framed", "Unframed"].map((opt, i) => (
+                                <li
+                                  key={i}
+                                  onClick={() => {
+                                    handleVariantChange(
+                                      index,
+                                      "variantType",
+                                      opt
                                     );
+                                    setVariantTypeOpen(null);
+                                  }}
+                                  className={`px-4 py-2 hover:bg-[#FFEAD2] cursor-pointer ${
+                                    variant.variantType === opt
+                                      ? "bg-[#FFF5E5]"
+                                      : ""
+                                  }`}
+                                >
+                                  {opt}
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Variant Name */}
+
+                      <div>
+                        <label className="block text-sm font-medium mb-2">
+                          Variants
+                        </label>
+
+                        <div className="relative w-[220px]">
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setVariantOpen(
+                                variantopen === index ? null : index
+                              )
+                            }
+                            className="w-full border rounded-lg px-4 h-[45px] flex items-center justify-between bg-[#FAFAFA] text-sm text-[#6B6B6B]"
+                          >
+                            <span>
+                              {variant.variantName || "Select Option"}
+                            </span>
+                            <ChevronDown
+                              size={18}
+                              className={`text-[#6B6B6B] transition-transform duration-200 ${
+                                variantopen === index ? "rotate-180" : ""
+                              }`}
+                            />
+                          </button>
+
+                          {variantopen === index && (
+                            <ul className="absolute z-10 w-full border rounded-lg bg-white shadow-md max-h-60 overflow-y-auto text-[15px]">
+                              {variantOptions.map((opt, i) => (
+                                <li
+                                  key={i}
+                                  onClick={() => {
+                                    handleVariantChange(
+                                      index,
+                                      "variantName",
+                                      opt
+                                    );
+                                    setVariantOpen(false);
+                                  }}
+                                  className="px-4 py-2 hover:bg-[#FFEAD2] cursor-pointer"
+                                >
+                                  {opt}
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-2">
+                          Value
+                        </label>
+                        {variant.variantName === "Dimension" ? (
+                          //  Show Width × Height inputs
+
+                          <div className="flex gap-2">
+                            <input
+                              type="text"
+                              placeholder="Width (cm)"
+                              value={variant.width || ""}
+                              onChange={(e) =>
+                                handleVariantChange(
+                                  index,
+                                  "width",
+                                  e.target.value
+                                )
+                              }
+                              className="w-[100px] h-[45px] border border-[#D0D0D0] rounded-lg px-3 bg-[#FAFAFA] text-sm text-gray-600"
+                            />
+                            <span className="flex items-center text-gray-500 font-semibold">
+                              *
+                            </span>
+                            <input
+                              type="text"
+                              placeholder="Height (cm)"
+                              value={variant.height || ""}
+                              onChange={(e) =>
+                                handleVariantChange(
+                                  index,
+                                  "height",
+                                  e.target.value
+                                )
+                              }
+                              className="w-[100px] h-[45px] border border-[#D0D0D0] rounded-lg px-3 bg-[#FAFAFA] text-sm text-gray-600"
+                            />
+                          </div>
+                        ) : variant.variantName === "Color" ? (
+                          //  Show color input with color picker
+                          <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="text"
+                                placeholder="Enter color name"
+                                value={variant.variantValue || ""}
+                                onChange={(e) =>
                                   handleVariantChange(
                                     index,
                                     "variantValue",
-                                    updatedTags
-                                  );
-                                }}
-                                className="text-gray-500 hover:text-red-500 text-[13px]"
-                              >
-                                ✕
-                              </button>
-                            </span>
-                          ))}
-
-                        {/* Tag Input */}
-                        <input
-                          id={`tagInput-${index}`}
-                          type="text"
-                          placeholder="Add tag..."
-                          className="flex-1 bg-transparent outline-none text-sm text-gray-600"
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter" && e.target.value.trim()) {
-                              e.preventDefault();
-                              const newTag = e.target.value.trim();
-                              const updatedTags = [
-                                ...(variant.variantValue || []),
-                                newTag,
-                              ];
-                              handleVariantChange(
-                                index,
-                                "variantValue",
-                                updatedTags
-                              );
-                              e.target.value = "";
-                            } else if (
-                              e.key === "Backspace" &&
-                              !e.target.value &&
-                              variant.variantValue?.length
-                            ) {
-                              const updatedTags = variant.variantValue.slice(
-                                0,
-                                -1
-                              );
-                              handleVariantChange(
-                                index,
-                                "variantValue",
-                                updatedTags
-                              );
-                            }
-                          }}
-                        />
-                      </div>
-                    </div>
-
-                    {/* Quantity */}
-                    <div>
-                      <label className="block text-sm font-medium mb-2">
-                        Quantity
-                      </label>
-                      <input
-                        type="number"
-                        // name="variantQuantity"
-                        value={variant.variantQuantity}
-                        onChange={(e) =>
-                          handleVariantChange(
-                            index,
-                            "variantQuantity",
-                            e.target.value
-                          )
-                        }
-                        placeholder="Enter Quantity"
-                        className="w-[280px] h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#FAFAFA] text-sm text-gray-600"
-                      />
-                    </div>
-
-                    {/* Reorder Limit */}
-                    <div>
-                      <label className="block text-sm font-medium mb-2">
-                        Reorder Limit
-                      </label>
-                      <input
-                        type="number"
-                        // name="variantReorderLimit"
-                        value={variant.variantReorderLimit}
-                        onChange={(e) =>
-                          handleVariantChange(
-                            index,
-                            "variantReorderLimit",
-                            e.target.value
-                          )
-                        }
-                        placeholder="Enter Reorder Limit"
-                        className="w-[280px] h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#FAFAFA] text-sm text-gray-600"
-                      />
-                    </div>
-
-                    {/* Product Image */}
-                    <div>
-                      <label className="block text-sm font-medium mb-2">
-                        Product Image
-                      </label>
-
-                      <div className="relative w-[60px] h-[60px]">
-                        {/* ✅ Show first image if uploaded */}
-                        {variant.variantImage?.length > 0 ? (
-                          <div className="relative w-[60px] h-[60px]">
-                            <img
-                              src={
-                                typeof variant.variantImage[0] === "string"
-                                  ? variant.variantImage[0]
-                                  : variant.variantImage[0].preview ||
-                                    URL.createObjectURL(variant.variantImage[0])
-                              }
-                              alt="Variant"
-                              className="w-[60px] h-[60px] object-cover rounded-lg border border-neutral-200"
-                            />
-
-                            {/* ✅ Overlay for extra images */}
-                            {variant.variantImage.length > 1 && (
-                              <div className="absolute inset-0 bg-black/50 flex items-center justify-center text-white text-xs font-medium rounded-lg">
-                                +{variant.variantImage.length - 1}
-                              </div>
-                            )}
-
-                            <button
-                              type="button"
-                              onClick={() => removeVariantImage(index, 0)}
-                              className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px]"
-                            >
-                              ×
-                            </button>
-
-                            {/* ✅ Hide upload if already 4 images */}
-                            {variant.variantImage.length < 4 && (
-                              <label
-                                htmlFor={`variantImage-${index}`}
-                                className="absolute bottom-5 left-20 -translate-x-1/2 w-6 h-6 bg-white border border-gray-300 rounded-full flex items-center justify-center cursor-pointer hover:bg-gray-100"
-                              >
-                                <input
-                                  id={`variantImage-${index}`}
-                                  type="file"
-                                  accept="image/*"
-                                  multiple
-                                  className="hidden"
-                                  onChange={(e) =>
-                                    handleVariantImageChange(e, index)
-                                  }
-                                />
-                                <Plus className="text-gray-500 w-3 h-3" />
-                              </label>
-                            )}
+                                    e.target.value
+                                  )
+                                }
+                                className="w-[220px] h-[45px] border border-[#D0D0D0] rounded-lg px-3 bg-[#FAFAFA] text-sm text-gray-600"
+                              />
+                            </div>
                           </div>
                         ) : (
-                          // ✅ Upload button if no image yet
-                          <label
-                            htmlFor={`variantImage-${index}`}
-                            className="w-[50px] h-[50px] bg-[#ECECF0] border border-neutral-200 rounded-lg flex items-center justify-center cursor-pointer hover:bg-gray-200"
-                          >
-                            <input
-                              id={`variantImage-${index}`}
-                              type="file"
-                              accept="image/*"
-                              multiple
-                              className="hidden"
-                              onChange={(e) =>
-                                handleVariantImageChange(e, index)
-                              }
-                            />
-                            <div className="w-[25px] h-[25px] flex items-center justify-center rounded-full border border-[#D0D0D0] bg-white">
-                              <Plus className="text-[#5F5F5F] w-[9px] h-[9px]" />
-                            </div>
-                          </label>
+                          // 🟣 Default single input for other types
+                          <input
+                            type="text"
+                            placeholder={`Enter ${
+                              variant.variantName || "value"
+                            }`}
+                            value={variant.variantValue || ""}
+                            onChange={(e) =>
+                              handleVariantChange(
+                                index,
+                                "variantValue",
+                                e.target.value
+                              )
+                            }
+                            className="w-[220px] h-[45px] border border-[#D0D0D0] rounded-lg px-3 bg-[#FAFAFA] text-sm text-gray-600"
+                          />
                         )}
+                      </div>
+
+                      {/* Quantity */}
+                      <div>
+                        <label className="block text-sm font-medium mb-2">
+                          Quantity
+                        </label>
+                        <input
+                          type="number"
+                          // name="variantQuantity"
+                          value={variant.variantQuantity}
+                          onChange={(e) =>
+                            handleVariantChange(
+                              index,
+                              "variantQuantity",
+                              e.target.value
+                            )
+                          }
+                          placeholder="Enter Quantity"
+                          className="w-[220px] h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#FAFAFA] text-sm text-gray-600"
+                        />
+                      </div>
+
+                      {/* Reorder Limit */}
+                      <div>
+                        <label className="block text-sm font-medium mb-2">
+                          Reorder Limit
+                        </label>
+                        <input
+                          type="number"
+                          // name="variantReorderLimit"
+                          value={variant.variantReorderLimit}
+                          onChange={(e) =>
+                            handleVariantChange(
+                              index,
+                              "variantReorderLimit",
+                              e.target.value
+                            )
+                          }
+                          placeholder="Enter Reorder Limit"
+                          className="w-[220px] h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#FAFAFA] text-sm text-gray-600"
+                        />
+                      </div>
+
+                      {/* Product Image */}
+                      <div>
+                        <label className="block text-sm font-medium mb-2">
+                          Product Image
+                        </label>
+
+                        <div className="relative w-[60px] h-[60px]">
+                          {/* ✅ Show first image if uploaded */}
+                          {variant.variantImage?.length > 0 ? (
+                            <div className="relative w-[60px] h-[60px]">
+                              <img
+                                src={
+                                  typeof variant.variantImage[0] === "string"
+                                    ? variant.variantImage[0]
+                                    : variant.variantImage[0].preview ||
+                                      URL.createObjectURL(
+                                        variant.variantImage[0]
+                                      )
+                                }
+                                alt="Variant"
+                                className="w-[60px] h-[60px] object-cover rounded-lg border border-neutral-200"
+                              />
+
+                              {/* ✅ Overlay for extra images */}
+                              {variant.variantImage.length > 1 && (
+                                <div className="absolute inset-0 bg-black/50 flex items-center justify-center text-white text-xs font-medium rounded-lg">
+                                  +{variant.variantImage.length - 1}
+                                </div>
+                              )}
+
+                              <button
+                                type="button"
+                                onClick={() => removeVariantImage(index, 0)}
+                                className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px]"
+                              >
+                                ×
+                              </button>
+
+                              {/* ✅ Hide upload if already 4 images */}
+                              {variant.variantImage.length < 4 && (
+                                <label
+                                  htmlFor={`variantImage-${index}`}
+                                  className="absolute bottom-5 left-20 -translate-x-1/2 w-6 h-6 bg-white border border-gray-300 rounded-full flex items-center justify-center cursor-pointer hover:bg-gray-100"
+                                >
+                                  <input
+                                    id={`variantImage-${index}`}
+                                    type="file"
+                                    accept="image/*"
+                                    multiple
+                                    className="hidden"
+                                    onChange={(e) =>
+                                      handleVariantImageChange(e, index)
+                                    }
+                                  />
+                                  <Plus className="text-gray-500 w-3 h-3" />
+                                </label>
+                              )}
+                            </div>
+                          ) : (
+                            // ✅ Upload button if no image yet
+                            <label
+                              htmlFor={`variantImage-${index}`}
+                              className="w-[50px] h-[50px] bg-[#ECECF0] border border-neutral-200 rounded-lg flex items-center justify-center cursor-pointer hover:bg-gray-200"
+                            >
+                              <input
+                                id={`variantImage-${index}`}
+                                type="file"
+                                accept="image/*"
+                                multiple
+                                className="hidden"
+                                onChange={(e) =>
+                                  handleVariantImageChange(e, index)
+                                }
+                              />
+                              <div className="w-[25px] h-[25px] flex items-center justify-center rounded-full border border-[#D0D0D0] bg-white">
+                                <Plus className="text-[#5F5F5F] w-[9px] h-[9px]" />
+                              </div>
+                            </label>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>

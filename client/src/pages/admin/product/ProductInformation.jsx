@@ -102,8 +102,8 @@ function ProductInformation() {
             <label className="block text-black text-sm font-medium mb-2">
               Product Image
             </label>
-
-            {product.images[0].map((img, i) => (
+   <div className="flex flex-wrap gap-3 items-start">
+            {product.images.map((img, i) => (
               <div key={i} className="relative group">
                 <img
                   src={img}
@@ -112,6 +112,7 @@ function ProductInformation() {
                 />
               </div>
             ))}
+            </div>
           </div>
         </div>
 
@@ -211,13 +212,13 @@ function ProductInformation() {
               <div>
                 <p className="text-base text-[#797979] font-medium">MRP</p>
                 <span className="text-base text-[#2C2C2C] font-medium">
-                  2499
+                  {product.mrp}
                 </span>
               </div>
               <div>
                 <p className="text-base text-[#797979] font-medium">Profit</p>
                 <span className="text-base text-[#2C2C2C] font-medium">
-                  200
+                  {product.profit}
                 </span>
               </div>
               {/* <div>
@@ -235,13 +236,14 @@ function ProductInformation() {
                   Selling Price (₹)
                 </p>
                 <span className="text-base text-[#2C2C2C] font-medium">
-                  2499
+                 {product.sellingPrice}
                 </span>
               </div>
               <div className="text-start">
                 <p className="text-base text-[#797979] font-medium">Discount</p>
                 <span className="text-base text-[#2C2C2C] font-medium">
-                  10%
+                 <span>{product.discountPercent}%</span>
+
                 </span>
               </div>
               {/* <div>
@@ -259,12 +261,12 @@ function ProductInformation() {
                   Cost Price (₹)
                 </p>
                 <span className="text-base text-[#2C2C2C] font-medium">
-                  2699
+                  {product.costPrice}
                 </span>
               </div>
               <div>
                 <p className="text-base text-[#797979] font-medium">Tax</p>
-                <span className="text-base text-[#2C2C2C] font-medium">5%</span>
+                <span className="text-base text-[#2C2C2C] font-medium">{product.taxPercent}%</span>
               </div>
               {/* <div>
                 <p className="text-base text-[#797979] font-medium">SKU-ID</p>
