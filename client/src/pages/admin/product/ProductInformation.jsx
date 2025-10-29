@@ -29,11 +29,15 @@ function ProductInformation() {
     return products.find((p) => p.uuid.toLowerCase() === uuid.toLowerCase());
   }, [products, uuid]);
 
+
   // console.log("UUID from useParams:", uuid);
   // console.log(
   //   "All product UUIDs:",
   //   products.map((p) => p.uuid)
   // );
+
+
+  console.log(product.images)
 
   /////////////////////////
   const [variants, setVariants] = useState([
@@ -99,36 +103,15 @@ function ProductInformation() {
               Product Image
             </label>
 
-            {product.images.map((img, i) => (
+            {product.images[0].map((img, i) => (
               <div key={i} className="relative group">
                 <img
                   src={img}
                   alt={`preview ${i}`}
                   className="w-[137px] h-[137px] object-cover rounded-lg border border-neutral-200"
                 />
-
-                {/* <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition rounded-lg"></div> */}
-
-                {/*Overlay Remove button */}
-                {/* <button
-                  type="button"
-                  onClick={() => {
-                    setFormData((prev) => ({
-                      ...prev,
-                      images: prev.images.filter((_, index) => index !== i),
-                    }));
-                  }}
-                  className="absolute top-2 right-2 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition"
-                >
-                  <Trash size={20} />
-                </button> */}
               </div>
             ))}
-            {/* <img
-              src="https://plus.unsplash.com/premium_photo-1664392147011-2a720f214e01?ixlib=rb-4.1.0&auto=format&fit=crop&q=80&w=578"
-              alt="Product"
-              className="w-40 h-auto object-cover rounded-lg border border-neutral-200"
-            /> */}
           </div>
         </div>
 
