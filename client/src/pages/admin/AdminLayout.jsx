@@ -1,27 +1,42 @@
-import React from "react";
-import AdminSidebar from "./components/AdminSidebar";
-import Header from "./components/Header"; // your Navbar
+import React, { useState } from "react";
 import { Outlet } from "react-router";
+import Header from "./components/Header";
+import AdminSidebar from "./components/AdminSidebar";
 
 function AdminLayout() {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
   return (
-    <section className="bg-gray-50">
-      {/* Navbar */}
-      <Header />
+    <div className="flex flex-col h-screen bg-[#F9F9F9]">
+      {/* ✅ Fixed Header */}
+      <Header isCollapsed={isCollapsed} />
 
-      {/* <div className="w-full flex items-start h-full"> */}
-      <div className="flex w-full min-h-screen items-stretch">
+      {/* ✅ Sidebar + Page Content */}
+      <div className="flex flex-1 pt-16">
         {/* Sidebar */}
-        <AdminSidebar />
+        <aside
+          className={`fixed top-16 bottom-0 left-0 bg-[#383838] text-white transition-all duration-300 z-40 ${
+            isCollapsed ? "w-[80px]" : "w-[240px]"
+          }`}
+        >
+          <AdminSidebar
+            isCollapsed={isCollapsed}
+            setIsCollapsed={setIsCollapsed}
+          />
+        </aside>
 
-        {/* Page content */}
-        {/* <div className="h-dvh flex flex-col gap-4 w-full mx-4 py-4 "> */}
-          <div className="flex-1 mx-4 py-4">
+        {/* Main content area */}
+        <main
+          className={`flex-1 overflow-y-auto transition-all duration-300 p-6`}
+          style={{
+            marginLeft: isCollapsed ? "80px" : "240px",
+          }}
+        >
           <Outlet />
-        </div>
+        </main>
       </div>
-    </section>
+    </div>
   );
 }
 
-export default AdminLayout
+export default AdminLayout;

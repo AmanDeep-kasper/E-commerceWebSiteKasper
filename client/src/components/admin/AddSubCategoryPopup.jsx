@@ -46,7 +46,7 @@ const AddSubCategoryPopup = ({
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
       <div className="bg-white p-6 rounded-lg w-[40%] relative">
-        <h2 className="text-xl font-semibold mb-4">Add Category</h2>
+        <h2 className="text-xl font-semibold mb-4">Add SubCategory</h2>
 
         {/* Category Input */}
         {/* <label className="block text-black text-[14px] font-medium mb-2">
@@ -83,7 +83,7 @@ const AddSubCategoryPopup = ({
           </button>
           <button
             type="button"
-            className="px-6 py-2 bg-lime-600 rounded-lg text-white font-medium hover:bg-lime-700"
+            className="px-6 py-2 bg-amber-600 rounded-lg text-white font-medium hover:bg-lime-700"
             onClick={handleSave}
           >
             Save

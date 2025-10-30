@@ -544,15 +544,22 @@ const Products = () => {
                     />
                   </td>
 
-                  <td className="px-0 py-3">
+                  <td className="px-0 py-4">
                     <div className="flex items-center justify-start gap-2">
-                      <div className="h-[50px] w-[50px] ml-2 bg-[#D9D9D9] rounded-md"></div>
+                      <div className="h-[50px] w-[50px] ml-2 bg-[#D9D9D9] rounded-md overflow-hidden">
+                        <img
+                          className="h-full w-full object-cover object-center"
+                          src={item.images[0]}
+                          alt={item.title}
+                        />
+                      </div>
+
                       <div>
                         <span className="text-[#1F2937] hover:underline text-[16px] font-medium cursor-pointer">
                           {item.title}
                         </span>
                         <p className="text-[14px] text-gray-500">
-                          {` ${item.variants}`}
+                          {` ${item.variants}`}  
                         </p>
                       </div>
                     </div>
