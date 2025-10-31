@@ -29,15 +29,13 @@ function ProductInformation() {
     return products.find((p) => p.uuid.toLowerCase() === uuid.toLowerCase());
   }, [products, uuid]);
 
-
   // console.log("UUID from useParams:", uuid);
   // console.log(
   //   "All product UUIDs:",
   //   products.map((p) => p.uuid)
   // );
 
-
-  console.log(product.images)
+  console.log(product.images);
 
   /////////////////////////
   const [variants, setVariants] = useState([
@@ -102,16 +100,16 @@ function ProductInformation() {
             <label className="block text-black text-sm font-medium mb-2">
               Product Image
             </label>
-   <div className="flex flex-wrap gap-3 items-start">
-            {product.images.map((img, i) => (
-              <div key={i} className="relative group">
-                <img
-                  src={img}
-                  alt={`preview ${i}`}
-                  className="w-[137px] h-[137px] object-cover rounded-lg border border-neutral-200"
-                />
-              </div>
-            ))}
+            <div className="flex flex-wrap gap-3 items-start">
+              {product.images.map((img, i) => (
+                <div key={i} className="relative group">
+                  <img
+                    src={img}
+                    alt={`preview ${i}`}
+                    className="w-[137px] h-[137px] object-cover rounded-lg border border-neutral-200"
+                  />
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -236,14 +234,13 @@ function ProductInformation() {
                   Selling Price (₹)
                 </p>
                 <span className="text-base text-[#2C2C2C] font-medium">
-                 {product.sellingPrice}
+                  {product.sellingPrice}
                 </span>
               </div>
               <div className="text-start">
                 <p className="text-base text-[#797979] font-medium">Discount</p>
                 <span className="text-base text-[#2C2C2C] font-medium">
-                 <span>{product.discountPercent}%</span>
-
+                  <span>{product.discountPercent}%</span>
                 </span>
               </div>
               {/* <div>
@@ -266,7 +263,9 @@ function ProductInformation() {
               </div>
               <div>
                 <p className="text-base text-[#797979] font-medium">Tax</p>
-                <span className="text-base text-[#2C2C2C] font-medium">{product.taxPercent}%</span>
+                <span className="text-base text-[#2C2C2C] font-medium">
+                  {product.taxPercent}%
+                </span>
               </div>
               {/* <div>
                 <p className="text-base text-[#797979] font-medium">SKU-ID</p>

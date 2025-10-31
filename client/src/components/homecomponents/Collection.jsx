@@ -295,71 +295,67 @@ function Collection() {
         <div className="relative">
           <Swiper
             modules={[Navigation]}
-            spaceBetween={16} // same as your gap-4 (adjust responsive)
-            slidesPerView={"auto"} // cards keep their own width
+            spaceBetween={16}
+            slidesPerView={"auto"}
             navigation={{
               nextEl: ".collections-next",
               prevEl: ".collections-prev",
             }}
-            // autoplay={{
-            //   delay: 2000,
-            //   disableOnInteraction: false,
-            //   pauseOnMouseEnter: true,
-            // }}
-            loop={false} // set to true if you want infinite scrolling
+            loop={false}
             className="pb-6"
           >
-            {collections?.map((p) => {
-              return (
-                <Swiper
-                  modules={[Navigation]}
-                  slidesPerView={"auto"}
-                  spaceBetween={16} // this controls gap between cards
-                  navigation={{
-                    nextEl: ".collections-next",
-                    prevEl: ".collections-prev",
-                  }}
-                  // autoplay={{
-                  //   delay: 2000,
-                  //   disableOnInteraction: false,
-                  //   pauseOnMouseEnter: true,
-                  // }}
-                  className="pb-6"
-                >
-                  {collections.map((p, index) => (
-                    <SwiperSlide
-                      key={p.uuid + index}
-                      className="!w-[224px] max-sm:!w-40 rounded-md overflow-hidden"
-                    >
-                      <Link
-                        className="bg-white block group/image h-full rounded-md shadow-sm"
-                        to={getProductUrl(p)}
-                      >
-                        <div className="relative w-full h-[224px] max-sm:h-40 overflow-hidden">
-                          <img
-                            className="w-full h-full object-contain group-hover/image:scale-110 transition-all duration-300"
-                            src={getCardImage(p)}
-                            alt={p.title}
-                          />
-                        </div>
+            {collections.map((p, index) => {
+              const key = p.uuid || p.id || p.SKU || `collection-${index}`;
+              const { base, effective, discountPercent } = getPrices(p);
 
-                        <div className="w-full py-2 px-3">
-                          {" "}
-                          {/* only inner padding here */}
-                          <h3 className="text-sm font-serif text-gray-800 line-clamp-1 mb-2">
-                            {p.title}
-                          </h3>
-                          {/* price section... */}
-                        </div>
-                      </Link>
-                    </SwiperSlide>
-                  ))}
-                </Swiper>
+              return (
+                <SwiperSlide
+                  key={key}
+                  className="!w-[224px] max-sm:!w-40 rounded-md overflow-hidden"
+                >
+                  <Link
+                    className="bg-white block group/image h-full rounded-md shadow-sm"
+                    to={getProductUrl(p)}
+                  >
+                    <div className="relative w-full h-[224px] max-sm:h-40 overflow-hidden">
+                      <img
+                        className="w-full h-full object-contain group-hover/image:scale-110 transition-all duration-300"
+                        src={getCardImage(p)}
+                        alt={p.title}
+                        loading="lazy"
+                        onError={(e) => (e.target.src = "/placeholder.jpg")}
+                      />
+                    </div>
+
+                    <div className="w-full py-2 px-3">
+                      <h3 className="text-sm font-serif text-gray-800 line-clamp-1 mb-2">
+                        {p.title}
+                      </h3>
+
+                      <div className="flex items-center flex-wrap gap-2">
+                        <span className="text-gray-900 font-medium tracking-tight">
+                          {formatPrice(effective)}
+                        </span>
+
+                        {discountPercent > 0 && (
+                          <>
+                            <span className="text-gray-400 text-xs line-through font-light">
+                              {formatPrice(base)}
+                            </span>
+                            <span className="bg-green-700 text-white text-xs px-2 py-0.5 rounded">
+                              {discountPercent}% Off
+                            </span>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </Link>
+                </SwiperSlide>
               );
             })}
           </Swiper>
 
-          {/* Navigation Arrows */}
+          {/* ✅ Navigation Buttons */}
           <button className="collections-prev absolute -left-4 top-1/2 -translate-y-1/2 w-10 h-16 flex items-center justify-center bg-white shadow-sm hover:bg-gray-50 transition-all duration-200 z-10 border border-gray-200">
             <ChevronLeft size={20} className="text-gray-600" />
           </button>

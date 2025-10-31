@@ -369,10 +369,6 @@ const Products = () => {
 
   return (
     <>
-      {/* <div className="flex items-center justify-between mb-4 bg-white p-4 rounded-md">
-        <h2 className="text-xl font-semibold text-gray-800">All Products</h2>
-        </div> */}
-      {/* </div> */}
       <div className="p-4 bg-white rounded-md min-h-screen">
         {/* Header */}
 
@@ -414,6 +410,7 @@ const Products = () => {
         {/* Search + Filters */}
 
         <div className="flex flex-wrap gap-4 mb-6 text-[#000000]">
+          
           {/* Categories Dropdown */}
           <div className="relative inline-block w-56">
             <button
@@ -555,12 +552,14 @@ const Products = () => {
                       </div>
 
                       <div>
-                        <span className="text-[#1F2937] hover:underline text-[16px] font-medium cursor-pointer">
+                        <span className="text-[#1F2937]  text-[16px] font-medium cursor-pointer">
                           {item.title}
                         </span>
-                        <p className="text-[14px] text-gray-500">
-                          {` ${item.variants}`}  
-                        </p>
+                        <div>
+                          <p className="text-[14px] text-gray-500">
+                            {item.variants.map((v) => v.variantValue).join(",")}
+                          </p>
+                        </div>
                       </div>
                     </div>
                   </td>

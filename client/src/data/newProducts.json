@@ -397,7 +397,7 @@
           "low_stock_alert": 3,
           "backorder_allowed": false
         },
-        "images": ["/images/wedding1.jpg"]
+        "images": ["/welcome1.jpg"]
       },
       {
         "variant_id": "FAO-WED-001-GLD-55x35cm",
@@ -410,12 +410,12 @@
           "low_stock_alert": 3,
           "backorder_allowed": false
         },
-        "images": ["/images/wedding1.jpg"]
+        "images": ["/welcome1.jpg"]
       }
     ],
     "media": {
       "gallery": [
-        { "src": "/images/wedding1.jpg", "alt": "Wedding Rings - front" }
+        { "src": "/welcome1.jpg", "alt": "Wedding Rings - front" }
       ]
     },
     "rating": {
