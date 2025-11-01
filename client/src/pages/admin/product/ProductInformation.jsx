@@ -1,23 +1,9 @@
 import React, { use, useMemo, useState } from "react";
 import { Link, useParams } from "react-router";
 import products from "../../../data/products.json";
-import AdminSidebar from "../components/AdminSidebar";
-import Header from "../components/Header";
-import {
-  Package,
-  Tag,
-  Box,
-  IndianRupee,
-  Percent,
-  Palette,
-  Database,
-  RefreshCw,
-  Scale,
-  Type,
-  Edit3,
-  Trash2,
-  ArrowLeft,
-} from "lucide-react";
+
+import { Package, ArrowLeft } from "lucide-react";
+// import RatingChart from "./RatingChart";
 
 function ProductInformation() {
   // const { uuid } = useParams();
@@ -35,15 +21,9 @@ function ProductInformation() {
   //   products.map((p) => p.uuid)
   // );
 
-  console.log(product.images);
+  // console.log(product.images);
 
   /////////////////////////
-  const [variants, setVariants] = useState([
-    { name: "Color", value: "Black", quantity: 20, reorder: 10 },
-    { name: "Color", value: "Green", quantity: 20, reorder: 10 },
-    { name: "Dimension", value: "60L x 80W cm", quantity: 20, reorder: 10 },
-    { name: "Dimension", value: "55L x 35W cm", quantity: 20, reorder: 10 },
-  ]);
 
   const [reviews, setReviews] = useState([
     {
@@ -87,9 +67,14 @@ function ProductInformation() {
               <Package className="w-6 h-6 text-gray-700" />
               Basic Information
             </h2>
-            <span className="bg-purple-100 px-3 py-1 rounded-full text-purple-700 text-sm font-medium">
-              {product.variants[0].variantType}
-            </span>
+
+            {/* {product.variants.map((item,i)=>( */}
+            <div>
+              <span className="bg-purple-100 px-3 py-1 rounded-full text-purple-700 text-sm font-medium">
+                {product.type}
+              </span>
+            </div>
+            {/* ))} */}
           </div>
 
           <p className="text-[#797979] font-medium text-base"> Description</p>
@@ -267,14 +252,6 @@ function ProductInformation() {
                   {product.taxPercent}%
                 </span>
               </div>
-              {/* <div>
-                <p className="text-base text-[#797979] font-medium">SKU-ID</p>
-                <span className="text-base text-[#2C2C2C] font-medium">
-                  SRA-GAN-001
-                </span>
-              </div> */}
-
-              <div></div>
             </div>
           </div>
         </div>
@@ -283,25 +260,87 @@ function ProductInformation() {
       {/* Variants Section */}
       <div className="mt-6 bg-white rounded-xl p-4">
         <h2 className="text-lg font-medium mb-2">Variants</h2>
-        <table className="w-full border border-gray-200 rounded">
-          <thead className="bg-gray-100">
-            <tr>
-              {["Name", "Value", "Quantity", "Reorder Limit"].map((col) => (
-                <th key={col} className="text-left p-2">
-                  {col}
-                </th>
-              ))}
+        <table className="w-full text-left text-gray-600">
+          <thead className="bg-[#F8F8F8] h-[54px]">
+            <tr className="text-[#777777] text-[18px]">
+              <th className="px-4 py-3 font-normal">Image</th>
+              <th className="px-4 py-3 font-normal">VariantName</th>
+              <th className="px-4 py-3 font-normal">Variant Type</th>
+              <th className="px-4 py-3 font-normal">Value</th>
+              <th className="px-4 py-3 font-normal">Quantity</th>
+              <th className="px-4 py-3 font-normal">Reorder Limit</th>
             </tr>
           </thead>
-          <tbody>
-            {variants.map((variant, idx) => (
-              <tr key={idx} className="border-t">
-                <td className="p-2">{variant.name}</td>
-                <td className="p-2">{variant.value}</td>
-                <td className="p-2">{variant.quantity}</td>
-                <td className="p-2">{variant.reorder}</td>
-              </tr>
-            ))}
+          <tbody className="">
+            {product.variants.map((item, index) => {
+              return (
+                <tr
+                  key={item.variantId || item.variantName}
+                  className="border-t hover:bg-gray-50 transition group"
+                >
+                  <td className="px-0 py-4">
+                    <div className="flex relative w-full items-center justify-start">
+                      <div className="h-[50px] w-[50px] ml-2 bg-[#D9D9D9] rounded-md overflow-hidden">
+                        {item.variantImage?.length > 0 ? (
+                          <div className="relative">
+                            <img
+                              src={
+                                typeof item.variantImage[0] === "string"
+                                  ? item.variantImage[0] // If the image is a string (URL)
+                                  : item.variantImage[0].preview || // If it's a file object, get preview
+                                    URL.createObjectURL(item.variantImage[0]) // Otherwise, create a URL
+                              }
+                              className="w-full h-full object-cover rounded-lg border border-neutral-200"
+                              alt={item.variantName}
+                            />
+                            {/* If there are more than 1 image, show the "+{N}" badge */}
+                            {item.variantImage.length > 1 && (
+                              <div
+                                onClick={() => {
+                                  setSelectedImages(item.variantImage); // Set selected images
+                                  const first =
+                                    typeof item.variantImage[0] === "string"
+                                      ? item.variantImage[0]
+                                      : item.variantImage[0].preview ||
+                                        URL.createObjectURL(
+                                          item.variantImage[0]
+                                        );
+                                  setCurrentImage(first); // Set the first image as the current image
+                                  setIsModalOpen(true); // Open the modal
+                                }}
+                                className="absolute inset-0 bg-black/50 flex items-center justify-center text-white text-xs font-medium rounded-lg "
+                              >
+                                +{item.variantImage.length - 1}{" "}
+                                {/* Display the number of extra images */}
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          ""
+                        )}
+                      </div>
+                    </div>
+                  </td>
+
+                  {/* Display variant details */}
+                  <td className="px-4 py-3 text-base text-[#171028]">
+                    {item.variantName}
+                  </td>
+                  <td className="px-4 py-3 text-base text-[#171028]">
+                    {item.variantType}
+                  </td>
+                  <td className="px-4 py-3 text-base text-[#171028]">
+                    {item.variantValue}
+                  </td>
+                  <td className="px-4 py-3 text-base text-[#171028]">
+                    {item.stockQuantity}
+                  </td>
+                  <td className="px-4 py-3 text-base text-[#171028]">
+                    {item.variantReorderLimit}
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
@@ -309,7 +348,130 @@ function ProductInformation() {
       {/* Customer Reviews */}
       <div className="mt-6 bg-white rounded-xl p-4">
         <h2 className="text-lg font-medium mb-2">Customer Reviews</h2>
-        {reviews.map((review, idx) => (
+        {/* <h2 className="text-lg font-medium mb-2">Rating Breakdown</h2> */}
+        <div>
+          <div>
+            {/* <div className="w-[929.91px] h-52 relative">
+              <div className="left-0 top-0 absolute justify-start text-neutral-950 text-lg font-normal font-['Inter']">
+                Rating Breakdown
+              </div>
+              <div className="left-[151px] top-[42px] absolute inline-flex justify-start items-center gap-4">
+                <div className="flex justify-start items-center gap-1">
+                  <div className="justify-start text-black text-lg font-medium font-['Inter']">
+                    5
+                  </div>
+                  <div className="w-4 h-4 relative overflow-hidden">
+                    <div className="w-3.5 h-3 left-[1.33px] top-[1.33px] absolute bg-yellow-400" />
+                  </div>
+                </div>
+                <div className="w-[687.91px] h-2 pr-72 bg-gray-200 rounded-full inline-flex flex-col justify-start items-start">
+                  <div className="w-[470px] h-2 relative bg-yellow-400 rounded-full" />
+                </div>
+                <div className="justify-start text-gray-500 text-lg font-medium font-['Inter']">
+                  89
+                </div>
+              </div>
+              <div className="left-[151px] top-[80px] absolute inline-flex justify-start items-center gap-4">
+                <div className="flex justify-start items-center gap-1">
+                  <div className="justify-start text-black text-lg font-medium font-['Inter']">
+                    4
+                  </div>
+                  <div className="w-4 h-4 relative overflow-hidden">
+                    <div className="w-3.5 h-3 left-[1.33px] top-[1.33px] absolute bg-yellow-400" />
+                  </div>
+                </div>
+                <div className="w-[687.91px] h-2 pr-72 bg-gray-200 rounded-full inline-flex flex-col justify-start items-start">
+                  <div className="w-48 h-2 relative bg-yellow-400 rounded-full" />
+                </div>
+                <div className="justify-start text-gray-500 text-lg font-medium font-['Inter']">
+                  45
+                </div>
+              </div>
+              <div className="left-[151px] top-[118px] absolute inline-flex justify-start items-center gap-4">
+                <div className="flex justify-start items-center gap-1">
+                  <div className="justify-start text-black text-lg font-medium font-['Inter']">
+                    3
+                  </div>
+                  <div className="w-4 h-4 relative overflow-hidden">
+                    <div className="w-3.5 h-3 left-[1.33px] top-[1.33px] absolute bg-yellow-400" />
+                  </div>
+                </div>
+                <div className="w-[687.91px] h-2 pr-72 bg-gray-200 rounded-full inline-flex flex-col justify-start items-start">
+                  <div className="w-20 h-2 relative bg-yellow-400 rounded-full" />
+                </div>
+                <div className="justify-start text-gray-500 text-lg font-medium font-['Inter']">
+                  15
+                </div>
+              </div>
+              <div className="left-[151px] top-[156px] absolute inline-flex justify-start items-center gap-4">
+                <div className="flex justify-start items-center gap-1">
+                  <div className="justify-start text-black text-lg font-medium font-['Inter']">
+                    2
+                  </div>
+                  <div className="w-4 h-4 relative overflow-hidden">
+                    <div className="w-3.5 h-3 left-[1.33px] top-[1.33px] absolute bg-yellow-400" />
+                  </div>
+                </div>
+                <div className="w-[687.91px] h-2 pr-72 bg-gray-200 rounded-full inline-flex flex-col justify-start items-start">
+                  <div className="w-11 h-2 relative bg-yellow-400 rounded-full" />
+                </div>
+                <div className="justify-start text-gray-500 text-lg font-medium font-['Inter']">
+                  5
+                </div>
+              </div>
+              <div className="left-[151px] top-[194px] absolute inline-flex justify-start items-center gap-4">
+                <div className="flex justify-start items-center gap-1">
+                  <div className="justify-start text-black text-lg font-medium font-['Inter']">
+                    1
+                  </div>
+                  <div className="w-4 h-4 relative overflow-hidden">
+                    <div className="w-3.5 h-3 left-[1.33px] top-[1.33px] absolute bg-yellow-400" />
+                  </div>
+                </div>
+                <div className="w-[687.91px] h-2 pr-72 bg-gray-200 rounded-full inline-flex flex-col justify-start items-start">
+                  <div className="w-7 h-2 relative bg-yellow-400 rounded-full" />
+                </div>
+                <div className="justify-start text-gray-500 text-lg font-medium font-['Inter']">
+                  2
+                </div>
+              </div>
+              <div className="left-[10px] top-[137px] absolute justify-start text-zinc-600 text-base font-normal font-['Inter']">
+                200 Rating{" "}
+              </div>
+              <div className="left-[10px] top-[160px] absolute justify-start text-zinc-600 text-base font-normal font-['Inter']">
+                10 Reviews
+              </div>
+              <div className="left-[10px] top-[82px] absolute inline-flex justify-start items-center gap-2">
+                <div className="justify-start text-black text-4xl font-medium font-['Inter']">
+                  4.6
+                </div>
+                <div className="w-8 h-7 bg-yellow-400" />
+              </div>
+            </div> */}
+          </div>
+          <div>
+            <h1 className="text-[18px] font-medium">Reviews</h1>
+            <div>
+              <div className="flex items-center justify-start gap-3">
+                <div className="w-[45px] h-[45px] rounded-full bg-[#ECECF0] text-center flex items-center justify-center text-[16px]">
+                  P
+                </div>
+                <div>
+                  <p className="text-[16px]">Rajesh Sharma</p>
+                  <div className="text-[14px]">
+                    <span>stars</span><span className="text-[#717182]">•</span><span className="text-[#717182]">5 days ago</span>
+                  </div>
+                </div>
+              </div>
+              <h1 className="text-[#0A0A0A] text-[14px]">Beautiful craftsmanship and perfect for my living room</h1>
+              <div>
+                
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* {reviews.map((review, idx) => (
           <div key={idx} className="border-b border-gray-200 py-2">
             <div className="flex justify-between items-center mb-1">
               <span className="font-medium">{review.name}</span>
@@ -322,7 +484,8 @@ function ProductInformation() {
             </div>
             <p>{review.comment}</p>
           </div>
-        ))}
+        ))} */}
+        {/* <RatingChart/> */}
       </div>
     </div>
   );

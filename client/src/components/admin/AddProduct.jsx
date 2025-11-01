@@ -1495,14 +1495,6 @@ const AddProduct = () => {
                                 </div>
                               )}
 
-                              <button
-                                type="button"
-                                onClick={() => removeVariantImage(index, 0)}
-                                className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px]"
-                              >
-                                ×
-                              </button>
-
                               {variant.variantImage.length < 10 && (
                                 <label
                                   htmlFor={`variantImage-${index}`}

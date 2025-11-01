@@ -849,6 +849,7 @@ function ProductDetails() {
                 </div>
 
                 <div className="flex flex-col gap-1">
+
                   <Ratings size={20} avgRating={avgRating} />{" "}
                   {/* Assuming your Ratings component accepts a size prop */}
                   <span className="text-sm text-gray-500">
