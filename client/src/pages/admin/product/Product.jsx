@@ -410,7 +410,6 @@ const Products = () => {
         {/* Search + Filters */}
 
         <div className="flex flex-wrap gap-4 mb-6 text-[#000000]">
-          
           {/* Categories Dropdown */}
           <div className="relative inline-block w-56">
             <button
@@ -556,8 +555,16 @@ const Products = () => {
                           {item.title}
                         </span>
                         <div>
-                          <p className="text-[14px] text-gray-500">
-                            {item.variants.map((v) => v.variantValue).join(",")}
+                          <p className="text-[14px] text-[#5D5D5D]">
+                            {item.variants
+                              .slice(0, 2) // show only first 2
+                              .map((v) => v.variantValue)
+                              .join(", ")}
+                            {item.variants.length > 2 && (
+                              <span className="text-[#5D5D5D]">
+                                 {" "} +{item.variants.length - 2} more
+                              </span>
+                            )}
                           </p>
                         </div>
                       </div>

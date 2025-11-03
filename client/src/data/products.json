@@ -7,8 +7,8 @@
     "type": "Framed",
     "category": "Geometric & Abstract",
     "subcategory": "Abstract Decor",
-    "tags": ["geometry", "modern", "abstract", "metal"],
-    "images": ["/polygonAnimal1.jpg"],
+    "tags": [ "metal"],
+    "images": ["/polygonAnimal1.jpg","/polygonAnimal2.jpg","/polygonAnimal3.jpg"],
     "image": ["/polygonAnimal1.jpg"],
     "SKU": "DWL-ART-001",
     "materialType": "metal",
@@ -69,7 +69,28 @@
         "images": ["/polygonAnimal1.jpg"]
       }
     ],
-    "reviews": []
+    "reviews": [
+      {
+        "user": "Rohit Sharma",
+        "userImage": "https://randomuser.me/api/portraits/men/32.jpg",
+        "comment": "calms your mind whenever you look and excellent product… must-have for home decor.",
+        "rating": "5",
+        "likes": 42,
+        "dislike": 0,
+        "images": ["/polygonAnimal1.jpg"],
+        "date": "2025-04-05"
+      },
+      {
+        "user": "Neha Sharma",
+        "userImage": "https://randomuser.me/api/portraits/women/32.jpg",
+        "comment": "calms your mind whenever you look and excellent product… must-have for home decor.",
+        "rating": "4",
+        "likes": 42,
+        "dislike": 0,
+        "images": ["/polygonAnimal1.jpg"],
+        "date": "2025-04-05"
+      }
+    ]
   },
   {
     "uuid": "dwl-art-002",
@@ -79,7 +100,7 @@
     "type": "Framed",
     "category": "Nature & Wildlife",
     "subcategory": "Floral Decor",
-    "tags": ["flower", "bloom", "nature", "petals"],
+    "tags": ["bloom"],
     "images": ["/forest1.jpg", "/forest2.jpg", "/forest3.jpg", "/forest4.jpg"],
     "image": ["/forest1.jpg"],
     "SKU": "DWL-ART-002",
@@ -147,7 +168,28 @@
         "images": ["/forest1.jpg"]
       }
     ],
-    "reviews": []
+    "reviews": [
+      {
+        "user": "Rohit Sharma",
+        "userImage": "https://randomuser.me/api/portraits/men/32.jpg",
+        "comment": "calms your mind whenever you look and excellent product… must-have for home decor.",
+        "rating": "5",
+        "likes": 42,
+        "dislike": 0,
+        "images": ["/polygonAnimal1.jpg"],
+        "date": "2025-04-05"
+      },
+      {
+        "user": "Neha Sharma",
+        "userImage": "https://randomuser.me/api/portraits/women/32.jpg",
+        "comment": "calms your mind whenever you look and excellent product… must-have for home decor.",
+        "rating": "4",
+        "likes": 42,
+        "dislike": 0,
+        "images": ["/polygonAnimal1.jpg"],
+        "date": "2025-04-05"
+      }
+    ]
   },
   {
     "uuid": "dwl-art-003",
@@ -157,7 +199,7 @@
     "type": "Framed",
     "category": "Spiritual & Religious Art",
     "subcategory": "Nature Decor",
-    "tags": ["tree", "life", "roots", "spiritual"],
+    "tags": ["tree"],
     "images": ["/tree1.jpg"],
     "image": ["/tree1.jpg"],
     "SKU": "DWL-ART-003",
@@ -219,7 +261,9 @@
         "images": ["/tree3.jpg"]
       }
     ],
-    "reviews": []
+    "reviews": [
+      
+    ]
   },
   {
     "uuid": "dwl-art-004",
@@ -229,8 +273,8 @@
     "type": "Framed",
     "category": "Festival & Occasion",
     "subcategory": "Diwali Decor",
-    "tags": ["lakshmi", "goddess", "wealth", "festival"],
-    "images": ["/couple1.jpg"],
+    "tags": ["lakshmi"],
+    "images": ["/couple1.jpg","/couple3.jpg","/couple2.jpg"],
     "image": ["/couple1.jpg"],
     "SKU": "DWL-ART-004",
     "materialType": "metal",
@@ -291,7 +335,28 @@
         "images": ["/couple3.jpg"]
       }
     ],
-    "reviews": []
+    "reviews": [
+      {
+        "user": "Rohit Sharma",
+        "userImage": "https://randomuser.me/api/portraits/men/32.jpg",
+        "comment": "calms your mind whenever you look and excellent product… must-have for home decor.",
+        "rating": "5",
+        "likes": 42,
+        "dislike": 0,
+        "images": ["/polygonAnimal1.jpg"],
+        "date": "2025-04-05"
+      },
+      {
+        "user": "Neha Sharma",
+        "userImage": "https://randomuser.me/api/portraits/women/32.jpg",
+        "comment": "calms your mind whenever you look and excellent product… must-have for home decor.",
+        "rating": "4",
+        "likes": 42,
+        "dislike": 0,
+        "images": ["/polygonAnimal1.jpg"],
+        "date": "2025-04-05"
+      }
+    ]
   },
 
   {
@@ -302,7 +367,7 @@
     "type": "Framed",
     "category": "Geometric & Abstract",
     "subcategory": "Abstract Decor",
-    "tags": ["sun", "energy", "burst", "modern"],
+    "tags": ["sun"],
     "images": ["/sun1.jpg"],
     "image": ["/sun1.jpg"],
     "SKU": "DWL-ART-009",
@@ -364,7 +429,28 @@
         "images": ["/sun3.jpg"]
       }
     ],
-    "reviews": []
+    "reviews": [
+      {
+        "user": "Rohit Sharma",
+        "userImage": "https://randomuser.me/api/portraits/men/32.jpg",
+        "comment": "calms your mind whenever you look and excellent product… must-have for home decor.",
+        "rating": "5",
+        "likes": 42,
+        "dislike": 0,
+        "images": ["/polygonAnimal1.jpg"],
+        "date": "2025-04-05"
+      },
+      {
+        "user": "Neha Sharma",
+        "userImage": "https://randomuser.me/api/portraits/women/32.jpg",
+        "comment": "calms your mind whenever you look and excellent product… must-have for home decor.",
+        "rating": "4",
+        "likes": 42,
+        "dislike": 0,
+        "images": ["/polygonAnimal1.jpg"],
+        "date": "2025-04-05"
+      }
+    ]
   },
   {
     "uuid": "dwl-art-010",
@@ -374,7 +460,7 @@
     "type": "Framed",
     "category": "Nature & Wildlife",
     "subcategory": "Nature Decor",
-    "tags": ["feather", "boho", "soft", "natural"],
+    "tags": ["feather"],
     "images": ["/feather1.jpg"],
     "image": ["/feather1.jpg"],
     "SKU": "DWL-ART-010",
@@ -436,7 +522,28 @@
         "images": ["/feather5.jpg"]
       }
     ],
-    "reviews": []
+    "reviews": [
+      {
+        "user": "Rohit Sharma",
+        "userImage": "https://randomuser.me/api/portraits/men/32.jpg",
+        "comment": "calms your mind whenever you look and excellent product… must-have for home decor.",
+        "rating": "5",
+        "likes": 42,
+        "dislike": 0,
+        "images": ["/polygonAnimal1.jpg"],
+        "date": "2025-04-05"
+      },
+      {
+        "user": "Neha Sharma",
+        "userImage": "https://randomuser.me/api/portraits/women/32.jpg",
+        "comment": "calms your mind whenever you look and excellent product… must-have for home decor.",
+        "rating": "4",
+        "likes": 42,
+        "dislike": 0,
+        "images": ["/polygonAnimal1.jpg"],
+        "date": "2025-04-05"
+      }
+    ]
   },
   {
     "uuid": "dwl-art-011",
@@ -446,7 +553,7 @@
     "type": "Framed",
     "category": "Nature & Wildlife",
     "subcategory": "Water Decor",
-    "tags": ["wave", "ocean", "water", "blue"],
+    "tags": [ "ocean"],
     "images": ["/ocean1.jpg"],
     "image": ["/ocean1.jpg"],
     "SKU": "DWL-ART-011",
@@ -508,7 +615,28 @@
         "images": ["/ocean5.jpg"]
       }
     ],
-    "reviews": []
+    "reviews": [
+      {
+        "user": "Rohit Sharma",
+        "userImage": "https://randomuser.me/api/portraits/men/32.jpg",
+        "comment": "calms your mind whenever you look and excellent product… must-have for home decor.",
+        "rating": "5",
+        "likes": 42,
+        "dislike": 0,
+        "images": ["/polygonAnimal1.jpg"],
+        "date": "2025-04-05"
+      },
+      {
+        "user": "Neha Sharma",
+        "userImage": "https://randomuser.me/api/portraits/women/32.jpg",
+        "comment": "calms your mind whenever you look and excellent product… must-have for home decor.",
+        "rating": "4",
+        "likes": 42,
+        "dislike": 0,
+        "images": ["/polygonAnimal1.jpg"],
+        "date": "2025-04-05"
+      }
+    ]
   },
   {
     "uuid": "dwl-art-012",
@@ -518,7 +646,7 @@
     "type": "Framed",
     "category": "Nature & Wildlife",
     "subcategory": "Sky Decor",
-    "tags": ["sunset", "horizon", "sky", "orange"],
+    "tags": ["sunset"],
     "images": ["/sunset1.jpg"],
     "image": ["/sunset1.jpg"],
     "SKU": "DWL-ART-012",
@@ -580,7 +708,28 @@
         "images": ["/sunset5.jpg"]
       }
     ],
-    "reviews": []
+    "reviews": [
+      {
+        "user": "Rohit Sharma",
+        "userImage": "https://randomuser.me/api/portraits/men/32.jpg",
+        "comment": "calms your mind whenever you look and excellent product… must-have for home decor.",
+        "rating": "5",
+        "likes": 42,
+        "dislike": 0,
+        "images": ["/polygonAnimal1.jpg"],
+        "date": "2025-04-05"
+      },
+      {
+        "user": "Neha Sharma",
+        "userImage": "https://randomuser.me/api/portraits/women/32.jpg",
+        "comment": "calms your mind whenever you look and excellent product… must-have for home decor.",
+        "rating": "4",
+        "likes": 42,
+        "dislike": 0,
+        "images": ["/polygonAnimal1.jpg"],
+        "date": "2025-04-05"
+      }
+    ]
   },
 
   {
@@ -591,7 +740,7 @@
     "type": "Framed",
     "category": "Nature & Wildlife",
     "subcategory": "Mountain Decor",
-    "tags": ["mountain", "landscape", "nature", "outdoors"],
+    "tags": ["mountain"],
     "images": ["/mountain1.jpg"],
     "image": ["/mountain1.jpg"],
     "SKU": "DWL-ART-013",
@@ -653,7 +802,28 @@
         "images": ["/mountain5.jpg"]
       }
     ],
-    "reviews": []
+    "reviews": [
+      {
+        "user": "Rohit Sharma",
+        "userImage": "https://randomuser.me/api/portraits/men/32.jpg",
+        "comment": "calms your mind whenever you look and excellent product… must-have for home decor.",
+        "rating": "5",
+        "likes": 42,
+        "dislike": 0,
+        "images": ["/polygonAnimal1.jpg"],
+        "date": "2025-04-05"
+      },
+      {
+        "user": "Neha Sharma",
+        "userImage": "https://randomuser.me/api/portraits/women/32.jpg",
+        "comment": "calms your mind whenever you look and excellent product… must-have for home decor.",
+        "rating": "4",
+        "likes": 42,
+        "dislike": 0,
+        "images": ["/polygonAnimal1.jpg"],
+        "date": "2025-04-05"
+      }
+    ]
   },
   {
     "uuid": "dwl-art-014",
@@ -663,7 +833,7 @@
     "type": "Framed",
     "category": "Nature & Wildlife",
     "subcategory": "Animal Decor",
-    "tags": ["horses", "wildlife", "animal", "motion"],
+    "tags": [ "wildlife"],
     "images": ["/horses1.jpg"],
     "image": ["/horses1.jpg"],
     "SKU": "DWL-ART-014",
@@ -725,7 +895,28 @@
         "images": ["/horses5.jpg"]
       }
     ],
-    "reviews": []
+    "reviews": [
+      {
+        "user": "Rohit Sharma",
+        "userImage": "https://randomuser.me/api/portraits/men/32.jpg",
+        "comment": "calms your mind whenever you look and excellent product… must-have for home decor.",
+        "rating": "5",
+        "likes": 42,
+        "dislike": 0,
+        "images": ["/polygonAnimal1.jpg"],
+        "date": "2025-04-05"
+      },
+      {
+        "user": "Neha Sharma",
+        "userImage": "https://randomuser.me/api/portraits/women/32.jpg",
+        "comment": "calms your mind whenever you look and excellent product… must-have for home decor.",
+        "rating": "4",
+        "likes": 42,
+        "dislike": 0,
+        "images": ["/polygonAnimal1.jpg"],
+        "date": "2025-04-05"
+      }
+    ]
   },
   {
     "uuid": "dwl-art-015",
@@ -735,7 +926,7 @@
     "type": "Framed",
     "category": "Nature & Wildlife",
     "subcategory": "Floral Decor",
-    "tags": ["gold", "leaves", "nature", "metal"],
+    "tags": ["gold"],
     "images": ["/leaves1.jpg"],
     "image": ["/leaves1.jpg"],
     "SKU": "DWL-ART-015",
@@ -797,7 +988,28 @@
         "images": ["/leaves5.jpg"]
       }
     ],
-    "reviews": []
+    "reviews": [
+      {
+        "user": "Rohit Sharma",
+        "userImage": "https://randomuser.me/api/portraits/men/32.jpg",
+        "comment": "calms your mind whenever you look and excellent product… must-have for home decor.",
+        "rating": "5",
+        "likes": 42,
+        "dislike": 0,
+        "images": ["/polygonAnimal1.jpg"],
+        "date": "2025-04-05"
+      },
+      {
+        "user": "Neha Sharma",
+        "userImage": "https://randomuser.me/api/portraits/women/32.jpg",
+        "comment": "calms your mind whenever you look and excellent product… must-have for home decor.",
+        "rating": "4",
+        "likes": 42,
+        "dislike": 0,
+        "images": ["/polygonAnimal1.jpg"],
+        "date": "2025-04-05"
+      }
+    ]
   },
   {
     "uuid": "dwl-art-016",
@@ -807,7 +1019,7 @@
     "type": "Framed",
     "category": "Nature & Wildlife",
     "subcategory": "Ocean Decor",
-    "tags": ["coral", "reef", "ocean", "nature"],
+    "tags": ["coral"],
     "images": ["/coral1.jpg"],
     "image": ["/coral1.jpg"],
     "SKU": "DWL-ART-016",
@@ -869,218 +1081,319 @@
         "images": ["/coral5.jpg"]
       }
     ],
-    "reviews": []
+    "reviews": [
+      {
+        "user": "Rohit Sharma",
+        "userImage": "https://randomuser.me/api/portraits/men/32.jpg",
+        "comment": "calms your mind whenever you look and excellent product… must-have for home decor.",
+        "rating": "5",
+        "likes": 42,
+        "dislike": 0,
+        "images": ["/polygonAnimal1.jpg"],
+        "date": "2025-04-05"
+      },
+      {
+        "user": "Neha Sharma",
+        "userImage": "https://randomuser.me/api/portraits/women/32.jpg",
+        "comment": "calms your mind whenever you look and excellent product… must-have for home decor.",
+        "rating": "4",
+        "likes": 42,
+        "dislike": 0,
+        "images": ["/polygonAnimal1.jpg"],
+        "date": "2025-04-05"
+      }
+    ]
   },
   {
-  "uuid": "dwl-art-017",
-  "route": "/product/dwl-art-017",
-  "title": "Mirror Reflection Wall Art",
-  "description": "A reflective art piece that symbolizes inner clarity and introspection.",
-  "type": "Framed",
-  "category": "Reflection Art",
-  "subcategory": "Abstract Decor",
-  "tags": ["reflection", "mirror", "clarity", "modern"],
-  "images": ["/mirror_reflection1.jpg"],
-  "image": ["/mirror_reflection1.jpg"],
-  "SKU": "DWL-ART-021",
-  "materialType": "glass",
-  "weight": "1.2kg",
-  "stockQuantity": 10,
-  "returnPolicy": "Eligible for return within 7 days of delivery.",
-  "deliverBy": 6,
-  "hasVariants": true,
-  "basePrice": 1599,
-  "amazonPrice": 3199,
-  "mrp": 3199,
-  "sellingPrice": 1599,
-  "costPrice": 799,
-  "profit": 800,
-  "discountPercent": 50,
-  "discountAmount": 1600,
-  "includesTax": false,
-  "taxPercent": "18",
-  "variants": [
-    {
-      "variantId": "dwl-art-017-v1",
-      "variantType": "Unframed",
-      "variantValue": "silver",
-      "variantName": "Material",
-      "stockQuantity": 5,
-      "variantReorderLimit": 4,
-      "variantImage": ["/mirror_reflection2.jpg"],
-      "images": ["/mirror_reflection2.jpg"]
-    },
-    {
-      "variantId": "dwl-art-017-v2",
-      "variantType": "Framed",
-      "variantValue": "gold",
-      "variantName": "Material",
-      "stockQuantity": 119,
-      "variantReorderLimit": 3,
-      "variantImage": ["/mirror_reflection3.jpg"],
-      "images": ["/mirror_reflection3.jpg"]
-    }
-  ],
-  "reviews": []
-},
-{
-  "uuid": "dwl-art-018",
-  "route": "/product/dwl-art-018",
-  "title": "Double Vision Clones Art",
-  "description": "An artistic interpretation of two identical figures in a mirrored world.",
-  "type": "Framed",
-  "category": "Clones",
-  "subcategory": "Abstract Decor",
-  "tags": ["clones", "mirror", "identical", "artistic"],
-  "images": ["/clones_art1.jpg"],
-  "image": ["/clones_art1.jpg"],
-  "SKU": "DWL-ART-022",
-  "materialType": "metal",
-  "weight": "1.5kg",
-  "stockQuantity": 7,
-  "returnPolicy": "Eligible for return within 7 days of delivery.",
-  "deliverBy": 4,
-  "hasVariants": true,
-  "basePrice": 1799,
-  "amazonPrice": 3599,
-  "mrp": 3599,
-  "sellingPrice": 1799,
-  "costPrice": 899,
-  "profit": 900,
-  "discountPercent": 50,
-  "discountAmount": 1800,
-  "includesTax": false,
-  "taxPercent": "18",
-  "variants": [
-    {
-      "variantId": "dwl-art-018-v1",
-      "variantType": "Unframed",
-      "variantValue": "black",
-      "variantName": "Color",
-      "stockQuantity": 4,
-      "variantReorderLimit": 3,
-      "variantImage": ["/clones_art2.jpg"],
-      "images": ["/clones_art2.jpg"]
-    },
-    {
-      "variantId": "dwl-art-018-v2",
-      "variantType": "Framed",
-      "variantValue": "silver",
-      "variantName": "Material",
-      "stockQuantity": 3,
-      "variantReorderLimit": 2,
-      "variantImage": ["/clones_art3.jpg"],
-      "images": ["/clones_art3.jpg"]
-    }
-  ],
-  "reviews": []
-},
-{
-  "uuid": "dwl-art-019",
-  "route": "/product/dwl-art-019",
-  "title": "Live Laugh Love Typography Art",
-  "description": "A modern typography design with the powerful words 'Live Laugh Love' for your wall.",
-  "type": "Framed",
-  "category": "Typography & Symbols",
-  "subcategory": "Inspirational Quotes",
-  "tags": ["typography", "quotes", "inspirational", "motivational"],
-  "images": ["/live_laugh_love1.jpg"],
-  "image": ["/live_laugh_love1.jpg"],
-  "SKU": "DWL-ART-023",
-  "materialType": "metal",
-  "weight": "1.0kg",
-  "stockQuantity": 12,
-  "returnPolicy": "Eligible for return within 7 days of delivery.",
-  "deliverBy": 5,
-  "hasVariants": true,
-  "basePrice": 1299,
-  "amazonPrice": 2599,
-  "mrp": 2599,
-  "sellingPrice": 1299,
-  "costPrice": 649,
-  "profit": 650,
-  "discountPercent": 50,
-  "discountAmount": 1300,
-  "includesTax": false,
-  "taxPercent": "18",
-  "variants": [
-    {
-      "variantId": "dwl-art-019-v1",
-      "variantType": "Unframed",
-      "variantValue": "black",
-      "variantName": "Color",
-      "stockQuantity": 6,
-      "variantReorderLimit": 5, 
-      "variantImage": ["/live_laugh_love2.jpg"],
-      "images": ["/live_laugh_love2.jpg"]
-    },
-    {
-      "variantId": "dwl-art-019-v2",
-      "variantType": "Framed",
-      "variantValue": "gold",
-      "variantName": "Material",
-      "stockQuantity": 6,
-      "variantReorderLimit": 5,
-      "variantImage": ["/live_laugh_love3.jpg"],
-      "images": ["/live_laugh_love3.jpg"]
-    }
-  ],
-  "reviews": []
-},
-{
-  "uuid": "dwl-art-019",
-  "route": "/product/dwl-art-019",
-  "title": "Abstract Wall Art",
-  "description": "An abstract and dynamic wall art design that blends colors and forms beautifully.",
-  "type": "Framed",
-  "category": "Wall Arts",
-  "subcategory": "Abstract Art",
-  "tags": ["abstract", "modern", "dynamic", "colorful"],
-  "images": ["/abstract_wall_art1.jpg"],
-  "image": ["/abstract_wall_art1.jpg"],
-  "SKU": "DWL-ART-024",
-  "materialType": "canvas",
-  "weight": "2.0kg",
-  "stockQuantity": 15,
-  "returnPolicy": "Eligible for return within 7 days of delivery.",
-  "deliverBy": 7,
-  "hasVariants": true,
-  "basePrice": 2199,
-  "amazonPrice": 4399,
-  "mrp": 4399,
-  "sellingPrice": 2199,
-  "costPrice": 1099,
-  "profit": 1100,
-  "discountPercent": 50,
-  "discountAmount": 2200,
-  "includesTax": false,
-  "taxPercent": "18",
-  "variants": [
-    {
-      "variantId": "dwl-art-019-v1",
-      "variantType": "Unframed",
-      "variantValue": "blue",
-      "variantName": "Color",
-      "stockQuantity": 8,
-      "variantReorderLimit": 7,
-      "variantImage": ["/abstract_wall_art2.jpg"],
-      "images": ["/abstract_wall_art2.jpg"]
-    },
-    {
-      "variantId": "dwl-art-019-v2",
-      "variantType": "Framed",
-      "variantValue": "red",
-      "variantName": "Material",
-      "stockQuantity": 7,
-      "variantReorderLimit": 6,
-      "variantImage": ["/abstract_wall_art3.jpg"],
-      "images": ["/abstract_wall_art3.jpg"]
-    }
-  ],
-  "reviews": []
-}
-
-
-
-
+    "uuid": "dwl-art-017",
+    "route": "/product/dwl-art-017",
+    "title": "Mirror Reflection Wall Art",
+    "description": "A reflective art piece that symbolizes inner clarity and introspection.",
+    "type": "Framed",
+    "category": "Reflection Art",
+    "subcategory": "Abstract Decor",
+    "tags": ["reflection"],
+    "images": ["/mirror_reflection1.jpg"],
+    "image": ["/mirror_reflection1.jpg"],
+    "SKU": "DWL-ART-021",
+    "materialType": "glass",
+    "weight": "1.2kg",
+    "stockQuantity": 10,
+    "returnPolicy": "Eligible for return within 7 days of delivery.",
+    "deliverBy": 6,
+    "hasVariants": true,
+    "basePrice": 1599,
+    "amazonPrice": 3199,
+    "mrp": 3199,
+    "sellingPrice": 1599,
+    "costPrice": 799,
+    "profit": 800,
+    "discountPercent": 50,
+    "discountAmount": 1600,
+    "includesTax": false,
+    "taxPercent": "18",
+    "variants": [
+      {
+        "variantId": "dwl-art-017-v1",
+        "variantType": "Unframed",
+        "variantValue": "silver",
+        "variantName": "Material",
+        "stockQuantity": 5,
+        "variantReorderLimit": 4,
+        "variantImage": ["/mirror_reflection2.jpg"],
+        "images": ["/mirror_reflection2.jpg"]
+      },
+      {
+        "variantId": "dwl-art-017-v2",
+        "variantType": "Framed",
+        "variantValue": "gold",
+        "variantName": "Material",
+        "stockQuantity": 119,
+        "variantReorderLimit": 3,
+        "variantImage": ["/mirror_reflection3.jpg"],
+        "images": ["/mirror_reflection3.jpg"]
+      }
+    ],
+    "reviews": [
+      {
+        "user": "Rohit Sharma",
+        "userImage": "https://randomuser.me/api/portraits/men/32.jpg",
+        "comment": "calms your mind whenever you look and excellent product… must-have for home decor.",
+        "rating": "5",
+        "likes": 42,
+        "dislike": 0,
+        "images": ["/polygonAnimal1.jpg"],
+        "date": "2025-04-05"
+      },
+      {
+        "user": "Neha Sharma",
+        "userImage": "https://randomuser.me/api/portraits/women/32.jpg",
+        "comment": "calms your mind whenever you look and excellent product… must-have for home decor.",
+        "rating": "4",
+        "likes": 42,
+        "dislike": 0,
+        "images": ["/polygonAnimal1.jpg"],
+        "date": "2025-04-05"
+      }
+    ]
+  },
+  {
+    "uuid": "dwl-art-018",
+    "route": "/product/dwl-art-018",
+    "title": "Double Vision Clones Art",
+    "description": "An artistic interpretation of two identical figures in a mirrored world.",
+    "type": "Framed",
+    "category": "Clones",
+    "subcategory": "Abstract Decor",
+    "tags": ["clones"],
+    "images": ["/clones_art1.jpg"],
+    "image": ["/clones_art1.jpg"],
+    "SKU": "DWL-ART-022",
+    "materialType": "metal",
+    "weight": "1.5kg",
+    "stockQuantity": 7,
+    "returnPolicy": "Eligible for return within 7 days of delivery.",
+    "deliverBy": 4,
+    "hasVariants": true,
+    "basePrice": 1799,
+    "amazonPrice": 3599,
+    "mrp": 3599,
+    "sellingPrice": 1799,
+    "costPrice": 899,
+    "profit": 900,
+    "discountPercent": 50,
+    "discountAmount": 1800,
+    "includesTax": false,
+    "taxPercent": "18",
+    "variants": [
+      {
+        "variantId": "dwl-art-018-v1",
+        "variantType": "Unframed",
+        "variantValue": "black",
+        "variantName": "Color",
+        "stockQuantity": 4,
+        "variantReorderLimit": 3,
+        "variantImage": ["/clones_art2.jpg"],
+        "images": ["/clones_art2.jpg"]
+      },
+      {
+        "variantId": "dwl-art-018-v2",
+        "variantType": "Framed",
+        "variantValue": "silver",
+        "variantName": "Material",
+        "stockQuantity": 3,
+        "variantReorderLimit": 2,
+        "variantImage": ["/clones_art3.jpg"],
+        "images": ["/clones_art3.jpg"]
+      }
+    ],
+    "reviews": [
+      {
+        "user": "Rohit Sharma",
+        "userImage": "https://randomuser.me/api/portraits/men/32.jpg",
+        "comment": "calms your mind whenever you look and excellent product… must-have for home decor.",
+        "rating": "5",
+        "likes": 42,
+        "dislike": 0,
+        "images": ["/polygonAnimal1.jpg"],
+        "date": "2025-04-05"
+      },
+      {
+        "user": "Neha Sharma",
+        "userImage": "https://randomuser.me/api/portraits/women/32.jpg",
+        "comment": "calms your mind whenever you look and excellent product… must-have for home decor.",
+        "rating": "4",
+        "likes": 42,
+        "dislike": 0,
+        "images": ["/polygonAnimal1.jpg"],
+        "date": "2025-04-05"
+      }
+    ]
+  },
+  {
+    "uuid": "dwl-art-019",
+    "route": "/product/dwl-art-019",
+    "title": "Live Laugh Love Typography Art",
+    "description": "A modern typography design with the powerful words 'Live Laugh Love' for your wall.",
+    "type": "Framed",
+    "category": "Typography & Symbols",
+    "subcategory": "Inspirational Quotes",
+    "tags": ["typography"],
+    "images": ["/live_laugh_love1.jpg"],
+    "image": ["/live_laugh_love1.jpg"],
+    "SKU": "DWL-ART-023",
+    "materialType": "metal",
+    "weight": "1.0kg",
+    "stockQuantity": 12,
+    "returnPolicy": "Eligible for return within 7 days of delivery.",
+    "deliverBy": 5,
+    "hasVariants": true,
+    "basePrice": 1299,
+    "amazonPrice": 2599,
+    "mrp": 2599,
+    "sellingPrice": 1299,
+    "costPrice": 649,
+    "profit": 650,
+    "discountPercent": 50,
+    "discountAmount": 1300,
+    "includesTax": false,
+    "taxPercent": "18",
+    "variants": [
+      {
+        "variantId": "dwl-art-019-v1",
+        "variantType": "Unframed",
+        "variantValue": "black",
+        "variantName": "Color",
+        "stockQuantity": 6,
+        "variantReorderLimit": 5,
+        "variantImage": ["/live_laugh_love2.jpg"],
+        "images": ["/live_laugh_love2.jpg"]
+      },
+      {
+        "variantId": "dwl-art-019-v2",
+        "variantType": "Framed",
+        "variantValue": "gold",
+        "variantName": "Material",
+        "stockQuantity": 6,
+        "variantReorderLimit": 5,
+        "variantImage": ["/live_laugh_love3.jpg"],
+        "images": ["/live_laugh_love3.jpg"]
+      }
+    ],
+    "reviews": [
+      {
+        "user": "Rohit Sharma",
+        "userImage": "https://randomuser.me/api/portraits/men/32.jpg",
+        "comment": "calms your mind whenever you look and excellent product… must-have for home decor.",
+        "rating": "5",
+        "likes": 42,
+        "dislike": 0,
+        "images": ["/polygonAnimal1.jpg"],
+        "date": "2025-04-05"
+      },
+      {
+        "user": "Neha Sharma",
+        "userImage": "https://randomuser.me/api/portraits/women/32.jpg",
+        "comment": "calms your mind whenever you look and excellent product… must-have for home decor.",
+        "rating": "4",
+        "likes": 42,
+        "dislike": 0,
+        "images": ["/polygonAnimal1.jpg"],
+        "date": "2025-04-05"
+      }
+    ]
+  },
+  {
+    "uuid": "dwl-art-019",
+    "route": "/product/dwl-art-019",
+    "title": "Abstract Wall Art",
+    "description": "An abstract and dynamic wall art design that blends colors and forms beautifully.",
+    "type": "Framed",
+    "category": "Wall Arts",
+    "subcategory": "Abstract Art",
+    "tags": ["abstract"],
+    "images": ["/abstract_wall_art1.jpg"],
+    "image": ["/abstract_wall_art1.jpg"],
+    "SKU": "DWL-ART-024",
+    "materialType": "canvas",
+    "weight": "2.0kg",
+    "stockQuantity": 15,
+    "returnPolicy": "Eligible for return within 7 days of delivery.",
+    "deliverBy": 7,
+    "hasVariants": true,
+    "basePrice": 2199,
+    "amazonPrice": 4399,
+    "mrp": 4399,
+    "sellingPrice": 2199,
+    "costPrice": 1099,
+    "profit": 1100,
+    "discountPercent": 50,
+    "discountAmount": 2200,
+    "includesTax": false,
+    "taxPercent": "18",
+    "variants": [
+      {
+        "variantId": "dwl-art-019-v1",
+        "variantType": "Unframed",
+        "variantValue": "blue",
+        "variantName": "Color",
+        "stockQuantity": 8,
+        "variantReorderLimit": 7,
+        "variantImage": ["/abstract_wall_art2.jpg"],
+        "images": ["/abstract_wall_art2.jpg"]
+      },
+      {
+        "variantId": "dwl-art-019-v2",
+        "variantType": "Framed",
+        "variantValue": "red",
+        "variantName": "Material",
+        "stockQuantity": 7,
+        "variantReorderLimit": 6,
+        "variantImage": ["/abstract_wall_art3.jpg"],
+        "images": ["/abstract_wall_art3.jpg"]
+      }
+    ],
+    "reviews": [
+      {
+        "user": "Rohit Sharma",
+        "userImage": "https://randomuser.me/api/portraits/men/32.jpg",
+        "comment": "calms your mind whenever you look and excellent product… must-have for home decor.",
+        "rating": "5",
+        "likes": 42,
+        "dislike": 0,
+        "images": ["/polygonAnimal1.jpg"],
+        "date": "2025-04-05"
+      },
+      {
+        "user": "Neha Sharma",
+        "userImage": "https://randomuser.me/api/portraits/women/32.jpg",
+        "comment": "calms your mind whenever you look and excellent product… must-have for home decor.",
+        "rating": "4",
+        "likes": 42,
+        "dislike": 0,
+        "images": ["/polygonAnimal1.jpg"],
+        "date": "2025-04-05"
+      }
+    ]
+  }
 ]

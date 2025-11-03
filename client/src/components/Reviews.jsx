@@ -80,51 +80,69 @@ const reviews = [
 //   );
 // }
 
-function Reviews({ reviews = [], avgRating = 0 }) {
+function Reviews({ reviews = [] }) {
+
+  const avgRating =
+  reviews.length > 0
+    ? reviews.reduce((sum, r) => sum + Number(r.rating || 0), 0) /
+      reviews.length
+    : 0;
+
+
+      // console.log(avgRating)
+
+  //  If no reviews, show message
   if (!reviews || reviews.length === 0) {
     return (
       <div className="flex justify-center items-center w-full text-neutral-600 py-6">
-        {/* <p>No reviews yet</p> */}
+        <p className="text-gray-500 text-sm italic">No reviews yet</p>
       </div>
     );
   }
-  
 
-  // Count reviews by rating in one pass
+  //  Count reviews by rating (1–5)
   const ratingCounts = reviews.reduce((acc, r) => {
-    acc[r.rating] = (acc[r.rating] || 0) + 1;
+    const rating = Math.round(r.rating); // ensure it's 1–5
+    acc[rating] = (acc[rating] || 0) + 1;
     return acc;
   }, {});
 
-  const maxValue = reviews.length;
+  const totalReviews = reviews.length;
 
   return (
-    <div className="flex justify-between gap-8 items-center w-full">
-      {/* Average Rating */}
-      <div className="flex flex-col items-center text-neutral-600 w-1/2">
-        <h2 className="text-3xl sm:text-4xl font-semibold text-gray-800">
-          {avgRating.toFixed(1)} <span className="text-green-700">&#9733;</span>
+    <div className="flex flex-wrap md:flex-nowrap justify-start items-center gap-8 mt-3">
+
+      {/* ⭐ Average Rating Section */}
+      <div className="flex flex-col items-start text-neutral-700 ">
+        <h2 className="text-4xl font-semibold text-gray-800">
+          {avgRating.toFixed(1)}
+          <span className="text-yellow-400 ml-1">&#9733;</span>
         </h2>
-        <p className="text-sm">{maxValue} Verified Buyers</p>
+        <p className="text-sm text-gray-500">{avgRating.toFixed(1)} Rating </p>
+        <p className="text-sm text-gray-500">{totalReviews} Reviews</p>
       </div>
 
-      {/* Rating Distribution */}
-      <div className="flex flex-col mr-16 w-1/2">
-        {[5, 4, 3, 2, 1].map((rating) => (
-          <div
-            key={rating}
-            className="flex items-center gap-2 w-[225px] whitespace-nowrap"
-          >
-            <span className="w-2 text-[14px]">{rating}</span>
-            <span className="w-3 text-[#6C6B6B]">&#9733;</span>
-            <progress
-              className="progress-bar h-1 w-[135px] bg-[#D9D9D9]"
-              value={ratingCounts[rating] || 0}
-              max={maxValue}
-            ></progress>
-            <span className="text-[14px]">{ratingCounts[rating] || 0}</span>
-          </div>
-        ))}
+      {/* 📊 Rating Distribution */}
+      <div className="flex flex-col gap-1 w-1/2">
+        {[5, 4, 3, 2, 1].map((rating) => {
+          const count = ratingCounts[rating] || 0;
+          const percentage = (count / totalReviews) * 100;
+          return (
+            <div key={rating} className="flex items-center gap-3">
+              <span className="w-4 text-sm">{rating}</span>
+              <span className="text-yellow-400">&#9733;</span>
+              <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-yellow-400 rounded-full"
+                  style={{ width: `${percentage}%` }}
+                ></div>
+              </div>
+              <span className="text-sm text-gray-700 w-6 text-right">
+                {count}
+              </span>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

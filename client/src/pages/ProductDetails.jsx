@@ -499,7 +499,6 @@
 
 import React, { useState, useMemo, useEffect } from "react";
 import { useParams, useNavigate } from "react-router";
-import products from "../data/products.json";
 import Navbar from "../components/Navbar";
 import Breadcrumbs from "../components/Breadcrumbs";
 import Footer from "../sections/Footer";
@@ -508,6 +507,7 @@ import Reviews from "../components/Reviews";
 import CustomerReview from "../components/CustomerReview";
 import Card from "../components/Card";
 import Button from "../components/Button";
+import products from "../data/products.json";
 import {
   Heart,
   Minus,
@@ -551,6 +551,7 @@ function ProductDetails() {
   const product = useMemo(() => products.find((p) => p.uuid === uuid), [uuid]);
   // const product = useMemo(() => products.find((p) => p.sku === sku), [sku]);
   const [selectedVariant, setSelectedVariant] = useState(product.variants[0]);
+  console.log(selectedVariant)
   const [inCart, setInCart] = useState(
     cartItems.some(
       (item) =>
@@ -707,9 +708,12 @@ function ProductDetails() {
                 className="!w-full !h-auto md:!h-[460px]"
               >
                 {selectedVariant.images?.map((img, idx) => (
+                  
+                  
                   <SwiperSlide key={idx} className="!w-auto !h-auto">
                     {/* Outer wrapper holds border + ring */}
                     <div
+                  
                       className={`relative w-20 h-20 cursor-pointer transform transition duration-300 flex items-center justify-center
                           ${
                             mainImageIndex === idx
@@ -720,6 +724,7 @@ function ProductDetails() {
                         setMainImageIndex(idx);
                         thumbsSwiper.slideTo(idx);
                       }}
+                      
                     >
                       <div className="w-full h-full overflow-hidden rounded-md">
                         <img
@@ -892,7 +897,7 @@ function ProductDetails() {
               <p className="text-[14px] text-[#6C6B6B] mt-2">
                 Product Dimensions -{" "}
                 <span className="text-[#171515]">
-                  {selectedVariant.dimension || "-"}
+                  {selectedVariant.variantValue || "-"}
                 </span>
               </p>
               <p className="text-[14px] text-[#6C6B6B]">
@@ -1025,7 +1030,7 @@ function ProductDetails() {
                     )?.quantity || 0}
                   </span>
 
-                  {/* ➕ Increase */}
+                  {/*  Increase */}
                   <button
                     onClick={(e) => {
                       e.stopPropagation();

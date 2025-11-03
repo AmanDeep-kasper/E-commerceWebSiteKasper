@@ -1,22 +1,13 @@
 import React, { use, useMemo, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router";
+import { Link, useParams } from "react-router";
 import products from "../../../data/products.json";
-import {
-  Package,
-  ArrowLeft,
-  ThumbsUp,
-  ThumbsDown,
-  ThumbsDownIcon,
-} from "lucide-react";
-import ReviewIcon from "../../../assets/review.svg";
-import Ratings from "../../../components/Ratings";
-import Reviews from "../../../components/Reviews";
+
+import { Package, ArrowLeft } from "lucide-react";
 
 function ProductInformation() {
   // const { uuid } = useParams();
   const { uuid } = useParams();
   // console.log(products);
-  const navigate = useNavigate();
 
   const product = useMemo(() => {
     if (!products || products.length === 0) return undefined;
@@ -34,49 +25,14 @@ function ProductInformation() {
   /////////////////////////
 
   const [reviews, setReviews] = useState(product?.reviews || []);
-  // console.log("Product:", product);
-  // console.log("Reviews:", reviews);
+  console.log("Product:", product);
+  console.log("Reviews:", reviews);
 
-  ////////////////////////////////
-  const avgRating =
-    products?.reviews?.length > 0
-      ? product.reviews.reduce((sum, review) => sum + review.rating, 0) /
-        product.reviews.length
-      : 0;
-
-  /////////////////////////
-  function timeAgo(dateString) {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffMs = now - date;
-
-    const seconds = Math.floor(diffMs / 1000);
-    const minutes = Math.floor(seconds / 60);
-    const hours = Math.floor(minutes / 60);
-    const days = Math.floor(hours / 24);
-    const months = Math.floor(days / 30);
-    const years = Math.floor(days / 365);
-
-    if (years > 0) return `${years} year${years > 1 ? "s" : ""} ago`;
-    if (months > 0) return `${months} month${months > 1 ? "s" : ""} ago`;
-    if (days > 0) return `${days} day${days > 1 ? "s" : ""} ago`;
-    if (hours > 0) return `${hours} hour${hours > 1 ? "s" : ""} ago`;
-    if (minutes > 0) return `${minutes} minute${minutes > 1 ? "s" : ""} ago`;
-    return "just now";
-  }
-
-  ///////////////////////////Edit page logic
-
-  const handleEdit = () => {
-    // if (!products.uuid) {
-    //   alert("Product ID not found!");
-    //   return;
-    // }
-
-    navigate(`/admin/add-product/${product.uuid}`)
-  };
-  console.log(product)
-
+  // if (!product) {
+  //   <div className="p-6 text-center text-red-600">
+  //     Product not found or still loading...
+  //   </div>;
+  // }
   return (
     <div className="min-h-screen  bg-gray-50">
       {/* Header */}
@@ -85,7 +41,7 @@ function ProductInformation() {
           <ArrowLeft className="w-6 h-6 text-gray-800" />
           <h1 className="text-black text-xl font-semibold">{product.title}</h1>
         </Link>
-        <button onClick={handleEdit} className="bg-[#F8F8F8] px-5 py-1.5 border text-base rounded-lg">
+        <button className="bg-[#F8F8F8] px-5 py-1.5 border text-base rounded-lg">
           Edit
         </button>
       </div>
@@ -93,7 +49,7 @@ function ProductInformation() {
       {/* Product Info Grid */}
       <div className="grid lg:grid-cols-2 gap-6 mt-4">
         {/* Left Section */}
-        <div className="bg-white rounded-2xl  p-5 flex flex-col gap-4">
+        <div className="bg-white rounded-2xl border p-5 flex flex-col gap-4">
           <div className="flex items-center gap-3">
             <h2 className="flex items-center gap-2 text-lg font-medium">
               <Package className="w-6 h-6 text-gray-700" />
@@ -133,7 +89,7 @@ function ProductInformation() {
         </div>
 
         {/* Right Section */}
-        <div className="bg-white rounded-2xl  p-6 flex flex-col gap-2">
+        <div className="bg-white rounded-2xl border p-6 flex flex-col gap-2">
           <h2 className="text-black text-lg font-medium mb-2">
             Product Details
           </h2>
@@ -291,11 +247,11 @@ function ProductInformation() {
       </div>
 
       {/* Variants Section */}
-      <div className="mt-6 bg-white rounded-md p-4">
+      <div className="mt-6 bg-white rounded-xl p-4">
         <h2 className="text-lg font-medium mb-2">Variants</h2>
         <table className="w-full text-left text-gray-600">
-          <thead className="bg-[#F8F8F8] h-[54px] ">
-            <tr className="text-[#777777] text-[18px] rounded-2xl">
+          <thead className="bg-[#F8F8F8] h-[54px]">
+            <tr className="text-[#777777] text-[18px]">
               <th className="px-4 py-3 font-normal">Image</th>
               <th className="px-4 py-3 font-normal">VariantName</th>
               <th className="px-4 py-3 font-normal">Variant Type</th>
@@ -384,99 +340,122 @@ function ProductInformation() {
 
         {reviews && reviews.length > 0 ? (
           <div className="mt-4">
-            <h1>Rating Breakdown</h1>
-            <Reviews reviews={product?.reviews} avgRating={avgRating} />
-            <h1 className="text-[#0A0A0A] mb-4">Reviews</h1>
-            {reviews.map(
-              (
-                {
-                  user,
-                  userImage,
-                  comment,
-                  rating,
-                  likes,
-                  dislike,
-                  images,
-                  date,
-                },
-                index
-              ) => (
-                <div
-                  key={index}
-                  className="py-4 flex gap-3 flex-col border border-[#CBCACA] px-6 rounded-xl mb-4"
-                >
-                  <div className="flex justify-between">
-                    <div className="flex gap-4">
-                      {userImage ? (
-                        <img
-                          className="w-11 h-11 rounded-full"
-                          src={userImage}
-                          alt={`${user}'s avatar`}
-                        />
-                      ) : (
-                        <div className="w-11 h-11 rounded-full bg-gray-400 flex items-center justify-center text-white font-bold">
-                          <h1 className="text-white">
-                            {user?.charAt(0).toUpperCase()}
-                          </h1>
-                        </div>
-                      )}
-
-                      <div className="flex flex-col">
-                        <h1 className="text-[14px]">{user}</h1>
-                        <div className="flex items-center gap-1">
-                          <Ratings
-                            reviews={product?.reviews}
-                            avgRating={rating}
-                          />
-                          <span className="text-[#717182] text-sm">•</span>
-                          <span className="text-[#6C6B6B] text-[12px]">
-                            {timeAgo(date)}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <p className="text-sm">{comment}</p>
-                  {images && (
-                    <div className="flex gap-3">
-                      {images.map((img, index) => (
-                        <img
-                          className="w-[78px] h-[97px]"
-                          src={img}
-                          alt="product"
-                          key={index}
-                        />
-                      ))}
-                    </div>
-                  )}
-                  <div className="flex gap-2 text-[#6C6B6B] text-[14px]">
-                    <span>
-                      <ThumbsUp />
-                    </span>
-
-                    <span>{likes}</span>
-                    <span className="ml-4">
-                      <ThumbsDownIcon />
-                    </span>
-                    <span>{dislike}</span>
-                  </div>
-                </div>
-              )
-            )}
+            <h2 className="text-lg font-medium mb-2">Customer Reviews</h2>
+            <ul className="space-y-3">
+              {reviews.map((rev, index) => (
+                <li key={index} className="border-b pb-2">
+                  <p className="font-semibold">⭐ {rev.rating}/5</p>
+                  <p className="text-gray-700">{rev.comment}</p>
+                </li>
+              ))}
+            </ul>
           </div>
         ) : (
-          <div className=" flex flex-col items-center justify-center text-center">
-            <div className="w-20 h-20 bg-[#FFF4EB] rounded-full flex items-center justify-center mb-4">
-              <img src={ReviewIcon} alt="" />
-            </div>
-            <h3 className="text-lg font-medium text-gray-700 mb-1">
-              No Reviews Yet
-            </h3>
-          </div>
+          // <div className="py-8 flex flex-col items-center justify-center text-center">
+          //   <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mb-4">
+          //     <svg
+          //       xmlns="http://www.w3.org/2000/svg"
+          //       className="h-8 w-8 text-gray-500"
+          //       fill="none"
+          //       viewBox="0 0 24 24"
+          //       stroke="currentColor"
+          //     >
+          //       <path
+          //         strokeLinecap="round"
+          //         strokeLinejoin="round"
+          //         strokeWidth={2}
+          //         d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
+          //       />
+          //     </svg>
+          //   </div>
+          //   <h3 className="text-lg font-medium text-gray-700 mb-1">
+          //     No Reviews Yet
+          //   </h3>
+          //   <p className="text-gray-500 text-sm max-w-md">
+          //     Be the first to share your thoughts about this product.
+          //   </p>
+          // </div>
+          "'lks;sks"
         )}
+
+        {/* <h2 className="text-lg font-medium mb-2">Rating Breakdown</h2> */}
+        {/* <div>
+          <div>djldjldjldjljdl</div>
+          <div>
+            <h1 className="text-[18px] font-medium">Reviews</h1>
+            <div>
+              <div className="flex items-center justify-start gap-3">
+                <div className="w-[45px] h-[45px] rounded-full bg-[#ECECF0] text-center flex items-center justify-center text-[16px]">
+                  P
+                </div>
+                <div>
+                  <p className="text-[16px]">Rajesh Sharma</p>
+                  <div className="text-[14px]">
+                    <span>stars</span>
+                    <span className="text-[#717182]">•</span>
+                    <span className="text-[#717182]">5 days ago</span>
+                  </div>
+                </div>
+              </div>
+              <h1 className="text-[#0A0A0A] text-[14px]">
+                Beautiful craftsmanship and perfect for my living room
+              </h1>
+              <div></div>
+            </div>
+          </div>
+        </div> */}
       </div>
     </div>
   );
 }
 
 export default ProductInformation;
+
+// import { Link } from "react-router"; // ✅ use react-router-dom
+
+// const EmptyState = ({
+//   heading = "No Items Found",
+//   description = "Looks like nothing is here yet.",
+//   icon: Icon, // only Lucide icon components
+//   ctaLabel = "Go Back",
+//   ctaLink,
+//   onClick, // optional
+// }) => {
+//   const buttonClasses =
+//     "inline-block bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 \
+//      text-gray-900 rounded-full md:px-8 md:py-3 px-4 py-2 text-sm md:text-base font-medium transition-all shadow-md hover:shadow-lg";
+
+//   return (
+//     <div className="h-[70vh] flex flex-col justify-center items-center text-center px-4 bg-white">
+//       {/* Icon Circle */}
+//       {Icon && (
+//         <div className="mx-auto md:w-28 md:h-28 w-16 h-16 bg-amber-50 rounded-full flex items-center justify-center mb-6 shadow-inner">
+//           <Icon className="md:w-14 md:h-14 w-8 h-8 text-amber-400" />
+//         </div>
+//       )}
+
+//       {/* Heading */}
+//       <h3 className="text-lg md:text-2xl font-semibold text-gray-900 mb-3">
+//         {heading}
+//       </h3>
+
+//       {/* Subtext */}
+//       <p className="text-sm md:text-base text-gray-500 max-w-sm mb-4 md:mb-8">
+//         {description}
+//       </p>
+
+//       {/* CTA: dynamic */}
+//       {ctaLink ? (
+//         <Link to={ctaLink} className={buttonClasses}>
+//           {ctaLabel}
+//         </Link>
+//       ) : onClick ? (
+//         <button onClick={onClick} className={buttonClasses}>
+//           {ctaLabel}
+//         </button>
+//       ) : null}
+//     </div>
+//   );
+// };
+
+// export default EmptyState;

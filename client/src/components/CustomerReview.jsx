@@ -30,6 +30,7 @@ const customers = [
 ];
 
 function CustomerReview({ reviews = false, id, allReviews = false }) {
+  
   const [moreReview, setMoreReview] = useState(2);
   const navigate = useNavigate(null);
 
@@ -37,6 +38,7 @@ function CustomerReview({ reviews = false, id, allReviews = false }) {
     if (!reviews) return [];
     return allReviews ? reviews : reviews.slice(0, moreReview);
   });
+  
   if (!reviews || reviews.length === 0) {
     return (
       <div className="py-8 flex flex-col items-center justify-center text-center">
@@ -123,7 +125,8 @@ function CustomerReview({ reviews = false, id, allReviews = false }) {
               <span>
                 <ThumbsUp />
               </span>
-              <span>{likes} Helpful</span>
+              {/* <span>{likes} Helpful</span> */}
+              <span>{likes}</span>
               <span className="ml-4">
                 <ThumbsDown />
               </span>

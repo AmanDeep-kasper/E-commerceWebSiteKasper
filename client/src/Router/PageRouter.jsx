@@ -127,6 +127,7 @@ const PageRouter = () => {
         <Route path="/admin" element={<AdminLayout />}>
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="add-product" element={<AddProduct />} />
+          <Route path="add-product/:uuid" element={<AddProduct />} /> // update the data 
           <Route path="customers" element={<Customer />} />
           <Route path="products" element={<Products />} />
           <Route path="categories" element={<Categories />} />

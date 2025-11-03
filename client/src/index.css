@@ -276,11 +276,11 @@ select,
 }
 
 .progress-bar::-webkit-progress-value {
-  background-color: #199b0d; /* Tailwind blue-600 */
+  background-color: #FDC700; /* Tailwind blue-600 */
   border-radius: 9999px;
 }
 
 .progress-bar::-moz-progress-bar {
-  background-color: #199b0d; /* filled in Firefox */
+  background-color: #FDC700; /* filled in Firefox */
   border-radius: 9999px;
 }

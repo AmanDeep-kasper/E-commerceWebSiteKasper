@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef } from "react";
 import axiosInstance from "../../api/axiosInstance";
-import { Navigate, useNavigate } from "react-router";
+import { Navigate, useNavigate, useParams } from "react-router";
 import { toast } from "react-toastify";
 import { useDispatch, useSelector } from "react-redux";
 import { addProduct } from "../../redux/cart/productSlice";
 import { v4 as uuidv4 } from "uuid";
+import product from "../../data/products.json";
 
 import {
   ArrowLeft,
@@ -25,12 +26,13 @@ import DisplayVariantImg from "./DisplayVariantImg";
 
 const AddProduct = () => {
   const navigate = useNavigate();
+  const { uuid } = useParams();
   const dispatch = useDispatch();
   const { loading, error } = useSelector((state) => state.product);
 
   const [formData, setFormData] = useState({
     // Basic info
-    uuid: uuidv4(), // ✅ unique product ID right from start
+    uuid: uuidv4(), //  unique product ID right from start
     type: "",
     title: "",
     description: "",
@@ -60,7 +62,7 @@ const AddProduct = () => {
     hasVariants: false,
     variants: [
       {
-        variantId: uuidv4(), // ✅ unique ID for this variant
+        variantId: uuidv4(), //  unique ID for this variant
         variantType: "",
         variantName: "",
         variantValue: "",
@@ -71,7 +73,18 @@ const AddProduct = () => {
     ],
   });
 
-  const [images, setImages] = useState([]);
+  // useEffect(() => {
+  //   if (uuid) {
+  //     const existingProduct = product.find(
+  //       (p) => p.uuid.toLowerCase() === uuid.toLowerCase()
+  //     );
+  //     if (existingProduct) {
+  //       setFormData(existingProduct);
+  //     }
+  //   }
+  // }, [uuid]);
+
+  // const [images, setImages] = useState([]);
 
   // handle text fields
   const handleChange = (e) => {
@@ -106,7 +119,7 @@ const AddProduct = () => {
     const sp = parseFloat(update.sellingPrice) || 0;
     const cp = parseFloat(update.costPrice) || 0;
 
-    // ✅ Calculate Profit and Profit %
+    //  Calculate Profit and Profit %
 
     if (sp > 0 && cp > 0) {
       const profit = sp - cp;
@@ -120,7 +133,7 @@ const AddProduct = () => {
   // handle image files
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files);
-    // ✅ Allowed types
+    //  Allowed types
 
     const allowedTypes = [
       "image/png",
@@ -130,14 +143,14 @@ const AddProduct = () => {
       "image/svg+xml",
     ];
 
-    // ✅ Filter invalid types
+    //  Filter invalid types
     const validFiles = files.filter((file) => allowedTypes.includes(file.type));
 
     if (validFiles.length !== files.length) {
       alert("Only PNG, JPG, JPEG, WEBP, and SVG formats are allowed.");
     }
 
-    // ✅ Filter out duplicates by comparing the name and size (to ensure the same image isn't added twice)
+    //  Filter out duplicates by comparing the name and size (to ensure the same image isn't added twice)
     const newFiles = validFiles.filter(
       (file) =>
         !formData.images.some(
@@ -152,7 +165,7 @@ const AddProduct = () => {
       return; // Prevent further action
     }
 
-    // ✅ Combine current images with new valid files
+    //  Combine current images with new valid files
 
     const updateImages = [...formData.images, ...newFiles];
 
@@ -173,7 +186,7 @@ const AddProduct = () => {
   const [variantopen, setVariantOpen] = useState(null); // track which dropdown is open
   const variantOptions = ["Color", "Dimension", "Size", "Material", "Weight"];
 
-  // ✅ Handle field change for a specific variant
+  //  Handle field change for a specific variant
   const handleVariantChange = (index, field, value) => {
     setFormData((prev) => {
       const updatedVariants = [...prev.variants];
@@ -206,7 +219,7 @@ const AddProduct = () => {
           return sum + qty;
         }, 0);
 
-        // ✅ If any variantQuantity is entered, override the main stockQuantity
+        //  If any variantQuantity is entered, override the main stockQuantity
         if (totalVariantQty > 0) {
           updatedStock = totalVariantQty;
         }
@@ -220,7 +233,7 @@ const AddProduct = () => {
     });
   };
 
-  // ✅ Handle image upload per variant
+  //  Handle image upload per variant
   const handleVariantImageChange = (e, index) => {
     const files = Array.from(e.target.files);
     if (!files.length) return;
@@ -250,7 +263,7 @@ const AddProduct = () => {
     e.target.value = "";
   };
 
-  // ✅ Remove a specific image from a specific variant
+  //  Remove a specific image from a specific variant
   const removeVariantImage = (variantIndex, imgIndex) => {
     setFormData((prev) => {
       const updatedVariants = [...prev.variants];
@@ -264,7 +277,7 @@ const AddProduct = () => {
     });
   };
 
-  // ✅ Add new variant section dynamically
+  //  Add new variant section dynamically
   const addVariant = () => {
     setFormData((prev) => ({
       ...prev,
@@ -288,7 +301,7 @@ const AddProduct = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // ✅ Validation
+    //  Validation
     if (
       !formData.title.trim() ||
       !formData.category.trim() ||
@@ -306,7 +319,7 @@ const AddProduct = () => {
       return;
     }
 
-    // ✅ Add UUID for product & variant IDs
+    //  Add UUID for product & variant IDs
     const formDataWithUUID = {
       ...formData,
       uuid: formData.uuid || uuidv4(), // product-level unique ID (only if not already set)
@@ -318,7 +331,7 @@ const AddProduct = () => {
 
     console.log("Form Data with UUID:", formDataWithUUID);
 
-    // ✅ Prepare multipart form data
+    //  Prepare multipart form data
     const formDataObj = new FormData();
 
     Object.keys(formDataWithUUID).forEach((key) => {
@@ -343,13 +356,13 @@ const AddProduct = () => {
       }
     });
 
-    // ✅ Dispatch action
+    //  Dispatch action
     dispatch(addProduct(formDataObj));
 
-    // ✅ Store locally
+    //  Store locally
     localStorage.setItem("addProductForm", JSON.stringify(formDataWithUUID));
 
-    // ✅ Reset form
+    //  Reset form
     setFormData({
       type: "",
       title: "",
@@ -395,7 +408,7 @@ const AddProduct = () => {
       className: "bg-[#EEFFEF] text-black rounded-lg",
     });
 
-    // ✅ Navigate after success
+    //  Navigate after success
     setTimeout(() => {
       navigate("/admin/products");
     }, 1000);
@@ -632,13 +645,13 @@ const AddProduct = () => {
         setCurrentImage={setCurrentImage}
       />
       <form
-        className=" rounded-md min-h-screen "
+        className=" rounded-md min-h-screen"
         onSubmit={handleSubmit}
         encType="multipart/form-data"
       >
         {/* Header */}
 
-        <div className="h-16 bg-white rounded-lg  flex items-center gap-3 px-4">
+        <div className="h-16 bg-white rounded-lg flex items-center gap-3 px-4">
           <Link to={`/admin/products`}>
             <div className=" flex items-center">
               <ArrowLeft className="w-6 h-6 text-gray-800" />
@@ -652,7 +665,7 @@ const AddProduct = () => {
         {/* Product Info Grid */}
         <div className="grid lg:grid-cols-2 gap-6 mt-4">
           {/* Left Section */}
-          <div className="bg-white rounded-2xl border p-6">
+          <div className="bg-white rounded-2xl p-6">
             <h2 className="flex items-center gap-2 text-[20px] font-medium font-['Inter'] mb-4">
               <Package className="w-6 h-6 text-gray-700" />
               Basic Information
@@ -776,7 +789,7 @@ const AddProduct = () => {
           {/* /////////////////////////////////////////// */}
           {/* Right Section */}
 
-          <div className="bg-white rounded-2xl border p-6">
+          <div className="bg-white rounded-2xl  p-6">
             <h2 className="text-black text-[20px] font-medium mb-4">
               Product Details
             </h2>
@@ -1050,7 +1063,7 @@ const AddProduct = () => {
         </div>
 
         {/* Pricing Section */}
-        <div className="bg-white rounded-2xl border p-6 mt-6">
+        <div className="bg-white rounded-2xl  p-6 mt-6">
           <h2 className="text-black text-xl font-medium mb-4">Pricing</h2>
           <div className="grid  grid-cols-3 gap-x-44 gap-y-4">
             <div>
@@ -1184,7 +1197,7 @@ const AddProduct = () => {
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-2xl border px-3 py-4 mt-6">
+        <div className="bg-white rounded-2xl  px-3 py-4 mt-6">
           <div className="mb-5">
             <h1 className="text-[20px] font-medium">Product Variants</h1>
             <p className="text-[#727272] text-[16px] font-normal">
