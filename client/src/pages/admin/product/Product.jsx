@@ -260,14 +260,17 @@ const Products = () => {
 
   // Select all checkboxes
   const handleSelectAll = (e) => {
+    const visibleIds = currentItems.map((item) => item.id || item.uuid);
+
     if (e.target.checked) {
       // Add only visible product IDs
-      const visibleIds = currentItems.map((item) => item.id);
-      setSelectedItems([...new Set([...selectedItems, ...visibleIds])]);
+      // const visibleIds = currentItems.map((item) => item.id);
+      setSelectedItems((prev) => [...new Set([...prev, ...visibleIds])]);
     } else {
       // Remove only visible product IDs
-      const visibleIds = currentItems.map((item) => item.id);
-      setSelectedItems(selectedItems.filter((id) => !visibleIds.includes(id)));
+      // const visibleIds = currentItems.map((item) => item.id);
+
+      setSelectedItems((prev) => prev.filter((id) => !visibleIds.includes(id)));
     }
   };
 
@@ -279,12 +282,13 @@ const Products = () => {
   const [selected, setSelected] = useState("Price: Low → High");
 
   // ✅ Single checkbox toggle
-  const handleCheckboxChange = (tittle) => {
+
+  const handleCheckboxChange = (id) => {
     setSelectedItems(
       (prev) =>
-        prev.includes(tittle)
-          ? prev.filter((x) => x !== tittle) // Unselect if already selected
-          : [...prev, tittle] // Add if not selected
+        prev.includes(id)
+          ? prev.filter((x) => x !== id) // unselect
+          : [...prev, id] // select
     );
   };
 
@@ -491,13 +495,17 @@ const Products = () => {
           <table className="w-full text-sm text-left text-gray-600">
             <thead className="bg-[#F8F8F8] h-[54px]">
               <tr className="text-[#4B5563] text-[18px]">
+                {/* // header ka input ha yaa */}
                 <th className="px-4 py-3">
                   <input
                     type="checkbox"
                     onChange={handleSelectAll}
                     checked={
-                      setSelectedItems === products.length &&
-                      products.length > 0
+                      currentItems.length > 0 &&
+                      currentItems.every((item) =>
+                        selectedItems.includes(item.id || item.uuid)
+                      ) &&
+                      currentItems.length > 0
                     }
                     className="w-4 h-4"
                   />
@@ -534,8 +542,10 @@ const Products = () => {
                   <td className="px-4 py-3">
                     <input
                       type="checkbox"
-                      checked={selectedItems.includes(item.title)}
-                      onChange={() => handleCheckboxChange(item.title)}
+                      checked={selectedItems.includes(item.id || item.uuid)}
+                      onChange={() =>
+                        handleCheckboxChange(item.id || item.uuid)
+                      }
                       className="w-4 h-4"
                     />
                   </td>
@@ -562,7 +572,8 @@ const Products = () => {
                               .join(", ")}
                             {item.variants.length > 2 && (
                               <span className="text-[#5D5D5D]">
-                                 {" "} +{item.variants.length - 2} more
+                                {" "}
+                                +{item.variants.length - 2} more
                               </span>
                             )}
                           </p>

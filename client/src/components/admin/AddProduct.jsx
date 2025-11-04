@@ -3,7 +3,7 @@ import axiosInstance from "../../api/axiosInstance";
 import { Navigate, useNavigate, useParams } from "react-router";
 import { toast } from "react-toastify";
 import { useDispatch, useSelector } from "react-redux";
-import { addProduct } from "../../redux/cart/productSlice";
+import { addProduct, updateProduct } from "../../redux/cart/productSlice";
 import { v4 as uuidv4 } from "uuid";
 import product from "../../data/products.json";
 
@@ -26,13 +26,13 @@ import DisplayVariantImg from "./DisplayVariantImg";
 
 const AddProduct = () => {
   const navigate = useNavigate();
-  const { uuid } = useParams();
   const dispatch = useDispatch();
   const { loading, error } = useSelector((state) => state.product);
+  const { uuid } = useParams(); // the use to fetch the data in params
 
   const [formData, setFormData] = useState({
     // Basic info
-    uuid: uuidv4(), //  unique product ID right from start
+    uuid: uuidv4(),
     type: "",
     title: "",
     description: "",
@@ -73,61 +73,59 @@ const AddProduct = () => {
     ],
   });
 
-  // useEffect(() => {
-  //   if (uuid) {
-  //     const existingProduct = product.find(
-  //       (p) => p.uuid.toLowerCase() === uuid.toLowerCase()
-  //     );
-  //     if (existingProduct) {
-  //       setFormData(existingProduct);
-  //     }
-  //   }
-  // }, [uuid]);
+  const [isEditing, setIsEditing] = useState(false);
 
-  // const [images, setImages] = useState([]);
+  useEffect(() => {
+    if (uuid) {
+      const productToEdit = product.find(
+        (p) => p.uuid.toLowerCase() === uuid.toLowerCase()
+      );
+
+      if (productToEdit) {
+        setFormData(productToEdit);
+        setIsEditing(true);
+      } else {
+        console.log("Product not found with uuid:", uuid);
+      }
+    }
+  }, [uuid]);
 
   // handle text fields
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData((prev) => ({
-      ...prev,
+
+    // Create a shallow copy of formData
+    let updated = {
+      ...formData,
       [name]: type === "checkbox" ? checked : value,
-    }));
+    };
 
-    const update = { ...formData, [name]: value };
-    // Convert to numbers for calculation
+    // Convert to numbers for calculations
+    const mrp = parseFloat(updated.mrp) || 0;
+    const sellingPrice = parseFloat(updated.sellingPrice) || 0;
+    const costPrice = parseFloat(updated.costPrice) || 0;
 
-    const mrp = parseFloat(update.mrp) || 0;
-    const sellingPrice = parseFloat(update.sellingPrice) || 0;
-
-    // Calculate discount only  MRP and Selling Price are valid
-    if (mrp > 0 && sellingPrice >= 0 && sellingPrice <= mrp) {
+    //  Calculate discount
+    if (mrp > 0 && sellingPrice > 0 && sellingPrice <= mrp) {
       const discountAmount = mrp - sellingPrice;
       const discountPercent = ((discountAmount / mrp) * 100).toFixed(2);
-
-      update.discountAmount = discountAmount.toFixed(2);
-      update.discountPercent = discountPercent;
+      updated.discountAmount = discountAmount.toFixed(2);
+      updated.discountPercent = discountPercent;
     } else {
-      // reset if invalid
-      update.discountAmount = "";
-      update.discountPercent = "";
+      updated.discountAmount = "";
+      updated.discountPercent = "";
     }
-    setFormData(update);
 
-    // Convert inputs to numbers for calculation
-    // // to generated in profit
-    const sp = parseFloat(update.sellingPrice) || 0;
-    const cp = parseFloat(update.costPrice) || 0;
-
-    //  Calculate Profit and Profit %
-
-    if (sp > 0 && cp > 0) {
-      const profit = sp - cp;
-      update.profit = profit.toFixed(2);
+    //  Calculate profit
+    if (sellingPrice > 0 && costPrice > 0) {
+      const profit = sellingPrice - costPrice;
+      updated.profit = profit.toFixed(2);
     } else {
-      update.profit = "";
+      updated.profit = "";
     }
-    setFormData(update);
+
+    //  Set formData once
+    setFormData(updated);
   };
 
   // handle image files
@@ -204,22 +202,23 @@ const AddProduct = () => {
 
         variant.variantValue =
           width && height ? `${width}*${height}cm` : width || height || "";
-      } else {
+      }
+
+      // ✅ Always update other fields (even if variantName === "Dimension")
+      if (!["width", "height"].includes(field)) {
         variant[field] = value;
       }
 
       updatedVariants[index] = variant;
 
-      // Only calculate total if user is editing variantQuantity
+      // ✅ Auto recalc total stock if quantity changes
       let updatedStock = prev.stockQuantity;
-
       if (field === "variantQuantity") {
         const totalVariantQty = updatedVariants.reduce((sum, v) => {
           const qty = Number(v.variantQuantity) || 0;
           return sum + qty;
         }, 0);
 
-        //  If any variantQuantity is entered, override the main stockQuantity
         if (totalVariantQty > 0) {
           updatedStock = totalVariantQty;
         }
@@ -267,13 +266,39 @@ const AddProduct = () => {
   const removeVariantImage = (variantIndex, imgIndex) => {
     setFormData((prev) => {
       const updatedVariants = [...prev.variants];
-      const images = [...updatedVariants[variantIndex].variantImage];
 
-      // remove only the clicked image
-      images.splice(imgIndex, 1);
+      if (!updatedVariants[variantIndex]) return prev;
 
-      updatedVariants[variantIndex].variantImage = images;
+      const updatedImages = [...updatedVariants[variantIndex].variantImage];
+      updatedImages.splice(imgIndex, 1); // remove that image
+
+      updatedVariants[variantIndex].variantImage = updatedImages;
+
       return { ...prev, variants: updatedVariants };
+    });
+
+    // ✅ Update modal state
+    setSelectedImages((prev) => {
+      const newImages = prev.filter((_, i) => i !== imgIndex);
+
+      // if the deleted image was the current one, show next (or previous)
+      if (newImages.length > 0) {
+        const nextIndex =
+          imgIndex < newImages.length ? imgIndex : newImages.length - 1;
+
+        const nextImage =
+          typeof newImages[nextIndex] === "string"
+            ? newImages[nextIndex]
+            : newImages[nextIndex].preview ||
+              URL.createObjectURL(newImages[nextIndex]);
+
+        setCurrentImage(nextImage);
+      } else {
+        // No images left → close modal
+        setIsModalOpen(false);
+      }
+
+      return newImages;
     });
   };
 
@@ -298,117 +323,170 @@ const AddProduct = () => {
 
   // submit handler
 
+  // const handleSubmit = (e) => {
+  //   e.preventDefault();
+
+  //   // 🔹 Validation
+  //   if (!formData.title.trim() || !formData.category.trim()) {
+  //     toast.error("Please fill in all required fields!", {
+  //       position: "top-right",
+  //       autoClose: 2000,
+  //       className: "bg-red-700 text-white rounded-lg",
+  //     });
+  //     return;
+  //   }
+
+  //   // 🔹 Ensure product UUID exists
+  //   const formDataWithUUID = {
+  //     ...formData,
+  //     uuid: formData.uuid || uuidv4(),
+  //     variants: formData.variants.map((v) => ({
+  //       ...v,
+  //       variantId: v.variantId || uuidv4(),
+  //     })),
+  //   };
+
+  //   // 🔹 Build multipart FormData for backend
+  //   const formDataObj = new FormData();
+
+  //   Object.keys(formDataWithUUID).forEach((key) => {
+  //     const value = formDataWithUUID[key];
+  //     if (key === "variants") {
+  //       value.forEach((variant, i) => {
+  //         Object.entries(variant).forEach(([k, v]) => {
+  //           if (Array.isArray(v)) {
+  //             v.forEach((file) =>
+  //               formDataObj.append(`variants[${i}][${k}]`, file)
+  //             );
+  //           } else {
+  //             formDataObj.append(`variants[${i}][${k}]`, v);
+  //           }
+  //         });
+  //       });
+  //     } else if (Array.isArray(value)) {
+  //       value.forEach((v) => formDataObj.append(key, v));
+  //     } else {
+  //       formDataObj.append(key, value);
+  //     }
+  //   });
+
+  //   // 🔹 Dispatch correct action
+  //   if (isEditing) {
+  //     // Make sure to pass both id + formData to match your thunk definition
+  //     dispatch(
+  //       updateProduct({ id: formDataWithUUID.uuid, formData: formDataObj })
+  //     )
+  //       .unwrap()
+  //       .then(() => {
+  //         toast.success("✅ Product updated successfully!", {
+  //           position: "top-right",
+  //           autoClose: 2000,
+  //           className: "bg-[#EEFFEF] text-black rounded-lg",
+  //         });
+  //         navigate("/admin/products");
+  //       })
+  //       .catch((err) => {
+  //         toast.error(`Failed to update: ${err}`, {
+  //           position: "top-right",
+  //           autoClose: 2000,
+  //           className: "bg-red-700 text-white rounded-lg",
+  //         });
+  //       });
+  //   } else {
+  //     // Add new product
+  //     dispatch(addProduct(formDataObj))
+  //       .unwrap()
+  //       .then(() => {
+  //         toast.success("✅ Product added successfully!", {
+  //           position: "top-right",
+  //           autoClose: 2000,
+  //           className: "bg-[#EEFFEF] text-black rounded-lg",
+  //         });
+  //         navigate("/admin/products");
+  //       })
+  //       .catch((err) => {
+  //         toast.error(`Failed to add: ${err}`, {
+  //           position: "top-right",
+  //           autoClose: 2000,
+  //           className: "bg-red-700 text-white rounded-lg",
+  //         });
+  //       });
+  //   }
+
+  //   // Optional: local save for backup
+  //   localStorage.setItem("addProductForm", JSON.stringify(formDataWithUUID));
+  // };
+
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    //  Validation
-    if (
-      !formData.title.trim() ||
-      !formData.category.trim() ||
-      !formData.subcategory.trim()
-    ) {
+    // 🔹 Validation
+    if (!formData.title.trim() || !formData.category.trim()) {
       toast.error("Please fill in all required fields!", {
         position: "top-right",
         autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
         className: "bg-red-700 text-white rounded-lg",
       });
       return;
     }
 
-    //  Add UUID for product & variant IDs
+    // 🔹 Ensure product UUID exists
     const formDataWithUUID = {
       ...formData,
-      uuid: formData.uuid || uuidv4(), // product-level unique ID (only if not already set)
-      variants: formData.variants.map((variant) => ({
-        ...variant,
-        variantId: variant.variantId || uuidv4(), // add variant ID if missing
+      uuid: formData.uuid || uuidv4(),
+      variants: formData.variants.map((v) => ({
+        ...v,
+        variantId: v.variantId || uuidv4(),
       })),
     };
 
-    console.log("Form Data with UUID:", formDataWithUUID);
-
-    //  Prepare multipart form data
+    // 🔹 Build multipart FormData (for later backend upload)
     const formDataObj = new FormData();
 
-    Object.keys(formDataWithUUID).forEach((key) => {
+    Object.entries(formDataWithUUID).forEach(([key, value]) => {
       if (key === "variants") {
-        formDataWithUUID.variants.forEach((variant, index) => {
-          Object.keys(variant).forEach((vKey) => {
-            const value = variant[vKey];
-            if (Array.isArray(value)) {
-              // Handle multiple images
-              value.forEach((file) => {
-                formDataObj.append(`variants[${index}][${vKey}]`, file);
-              });
+        value.forEach((variant, i) => {
+          Object.entries(variant).forEach(([k, v]) => {
+            if (Array.isArray(v)) {
+              v.forEach((file) =>
+                formDataObj.append(`variants[${i}][${k}]`, file)
+              );
             } else {
-              formDataObj.append(`variants[${index}][${vKey}]`, value);
+              formDataObj.append(`variants[${i}][${k}]`, v);
             }
           });
         });
-      } else if (Array.isArray(formDataWithUUID[key])) {
-        formDataWithUUID[key].forEach((item) => formDataObj.append(key, item));
+      } else if (Array.isArray(value)) {
+        value.forEach((v) => formDataObj.append(key, v));
       } else {
-        formDataObj.append(key, formDataWithUUID[key]);
+        formDataObj.append(key, value);
       }
     });
 
-    //  Dispatch action
-    dispatch(addProduct(formDataObj));
+    // 🧩 Instead of sending to backend — log everything
+    console.log("🧾 Product Data (formDataWithUUID):", formDataWithUUID);
 
-    //  Store locally
+    // console.log("📦 Multipart FormData contents:");
+    // for (let [key, val] of formDataObj.entries()) {
+    //   // console.log(formData);
+    // }
+
+    // 🔹 Show success toast (simulated)
+    toast.success(
+      isEditing
+        ? " Product updated successfully! "
+        : " Product added successfully! ",
+      {
+        position: "top-right",
+        autoClose: 2000,
+        className: "bg-[#EEFFEF] text-black rounded-lg",
+      }
+    );
+
+    // 🔹 Local save (for persistence)
     localStorage.setItem("addProductForm", JSON.stringify(formDataWithUUID));
 
-    //  Reset form
-    setFormData({
-      type: "",
-      title: "",
-      description: "",
-      images: [],
-      SKU: "",
-      category: "",
-      subcategory: "",
-      tags: "",
-      materialType: "",
-      weight: "",
-      stockQuantity: "",
-      returnPolicy: false,
-      mrp: "",
-      sellingPrice: "",
-      costPrice: "",
-      profit: "",
-      discountPercent: "",
-      discountAmount: "",
-      includesTax: false,
-      taxPercent: "",
-      hasVariants: false,
-      variants: [
-        {
-          variantId: uuidv4(), // <-- optional if you want blank variant pre-created
-          variantType: "",
-          variantName: "",
-          variantValue: "",
-          variantQuantity: "",
-          variantReorderLimit: "",
-          variantImage: [],
-        },
-      ],
-    });
-
-    toast.success("Product added successfully!", {
-      position: "top-right",
-      autoClose: 2000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      className: "bg-[#EEFFEF] text-black rounded-lg",
-    });
-
-    //  Navigate after success
+    // 🔹 Optional redirect (simulate save complete)
     setTimeout(() => {
       navigate("/admin/products");
     }, 1000);
@@ -585,6 +663,7 @@ const AddProduct = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedImages, setSelectedImages] = useState([]);
   const [currentImage, setCurrentImage] = useState("");
+  const [activeVariantIndex, setActiveVariantIndex] = useState(null);
 
   // the remove varinats in click in trash icon
 
@@ -640,9 +719,11 @@ const AddProduct = () => {
       <DisplayVariantImg
         isModalOpen={isModalOpen}
         selectedImages={selectedImages}
-        setIsModalOpen={setIsModalOpen}
         currentImage={currentImage}
         setCurrentImage={setCurrentImage}
+        setIsModalOpen={setIsModalOpen}
+        variantIndex={activeVariantIndex}
+        onRemoveImage={removeVariantImage}
       />
       <form
         className=" rounded-md min-h-screen"
@@ -651,9 +732,9 @@ const AddProduct = () => {
       >
         {/* Header */}
 
-        <div className="h-16 bg-white rounded-lg flex items-center gap-3 px-4">
+        <div className="h-16 bg-white rounded-lg flex items-center  px-4">
           <Link to={`/admin/products`}>
-            <div className=" flex items-center">
+            <div className=" flex items-center gap-1">
               <ArrowLeft className="w-6 h-6 text-gray-800" />
               <h1 className="text-black text-[20px] font-semibold font-['Inter']">
                 Add Product
@@ -734,40 +815,53 @@ const AddProduct = () => {
               </label>
 
               <div className="flex flex-wrap gap-3 items-start">
-                {/* Image Preview Section */}
-                {formData.images.map((img, i) => (
-                  <div key={i} className="relative group">
-                    <img
-                      src={URL.createObjectURL(img)}
-                      alt={`preview ${i}`}
-                      className="w-[134px] h-[134px] object-cover rounded-lg border border-neutral-200"
-                    />
+                {Array.isArray(formData.images) &&
+                  formData.images.map((img, i) => {
+                    const imgSrc =
+                      img instanceof File
+                        ? URL.createObjectURL(img) // new upload
+                        : typeof img === "string"
+                        ? img // existing image URL
+                        : null;
 
-                    <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition rounded-lg"></div>
+                    if (!imgSrc) return null;
 
-                    {/*Overlay Remove button */}
+                    return (
+                      <div key={i} className="relative group">
+                        <img
+                          src={imgSrc}
+                          alt={`preview ${i}`}
+                          className="w-[134px] h-[134px] object-cover rounded-lg border border-neutral-200"
+                        />
 
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setFormData((prev) => ({
-                          ...prev,
-                          images: prev.images.filter((_, index) => index !== i),
-                        }));
-                      }}
-                      className="absolute top-2 right-2 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition"
-                    >
-                      <Trash size={20} />
-                    </button>
-                  </div>
-                ))}
+                        {/* Overlay */}
+                        <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition rounded-lg"></div>
+
+                        {/* Remove button */}
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              images: prev.images.filter(
+                                (_, index) => index !== i
+                              ),
+                            }))
+                          }
+                          className="absolute top-2 right-2 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition"
+                        >
+                          <Trash size={20} />
+                        </button>
+                      </div>
+                    );
+                  })}
 
                 {/* Upload Box */}
                 {formData.images.length < 10 && (
                   <label
                     htmlFor="productImage"
                     className="w-[137px] h-[137px] bg-[#ECECF0] border border-neutral-200 rounded-lg 
-        flex items-center justify-center cursor-pointer hover:bg-gray-200 transition"
+      flex items-center justify-center cursor-pointer hover:bg-gray-200 transition"
                   >
                     <input
                       id="productImage"
@@ -794,22 +888,22 @@ const AddProduct = () => {
               Product Details
             </h2>
 
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
               {/* SKU ID */}
               <div>
                 <label className="block text-sm font-medium mb-2">SKU ID</label>
-                <div className="flex">
+                <div className="flex relative">
                   <input
                     type="text"
                     name="SKU"
                     value={formData.SKU}
                     onChange={handleChange}
                     placeholder="Generate SKU ID"
-                    className="flex-1 border border-[#D0D0D0] rounded-l-lg h-[45px] px-3  bg-[#FAFAFA] text-sm text-[#6B6B6B] placeholder-[#6B6B6B] focus:outline-none"
+                    className="w-full border border-[#D0D0D0] rounded-l-lg rounded-r-lg h-[45px] px-3  bg-[#FAFAFA] text-sm text-[#6B6B6B] placeholder-[#6B6B6B] focus:outline-none"
                   />
                   <button
                     type="button"
-                    className="bg-amber-600 text-white px-4 rounded-r-lg hover:bg-amber-700"
+                    className="bg-amber-600 text-white px-3 rounded-r-lg rounded-l-lg hover:bg-amber-700 absolute right-0 h-full"
                     onClick={generatedSKU}
                   >
                     Generate
@@ -1065,7 +1159,7 @@ const AddProduct = () => {
         {/* Pricing Section */}
         <div className="bg-white rounded-2xl  p-6 mt-6">
           <h2 className="text-black text-xl font-medium mb-4">Pricing</h2>
-          <div className="grid  grid-cols-3 gap-x-44 gap-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <div>
               <label className="block text-sm font-medium mb-2">MRP</label>
               <input
@@ -1074,7 +1168,7 @@ const AddProduct = () => {
                 value={formData.mrp}
                 onChange={handleChange}
                 placeholder="Enter MRP"
-                className="w-[380px] h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#FAFAFA] text-sm text-gray-600 focus:outline-none"
+                className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#FAFAFA] text-sm text-gray-600 focus:outline-none"
               />
             </div>
             <div>
@@ -1087,7 +1181,7 @@ const AddProduct = () => {
                 value={formData.sellingPrice}
                 onChange={handleChange}
                 placeholder="Enter Selling Price"
-                className="w-[380px] h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#FAFAFA] text-sm text-gray-600 focus:outline-none"
+                className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#FAFAFA] text-sm text-gray-600 focus:outline-none"
               />
             </div>
             <div>
@@ -1100,7 +1194,7 @@ const AddProduct = () => {
                 value={formData.costPrice}
                 onChange={handleChange}
                 placeholder="Enter Cost Price"
-                className="w-[380px] h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#FAFAFA] text-sm text-gray-600 focus:outline-none"
+                className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#FAFAFA] text-sm text-gray-600 focus:outline-none"
               />
             </div>
             <div>
@@ -1112,12 +1206,12 @@ const AddProduct = () => {
                 readOnly
                 // onChange={handleChange}
                 placeholder="₹"
-                className="w-[380px] h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#FAFAFA] text-sm text-gray-600 focus:outline-none"
+                className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#FAFAFA] text-sm text-gray-600 focus:outline-none"
               />
             </div>
             <div>
               <label className="block text-sm font-medium mb-2">Discount</label>
-              <div className="flex  items-center gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 gap-6">
                 <div className="flex flex-row">
                   <input
                     type="text"
@@ -1146,7 +1240,7 @@ const AddProduct = () => {
                 </div>
               </div>
             </div>
-            <div className="flex items-center gap-2 mt-7">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6   mt-7">
               <label className="flex items-center gap-2 text-sm font-medium mb-2">
                 <input
                   type="checkbox"
@@ -1168,7 +1262,7 @@ const AddProduct = () => {
                     <ChevronDown
                       size={18}
                       className={`text-[#6B6B6B] transition-transform duration-200 ${
-                        open ? "rotate-180" : ""
+                        opengstbosx ? "rotate-180" : ""
                       }`}
                     />
                   </button>
@@ -1244,7 +1338,7 @@ const AddProduct = () => {
                 {formData.variants.map((variant, index) => (
                   <div
                     key={index}
-                    className="group grid grid-cols-6 gap-4 mb-6 items-start hover:bg-[#FFF8F2] transition-all rounded-lg p-2"
+                    className="group flex flex-wrap justify-between items-center gap-4 mb-6 i hover:bg-[#FFF8F2] transition-all rounded-lg p-2"
                   >
                     {/* 1️⃣ Variant Name */}
                     <div>
@@ -1484,9 +1578,9 @@ const AddProduct = () => {
                                         );
                                   setCurrentImage(first);
                                   setIsModalOpen(true);
+                                  setActiveVariantIndex(index);
                                 }}
                               />
-
                               {variant.variantImage.length > 1 && (
                                 <div
                                   onClick={() => {
@@ -1500,6 +1594,7 @@ const AddProduct = () => {
                                             variant.variantImage[0]
                                           );
                                     setCurrentImage(first);
+                                    setActiveVariantIndex(index); // ✅ store which variant is open
                                     setIsModalOpen(true);
                                   }}
                                   className="absolute inset-0 bg-black/50 flex items-center justify-center text-white text-xs font-medium rounded-lg cursor-pointer"
@@ -1549,20 +1644,19 @@ const AddProduct = () => {
                           )}
                         </div>
                       </div>
-
-                      {/* 7️⃣ Action (Trash) */}
-                      <div className="flex flex-col items-center justify-start opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        <label className="block text-sm font-medium mb-2">
-                          Action
-                        </label>
-                        <button
-                          type="button"
-                          onClick={() => removeVariant(index)}
-                          className="p-2 rounded hover:bg-red-100 transition"
-                        >
-                          <Trash className="w-[27px] h-[27px] text-red-700" />
-                        </button>
-                      </div>
+                    </div>
+                    {/*  Action (Trash) */}
+                    <div className="flex flex-col items-center justify-start opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <label className="block text-sm font-medium mb-2">
+                        Action
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => removeVariant(index)}
+                        className="p-2 rounded hover:bg-red-100 transition"
+                      >
+                        <Trash className="w-[27px] h-[27px] text-red-700" />
+                      </button>
                     </div>
                   </div>
                 ))}
@@ -1591,7 +1685,7 @@ const AddProduct = () => {
             type="submit"
             className="px-6 py-2 bg-amber-600 rounded-lg text-white font-medium hover:bg-amber-600"
           >
-            Save
+            {isEditing ? "Update Product" : "Save"}
           </button>
         </div>
       </form>

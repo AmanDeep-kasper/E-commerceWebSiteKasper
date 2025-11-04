@@ -73,9 +73,10 @@ function ProductInformation() {
     //   return;
     // }
 
-    navigate(`/admin/add-product/${product.uuid}`)
+    navigate(`/admin/add-product/${product.uuid}`);
   };
-  console.log(product)
+
+  // console.log(product)
 
   return (
     <div className="min-h-screen  bg-gray-50">
@@ -85,7 +86,10 @@ function ProductInformation() {
           <ArrowLeft className="w-6 h-6 text-gray-800" />
           <h1 className="text-black text-xl font-semibold">{product.title}</h1>
         </Link>
-        <button onClick={handleEdit} className="bg-[#F8F8F8] px-5 py-1.5 border text-base rounded-lg">
+        <button
+          onClick={handleEdit}
+          className="bg-[#F8F8F8] px-5 py-1.5 border text-base rounded-lg"
+        >
           Edit
         </button>
       </div>

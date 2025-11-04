@@ -43,6 +43,18 @@ const getProductBySlug = async (route) => {
   return res.data;
 };
 
+// ✅ Update an existing product (Admin only)
+const updateProduct = async (id, formData) => {
+  const res = await axiosInstance.put(
+    `/products/update-product/${id}`,
+    formData,
+    {
+      headers: { "Content-Type": "multipart/form-data" },
+    }
+  );
+  return res.data;
+};
+
 const productService = {
   getAllProducts,
   getProductsByCategory,
@@ -50,6 +62,7 @@ const productService = {
   getProductById,
   getProductBySlug,
   addProduct,
+  updateProduct,
 };
 
 export default productService;

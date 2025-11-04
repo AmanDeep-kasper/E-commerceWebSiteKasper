@@ -10,6 +10,7 @@ import {
 } from "../controllers/productController.js";
 import uploadProductImages from "../middlewares/productMulter.js";
 import { isAuthenticated, isAdmin } from "../middlewares/authMiddleware.js";
+import { updateProduct } from "../../client/src/redux/cart/productSlice.js";
 // import { getAllCategories } from "../controllers/categoryController.js";
 
 const router = express.Router();
@@ -21,6 +22,15 @@ router.post(
   isAdmin,
   uploadProductImages,
   addProduct
+);
+
+router.put(
+  "/update-product/:id",
+  isAuthenticated,
+  isAdmin,
+  uploadProductImages,
+  addProduct,
+  updateProduct
 );
 
 // 🌐 Public access
