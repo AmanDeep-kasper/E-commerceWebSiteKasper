@@ -7,13 +7,17 @@
     "type": "Framed",
     "category": "Geometric & Abstract",
     "subcategory": "Abstract Decor",
-    "tags": [ "metal"],
-    "images": ["/polygonAnimal1.jpg","/polygonAnimal2.jpg","/polygonAnimal3.jpg"],
+    "tags": ["metal"],
+    "images": [
+      "/polygonAnimal1.jpg",
+      "/polygonAnimal2.jpg",
+      "/polygonAnimal3.jpg"
+    ],
     "image": ["/polygonAnimal1.jpg"],
     "SKU": "DWL-ART-001",
     "materialType": "metal",
     "weight": "1.2kg",
-    "stockQuantity": 9,
+    "variantQuantity": 9,
     "returnPolicy": "Eligible for return within 7 days of delivery.",
     "deliverBy": 5,
     "hasVariants": true,
@@ -33,40 +37,48 @@
         "variantType": "Unframed",
         "variantValue": "black",
         "variantName": "Color",
-        "stockQuantity": 6,
+        "variantQuantity": 6,
         "variantReorderLimit": 5,
         "variantImage": ["/polygonAnimal2.jpg"],
-        "images": ["/polygonAnimal2.jpg"]
+        "images": ["/polygonAnimal2.jpg"],
+        "width": 60,
+        "height": 40
       },
       {
         "variantId": "dwl-art-001-v2",
         "variantType": "Framed",
         "variantValue": "gold",
         "variantName": "Color",
-        "stockQuantity": 5,
+        "variantQuantity": 5,
         "variantReorderLimit": 4,
         "variantImage": ["/polygonAnimal3.jpg"],
-        "images": ["/polygonAnimal3.jpg"]
+        "images": ["/polygonAnimal3.jpg"],
+        "width": 60,
+        "height": 40
       },
       {
         "variantId": "dwl-art-001-v3",
         "variantType": "Framed",
         "variantValue": "silver",
         "variantName": "Material",
-        "stockQuantity": 4,
+        "variantQuantity": 4,
         "variantReorderLimit": 3,
         "variantImage": ["/polygonAnimal2.jpg"],
-        "images": ["/polygonAnimal2.jpg"]
+        "images": ["/polygonAnimal2.jpg"],
+        "width": 60,
+        "height": 40
       },
       {
         "variantId": "dwl-art-001-v4",
         "variantType": "Unframed",
         "variantValue": "white",
         "variantName": "Material",
-        "stockQuantity": 3,
+        "variantQuantity": 3,
         "variantReorderLimit": 2,
         "variantImage": ["/polygonAnimal1.jpg"],
-        "images": ["/polygonAnimal1.jpg"]
+        "images": ["/polygonAnimal1.jpg"],
+        "width": 60,
+        "height": 40
       }
     ],
     "reviews": [
@@ -106,7 +118,7 @@
     "SKU": "DWL-ART-002",
     "materialType": "metal",
     "weight": "1kg",
-    "stockQuantity": 16,
+    "variantQuantity": 16,
     "returnPolicy": "Eligible for return within 10 days of delivery.",
     "deliverBy": 4,
     "hasVariants": true,
@@ -127,7 +139,7 @@
         "variantValue": "black",
         "dimension": "50L x 35W cm",
         "variantName": "Color",
-        "stockQuantity": 10,
+        "variantQuantity": 10,
         "variantReorderLimit": 8,
         "variantImage": [
           "/forest2.jpg",
@@ -142,30 +154,36 @@
         "variantType": "Framed",
         "variantValue": "silver",
         "variantName": "Color",
-        "stockQuantity": 6,
+        "variantQuantity": 6,
         "variantReorderLimit": 5,
         "variantImage": ["/forest3.jpg", "/forest1.jpg", "/forest4.jpg"],
-        "images": ["/forest3.jpg"]
+        "images": ["/forest3.jpg"],
+        "width": 60,
+        "height": 40
       },
       {
         "variantId": "dwl-art-002-v3",
         "variantType": "Framed",
         "variantValue": "gold",
         "variantName": "Material",
-        "stockQuantity": 7,
+        "variantQuantity": 7,
         "variantReorderLimit": 6,
         "variantImage": ["/forest4.jpg", "/forest2.jpg", "/forest3.jpg"],
-        "images": ["/forest4.jpg"]
+        "images": ["/forest4.jpg"],
+        "width": 60,
+        "height": 40
       },
       {
         "variantId": "dwl-art-002-v4",
         "variantType": "Unframed",
         "variantValue": "white",
         "variantName": "Material",
-        "stockQuantity": 8,
+        "variantQuantity": 8,
         "variantReorderLimit": 7,
         "variantImage": ["/forest1.jpg", "/forest2.jpg"],
-        "images": ["/forest1.jpg"]
+        "images": ["/forest1.jpg"],
+        "width": 60,
+        "height": 40
       }
     ],
     "reviews": [
@@ -200,12 +218,12 @@
     "category": "Spiritual & Religious Art",
     "subcategory": "Nature Decor",
     "tags": ["tree"],
-    "images": ["/tree1.jpg"],
+    "images": ["/tree1.jpg","/tree2.jpg","/tree3.jpg"],
     "image": ["/tree1.jpg"],
     "SKU": "DWL-ART-003",
     "materialType": "metal",
     "weight": "1.3kg",
-    "stockQuantity": 10,
+    "variantQuantity": 10,
     "returnPolicy": "Eligible for return within 7 days of delivery.",
     "deliverBy": 6,
     "hasVariants": true,
@@ -225,45 +243,52 @@
         "variantType": "Unframed",
         "variantValue": "60L x 40W cm",
         "variantName": "Dimension",
-        "stockQuantity": 7,
+        "variantQuantity": 7,
         "variantReorderLimit": 6,
         "variantImage": ["/tree2.jpg"],
-        "images": ["/tree2.jpg"]
+        "images": ["/tree2.jpg"],
+        "width": 60,
+        "height": 40
       },
+
       {
         "variantId": "dwl-art-003-v2",
         "variantType": "Framed",
         "variantValue": "gold",
         "variantName": "Color",
-        "stockQuantity": 3,
+        "variantQuantity": 3,
         "variantReorderLimit": 2,
         "variantImage": ["/tree3.jpg"],
-        "images": ["/tree3.jpg"]
+        "images": ["/tree3.jpg"],
+        "width": 60,
+        "height": 40
       },
       {
         "variantId": "dwl-art-003-v3",
         "variantType": "Framed",
         "variantValue": "silver",
         "variantName": "Material",
-        "stockQuantity": 6,
+        "variantQuantity": 6,
         "variantReorderLimit": 5,
         "variantImage": ["/tree2.jpg"],
-        "images": ["/tree2.jpg"]
+        "images": ["/tree2.jpg"],
+        "width": 60,
+        "height": 40
       },
       {
         "variantId": "dwl-art-003-v4",
         "variantType": "Unframed",
         "variantValue": "bronze",
         "variantName": "Material",
-        "stockQuantity": 4,
+        "variantQuantity": 4,
         "variantReorderLimit": 3,
         "variantImage": ["/tree3.jpg"],
-        "images": ["/tree3.jpg"]
+        "images": ["/tree3.jpg"],
+        "width": 60,
+        "height": 40
       }
     ],
-    "reviews": [
-      
-    ]
+    "reviews": []
   },
   {
     "uuid": "dwl-art-004",
@@ -274,12 +299,12 @@
     "category": "Festival & Occasion",
     "subcategory": "Diwali Decor",
     "tags": ["lakshmi"],
-    "images": ["/couple1.jpg","/couple3.jpg","/couple2.jpg"],
+    "images": ["/couple1.jpg", "/couple3.jpg", "/couple2.jpg"],
     "image": ["/couple1.jpg"],
     "SKU": "DWL-ART-004",
     "materialType": "metal",
     "weight": "0.95kg",
-    "stockQuantity": 18,
+    "variantQuantity": 18,
     "returnPolicy": "Eligible for return within 7 days of delivery.",
     "deliverBy": 3,
     "hasVariants": true,
@@ -299,40 +324,48 @@
         "variantType": "Unframed",
         "variantValue": "55L x 35W cm",
         "variantName": "Dimension",
-        "stockQuantity": 10,
+        "variantQuantity": 10,
         "variantReorderLimit": 9,
         "variantImage": ["/couple2.jpg"],
-        "images": ["/couple2.jpg"]
+        "images": ["/couple2.jpg"],
+        "width": 60,
+        "height": 40
       },
       {
         "variantId": "dwl-art-004-v2",
         "variantType": "Framed",
         "variantValue": "gold",
         "variantName": "Color",
-        "stockQuantity": 8,
+        "variantQuantity": 8,
         "variantReorderLimit": 7,
         "variantImage": ["/couple3.jpg"],
-        "images": ["/couple3.jpg"]
+        "images": ["/couple3.jpg"],
+        "width": 60,
+        "height": 40
       },
       {
         "variantId": "dwl-art-004-v3",
         "variantType": "Framed",
         "variantValue": "silver",
         "variantName": "Material",
-        "stockQuantity": 6,
+        "variantQuantity": 6,
         "variantReorderLimit": 5,
         "variantImage": ["/couple2.jpg"],
-        "images": ["/couple2.jpg"]
+        "images": ["/couple2.jpg"],
+        "width": 60,
+        "height": 40
       },
       {
         "variantId": "dwl-art-004-v4",
         "variantType": "Unframed",
         "variantValue": "white",
         "variantName": "Material",
-        "stockQuantity": 4,
+        "variantQuantity": 4,
         "variantReorderLimit": 3,
         "variantImage": ["/couple3.jpg"],
-        "images": ["/couple3.jpg"]
+        "images": ["/couple3.jpg"],
+        "width": 60,
+        "height": 40
       }
     ],
     "reviews": [
@@ -373,7 +406,7 @@
     "SKU": "DWL-ART-009",
     "materialType": "metal",
     "weight": "1.6kg",
-    "stockQuantity": 10,
+    "variantQuantity": 10,
     "returnPolicy": "Eligible for return within 7 days of delivery.",
     "deliverBy": 6,
     "hasVariants": true,
@@ -393,40 +426,48 @@
         "variantType": "Unframed",
         "variantValue": "Red",
         "variantName": "Color",
-        "stockQuantity": 6,
+        "variantQuantity": 6,
         "variantReorderLimit": 5,
         "variantImage": ["/sun2.jpg"],
-        "images": ["/sun2.jpg"]
+        "images": ["/sun2.jpg"],
+        "width": 60,
+        "height": 40
       },
       {
         "variantId": "dwl-art-009-v2",
         "variantType": "Framed",
         "variantValue": "gold",
         "variantName": "Color",
-        "stockQuantity": 4,
+        "variantQuantity": 4,
         "variantReorderLimit": 3,
         "variantImage": ["/sun3.jpg"],
-        "images": ["/sun3.jpg"]
+        "images": ["/sun3.jpg"],
+        "width": 60,
+        "height": 40
       },
       {
         "variantId": "dwl-art-009-v3",
         "variantType": "Framed",
         "variantValue": "silver",
         "variantName": "Material",
-        "stockQuantity": 7,
+        "variantQuantity": 7,
         "variantReorderLimit": 6,
         "variantImage": ["/sun2.jpg"],
-        "images": ["/sun2.jpg"]
+        "images": ["/sun2.jpg"],
+        "width": 60,
+        "height": 40
       },
       {
         "variantId": "dwl-art-009-v4",
         "variantType": "Unframed",
         "variantValue": "white",
         "variantName": "Material",
-        "stockQuantity": 8,
+        "variantQuantity": 8,
         "variantReorderLimit": 7,
         "variantImage": ["/sun3.jpg"],
-        "images": ["/sun3.jpg"]
+        "images": ["/sun3.jpg"],
+        "width": 60,
+        "height": 40
       }
     ],
     "reviews": [
@@ -466,7 +507,7 @@
     "SKU": "DWL-ART-010",
     "materialType": "metal",
     "weight": "1kg",
-    "stockQuantity": 12,
+    "variantQuantity": 12,
     "returnPolicy": "Eligible for return within 7 days of delivery.",
     "deliverBy": 5,
     "hasVariants": true,
@@ -486,40 +527,48 @@
         "variantType": "Unframed",
         "variantValue": "45L x 35W cm",
         "variantName": "Dimension",
-        "stockQuantity": 7,
+        "variantQuantity": 7,
         "variantReorderLimit": 6,
         "variantImage": ["/feather2.jpg"],
-        "images": ["/feather2.jpg"]
+        "images": ["/feather2.jpg"],
+        "width": 60,
+        "height": 40
       },
       {
         "variantId": "dwl-art-010-v2",
         "variantType": "Framed",
         "variantValue": "rose gold",
         "variantName": "Color",
-        "stockQuantity": 5,
+        "variantQuantity": 5,
         "variantReorderLimit": 4,
         "variantImage": ["/feather3.jpg"],
-        "images": ["/feather3.jpg"]
+        "images": ["/feather3.jpg"],
+        "width": 60,
+        "height": 40
       },
       {
         "variantId": "dwl-art-010-v3",
         "variantType": "Unframed",
         "variantValue": "blue",
         "variantName": "Color",
-        "stockQuantity": 8,
+        "variantQuantity": 8,
         "variantReorderLimit": 7,
         "variantImage": ["/feather4.jpg"],
-        "images": ["/feather4.jpg"]
+        "images": ["/feather4.jpg"],
+        "width": 60,
+        "height": 40
       },
       {
         "variantId": "dwl-art-010-v4",
         "variantType": "Framed",
         "variantValue": "green",
         "variantName": "Color",
-        "stockQuantity": 6,
+        "variantQuantity": 6,
         "variantReorderLimit": 5,
         "variantImage": ["/feather5.jpg"],
-        "images": ["/feather5.jpg"]
+        "images": ["/feather5.jpg"],
+        "width": 60,
+        "height": 40
       }
     ],
     "reviews": [
@@ -553,13 +602,13 @@
     "type": "Framed",
     "category": "Nature & Wildlife",
     "subcategory": "Water Decor",
-    "tags": [ "ocean"],
+    "tags": ["ocean"],
     "images": ["/ocean1.jpg"],
     "image": ["/ocean1.jpg"],
     "SKU": "DWL-ART-011",
     "materialType": "metal",
     "weight": "1.4kg",
-    "stockQuantity": 14,
+    "variantQuantity": 14,
     "returnPolicy": "Eligible for return within 7 days of delivery.",
     "deliverBy": 5,
     "hasVariants": true,
@@ -579,40 +628,51 @@
         "variantType": "Unframed",
         "variantValue": "blue",
         "variantName": "Color",
-        "stockQuantity": 5,
+        "variantQuantity": 5,
         "variantReorderLimit": 4,
         "variantImage": ["/ocean2.jpg"],
-        "images": ["/ocean2.jpg"]
+        "images": ["/ocean2.jpg"],
+        "width": 60,
+        "height": 40
       },
+
       {
         "variantId": "dwl-art-011-v2",
         "variantType": "Framed",
         "variantValue": "aqua",
         "variantName": "Color",
-        "stockQuantity": 6,
+        "variantQuantity": 6,
         "variantReorderLimit": 5,
         "variantImage": ["/ocean3.jpg"],
-        "images": ["/ocean3.jpg"]
+        "images": ["/ocean3.jpg"],
+        "width": 60,
+        "height": 40
       },
+
       {
         "variantId": "dwl-art-011-v3",
         "variantType": "Unframed",
         "variantValue": "white",
         "variantName": "Material",
-        "stockQuantity": 7,
+        "variantQuantity": 7,
         "variantReorderLimit": 6,
         "variantImage": ["/ocean4.jpg"],
-        "images": ["/ocean4.jpg"]
+        "images": ["/ocean4.jpg"],
+        "width": 60,
+        "height": 40
       },
+
       {
         "variantId": "dwl-art-011-v4",
         "variantType": "Framed",
         "variantValue": "navy blue",
         "variantName": "Material",
-        "stockQuantity": 4,
+        "variantQuantity": 4,
         "variantReorderLimit": 3,
         "variantImage": ["/ocean5.jpg"],
-        "images": ["/ocean5.jpg"]
+        "images": ["/ocean5.jpg"],
+        "width": 60,
+        "height": 40
       }
     ],
     "reviews": [
@@ -652,7 +712,7 @@
     "SKU": "DWL-ART-012",
     "materialType": "metal",
     "weight": "1.2kg",
-    "stockQuantity": 10,
+    "variantQuantity": 10,
     "returnPolicy": "Eligible for return within 7 days of delivery.",
     "deliverBy": 6,
     "hasVariants": true,
@@ -672,40 +732,48 @@
         "variantType": "Unframed",
         "variantValue": "gold",
         "variantName": "Color",
-        "stockQuantity": 5,
+        "variantQuantity": 5,
         "variantReorderLimit": 4,
         "variantImage": ["/sunset2.jpg"],
-        "images": ["/sunset2.jpg"]
+        "images": ["/sunset2.jpg"],
+        "width": 60,
+        "height": 40
       },
       {
         "variantId": "dwl-art-012-v2",
         "variantType": "Framed",
         "variantValue": "orange",
         "variantName": "Color",
-        "stockQuantity": 7,
+        "variantQuantity": 7,
         "variantReorderLimit": 6,
         "variantImage": ["/sunset3.jpg"],
-        "images": ["/sunset3.jpg"]
+        "images": ["/sunset3.jpg"],
+        "width": 60,
+        "height": 40
       },
       {
         "variantId": "dwl-art-012-v3",
         "variantType": "Framed",
         "variantValue": "red",
         "variantName": "Material",
-        "stockQuantity": 6,
+        "variantQuantity": 6,
         "variantReorderLimit": 5,
         "variantImage": ["/sunset4.jpg"],
-        "images": ["/sunset4.jpg"]
+        "images": ["/sunset4.jpg"],
+        "width": 60,
+        "height": 40
       },
       {
         "variantId": "dwl-art-012-v4",
         "variantType": "Unframed",
         "variantValue": "pink",
         "variantName": "Material",
-        "stockQuantity": 4,
+        "variantQuantity": 4,
         "variantReorderLimit": 3,
         "variantImage": ["/sunset5.jpg"],
-        "images": ["/sunset5.jpg"]
+        "images": ["/sunset5.jpg"],
+        "width": 60,
+        "height": 40
       }
     ],
     "reviews": [
@@ -746,7 +814,7 @@
     "SKU": "DWL-ART-013",
     "materialType": "metal",
     "weight": "1.7kg",
-    "stockQuantity": 9,
+    "variantQuantity": 9,
     "returnPolicy": "Eligible for return within 7 days of delivery.",
     "deliverBy": 5,
     "hasVariants": true,
@@ -766,40 +834,48 @@
         "variantType": "Unframed",
         "variantValue": "brown",
         "variantName": "Color",
-        "stockQuantity": 5,
+        "variantQuantity": 5,
         "variantReorderLimit": 4,
         "variantImage": ["/mountain2.jpg"],
-        "images": ["/mountain2.jpg"]
+        "images": ["/mountain2.jpg"],
+        "width": 60,
+        "height": 40
       },
       {
         "variantId": "dwl-art-013-v2",
         "variantType": "Framed",
         "variantValue": "grey",
         "variantName": "Color",
-        "stockQuantity": 4,
+        "variantQuantity": 4,
         "variantReorderLimit": 3,
         "variantImage": ["/mountain3.jpg"],
-        "images": ["/mountain3.jpg"]
+        "images": ["/mountain3.jpg"],
+        "width": 60,
+        "height": 40
       },
       {
         "variantId": "dwl-art-013-v3",
         "variantType": "Unframed",
         "variantValue": "white",
         "variantName": "Material",
-        "stockQuantity": 6,
+        "variantQuantity": 6,
         "variantReorderLimit": 5,
         "variantImage": ["/mountain4.jpg"],
-        "images": ["/mountain4.jpg"]
+        "images": ["/mountain4.jpg"],
+        "width": 60,
+        "height": 40
       },
       {
         "variantId": "dwl-art-013-v4",
         "variantType": "Framed",
         "variantValue": "blue",
         "variantName": "Material",
-        "stockQuantity": 7,
+        "variantQuantity": 7,
         "variantReorderLimit": 6,
         "variantImage": ["/mountain5.jpg"],
-        "images": ["/mountain5.jpg"]
+        "images": ["/mountain5.jpg"],
+        "width": 60,
+        "height": 40
       }
     ],
     "reviews": [
@@ -833,13 +909,13 @@
     "type": "Framed",
     "category": "Nature & Wildlife",
     "subcategory": "Animal Decor",
-    "tags": [ "wildlife"],
+    "tags": ["wildlife"],
     "images": ["/horses1.jpg"],
     "image": ["/horses1.jpg"],
     "SKU": "DWL-ART-014",
     "materialType": "metal",
     "weight": "1.4kg",
-    "stockQuantity": 8,
+    "variantQuantity": 8,
     "returnPolicy": "Eligible for return within 7 days of delivery.",
     "deliverBy": 4,
     "hasVariants": true,
@@ -859,40 +935,48 @@
         "variantType": "Unframed",
         "variantValue": "brown",
         "variantName": "Color",
-        "stockQuantity": 4,
+        "variantQuantity": 4,
         "variantReorderLimit": 3,
         "variantImage": ["/horses2.jpg"],
-        "images": ["/horses2.jpg"]
+        "images": ["/horses2.jpg"],
+        "width": 60,
+        "height": 40
       },
       {
         "variantId": "dwl-art-014-v2",
         "variantType": "Framed",
         "variantValue": "silver",
         "variantName": "Material",
-        "stockQuantity": 3,
+        "variantQuantity": 3,
         "variantReorderLimit": 2,
         "variantImage": ["/horses3.jpg"],
-        "images": ["/horses3.jpg"]
+        "images": ["/horses3.jpg"],
+        "width": 60,
+        "height": 40
       },
       {
         "variantId": "dwl-art-014-v3",
         "variantType": "Unframed",
         "variantValue": "grey",
         "variantName": "Material",
-        "stockQuantity": 5,
+        "variantQuantity": 5,
         "variantReorderLimit": 4,
         "variantImage": ["/horses4.jpg"],
-        "images": ["/horses4.jpg"]
+        "images": ["/horses4.jpg"],
+        "width": 60,
+        "height": 40
       },
       {
         "variantId": "dwl-art-014-v4",
         "variantType": "Framed",
         "variantValue": "gold",
         "variantName": "Color",
-        "stockQuantity": 6,
+        "variantQuantity": 6,
         "variantReorderLimit": 5,
         "variantImage": ["/horses5.jpg"],
-        "images": ["/horses5.jpg"]
+        "images": ["/horses5.jpg"],
+        "width": 60,
+        "height": 40
       }
     ],
     "reviews": [
@@ -932,7 +1016,7 @@
     "SKU": "DWL-ART-015",
     "materialType": "metal",
     "weight": "1.1kg",
-    "stockQuantity": 7,
+    "variantQuantity": 7,
     "returnPolicy": "Eligible for return within 7 days of delivery.",
     "deliverBy": 6,
     "hasVariants": true,
@@ -952,40 +1036,48 @@
         "variantType": "Unframed",
         "variantValue": "yellow",
         "variantName": "Color",
-        "stockQuantity": 6,
+        "variantQuantity": 6,
         "variantReorderLimit": 5,
         "variantImage": ["/leaves2.jpg"],
-        "images": ["/leaves2.jpg"]
+        "images": ["/leaves2.jpg"],
+        "width": 60,
+        "height": 40
       },
       {
         "variantId": "dwl-art-015-v2",
         "variantType": "Framed",
         "variantValue": "gold",
         "variantName": "Material",
-        "stockQuantity": 5,
+        "variantQuantity": 5,
         "variantReorderLimit": 4,
         "variantImage": ["/leaves3.jpg"],
-        "images": ["/leaves3.jpg"]
+        "images": ["/leaves3.jpg"],
+        "width": 60,
+        "height": 40
       },
       {
         "variantId": "dwl-art-015-v3",
         "variantType": "Framed",
         "variantValue": "brown",
         "variantName": "Material",
-        "stockQuantity": 4,
+        "variantQuantity": 4,
         "variantReorderLimit": 3,
         "variantImage": ["/leaves4.jpg"],
-        "images": ["/leaves4.jpg"]
+        "images": ["/leaves4.jpg"],
+        "width": 60,
+        "height": 40
       },
       {
         "variantId": "dwl-art-015-v4",
         "variantType": "Unframed",
         "variantValue": "green",
         "variantName": "Color",
-        "stockQuantity": 6,
+        "variantQuantity": 6,
         "variantReorderLimit": 5,
         "variantImage": ["/leaves5.jpg"],
-        "images": ["/leaves5.jpg"]
+        "images": ["/leaves5.jpg"],
+        "width": 60,
+        "height": 40
       }
     ],
     "reviews": [
@@ -1025,7 +1117,7 @@
     "SKU": "DWL-ART-016",
     "materialType": "metal",
     "weight": "1.4kg",
-    "stockQuantity": 9,
+    "variantQuantity": 9,
     "returnPolicy": "Eligible for return within 7 days of delivery.",
     "deliverBy": 7,
     "hasVariants": true,
@@ -1045,40 +1137,51 @@
         "variantType": "Unframed",
         "variantValue": "light blue",
         "variantName": "Color",
-        "stockQuantity": 5,
+        "variantQuantity": 5,
         "variantReorderLimit": 4,
         "variantImage": ["/coral2.jpg"],
-        "images": ["/coral2.jpg"]
+        "images": ["/coral2.jpg"],
+        "width": 60,
+        "height": 40
       },
+
       {
         "variantId": "dwl-art-016-v2",
         "variantType": "Framed",
         "variantValue": "deep blue",
         "variantName": "Material",
-        "stockQuantity": 6,
+        "variantQuantity": 6,
         "variantReorderLimit": 5,
         "variantImage": ["/coral3.jpg"],
-        "images": ["/coral3.jpg"]
+        "images": ["/coral3.jpg"],
+        "width": 60,
+        "height": 40
       },
+
       {
         "variantId": "dwl-art-016-v3",
         "variantType": "Unframed",
         "variantValue": "aqua",
         "variantName": "Color",
-        "stockQuantity": 7,
+        "variantQuantity": 7,
         "variantReorderLimit": 6,
         "variantImage": ["/coral4.jpg"],
-        "images": ["/coral4.jpg"]
+        "images": ["/coral4.jpg"],
+        "width": 60,
+        "height": 40
       },
+
       {
         "variantId": "dwl-art-016-v4",
         "variantType": "Framed",
         "variantValue": "coral",
         "variantName": "Material",
-        "stockQuantity": 8,
+        "variantQuantity": 8,
         "variantReorderLimit": 7,
         "variantImage": ["/coral5.jpg"],
-        "images": ["/coral5.jpg"]
+        "images": ["/coral5.jpg"],
+        "width": 60,
+        "height": 40
       }
     ],
     "reviews": [
@@ -1118,7 +1221,7 @@
     "SKU": "DWL-ART-021",
     "materialType": "glass",
     "weight": "1.2kg",
-    "stockQuantity": 10,
+    "variantQuantity": 10,
     "returnPolicy": "Eligible for return within 7 days of delivery.",
     "deliverBy": 6,
     "hasVariants": true,
@@ -1138,20 +1241,24 @@
         "variantType": "Unframed",
         "variantValue": "silver",
         "variantName": "Material",
-        "stockQuantity": 5,
+        "variantQuantity": 5,
         "variantReorderLimit": 4,
         "variantImage": ["/mirror_reflection2.jpg"],
-        "images": ["/mirror_reflection2.jpg"]
+        "images": ["/mirror_reflection2.j"],
+        "width": 60,
+        "height": 40
       },
       {
         "variantId": "dwl-art-017-v2",
         "variantType": "Framed",
         "variantValue": "gold",
         "variantName": "Material",
-        "stockQuantity": 119,
+        "variantQuantity": 119,
         "variantReorderLimit": 3,
         "variantImage": ["/mirror_reflection3.jpg"],
-        "images": ["/mirror_reflection3.jpg"]
+        "images": ["/mirror_reflection3.j,"],
+        "width": 60,
+        "height": 40
       }
     ],
     "reviews": [
@@ -1191,7 +1298,7 @@
     "SKU": "DWL-ART-022",
     "materialType": "metal",
     "weight": "1.5kg",
-    "stockQuantity": 7,
+    "variantQuantity": 7,
     "returnPolicy": "Eligible for return within 7 days of delivery.",
     "deliverBy": 4,
     "hasVariants": true,
@@ -1211,20 +1318,24 @@
         "variantType": "Unframed",
         "variantValue": "black",
         "variantName": "Color",
-        "stockQuantity": 4,
+        "variantQuantity": 4,
         "variantReorderLimit": 3,
         "variantImage": ["/clones_art2.jpg"],
-        "images": ["/clones_art2.jpg"]
+        "images": ["/clones_art2.jpg"],
+        "width": 60,
+        "height": 40
       },
       {
         "variantId": "dwl-art-018-v2",
         "variantType": "Framed",
         "variantValue": "silver",
         "variantName": "Material",
-        "stockQuantity": 3,
+        "variantQuantity": 3,
         "variantReorderLimit": 2,
         "variantImage": ["/clones_art3.jpg"],
-        "images": ["/clones_art3.jpg"]
+        "images": ["/clones_art3.jpg"],
+        "width": 60,
+        "height": 40
       }
     ],
     "reviews": [
@@ -1259,12 +1370,12 @@
     "category": "Typography & Symbols",
     "subcategory": "Inspirational Quotes",
     "tags": ["typography"],
-    "images": ["/live_laugh_love1.jpg"],
-    "image": ["/live_laugh_love1.jpg"],
+    "images": ["/live_laugh_love2.jpg", "/live_laugh_love3.jpg"],
+    "image": ["/live_laugh_love.jpg"],
     "SKU": "DWL-ART-023",
     "materialType": "metal",
     "weight": "1.0kg",
-    "stockQuantity": 12,
+    "variantQuantity": 12,
     "returnPolicy": "Eligible for return within 7 days of delivery.",
     "deliverBy": 5,
     "hasVariants": true,
@@ -1284,20 +1395,24 @@
         "variantType": "Unframed",
         "variantValue": "black",
         "variantName": "Color",
-        "stockQuantity": 6,
+        "variantQuantity": 6,
         "variantReorderLimit": 5,
         "variantImage": ["/live_laugh_love2.jpg"],
-        "images": ["/live_laugh_love2.jpg"]
+        "images": ["/live_laugh_love2.jpg"],
+        "width": 60,
+        "height": 40
       },
       {
         "variantId": "dwl-art-019-v2",
         "variantType": "Framed",
         "variantValue": "gold",
         "variantName": "Material",
-        "stockQuantity": 6,
+        "variantQuantity": 6,
         "variantReorderLimit": 5,
         "variantImage": ["/live_laugh_love3.jpg"],
-        "images": ["/live_laugh_love3.jpg"]
+        "images": ["/live_laugh_love3.jpg"],
+        "width": 60,
+        "height": 40
       }
     ],
     "reviews": [
@@ -1337,7 +1452,7 @@
     "SKU": "DWL-ART-024",
     "materialType": "canvas",
     "weight": "2.0kg",
-    "stockQuantity": 15,
+    "variantQuantity": 15,
     "returnPolicy": "Eligible for return within 7 days of delivery.",
     "deliverBy": 7,
     "hasVariants": true,
@@ -1357,20 +1472,24 @@
         "variantType": "Unframed",
         "variantValue": "blue",
         "variantName": "Color",
-        "stockQuantity": 8,
+        "variantQuantity": 8,
         "variantReorderLimit": 7,
         "variantImage": ["/abstract_wall_art2.jpg"],
-        "images": ["/abstract_wall_art2.jpg"]
+        "images": ["/abstract_wall_art2.j"],
+        "width": 60,
+        "height": 40
       },
       {
         "variantId": "dwl-art-019-v2",
         "variantType": "Framed",
         "variantValue": "red",
         "variantName": "Material",
-        "stockQuantity": 7,
+        "variantQuantity": 7,
         "variantReorderLimit": 6,
         "variantImage": ["/abstract_wall_art3.jpg"],
-        "images": ["/abstract_wall_art3.jpg"]
+        "images": ["/abstract_wall_art3.j"],
+        "width": 60,
+        "height": 40
       }
     ],
     "reviews": [

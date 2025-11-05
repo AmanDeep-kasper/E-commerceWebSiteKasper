@@ -83,7 +83,7 @@ const AddCategoryPopUp = ({
           </button>
           <button
             type="button"
-            className="px-6 py-2 bg-amber-600 rounded-lg text-white font-medium hover:bg-lime-700"
+            className="px-6 py-2 bg-amber-600 rounded-lg text-white font-medium hover:bg-amber-700"
             onClick={handleSave}
           >
             Save

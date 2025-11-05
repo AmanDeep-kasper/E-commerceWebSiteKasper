@@ -1,11 +1,12 @@
 import React, { use, useMemo, useState } from "react";
 import { Link, useParams } from "react-router";
-import products from "../../../data/products.json";
+import products from "../data/products.json";
 
 import { Package, ArrowLeft } from "lucide-react";
 
 function ProductInformation() {
   // const { uuid } = useParams();
+  // console.log(pr)
   const { uuid } = useParams();
   // console.log(products);
 

@@ -69,16 +69,16 @@ const variantSchema = new mongoose.Schema({
 });
 
 const productSchema = new mongoose.Schema({
-  // 🧾 Basic info
+  //  Basic info
   uuid: { type: String, required: true, unique: true },
   type: { type: String, enum: ["Framed", "Unframed"], required: true },
   title: { type: String, required: true, trim: true },
   description: { type: String, trim: true },
 
-  // 🖼️ Main product images
+  // Main product images
   images: { type: [String], default: [] },
 
-  // 🏷️ Product details
+  //  Product details
   SKU: {
     type: String,
     required: true,
@@ -94,7 +94,7 @@ const productSchema = new mongoose.Schema({
   stockQuantity: { type: Number, default: 0, min: 0 },
   returnPolicy: { type: Boolean, default: false },
 
-  // 💰 Pricing
+  //  Pricing
   mrp: { type: Number, required: true, min: 0 },
   sellingPrice: { type: Number, required: true, min: 0 },
   costPrice: { type: Number, default: 0, min: 0 },
@@ -104,11 +104,11 @@ const productSchema = new mongoose.Schema({
   includesTax: { type: Boolean, default: false },
   taxPercent: { type: String, default: "0%" },
 
-  // 🧩 Variants
+  //  Variants
   hasVariants: { type: Boolean, default: false },
   variants: [variantSchema],
 
-  // ⚙️ System fields
+  //  System fields
   createdAt: { type: Date, default: Date.now },
 });
 

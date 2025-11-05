@@ -53,9 +53,9 @@ function Card({ cardData = [] }) {
           const { base, effective, discountPercent, symbol } = getPrices(item);
           const outOfStock = !item.stockQuantity || item.stockQuantity <= 0;
 
-          const imageUrl = Array.isArray(defaultVariant.images)
+          const imageUrl = Array.isArray(defaultVariant?.images)
             ? defaultVariant.images[0]
-            : defaultVariant.image || "/placeholder.png";
+            : defaultVariant?.image || "/placeholder.png";
 
           const colorMap = {
             black: "bg-black",
@@ -121,7 +121,8 @@ function Card({ cardData = [] }) {
                   fill={
                     wishlistItems.some(
                       (i) =>
-                        i.uuid === item.uuid && i.variantId === defaultVariant.variantId
+                        i.uuid === item.uuid &&
+                        i.variantId === defaultVariant.variantId
                     )
                       ? "red"
                       : "white"
@@ -129,7 +130,8 @@ function Card({ cardData = [] }) {
                   stroke={
                     wishlistItems.some(
                       (i) =>
-                        i.uuid === item.uuid && i.variantId === defaultVariant.variantId
+                        i.uuid === item.uuid &&
+                        i.variantId === defaultVariant.variantId
                     )
                       ? "red"
                       : "black"
@@ -220,7 +222,7 @@ function Card({ cardData = [] }) {
                 <div
                   className={twMerge(
                     "w-4 h-4 ring-2 max-xl:hidden ring-[#BEBEBE] ring-offset-2 ml-1 rounded-full",
-                    colorMap[`${defaultVariant.color}`]
+                    colorMap[defaultVariant?.color] || "bg-gray-300"
                   )}
                 />
 

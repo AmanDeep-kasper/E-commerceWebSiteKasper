@@ -30,7 +30,9 @@ export const getPrices = (p) => {
 };
 
 export const formatPrice = (price) => {
-  return `₹${price.toLocaleString("en-IN", {
+  const num = Number(price);
+  if (isNaN(num)) return "₹0";
+  return `₹${num.toLocaleString("en-IN", {
     minimumFractionDigits: Number.isInteger(price) ? 0 : 2,
     maximumFractionDigits: 2,
   })}`;

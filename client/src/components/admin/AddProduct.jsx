@@ -1240,8 +1240,8 @@ const AddProduct = () => {
                 </div>
               </div>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6   mt-7">
-              <label className="flex items-center gap-2 text-sm font-medium mb-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-3 gap-6 mt-7">
+              <label className="flex items-center justify-center gap-2 text-sm font-medium mb-2">
                 <input
                   type="checkbox"
                   name="includesTax"
@@ -1252,7 +1252,7 @@ const AddProduct = () => {
                 It includesTax?
               </label>
               <div>
-                <div className="relative inline-block w-[243px] h-[45px] ">
+                <div className="relative inline-block w-[245px] h-[45px] ">
                   <button
                     type="button"
                     onClick={() => setOpenGstBox((prev) => !prev)}

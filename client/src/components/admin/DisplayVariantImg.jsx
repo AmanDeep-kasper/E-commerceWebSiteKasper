@@ -1,5 +1,5 @@
 import React from "react";
-import { X } from "lucide-react"; //  use Lucide for a consistent icon style
+import { X } from "lucide-react";
 
 const DisplayVariantImg = ({
   isModalOpen,
@@ -63,7 +63,7 @@ const DisplayVariantImg = ({
                 {/* Small ✕ remove */}
                 <button
                   type="button"
-                    onClick={() => onRemoveImage(variantIndex, i)} //  calls parent fn
+                  onClick={() => onRemoveImage(variantIndex, i)} //  calls parent fn
                   className="absolute -top-2 -right-2 bg-amber-600 text-white rounded-full w-5 h-5 flex items-center justify-center hover:bg-amber-600 transition"
                 >
                   <X size={10} />

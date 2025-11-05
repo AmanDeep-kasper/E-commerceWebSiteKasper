@@ -226,7 +226,7 @@
 
 // export default Product;
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ArrowDownUp,
   ChevronDown,
@@ -254,7 +254,7 @@ const Products = () => {
   //     }))
   //   );
 
-  // ✅ Delete button + selected items
+  //  Delete button + selected items
   const [selectedItems, setSelectedItems] = useState([]);
   const deletebtnShow = selectedItems.length > 0;
 
@@ -275,13 +275,13 @@ const Products = () => {
   };
 
   //////////////////////////////
-  const [PriceOpen, setPriceOpen] = useState(false);
+  const [CategoriesOpen, setCategoriesOpen] = useState(false);
   const [PriceSelected, setPriceSelected] = useState("Categories");
   /////////////////////////////////
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState("Price: Low → High");
 
-  // ✅ Single checkbox toggle
+  //  Single checkbox toggle
 
   const handleCheckboxChange = (id) => {
     setSelectedItems(
@@ -336,23 +336,28 @@ const Products = () => {
     );
   }
   ///////////////////////////////////
-  const price = [
+  // Sorting options
+  const priceOptions = [
     "Price: Low → High",
     "Price: High → Low",
     "Alphabetical (A–Z)",
     "Alphabetical (Z–A)",
   ];
+
   // Apply sorting
   if (selectedSort === "Price: Low → High") {
-    filteredProducts.sort((a, b) => a.sellingPrice - b.sellingPrice);
+    filteredProducts.sort((a, b) => (a.costPrice || 0) - (b.costPrice || 0));
   } else if (selectedSort === "Price: High → Low") {
-    filteredProducts.sort((a, b) => b.sellingPrice - a.sellingPrice);
+    filteredProducts.sort((a, b) => (b.costPrice || 0) - (a.costPrice || 0));
   } else if (selectedSort === "Alphabetical (A–Z)") {
     filteredProducts.sort((a, b) => a.title.localeCompare(b.title));
   } else if (selectedSort === "Alphabetical (Z–A)") {
     filteredProducts.sort((a, b) => b.title.localeCompare(a.title));
   }
 
+  // console.log(filteredProducts);
+
+  /////////////////////////////////
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
@@ -362,7 +367,7 @@ const Products = () => {
   const endIndex = startIndex + itemsPerPage;
   const currentItems = filteredProducts.slice(startIndex, endIndex);
 
-  // ✅ Check if all visible rows are selected
+  //  Check if all visible rows are selected
   const allVisibleSelected =
     currentItems.length > 0 &&
     currentItems.every((item) => selectedItems.includes(item.id));
@@ -370,6 +375,21 @@ const Products = () => {
   // navigate the section in product detlis page
 
   const navigate = useNavigate();
+  //////////////////////////
+
+   const dropdownRef = useRef(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
 
   return (
     <>
@@ -417,27 +437,27 @@ const Products = () => {
           {/* Categories Dropdown */}
           <div className="relative inline-block w-56">
             <button
-              onClick={() => setPriceOpen((prev) => !prev)}
+              onClick={() => setCategoriesOpen((prev) => !prev)}
               className="w-full border rounded-lg px-4 py-2 flex items-center justify-between bg-[#F8F8F8] text-[15px] text-gray-800 focus:outline-none"
             >
               <span>{selectedCategory}</span>
               <ChevronDown
                 size={18}
                 className={`text-gray-500 transition-transform duration-200  ${
-                  PriceOpen ? "rotate-180" : ""
+                  CategoriesOpen ? "rotate-180" : ""
                 }`}
               />
             </button>
 
             {/* Category Dropdown Menu */}
-            {PriceOpen && (
+            {CategoriesOpen && (
               <ul className="absolute z-10 mt-1 w-full border rounded-lg bg-white shadow-md max-h-60 overflow-y-auto text-[15px]">
                 {["All Categories", ...categories].map((category, i) => (
                   <li
                     key={i}
                     onClick={() => {
                       setSelectedCategory(category);
-                      setPriceOpen(false);
+                      setCategoriesOpen(false);
                       setCurrentPage(1);
                     }}
                     className={`flex items-center justify-between px-4 py-2 hover:bg-[#FFEAD2] cursor-pointer ${
@@ -454,7 +474,7 @@ const Products = () => {
           </div>
 
           {/* Price Dropdown */}
-          <div className="relative inline-block w-56">
+          <div className="relative inline-block w-56" ref={dropdownRef}>
             <button
               onClick={() => setOpen((prev) => !prev)}
               className="w-full border rounded-lg px-4 py-2 flex items-center justify-between bg-[#F8F8F8] text-[15px] text-gray-800 focus:outline-none"
@@ -471,7 +491,7 @@ const Products = () => {
             {/* Price Dropdown Menu */}
             {open && (
               <ul className="absolute z-10 mt-1 w-full border rounded-lg bg-white shadow-md max-h-60 overflow-y-auto text-[15px]">
-                {price.map((p, i) => (
+                {priceOptions.map((p, i) => (
                   <li
                     key={i}
                     onClick={() => {

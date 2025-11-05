@@ -185,7 +185,8 @@ function Cart() {
                               <div
                                 className={twMerge(
                                   "md:w-4 w-3 md:h-4 h-3 ring-2 ring-[#BEBEBE] ring-offset-2 ml-1 my-2 rounded-full transition-all duration-150 ease-in-out",
-                                  colorMap[`${item.selectedOptions.color}`]
+                                  colorMap[item.selectedOptions?.color] || "bg-gray-200"
+
                                 )}
                               />
 

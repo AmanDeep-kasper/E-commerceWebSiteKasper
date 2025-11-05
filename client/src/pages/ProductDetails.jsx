@@ -550,6 +550,9 @@ function ProductDetails() {
   // find product by uuid
   const product = useMemo(() => products.find((p) => p.uuid === uuid), [uuid]);
   // const product = useMemo(() => products.find((p) => p.sku === sku), [sku]);
+
+
+  // in this data we see the variants of data in uuid
   const [selectedVariant, setSelectedVariant] = useState(product.variants[0]);
   console.log(selectedVariant)
   const [inCart, setInCart] = useState(
@@ -593,9 +596,10 @@ function ProductDetails() {
 
   // console.log(products)
   // Unique option lists
-  const colors = [...new Set(product.variants.map((v) => v.color))];
-  const dimensions = [...new Set(product.variants.map((v) => v.dimension))];
-  const types = [...new Set(product.variants.map((v) => v.type))];
+  // const colors = [...new Set(product.variants.map((v) => v.color))];
+  const colors = [...new Set(product.variants.map((v) => v.variantId))];
+  const dimensions = [...new Set(product.variants.map((v) => v.variantValue))];
+  const types = [...new Set(product.variants.map((v) => v.variantType))];
 
   const avgRating =
     product?.reviews?.length > 0
@@ -909,7 +913,7 @@ function ProductDetails() {
               <p className="text-[14px] text-[#6C6B6B]">
                 Type -{" "}
                 <span className="text-[#171515] capitalize">
-                  {selectedVariant.type || "-"}
+                  {selectedVariant.variantType || "-"}
                 </span>
               </p>
               <p className="text-[14px] text-[#6C6B6B]">
@@ -973,7 +977,7 @@ function ProductDetails() {
                     key={i}
                     className={`px-3 py-1 rounded-full border text-sm
             ${
-              selectedVariant.type === t
+              selectedVariant.variantType === t
                 ? "border-2 border-gray-900 bg-gray-900 text-white"
                 : "bg-gray-100 hover:bg-gray-200"
             }
@@ -1073,7 +1077,7 @@ function ProductDetails() {
                     }, 200);
                   }}
                   disabled={isLoading}
-                  className="px-6 py-2 bg-[#ebb100] hover:bg-[#d9a300] text-black rounded-full"
+                  className="px-6 py-2 bg-[#ebb100] hover:bg-[#d9a300] text-black rounded-full" 
                 >
                   {isLoading ? "Adding..." : "Add to Cart"}
                 </button>
