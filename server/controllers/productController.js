@@ -23,6 +23,7 @@ export const addProduct = async (req, res) => {
       basePrice,
       amazonPrice,
       discountPercent,
+      discountAmount,
       materialType,
       stockQuantity,
       color,
@@ -33,12 +34,20 @@ export const addProduct = async (req, res) => {
       tags,
       deliverBy,
       bulletPoints,
+      mrp,
+      sellingPrice,
+      costPrice,
+      profit,
+      includesTax,
+      taxPercent,
+      hasVariants,
+      variants,
     } = req.body;
 
     console.log("BODY:", req.body);
     console.log("FILES:", req.files);
 
-    // 🔹 Validate required fields
+    // ✅ Validate required fields
     if (!title || !category || !SKU || !basePrice || !type) {
       return res.status(400).json({
         message:
@@ -46,14 +55,9 @@ export const addProduct = async (req, res) => {
       });
     }
 
-    // Save uploaded images
-    const imagePaths = Array.isArray(req.files)
-      ? req.files.map((file) => `/uploads/products/${file.filename}`)
-      : [];
-
-    // Sync categories
-    await syncCategoryWithProduct(category, subcategory);
-
+    // ✅ Normalize helpers
+    const toNumber = (v) => (v ? Number(v) : 0);
+    const toBool = (v) => v === "true" || v === true;
     const normalizeField = (field, separator = ",") => {
       if (!field) return [];
       if (Array.isArray(field)) return field.map((f) => f.trim());
@@ -62,37 +66,92 @@ export const addProduct = async (req, res) => {
       return [];
     };
 
+    // ✅ Uploaded image paths
+    const imagePaths = Array.isArray(req.files)
+      ? req.files.map((file) => `/uploads/products/${file.filename}`)
+      : [];
+
+    // ✅ Sync category/subcategory tables
+    await syncCategoryWithProduct(category, subcategory);
+
+    // ✅ Parse variants if any
+    let parsedVariants = [];
+    if (variants) {
+      try {
+        const parsed = JSON.parse(variants);
+
+        parsedVariants = parsed.map((v) => {
+          // convert string numbers to actual numbers
+          const toNum = (val) => (val ? Number(val) : 0);
+
+          // if variantValue missing, combine width x height
+          let dimensionValue = v.variantValue;
+          if (!dimensionValue && v.width && v.height) {
+            dimensionValue = `${v.width}*${v.height}cm`;
+          }
+
+          return {
+            variantId: v.variantId,
+            variantType: v.variantType,
+            variantName: v.variantName || "Dimension",
+            variantValue: dimensionValue, //  combined dimension stored here
+            height: toNum(v.height),
+            width: toNum(v.width),
+            weight: v.weight || "", // optional
+            variantQuantity: toNum(v.variantQuantity),
+            variantReorderLimit: toNum(v.variantReorderLimit),
+            variantImage: (v.variantImage || []).map((img) =>
+              img.preview ? img.preview : img
+            ),
+          };
+        });
+      } catch (err) {
+        console.warn("⚠️ Could not parse variants JSON:", err.message);
+      }
+    }
+
+    // ✅ Create new product
     const product = new Product({
       uuid: uuid || randomUUID(),
-      route: route || `/product/${makeSlug(title)}-${SKU}`, // auto slug
+      route: route || `/product/${makeSlug(title)}-${SKU}`,
       title,
       category,
       subcategory,
       SKU,
       dimension,
-      basePrice,
-      amazonPrice,
-      discountPercent,
-      materialType: normalizeField(materialType), // ✅ works with string OR array
-      stockQuantity,
-      color: normalizeField(color), // ✅ works with string OR array
-      returnPolicy,
+      basePrice: toNumber(basePrice),
+      amazonPrice: toNumber(amazonPrice),
+      mrp: toNumber(mrp),
+      sellingPrice: toNumber(sellingPrice),
+      costPrice: toNumber(costPrice),
+      profit: toNumber(profit),
+      discountPercent: toNumber(discountPercent),
+      discountAmount: toNumber(discountAmount),
+      includesTax: toBool(includesTax),
+      taxPercent,
+      materialType,
+      stockQuantity: toNumber(stockQuantity),
+      color: normalizeField(color),
+      returnPolicy: toBool(returnPolicy),
       weight,
       type,
       description,
-      tags: normalizeField(tags), // ✅ works with string OR array
-      image: imagePaths,
-      deliverBy: deliverBy ? Number(deliverBy) : 3, // default 3 days
-      bulletPoints: normalizeField(bulletPoints, "|"), // ✅ handles "|" separator
+      tags: normalizeField(tags),
+      deliverBy: toNumber(deliverBy) || 3,
+      bulletPoints: normalizeField(bulletPoints, "|"),
+      hasVariants: toBool(hasVariants),
+      variants: parsedVariants,
+      images: imagePaths,
     });
 
     await product.save();
+
     res.status(201).json({
       message: "✅ Product created successfully",
       product,
     });
   } catch (err) {
-    console.error("Add Product Error:", err);
+    console.error("❌ Add Product Error:", err);
     res.status(500).json({ error: err.message });
   }
 };
@@ -156,7 +215,7 @@ export const getProductsByCategoryAndSubcategory = async (req, res) => {
     };
 
     if (subcategoryName) {
-      query.subcategory = {
+      query.category = {
         $regex: `^${escapeRegex(subcategoryName)}$`,
         $options: "i",
       };

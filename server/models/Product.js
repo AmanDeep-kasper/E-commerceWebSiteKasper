@@ -45,7 +45,7 @@
 //   createdAt: { type: Date, default: Date.now },
 // });
 
-// // ✅ Fix: prevent OverwriteModelError
+// //  Fix: prevent OverwriteModelError
 // const Product =
 //   mongoose.models.Product || mongoose.model("Product", productSchema);
 
@@ -60,12 +60,23 @@ const variantSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  variantType: { type: String, trim: true }, // e.g., "Framed", "Unframed"
-  variantName: { type: String, trim: true }, // e.g., "Color", "Dimension"
-  variantValue: { type: String, trim: true }, // e.g., "Black", "45x35 cm"
+
+  //  Numeric fields
+  height: { type: Number, default: 0, min: 0 },
+  width: { type: Number, default: 0, min: 0 }, //  add width explicitly
+  weight: { type: String, trim: true }, //  string for values like "12.9kg"
+
+  //  Variant meta info
+  variantType: { type: String, trim: true }, // e.g. "Framed", "Unframed"
+  variantName: { type: String, trim: true }, // e.g. "Dimension"
+  variantValue: { type: String, trim: true }, // e.g. "34*45cm"
+
+  //  Stock control
   variantQuantity: { type: Number, default: 0, min: 0 },
   variantReorderLimit: { type: Number, default: 0, min: 0 },
-  variantImage: { type: [String], default: [] }, // Array of URLs
+
+  //  Images
+  variantImage: { type: [String], default: [] }, // Array of image URLs
 });
 
 const productSchema = new mongoose.Schema({

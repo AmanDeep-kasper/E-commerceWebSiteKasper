@@ -2,6 +2,8 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import connectDB from "./config/db.js";
+
+//  Import route files
 import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import cartRoutes from "./routes/cartRoutes.js";
@@ -32,9 +34,9 @@ app.use("/uploads", express.static("uploads"));
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/addresses", addressRoutes);
-app.use('/api/cart', cartRoutes);
-app.use('/api/products', productRoutes);
-app.use('/api/reviews', reviewRoutes);
+app.use("/api/cart", cartRoutes);
+app.use("/api/products", productRoutes);
+app.use("/api/reviews", reviewRoutes);
 
 // Health check route (optional)
 app.get("/", (req, res) => {
