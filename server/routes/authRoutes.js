@@ -1,5 +1,5 @@
 import express from "express";
-import upload from "../middlewares/multerConfig.js";
+import { uploadProfileImage } from "../middlewares/multerConfig.js";
 import {
   registerUser,
   loginUser,
@@ -10,11 +10,8 @@ import {
 
 const router = express.Router();
 
-// Send signup OTP
-router.post("/register", upload.single("profileImage"), registerUser);
-// Verify signup OTP
+router.post("/register", uploadProfileImage, registerUser);
 router.post("/verify-email", verifyEmail);
-// Existing login and password routes
 router.post("/login", loginUser);
 router.post("/forgot-password", forgotPassword);
 router.post("/reset-password/:token", resetPassword);

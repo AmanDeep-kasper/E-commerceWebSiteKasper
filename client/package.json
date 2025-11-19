@@ -13,6 +13,7 @@
     "@material-tailwind/react": "^3.0.0-beta.24",
     "@reduxjs/toolkit": "^2.8.2",
     "axios": "^1.10.0",
+    "browser-image-compression": "^2.0.2",
     "chart.js": "^4.5.1",
     "framer-motion": "^12.19.1",
     "jspdf": "^3.0.2",

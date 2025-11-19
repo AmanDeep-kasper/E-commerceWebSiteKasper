@@ -8,7 +8,7 @@ import {
   getProductByRoute, // 🔹 import
   getAllCategories,
 } from "../controllers/productController.js";
-import uploadProductImages from "../middlewares/productMulter.js";
+import { uploadProductImages } from "../middlewares/multerConfig.js";
 import { isAuthenticated, isAdmin } from "../middlewares/authMiddleware.js";
 // import { updateProduct } from "../../client/src/redux/cart/productSlice.js";
 // import { getAllCategories } from "../controllers/categoryController.js";

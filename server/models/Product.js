@@ -80,16 +80,17 @@ const variantSchema = new mongoose.Schema({
 });
 
 const productSchema = new mongoose.Schema({
-  //  Basic info
   uuid: { type: String, required: true, unique: true },
+
+  // ADD THIS  (you forgot this in your schema)
+  route: { type: String, required: true, unique: true, trim: true },
+
   type: { type: String, enum: ["Framed", "Unframed"], required: true },
   title: { type: String, required: true, trim: true },
   description: { type: String, trim: true },
 
-  // Main product images
   images: { type: [String], default: [] },
 
-  //  Product details
   SKU: {
     type: String,
     required: true,
@@ -97,6 +98,7 @@ const productSchema = new mongoose.Schema({
     uppercase: true,
     trim: true,
   },
+
   category: { type: String, required: true, trim: true },
   subcategory: { type: String, trim: true },
   tags: { type: [String], default: [] },
@@ -105,21 +107,18 @@ const productSchema = new mongoose.Schema({
   stockQuantity: { type: Number, default: 0, min: 0 },
   returnPolicy: { type: Boolean, default: false },
 
-  //  Pricing
   mrp: { type: Number, required: true, min: 0 },
   sellingPrice: { type: Number, required: true, min: 0 },
   costPrice: { type: Number, default: 0, min: 0 },
-  profit: { type: Number, default: 0, min: 0 },
+  profit: { type: Number, default: 0 },
   discountPercent: { type: Number, default: 0, min: 0, max: 100 },
   discountAmount: { type: Number, default: 0, min: 0 },
   includesTax: { type: Boolean, default: false },
   taxPercent: { type: String, default: "0%" },
 
-  //  Variants
   hasVariants: { type: Boolean, default: false },
   variants: [variantSchema],
 
-  //  System fields
   createdAt: { type: Date, default: Date.now },
 });
 

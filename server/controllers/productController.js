@@ -20,8 +20,6 @@ export const addProduct = async (req, res) => {
       subcategory,
       SKU,
       dimension,
-      basePrice,
-      amazonPrice,
       discountPercent,
       discountAmount,
       materialType,
@@ -48,10 +46,10 @@ export const addProduct = async (req, res) => {
     console.log("FILES:", req.files);
 
     // ✅ Validate required fields
-    if (!title || !category || !SKU || !basePrice || !type) {
+    if (!title || !category || !SKU || !type) {
       return res.status(400).json({
         message:
-          "Missing required fields: title, category, SKU, basePrice, type",
+          "Missing required fields: title, category, SKU, type",
       });
     }
 
@@ -119,8 +117,8 @@ export const addProduct = async (req, res) => {
       subcategory,
       SKU,
       dimension,
-      basePrice: toNumber(basePrice),
-      amazonPrice: toNumber(amazonPrice),
+      // basePrice: toNumber(basePrice),
+      // amazonPrice: toNumber(amazonPrice),
       mrp: toNumber(mrp),
       sellingPrice: toNumber(sellingPrice),
       costPrice: toNumber(costPrice),

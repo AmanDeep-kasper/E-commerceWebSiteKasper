@@ -2,10 +2,11 @@ import fs from "fs";
 import path from "path";
 import User from "../models/User.js"; // adjust the path if needed
 import mongoose from "mongoose";
+// import { uploadOnCloudinary } from "../utils/cloudinary.js";
 
 export const updateUserDetails = async (req, res) => {
   try {
-    const userId = req.user; // `req.user` is set by `isAuthenticated` middleware
+    const userId = req.user._id; // `req.user` is set by `isAuthenticated` middleware i update this code
     const { name, dateOfBirth, gender, alternateMobile } = req.body;
 
     const updatedUser = await User.findByIdAndUpdate(
@@ -43,7 +44,7 @@ export const getUserDetails = async (req, res) => {
 
 export const updateUserProfileImage = async (req, res) => {
   try {
-    const userId = req.user; // from auth middleware
+    const userId = req.user._id; // from auth middleware
 
     if (!mongoose.Types.ObjectId.isValid(userId)) {
       return res.status(400).json({ message: "Invalid user ID" });
@@ -52,12 +53,26 @@ export const updateUserProfileImage = async (req, res) => {
       return res.status(400).json({ message: "No image uploaded" });
     }
 
+
+    // Local temp file path 
+    // const localFilePath = req.file.path;
+
+
     const newImageName = req.file.filename;
+
+     // Upload to Cloudinary
+    const uploadResult = await uploadOnCloudinary(newImageName);
+
+    if (!uploadResult) {
+      return res.status(500).json({ message: "Cloudinary upload failed" });
+    }
+
 
     // ✅ Update only profileImage without triggering enum error
     const updatedUser = await User.findByIdAndUpdate(
       userId,
-      { profileImage: newImageName },
+      // { profileImage: newImageName },
+      { profileImage: uploadResult.secure_url },
       { new: true, runValidators: false }
     );
 
@@ -77,7 +92,7 @@ export const updateUserProfileImage = async (req, res) => {
 
 export const updateUserEmail = async (req, res) => {
   try {
-    const userId = req.user;
+    const userId = req.user._id;
     const { email } = req.body;
 
     if (!email) {
@@ -85,7 +100,8 @@ export const updateUserEmail = async (req, res) => {
     }
 
     const existing = await User.findOne({ email });
-    if (existing && existing._id.toString() !== userId) {
+    // if (existing && existing._id.toString() !== userId) {
+    if (existing && existing._id.toString() !== userId.toString()) {
       return res.status(409).json({ message: "Email already in use" });
     }
 

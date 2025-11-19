@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { addProduct, updateProduct } from "../../redux/cart/productSlice";
 import { v4 as uuidv4 } from "uuid";
 import product from "../../data/products.json";
+import imageCompression from "browser-image-compression";
 
 import {
   ArrowLeft,
@@ -94,21 +95,46 @@ const AddProduct = () => {
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
 
-    // Create a shallow copy of formData
     let updated = {
       ...formData,
       [name]: type === "checkbox" ? checked : value,
     };
 
-    // Convert to numbers for calculations
+    // -----------------------------------
+    // ✅ Auto-generate SKU when title changes
+    // -----------------------------------
+    if (name === "title") {
+      const words = value.trim().split(" ");
+
+      // Take first letters of first 3 words
+      const initials = words
+        .slice(0, 3)
+        .map((w) => w[0]?.toUpperCase())
+        .join("");
+
+      // Random 3-digit number
+      const randomNum = Math.floor(100 + Math.random() * 900);
+
+      // SKU format: ABC-ART-123
+      const sku = `${initials}-ART-${randomNum}`;
+
+      updated.SKU = sku;
+      updated.uuid = sku.toLowerCase();
+      updated.route = `/product/${sku.toLowerCase()}`;
+    }
+
+    // Convert to numbers
     const mrp = parseFloat(updated.mrp) || 0;
     const sellingPrice = parseFloat(updated.sellingPrice) || 0;
     const costPrice = parseFloat(updated.costPrice) || 0;
 
-    //  Calculate discount
+    // -----------------------------------
+    // ✅ Discount calculation
+    // -----------------------------------
     if (mrp > 0 && sellingPrice > 0 && sellingPrice <= mrp) {
       const discountAmount = mrp - sellingPrice;
       const discountPercent = ((discountAmount / mrp) * 100).toFixed(2);
+
       updated.discountAmount = discountAmount.toFixed(2);
       updated.discountPercent = discountPercent;
     } else {
@@ -116,7 +142,9 @@ const AddProduct = () => {
       updated.discountPercent = "";
     }
 
-    //  Calculate profit
+    // -----------------------------------
+    // ✅ Profit calculation
+    // -----------------------------------
     if (sellingPrice > 0 && costPrice > 0) {
       const profit = sellingPrice - costPrice;
       updated.profit = profit.toFixed(2);
@@ -124,14 +152,33 @@ const AddProduct = () => {
       updated.profit = "";
     }
 
-    //  Set formData once
     setFormData(updated);
   };
 
+  function blobToFile(theBlob, fileName) {
+    return new File([theBlob], fileName, { type: theBlob.type });
+  }
+
+  const compressTo2MB = async (file) => {
+    const options = {
+      maxSizeMB: 2,
+      maxWidthOrHeight: 2000,
+      useWebWorker: true,
+    };
+
+    try {
+      const compressed = await imageCompression(file, options);
+      compressed.preview = URL.createObjectURL(compressed);
+      return compressed;
+    } catch (err) {
+      console.error("Compression failed:", err);
+      return file;
+    }
+  };
+
   // handle image files
-  const handleFileChange = (e) => {
-    const files = Array.from(e.target.files);
-    //  Allowed types
+  const handleFileChange = async (e) => {
+    let files = Array.from(e.target.files);
 
     const allowedTypes = [
       "image/png",
@@ -141,36 +188,32 @@ const AddProduct = () => {
       "image/svg+xml",
     ];
 
-    //  Filter invalid types
-    const validFiles = files.filter((file) => allowedTypes.includes(file.type));
+    files = files.filter((file) => allowedTypes.includes(file.type));
 
-    if (validFiles.length !== files.length) {
-      alert("Only PNG, JPG, JPEG, WEBP, and SVG formats are allowed.");
+    if (formData.images.length + files.length > 10) {
+      alert("Max 10 images allowed");
+      return;
     }
 
-    //  Filter out duplicates by comparing the name and size (to ensure the same image isn't added twice)
-    const newFiles = validFiles.filter(
-      (file) =>
-        !formData.images.some(
-          (existingFile) =>
-            existingFile.name === file.name && existingFile.size === file.size
-        )
-    );
+    const compressedFiles = [];
+    for (let file of files) {
+      let compressedBlob = await imageCompression(file, {
+        maxSizeMB: 2,
+        maxWidthOrHeight: 2000,
+        useWebWorker: true,
+      });
 
-    // If we have more than 4 images already, prevent adding more
-    if (formData.images.length + newFiles.length > 10) {
-      alert("You can upload a maximum of 10 images.");
-      return; // Prevent further action
+      const compressed = blobToFile(compressedBlob, file.name);
+
+      compressed.preview = URL.createObjectURL(compressed);
+      compressedFiles.push(compressed);
     }
-
-    //  Combine current images with new valid files
-
-    const updateImages = [...formData.images, ...newFiles];
 
     setFormData((prev) => ({
       ...prev,
-      images: updateImages,
+      images: [...prev.images, ...compressedFiles],
     }));
+
     e.target.value = "";
   };
 
@@ -233,30 +276,31 @@ const AddProduct = () => {
   };
 
   //  Handle image upload per variant
-  const handleVariantImageChange = (e, index) => {
-    const files = Array.from(e.target.files);
-    if (!files.length) return;
+  const handleVariantImageChange = async (e, index) => {
+    let files = Array.from(e.target.files);
+    const compressedFiles = [];
 
-    const filesWithPreview = files.map((file) => {
-      if (!file.preview) file.preview = URL.createObjectURL(file);
-      return file;
-    });
+    for (let file of files) {
+      let compressedBlob = await imageCompression(file, {
+        maxSizeMB: 2,
+        maxWidthOrHeight: 2000,
+        useWebWorker: true,
+      });
+
+      const compressed = blobToFile(compressedBlob, file.name);
+      compressed.preview = URL.createObjectURL(compressed);
+      compressedFiles.push(compressed);
+    }
 
     setFormData((prev) => {
-      const updatedVariants = [...prev.variants];
-      const existing = updatedVariants[index].variantImage || [];
+      const updated = [...prev.variants];
 
-      const unique = [...existing, ...filesWithPreview].filter(
-        (v, i, self) =>
-          i === self.findIndex((t) => t.name === v.name && t.size === v.size)
-      );
+      updated[index].variantImage = [
+        ...updated[index].variantImage,
+        ...compressedFiles,
+      ].slice(0, 10);
 
-      if (unique.length > 10) {
-        alert("You can upload up to 10 images only.");
-      }
-
-      updatedVariants[index].variantImage = unique.slice(0, 10);
-      return { ...prev, variants: updatedVariants };
+      return { ...prev, variants: updated };
     });
 
     e.target.value = "";
@@ -417,10 +461,10 @@ const AddProduct = () => {
   //   localStorage.setItem("addProductForm", JSON.stringify(formDataWithUUID));
   // };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // 🔹 Validation
+    // Validation
     if (!formData.title.trim() || !formData.category.trim()) {
       toast.error("Please fill in all required fields!", {
         position: "top-right",
@@ -430,7 +474,7 @@ const AddProduct = () => {
       return;
     }
 
-    // 🔹 Ensure product UUID exists
+    // Add UUID to product + variants
     const formDataWithUUID = {
       ...formData,
       uuid: formData.uuid || uuidv4(),
@@ -440,63 +484,96 @@ const AddProduct = () => {
       })),
     };
 
-    // 🔹 Build multipart FormData (for later backend upload)
+    // Convert data to multipart FormData
     const formDataObj = new FormData();
 
     Object.entries(formDataWithUUID).forEach(([key, value]) => {
       if (key === "variants") {
         value.forEach((variant, i) => {
           Object.entries(variant).forEach(([k, v]) => {
+            // If variant images are files/array
             if (Array.isArray(v)) {
-              v.forEach((file) =>
-                formDataObj.append(`variants[${i}][${k}]`, file)
-              );
+              v.forEach((item) => {
+                formDataObj.append(`variants[${i}][${k}]`, item);
+              });
             } else {
               formDataObj.append(`variants[${i}][${k}]`, v);
             }
           });
         });
-      } else if (Array.isArray(value)) {
+      }
+
+      // For arrays -> send each as value
+      else if (Array.isArray(value)) {
         value.forEach((v) => formDataObj.append(key, v));
-      } else {
+      }
+
+      // For everything else
+      else {
         formDataObj.append(key, value);
       }
     });
 
-    // 🧩 Instead of sending to backend — log everything
-    console.log("🧾 Product Data (formDataWithUUID):", formDataWithUUID);
+    try {
+      // SEND TO BACKEND 
+      const response = await axiosInstance.post(
+        "/products/add-product",
+        formDataObj,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
 
-    // console.log("📦 Multipart FormData contents:");
-    // for (let [key, val] of formDataObj.entries()) {
-    //   // console.log(formData);
-    // }
+      console.log("SERVER RESPONSE:", response.data);
 
-    // 🔹 Show success toast (simulated)
-    toast.success(
-      isEditing
-        ? " Product updated successfully! "
-        : " Product added successfully! ",
-      {
+      toast.success(
+        isEditing
+          ? "Product updated successfully!"
+          : "Product added successfully!",
+        {
+          position: "top-right",
+          autoClose: 2000,
+          className: "bg-[#EEFFEF] text-black rounded-lg",
+        }
+      );
+
+      localStorage.setItem("addProductForm", JSON.stringify(formDataWithUUID));
+
+      setTimeout(() => {
+        navigate("/admin/products");
+      }, 800);
+    } catch (err) {
+      console.log("AXIOS ERROR:", err);
+      console.log("AXIOS ERROR DATA:", err.response?.data);
+      console.log("AXIOS ERROR STATUS:", err.response?.status);
+
+      toast.error("Error uploading product!", {
         position: "top-right",
         autoClose: 2000,
-        className: "bg-[#EEFFEF] text-black rounded-lg",
-      }
-    );
-
-    // 🔹 Local save (for persistence)
-    localStorage.setItem("addProductForm", JSON.stringify(formDataWithUUID));
-
-    // 🔹 Optional redirect (simulate save complete)
-    setTimeout(() => {
-      navigate("/admin/products");
-    }, 1000);
+        className: "bg-red-700 text-white rounded-lg",
+      });
+    }
   };
 
   // sku id generated in random
   const generatedSKU = () => {
-    // const prefix = "SKU";
-    const random = Math.floor(100000 + Math.random() * 900000000000); // 6 randome digits
-    const newSKU = `${random}`;
+    const title = formData.title?.trim() || "";
+
+    if (title.length < 3) {
+      toast.error("Enter product title first!", {
+        position: "top-right",
+        autoClose: 2000,
+      });
+      return;
+    }
+
+    const prefix = title.substring(0, 3).toUpperCase(); // First 3 letters of product name
+    const randomNum = String(Math.floor(Math.random() * 999)).padStart(3, "0"); // 000–999
+
+    const newSKU = `${prefix}-ART-${randomNum}`;
+
     setFormData((prev) => ({ ...prev, SKU: newSKU }));
   };
 

@@ -6,24 +6,43 @@ const storage = multer.diskStorage({
     cb(null, "uploads/");
   },
   filename: (req, file, cb) => {
-    const uniqueName = Date.now() + path.extname(file.originalname);
-    cb(null, uniqueName);
+    cb(null, Date.now() + "-" + file.originalname);
   },
 });
 
-const upload = multer({
+const fileFilter = (req, file, cb) => {
+  const allowedMimeTypes = [
+    "image/jpeg",
+    "image/jpg",
+    "image/png",
+    "image/webp",
+    "image/svg+xml",
+    "image/pjpeg",
+    "image/x-png",
+  ];
+
+  if (allowedMimeTypes.includes(file.mimetype.toLowerCase())) {
+    cb(null, true);
+  } else {
+    console.log(" Blocked:", file.originalname, file.mimetype);
+    cb(null, false); // IMPORTANT: don't throw error
+  }
+};
+
+// Profile Image
+export const uploadProfileImage = multer({
   storage,
-  limits: { fileSize: 2 * 1024 * 1024 }, // 2MB limit
-  fileFilter: (req, file, cb) => {
-    const allowed = /jpeg|jpg|png|webp/;
-    const ext = allowed.test(path.extname(file.originalname).toLowerCase());
-    const mime = allowed.test(file.mimetype);
-    if (ext && mime) {
-      cb(null, true);
-    } else {
-      cb(new Error("Only images are allowed (jpeg, jpg, png, webp)"));
-    }
-  },
-});
+  limits: { fileSize: 2 * 1024 * 1024 },
+  fileFilter,
+}).single("profileImage");
 
-export default upload;
+// Product Images + Variant Images
+export const uploadProductImages = multer({
+  storage,
+  limits: {
+    fileSize: 2 * 1024 * 1024,
+    files: 200,
+    fields: 500,
+  },
+  fileFilter,
+}).any();
