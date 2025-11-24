@@ -12,6 +12,8 @@ import {
   formatPrice,
 } from "../../utils/homePageUtils";
 import HomeCard from "../HomeCard";
+import axios from "axios";
+import axiosInstance from "../../api/axiosInstance";
 
 function LatestProducts() {
   const [temp, setTemp] = useState(250);
@@ -42,6 +44,10 @@ function LatestProducts() {
   //   return shuffled.slice(0, number);
   // }
   // const randomTen = useMemo(() => getRandomItems(products, 10), [products]);
+
+  // const productsBackend = async () => {
+  //   axiosInstance.get("")
+  // };
 
   const latestProducts = [...products].reverse().slice(0, 6);
 
@@ -167,7 +173,6 @@ function LatestProducts() {
                   </div>
                 )}
               </div>
-
 
               <div className="mt-3">
                 <h3 className="text-sm font-serif text-gray-800 font-normal line-clamp-1 mb-2">

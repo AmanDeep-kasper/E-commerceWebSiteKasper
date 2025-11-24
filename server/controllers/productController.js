@@ -1,4 +1,5 @@
 import Product from "../models/Product.js";
+import { uploadOnCloudinary } from "../utils/cloudeinary.js";
 import { syncCategoryWithProduct } from "./categoryController.js";
 import { randomUUID } from "crypto";
 
@@ -9,9 +10,12 @@ const makeSlug = (str) =>
     .replace(/[^a-z0-9]+/g, "-") // replace non-alphanumeric with -
     .replace(/(^-|-$)+/g, ""); // remove leading/trailing -
 
-// ✅ POST /add-product
+//  POST /add-product
 export const addProduct = async (req, res) => {
   try {
+    console.log("BODY:", req.body);
+    console.log("FILES:", req.files);
+
     const {
       uuid,
       route,
@@ -42,18 +46,14 @@ export const addProduct = async (req, res) => {
       variants,
     } = req.body;
 
-    console.log("BODY:", req.body);
-    console.log("FILES:", req.files);
-
-    // ✅ Validate required fields
+    // REQUIRED FIELDS
     if (!title || !category || !SKU || !type) {
       return res.status(400).json({
-        message:
-          "Missing required fields: title, category, SKU, type",
+        message: "Missing required fields: title, category, SKU, type",
       });
     }
 
-    // ✅ Normalize helpers
+    // 🔧 Helpers
     const toNumber = (v) => (v ? Number(v) : 0);
     const toBool = (v) => v === "true" || v === true;
     const normalizeField = (field, separator = ",") => {
@@ -64,51 +64,76 @@ export const addProduct = async (req, res) => {
       return [];
     };
 
-    // ✅ Uploaded image paths
-    const imagePaths = Array.isArray(req.files)
-      ? req.files.map((file) => `/uploads/products/${file.filename}`)
-      : [];
+    // --------------------------------------------------------
+    //  CLOUDINARY UPLOAD LOGIC
+    // --------------------------------------------------------
+    let productImages = [];
+    let variantImageMap = {}; // e.g. { "0": ["url1","url2"], "1": ["url3"] }
 
-    // ✅ Sync category/subcategory tables
-    await syncCategoryWithProduct(category, subcategory);
+    if (req.files && req.files.length > 0) {
+      for (const file of req.files) {
+        const cloudUrl = await uploadOnCloudinary(file.path);
+        if (!cloudUrl) continue;
 
-    // ✅ Parse variants if any
+        // variant images → fieldname = variants[0][variantImage]
+        if (file.fieldname.startsWith("variants[")) {
+          const match = file.fieldname.match(
+            /variants\[(\d+)\]\[variantImage\]/
+          );
+          if (match) {
+            const index = match[1];
+            if (!variantImageMap[index]) variantImageMap[index] = [];
+            variantImageMap[index].push(cloudUrl);
+          }
+        } else {
+          // product images
+          productImages.push(cloudUrl);
+        }
+      }
+    }
+
+    // --------------------------------------------------------
+    //  PARSE VARIANTS
+    // --------------------------------------------------------
     let parsedVariants = [];
+
     if (variants) {
       try {
-        const parsed = JSON.parse(variants);
+        let parsed;
 
-        parsedVariants = parsed.map((v) => {
-          // convert string numbers to actual numbers
-          const toNum = (val) => (val ? Number(val) : 0);
+        // If variants comes as string → parse JSON
+        if (typeof variants === "string") {
+          parsed = JSON.parse(variants);
+        }
+        // If variants is already array → use directly
+        else if (Array.isArray(variants)) {
+          parsed = variants;
+        } else {
+          parsed = [];
+        }
 
-          // if variantValue missing, combine width x height
-          let dimensionValue = v.variantValue;
-          if (!dimensionValue && v.width && v.height) {
-            dimensionValue = `${v.width}*${v.height}cm`;
-          }
-
-          return {
-            variantId: v.variantId,
-            variantType: v.variantType,
-            variantName: v.variantName || "Dimension",
-            variantValue: dimensionValue, //  combined dimension stored here
-            height: toNum(v.height),
-            width: toNum(v.width),
-            weight: v.weight || "", // optional
-            variantQuantity: toNum(v.variantQuantity),
-            variantReorderLimit: toNum(v.variantReorderLimit),
-            variantImage: (v.variantImage || []).map((img) =>
-              img.preview ? img.preview : img
-            ),
-          };
-        });
+        parsedVariants = parsed.map((v, idx) => ({
+          variantId: v.variantId,
+          variantType: v.variantType,
+          variantName: v.variantName || "Dimension",
+          variantValue:
+            v.variantValue ||
+            (v.width && v.height ? `${v.width}*${v.height}cm` : ""),
+          height: Number(v.height) || 0,
+          width: Number(v.width) || 0,
+          weight: v.weight || "",
+          variantQuantity: Number(v.variantQuantity) || 0,
+          variantReorderLimit: Number(v.variantReorderLimit) || 0,
+          variantImage: variantImageMap[idx] || [], // CLOUDINARY IMAGES
+        }));
       } catch (err) {
         console.warn("⚠️ Could not parse variants JSON:", err.message);
       }
     }
 
-    // ✅ Create new product
+    // --------------------------------------------------------
+    //  CREATE PRODUCT
+    // --------------------------------------------------------
     const product = new Product({
       uuid: uuid || randomUUID(),
       route: route || `/product/${makeSlug(title)}-${SKU}`,
@@ -117,8 +142,6 @@ export const addProduct = async (req, res) => {
       subcategory,
       SKU,
       dimension,
-      // basePrice: toNumber(basePrice),
-      // amazonPrice: toNumber(amazonPrice),
       mrp: toNumber(mrp),
       sellingPrice: toNumber(sellingPrice),
       costPrice: toNumber(costPrice),
@@ -139,33 +162,33 @@ export const addProduct = async (req, res) => {
       bulletPoints: normalizeField(bulletPoints, "|"),
       hasVariants: toBool(hasVariants),
       variants: parsedVariants,
-      images: imagePaths,
+      images: productImages, // CLOUDINARY IMAGES SAVED HERE!
     });
 
     await product.save();
 
     res.status(201).json({
-      message: "✅ Product created successfully",
+      message: "Product created successfully",
       product,
     });
   } catch (err) {
-    console.error("❌ Add Product Error:", err);
+    console.error(" Add Product Error:", err);
     res.status(500).json({ error: err.message });
   }
 };
 
-// ✅ GET /all
+//  GET /all
 export const getAllProducts = async (req, res) => {
   try {
-    const products = await Product.find()
-      .populate({
-        path: "reviews",
-        populate: {
-          path: "user",
-          select: "name email profileImage",
-        },
-      })
-      .sort({ createdAt: -1 });
+    const products = await Product.find();
+    // .populate({
+    //   path: "reviews",
+    //   populate: {
+    //     path: "user",
+    //     select: "name email profileImage",
+    //   },
+    // })
+    // .sort({ createdAt: -1 });  // this is hide for the some reasion reviews is not the ..
 
     res.json(products);
   } catch (err) {
@@ -173,7 +196,7 @@ export const getAllProducts = async (req, res) => {
   }
 };
 
-// ✅ GET /category/:categoryName
+//  GET /category/:categoryName
 export const getProductByCategory = async (req, res) => {
   try {
     const category = decodeURIComponent(req.params.categoryName).trim();
@@ -196,7 +219,7 @@ export const getProductByCategory = async (req, res) => {
   }
 };
 
-// ✅ GET /products/category/:categoryName/:subcategoryName
+//  GET /products/category/:categoryName/:subcategoryName
 export const getProductsByCategoryAndSubcategory = async (req, res) => {
   try {
     const categoryName = decodeURIComponent(
@@ -239,7 +262,7 @@ export const getProductsByCategoryAndSubcategory = async (req, res) => {
   }
 };
 
-// ✅ GET /product/:id (Mongo _id)
+//  GET /product/:id (Mongo _id)
 export const getProductDetails = async (req, res) => {
   try {
     const { id } = req.params;
@@ -262,7 +285,7 @@ export const getProductDetails = async (req, res) => {
   }
 };
 
-// ✅ GET /product/slug/:route
+//  GET /product/slug/:route
 export const getProductByRoute = async (req, res) => {
   try {
     const { route } = req.params;
@@ -282,7 +305,7 @@ export const getProductByRoute = async (req, res) => {
   }
 };
 
-// ✅ GET /categories
+//  GET /categories
 export const getAllCategories = async (req, res) => {
   try {
     const categories = await Product.aggregate([

@@ -10,6 +10,8 @@ import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router";
 import { toast } from "react-toastify";
 import EmptyState from "../components/EmptyState";
+import StripeContainer from "../pages/StripeIntegrate/StripeContainer";
+import axios from "axios";
 
 // 👉 import cart actions
 import { placeOrder } from "../redux/cart/orderSlice";
@@ -57,7 +59,7 @@ function Payment() {
       productId: item.id || item.uuid,
       name: item.title || "Untitled Product",
       quantity: item.quantity || 1,
-      price: item.basePrice ?? item.price ?? 0, // ✅ safe fallback
+      price: item.basePrice ?? item.price ?? 0,
       img: item.image || "/default.jpg",
     }));
 
@@ -67,6 +69,8 @@ function Payment() {
     );
 
     const userId = "USR-1001"; // TODO: fetch from user slice
+
+    
 
     return {
       orderId,
@@ -87,6 +91,19 @@ function Payment() {
       trackingId: `TRK${Math.random().toString().slice(2, 12)}IN`,
     };
   };
+
+  const [clientSecret, setClientSecret] = useState("");
+
+    useEffect(() => {
+      if (selected === "card") {
+        axios
+          .post("http://localhost:5000/create-payment-intent", {
+            amount: totalPrice,
+          })
+          .then((res) => setClientSecret(res.data.clientSecret))
+          .catch((err) => console.log(err));
+      }
+    }, [selected, totalPrice]);
 
   const handlePlaceOrder = () => {
     const orderDetails = handlePayment();

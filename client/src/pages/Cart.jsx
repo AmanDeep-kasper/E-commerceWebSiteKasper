@@ -28,15 +28,24 @@ function Cart() {
   const dispatch = useDispatch();
   const closeDialog = () => setOpen(false);
 
+
   const moveToWishlist = (item) => {
     dispatch(addToWishlist(item));
     dispatch(removeFromCart(item));
   };
 
   // detect out of stock
-  const hasOutOfStock = cartItems.some(
-    (item) => !item.stockQuantity || item.stockQuantity <= 0
-  );
+const hasOutOfStock = cartItems.some(
+  (item) => !item.stockQuantity || item.quantity > item.stockQuantity
+);
+
+// const hasOutOfStock = cartItems.some(
+//   (item) =>
+//     !item.variantQuantity ||
+//     item.variantQuantity <= 0 ||
+//     item.quantity > item.variantQuantity
+// );
+
 
   return (
     <>
@@ -102,7 +111,7 @@ function Cart() {
                   <div className="divide-y divide-gray-100">
                     {cartItems?.map((item) => {
                       const { base, effective } = getPrices(item);
-                      const isOutOfStock = item.stockQuantity <= 0;
+                      const isOutOfStock = item.var <= 0;
 
                       const colorMap = {
                         black: "bg-black",

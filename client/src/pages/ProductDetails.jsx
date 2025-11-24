@@ -551,21 +551,27 @@ function ProductDetails() {
   const product = useMemo(() => products.find((p) => p.uuid === uuid), [uuid]);
   // const product = useMemo(() => products.find((p) => p.sku === sku), [sku]);
 
-
   // in this data we see the variants of data in uuid
   const [selectedVariant, setSelectedVariant] = useState(product.variants[0]);
-  console.log(selectedVariant)
+
+  //   const [selectedVariant, setSelectedVariant] = useState({
+  //   color: null,
+  //   dimension: null,
+  //   type: null,
+  // })
+
+  console.log(selectedVariant);
   const [inCart, setInCart] = useState(
     cartItems.some(
       (item) =>
         item.uuid === uuid && item.variantId === selectedVariant.variantId
     )
-  // const [inCart, setInCart] = useState(
-  //   cartItems.some(
-  //     (item) => item.sku === sku && item.variantId === selectedVariant.variantId
-  //   )
+    // const [inCart, setInCart] = useState(
+    //   cartItems.some(
+    //     (item) => item.sku === sku && item.variantId === selectedVariant.variantId
+    //   )
   );
-  
+
   if (!product) {
     return (
       <>
@@ -597,8 +603,10 @@ function ProductDetails() {
   // console.log(products)
   // Unique option lists
   // const colors = [...new Set(product.variants.map((v) => v.color))];
-  const colors = [...new Set(product.variants.map((v) => v.variantId))];
-  const dimensions = [...new Set(product.variants.map((v) => v.variantValue))];
+  // const colors = [...new Set(product.variants.map((v) => v.variantId))];
+  const colors = [...new Set(product.variants.map((v) => v.variantValue))];
+  const dimensions = [...new Set(product.variants.map((v) => v.dimension))];
+  // const dimensions = [...new Set(product.variants.map((v) => v.variantValue))];
   const types = [...new Set(product.variants.map((v) => v.variantType))];
 
   const avgRating =
@@ -666,7 +674,6 @@ function ProductDetails() {
     );
   }, [cartItems, product.uuid, selectedVariant.variantId]);
 
-
   // useEffect(() => {
   //   const found = cartItems.find(
   //     (item) =>
@@ -674,7 +681,6 @@ function ProductDetails() {
   //   );
   //   setTotalCartItems(found ? found.quantity : 0);
   // }, [cartItems, product.sku, selectedVariant.variantId]);
-
 
   useEffect(() => {
     const found = cartItems.find(
@@ -712,12 +718,9 @@ function ProductDetails() {
                 className="!w-full !h-auto md:!h-[460px]"
               >
                 {selectedVariant.images?.map((img, idx) => (
-                  
-                  
                   <SwiperSlide key={idx} className="!w-auto !h-auto">
                     {/* Outer wrapper holds border + ring */}
                     <div
-                  
                       className={`relative w-20 h-20 cursor-pointer transform transition duration-300 flex items-center justify-center
                           ${
                             mainImageIndex === idx
@@ -728,7 +731,6 @@ function ProductDetails() {
                         setMainImageIndex(idx);
                         thumbsSwiper.slideTo(idx);
                       }}
-                      
                     >
                       <div className="w-full h-full overflow-hidden rounded-md">
                         <img
@@ -858,7 +860,6 @@ function ProductDetails() {
                 </div>
 
                 <div className="flex flex-col gap-1">
-
                   <Ratings size={20} avgRating={avgRating} />{" "}
                   {/* Assuming your Ratings component accepts a size prop */}
                   <span className="text-sm text-gray-500">
@@ -885,11 +886,14 @@ function ProductDetails() {
               <div className="text-neural-700 text-2xl font-medium">
                 <span className="mr-2">
                   ₹
-                  {selectedVariant.price -
-                    (product.discountPercent / 100) * selectedVariant.price}
+                  {selectedVariant.sellingPrice -
+                    (product.discountPercent / 100) *
+                      selectedVariant.sellingPrice}
                 </span>
                 <span className="line-through text-[#787878] font-normal text-sm">
-                  {selectedVariant.price ? `₹${selectedVariant.price}` : ""}
+                  {selectedVariant.sellingPrice
+                    ? `₹${selectedVariant.sellingPrice}`
+                    : ""}
                 </span>
                 {product.discountPercent ? (
                   <span className="ml-2 text-base text-white px-2 py-1 rounded-md bg-green-700">
@@ -1061,7 +1065,7 @@ function ProductDetails() {
                           uuid: product.uuid,
                           variantId: selectedVariant.variantId,
                           title: product.title,
-                          basePrice: selectedVariant.price,
+                          basePrice: selectedVariant.sellingPrice, // ✅ FIXED
                           stockQuantity: selectedVariant.stockQuantity,
                           discountPercent: product.discountPercent,
                           image: selectedVariant.images[0],
@@ -1077,7 +1081,7 @@ function ProductDetails() {
                     }, 200);
                   }}
                   disabled={isLoading}
-                  className="px-6 py-2 bg-[#ebb100] hover:bg-[#d9a300] text-black rounded-full" 
+                  className="px-6 py-2 bg-[#ebb100] hover:bg-[#d9a300] text-black rounded-full"
                 >
                   {isLoading ? "Adding..." : "Add to Cart"}
                 </button>
@@ -1167,14 +1171,14 @@ function ProductDetails() {
                 </p>
                 <p
                   className={`font-medium ${
-                    product.stockQuantity > 0
+                    product.variantQuantity > 0
                       ? "text-green-600"
                       : "text-red-600"
                   }`}
                 >
                   <span className="text-[#6C6B6B]">Stock -</span>{" "}
-                  {product.stockQuantity
-                    ? `${product.stockQuantity} available`
+                  {product.variantQuantity
+                    ? `${product.variantQuantity} available`
                     : "Out of Stock"}
                 </p>
               </div>

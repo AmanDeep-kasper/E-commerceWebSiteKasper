@@ -514,6 +514,7 @@ const AddProduct = () => {
       }
     });
 
+    
     try {
       // SEND TO BACKEND 
       const response = await axiosInstance.post(

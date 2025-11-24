@@ -51,7 +51,7 @@ function Card({ cardData = [] }) {
         cardData.map((item, index) => {
           const defaultVariant = item.variants?.[0];
           const { base, effective, discountPercent, symbol } = getPrices(item);
-          const outOfStock = !item.stockQuantity || item.stockQuantity <= 0;
+          const outOfStock = !item.variantQuantity || item.variantQuantity <= 0;
 
           const imageUrl = Array.isArray(defaultVariant?.images)
             ? defaultVariant.images[0]

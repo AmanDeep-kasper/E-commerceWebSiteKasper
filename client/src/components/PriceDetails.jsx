@@ -1,7 +1,7 @@
 import { ArrowRight, BadgeCheck, ChevronDown, Info, ShieldCheck } from "lucide-react";
 import React, { useState } from "react";
 import { formatPrice } from "../utils/homePageUtils";
-import { Link } from "react-router"; // ✅ use react-router-dom
+import { Link } from "react-router"; 
 import { motion } from "framer-motion";
 
 function PriceDetails({
@@ -10,7 +10,7 @@ function PriceDetails({
   totalDiscount,
   product,
   hasOutOfStock,
-  step = "cart", // 👈 can be: "cart" | "delivery" | "payment"
+  step = "cart", 
   canProceed = true,
   handlePlaceOrder,
   buyNowMode,

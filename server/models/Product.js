@@ -84,13 +84,10 @@ const productSchema = new mongoose.Schema({
 
   // ADD THIS  (you forgot this in your schema)
   route: { type: String, required: true, unique: true, trim: true },
-
   type: { type: String, enum: ["Framed", "Unframed"], required: true },
   title: { type: String, required: true, trim: true },
   description: { type: String, trim: true },
-
   images: { type: [String], default: [] },
-
   SKU: {
     type: String,
     required: true,
@@ -98,7 +95,6 @@ const productSchema = new mongoose.Schema({
     uppercase: true,
     trim: true,
   },
-
   category: { type: String, required: true, trim: true },
   subcategory: { type: String, trim: true },
   tags: { type: [String], default: [] },
@@ -106,7 +102,6 @@ const productSchema = new mongoose.Schema({
   weight: { type: String, trim: true },
   stockQuantity: { type: Number, default: 0, min: 0 },
   returnPolicy: { type: Boolean, default: false },
-
   mrp: { type: Number, required: true, min: 0 },
   sellingPrice: { type: Number, required: true, min: 0 },
   costPrice: { type: Number, default: 0, min: 0 },
@@ -115,7 +110,6 @@ const productSchema = new mongoose.Schema({
   discountAmount: { type: Number, default: 0, min: 0 },
   includesTax: { type: Boolean, default: false },
   taxPercent: { type: String, default: "0%" },
-
   hasVariants: { type: Boolean, default: false },
   variants: [variantSchema],
 

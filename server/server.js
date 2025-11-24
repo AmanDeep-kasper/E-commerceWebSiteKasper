@@ -2,8 +2,9 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import connectDB from "./config/db.js";
+import Stripe from "stripe";
 
-//  Import route files
+// Import route files
 import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import cartRoutes from "./routes/cartRoutes.js";
@@ -16,18 +17,39 @@ connectDB();
 
 const app = express();
 
-// CORS
+// Middleware must be at top
+app.use(express.json()); 
 app.use(
   cors({
-    origin: "*", // change this in production
+    origin: "*",
     methods: "GET,PUT,PATCH,POST,DELETE",
-    preflightContinue: false,
-    optionsSuccessStatus: 204,
   })
 );
 
-// Middleware
-app.use(express.json()); // replaces body-parser
+// Stripe init
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+
+//  DEMO PAYMENT INTENT ROUTE
+app.post("/create-payment-intent", async (req, res) => {
+  try {
+    const { amount } = req.body;
+
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: amount * 100,
+      currency: "inr",
+      payment_method_types: ["card"],
+    });
+
+    res.json({
+      clientSecret: paymentIntent.client_secret,
+    });
+  } catch (error) {
+    console.error("Stripe Error:", error);
+    res.status(500).json({ error: "Stripe error" });
+  }
+});
+
+// Static uploads directory
 app.use("/uploads", express.static("uploads"));
 
 // Routes
@@ -38,11 +60,11 @@ app.use("/api/cart", cartRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/reviews", reviewRoutes);
 
-// Health check route (optional)
+// Health check
 app.get("/", (req, res) => {
   res.send("API is running...");
 });
 
-// Server
+// Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

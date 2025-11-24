@@ -1,17 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import collection1 from "../../assets/Collection1.png";
-import collection2 from "../../assets/Collection2.png";
-import collection3 from "../../assets/Collection3.png";
-import collection4 from "../../assets/Collection4.png";
-import collection5 from "../../assets/Collection5.png";
-import collection6 from "../../assets/Collection6.jpg";
-import collection7 from "../../assets/Collection7.png";
-import collection8 from "../../assets/Collection8.png";
-import collection9 from "../../assets/Collection9.jpg";
 import { motion, useAnimation } from "framer-motion";
 import icon from "../../assets/black-star-icon.svg";
 import products from "../../data/products.json";
-import newProducts from "../../data/newProducts.json";
+import newProducts from "../../data/products.json";
 import Tilt from "react-parallax-tilt";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Title from "../Title";
