@@ -13,7 +13,8 @@ import {
 } from "../../utils/homePageUtils";
 import HomeCard from "../HomeCard";
 import axios from "axios";
-import axiosInstance from "../../api/axiosInstance";
+// import axiosInstance from "../../api/axiosInstance";
+import { getAverageRating } from "../../utils/homePageUtils";
 
 function LatestProducts() {
   const [temp, setTemp] = useState(250);
@@ -151,7 +152,7 @@ function LatestProducts() {
         {latestProducts.slice(0, visibleCount)?.map((p) => {
           const key = p.id || p.uuid || p.SKU;
           const { base, effective, discountPercent, symbol } = getPrices(p);
-          const ratingAvg = p?.rating?.average;
+            const ratingAvg = getAverageRating(p.reviews);
 
           return (
             <Link

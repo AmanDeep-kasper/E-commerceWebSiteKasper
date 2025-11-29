@@ -240,7 +240,7 @@ function AccountDetails() {
               {user?.profileImage ? (
                 <img
                   className="rounded-full object-cover w-full h-full"
-                  src={`http://localhost:5000/uploads/${user.profileImage}`}
+                  src={user.profileImage}
                   alt="Profile"
                 />
               ) : (

@@ -1,5 +1,7 @@
 import React from "react";
 import { useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
+import { cancelOrder } from "../redux/cart/orderSlice";
 import { Link, useNavigate, useParams } from "react-router";
 // import orders from "../data/orders.json";
 import jsPDF from "jspdf";
@@ -110,6 +112,8 @@ const generateInvoice = (order) => {
 };
 
 const OrderDetail = () => {
+  const dispatch = useDispatch();
+
   const navigate = useNavigate();
   const { orderId } = useParams();
   const orders = useSelector((state) => state.order.list);
@@ -218,29 +222,35 @@ const OrderDetail = () => {
         <h2 className="font-semibold text-lg mb-4">Order Status</h2>
         {/* Example tracker: Placed → Processing → Shipped → Delivered */}
         <div className="flex items-center gap-4 text-sm">
-          {["Placed", "Processing", "Shipped", "Delivered"].map((status, i) => (
-            <div key={i} className="flex items-center">
-              <span
-                className={`w-4 h-4 rounded-full mr-2 ${
-                  order.orderStatus === status ||
-                  (order.orderStatus === "Delivered" &&
-                    ["Placed", "Processing", "Shipped"].includes(status))
-                    ? "bg-green-600"
-                    : "bg-gray-300"
-                }`}
-              ></span>
-              <span
-                className={`${
-                  order.orderStatus === status
-                    ? "font-medium text-gray-900"
-                    : "text-gray-500"
-                }`}
-              >
-                {status}
-              </span>
-              {i < 3 && <span className="mx-3 text-gray-400">→</span>}
-            </div>
-          ))}
+          {["Placed", "Processing", "Shipped", "Delivered", "Cancelled"].map(
+            (status, i) => (
+              <div key={i} className="flex items-center">
+                <span
+                  className={`w-4 h-4 rounded-full mr-2 
+    ${
+      order.orderStatus === "Cancelled"
+        ? "bg-red-600" // Cancelled → Red
+        : order.orderStatus === status ||
+          (order.orderStatus === "Delivered" &&
+            ["Placed", "Processing", "Shipped", "Delivered"].includes(status))
+        ? "bg-green-600"
+        : "bg-gray-300"
+    }
+  `}
+                ></span>
+                <span
+                  className={`${
+                    order.orderStatus === status
+                      ? "font-medium text-gray-900"
+                      : "text-gray-500"
+                  }`}
+                >
+                  {status}
+                </span>
+                {i < 3 && <span className="mx-3 text-gray-400">→</span>}
+              </div>
+            )
+          )}
         </div>
       </div>
 
@@ -262,9 +272,21 @@ const OrderDetail = () => {
         {/* When Processing */}
         {order.orderStatus === "Processing" && (
           <>
-            <button className="bg-red-500 text-white px-6 py-2 rounded-full text-sm hover:bg-red-600 transition-colors">
+            <button
+              onClick={() => {
+                if (
+                  window.confirm("Are you sure you want to cancel this order?")
+                ) {
+                  dispatch(cancelOrder(order.orderId));
+                  alert("Order Cancelled Successfully!");
+                  navigate("/accounts/order-history");
+                }
+              }}
+              className="bg-red-500 text-white px-6 py-2 rounded-full text-sm hover:bg-red-600 transition-colors"
+            >
               Cancel Order
             </button>
+
             <button
               className="bg-blue-600 text-white px-6 py-2 rounded-full text-sm hover:bg-blue-700 transition-colors"
               onClick={() =>

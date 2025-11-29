@@ -1,5 +1,5 @@
 import Product from "../models/Product.js";
-import { uploadOnCloudinary } from "../utils/cloudeinary.js";
+import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { syncCategoryWithProduct } from "./categoryController.js";
 import { randomUUID } from "crypto";
 

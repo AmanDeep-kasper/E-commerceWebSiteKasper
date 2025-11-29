@@ -552,7 +552,7 @@ function ProductDetails() {
   // const product = useMemo(() => products.find((p) => p.sku === sku), [sku]);
 
   // in this data we see the variants of data in uuid
-  const [selectedVariant, setSelectedVariant] = useState(product.variants[0]);
+  const [selectedVariant, setSelectedVariant] = useState(product);
 
   //   const [selectedVariant, setSelectedVariant] = useState({
   //   color: null,
@@ -917,7 +917,7 @@ function ProductDetails() {
               <p className="text-[14px] text-[#6C6B6B]">
                 Type -{" "}
                 <span className="text-[#171515] capitalize">
-                  {selectedVariant.variantType || "-"}
+                  {selectedVariant.type || "-"}
                 </span>
               </p>
               <p className="text-[14px] text-[#6C6B6B]">

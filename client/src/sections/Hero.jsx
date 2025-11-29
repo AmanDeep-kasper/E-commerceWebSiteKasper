@@ -71,6 +71,7 @@ function Hero() {
       index === self.findIndex((obj) => obj.category === item.category)
   );
 
+  // console.log(selectedProducts)
   // useEffect(() => {
   //   let index = 0;
   //   const slideInterval = setInterval(() => {
@@ -319,7 +320,7 @@ function Hero() {
                 >
                   <img
                     className="h-full w-full object-cover mx-auto flex-shrink-0"
-                    src={product.image}
+                    src={product.images[0]}
                     alt={product.category}
                   />
                   <span className="absolute text-sm sm:text-lg font-medium bottom-4 left-4 bg-white px-4 py-2 rounded-full border border-gray-200 shadow-lg flex items-center gap-2">

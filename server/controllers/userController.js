@@ -2,7 +2,8 @@ import fs from "fs";
 import path from "path";
 import User from "../models/User.js"; // adjust the path if needed
 import mongoose from "mongoose";
-// import { uploadOnCloudinary } from "../utils/cloudinary.js";
+import { uploadOnCloudinary } from "../utils/cloudinary.js";
+
 
 export const updateUserDetails = async (req, res) => {
   try {
@@ -44,51 +45,44 @@ export const getUserDetails = async (req, res) => {
 
 export const updateUserProfileImage = async (req, res) => {
   try {
-    const userId = req.user._id; // from auth middleware
+    const userId = req.user._id;
 
     if (!mongoose.Types.ObjectId.isValid(userId)) {
       return res.status(400).json({ message: "Invalid user ID" });
     }
+
     if (!req.file) {
       return res.status(400).json({ message: "No image uploaded" });
     }
 
+    // FULL absolute file path
+    const localFilePath = path.resolve("uploads", req.file.filename);
 
-    // Local temp file path 
-    // const localFilePath = req.file.path;
+    // Upload to Cloudinary
+    const uploadUrl = await uploadOnCloudinary(localFilePath);
 
-
-    const newImageName = req.file.filename;
-
-     // Upload to Cloudinary
-    const uploadResult = await uploadOnCloudinary(newImageName);
-
-    if (!uploadResult) {
+    if (!uploadUrl) {
       return res.status(500).json({ message: "Cloudinary upload failed" });
     }
 
-
-    // ✅ Update only profileImage without triggering enum error
+    // Update DB
     const updatedUser = await User.findByIdAndUpdate(
       userId,
-      // { profileImage: newImageName },
-      { profileImage: uploadResult.secure_url },
+      { profileImage: uploadUrl }, // secure_url already returned
       { new: true, runValidators: false }
     );
-
-    if (!updatedUser) {
-      return res.status(404).json({ message: "User not found" });
-    }
 
     res.status(200).json({
       message: "Profile image updated successfully",
       profileImage: updatedUser.profileImage,
     });
+
   } catch (error) {
     console.error("Error updating profile image:", error);
     res.status(500).json({ message: "Server error", error });
   }
 };
+
 
 export const updateUserEmail = async (req, res) => {
   try {

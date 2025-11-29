@@ -11,9 +11,10 @@
     "images": [
       "/polygonAnimal1.jpg",
       "/polygonAnimal2.jpg",
-      "/polygonAnimal3.jpg"
+      "/polygonAnimal3.jpg",
+      "/polygonAnimal4.jpg",
+      "/polygonAnimal5.jpg"
     ],
-    "image": ["/polygonAnimal1.jpg"],
     "SKU": "DWL-ART-001",
     "materialType": "metal",
     "weight": "1.2kg",
@@ -21,7 +22,6 @@
     "returnPolicy": "Eligible for return within 7 days of delivery.",
     "deliverBy": 5,
     "hasVariants": true,
-    "basePrice": 1499,
     "amazonPrice": 2999,
     "mrp": 2999,
     "sellingPrice": 1499,
@@ -39,8 +39,8 @@
         "variantName": "Color",
         "variantQuantity": 6,
         "variantReorderLimit": 5,
-        "variantImage": ["/polygonAnimal2.jpg"],
-        "images": ["/polygonAnimal2.jpg"],
+        "variantImage": ["/polygonAnimal4.jpg"],
+
         "width": 60,
         "height": 40
       },
@@ -52,7 +52,7 @@
         "variantQuantity": 5,
         "variantReorderLimit": 4,
         "variantImage": ["/polygonAnimal3.jpg"],
-        "images": ["/polygonAnimal3.jpg"],
+
         "width": 60,
         "height": 40
       },
@@ -64,7 +64,7 @@
         "variantQuantity": 4,
         "variantReorderLimit": 3,
         "variantImage": ["/polygonAnimal2.jpg"],
-        "images": ["/polygonAnimal2.jpg"],
+
         "width": 60,
         "height": 40
       },
@@ -76,7 +76,7 @@
         "variantQuantity": 3,
         "variantReorderLimit": 2,
         "variantImage": ["/polygonAnimal1.jpg"],
-        "images": ["/polygonAnimal1.jpg"],
+
         "width": 60,
         "height": 40
       }
@@ -114,7 +114,6 @@
     "subcategory": "Floral Decor",
     "tags": ["bloom"],
     "images": ["/forest1.jpg", "/forest2.jpg", "/forest3.jpg", "/forest4.jpg"],
-    "image": ["/forest1.jpg"],
     "SKU": "DWL-ART-002",
     "materialType": "metal",
     "weight": "1kg",
@@ -122,7 +121,6 @@
     "returnPolicy": "Eligible for return within 10 days of delivery.",
     "deliverBy": 4,
     "hasVariants": true,
-    "basePrice": 1299,
     "amazonPrice": 2599,
     "mrp": 2599,
     "sellingPrice": 1299,
@@ -157,7 +155,7 @@
         "variantQuantity": 6,
         "variantReorderLimit": 5,
         "variantImage": ["/forest3.jpg", "/forest1.jpg", "/forest4.jpg"],
-        "images": ["/forest3.jpg"],
+
         "width": 60,
         "height": 40
       },
@@ -169,7 +167,7 @@
         "variantQuantity": 7,
         "variantReorderLimit": 6,
         "variantImage": ["/forest4.jpg", "/forest2.jpg", "/forest3.jpg"],
-        "images": ["/forest4.jpg"],
+
         "width": 60,
         "height": 40
       },
@@ -181,7 +179,7 @@
         "variantQuantity": 8,
         "variantReorderLimit": 7,
         "variantImage": ["/forest1.jpg", "/forest2.jpg"],
-        "images": ["/forest1.jpg"],
+
         "width": 60,
         "height": 40
       }
@@ -218,8 +216,14 @@
     "category": "Spiritual & Religious Art",
     "subcategory": "Nature Decor",
     "tags": ["tree"],
-    "images": ["/tree1.jpg","/tree2.jpg","/tree3.jpg"],
-    "image": ["/tree1.jpg"],
+    "images": [
+      "/tree1.jpg",
+      "/tree2.jpg",
+      "/tree3.jpg",
+      "/tree4.jpg",
+      "/tree5.jpg"
+    ],
+
     "SKU": "DWL-ART-003",
     "materialType": "metal",
     "weight": "1.3kg",
@@ -227,7 +231,6 @@
     "returnPolicy": "Eligible for return within 7 days of delivery.",
     "deliverBy": 6,
     "hasVariants": true,
-    "basePrice": 1699,
     "amazonPrice": 3299,
     "mrp": 3299,
     "sellingPrice": 1699,
@@ -245,8 +248,8 @@
         "variantName": "Dimension",
         "variantQuantity": 7,
         "variantReorderLimit": 6,
-        "variantImage": ["/tree2.jpg"],
-        "images": ["/tree2.jpg"],
+        "variantImage": ["/tree1.jpg"],
+
         "width": 60,
         "height": 40
       },
@@ -258,8 +261,8 @@
         "variantName": "Color",
         "variantQuantity": 3,
         "variantReorderLimit": 2,
-        "variantImage": ["/tree3.jpg"],
-        "images": ["/tree3.jpg"],
+        "variantImage": ["/tree2.jpg"],
+
         "width": 60,
         "height": 40
       },
@@ -270,8 +273,8 @@
         "variantName": "Material",
         "variantQuantity": 6,
         "variantReorderLimit": 5,
-        "variantImage": ["/tree2.jpg"],
-        "images": ["/tree2.jpg"],
+        "variantImage": ["/tree3.jpg"],
+
         "width": 60,
         "height": 40
       },
@@ -282,8 +285,8 @@
         "variantName": "Material",
         "variantQuantity": 4,
         "variantReorderLimit": 3,
-        "variantImage": ["/tree3.jpg"],
-        "images": ["/tree3.jpg"],
+        "variantImage": ["/tree4.jpg"],
+
         "width": 60,
         "height": 40
       }
@@ -299,8 +302,13 @@
     "category": "Festival & Occasion",
     "subcategory": "Diwali Decor",
     "tags": ["lakshmi"],
-    "images": ["/couple1.jpg", "/couple3.jpg", "/couple2.jpg"],
-    "image": ["/couple1.jpg"],
+    "images": [
+      "/couple1.jpg",
+      "/couple3.jpg",
+      "/couple2.jpg",
+      "/couple4.jpg",
+      "/couple5.jpg"
+    ],
     "SKU": "DWL-ART-004",
     "materialType": "metal",
     "weight": "0.95kg",
@@ -308,7 +316,6 @@
     "returnPolicy": "Eligible for return within 7 days of delivery.",
     "deliverBy": 3,
     "hasVariants": true,
-    "basePrice": 1349,
     "amazonPrice": 2999,
     "mrp": 2999,
     "sellingPrice": 1349,
@@ -326,8 +333,8 @@
         "variantName": "Dimension",
         "variantQuantity": 10,
         "variantReorderLimit": 9,
-        "variantImage": ["/couple2.jpg"],
-        "images": ["/couple2.jpg"],
+        "variantImage": ["/couple1.jpg"],
+
         "width": 60,
         "height": 40
       },
@@ -338,8 +345,8 @@
         "variantName": "Color",
         "variantQuantity": 8,
         "variantReorderLimit": 7,
-        "variantImage": ["/couple3.jpg"],
-        "images": ["/couple3.jpg"],
+        "variantImage": ["/couple2.jpg"],
+
         "width": 60,
         "height": 40
       },
@@ -350,8 +357,8 @@
         "variantName": "Material",
         "variantQuantity": 6,
         "variantReorderLimit": 5,
-        "variantImage": ["/couple2.jpg"],
-        "images": ["/couple2.jpg"],
+        "variantImage": ["/couple3.jpg"],
+
         "width": 60,
         "height": 40
       },
@@ -362,8 +369,8 @@
         "variantName": "Material",
         "variantQuantity": 4,
         "variantReorderLimit": 3,
-        "variantImage": ["/couple3.jpg"],
-        "images": ["/couple3.jpg"],
+        "variantImage": ["/couple4.jpg"],
+
         "width": 60,
         "height": 40
       }
@@ -401,8 +408,7 @@
     "category": "Geometric & Abstract",
     "subcategory": "Abstract Decor",
     "tags": ["sun"],
-    "images": ["/sun1.jpg"],
-    "image": ["/sun1.jpg"],
+    "images": ["/art1.jpg", "/art2.jpg", "/art3.jpg", "/art4.jpg"],
     "SKU": "DWL-ART-009",
     "materialType": "metal",
     "weight": "1.6kg",
@@ -410,7 +416,6 @@
     "returnPolicy": "Eligible for return within 7 days of delivery.",
     "deliverBy": 6,
     "hasVariants": true,
-    "basePrice": 1799,
     "amazonPrice": 3599,
     "mrp": 3599,
     "sellingPrice": 1799,
@@ -428,8 +433,8 @@
         "variantName": "Color",
         "variantQuantity": 6,
         "variantReorderLimit": 5,
-        "variantImage": ["/sun2.jpg"],
-        "images": ["/sun2.jpg"],
+        "variantImage": ["/art1.jpg"],
+
         "width": 60,
         "height": 40
       },
@@ -440,8 +445,8 @@
         "variantName": "Color",
         "variantQuantity": 4,
         "variantReorderLimit": 3,
-        "variantImage": ["/sun3.jpg"],
-        "images": ["/sun3.jpg"],
+        "variantImage": ["/art2.jpg"],
+
         "width": 60,
         "height": 40
       },
@@ -452,8 +457,8 @@
         "variantName": "Material",
         "variantQuantity": 7,
         "variantReorderLimit": 6,
-        "variantImage": ["/sun2.jpg"],
-        "images": ["/sun2.jpg"],
+        "variantImage": ["/art3.jpg"],
+
         "width": 60,
         "height": 40
       },
@@ -464,8 +469,8 @@
         "variantName": "Material",
         "variantQuantity": 8,
         "variantReorderLimit": 7,
-        "variantImage": ["/sun3.jpg"],
-        "images": ["/sun3.jpg"],
+        "variantImage": ["/art4.jpg"],
+
         "width": 60,
         "height": 40
       }
@@ -502,8 +507,8 @@
     "category": "Nature & Wildlife",
     "subcategory": "Nature Decor",
     "tags": ["feather"],
-    "images": ["/feather1.jpg"],
-    "image": ["/feather1.jpg"],
+    "images": ["/human1.jpg", "/human2.jpg", "/human3.jpg", "/human4.jpg"],
+
     "SKU": "DWL-ART-010",
     "materialType": "metal",
     "weight": "1kg",
@@ -511,7 +516,6 @@
     "returnPolicy": "Eligible for return within 7 days of delivery.",
     "deliverBy": 5,
     "hasVariants": true,
-    "basePrice": 1499,
     "amazonPrice": 2999,
     "mrp": 2999,
     "sellingPrice": 1499,
@@ -529,8 +533,8 @@
         "variantName": "Dimension",
         "variantQuantity": 7,
         "variantReorderLimit": 6,
-        "variantImage": ["/feather2.jpg"],
-        "images": ["/feather2.jpg"],
+        "variantImage": ["/human1.jpg"],
+
         "width": 60,
         "height": 40
       },
@@ -541,8 +545,8 @@
         "variantName": "Color",
         "variantQuantity": 5,
         "variantReorderLimit": 4,
-        "variantImage": ["/feather3.jpg"],
-        "images": ["/feather3.jpg"],
+        "variantImage": ["/human2.jpg"],
+
         "width": 60,
         "height": 40
       },
@@ -553,8 +557,8 @@
         "variantName": "Color",
         "variantQuantity": 8,
         "variantReorderLimit": 7,
-        "variantImage": ["/feather4.jpg"],
-        "images": ["/feather4.jpg"],
+        "variantImage": ["/human3.jpg"],
+
         "width": 60,
         "height": 40
       },
@@ -565,8 +569,8 @@
         "variantName": "Color",
         "variantQuantity": 6,
         "variantReorderLimit": 5,
-        "variantImage": ["/feather5.jpg"],
-        "images": ["/feather5.jpg"],
+        "variantImage": ["/human4.jpg"],
+
         "width": 60,
         "height": 40
       }
@@ -603,8 +607,8 @@
     "category": "Nature & Wildlife",
     "subcategory": "Water Decor",
     "tags": ["ocean"],
-    "images": ["/ocean1.jpg"],
-    "image": ["/ocean1.jpg"],
+    "images": ["/waves1.jpg", "/waves2.jpg", "/waves3.jpg", "/waves4.jpg"],
+
     "SKU": "DWL-ART-011",
     "materialType": "metal",
     "weight": "1.4kg",
@@ -612,7 +616,6 @@
     "returnPolicy": "Eligible for return within 7 days of delivery.",
     "deliverBy": 5,
     "hasVariants": true,
-    "basePrice": 1699,
     "amazonPrice": 3399,
     "mrp": 3399,
     "sellingPrice": 1699,
@@ -630,8 +633,8 @@
         "variantName": "Color",
         "variantQuantity": 5,
         "variantReorderLimit": 4,
-        "variantImage": ["/ocean2.jpg"],
-        "images": ["/ocean2.jpg"],
+        "variantImage": ["/waves1.jpg"],
+
         "width": 60,
         "height": 40
       },
@@ -643,8 +646,8 @@
         "variantName": "Color",
         "variantQuantity": 6,
         "variantReorderLimit": 5,
-        "variantImage": ["/ocean3.jpg"],
-        "images": ["/ocean3.jpg"],
+        "variantImage": ["/waves2.jpg"],
+
         "width": 60,
         "height": 40
       },
@@ -656,8 +659,8 @@
         "variantName": "Material",
         "variantQuantity": 7,
         "variantReorderLimit": 6,
-        "variantImage": ["/ocean4.jpg"],
-        "images": ["/ocean4.jpg"],
+        "variantImage": ["/waves3.jpg"],
+
         "width": 60,
         "height": 40
       },
@@ -669,8 +672,8 @@
         "variantName": "Material",
         "variantQuantity": 4,
         "variantReorderLimit": 3,
-        "variantImage": ["/ocean5.jpg"],
-        "images": ["/ocean5.jpg"],
+        "variantImage": ["/waves4.jpg"],
+
         "width": 60,
         "height": 40
       }
@@ -707,8 +710,8 @@
     "category": "Nature & Wildlife",
     "subcategory": "Sky Decor",
     "tags": ["sunset"],
-    "images": ["/sunset1.jpg"],
-    "image": ["/sunset1.jpg"],
+    "images": ["/sacred1.jpg", "/sacred2.jpg", "/sacred3.jpg", "/sacred4.jpg"],
+
     "SKU": "DWL-ART-012",
     "materialType": "metal",
     "weight": "1.2kg",
@@ -716,7 +719,6 @@
     "returnPolicy": "Eligible for return within 7 days of delivery.",
     "deliverBy": 6,
     "hasVariants": true,
-    "basePrice": 1599,
     "amazonPrice": 3199,
     "mrp": 3199,
     "sellingPrice": 1599,
@@ -734,8 +736,8 @@
         "variantName": "Color",
         "variantQuantity": 5,
         "variantReorderLimit": 4,
-        "variantImage": ["/sunset2.jpg"],
-        "images": ["/sunset2.jpg"],
+        "variantImage": ["/sacred1.jpg"],
+
         "width": 60,
         "height": 40
       },
@@ -746,8 +748,8 @@
         "variantName": "Color",
         "variantQuantity": 7,
         "variantReorderLimit": 6,
-        "variantImage": ["/sunset3.jpg"],
-        "images": ["/sunset3.jpg"],
+        "variantImage": ["/sacred2.jpg"],
+
         "width": 60,
         "height": 40
       },
@@ -758,8 +760,8 @@
         "variantName": "Material",
         "variantQuantity": 6,
         "variantReorderLimit": 5,
-        "variantImage": ["/sunset4.jpg"],
-        "images": ["/sunset4.jpg"],
+        "variantImage": ["/sacred3.jpg"],
+
         "width": 60,
         "height": 40
       },
@@ -770,8 +772,8 @@
         "variantName": "Material",
         "variantQuantity": 4,
         "variantReorderLimit": 3,
-        "variantImage": ["/sunset5.jpg"],
-        "images": ["/sunset5.jpg"],
+        "variantImage": ["/sacred4.jpg"],
+
         "width": 60,
         "height": 40
       }
@@ -799,7 +801,6 @@
       }
     ]
   },
-
   {
     "uuid": "dwl-art-013",
     "route": "/product/dwl-art-013",
@@ -809,8 +810,8 @@
     "category": "Nature & Wildlife",
     "subcategory": "Mountain Decor",
     "tags": ["mountain"],
-    "images": ["/mountain1.jpg"],
-    "image": ["/mountain1.jpg"],
+    "images": ["/Nature1.png", "/Nature2.png", "/Nature3.png", "/Nature4.png"],
+
     "SKU": "DWL-ART-013",
     "materialType": "metal",
     "weight": "1.7kg",
@@ -818,7 +819,6 @@
     "returnPolicy": "Eligible for return within 7 days of delivery.",
     "deliverBy": 5,
     "hasVariants": true,
-    "basePrice": 1899,
     "amazonPrice": 3799,
     "mrp": 3799,
     "sellingPrice": 1899,
@@ -836,8 +836,8 @@
         "variantName": "Color",
         "variantQuantity": 5,
         "variantReorderLimit": 4,
-        "variantImage": ["/mountain2.jpg"],
-        "images": ["/mountain2.jpg"],
+        "variantImage": ["/Nature1.png"],
+
         "width": 60,
         "height": 40
       },
@@ -848,8 +848,8 @@
         "variantName": "Color",
         "variantQuantity": 4,
         "variantReorderLimit": 3,
-        "variantImage": ["/mountain3.jpg"],
-        "images": ["/mountain3.jpg"],
+        "variantImage": ["/Nature3.png"],
+
         "width": 60,
         "height": 40
       },
@@ -860,20 +860,8 @@
         "variantName": "Material",
         "variantQuantity": 6,
         "variantReorderLimit": 5,
-        "variantImage": ["/mountain4.jpg"],
-        "images": ["/mountain4.jpg"],
-        "width": 60,
-        "height": 40
-      },
-      {
-        "variantId": "dwl-art-013-v4",
-        "variantType": "Framed",
-        "variantValue": "blue",
-        "variantName": "Material",
-        "variantQuantity": 7,
-        "variantReorderLimit": 6,
-        "variantImage": ["/mountain5.jpg"],
-        "images": ["/mountain5.jpg"],
+        "variantImage": ["/Nature4.png"],
+
         "width": 60,
         "height": 40
       }
@@ -911,7 +899,7 @@
     "subcategory": "Animal Decor",
     "tags": ["wildlife"],
     "images": ["/horses1.jpg"],
-    "image": ["/horses1.jpg"],
+
     "SKU": "DWL-ART-014",
     "materialType": "metal",
     "weight": "1.4kg",
@@ -919,7 +907,6 @@
     "returnPolicy": "Eligible for return within 7 days of delivery.",
     "deliverBy": 4,
     "hasVariants": true,
-    "basePrice": 1699,
     "amazonPrice": 3399,
     "mrp": 3399,
     "sellingPrice": 1699,
@@ -937,8 +924,8 @@
         "variantName": "Color",
         "variantQuantity": 4,
         "variantReorderLimit": 3,
-        "variantImage": ["/horses2.jpg"],
-        "images": ["/horses2.jpg"],
+        "variantImage": ["/horses1.jpg"],
+
         "width": 60,
         "height": 40
       },
@@ -950,7 +937,7 @@
         "variantQuantity": 3,
         "variantReorderLimit": 2,
         "variantImage": ["/horses3.jpg"],
-        "images": ["/horses3.jpg"],
+
         "width": 60,
         "height": 40
       },
@@ -962,7 +949,7 @@
         "variantQuantity": 5,
         "variantReorderLimit": 4,
         "variantImage": ["/horses4.jpg"],
-        "images": ["/horses4.jpg"],
+
         "width": 60,
         "height": 40
       },
@@ -974,7 +961,7 @@
         "variantQuantity": 6,
         "variantReorderLimit": 5,
         "variantImage": ["/horses5.jpg"],
-        "images": ["/horses5.jpg"],
+
         "width": 60,
         "height": 40
       }
@@ -1011,8 +998,8 @@
     "category": "Nature & Wildlife",
     "subcategory": "Floral Decor",
     "tags": ["gold"],
-    "images": ["/leaves1.jpg"],
-    "image": ["/leaves1.jpg"],
+    "images": ["/floral1.jpg"],
+
     "SKU": "DWL-ART-015",
     "materialType": "metal",
     "weight": "1.1kg",
@@ -1020,7 +1007,6 @@
     "returnPolicy": "Eligible for return within 7 days of delivery.",
     "deliverBy": 6,
     "hasVariants": true,
-    "basePrice": 1399,
     "amazonPrice": 2799,
     "mrp": 2799,
     "sellingPrice": 1399,
@@ -1038,8 +1024,8 @@
         "variantName": "Color",
         "variantQuantity": 6,
         "variantReorderLimit": 5,
-        "variantImage": ["/leaves2.jpg"],
-        "images": ["/leaves2.jpg"],
+        "variantImage": ["/floral1.jpg"],
+
         "width": 60,
         "height": 40
       },
@@ -1050,8 +1036,8 @@
         "variantName": "Material",
         "variantQuantity": 5,
         "variantReorderLimit": 4,
-        "variantImage": ["/leaves3.jpg"],
-        "images": ["/leaves3.jpg"],
+        "variantImage": ["/floral1.jpg"],
+
         "width": 60,
         "height": 40
       },
@@ -1062,8 +1048,8 @@
         "variantName": "Material",
         "variantQuantity": 4,
         "variantReorderLimit": 3,
-        "variantImage": ["/leaves4.jpg"],
-        "images": ["/leaves4.jpg"],
+        "variantImage": ["/floral1.jpg"],
+
         "width": 60,
         "height": 40
       },
@@ -1074,8 +1060,8 @@
         "variantName": "Color",
         "variantQuantity": 6,
         "variantReorderLimit": 5,
-        "variantImage": ["/leaves5.jpg"],
-        "images": ["/leaves5.jpg"],
+        "variantImage": ["/floral1.jpg"],
+
         "width": 60,
         "height": 40
       }
@@ -1112,8 +1098,8 @@
     "category": "Nature & Wildlife",
     "subcategory": "Ocean Decor",
     "tags": ["coral"],
-    "images": ["/coral1.jpg"],
-    "image": ["/coral1.jpg"],
+    "images": ["/mandala1.jpg","/mandala2.jpg","/mandala3.jpg","/mandala4.jpg"],
+
     "SKU": "DWL-ART-016",
     "materialType": "metal",
     "weight": "1.4kg",
@@ -1121,7 +1107,6 @@
     "returnPolicy": "Eligible for return within 7 days of delivery.",
     "deliverBy": 7,
     "hasVariants": true,
-    "basePrice": 1699,
     "amazonPrice": 3399,
     "mrp": 3399,
     "sellingPrice": 1699,
@@ -1139,8 +1124,8 @@
         "variantName": "Color",
         "variantQuantity": 5,
         "variantReorderLimit": 4,
-        "variantImage": ["/coral2.jpg"],
-        "images": ["/coral2.jpg"],
+        "variantImage": ["/mandala1.jpg"],
+
         "width": 60,
         "height": 40
       },
@@ -1152,8 +1137,8 @@
         "variantName": "Material",
         "variantQuantity": 6,
         "variantReorderLimit": 5,
-        "variantImage": ["/coral3.jpg"],
-        "images": ["/coral3.jpg"],
+        "variantImage": ["/mandala2.jpg"],
+
         "width": 60,
         "height": 40
       },
@@ -1165,8 +1150,8 @@
         "variantName": "Color",
         "variantQuantity": 7,
         "variantReorderLimit": 6,
-        "variantImage": ["/coral4.jpg"],
-        "images": ["/coral4.jpg"],
+        "variantImage": ["/mandala3.jpg"],
+
         "width": 60,
         "height": 40
       },
@@ -1178,8 +1163,8 @@
         "variantName": "Material",
         "variantQuantity": 8,
         "variantReorderLimit": 7,
-        "variantImage": ["/coral5.jpg"],
-        "images": ["/coral5.jpg"],
+        "variantImage": ["/mandala4.jpg"],
+
         "width": 60,
         "height": 40
       }
@@ -1216,8 +1201,13 @@
     "category": "Reflection Art",
     "subcategory": "Abstract Decor",
     "tags": ["reflection"],
-    "images": ["/mirror_reflection1.jpg"],
-    "image": ["/mirror_reflection1.jpg"],
+    "images": [
+      "/Reflection1.jpg",
+      "/Reflection2.jpg",
+      "/Reflection3.jpg",
+      "/Reflection4.png"
+    ],
+
     "SKU": "DWL-ART-021",
     "materialType": "glass",
     "weight": "1.2kg",
@@ -1225,7 +1215,6 @@
     "returnPolicy": "Eligible for return within 7 days of delivery.",
     "deliverBy": 6,
     "hasVariants": true,
-    "basePrice": 1599,
     "amazonPrice": 3199,
     "mrp": 3199,
     "sellingPrice": 1599,
@@ -1243,8 +1232,8 @@
         "variantName": "Material",
         "variantQuantity": 5,
         "variantReorderLimit": 4,
-        "variantImage": ["/mirror_reflection2.jpg"],
-        "images": ["/mirror_reflection2.j"],
+        "variantImage": ["/Reflection1.jpg"],
+
         "width": 60,
         "height": 40
       },
@@ -1255,8 +1244,8 @@
         "variantName": "Material",
         "variantQuantity": 119,
         "variantReorderLimit": 3,
-        "variantImage": ["/mirror_reflection3.jpg"],
-        "images": ["/mirror_reflection3.j,"],
+        "variantImage": ["/Reflection2.jpg"],
+
         "width": 60,
         "height": 40
       }
@@ -1293,8 +1282,8 @@
     "category": "Clones",
     "subcategory": "Abstract Decor",
     "tags": ["clones"],
-    "images": ["/clones_art1.jpg"],
-    "image": ["/clones_art1.jpg"],
+    "images": ["/Clone1.png", "/Clone2.png", "/Clone3.png", "/Clone4.png"],
+
     "SKU": "DWL-ART-022",
     "materialType": "metal",
     "weight": "1.5kg",
@@ -1302,7 +1291,6 @@
     "returnPolicy": "Eligible for return within 7 days of delivery.",
     "deliverBy": 4,
     "hasVariants": true,
-    "basePrice": 1799,
     "amazonPrice": 3599,
     "mrp": 3599,
     "sellingPrice": 1799,
@@ -1320,8 +1308,8 @@
         "variantName": "Color",
         "variantQuantity": 4,
         "variantReorderLimit": 3,
-        "variantImage": ["/clones_art2.jpg"],
-        "images": ["/clones_art2.jpg"],
+        "variantImage": ["/Clone1.png"],
+
         "width": 60,
         "height": 40
       },
@@ -1332,8 +1320,8 @@
         "variantName": "Material",
         "variantQuantity": 3,
         "variantReorderLimit": 2,
-        "variantImage": ["/clones_art3.jpg"],
-        "images": ["/clones_art3.jpg"],
+        "variantImage": ["/Clone2.png"],
+
         "width": 60,
         "height": 40
       }
@@ -1370,8 +1358,13 @@
     "category": "Typography & Symbols",
     "subcategory": "Inspirational Quotes",
     "tags": ["typography"],
-    "images": ["/live_laugh_love2.jpg", "/live_laugh_love3.jpg"],
-    "image": ["/live_laugh_love.jpg"],
+    "images": [
+      "/Typography1.png",
+      "/Typography2.png",
+      "/Typography3.png",
+      "/typography1.jpg"
+    ],
+
     "SKU": "DWL-ART-023",
     "materialType": "metal",
     "weight": "1.0kg",
@@ -1379,7 +1372,6 @@
     "returnPolicy": "Eligible for return within 7 days of delivery.",
     "deliverBy": 5,
     "hasVariants": true,
-    "basePrice": 1299,
     "amazonPrice": 2599,
     "mrp": 2599,
     "sellingPrice": 1299,
@@ -1397,8 +1389,7 @@
         "variantName": "Color",
         "variantQuantity": 6,
         "variantReorderLimit": 5,
-        "variantImage": ["/live_laugh_love2.jpg"],
-        "images": ["/live_laugh_love2.jpg"],
+        "variantImage": ["/Typography1.png"],
         "width": 60,
         "height": 40
       },
@@ -1409,8 +1400,7 @@
         "variantName": "Material",
         "variantQuantity": 6,
         "variantReorderLimit": 5,
-        "variantImage": ["/live_laugh_love3.jpg"],
-        "images": ["/live_laugh_love3.jpg"],
+        "variantImage": ["/Typography2.png"],
         "width": 60,
         "height": 40
       }
@@ -1447,8 +1437,8 @@
     "category": "Wall Arts",
     "subcategory": "Abstract Art",
     "tags": ["abstract"],
-    "images": ["/abstract_wall_art1.jpg"],
-    "image": ["/abstract_wall_art1.jpg"],
+    "images": ["/Art1.webp", "/Art2.png", "/art3.jpg", "/Art4.webp"],
+
     "SKU": "DWL-ART-024",
     "materialType": "canvas",
     "weight": "2.0kg",
@@ -1456,7 +1446,6 @@
     "returnPolicy": "Eligible for return within 7 days of delivery.",
     "deliverBy": 7,
     "hasVariants": true,
-    "basePrice": 2199,
     "amazonPrice": 4399,
     "mrp": 4399,
     "sellingPrice": 2199,
@@ -1474,8 +1463,8 @@
         "variantName": "Color",
         "variantQuantity": 8,
         "variantReorderLimit": 7,
-        "variantImage": ["/abstract_wall_art2.jpg"],
-        "images": ["/abstract_wall_art2.j"],
+        "variantImage": ["/Art1.webp"],
+
         "width": 60,
         "height": 40
       },
@@ -1486,8 +1475,8 @@
         "variantName": "Material",
         "variantQuantity": 7,
         "variantReorderLimit": 6,
-        "variantImage": ["/abstract_wall_art3.jpg"],
-        "images": ["/abstract_wall_art3.j"],
+        "variantImage": ["/Art2.png"],
+
         "width": 60,
         "height": 40
       }

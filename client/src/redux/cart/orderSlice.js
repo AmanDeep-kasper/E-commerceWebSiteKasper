@@ -81,6 +81,18 @@ const orderSlice = createSlice({
       state.list = [];
       saveOrders([]);
     },
+
+    // ⭐ ADD THIS (Place it here)
+    cancelOrder(state, action) {
+      const orderId = action.payload;
+
+      state.list = state.list.map((order) =>
+        order.orderId === orderId
+          ? { ...order, orderStatus: "Cancelled" }
+          : order
+      );
+      saveOrders(state.list);
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -99,5 +111,5 @@ const orderSlice = createSlice({
   },
 });
 
-export const { resetOrder, clearOrders } = orderSlice.actions;
+export const { resetOrder, clearOrders, cancelOrder } = orderSlice.actions;
 export default orderSlice.reducer;

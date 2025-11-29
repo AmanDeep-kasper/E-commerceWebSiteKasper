@@ -53,9 +53,10 @@ function Card({ cardData = [] }) {
           const { base, effective, discountPercent, symbol } = getPrices(item);
           const outOfStock = !item.variantQuantity || item.variantQuantity <= 0;
 
-          const imageUrl = Array.isArray(defaultVariant?.images)
-            ? defaultVariant.images[0]
-            : defaultVariant?.image || "/placeholder.png";
+          const imageUrl = Array.isArray(defaultVariant?.variantImage)
+            ? defaultVariant.variantImage[0]
+            : defaultVariant?.variantImage || "/placeholder.png";
+            
 
           const colorMap = {
             black: "bg-black",
@@ -72,6 +73,7 @@ function Card({ cardData = [] }) {
               i.uuid === item.uuid && i.variantId === defaultVariant.variantId
           );
           const isLoading = loadingIds.includes(item.uuid);
+
           return (
             <div
               key={item.uuid || index}

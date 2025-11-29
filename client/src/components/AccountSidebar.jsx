@@ -2,9 +2,12 @@ import { Wallet, Camera } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import axiosInstance from "../api/axiosInstance";
 import { Link, NavLink } from "react-router";
+const dispatch = useDispatch;
 import users from "../data/user";
 import { User, Package, Heart, MapPin, HelpCircle, Star } from "lucide-react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { toast } from "react-toastify";
+import { logout } from "../redux/cart/userSlice";
 
 const accountMenu = [
   { label: "Account Details", path: "/details", icon: User },
@@ -20,7 +23,7 @@ function AccountSidebar() {
   const [name, setName] = useState(users[0].name);
   const inputRef = useRef(null);
   const token = localStorage.getItem("token");
-  const {user, isAuthenticated} = useSelector(s => s.user)
+  const { user, isAuthenticated } = useSelector((s) => s.user);
 
   // 🟡 Fetch user data including image on mount
   useEffect(() => {
@@ -65,7 +68,14 @@ function AccountSidebar() {
       console.error("Upload failed", err);
     }
   };
+  const dispatch = useDispatch();
 
+  const handleLogout = () => {
+    dispatch(logout()); // clear token + reset user state
+    localStorage.removeItem("token"); // optional: if not done in slice
+    toast.success("Logged out successfully");
+    navigate("/"); // redirect to homepage
+  };
 
   return (
     <div className="sticky top-20 h-max min-w-[310px] !w-[310px] bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200">
@@ -73,10 +83,11 @@ function AccountSidebar() {
       <div className="px-6 py-4 flex gap-4 items-center text-white bg-[#E4C590] border-l-black rounded-b-3xl rounded-t-lg m-1">
         <div className="relative group w-14 h-14 rounded-full overflow-hidden border-2 border-white/90 hover:border-white/50 transition-all duration-300">
           <img
-            src={`http://localhost:5000/uploads/${image}` ||"/name1.jpg "}
+            src={image || "/name1.jpg"}
             alt="Profile"
             className="w-full h-full object-cover rounded-full group-hover:scale-110 transition-transform duration-300"
           />
+
           <div
             className="absolute inset-0 bg-black/40 flex items-center justify-center cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity duration-300"
             onClick={() => inputRef.current.click()}
@@ -165,7 +176,7 @@ function AccountSidebar() {
         {/* Logout */}
         <hr />
         <button
-          // onClick={handleLogout}
+          onClick={handleLogout}
           className="w-full flex items-center px-3 py-3 mt-1 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200 group"
         >
           <div className="p-1.5 mr-3 bg-red-100 rounded-lg group-hover:bg-red-200 transition-all duration-200">

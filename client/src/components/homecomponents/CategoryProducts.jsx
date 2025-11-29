@@ -137,7 +137,7 @@ function CategoryProducts() {
                       />
 
                       {/* Optional rating badge */}
-                      {typeof p?.rating?.average === "number" && (
+                      {typeof p?.reviews?.rating?.average === "number" && (
                         <span className="absolute top-1 right-1 bg-yellow-400 text-gray-800 text-[10px] px-2 py-0.5 rounded-full shadow">
                           {p.rating.average.toFixed(1)} ★
                         </span>
