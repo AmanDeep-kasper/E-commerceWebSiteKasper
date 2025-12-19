@@ -139,22 +139,31 @@
 
 import { createSlice } from "@reduxjs/toolkit";
 import products from "../../data/products.json";
+import { useEffect, useState } from "react";
+import axiosInstance from "../../api/axiosInstance";
 
+// const [produtsbackend, setprodutsbackend] = useState([]);
+
+// useEffect(() => {
+//   const fetchData = async () => {
+//     try {
+//       const res = await axiosInstance.get("/products/all");
+//       // console.log(res.data)
+//       setprodutsbackend(res.data);
+//     } catch (error) {
+//       console.log("ERROR:", error);
+//     }
+//   };
+//   fetchData();
+// }, []);
+
+/* ------------------------------
+   Load Cart From LocalStorage
+--------------------------------*/
 const loadCartFromStorage = () => {
   try {
     const saved = localStorage.getItem("cart");
-    let cart = saved ? JSON.parse(saved) : [];
-
-    // 🔄 Resync stock with latest product list
-    cart = cart.map((item) => {
-      const latest = products.find((p) => p.uuid === item.uuid);
-      return {
-        ...item,
-        stockQuantity: latest?.stockQuantity ?? 0,
-      };
-    });
-
-    return cart;
+    return saved ? JSON.parse(saved) : [];
   } catch {
     return [];
   }
@@ -166,10 +175,11 @@ const saveCartToStorage = (cartItems) => {
   } catch {}
 };
 
-// Pull in existing items
+/* ------------------------------
+   Initial State
+--------------------------------*/
 const savedItems = loadCartFromStorage();
 
-// Pre-compute totals
 const initialState = {
   cartItems: savedItems,
   totalItems: savedItems.reduce((sum, i) => sum + i.quantity, 0),
@@ -182,11 +192,16 @@ const initialState = {
   buyNowMode: false,
 };
 
+/* ------------------------------
+   Slice
+--------------------------------*/
 const cartSlice = createSlice({
   name: "cart",
   initialState,
   reducers: {
-    // 🔄 Sync totals and persist
+    /* ------------------------------
+       Sync & Save
+    --------------------------------*/
     syncCart: (state) => {
       state.totalItems = state.cartItems.reduce(
         (sum, i) => sum + i.quantity,
@@ -201,10 +216,13 @@ const cartSlice = createSlice({
           sum + ((i.basePrice * (i.discountPercent || 0)) / 100) * i.quantity,
         0
       );
+
       saveCartToStorage(state.cartItems);
     },
 
-    // 🛒 Add one item
+    /* ------------------------------
+       Add Single Item
+    --------------------------------*/
     addToCart: (state, { payload: item }) => {
       const ex = state.cartItems.find(
         (i) => i.uuid === item.uuid && i.variantId === item.variantId
@@ -221,13 +239,19 @@ const cartSlice = createSlice({
           stockQuantity: item.stockQuantity ?? 0,
         });
       }
+
       cartSlice.caseReducers.syncCart(state);
     },
 
-    // 🛒 Add multiple items at once
+    /* ------------------------------
+       Add multiple items
+    --------------------------------*/
     addMultipleItemToCart: (state, { payload }) => {
       const { product, quantity = 1 } = payload;
-      const ex = state.cartItems.find((i) => i.uuid === product.uuid);
+
+      const ex = state.cartItems.find(
+        (i) => i.uuid === product.uuid && i.variantId === product.variantId
+      );
 
       if (ex) {
         if (ex.stockQuantity >= ex.quantity + quantity) {
@@ -240,10 +264,13 @@ const cartSlice = createSlice({
           stockQuantity: product.stockQuantity ?? 0,
         });
       }
+
       cartSlice.caseReducers.syncCart(state);
     },
 
-    //  Remove from cart
+    /* ------------------------------
+       Remove item
+    --------------------------------*/
     removeFromCart: (state, { payload: item }) => {
       state.cartItems = state.cartItems.filter(
         (i) => !(i.uuid === item.uuid && i.variantId === item.variantId)
@@ -251,42 +278,58 @@ const cartSlice = createSlice({
       cartSlice.caseReducers.syncCart(state);
     },
 
-    // Increase qty
-    increaseQty: (state, { payload: item }) => {
+    /* ------------------------------
+       Increase Qty
+    --------------------------------*/
+    increaseQty: (state, { payload }) => {
+      const { uuid, variantId } = payload;
+
       const ex = state.cartItems.find(
-        (i) => i.uuid === item.uuid && i.variantId === item.variantId
+        (i) => i.uuid === uuid && i.variantId === variantId
       );
-      if (ex) {
-        if (ex.stockQuantity > ex.quantity) {
-          ex.quantity++;
-        }
+
+      if (ex && ex.stockQuantity > ex.quantity) {
+        ex.quantity++;
       }
+
       cartSlice.caseReducers.syncCart(state);
     },
 
-    //  Decrease qty
-    decreaseQty: (state, { payload: item }) => {
+    /* ------------------------------
+       Decrease Qty
+    --------------------------------*/
+    decreaseQty: (state, { payload }) => {
+      const { uuid, variantId } = payload;
+
       const ex = state.cartItems.find(
-        (i) => i.uuid === item.uuid && i.variantId === item.variantId
+        (i) => i.uuid === uuid && i.variantId === variantId
       );
-      if (ex?.quantity > 1) {
+
+      if (!ex) return;
+
+      if (ex.quantity > 1) {
         ex.quantity--;
       } else {
         state.cartItems = state.cartItems.filter(
-          (i) => !(i.uuid === item.uuid && i.variantId === item.variantId)
+          (i) => !(i.uuid === uuid && i.variantId === variantId)
         );
       }
+
       cartSlice.caseReducers.syncCart(state);
     },
 
-    // 🧹 Clear cart
+    /* ------------------------------
+       Clear Cart
+    --------------------------------*/
     clearCart: (state) => {
       state.cartItems = [];
       state.buyNowMode = false;
       cartSlice.caseReducers.syncCart(state);
     },
 
-    // ⚡ Buy Now (single item)
+    /* ------------------------------
+       Buy Now
+    --------------------------------*/
     buyNow: (state, { payload: item }) => {
       state.cartItems = [
         {
@@ -295,21 +338,26 @@ const cartSlice = createSlice({
           stockQuantity: item.stockQuantity ?? 0,
         },
       ];
+
       state.totalItems = 1;
       state.totalPrice = item.basePrice;
       state.totalDiscount =
         ((item.basePrice * (item.discountPercent || 0)) / 100) * 1;
+
       state.buyNowMode = true;
+
       saveCartToStorage(state.cartItems);
     },
 
-    // 🔄 Reset Buy Now flag
     resetBuyNow: (state) => {
       state.buyNowMode = false;
     },
   },
 });
 
+/* ------------------------------
+   Exports
+--------------------------------*/
 export const {
   syncCart,
   addToCart,
@@ -321,8 +369,8 @@ export const {
   buyNow,
   resetBuyNow,
 } = cartSlice.actions;
-export default cartSlice.reducer;
 
+export default cartSlice.reducer;
 
 
 /////////////////////////////////////////////////////////////////////

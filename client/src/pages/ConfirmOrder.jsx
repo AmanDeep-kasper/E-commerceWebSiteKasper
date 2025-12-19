@@ -11,6 +11,7 @@ function ConfirmOrder() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { state: orderDetails } = useLocation();
+  const { state } = useLocation();
 
   if (!orderDetails) return <>None</>;
 
@@ -27,6 +28,11 @@ function ConfirmOrder() {
             Thank you for your purchase. Your order has been placed and is being
             processed.
           </p>
+          {state?.paymentIntent && (
+            <p style={{ marginTop: "20px" }}>
+              Payment Reference: {state.paymentIntent}
+            </p>
+          )}
           <p className="text-gray-500">
             Order ID:{" "}
             <span className="font-semibold">{orderDetails.orderId}</span>

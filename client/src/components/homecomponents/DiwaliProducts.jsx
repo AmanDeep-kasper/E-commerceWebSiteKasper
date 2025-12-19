@@ -1,5 +1,5 @@
 import Title from "../Title";
-import products from "../../data/products.json";
+// import products from "../../data/products.json";
 import { Link } from "react-router";
 import {
   getProductUrl,
@@ -9,9 +9,11 @@ import {
 } from "../../utils/homePageUtils";
 import { useEffect, useState } from "react";
 import { Anvil } from "lucide-react";
+import axiosInstance from "../../api/axiosInstance";
 
 const DiwaliProducts = () => {
   const [visibleCount, setVisibleCount] = useState(4); // default = phone
+  const [diwaliProduct, setdiwaliProducts] = useState([])
 
   useEffect(() => {
     const updateCount = () => {
@@ -30,8 +32,23 @@ const DiwaliProducts = () => {
     return () => window.removeEventListener("resize", updateCount);
   }, []);
 
+
+  useEffect(() => {
+    const fetchProducts = async()=>{
+      try {
+        const res =  await axiosInstance.get("/products/all")
+        // console.log("PRODUCTS",res.data)
+        setdiwaliProducts(res.data)
+      } catch (error) {
+        console.log("ERROR IN FETCH THE DATA",error)
+      }
+    }
+    fetchProducts()
+  }, [])
+  
+
   // Sample product data
-  const diwaliProducts = products.filter(
+  const diwaliProducts = diwaliProduct.filter(
     (p) => p.category === "Festive Collection"
   );
 

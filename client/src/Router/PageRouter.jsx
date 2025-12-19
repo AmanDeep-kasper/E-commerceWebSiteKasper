@@ -28,6 +28,7 @@ import MyReviews from "../components/MyReviews";
 import Contact from "../components/Contact";
 import OrderDetail from "../components/OrderDetail";
 import ReturnPage from "../pages/ReturnPage";
+// import PaymentSuccess from "../pages/PaymentSuccess";
 // Admin Pages
 import Dashboard from "../pages/admin/Dashboard";
 import Customer from "../pages/admin/customer/Customer";
@@ -109,7 +110,9 @@ const PageRouter = () => {
         {/* <Route path="/recent" element={<RecentActivity />} /> */}
         <Route path="/order-history/:orderId" element={<OrderTracking />} />
         <Route path="/products/:categoryName" element={<Product />} />
+        {/* <Route path="/payment-success" element={<PaymentSuccess />} /> */}
         <Route path="/confirm-order" element={<ConfirmOrder />} />
+
         <Route path="/all-reviews/:uuid" element={<AllReviews />} />
         <Route path="/products" element={<NewProducts />} />
         <Route path="/products/top-products" element={<TopProducts />} />
@@ -122,12 +125,15 @@ const PageRouter = () => {
         <Route path="/checkout/payment" element={<Payment />} />
 
         <Route path="/policy" element={<Policy />} />
+        {/* <Route path="/payment-success" element={<PaymentSuccess />} /> */}
+        {/* <Route path="/confirm-order" element={<ConfirmOrder />} /> */}
 
         {/* Admin Route */}
         <Route path="/admin" element={<AdminLayout />}>
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="add-product" element={<AddProduct />} />
-          <Route path="add-product/:uuid" element={<AddProduct />} /> // update the data 
+          <Route path="add-product/:uuid" element={<AddProduct />} /> // update
+          the data
           <Route path="customers" element={<Customer />} />
           <Route path="products" element={<Products />} />
           <Route path="categories" element={<Categories />} />
@@ -135,7 +141,6 @@ const PageRouter = () => {
           <Route path="users" element={<User />} />
           <Route path="sales" element={<Sale />} />
           <Route path="stocks" element={<Stock />} />
-
           {/* Customer */}
           <Route path="customers/:id" element={<CustomerLayout />}>
             <Route path="customer-info" element={<Information />} />
@@ -144,7 +149,6 @@ const PageRouter = () => {
             <Route path="address-book" element={<Addresses />} />
             <Route path="support-feedback" element={<Feedback />} />
           </Route>
-
           {/* Forms */}
           <Route path="" element={<CustomerForm />}>
             <Route path="customer-form" element={<InformationForm />} />
@@ -153,17 +157,14 @@ const PageRouter = () => {
             <Route path="address-form" element={<AddressBookForm />} />
             <Route path="support-form" element={<SupportFeedbackForm />} />
           </Route>
-
           {/* Details */}
           <Route path="product-info/:uuid" element={<ProductInformation />} />
           <Route path="order-info/:orderId" element={<OrderInformation />} />
           <Route path="stock-info/:uuid" element={<StockDetail />} />
           <Route path="stock-form" element={<StockEditForm />} />
-
           {/* Admin Profile */}
           <Route path="profile-setting" element={<AdminProfileSetting />} />
           <Route path="profile-form" element={<AdminProfileForm />} />
-
           {/* Settings */}
           <Route path="settings" element={<SettingsLayout />}>
             <Route path="general" element={<GeneralSettings />} />

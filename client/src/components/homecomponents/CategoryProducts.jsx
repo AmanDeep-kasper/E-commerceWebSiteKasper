@@ -20,79 +20,55 @@ import category18 from "../../assets/Category18.png";
 import Tilt from "react-parallax-tilt";
 import Button from "../Button";
 import Title from "../Title";
-import products from "../../data/products.json";
+// import products from "../../data/products.json";
 import { Link, useNavigate } from "react-router";
 import { ArrowRight } from "lucide-react";
 import { getCardImage } from "../../utils/homePageUtils";
+import axiosInstance from "../../api/axiosInstance";
 
-const categories = products.filter(
-  (item, index, self) =>
-    index === self.findIndex((obj) => obj.category === item.category)
-);
-// console.log(categories)
 
-const cat = [...new Set(products.map((item) => item.category))];
-// console.log(cat)
-
-const subcategories = products
-  .filter(
-    (item, index, self) =>
-      index === self.findIndex((obj) => obj.subcategory === item.subcategory)
-  )
-  .slice(0, 12);
-
-// console.log(subcategories)
-
-const categoryMap = new Map();
-
-products.forEach((item) => {
-  if (!categoryMap.has(item.category)) {
-    categoryMap.set(item.category, []);
-  }
-  categoryMap.get(item.category).push(item);
-});
-
-const randomProducts = [];
-
-categoryMap.forEach((items) => {
-  for (let i = 0; i < 4; i++) {
-    const randomIndex = Math.floor(Math.random() * items.length);
-    randomProducts.push(items[randomIndex]);
-  }
-});
-
-// console.log(randomProducts);
-
-const groupedProducts = products.reduce((acc, product) => {
-  if (!acc[product.category]) {
-    acc[product.category] = [];
-  }
-  acc[product.category].push(product);
-  return acc;
-}, {});
-
-// console.log(randomProducts);
 
 function CategoryProducts() {
-  const navigate = useNavigate(null);
-  const [visibleCount, setVisibleCount] = useState(4); // default = phone
+ const navigate = useNavigate();
 
+  const [allcategory, setAllCategory] = useState([]);
+  const [visibleCount, setVisibleCount] = useState(4);
+
+  // Fetch categories/products
   useEffect(() => {
-    const updateCount = () => {
-      if (window.innerWidth >= 1024) {
-        setVisibleCount(8); // Desktop
-      } else if (window.innerWidth >= 640) {
-        setVisibleCount(9); // Tablet
-      } else {
-        setVisibleCount(9); // Phone
+    const fetchProducts = async () => {
+      try {
+        const res = await axiosInstance.get("/products/all");
+        setAllCategory(res.data);
+      } catch (error) {
+        console.log("Fetch error:", error);
       }
     };
 
-    updateCount(); // Run on mount
+    fetchProducts();
+  }, []);
+
+  // Responsive grid items
+  useEffect(() => {
+    const updateCount = () => {
+      if (window.innerWidth >= 1024) setVisibleCount(8);
+      else if (window.innerWidth >= 640) setVisibleCount(9);
+      else setVisibleCount(9);
+    };
+
+    updateCount();
     window.addEventListener("resize", updateCount);
 
     return () => window.removeEventListener("resize", updateCount);
   }, []);
+
+  // GROUPING ONLY AFTER DATA IS LOADED
+  const groupedProducts = allcategory.reduce((acc, product) => {
+    if (!acc[product.category]) acc[product.category] = [];
+    acc[product.category].push(product);
+    return acc;
+  }, {});
+
 
   return (
     <div>
@@ -104,62 +80,65 @@ function CategoryProducts() {
         gap-2 md:gap-5 lg:gap-4 grid-flow-row
         place-items-center"
       >
-        {Object.entries(groupedProducts).slice(0, visibleCount)
-        .map(([category, items]) => (
-          <Link
-            key={category}
-            to={`/products/${encodeURIComponent(category)}`}
-            className="bg-gradient-to-b border border-gray-200  bg-white py-2 px-4"
-          >
-            <h2 className="md:text-2xl text-[20px] py-[10px] font-semibold">
-              {category}
-            </h2>
-            <div className="grid grid-cols-2 gap-4">
-              {items.slice(0, 4).map((p, index) => (
-                <div
-                  key={`${p.id || p.uuid || p.SKU || p.title}-${index}`}
-                  className="cursor-pointer flex flex-col items-center transition-all duration-300 hover:shadow-sm"
-                  onClick={() => navigate(getProductHref(p))}
-                >
-                  <div className="flex flex-col w-full h-full overflow-hidden">
-                    {/* Product Image */}
-                    <div className="relative w-full aspect-square rounded-md overflow-hidden">
-                      <img
-                        className="w-full h-full bg-white object-contain hover:scale-105 transition-transform duration-300"
-                        src={getCardImage(p)}
-                        alt={
-                          p.title ||
-                          p.slug ||
-                          `${p.category} ${p.subcategory}` ||
-                          "Product"
-                        }
-                        loading="lazy"
-                      />
-
-                      {/* Optional rating badge */}
-                      {typeof p?.reviews?.rating?.average === "number" && (
-                        <span className="absolute top-1 right-1 bg-yellow-400 text-gray-800 text-[10px] px-2 py-0.5 rounded-full shadow">
-                          {p.rating.average.toFixed(1)} ★
-                        </span>
-                      )}
-                    </div>
-
-                    <h3 className="text-xs py-2 bg-transparent line-clamp-1 h-6">
-                      {p.title}
-                    </h3>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <button
-              className="underline text-blue-800 hover:text-blue-950 py-2 text-sm"
-              onClick={() => navigate(`/products/${encodeURIComponent(category)}`)}
+        {Object.entries(groupedProducts)
+          .slice(0, visibleCount)
+          .map(([category, items]) => (
+            <Link
+              key={category}
+              to={`/products/${encodeURIComponent(category)}`}
+              className="bg-gradient-to-b border border-gray-200  bg-white py-2 px-4"
             >
-              view all
-            </button>
-          </Link>
-        ))}
+              <h2 className="md:text-2xl text-[20px] py-[10px] font-semibold">
+                {category}
+              </h2>
+              <div className="grid grid-cols-2 gap-4">
+                {items.slice(0, 4).map((p, index) => (
+                  <div
+                    key={`${p.id || p.uuid || p.SKU || p.title}-${index}`}
+                    className="cursor-pointer flex flex-col items-center transition-all duration-300 hover:shadow-sm"
+                    onClick={() => navigate(getProductHref(p))}
+                  >
+                    <div className="flex flex-col w-full h-full overflow-hidden">
+                      {/* Product Image */}
+                      <div className="relative w-full aspect-square rounded-md overflow-hidden">
+                        <img
+                          className="w-full h-full bg-white object-contain hover:scale-105 transition-transform duration-300"
+                          src={getCardImage(p)}
+                          alt={
+                            p.title ||
+                            p.slug ||
+                            `${p.category} ${p.subcategory}` ||
+                            "Product"
+                          }
+                          loading="lazy"
+                        />
+
+                        {/* Optional rating badge */}
+                        {typeof p?.reviews?.rating?.average === "number" && (
+                          <span className="absolute top-1 right-1 bg-yellow-400 text-gray-800 text-[10px] px-2 py-0.5 rounded-full shadow">
+                            {p.rating.average.toFixed(1)} ★
+                          </span>
+                        )}
+                      </div>
+
+                      <h3 className="text-xs py-2 bg-transparent line-clamp-1 h-6">
+                        {p.title}
+                      </h3>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <button
+                className="underline text-blue-800 hover:text-blue-950 py-2 text-sm"
+                onClick={() =>
+                  navigate(`/products/${encodeURIComponent(category)}`)
+                }
+              >
+                view all
+              </button>
+            </Link>
+          ))}
       </div>
     </div>
   );

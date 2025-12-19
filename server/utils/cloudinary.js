@@ -11,16 +11,28 @@ export const uploadOnCloudinary = async (localFilePath) => {
   try {
     if (!localFilePath) return null;
 
+    // 1️⃣ Upload to Cloudinary
     const response = await cloudinary.uploader.upload(localFilePath, {
       resource_type: "auto",
     });
 
     console.log("File uploaded successfully:", response.secure_url);
 
-    fs.unlinkSync(localFilePath);
+    // 2️⃣ SAFE DELETE (no ENOENT error)
+    if (fs.existsSync(localFilePath)) {
+      fs.unlinkSync(localFilePath);
+    }
+
     return response.secure_url;
+
   } catch (error) {
-    fs.unlinkSync(localFilePath);
+    console.log("Cloudinary Upload Error:", error.message);
+
+    // 3️⃣ SAFE DELETE even if upload fails
+    if (fs.existsSync(localFilePath)) {
+      fs.unlinkSync(localFilePath);
+    }
+
     return null;
   }
 };

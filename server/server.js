@@ -18,7 +18,7 @@ connectDB();
 const app = express();
 
 // Middleware must be at top
-app.use(express.json()); 
+app.use(express.json());
 app.use(
   cors({
     origin: "*",
@@ -27,31 +27,39 @@ app.use(
 );
 
 // Stripe init
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+  apiVersion: "2024-06-20",
+});
 
-//  DEMO PAYMENT INTENT ROUTE
 app.post("/create-payment-intent", async (req, res) => {
   try {
-    const { amount } = req.body;
+    let { amount } = req.body;
+
+    if (!amount || amount <= 0) {
+      return res.status(400).json({ error: "Invalid payment amount" });
+    }
+
+    // Stripe accepts only integer amount in paise
+    const stripeAmount = Math.round(amount * 100);
+
+    if (stripeAmount < 100) {
+      return res.status(400).json({ error: "Amount must be at least ₹1.00" });
+    }
 
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: amount * 100,
+      amount: stripeAmount,
       currency: "inr",
-      payment_method_types: ["card"],
     });
 
-    res.json({
-      clientSecret: paymentIntent.client_secret,
-    });
-  } catch (error) {
-    console.error("Stripe Error:", error);
-    res.status(500).json({ error: "Stripe error" });
+    res.json({ clientSecret: paymentIntent.client_secret });
+  } catch (err) {
+    console.error("Stripe Error:", err);
+    res.status(500).json({ error: "Stripe error occurred" });
   }
 });
 
 // Static uploads directory
 app.use("/uploads", express.static("uploads"));
-
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
@@ -67,4 +75,6 @@ app.get("/", (req, res) => {
 
 // Start server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, "0.0.0.0", () =>
+  console.log(`Server running on port ${PORT}`)
+);

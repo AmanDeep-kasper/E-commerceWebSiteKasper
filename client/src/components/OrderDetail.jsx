@@ -191,7 +191,7 @@ const OrderDetail = () => {
               className="flex items-center gap-4 border p-4 rounded-lg"
             >
               <img
-                src={item.img[0]}
+                src={item.img}
                 alt={item.name}
                 className="w-20 h-20 object-cover rounded border"
               />

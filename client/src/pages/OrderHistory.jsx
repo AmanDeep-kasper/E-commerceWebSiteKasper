@@ -351,11 +351,12 @@ import EmptyState from "../components/EmptyState";
 // import orders from "../data/orders.json"
 
 function OrderHistory() {
-  const orders = useSelector((s) => s.order.list); // ✅ from Redux
+  const orders = useSelector((s) => s.order.list); //  from Redux
   const [param, setParam] = useState("");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const [orderA, setOrderA] = useState([...orders].reverse());
+  // console.log(orderA)
   const [status, setStatus] = useState("");
   const [time, setTime] = useState("");
   const navigate = useNavigate();
@@ -503,12 +504,13 @@ function OrderHistory() {
                         key={idx}
                         className="flex flex-col-reverse sm:flex-row justify-between gap-4 mb-6 last:mb-0"
                       >
+                        {/* {console.log(item)} */}
                         {/* Product Info */}
                         <div className="flex flex-row gap-4">
                           <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-md overflow-hidden border border-gray-200">
                             <img
                               className="w-full h-full object-cover"
-                              src={item.img[0]}
+                              src={item.img}
                               alt={item.name}
                             />
                           </div>

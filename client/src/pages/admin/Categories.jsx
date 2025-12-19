@@ -20,7 +20,7 @@ const rowsFactory = () => {
     "Festival & Occasion",
     "Reflection Art",
     "Home & Living",
-    "Geometric & Abstract",
+    "",
     "Spiritual & Religious",
     "Typography & Quotes",
     "Spiritual & Religious",

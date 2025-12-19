@@ -16,30 +16,31 @@ import {
   formatPrice,
 } from "../../utils/homePageUtils";
 import { useEffect, useState } from "react";
+import axiosInstance from "../../api/axiosInstance";
 
-// const topProducts = [
-//   {
-//     name: "Butterfly Blooms",
-//     description: "Floral Collection",
-//     img: topRated1,
-//   },
-//   {
-//     name: "Mother Tree of Life",
-//     description: "Nature & Spirituality",
-//     img: topRated2,
-//   },
-//   {
-//     name: "Adiyogi Grace",
-//     description: "Spiritual Awakening",
-//     img: topRated3,
-//   },
-//   {
-//     name: "Lotus Chakra Meditative Panel",
-//     description: "Wellness & Balance",
-//     img: topRated4,
-//   },
-// ];
-const topProducts = products
+
+
+function TopProducts() {
+  const navigate = useNavigate();
+  const [visibleCount, setVisibleCount] = useState(4); // default = phone
+  const [topproduct, setTopProduct] = useState([])
+
+  useEffect(() => {
+    const fetchTopproduct = async () => {
+      try {
+        const res = await axiosInstance.get("/products/all");
+        // console.log("TopProduct:", res.data);
+        setTopProduct(res.data)
+
+      } catch (error) {
+        console.log("ERROR:", error);
+      }
+    };
+    fetchTopproduct();
+  }, []);
+
+  
+const topProducts = topproduct
   .map((item) => {
     const avgRating =
       item.reviews && item.reviews.length > 0
@@ -52,9 +53,6 @@ const topProducts = products
   .filter((item) => item.avgRating >= 4) // Only products with 4⭐ or more
   .sort((a, b) => b.avgRating - a.avgRating); // Sort by highest avg rating
 
-function TopProducts() {
-  const navigate = useNavigate();
-  const [visibleCount, setVisibleCount] = useState(4); // default = phone
 
   useEffect(() => {
     const updateCount = () => {
@@ -72,6 +70,7 @@ function TopProducts() {
 
     return () => window.removeEventListener("resize", updateCount);
   }, []);
+
   return (
     <div className="px-2 bg-white border border-gray-200">
       <div className="flex items-center">

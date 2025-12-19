@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import products from "../data/products.json";
+import React, { useEffect, useState } from "react";
+// import products from "../data/products.json";
 import Card from "../components/Card";
 import Navbar from "../components/Navbar";
 import Breadcrumbs from "../components/Breadcrumbs";
@@ -7,53 +7,103 @@ import Filter from "../components/Filter";
 import Footer from "../sections/Footer";
 import Categories from "../components/Categories";
 import FilterProducts from "../components/FilterProducts";
+import axiosInstance from "../api/axiosInstance";
 
-const newProducts = [...products].reverse();
+// const newProducts = [...products].reverse();
 
 function NewProducts() {
-  const [items, setItems] = useState(newProducts);
+  const [items, setItems] = useState([]);
   const [param, setParam] = useState("");
   const [color, setColor] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const sort = (val) => {
-    switch (val) {
-      case "high":
-        setItems((prev) => [...prev].sort((a, b) => b.basePrice - a.basePrice));
-        break;
-      case "low":
-        setItems((prev) => [...prev].sort((a, b) => a.basePrice - b.basePrice));
-        break;
-      case "atoz":
-        setItems((prev) =>
-          [...prev].sort((a, b) => a.title.localeCompare(b.title))
-        );
-        break;
-      case "rating":
-        return setItems((prev) =>
-          [...prev].sort((a, b) => {
-            const avgB =
-              b.reviews && b.reviews.length > 0
-                ? b.reviews.reduce((sum, r) => sum + r.rating, 0) /
-                  b.reviews.length
-                : 0;
 
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const res = await axiosInstance.get("/products/all");
+        //  console.log("PRODUCTS:", res.data);
+        setItems(res.data);
+        setLoading(false);
+      } catch (error) {
+        console.log(error);
+        setError("Failed to load products.");
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+  const sort = (val) => {
+    setItems((prev) => {
+      const sorted = [...prev];
+      switch (val) {
+        case "high":
+          return sorted.sort((a, b) => b.sellingPrice - a.sellingPrice);
+
+        case "low":
+          return sorted.sort((a, b) => a.sellingPrice - b.sellingPrice);
+
+        case "atoz":
+          return sorted.sort((a, b) => a.title.localeCompare(b.title));
+
+        case "rating":
+          return sorted.sort((a, b) => {
             const avgA =
-              a.reviews && a.reviews.length > 0
-                ? a.reviews.reduce((sum, r) => sum + r.rating, 0) /
-                  a.reviews.length
-                : 0;
+              a.reviews?.reduce((sum, r) => sum + r.rating, 0) /
+                a.reviews?.length || 0;
+            const avgB =
+              b.reviews?.reduce((sum, r) => sum + r.rating, 0) /
+                b.reviews?.length || 0;
 
             return avgB - avgA;
-          })
-        );
+          });
 
-      case "latest":
-        setItems(newProducts);
-        break;
-      default:
-        break;
-    }
+        case "latest":
+          return sorted.reverse(); 
+
+        default:
+          return prev;
+      }
+    });
+    // switch (val) {
+    //   case "high":
+    //     setItems((prev) => [...prev].sort((a, b) => b.basePrice - a.basePrice));
+    //     break;
+    //   case "low":
+    //     setItems((prev) => [...prev].sort((a, b) => a.basePrice - b.basePrice));
+    //     break;
+    //   case "atoz":
+    //     setItems((prev) =>
+    //       [...prev].sort((a, b) => a.title.localeCompare(b.title))
+    //     );
+    //     break;
+    //   case "rating":
+    //     return setItems((prev) =>
+    //       [...prev].sort((a, b) => {
+    //         const avgB =
+    //           b.reviews && b.reviews.length > 0
+    //             ? b.reviews.reduce((sum, r) => sum + r.rating, 0) /
+    //               b.reviews.length
+    //             : 0;
+
+    //         const avgA =
+    //           a.reviews && a.reviews.length > 0
+    //             ? a.reviews.reduce((sum, r) => sum + r.rating, 0) /
+    //               a.reviews.length
+    //             : 0;
+
+    //         return avgB - avgA;
+    //       })
+    //     );
+
+    //   case "latest":
+    //     setItems(newProducts);
+    //     break;
+    //   default:
+    //     break;
+    // }
   };
 
   return (

@@ -70,7 +70,7 @@ const orderSlice = createSlice({
   initialState: {
     loading: false,
     error: null,
-    list: loadOrders(), // 👈 consistent key for order history
+    list: loadOrders(), //  consistent key for order history
   },
   reducers: {
     resetOrder(state) {
@@ -82,7 +82,7 @@ const orderSlice = createSlice({
       saveOrders([]);
     },
 
-    // ⭐ ADD THIS (Place it here)
+    //  ADD THIS (Place it here)
     cancelOrder(state, action) {
       const orderId = action.payload;
 

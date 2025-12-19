@@ -67,6 +67,7 @@ function PriceDetails({
                   <span className="text-gray-600 font-medium">Discount</span>
                   <span className="text-green-600 font-medium">
                     - {formatPrice(totalDiscount)}
+                    {/* {console.log(totalDiscount)} */}
                   </span>
                 </div>
 

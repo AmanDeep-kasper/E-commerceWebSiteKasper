@@ -237,22 +237,31 @@ import {
   Trash2,
 } from "lucide-react";
 import { Link, useNavigate } from "react-router";
-import productData from "../../../data/products.json";
+// import productData from "../../../data/products.json";
+import axiosInstance from "../../../api/axiosInstance";
 
 const Products = () => {
-  const [products] = useState(productData);
-  //  const [products] = useState(() =>
-  //     Array.from({ length: 20 }).map((_, i) => ({
-  //       id: i + 1,
-  //       title: `Live Laugh Love Wall Art ${i + 1}`,
-  //       sku: `MMWA00${i + 1}`,
-  //       category: "Lord Ganesh",
-  //       quantity: 45,
-  //       SallingPrice: 599,
-  //       CostPrice: 499,
-  //       variant: "Dimension - 65L x 60W cm",
-  //     }))
-  //   );
+  // const res = axiosInstance.get("/products/all")
+
+  // const all = res.data
+  //   const [products] = useState(all);
+
+  const [product, setProduct] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        const res = await axiosInstance.get("/products/all");
+        setProduct(res.data);
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProduct()
+  }, []);
 
   //  Delete button + selected items
   const [selectedItems, setSelectedItems] = useState([]);
@@ -307,7 +316,7 @@ const Products = () => {
   }, [search]);
 
   // 🔹 Filter products by debouncedSearch
-  let filteredProducts = products.filter((p) =>
+  let filteredProducts = product.filter((p) =>
     (p.title || "")
       .toLowerCase()
       .includes((debouncedSearch || "").toLowerCase())
@@ -377,7 +386,7 @@ const Products = () => {
   const navigate = useNavigate();
   //////////////////////////
 
-   const dropdownRef = useRef(null);
+  const dropdownRef = useRef(null);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -389,7 +398,6 @@ const Products = () => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
 
   return (
     <>

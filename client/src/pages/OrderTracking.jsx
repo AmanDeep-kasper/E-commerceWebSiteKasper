@@ -31,8 +31,9 @@ const steps = [
 function OrderTracking() {
   const [active, setActive] = useState(0);
   const { orderId } = useParams();
-  const orders = useSelector((state) => state.order.list); // 👈 from Redux
+  const orders = useSelector((state) => state.order.list); //  from Redux
   const order = orders?.find((val) => val.orderId.slice(1) == orderId);
+  console.log(order);
   const [trackOrder, setTrackOrder] = useState(order.orderStatus);
 
   if (!order) {
@@ -49,32 +50,62 @@ function OrderTracking() {
     );
   }
 
-  useEffect(() => {
-    const status = trackOrder.toLowerCase();
-    console.log(status);
+  // useEffect(() => {
+  //   const status = trackOrder.toLowerCase();
+  //   console.log(status);
 
-    if (
-      steps[1].replace(/\s/g, "").toLowerCase() === status.replace(/\s/g, "")
-    ) {
+  //   if (
+  //     steps[1].replace(/\s/g, "").toLowerCase() === status.replace(/\s/g, "")
+  //   ) {
+  //     setActive(25);
+  //   } else if (
+  //     steps[2].replace(/\s/g, "").toLowerCase() === status.replace(/\s/g, "")
+  //   ) {
+  //     setActive(50);
+  //   } else if (
+  //     steps[3].replace(/\s/g, "").toLowerCase() === status.replace(/\s/g, "")
+  //   ) {
+  //     setActive(75);
+  //   } else if (
+  //     steps[4].replace(/\s/g, "").toLowerCase() === status.replace(/\s/g, "")
+  //   ) {
+  //     setActive(100);
+  //   } else if (
+  //     steps[0].replace(/\s/g, "").toLowerCase() === status.replace(/\s/g, "")
+  //   ) {
+  //     setActive(1);
+  //   } else setActive(0);
+  // }, [trackOrder]); //  depends on trackOrder
+
+  useEffect(() => {
+    const status = trackOrder.toLowerCase().replace(/\s/g, "");
+
+    if (status === "cancelled") {
+      setActive(-1); // special flag for cancelled
+    } else if (status === steps[1].replace(/\s/g, "").toLowerCase()) {
       setActive(25);
-    } else if (
-      steps[2].replace(/\s/g, "").toLowerCase() === status.replace(/\s/g, "")
-    ) {
+    } else if (status === steps[2].replace(/\s/g, "").toLowerCase()) {
       setActive(50);
-    } else if (
-      steps[3].replace(/\s/g, "").toLowerCase() === status.replace(/\s/g, "")
-    ) {
+    } else if (status === steps[3].replace(/\s/g, "").toLowerCase()) {
       setActive(75);
-    } else if (
-      steps[4].replace(/\s/g, "").toLowerCase() === status.replace(/\s/g, "")
-    ) {
+    } else if (status === steps[4].replace(/\s/g, "").toLowerCase()) {
       setActive(100);
-    } else if (
-      steps[0].replace(/\s/g, "").toLowerCase() === status.replace(/\s/g, "")
-    ) {
+    } else if (status === steps[0].replace(/\s/g, "").toLowerCase()) {
       setActive(1);
-    } else setActive(0);
-  }, [trackOrder]); // ✅ depends on trackOrder
+    } else {
+      setActive(0);
+    }
+  }, [trackOrder]);
+
+  //   useEffect(() => {
+  //   if (trackOrder === "Order Placed") {
+  //     const timer = setTimeout(() => {
+  //       setTrackOrder("Processing"); // move to shipped in 5 sec
+  //     }, 5000);
+
+  //     return () => clearTimeout(timer);
+  //   }
+  // }, [trackOrder]);
 
   return (
     <>
@@ -90,7 +121,7 @@ function OrderTracking() {
           <div className="w-full">
             {/* Order Tracking Header */}
             <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 ">
-              <h2 className="text-lg sm:text-xl font-semibold text-gray-800 mb-6 text-center sm:text-left">
+              <h2 className="text-lg sm:text-xl fontd-semibold text-gray-800 mb-6 text-center sm:text-left">
                 Order {order.orderId} Tracking
               </h2>
 
@@ -126,7 +157,11 @@ function OrderTracking() {
                       initial={false}
                       animate={{ width: `${active}%` }}
                       transition={{ duration: 0.5 }}
-                      className="h-2 bg-gradient-to-r from-[#19A971] to-[#2ECC71] rounded-full"
+                      className={`h-2 rounded-full ${
+                        active === -1
+                          ? "bg-red-500" // cancelled
+                          : "bg-gradient-to-r from-[#19A971] to-[#2ECC71]"
+                      }`}
                     />
                     {[0, 25, 50, 75, 100].map((pos) => (
                       <div
@@ -136,7 +171,11 @@ function OrderTracking() {
                       >
                         <div
                           className={`w-5 h-5 flex items-center justify-center rounded-full ${
-                            active >= pos ? "bg-[#19A971]" : "bg-gray-300"
+                            active === -1
+                              ? "bg-red-500"
+                              : active >= pos
+                              ? "bg-[#19A971]"
+                              : "bg-gray-300"
                           }`}
                         >
                           <Check size={12} className="text-white" />
@@ -233,7 +272,11 @@ function OrderTracking() {
                   </div>
                   <div>
                     <p className="text-gray-500">Current Status</p>
-                    <p className="font-medium flex items-center gap-1">
+                    <p
+                      className={`font-medium flex items-center gap-1 ${
+                        trackOrder === "Cancelled" ? "text-red-500" : ""
+                      }`}
+                    >
                       <span className="w-2 h-2 rounded-full bg-yellow-400 animate-pulse"></span>
                       {order.orderStatus}
                     </p>

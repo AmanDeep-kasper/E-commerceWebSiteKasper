@@ -725,7 +725,7 @@ export default users;
 //     "uuid": "gaa-illusion-001",
 //     "route": "/product/gaa-illusion-001",
 //     "title": "Optical Illusion Metal Wall Art",
-//     "category": "Geometric & Abstract",
+//     "category": "",
 //     "subcategory": "Illusion Patterns",
 //     "tags": ["illusion", "modern", "decor"],
 //     "SKU": "GAA-ILL-001",

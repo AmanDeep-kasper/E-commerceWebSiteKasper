@@ -28,24 +28,22 @@ function Cart() {
   const dispatch = useDispatch();
   const closeDialog = () => setOpen(false);
 
-
   const moveToWishlist = (item) => {
     dispatch(addToWishlist(item));
     dispatch(removeFromCart(item));
   };
 
   // detect out of stock
-const hasOutOfStock = cartItems.some(
-  (item) => !item.stockQuantity || item.quantity > item.stockQuantity
-);
+  const hasOutOfStock = cartItems.some(
+    (item) => !item.stockQuantity || item.quantity > item.stockQuantity
+  );
 
-// const hasOutOfStock = cartItems.some(
-//   (item) =>
-//     !item.variantQuantity ||
-//     item.variantQuantity <= 0 ||
-//     item.quantity > item.variantQuantity
-// );
-
+  // const hasOutOfStock = cartItems.some(
+  //   (item) =>
+  //     !item.variantQuantity ||
+  //     item.variantQuantity <= 0 ||
+  //     item.quantity > item.variantQuantity
+  // );
 
   return (
     <>
@@ -110,8 +108,11 @@ const hasOutOfStock = cartItems.some(
                 <>
                   <div className="divide-y divide-gray-100">
                     {cartItems?.map((item) => {
-                      const { base, effective } = getPrices(item);
-                      const isOutOfStock = item.var <= 0;
+                      // const { base, effective } = getPrices(item);
+                      const base = Number(item.basePrice);
+                      const effective = Number(item.effectivePrice);
+
+                     const isOutOfStock = item.stockQuantity <= 0;
 
                       const colorMap = {
                         black: "bg-black",
@@ -194,8 +195,8 @@ const hasOutOfStock = cartItems.some(
                               <div
                                 className={twMerge(
                                   "md:w-4 w-3 md:h-4 h-3 ring-2 ring-[#BEBEBE] ring-offset-2 ml-1 my-2 rounded-full transition-all duration-150 ease-in-out",
-                                  colorMap[item.selectedOptions?.color] || "bg-gray-200"
-
+                                  colorMap[item.selectedOptions?.color] ||
+                                    "bg-gray-200"
                                 )}
                               />
 

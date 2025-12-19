@@ -28,8 +28,8 @@ export const getCardImage = (p) => {
   // 5. Old fallback
   if (p?.image?.length) return p.image[0];
 
-  // 6. Final fallback
-  return "/placeholder.jpg";
+  // 6. Final fallback — IMPORTANT FIX
+  return "/placeholder.jpg"; // ALWAYS return string
 };
 
 // ---------------------------
@@ -38,8 +38,7 @@ export const getCardImage = (p) => {
 export const getPrices = (p) => {
   const base = p?.pricing?.mrp ?? p?.sellingPrice ?? 0;
 
-  const discountActive =
-    p?.pricing?.discount?.active ?? p?.discountPercent > 0;
+  const discountActive = p?.pricing?.discount?.active ?? p?.discountPercent > 0;
 
   const pct = discountActive
     ? p?.pricing?.discount?.percent ?? p?.discountPercent ?? 0
@@ -58,10 +57,11 @@ export const getPrices = (p) => {
 // ---------------------------
 export const formatPrice = (price) => {
   const num = Number(price);
+
   if (isNaN(num)) return "₹0";
 
   return `₹${num.toLocaleString("en-IN", {
-    minimumFractionDigits: Number.isInteger(price) ? 0 : 2,
+    minimumFractionDigits: Number.isInteger(num) ? 0 : 2,
     maximumFractionDigits: 2,
   })}`;
 };

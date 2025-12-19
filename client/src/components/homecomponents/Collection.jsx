@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, useAnimation } from "framer-motion";
 import icon from "../../assets/black-star-icon.svg";
-import products from "../../data/products.json";
-import newProducts from "../../data/products.json";
+// import products from "../../data/products.json";
+// import newProducts from "../../data/products.json";
 import Tilt from "react-parallax-tilt";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import axiosInstance from "../../api/axiosInstance";
 import Title from "../Title";
 import { Link } from "react-router";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -18,76 +19,6 @@ import {
   formatPrice,
 } from "../../utils/homePageUtils";
 
-// const collections = [
-//   {
-//     name: "Adiyogi Shiv Ji Metal wall Art | Sculpture For Home | ...",
-//     price: "₹5,999",
-//     discount: "₹2,499",
-//     discountPercent: "( 58% )",
-//     img: collection1,
-//   },
-//   {
-//     name: "Metal Yada Yada Hi Dharmasya Wall Hanging | Sanskrit written.....",
-//     price: "₹3,259",
-//     discount: "₹2,499",
-//     discountPercent: "( 48% )",
-//     img: collection2,
-//   },
-//   {
-//     name: "Shree Ganesh Metal Wall Art | Premium Hindu Deity",
-//     price: "₹5,999",
-//     discount: "₹1,949",
-//     discountPercent: "( 68% )",
-//     img: collection3,
-//   },
-//   {
-//     name: "Sparkenzy trees of Life Metal wall art Decore | Tree of Life...",
-//     price: "₹5,952",
-//     discount: "₹3,999",
-//     discountPercent: "( 68% )",
-//     img: collection4,
-//   },
-//   {
-//     name: "Surah Al Ikhlas | Islamic Wall Decore Metal arts for...",
-//     price: "₹5,999",
-//     discount: "₹1,949",
-//     discountPercent: "( 68% )",
-//     img: collection5,
-//   },
-//   {
-//     name: "Surah Al Ikhlas | Islamic Wall Decore Metal arts for...",
-//     price: "₹5,999",
-//     discount: "₹1,949",
-//     discountPercent: "( 68% )",
-//     img: collection6,
-//   },
-//   {
-//     name: "Surah Al Ikhlas | Islamic Wall Decore Metal arts for...",
-//     price: "₹5,999",
-//     discount: "₹1,949",
-//     discountPercent: "( 68% )",
-//     img: collection7,
-//   },
-//   {
-//     name: "Surah Al Ikhlas | Islamic Wall Decore Metal arts for...",
-//     price: "₹5,999",
-//     discount: "₹1,949",
-//     discountPercent: "( 68% )",
-//     img: collection8,
-//   },
-//   {
-//     name: "Surah Al Ikhlas | Islamic Wall Decore Metal arts for...",
-//     price: "₹5,999",
-//     discount: "₹1,949",
-//     discountPercent: "( 68% )",
-//     img: collection9,
-//   },
-// ];
-
-const collections = newProducts.filter(
-  (item, index, self) =>
-    index === self.findIndex((obj) => obj.category === item.category)
-);
 
 function Collection() {
   const ref = useRef(null);
@@ -186,6 +117,29 @@ function Collection() {
 
   //   return () => clearInterval(interval);
   // }, []);
+
+  // this is axios is used to data fetch in backend
+
+  const [newProducts, setnewProducts] = useState([]);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const res = await axiosInstance.get("/products/all");
+        //  console.log("PRODUCTS:", res.data);
+        setnewProducts(res.data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+  const collections = newProducts.filter(
+    (item, index, self) =>
+      index === self.findIndex((obj) => obj.category === item.category)
+  );
 
   return (
     <section className="relative pt-[22px] pb-6 group bg-gray-50">

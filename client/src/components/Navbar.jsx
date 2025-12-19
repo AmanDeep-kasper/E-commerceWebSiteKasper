@@ -25,8 +25,9 @@ import { logout } from "../redux/cart/userSlice";
 
 function Navbar() {
   const { user, isAuthenticated } = useSelector((state) => state.user);
-  // const [showChoice, setShowChoice] = useState(user?.role === "admin" ? true : false);
-  const [showChoice, setShowChoice] = useState(true);
+  const [showChoice, setShowChoice] = useState(user?.role === "admin" ? true : false);
+  // console.log(showChoice)
+  // const [showChoice, setShowChoice] = useState(true);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [dropdown, setDropdown] = useState(false);
   const [subDropdown, setSubDropdown] = useState(null);
@@ -266,7 +267,7 @@ function Navbar() {
                             }}
                           >
                             <img
-                              src={item.image[0]}
+                              src={item.images[0]}
                               alt={item.title}
                               className="w-14 h-14 object-cover rounded border"
                             />
@@ -350,7 +351,7 @@ function Navbar() {
                               }}
                             >
                               <img
-                                src={item.image[0]}
+                                src={item.images[0]}
                                 alt={item.title}
                                 className="w-10 h-10 object-cover rounded border"
                               />
@@ -443,7 +444,6 @@ function Navbar() {
                             Log In
                           </h2>
                         </div>
-                        
                       </Link>
                     )}
                   </div>
@@ -521,7 +521,10 @@ function Navbar() {
                     <UserRound size={20} className="text-amber-600" />
                   </div>
                   <div>
-                    <p className="font-medium text-gray-900">{users[0].name}</p>
+                    <p className="font-medium text-gray-900">
+                      {users?.[0]?.name || "Guest"}
+                    </p>
+
                     <p className="text-sm text-gray-500">Welcome back!</p>
                   </div>
                 </div>

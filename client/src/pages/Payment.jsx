@@ -10,7 +10,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router";
 import { toast } from "react-toastify";
 import EmptyState from "../components/EmptyState";
-import StripeContainer from "../pages/StripeIntegrate/StripeContainer";
+// import StripeContainer from "../pages/StripeIntegrate/StripeContainer";
 import axios from "axios";
 
 // 👉 import cart actions
@@ -32,6 +32,8 @@ function Payment() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [selected, setSelected] = useState("upi");
+  const [showStripe, setShowStripe] = useState(false);
+  const [upiId, setUpiId] = useState("");
 
   function generateOrderId() {
     const datePart = new Date().toISOString().slice(0, 10).replace(/-/g, "");
@@ -70,8 +72,6 @@ function Payment() {
 
     const userId = "USR-1001"; // TODO: fetch from user slice
 
-    
-
     return {
       orderId,
       userId,
@@ -94,33 +94,92 @@ function Payment() {
 
   const [clientSecret, setClientSecret] = useState("");
 
-    useEffect(() => {
-      if (selected === "card") {
-        axios
-          .post("http://localhost:5000/create-payment-intent", {
-            amount: totalPrice,
-          })
-          .then((res) => setClientSecret(res.data.clientSecret))
-          .catch((err) => console.log(err));
-      }
-    }, [selected, totalPrice]);
+  useEffect(() => {
+    if (selected === "card") {
+      axios
+        .post("http://localhost:5000/create-payment-intent", {
+          amount: Math.round(totalPrice),
+        })
+        .then((res) => setClientSecret(res.data.clientSecret))
+        .catch((err) => console.log(err));
+    }
+  }, [selected, totalPrice]);
+
+  // Auto open Stripe as soon as clientSecret is ready
+  useEffect(() => {
+    if (selected === "card" && clientSecret) {
+      setShowStripe(true);
+    }
+  }, [clientSecret, selected]);
+
+  const processOrder = (orderDetails) => {
+    dispatch(placeOrder(orderDetails));
+
+    // Clear cart
+    dispatch(clearCart());
+
+    // Reset Buy Now mode
+    if (buyNowMode) dispatch(resetBuyNow());
+
+    toast.success("Order placed successfully!");
+
+    // Navigate to confirmation screen
+    navigate("/confirm-order", { state: orderDetails });
+  };
 
   const handlePlaceOrder = () => {
     const orderDetails = handlePayment();
     if (!orderDetails) return;
 
-    // Save order
-    dispatch(placeOrder(orderDetails));
+    if (selected === "upi") {
+      const cleanUpi = upiId.trim();
 
-    // Clear cart + reset BuyNow
-    dispatch(clearCart());
-    if (buyNowMode) dispatch(resetBuyNow());
+      const upiRegex = /^[\w.\-]{2,256}@[A-Za-z]{2,64}$/;
 
-    toast.success("Order placed successfully!");
+      console.log("UPI Input:", `"${cleanUpi}"`);
 
-    // Navigate to confirmation
-    navigate("/confirm-order", { state: orderDetails });
+      if (!upiRegex.test(cleanUpi)) {
+        return toast.error("Enter a valid UPI ID (e.g. name@bank)");
+      }
+
+      return processOrder(orderDetails);
+    }
+
+    if (selected === "cod") {
+      return processOrder(orderDetails);
+    }
+
+    if (selected === "card") {
+      if (!clientSecret) return toast.info("Preparing secure payment...");
+
+      // setShowStripe(true);
+
+      // // Auto-run Stripe payment after Stripe loads
+      // setTimeout(async () => {
+      //   const stripe = window.stripeInstance;
+      //   const elements = window.stripeElements;
+
+      //   if (!stripe || !elements) return;
+
+      //   const { error } = await stripe.confirmPayment({
+      //     elements,
+      //     confirmParams: {
+      //       return_url: "http://localhost:5173/payment-success",
+      //     },
+      //   });
+
+      //   if (error) toast.error(error.message);
+      // }, 600);
+
+      return;
+    }
+
+    if (selected === "netbanking" || selected === "emi") {
+      toast.info("Redirecting to bank portal...");
+      setTimeout(() => processOrder(orderDetails), 1500);
+    }
   };
+
   // useEffect(() => {
   //   if (cartItems.length === 0) {
   //     navigate("/bag", { replace: true });
@@ -156,7 +215,7 @@ function Payment() {
         <div className="flex flex-col lg:flex-row justify-between md:gap-6">
           {/* Delivery Address Section */}
           <div className="p-4 md:p-6 md:shadow-sm bg-white md:rounded-md w-full lg:w-2/3">
-            <h2 className="text-lg font-semibold mb-3">Delivery Address</h2>
+            <h2 className="text-lg font-semibold mb-3">Delivery Addresss</h2>
 
             {selectedAddress ? (
               <div className="border border-gray-200 rounded-lg p-4">
@@ -224,6 +283,8 @@ function Payment() {
                   <div className="mt-2">
                     <input
                       type="text"
+                      value={upiId}
+                      onChange={(e) => setUpiId(e.target.value)}
                       placeholder="Enter UPI ID (e.g. name@upi)"
                       className="w-full px-3 py-2 border-b-2 border-gray-300 focus:border-blue-500 outline-none bg-transparent"
                       disabled={selected !== "upi"}
@@ -282,6 +343,14 @@ function Payment() {
           />
         </div>
       </section>
+
+      {/* {showStripe && selected === "card" && clientSecret && (
+        <StripeContainer
+          clientSecret={clientSecret}
+          onSuccess={() => processOrder(handlePayment())}
+        />
+      )} */}
+
       <Footer />
     </>
   );

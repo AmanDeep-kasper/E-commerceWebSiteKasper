@@ -15,6 +15,7 @@ import { Navigation, Autoplay } from "swiper/modules";
 // Import Swiper styles
 import "swiper/css";
 import "swiper/css/navigation";
+import axiosInstance from "../api/axiosInstance";
 
 // import { useEffect } from "react";
 
@@ -65,8 +66,23 @@ function Hero() {
   const [isHovered, setIsHovered] = useState(false);
   const controls = useAnimation();
   const [imageIndex, setImageIndex] = useState(0);
+  const [sideslider, setselectedProducts] = useState([]);
 
-  const selectedProducts = products.filter(
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const res = await axiosInstance.get("/products/all");
+        //  console.log("PRODUCTS:", res.data);
+        setselectedProducts(res.data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+  const selectedProducts = sideslider.filter(
     (item, index, self) =>
       index === self.findIndex((obj) => obj.category === item.category)
   );
@@ -295,7 +311,7 @@ function Hero() {
           <Swiper
             modules={[Navigation, Autoplay]}
             slidesPerView={1}
-            loop={true}
+            loop={selectedProducts.length > 1} // ✅ FIX
             navigation={{
               nextEl: ".swiper-next",
               prevEl: ".swiper-prev",
@@ -305,11 +321,11 @@ function Hero() {
               disableOnInteraction: false,
               pauseOnMouseEnter: true,
             }}
-            touchRatio={1} // swipe sensitivity (default 1)
-            threshold={10} // min px to trigger swipe
-            longSwipes={true} // enable smooth long swipe
-            longSwipesRatio={0.5} // when swipe covers 50% slide → change
-            longSwipesMs={300} // ms threshold for long swipe
+            touchRatio={1}
+            threshold={10}
+            longSwipes={true}
+            longSwipesRatio={0.5}
+            longSwipesMs={300}
             className="h-full w-full"
           >
             {selectedProducts.map((product) => (

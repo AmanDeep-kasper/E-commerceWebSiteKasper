@@ -27,9 +27,19 @@ function Card({ cardData = [] }) {
       title: item.title,
       basePrice: defaultVariant.price,
       discountPercent: item.discountPercent,
-      stockQuantity: defaultVariant.stockQuantity,
-      image: defaultVariant.images[0],
+      // stockQuantity: defaultVariant.stockQuantity,
+      // stockQuantity: defaultVariant.variantQuantity,
+       stockQuantity: variant.variantQuantity,
+
+      // SAFE IMAGE HANDLING
+      image:
+        defaultVariant?.images?.[0] ||
+        defaultVariant?.variantImage?.[0] ||
+        item?.images?.[0] ||
+        "/placeholder.png",
+
       deliverBy: item.deliverBy,
+
       selectedOptions: {
         color: defaultVariant.color,
         type: defaultVariant.type,
@@ -45,18 +55,36 @@ function Card({ cardData = [] }) {
     }, 200);
   };
 
+  const getSafeImage = (variant, product) => {
+    let img = null;
+
+    // 1. Variant-level image
+    if (variant?.variantImage?.length > 0) {
+      img = variant.variantImage[0];
+    }
+
+    // 2. Product-level images
+    if (!img && product?.images?.length > 0) {
+      img = product.images[0];
+    }
+
+    // 3. Final fallback
+    return img || "/placeholder.png";
+  };
+
   return (
     <div className="grid xl:grid-cols-5 lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-3 grid-cols-2 gap-2 w-full place-content-between overflow-visible">
       {cardData && cardData.length > 0 ? (
         cardData.map((item, index) => {
           const defaultVariant = item.variants?.[0];
           const { base, effective, discountPercent, symbol } = getPrices(item);
-          const outOfStock = !item.variantQuantity || item.variantQuantity <= 0;
+          const variantStock = defaultVariant?.variantQuantity ?? 0;
 
-          const imageUrl = Array.isArray(defaultVariant?.variantImage)
-            ? defaultVariant.variantImage[0]
-            : defaultVariant?.variantImage || "/placeholder.png";
-            
+          const outOfStock = variantStock <= 0;
+
+          // console.log(item);
+
+          const imageUrl = getSafeImage(defaultVariant, item);
 
           const colorMap = {
             black: "bg-black",
@@ -106,8 +134,10 @@ function Card({ cardData = [] }) {
                           title: item.title,
                           basePrice: defaultVariant.price,
                           discountPercent: item.discountPercent,
-                          stockQuantity: defaultVariant.stockQuantity,
-                          image: defaultVariant.images[0],
+                          stockQuantity: defaultVariant.variantQuantity,
+                          image:
+                            defaultVariant?.variantImage?.[0] ||
+                            item.images?.[0],
                           deliverBy: item.deliverBy,
                           selectedOptions: {
                             color: defaultVariant.color,
@@ -144,11 +174,13 @@ function Card({ cardData = [] }) {
               <img
                 className="lg:min-h-[202px] pt-2 sm:min-w-[207px] sm:min-h-[160px] max-w-40 max-h-40 object-contain lg:group-hover:scale-110 transition duration-300 bg-white"
                 src={
-                  imageUrl.startsWith("/")
+                  imageUrl.startsWith("http")
+                    ? imageUrl
+                    : imageUrl.startsWith("/")
                     ? imageUrl
                     : `http://localhost:5000${imageUrl}`
                 }
-                alt={item.title || "Product"}
+                alt={item?.title || "Product"}
               />
 
               <div className="p-2 flex flex-col md:gap-[1.5px] w-[100%] gap-[3px] lg:justify-between bg-white min-h-[150px] md:min-h-[178px]  lg:group-hover:-translate-y-12 transition duration-300">
@@ -296,7 +328,14 @@ function Card({ cardData = [] }) {
                           );
                         }}
                         className="w-6 h-6 flex items-center justify-center"
-                        disabled={isLoading}
+                        disabled={
+                          isLoading ||
+                          cartItems.find(
+                            (i) =>
+                              i.uuid === item.uuid &&
+                              i.variantId === defaultVariant.variantId
+                          )?.quantity >= variantStock
+                        }
                       >
                         <Plus size={16} />
                       </button>

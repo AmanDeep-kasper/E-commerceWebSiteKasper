@@ -496,6 +496,7 @@
 // }
 
 // export default ProductDetails;
+/////////////////////////////////////////////////////// aman code
 
 import React, { useState, useMemo, useEffect } from "react";
 import { useParams, useNavigate } from "react-router";
@@ -509,6 +510,7 @@ import Card from "../components/Card";
 import Button from "../components/Button";
 import products from "../data/products.json";
 import {
+  CloudHail,
   Heart,
   Minus,
   Package,
@@ -518,6 +520,7 @@ import {
   Share2,
   Trash2,
 } from "lucide-react";
+
 import { useDispatch, useSelector } from "react-redux";
 import {
   addToCart,
@@ -533,46 +536,143 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/thumbs";
 import EmptyState from "../components/EmptyState";
+import axiosInstance from "../api/axiosInstance"; // change
 
 function ProductDetails() {
   const { uuid } = useParams();
-  // const { sku } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const [isLoading, setIsLoading] = useState(false);
+
+  const [product, setProduct] = useState(null); // change
+  const [similarProducts, setSimilarProducts] = useState([]);
+  const [selectedVariant, setSelectedVariant] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [mainImageIndex, setMainImageIndex] = React.useState(0);
   const [thumbsSwiper, setThumbsSwiper] = React.useState(null);
   const [totalCartItems, setTotalCartItems] = useState(0);
   const [inWishlist, setInWishlist] = useState(false);
   const { cartItems, totalItems } = useSelector((s) => s.cart);
-  const { wishlistItems } = useSelector((s) => s.wishlist);
+  const { wishlistItems, setwishlistItems } = useSelector((s) => s.wishlist);
 
-  // find product by uuid
-  const product = useMemo(() => products.find((p) => p.uuid === uuid), [uuid]);
-  // const product = useMemo(() => products.find((p) => p.sku === sku), [sku]);
+  const getSimilarProducts = (all, found, uuid) => {
+    if (!found) return [];
 
-  // in this data we see the variants of data in uuid
-  const [selectedVariant, setSelectedVariant] = useState(product);
+    // Normalize text for matching
+    const normalize = (str) =>
+      str
+        ?.toLowerCase()
+        .replace(/[^a-z0-9 ]/g, " ")
+        .trim() || "";
 
-  //   const [selectedVariant, setSelectedVariant] = useState({
-  //   color: null,
-  //   dimension: null,
-  //   type: null,
-  // })
+    const foundTitleWords = normalize(found.title).split(" ");
 
-  console.log(selectedVariant);
-  const [inCart, setInCart] = useState(
-    cartItems.some(
-      (item) =>
-        item.uuid === uuid && item.variantId === selectedVariant.variantId
-    )
-    // const [inCart, setInCart] = useState(
-    //   cartItems.some(
-    //     (item) => item.sku === sku && item.variantId === selectedVariant.variantId
-    //   )
-  );
+    // 🔥 Step 0: Filter products only from same category
+    const sameCategoryList = all.filter(
+      (p) =>
+        p.uuid !== uuid && normalize(p.category) === normalize(found.category)
+    );
 
-  if (!product) {
+    // Now use ONLY same-category products for similarity
+    const list = sameCategoryList;
+
+    // 1️⃣ Same subcategory
+    const sameSub = list.filter(
+      (p) => normalize(p.subcategory) === normalize(found.subcategory)
+    );
+    if (sameSub.length > 0) return sameSub.slice(0, 10);
+
+    // 2️⃣ Title keyword matching
+    const similarByTitle = list.filter((p) => {
+      const title = normalize(p.title);
+      return foundTitleWords.some((w) => title.includes(w));
+    });
+
+    if (similarByTitle.length > 0) return similarByTitle.slice(0, 10);
+
+    // 3️⃣ Fallback (never empty), but still within same category
+    return list.slice(0, 10);
+  };
+
+  // FETCH PRODUCT + SIMILAR PRODUCTS
+
+  // console.log(selectedVariant)
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        const res = await axiosInstance.get("/products/all");
+        const all = res.data;
+        // console.log(all);
+
+        const found = all.find((p) => p.uuid === uuid);
+        setProduct(found || null);
+        // console.log(found);
+
+        // set variant
+        if (found?.variants?.length > 0) {
+          setSelectedVariant(found.variants[0]);
+        }
+
+        // SIMILAR PRODUCTS
+        const similar = getSimilarProducts(all, found, uuid);
+        setSimilarProducts(similar);
+        // console.log("Similar:", similar);
+      } catch (err) {
+        console.log("Product fetch error:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProduct();
+  }, [uuid]);
+
+  // HOOK: inCart
+
+  // const [inCart, setInCart] = useState(
+  const inCart = useMemo(() => {
+    if (!selectedVariant) return false;
+    return cartItems.some(
+      (i) => i.uuid === uuid && i.variantId === selectedVariant.variantId
+    );
+  }, [cartItems, selectedVariant, uuid]);
+
+  //  -----------------------------
+  // HOOK: Wishlist
+  // -----------------------------
+  useEffect(() => {
+    if (!product || !selectedVariant) return;
+    const found = wishlistItems.some(
+      (i) =>
+        i.uuid === product.uuid && i.variantId === selectedVariant.variantId
+    );
+    setInWishlist(found);
+  }, [wishlistItems, product, selectedVariant]);
+
+  // -----------------------------
+  // HOOK: Quantity in Cart
+  // -----------------------------
+  useEffect(() => {
+    if (!selectedVariant) return;
+    const found = cartItems.find(
+      (i) => i.uuid === uuid && i.variantId === selectedVariant.variantId
+    );
+    setTotalCartItems(found ? found.quantity : 0);
+  }, [cartItems, selectedVariant, uuid]);
+
+  //  -----------------------------
+  // IF LOADING
+  // -----------------------------
+  if (isLoading) {
+    return (
+      <>
+        <Navbar />
+        <EmptyState heading="Loading..." description="Fetching product..." />
+        <Footer />
+      </>
+    );
+  }
+
+  if (!product || !selectedVariant) {
     return (
       <>
         <Navbar />
@@ -590,23 +690,21 @@ function ProductDetails() {
       </>
     );
   }
-  const outOfStock = product.stockQuantity <= 0;
+  const outOfStock = selectedVariant.stockQuantity <= 0;
 
   // fallback similar products (same category)
-  const similar = useMemo(() => {
-    if (!product) return [];
-    return products
-      .filter((p) => p.uuid !== product.uuid && p.category === product.category)
-      .slice(0, 10);
-  }, [product]);
+
+  // const similar = useMemo(() => {
+  //   if (!product) return [];
+  //   return products
+  //     .filter((p) => p.uuid !== product.uuid && p.category === product.category)
+  //     .slice(0, 10);
+  // }, [product]);
 
   // console.log(products)
   // Unique option lists
-  // const colors = [...new Set(product.variants.map((v) => v.color))];
-  // const colors = [...new Set(product.variants.map((v) => v.variantId))];
   const colors = [...new Set(product.variants.map((v) => v.variantValue))];
   const dimensions = [...new Set(product.variants.map((v) => v.dimension))];
-  // const dimensions = [...new Set(product.variants.map((v) => v.variantValue))];
   const types = [...new Set(product.variants.map((v) => v.variantType))];
 
   const avgRating =
@@ -620,21 +718,32 @@ function ProductDetails() {
     navigate("/checkout/payment");
   };
 
-  const handleVariantSelect = (optionKey, value) => {
-    const matched = product.variants.find((v) => {
+  const handleVariantSelect = (key, value) => {
+    const match = product.variants.find((v) => {
       return (
-        (optionKey === "color" ? v.color === value : true) &&
-        (optionKey === "dimension" ? v.dimension === value : true) &&
-        (optionKey === "type" ? v.type === value : true)
+        (key === "color" ? v.variantValue === value : true) &&
+        (key === "dimension" ? v.dimension === value : true) &&
+        (key === "type" ? v.variantType === value : true)
       );
     });
 
-    if (matched) {
-      setSelectedVariant(matched);
-      window.scrollTo(0, 0);
-    } else {
-      console.warn("No matching variant found");
+    if (match) {
+      setSelectedVariant(match);
+      setMainImageIndex(0);
     }
+  };
+
+  const getImageUrl = (img) => {
+    if (!img) return "/placeholder.png";
+
+    // Case 1: Full Cloudinary or external URL
+    if (img.startsWith("http")) return img;
+
+    // Case 2: Public folder asset (/Reflection1.jpg)
+    if (img.startsWith("/")) return img;
+
+    // Case 3: Server-stored images (uploads/image.png)
+    return `http://localhost:5000${img}`;
   };
 
   // useEffect(() => {
@@ -645,51 +754,40 @@ function ProductDetails() {
   //   setInWishlist(isInWishlist);
   // }, [wishlistItems, product.sku, selectedVariant.variantId]);
 
-  useEffect(() => {
-    const isInWishlist = wishlistItems.some(
-      (item) =>
-        item.uuid === product.uuid &&
-        item.variantId === selectedVariant.variantId
-    );
-    setInWishlist(isInWishlist);
-  }, [wishlistItems, product.uuid, selectedVariant.variantId]);
+  // useEffect(() => {
+  //   const isInWishlist = wishlistItems.some(
+  //     (item) =>
+  //       item.uuid === product.uuid &&
+  //       item.variantId === selectedVariant.variantId
+  //   );
+  //   setInWishlist(isInWishlist);
+  // }, [wishlistItems, product.uuid, selectedVariant.variantId]);
 
   // useEffect(() => {
-  //   setInCart(
+  //   inCart(
   //     cartItems.some(
   //       (item) =>
-  //         item.sku === product.sku &&
+  //         item.uuid === product.uuid &&
   //         item.variantId === selectedVariant.variantId
   //     )
   //   );
-  // }, [cartItems, product.sku, selectedVariant.variantId]);
-
-  useEffect(() => {
-    setInCart(
-      cartItems.some(
-        (item) =>
-          item.uuid === product.uuid &&
-          item.variantId === selectedVariant.variantId
-      )
-    );
-  }, [cartItems, product.uuid, selectedVariant.variantId]);
+  // }, [cartItems, product.uuid, selectedVariant.variantId]);
 
   // useEffect(() => {
   //   const found = cartItems.find(
   //     (item) =>
-  //       item.sku === product.sku && item.variantId === selectedVariant.variantId
+  //       item.uuid === product.uuid &&
+  //       item.variantId === selectedVariant.variantId
   //   );
   //   setTotalCartItems(found ? found.quantity : 0);
-  // }, [cartItems, product.sku, selectedVariant.variantId]);
+  // }, [cartItems, product.uuid, selectedVariant.variantId]);
 
-  useEffect(() => {
-    const found = cartItems.find(
-      (item) =>
-        item.uuid === product.uuid &&
-        item.variantId === selectedVariant.variantId
-    );
-    setTotalCartItems(found ? found.quantity : 0);
-  }, [cartItems, product.uuid, selectedVariant.variantId]);
+  const colorVariants = product.variants.filter(
+    (v) => v.variantName === "Color"
+  );
+  const dimensionVariants = product.variants.filter(
+    (v) => v.variantName === "Dimension"
+  );
 
   return (
     <>
@@ -717,39 +815,37 @@ function ProductDetails() {
                 }}
                 className="!w-full !h-auto md:!h-[460px]"
               >
-                {selectedVariant.images?.map((img, idx) => (
-                  <SwiperSlide key={idx} className="!w-auto !h-auto">
-                    {/* Outer wrapper holds border + ring */}
-                    <div
-                      className={`relative w-20 h-20 cursor-pointer transform transition duration-300 flex items-center justify-center
+                {(selectedVariant?.images ?? product?.images ?? []).map(
+                  (img, idx) => (
+                    <SwiperSlide key={idx} className="!w-auto !h-auto">
+                      {/* Outer wrapper holds border + ring */}
+                      <div
+                        className={`relative w-20 h-20 cursor-pointer transform transition duration-300 flex items-center justify-center
                           ${
                             mainImageIndex === idx
                               ? "border-2 border-[#977c2d] shadow-md rounded-md"
                               : "border-2 border-transparent hover:border-gray-200 rounded-md"
                           }`}
-                      onClick={() => {
-                        setMainImageIndex(idx);
-                        thumbsSwiper.slideTo(idx);
-                      }}
-                    >
-                      <div className="w-full h-full overflow-hidden rounded-md">
-                        <img
-                          src={
-                            img.startsWith("/")
-                              ? img
-                              : `http://localhost:5000${img}`
-                          }
-                          alt={`${product.title} ${idx}`}
-                          className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
-                        />
-                      </div>
+                        onClick={() => {
+                          setMainImageIndex(idx);
+                          thumbsSwiper.slideTo(idx);
+                        }}
+                      >
+                        <div className="w-full h-full overflow-hidden rounded-md">
+                          <img
+                            src={getImageUrl(img)}
+                            alt={`${product.title} ${idx}`}
+                            className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                          />
+                        </div>
 
-                      {mainImageIndex === idx && (
-                        <div className="absolute inset-0 bg-[#D49A06]/10 pointer-events-none transition-opacity duration-300 rounded-md" />
-                      )}
-                    </div>
-                  </SwiperSlide>
-                ))}
+                        {mainImageIndex === idx && (
+                          <div className="absolute inset-0 bg-[#D49A06]/10 pointer-events-none transition-opacity duration-300 rounded-md" />
+                        )}
+                      </div>
+                    </SwiperSlide>
+                  )
+                )}
               </Swiper>
             </div>
 
@@ -757,7 +853,12 @@ function ProductDetails() {
             <div className="relative">
               <Swiper
                 modules={[Navigation, Thumbs]}
-                thumbs={{ swiper: thumbsSwiper }}
+                thumbs={{
+                  swiper:
+                    thumbsSwiper && !thumbsSwiper.destroyed
+                      ? thumbsSwiper
+                      : null,
+                }}
                 spaceBetween={10}
                 loop={false} // ✅ make sure this is false
                 onSlideChange={(swiper) =>
@@ -766,19 +867,17 @@ function ProductDetails() {
                 initialSlide={mainImageIndex}
                 className="xl:min-w-[600px] xl:h-[600px] md:!w-[500px] w-full"
               >
-                {selectedVariant.images?.map((img, idx) => (
-                  <SwiperSlide key={idx}>
-                    <img
-                      src={
-                        img.startsWith("/")
-                          ? img
-                          : `http://localhost:5000${img}`
-                      }
-                      alt={`${product.title} ${idx}`}
-                      className="w-full h-full object-cover"
-                    />
-                  </SwiperSlide>
-                ))}
+                {(selectedVariant?.images ?? product?.images ?? []).map(
+                  (img, idx) => (
+                    <SwiperSlide key={idx}>
+                      <img
+                        src={getImageUrl(img)}
+                        alt={`${product.title} ${idx}`}
+                        className="w-full h-full object-cover"
+                      />
+                    </SwiperSlide>
+                  )
+                )}
               </Swiper>
 
               {/* Wishlist Button */}
@@ -807,7 +906,7 @@ function ProductDetails() {
                         basePrice: selectedVariant.price,
                         stockQuantity: selectedVariant.stockQuantity,
                         discountPercent: product.discountPercent,
-                        image: selectedVariant.images[0],
+                        image: product.images,
                         deliverBy: product.deliverBy,
                         selectedOptions: {
                           color: selectedVariant.color,
@@ -861,7 +960,8 @@ function ProductDetails() {
 
                 <div className="flex flex-col gap-1">
                   <Ratings size={20} avgRating={avgRating} />{" "}
-                  {/* Assuming your Ratings component accepts a size prop */}
+                  {/* Assuming your Ratings component accepts a size prop //
+                  in this section is seprate to in controler. */}
                   <span className="text-sm text-gray-500">
                     {product.reviews?.length ?? 0}{" "}
                     {product.reviews?.length === 1 ? "Rating" : "Ratings"}
@@ -886,18 +986,17 @@ function ProductDetails() {
               <div className="text-neural-700 text-2xl font-medium">
                 <span className="mr-2">
                   ₹
-                  {selectedVariant.sellingPrice -
-                    (product.discountPercent / 100) *
-                      selectedVariant.sellingPrice}
+                  {Math.round(
+                    product.sellingPrice -
+                      (product.discountPercent / 100) * product.sellingPrice
+                  )}
                 </span>
                 <span className="line-through text-[#787878] font-normal text-sm">
-                  {selectedVariant.sellingPrice
-                    ? `₹${selectedVariant.sellingPrice}`
-                    : ""}
+                  {product.sellingPrice ? `₹${product.sellingPrice}` : ""}
                 </span>
                 {product.discountPercent ? (
                   <span className="ml-2 text-base text-white px-2 py-1 rounded-md bg-green-700">
-                    {product.discountPercent}% Off
+                    {Math.round(product.discountPercent)}% Off
                   </span>
                 ) : null}
               </div>
@@ -917,60 +1016,73 @@ function ProductDetails() {
               <p className="text-[14px] text-[#6C6B6B]">
                 Type -{" "}
                 <span className="text-[#171515] capitalize">
-                  {selectedVariant.type || "-"}
+                  {selectedVariant.variantType || "-"}
                 </span>
               </p>
-              <p className="text-[14px] text-[#6C6B6B]">
-                Color -{" "}
-                <span className="text-[#171515] capitalize">
-                  {selectedVariant.color || "-"}
-                </span>
-              </p>
+              {selectedVariant.variantName === "Dimension" ? (
+                <p className="text-[14px] text-[#6C6B6B]">
+                  Dimension -{" "}
+                  <span className="text-[#171515] capitalize">
+                    {selectedVariant.variantValue}
+                  </span>
+                </p>
+              ) : (
+                <p className="text-[14px] text-[#6C6B6B]">
+                  Color -{" "}
+                  <span className="text-[#171515] capitalize">
+                    {selectedVariant.variantValue}
+                  </span>
+                </p>
+              )}
             </div>
 
             {/* Color Options */}
-            <div className="mt-5">
-              <h3 className="font-medium">Color</h3>
-              <div className="flex gap-2 mt-2 flex-wrap">
-                {colors.map((color, index) => (
-                  <button
-                    key={index}
-                    className={`px-3 py-1 rounded-full border text-sm
+            {colorVariants.length > 0 && (
+              <div className="mt-5">
+                <h3 className="font-medium">Color</h3>
+                <div className="flex gap-2 mt-2 flex-wrap">
+                  {colorVariants.map((v) => (
+                    <button
+                      key={v.variantId}
+                      className={`px-3 py-1 rounded-full border text-sm
             ${
-              selectedVariant.color === color
+              selectedVariant.variantId === v.variantId
                 ? "border-2 border-gray-900 bg-gray-900 text-white"
                 : "bg-gray-100 hover:bg-gray-200"
             }
           `}
-                    onClick={() => handleVariantSelect("color", color)}
-                  >
-                    {color}
-                  </button>
-                ))}
+                      onClick={() => setSelectedVariant(v)}
+                    >
+                      {v.variantValue}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Dimension Options */}
-            <div className="mt-5">
-              <h3 className="font-medium">Dimension</h3>
-              <div className="flex gap-2 mt-2 flex-wrap">
-                {dimensions.map((dimension, index) => (
-                  <button
-                    key={index}
-                    className={`px-3 py-1 rounded-full border text-sm
+            {dimensionVariants.length > 0 && (
+              <div className="mt-5">
+                <h3 className="font-medium">Dimension</h3>
+                <div className="flex gap-2 mt-2 flex-wrap">
+                  {dimensionVariants.map((v) => (
+                    <button
+                      key={v.variantId}
+                      className={`px-3 py-1 rounded-full border text-sm
             ${
-              selectedVariant.dimension === dimension
+              selectedVariant.variantId === v.variantId
                 ? "border-2 border-gray-900 text-gray-900 font-medium"
                 : "bg-gray-100 hover:bg-gray-200"
             }
           `}
-                    onClick={() => handleVariantSelect("dimension", dimension)}
-                  >
-                    {dimension}
-                  </button>
-                ))}
+                      onClick={() => setSelectedVariant(v)}
+                    >
+                      {v.variantValue}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Type Options */}
             <div className="mt-5">
@@ -1042,6 +1154,14 @@ function ProductDetails() {
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
+                      // alert("ddsjg");
+                      // console.log("Increase payload", {
+                      //   uuid: product.uuid,
+                      //   variantId: selectedVariant.variantId,
+                      // });
+
+                      // console.log("Current cart items:", cartItems);
+
                       dispatch(
                         increaseQty({
                           uuid: product.uuid,
@@ -1056,27 +1176,53 @@ function ProductDetails() {
                   </button>
                 </div>
               ) : (
+                // add on cart
                 <button
                   onClick={() => {
+                    console.log("ADDING TO CART:", {
+                      uuid: product.uuid,
+                      variantId: selectedVariant.variantId,
+                      selectedVariant,
+                    });
+
+                    const { base, effective, discountPercent } =
+                      getPrices(product);
+
                     setIsLoading(true);
                     setTimeout(() => {
                       dispatch(
                         addToCart({
                           uuid: product.uuid,
-                          variantId: selectedVariant.variantId,
+
+                          variantId:
+                            selectedVariant.variantId || selectedVariant._id,
+
                           title: product.title,
-                          basePrice: selectedVariant.sellingPrice, // ✅ FIXED
-                          stockQuantity: selectedVariant.stockQuantity,
-                          discountPercent: product.discountPercent,
-                          image: selectedVariant.images[0],
+
+                          // ✅ Correct discount-aware pricing
+                          basePrice: base,
+                          effectivePrice: effective,
+                          discountPercent,
+
+                          // 🚀 Stock
+                          stockQuantity:
+                            selectedVariant.variantQuantity ?? 999999,
+
+                          // 🚀 Image
+                          image:
+                            selectedVariant.variantImage?.[0] ||
+                            "/placeholder.png",
+
                           deliverBy: product.deliverBy,
+
                           selectedOptions: {
                             color: selectedVariant.color,
-                            type: selectedVariant.type,
-                            dimension: selectedVariant.dimension,
+                            type: selectedVariant.variantType,
+                            dimension: selectedVariant.variantValue,
                           },
                         })
                       );
+
                       setIsLoading(false);
                     }, 200);
                   }}
@@ -1149,7 +1295,8 @@ function ProductDetails() {
 
               {/* Delivery estimate could appear here after checking */}
               <div className="mt-3 p-3 bg-gradient-to-r from-green-100 to-transparent text-sm text-green-800 rounded-md">
-                Delivery expected in {product.deliverBy} Days
+                Delivery expected in {product.deliverBy} Days // This is not
+                deffine
               </div>
             </div>
 
@@ -1163,22 +1310,24 @@ function ProductDetails() {
                 </p>
                 <p className="capitalize">
                   <span className="text-[#6C6B6B]">Material</span> -{" "}
-                  {product.materialType[0]}
+                  {product.materialType}
                 </p>
                 <p className="capitalize">
                   <span className="text-[#6C6B6B]">Return Policy</span> -{" "}
-                  {product.returnPolicy || "-"}
+                  {product.returnPolicy == true
+                    ? "Returns accepted within 7 days"
+                    : "-"}
                 </p>
                 <p
                   className={`font-medium ${
-                    product.variantQuantity > 0
+                    product.stockQuantity > 0
                       ? "text-green-600"
                       : "text-red-600"
                   }`}
                 >
                   <span className="text-[#6C6B6B]">Stock -</span>{" "}
-                  {product.variantQuantity
-                    ? `${product.variantQuantity} available`
+                  {product.stockQuantity
+                    ? `${product.stockQuantity} available`
                     : "Out of Stock"}
                 </p>
               </div>
@@ -1214,10 +1363,10 @@ function ProductDetails() {
         </div>
 
         {/* Similar & Latest */}
-        {similar.length > 0 && (
+        {similarProducts.length > 0 && (
           <div className="mt-8">
             <h2 className="py-2">Similar Products</h2>
-            <Card cardData={similar} />
+            <Card cardData={similarProducts} />
           </div>
         )}
       </section>
@@ -1228,3 +1377,460 @@ function ProductDetails() {
 }
 
 export default ProductDetails;
+
+/////////////////////////////aman code in up word
+
+// import React, { useState, useEffect, useMemo } from "react";
+// import { useParams, useNavigate } from "react-router";
+// import Navbar from "../components/Navbar";
+// import Breadcrumbs from "../components/Breadcrumbs";
+// import Footer from "../sections/Footer";
+// import Ratings from "../components/Ratings";
+// import Reviews from "../components/Reviews";
+// import CustomerReview from "../components/CustomerReview";
+// import Card from "../components/Card";
+// import Button from "../components/Button";
+// import {
+//   Heart,
+//   Minus,
+//   PackageOpen,
+//   Plus,
+//   Trash2,
+// } from "lucide-react";
+// import { useDispatch, useSelector } from "react-redux";
+// import {
+//   addToCart,
+//   buyNow,
+//   decreaseQty,
+//   increaseQty,
+// } from "../redux/cart/cartSlice";
+// import {
+//   addToWishlist,
+//   removeFromWishlist,
+// } from "../redux/cart/wishlistSlice";
+// import { Swiper, SwiperSlide } from "swiper/react";
+// import { Navigation, Thumbs } from "swiper/modules";
+// import "swiper/css";
+// import "swiper/css/navigation";
+// import "swiper/css/thumbs";
+// import EmptyState from "../components/EmptyState";
+// import axiosInstance from "../api/axiosInstance";
+
+// function ProductDetails() {
+//   const { uuid } = useParams();
+//   const navigate = useNavigate();
+//   const dispatch = useDispatch();
+
+//   // -----------------------------
+//   //  ALL HOOKS AT TOP — FIXES ERROR
+//   // -----------------------------
+//   const [product, setProduct] = useState(null);
+//   const [similarProducts, setSimilarProducts] = useState([]);
+//   const [selectedVariant, setSelectedVariant] = useState(null);
+//   const [isLoading, setIsLoading] = useState(true);
+//   const [mainImageIndex, setMainImageIndex] = useState(0);
+//   const [thumbsSwiper, setThumbsSwiper] = useState(null);
+//   const [totalCartItems, setTotalCartItems] = useState(0);
+//   const [inWishlist, setInWishlist] = useState(false);
+
+//   const { cartItems } = useSelector((s) => s.cart);
+//   const { wishlistItems } = useSelector((s) => s.wishlist);
+
+//   // -----------------------------
+//   // FETCH PRODUCT + SIMILAR PRODUCTS
+//   // -----------------------------
+//   useEffect(() => {
+//     const fetchProduct = async () => {
+//       try {
+//         const res = await axiosInstance.get("/products/all");
+//         const all = res.data;
+
+//         const found = all.find((p) => p.uuid === uuid);
+//         setProduct(found || null);
+
+//         // set variant
+//         if (found?.variants?.length > 0) {
+//           setSelectedVariant(found.variants[0]);
+//         }
+
+//         // SIMILAR PRODUCTS
+//         const similar = all.filter(
+//           (p) => p.uuid !== uuid && p.category === found?.category
+//         );
+//         setSimilarProducts(similar.slice(0, 10));
+//       } catch (err) {
+//         console.log("Product fetch error:", err);
+//       } finally {
+//         setIsLoading(false);
+//       }
+//     };
+
+//     fetchProduct();
+//   }, [uuid]);
+
+//   // -----------------------------
+//   // HOOK: inCart
+//   // -----------------------------
+//   const inCart = useMemo(() => {
+//     if (!selectedVariant) return false;
+//     return cartItems.some(
+//       (i) => i.uuid === uuid && i.variantId === selectedVariant.variantId
+//     );
+//   }, [cartItems, selectedVariant, uuid]);
+
+//   // -----------------------------
+//   // HOOK: Wishlist
+//   // -----------------------------
+//   useEffect(() => {
+//     if (!product || !selectedVariant) return;
+//     const found = wishlistItems.some(
+//       (i) => i.uuid === product.uuid && i.variantId === selectedVariant.variantId
+//     );
+//     setInWishlist(found);
+//   }, [wishlistItems, product, selectedVariant]);
+
+//   // -----------------------------
+//   // HOOK: Quantity in Cart
+//   // -----------------------------
+//   useEffect(() => {
+//     if (!selectedVariant) return;
+//     const found = cartItems.find(
+//       (i) => i.uuid === uuid && i.variantId === selectedVariant.variantId
+//     );
+//     setTotalCartItems(found ? found.quantity : 0);
+//   }, [cartItems, selectedVariant, uuid]);
+
+//   // -----------------------------
+//   // IF LOADING
+//   // -----------------------------
+//   if (isLoading) {
+//     return (
+//       <>
+//         <Navbar />
+//         <EmptyState heading="Loading..." description="Fetching product..." />
+//         <Footer />
+//       </>
+//     );
+//   }
+
+//   // -----------------------------
+//   // IF NOT FOUND
+//   // -----------------------------
+//   if (!product || !selectedVariant) {
+//     return (
+//       <>
+//         <Navbar />
+//         <EmptyState
+//           heading="Product Not Found"
+//           description="This product does not exist."
+//           icon={PackageOpen}
+//           ctaLabel="Go Home"
+//           ctaLink="/"
+//         />
+//         <Footer />
+//       </>
+//     );
+//   }
+
+//   // -----------------------------
+//   // UI STARTS HERE
+//   // -----------------------------
+
+//   const colors = [...new Set(product.variants.map((v) => v.variantValue))];
+//   const dimensions = [...new Set(product.variants.map((v) => v.dimension))];
+//   const types = [...new Set(product.variants.map((v) => v.variantType))];
+
+//   const avgRating =
+//     product.reviews?.length > 0
+//       ? product.reviews.reduce((s, r) => s + r.rating, 0) /
+//         product.reviews.length
+//       : 0;
+
+//   const handleVariantSelect = (key, value) => {
+//     const match = product.variants.find((v) => {
+//       return (
+//         (key === "color" ? v.variantValue === value : true) &&
+//         (key === "dimension" ? v.dimension === value : true) &&
+//         (key === "type" ? v.variantType === value : true)
+//       );
+//     });
+
+//     if (match) {
+//       setSelectedVariant(match);
+//       setMainImageIndex(0);
+//     }
+//   };
+
+//   const outOfStock = selectedVariant.stockQuantity <= 0;
+
+//   // -----------------------------
+//   // RENDER UI
+//   // -----------------------------
+//   return (
+//     <>
+//       <Navbar />
+
+//       <Breadcrumbs
+//         category={product.category}
+//         subcategory={product.subcategory}
+//         title={product.title}
+//       />
+
+//       <section className="lg:px-20 md:px-[60px] px-4 py-6">
+//         <div className="flex lg:flex-row flex-col gap-8 items-start max-lg:items-center">
+//           {/* Images */}
+//           <div className="lg:sticky top-20 flex md:gap-8 gap-4 max-md:flex-col-reverse max-lg:w-full">
+//             {/* Thumbnails */}
+//             <Swiper
+//               onSwiper={setThumbsSwiper}
+//               spaceBetween={10}
+//               slidesPerView="auto"
+//               watchSlidesProgress
+//               direction="vertical"
+//               breakpoints={{
+//                 0: { direction: "horizontal", slidesPerView: 4 },
+//                 768: { direction: "vertical" },
+//               }}
+//               className="!w-full !h-auto md:!h-[460px]"
+//             >
+//               {selectedVariant.variantImage?.map((img, idx) => (
+//                 <SwiperSlide key={idx}>
+//                   <div
+//                     className={`relative w-20 h-20 cursor-pointer ${
+//                       mainImageIndex === idx
+//                         ? "border-2 border-[#977c2d] shadow-md rounded-md"
+//                         : "border-2 border-transparent hover:border-gray-200 rounded-md"
+//                     }`}
+//                     onClick={() => {
+//                       setMainImageIndex(idx);
+//                       thumbsSwiper?.slideTo(idx);
+//                     }}
+//                   >
+//                     <img
+//                       src={img}
+//                       alt=""
+//                       className="w-full h-full object-cover rounded-md"
+//                     />
+//                   </div>
+//                 </SwiperSlide>
+//               ))}
+//             </Swiper>
+
+//             {/* Main Image */}
+//             <Swiper
+//               modules={[Navigation, Thumbs]}
+//               thumbs={{ swiper: thumbsSwiper }}
+//               spaceBetween={10}
+//               loop={false}
+//               onSlideChange={(sw) => setMainImageIndex(sw.activeIndex)}
+//               className="xl:min-w-[600px] xl:h-[600px] md:!w-[500px] w-full"
+//             >
+//               {selectedVariant.variantImage?.map((img, idx) => (
+//                 <SwiperSlide key={idx}>
+//                   <img
+//                     src={img}
+//                     className="w-full h-full object-cover"
+//                     alt=""
+//                   />
+//                 </SwiperSlide>
+//               ))}
+//             </Swiper>
+//           </div>
+
+//           {/* Details */}
+//           <div className="w-full">
+//             <h1 className="lg:text-4xl md:text-3xl text-2xl font-semibold">
+//               {product.title}
+//             </h1>
+
+//             {/* Ratings */}
+//             <div className="border-b pb-4 flex items-center gap-4">
+//               <div className="flex items-center gap-1">
+//                 <span className="text-2xl font-semibold">{avgRating}</span>
+//                 <span className="text-gray-500 text-sm">/5</span>
+//               </div>
+
+//               <Ratings size={20} avgRating={avgRating} />
+
+//               <span className="text-sm text-gray-500">
+//                 {product.reviews?.length} Ratings
+//               </span>
+//             </div>
+
+//             {/* Price */}
+//             <div className="py-2 border-b">
+//               <div className="text-2xl font-medium">
+//                 ₹
+//                 {selectedVariant.sellingPrice -
+//                   (product.discountPercent / 100) *
+//                     selectedVariant.sellingPrice}
+//                 <span className="line-through text-sm ml-2">
+//                   ₹{selectedVariant.sellingPrice}
+//                 </span>
+
+//                 <span className="bg-green-700 text-white px-2 py-1 ml-2 rounded-md">
+//                   {product.discountPercent}% Off
+//                 </span>
+//               </div>
+//             </div>
+
+//             {/* Color */}
+//             <div className="mt-5">
+//               <h3 className="font-medium">Color</h3>
+//               <div className="flex gap-2 mt-2">
+//                 {colors.map((c) => (
+//                   <button
+//                     key={c}
+//                     className={`px-3 py-1 rounded-full border ${
+//                       selectedVariant.variantValue === c
+//                         ? "bg-black text-white border-black"
+//                         : "bg-gray-100"
+//                     }`}
+//                     onClick={() => handleVariantSelect("color", c)}
+//                   >
+//                     {c}
+//                   </button>
+//                 ))}
+//               </div>
+//             </div>
+
+//             {/* Dimension */}
+//             <div className="mt-5">
+//               <h3 className="font-medium">Dimension</h3>
+//               <div className="flex gap-2 mt-2">
+//                 {dimensions.map((d) => (
+//                   <button
+//                     key={d}
+//                     className={`px-3 py-1 rounded-full border ${
+//                       selectedVariant.dimension === d
+//                         ? "border-2 border-gray-900"
+//                         : "bg-gray-100"
+//                     }`}
+//                     onClick={() => handleVariantSelect("dimension", d)}
+//                   >
+//                     {d}
+//                   </button>
+//                 ))}
+//               </div>
+//             </div>
+
+//             {/* Type */}
+//             <div className="mt-5">
+//               <h3 className="font-medium">Type</h3>
+//               <div className="flex gap-2 mt-2">
+//                 {types.map((t) => (
+//                   <button
+//                     key={t}
+//                     className={`px-3 py-1 rounded-full border ${
+//                       selectedVariant.variantType === t
+//                         ? "bg-black text-white"
+//                         : "bg-gray-100"
+//                     }`}
+//                     onClick={() => handleVariantSelect("type", t)}
+//                   >
+//                     {t}
+//                   </button>
+//                 ))}
+//               </div>
+//             </div>
+
+//             {/* Cart Controls */}
+//             <div className="flex gap-3 mt-4">
+//               {outOfStock ? (
+//                 <button className="px-6 py-2 bg-gray-300 rounded-full">
+//                   Out of Stock
+//                 </button>
+//               ) : inCart ? (
+//                 <div className="flex items-center gap-3 px-2 ring-2 ring-[#D49A06]/50 p-1 rounded-full">
+//                   <button
+//                     onClick={() =>
+//                       dispatch(
+//                         decreaseQty({
+//                           uuid: product.uuid,
+//                           variantId: selectedVariant.variantId,
+//                         })
+//                       )
+//                     }
+//                   >
+//                     {totalCartItems === 1 ? (
+//                       <Trash2 size={16} />
+//                     ) : (
+//                       <Minus size={16} />
+//                     )}
+//                   </button>
+
+//                   <span>{totalCartItems}</span>
+
+//                   <button
+//                     onClick={() =>
+//                       dispatch(
+//                         increaseQty({
+//                           uuid: product.uuid,
+//                           variantId: selectedVariant.variantId,
+//                         })
+//                       )
+//                     }
+//                   >
+//                     <Plus size={16} />
+//                   </button>
+//                 </div>
+//               ) : (
+//                 <button
+//                   className="px-6 py-2 bg-[#ebb100] rounded-full"
+//                   onClick={() =>
+//                     dispatch(
+//                       addToCart({
+//                         uuid: product.uuid,
+//                         variantId: selectedVariant.variantId,
+//                         title: product.title,
+//                         basePrice: selectedVariant.sellingPrice,
+//                         stockQuantity: selectedVariant.stockQuantity,
+//                         image: selectedVariant.variantImage?.[0],
+//                       })
+//                     )
+//                   }
+//                 >
+//                   Add to Cart
+//                 </button>
+//               )}
+
+//               <button
+//                 className="border px-4 py-2 rounded-full"
+//                 onClick={() => handleBuyNow(product)}
+//               >
+//                 Buy now
+//               </button>
+//             </div>
+
+//             {/* About */}
+//             <div className="py-4 border-b">
+//               <h3 className="underline">About</h3>
+//               <p className="mt-2 text-sm text-gray-700">
+//                 {product.description}
+//               </p>
+//             </div>
+
+//             {/* Reviews */}
+//             <div className="py-4">
+//               <h3 className="text-lg">Customer Reviews</h3>
+//               <Reviews reviews={product.reviews} avgRating={avgRating} />
+//               <CustomerReview reviews={product.reviews} />
+//             </div>
+//           </div>
+//         </div>
+
+//         {/* SIMILAR PRODUCTS */}
+//         {similarProducts.length > 0 && (
+//           <div className="mt-10">
+//             <h2 className="text-xl font-medium">Similar Products</h2>
+//             <Card cardData={similarProducts} />
+//           </div>
+//         )}
+//       </section>
+
+//       <Footer />
+//     </>
+//   );
+// }
+
+// export default ProductDetails;

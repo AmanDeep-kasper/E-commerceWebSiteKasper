@@ -13,7 +13,7 @@ import {
 } from "../../utils/homePageUtils";
 import HomeCard from "../HomeCard";
 import axios from "axios";
-// import axiosInstance from "../../api/axiosInstance";
+import axiosInstance from "../../api/axiosInstance";
 import { getAverageRating } from "../../utils/homePageUtils";
 
 function LatestProducts() {
@@ -50,7 +50,25 @@ function LatestProducts() {
   //   axiosInstance.get("")
   // };
 
-  const latestProducts = [...products].reverse().slice(0, 6);
+  const [latestProduct, setlatestProduct] = useState([])
+
+
+   useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const res = await axiosInstance.get("/products/all");
+        //  console.log("PRODUCTS:", res.data);
+        setlatestProduct(res.data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+
+  const latestProducts = [...latestProduct].reverse().slice(0, 6);
 
   // useEffect(() => {
   // const interval = setInterval(() => {
