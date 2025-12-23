@@ -55,67 +55,266 @@
 
 import mongoose from "mongoose";
 
-const variantSchema = new mongoose.Schema({
-  variantId: {
-    type: String,
-    required: true,
+/* ===============================
+   Variant Schema
+================================ */
+const variantSchema = new mongoose.Schema(
+  {
+    // Unique IDs
+    variantId: {
+      type: String,
+      required: true,
+    },
+
+    variantSkuId: {
+      type: String,
+      required: true,
+      trim: true,
+      uppercase: true,
+    },
+
+    // Variant attributes
+    variantColor: {
+      type: String,
+      trim: true,
+    },
+
+    variantFrameType: {
+      type: String,
+      trim: true, // Framed / Unframed
+    },
+
+    // Dimensions
+    variantWidth: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+
+    variantHeight: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+
+    // Stock
+    variantStockQuantity: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+
+    variantReorderLimit: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+
+    // Pricing
+    variantMrp: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+
+    variantSellingPrice: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+
+    variantCostPrice: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+
+    variantProfit: {
+      type: Number,
+      default: 0,
+    },
+
+    variantDiscount: {
+      type: Number,
+      default: 0,
+      min: 0,
+      max: 100,
+    },
+
+    // Images (store URLs, not files)
+    variantImage: {
+      type: [String],
+      default: [],
+    },
   },
+  { _id: false } // variants embedded, no extra _id
+);
 
-  //  Numeric fields
-  height: { type: Number, default: 0, min: 0 },
-  width: { type: Number, default: 0, min: 0 }, //  add width explicitly
-  weight: { type: String, trim: true }, //  string for values like "12.9kg"
+/* ===============================
+   Product Schema
+================================ */
+const productSchema = new mongoose.Schema(
+  {
+    // Core identifiers
+    uuid: {
+      type: String,
+      required: true,
+      unique: true,
+    },
 
-  //  Variant meta info
-  variantType: { type: String, trim: true }, // e.g. "Framed", "Unframed"
-  variantName: { type: String, trim: true }, // e.g. "Dimension"
-  variantValue: { type: String, trim: true }, // e.g. "34*45cm"
+    route: {
+      type: String,
+      required: true,
+      unique: true,
+      trim: true,
+    },
 
-  //  Stock control
-  variantQuantity: { type: Number, default: 0, min: 0 },
-  variantReorderLimit: { type: Number, default: 0, min: 0 },
+    SKU: {
+      type: String,
+      required: true,
+      unique: true,
+      uppercase: true,
+      trim: true,
+    },
 
-  //  Images
-  variantImage: { type: [String], default: [] }, // Array of image URLs
-});
+    // Basic info
+    title: {
+      type: String,
+      required: true,
+      trim: true,
+    },
 
-const productSchema = new mongoose.Schema({
-  uuid: { type: String, required: true, unique: true },
+    description: {
+      type: String,
+      trim: true,
+    },
 
-  // ADD THIS  (you forgot this in your schema)
-  route: { type: String, required: true, unique: true, trim: true },
-  type: { type: String, enum: ["Framed", "Unframed"], required: true },
-  title: { type: String, required: true, trim: true },
-  description: { type: String, trim: true },
-  images: { type: [String], default: [] },
-  SKU: {
-    type: String,
-    required: true,
-    unique: true,
-    uppercase: true,
-    trim: true,
+    returnPolicy: {
+      type: Boolean,
+      default: false,
+    },
+
+    // Images (product level)
+    images: {
+      type: [String],
+      default: [],
+    },
+
+    // Product details
+    type: {
+      type: String,
+      trim: true, // Framed / Unframed
+    },
+
+    color: {
+      type: String,
+      trim: true,
+    },
+
+    ProductDimensionWidth: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+
+    ProductDimensionHeight: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+
+    // Category
+    category: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    subcategory: {
+      type: String,
+      trim: true,
+    },
+
+    materialType: {
+      type: String,
+      trim: true,
+    },
+
+    // Inventory
+    stockQuantity: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+
+    ReorderLimit: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+
+    // Pricing (product-level)
+    mrp: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+
+    sellingPrice: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+
+    costPrice: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+
+    profit: {
+      type: Number,
+      default: 0,
+    },
+
+    discountPercent: {
+      type: Number,
+      default: 0,
+      min: 0,
+      max: 100,
+    },
+
+    discountAmount: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+
+    taxPercent: {
+      type: String,
+      default: "0%",
+    },
+
+    // Variants
+    hasVariants: {
+      type: Boolean,
+      default: false,
+    },
+
+    variants: {
+      type: [variantSchema],
+      default: [],
+    },
   },
-  category: { type: String, required: true, trim: true },
-  subcategory: { type: String, trim: true },
-  tags: { type: [String], default: [] },
-  materialType: { type: String, trim: true },
-  weight: { type: String, trim: true },
-  stockQuantity: { type: Number, default: 0, min: 0 },
-  returnPolicy: { type: Boolean, default: false },
-  mrp: { type: Number, required: true, min: 0 },
-  sellingPrice: { type: Number, required: true, min: 0 },
-  costPrice: { type: Number, default: 0, min: 0 },
-  profit: { type: Number, default: 0 },
-  discountPercent: { type: Number, default: 0, min: 0, max: 100 },
-  discountAmount: { type: Number, default: 0, min: 0 },
-  includesTax: { type: Boolean, default: false },
-  taxPercent: { type: String, default: "0%" },
-  hasVariants: { type: Boolean, default: false },
-  variants: [variantSchema],
+  {
+    timestamps: true,
+  }
+);
 
-  createdAt: { type: Date, default: Date.now },
-});
-
+/* ===============================
+   Model Export
+================================ */
 const Product =
   mongoose.models.Product || mongoose.model("Product", productSchema);
+
 export default Product;

@@ -28,6 +28,7 @@ export const addProduct = async (req, res) => {
       discountAmount,
       materialType,
       stockQuantity,
+      ReorderLimit, // ✅ ADD THIS
       color,
       returnPolicy,
       weight,
@@ -56,6 +57,8 @@ export const addProduct = async (req, res) => {
     // 🔧 Helpers
     const toNumber = (v) => (v ? Number(v) : 0);
     const toBool = (v) => v === "true" || v === true;
+
+    const normalizeSingle = (v) => (Array.isArray(v) ? v[0] : v || "");
     const normalizeField = (field, separator = ",") => {
       if (!field) return [];
       if (Array.isArray(field)) return field.map((f) => f.trim());
@@ -112,20 +115,33 @@ export const addProduct = async (req, res) => {
           parsed = [];
         }
 
-        parsedVariants = parsed.map((v, idx) => ({
-          variantId: v.variantId,
-          variantType: v.variantType,
-          variantName: v.variantName || "Dimension",
-          variantValue:
-            v.variantValue ||
-            (v.width && v.height ? `${v.width}*${v.height}cm` : ""),
-          height: Number(v.height) || 0,
-          width: Number(v.width) || 0,
-          weight: v.weight || "",
-          variantQuantity: Number(v.variantQuantity) || 0,
-          variantReorderLimit: Number(v.variantReorderLimit) || 0,
-          variantImage: variantImageMap[idx] || [], // CLOUDINARY IMAGES
-        }));
+        parsedVariants = parsed.map((v, idx) => {
+          if (!v.variantSkuId) {
+            throw new Error(`Variant SKU is required at index ${idx}`);
+          }
+
+          return {
+            variantId: v.variantId || randomUUID(),
+            variantSkuId: v.variantSkuId,
+
+            variantColor: v.variantColor || "",
+            variantFrameType: v.variantFrameType || "",
+
+            variantWidth: Number(v.variantWidth) || 0,
+            variantHeight: Number(v.variantHeight) || 0,
+
+            variantStockQuantity: Number(v.variantStockQuantity) || 0,
+            variantReorderLimit: Number(v.variantReorderLimit) || 0,
+
+            variantMrp: Number(v.variantMrp) || 0,
+            variantSellingPrice: Number(v.variantSellingPrice) || 0,
+            variantCostPrice: Number(v.variantCostPrice) || 0,
+            variantProfit: Number(v.variantProfit) || 0,
+            variantDiscount: Number(v.variantDiscount) || 0,
+
+            variantImage: variantImageMap[idx] || [],
+          };
+        });
       } catch (err) {
         console.warn("⚠️ Could not parse variants JSON:", err.message);
       }
@@ -137,32 +153,38 @@ export const addProduct = async (req, res) => {
     const product = new Product({
       uuid: uuid || randomUUID(),
       route: route || `/product/${makeSlug(title)}-${SKU}`,
+
       title,
       category,
       subcategory,
       SKU,
-      dimension,
+
+      ProductDimensionWidth: toNumber(req.body.ProductDimensionWidth),
+      ProductDimensionHeight: toNumber(req.body.ProductDimensionHeight),
+
       mrp: toNumber(mrp),
       sellingPrice: toNumber(sellingPrice),
       costPrice: toNumber(costPrice),
       profit: toNumber(profit),
+
       discountPercent: toNumber(discountPercent),
       discountAmount: toNumber(discountAmount),
-      includesTax: toBool(includesTax),
-      taxPercent,
-      materialType,
+
       stockQuantity: toNumber(stockQuantity),
-      color: normalizeField(color),
+      ReorderLimit: toNumber(ReorderLimit),
+
+      color: normalizeSingle(color),
+
+      materialType,
       returnPolicy: toBool(returnPolicy),
-      weight,
       type,
       description,
-      tags: normalizeField(tags),
-      deliverBy: toNumber(deliverBy) || 3,
-      bulletPoints: normalizeField(bulletPoints, "|"),
+
+      taxPercent,
       hasVariants: toBool(hasVariants),
+
+      images: productImages,
       variants: parsedVariants,
-      images: productImages, // CLOUDINARY IMAGES SAVED HERE!
     });
 
     await product.save();
