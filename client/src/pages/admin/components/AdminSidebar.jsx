@@ -30,7 +30,7 @@ function AdminSidebar({ isCollapsed, setIsCollapsed }) {
   const isActive = (path) => location.pathname === `/admin${path}`;
 
   return (
-    <div className="h-full flex flex-col  py-4 bg-[#F8FAFB]">
+    <div className="h-full flex flex-col  py-4 bg-[#FFFFFF]">
       {/* Header */}
       <div className="flex items-center justify-end bg-red-600 relative">
         {/* {!isCollapsed && (
@@ -40,7 +40,7 @@ function AdminSidebar({ isCollapsed, setIsCollapsed }) {
         )} */}
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="p-2 absolute border  -right-4 top-0  rounded-full hover:bg-[#FFFFFF] text-[#686868] hover:text-[#1C3753] transition-colors"
+          className="p-2 absolute border -right-4 top-0 bg-[#FFFFFF]  rounded-full hover:bg-[#F5F8FA] text-[#686868] hover:text-[#1C3753] transition-colors"
         >
           <BsLayoutSidebar 
             className={`transform ${
@@ -52,7 +52,7 @@ function AdminSidebar({ isCollapsed, setIsCollapsed }) {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto scrollbar-thin py-10 px-3 scrollbar-thumb-gray-500 scrollbar-track-transparent">
+      <nav className="flex-1 overflow-y-auto scrollbar-thin py-8 px-3 scrollbar-thumb-gray-500 scrollbar-track-transparent">
         {dashboard.map(({ name, path, icon: Icon }) => (
           <Link
             key={name}
@@ -61,9 +61,9 @@ function AdminSidebar({ isCollapsed, setIsCollapsed }) {
               isCollapsed ? "justify-center" : ""
             } gap-3 p-3 mb-1 rounded-lg transition-all duration-200 ${
               isActive(path)
-                ? "bg-white text-[#1C3753]  border-l-4 border-l-[#1C3753]"
+                ? "bg-[#F5F8FA] text-[#1C3753]  border-l-4 border-l-[#1C3753]"
 
-                : "text-[#686868] hover:bg-[#FFFFFF] hover:text-[#1C3753]"
+                : "text-[#686868] hover:bg-[#F5F8FA] hover:text-[#1C3753]"
             }`}
           >
             <Icon size={20} />
@@ -74,7 +74,7 @@ function AdminSidebar({ isCollapsed, setIsCollapsed }) {
 
 
       {/* Footer */}
-      <div className="mt-auto border-t border-gray-700 pt-4">
+      <div className="mt-auto border-t px-4 pt-4">
         <Link
           to="/admin/settings/general"
           className="flex items-center gap-3 p-3 mb-1 rounded-lg text-[#686868] hover:bg-[#FFFFFF]  hover:text-[#686868] transition-colors"

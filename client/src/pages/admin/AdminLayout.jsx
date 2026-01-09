@@ -27,7 +27,7 @@ function AdminLayout() {
 
         {/* Main content area */}
         <main
-          className={`flex-1 overflow-y-auto transition-all bg-[#FEFEFE] duration-300 p-6`}
+          className={`flex-1 overflow-y-auto transition-all bg-[#FEFEFE] duration-300`}
           style={{
             marginLeft: isCollapsed ? "80px" : "240px",
           }}
