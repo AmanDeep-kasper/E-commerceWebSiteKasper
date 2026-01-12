@@ -222,11 +222,7 @@ function Customer() {
 
                     {/* Action */}
                     <td className="px-4 py-3 text-right">
-                      <button
-                        className="p-1.5 rounded hover:bg-gray-100"
-                        onClick={() =>
-                          navigate(`/admin/customers/${r.id}/customer-info`)
-                        }>
+                      <button className="p-1.5 rounded hover:bg-gray-100">
                         <PencilLine className="w-4 h-4 text-gray-600" />
                       </button>
                     </td>

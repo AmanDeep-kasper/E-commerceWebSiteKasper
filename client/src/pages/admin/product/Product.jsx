@@ -226,7 +226,7 @@
 
 // export default Product;
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   ChevronDown,
   ChevronRight,
@@ -240,31 +240,48 @@ import {
   PackageCheck,
   ListMinus,
   ListFilter,
+  Circle,
+  CopyCheck,
+  FunnelX,
 } from "lucide-react";
-import { Link, useNavigate } from "react-router";
-// import productData from "../../../data/products.json";
-import axiosInstance from "../../../api/axiosInstance";
+import { Link, useNavigate, useParams } from "react-router";
+import productData from "../../../data/products.json";
+// import axiosInstance from "../../../api/axiosInstance";
 // import kpiCards from "./KpiCardProductlist";
-import Active_product from "../../../assets/icons/Icon.png";
-// import product1 from ""
+// import Active_product from "../../../assets/icons/Icon.png";
 
 const Products = () => {
   const [product, setProduct] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchProduct = async () => {
-      try {
-        const res = await axiosInstance.get("/products/all");
-        setProduct(res.data);
-      } catch (error) {
-        console.error("Error fetching products:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchProduct();
-  }, []);
+  // useEffect(() => {
+  //   const fetchProduct = async () => {
+  //     try {
+  //       const res = await axiosInstance.get("/products/all");
+  //       setProduct(res.data);
+  //     } catch (error) {
+  //       console.error("Error fetching products:", error);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+  //   fetchProduct();
+  // }, []);
+
+  const { uuid } = useParams();
+
+  // const Editproduct = useMemo(() => {
+  //   if (!productData || productData.length === 0) return undefined;
+  //   return productData.find((p) => p.uuid.toLowerCase() === uuid.toLowerCase());
+  // }, [productData, uuid]);
+
+  const Editproduct = useMemo(() => {
+    if (!uuid || !productData?.length) return null;
+
+    return productData.find(
+      (p) => p.uuid && p.uuid.toLowerCase() === uuid.toLowerCase()
+    );
+  }, [productData, uuid]);
 
   //  Delete button + selected items
   const [selectedItems, setSelectedItems] = useState([]);
@@ -317,12 +334,29 @@ const Products = () => {
     return () => clearTimeout(timer);
   }, [search]);
 
+  const [filterOpen, setFilterOpen] = useState(false); // main filter
+  const [activeFilter, setActiveFilter] = useState(null); // "status" | "category"
+
+  const [selectedStatus, setSelectedStatus] = useState("Status");
+  const [selectedCategory, setSelectedCategory] = useState("Category");
+  // console.log(selectedCategory);
+  // console.log(selectedStatus);
+
   // 🔹 Filter products by debouncedSearch
-  let filteredProducts = product.filter((p) =>
-    (p.title || "")
-      .toLowerCase()
-      .includes((debouncedSearch || "").toLowerCase())
-  );
+  let filteredProducts = productData.filter((p) => {
+    // 🔍 Search filter
+    const searchMatch = (p.title || "").toLowerCase().includes(debouncedSearch);
+
+    // 📌 Status filter
+    const statusMatch =
+      selectedStatus === "Status" || p.status === selectedStatus;
+
+    // 🗂️ Category filter
+    const categoryMatch =
+      selectedCategory === "Category" || p.category === selectedCategory;
+
+    return searchMatch && statusMatch && categoryMatch;
+  });
 
   const [selectedSort, setSelectedSort] = useState("Price: Low → High");
   // Apply category filter
@@ -430,13 +464,9 @@ const Products = () => {
     },
   ];
 
-  const [filterOpen, setFilterOpen] = useState(false); // main filter
-  const [activeFilter, setActiveFilter] = useState(null); // "status" | "category"
-
-  const [selectedStatus, setSelectedStatus] = useState("Status");
-  const [selectedCategory, setSelectedCategory] = useState("Category");
-
-  
+  const handleEdit = () => {
+    navigate(`/admin/add-product/${Editproduct.uuid}`);
+  };
 
   return (
     <>
@@ -445,7 +475,7 @@ const Products = () => {
 
         <div className="">
           <div className="flex items-center justify-between">
-            <div className="flex items-center justify-between mb-4 16px px-2 rounded-md">
+            <div className="flex items-center justify-between  16px px-2 rounded-md">
               <h2 className="text-[20px] font-semibold text-gray-800">
                 All Products
               </h2>
@@ -460,7 +490,7 @@ const Products = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6  py-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4  py-6">
             {kpicardData.map((item, index) => {
               return (
                 <div
@@ -469,10 +499,10 @@ const Products = () => {
   p-4 border rounded-2xl bg-white shadow-sm">
                   <span
                     className="absolute left-0 top-1/2 -translate-y-1/2
-                     w-[4px] h-10 bg-blue-500 rounded-r"
+                    w-[4px] h-10 bg-blue-500 rounded-r"
                   />
 
-                  <div className="pl-3">
+                  <div>
                     <div className="text-sm text-gray-500">{item.name}</div>
                     <div className="text-2xl font-semibold">{item.data}</div>
                   </div>
@@ -511,16 +541,27 @@ const Products = () => {
             </div>
 
             <div className=" relative flex flex-wrap gap-4 text-[#000000]">
+              <button
+                onClick={() => {
+                  setSelectedSort("Price: Low → High");
+                  setSelectedCategory("Category");
+                  setSelectedStatus("Status");
+                }}
+                className="border rounded-lg px-4 py-2 bg-[#F8F8F8] text-[#686868] flex items-center justify-between gap-2">
+                <FunnelX size={18}/>
+                Clear Filter
+              </button>
               <div className="relative inline-block">
                 <button
                   onClick={() => {
-                    setFilterOpen((prev) => !prev);
+                    // setFilterOpen((prev) => !prev);
+                    setFilterOpen(true);
                     setActiveFilter(null);
                   }}
                   className=" border rounded-lg px-4 py-2 flex items-center justify-center gap-6 text-[#686868] bg-[#F8F8F8]">
                   <ListFilter size={18} />
                   <span>
-                    { activeFilter === "status"
+                    {activeFilter === "status"
                       ? selectedStatus
                       : activeFilter === "category"
                       ? selectedCategory
@@ -529,8 +570,9 @@ const Products = () => {
                 </button>
 
                 {/* FIRST DROPDOWN */}
-                {filterOpen && (
+                {/* {filterOpen && (
                   <ul className="absolute left-0 top-full mt-1 w-36 bg-white border rounded-lg shadow z-20">
+                  
                     <li
                       onClick={() => {
                         setActiveFilter("status");
@@ -561,11 +603,31 @@ const Products = () => {
                       </div>
                     </li>
                   </ul>
+                )} */}
+
+                {filterOpen && (
+                  <div
+                    className="absolute mt-2 right-16 top-9 w-40 bg-white border rounded-lg shadow"
+                    onClick={(e) => e.stopPropagation()}>
+                    <div
+                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center justify-between"
+                      onClick={() => setActiveFilter("status")}>
+                      Status
+                      <ChevronRight className="text-[#686868]" size={"16px"} />
+                    </div>
+
+                    <div
+                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center justify-between"
+                      onClick={() => setActiveFilter("category")}>
+                      Category
+                      <ChevronRight className="text-[#686868]" size={"16px"} />
+                    </div>
+                  </div>
                 )}
               </div>
 
               {activeFilter === "status" && (
-                <div className="absolute left-40 top-10 ml-2 w-48 z-30">
+                <div className="absolute left-56 top-11 ml-2 w-48 z-30">
                   <ul className=" bg-white border rounded-lg shadow">
                     {["Active", "Draft", "Archived"].map((status) => (
                       <li
@@ -573,7 +635,7 @@ const Products = () => {
                         onClick={() => {
                           setSelectedStatus(status);
                           setActiveFilter(null);
-                          setFilterOpen(false); 
+                          setFilterOpen(false);
                         }}
                         className="px-4 py-2 cursor-pointer hover:bg-[#F5F8FA]">
                         {status}
@@ -584,7 +646,7 @@ const Products = () => {
               )}
 
               {activeFilter === "category" && (
-                <div className="absolute left-full top-0 ml-2 w-56 z-30">
+                <div className="absolute left-60 top-11 ml-2 w-56 z-30">
                   <ul className="bg-white border rounded-lg shadow max-h-60 overflow-auto">
                     {categories.map((cat) => (
                       <li
@@ -592,7 +654,7 @@ const Products = () => {
                         onClick={() => {
                           setSelectedCategory(cat);
                           setActiveFilter(null);
-                          setFilterOpen(false); 
+                          setFilterOpen(false);
                         }}
                         className="px-4 py-2 cursor-pointer hover:bg-[#F5F8FA]">
                         {cat}
@@ -644,8 +706,8 @@ const Products = () => {
               <thead className="bg-[#F8F8F8] h-[54px]">
                 <tr className="text-[#4B5563] text-[18px]">
                   {/* // header ka input ha yaa */}
-                  <th className="px-4 py-3">
-                    <input
+                  {/* <th className="px-4 py-3"> */}
+                  {/* <input
                       type="checkbox"
                       onChange={handleSelectAll}
                       checked={
@@ -656,15 +718,35 @@ const Products = () => {
                         currentItems.length > 0
                       }
                       className="w-4 h-4"
-                    />
+                    /> */}
+                  {/* </th> */}
+                  <th className="px-4 py-3 font-normal text-[#1C1C1C]">
+                    Product
                   </th>
-                  <th className="px-4 py-3 font-normal">Product</th>
-                  <th className="px-4 py-3 font-normal">SKU ID</th>
-                  <th className="px-4 py-3 font-normal">Category</th>
-                  <th className="px-4 py-3 font-normal">Quantity</th>
-                  <th className="px-4 py-3 font-normal">Selling Price </th>
-                  <th className="px-4 py-3 font-normal">Cost Price </th>
-                  <th className="px-4 py-3 font-normal">Action</th>
+                  <th className="px-4 py-3 font-normal text-[#1C1C1C]">
+                    SKU ID
+                  </th>
+                  <th className="px-4 py-3 font-normal text-[#1C1C1C]">
+                    Category
+                  </th>
+                  <th className="px-4 py-3 font-normal text-[#1C1C1C]">
+                    Price
+                  </th>
+                  <th className="px-4 py-3 font-normal text-[#1C1C1C]">
+                    Stock
+                  </th>
+                  <th className="px-4 py-3 font-normal text-[#1C1C1C]">
+                    Status
+                  </th>
+                  {/* <th className="px-4 py-3 font-normal text-[#1C1C1C]">
+                    Selling Price{" "}
+                  </th>
+                  <th className="px-4 py-3 font-normal text-[#1C1C1C]">
+                    Cost Price{" "}
+                  </th> */}
+                  <th className="px-4 py-3 font-normal text-[#1C1C1C]">
+                    Action
+                  </th>
                 </tr>
               </thead>
 
@@ -672,7 +754,7 @@ const Products = () => {
                 {currentItems.map((item) => (
                   <tr
                     key={item.uuid || item.id || item.route}
-                    className={`border-t hover:bg-gray-50 transition group ${
+                    className={`border-t hover:bg-gray-50 transition ${
                       selectedItems.includes(item.id) ? "bg-red-50" : ""
                     }`}
                     onClick={(e) => {
@@ -686,20 +768,20 @@ const Products = () => {
                         navigate(`/admin/product-info/${item.uuid}`);
                       }
                     }}>
-                    <td className="px-4 py-3">
-                      <input
+                    {/* <td className="px-4 py-3"> */}
+                    {/* <input
                         type="checkbox"
                         checked={selectedItems.includes(item.id || item.uuid)}
                         onChange={() =>
                           handleCheckboxChange(item.id || item.uuid)
                         }
                         className="w-4 h-4"
-                      />
-                    </td>
+                      /> */}
+                    {/* </td> */}
 
                     <td className="px-0 py-4">
                       <div className="flex items-center justify-start gap-2">
-                        <div className="h-[50px] w-[50px] ml-2 bg-[#D9D9D9] rounded-md overflow-hidden">
+                        <div className="h-[50px] w-[50px] ml-2 bg-[#EFEFEF] p-1 rounded-md overflow-hidden">
                           <img
                             className="h-full w-full object-cover object-center"
                             src={item.images[0]}
@@ -709,9 +791,12 @@ const Products = () => {
 
                         <div>
                           <span className="text-[#1F2937]  text-[16px] font-medium cursor-pointer">
-                            {item.title}
+                            {item.title.split(" ").length > 3
+                              ? item.title.split(" ").slice(0, 3).join(" ") +
+                                "..."
+                              : item.title}
                           </span>
-                          <div>
+                          {/* <div>
                             <p className="text-[14px] text-[#5D5D5D]">
                               {item.variants
                                 .slice(0, 2) // show only first 2
@@ -724,7 +809,7 @@ const Products = () => {
                                 </span>
                               )}
                             </p>
-                          </div>
+                          </div> */}
                         </div>
                       </div>
                     </td>
@@ -736,23 +821,93 @@ const Products = () => {
                       {item.category}
                     </td>
                     <td className="px-4 py-3 text-[16px] text-[#1F2937]">
-                      {item.stockQuantity}
+                      ₹{item.sellingPrice}
                     </td>
                     <td className="px-4 py-3 text-[16px] text-[#1F2937]">
+                      {item.sellingPrice === 0 ? (
+                        <div className="text-red-500 font-semibold">
+                          Out of Stock
+                        </div>
+                      ) : item.sellingPrice <= 10 ? (
+                        <div className="text-yellow-500 font-semibold">
+                          Low Stock
+                        </div>
+                      ) : (
+                        <div className="text-green-600 font-semibold">
+                          In Stock
+                        </div>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-[16px] text-[#1F2937]">
+                      {item.status === "Active" ? (
+                        <div className="flex items-center justify-center gap-2 bg-[#E0F4DE] py-1.5 px-2 rounded-lg text-sm text-[#00A63E]">
+                          <Circle
+                            fill="#00A63E"
+                            color="#00A63E"
+                            size={"12px"}
+                            className=""
+                          />
+                          Active
+                        </div>
+                      ) : item.status === "Draft" ? (
+                        <div className="flex items-center justify-center gap-2 bg-[#EFEFEF] py-1.5 px-3 rounded-lg text-sm text-[#686868]">
+                          <Circle
+                            fill="#686868"
+                            color="#686868"
+                            size={"12px"}
+                            className=""
+                          />
+                          Drift
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-center gap-2 bg-[#FFFBEB] py-1.5 px-3 rounded-lg text-sm text-[#F8A14A]">
+                          <Circle
+                            fill="#F8A14A"
+                            color="#F8A14A"
+                            size={"12px"}
+                            className=""
+                          />
+                          Archived
+                        </div>
+                      )}
+                    </td>
+
+                    {/* <td className="px-4 py-3 text-[16px] text-[#1F2937]">
                       ₹{item.sellingPrice}
                     </td>
                     <td className="px-4 py-3 text-[16px] text-[#1F2937]">
                       ₹{item.costPrice}
-                    </td>
+                    </td> */}
 
                     {/* Centered action icons (hidden until hover) */}
                     <td className="px-0 py-3">
-                      <div className="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                        <button className="p-2 rounded bg-gray-100 hover:bg-gray-200 transition">
-                          <PencilLine className="w-6 h-6 text-gray-900" />
+                      {/* <div className="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200"> */}
+                      <div className="flex items-center justify-center gap-2 ">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/admin/add-product/${item.uuid}`);
+                          }}
+                          className="relative p-2 rounded group">
+                          <PencilLine className="w-5 h-5 text-gray-900" />
+
+                          <div
+                            className="
+      absolute left-1/2 top-10 -translate-x-1/2
+      bg-[#F5F8FA] py-1 px-3 rounded-lg
+      text-xs font-medium
+      opacity-0
+      group-hover:opacity-100
+      transition-opacity duration-200
+      whitespace-nowrap
+      pointer-events-none
+    ">
+                            Edit
+                          </div>
                         </button>
-                        <button className="p-2 rounded bg-red-50 hover:bg-red-100 transition">
-                          <Trash className="w-6 h-6 text-red-700" />
+
+                        <button className="p-2 rounded">
+                          <CopyCheck className="w-5 h-5 text-[#1C1C1C]" />
                         </button>
                       </div>
                     </td>
