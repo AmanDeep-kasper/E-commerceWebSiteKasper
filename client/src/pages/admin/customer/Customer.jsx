@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 // import AdminSidebar from "../components/AdminSidebar";
 import {
   BellIcon,
@@ -10,10 +10,10 @@ import {
   PencilLine,
   Search,
 } from "lucide-react";
-import { ChevronLeft, MoreVertical, Upload, Filter, Plus } from "lucide-react";
-import customers from "../data/customer.json";
+import { ChevronLeft } from "lucide-react";
+import customers from "../data/customer.json"; // json data
 import { useNavigate } from "react-router";
-import { div } from "framer-motion/m";
+// import { div } from "framer-motion/m";
 
 const classNames = (...c) => c.filter(Boolean).join(" ");
 
@@ -26,15 +26,107 @@ const links = [
 function Customer() {
   const [page, setPage] = useState(1);
   const rowsPerPage = 10;
-  const allRows = [...customers];
-  const totalPages = Math.ceil(allRows.length / rowsPerPage);
-  const rows = allRows.slice((page - 1) * rowsPerPage, page * rowsPerPage);
+  // search filter
+
+  const [search, setSearch] = useState("");
+  const [debouncedValue, setDebouncedValue] = useState("");
+  // console.log(search);
+
+  // latest filter
+  const [filterOne, setfilterOne] = useState("Latest");
+  const [filterOneOpen, setfilterOneOpen] = useState(false);
+  // status filter
+  const [statusOpen, setStatusOpen] = useState(false);
+  const [status, setStatus] = useState("All Status");
+  // const allRows = [...customers];
+
+  // debouncce filter
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedValue(search);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  // all filter logic
+
+  const filterCustomers = useMemo(() => {
+    let result = [...customers];
+
+    // Search logic filter
+    if (debouncedValue.trim() !== "") {
+      result = result.filter((item) => {
+        return (
+          item.name.toLowerCase().includes(debouncedValue.toLowerCase()) ||
+          item.email.toLowerCase().includes(debouncedValue.toLowerCase()) ||
+          item.phone.includes(debouncedValue)
+        );
+      });
+    }
+    // STATUS FILTER
+    if (status !== "All Status") {
+      result = result.filter((item) => item.status === status);
+    }
+
+    if (filterOne === "Latest") {
+      result.sort(
+        (a, b) => new Date(b.last_order_date) - new Date(a.last_order_date)
+      );
+    }
+
+    if (filterOne === "Oldest") {
+      result.sort((a, b) => {
+        return new Date(a.last_order_date) - new Date(b.last_order_date);
+      });
+    }
+
+    if (filterOne === "Alphabetical (A-Z)") {
+      result.sort((a, b) => {
+        return a.name.localeCompare(b.name);
+      });
+    }
+
+    if (filterOne === "Alphabetical (Z-A)") {
+      result.sort((a, b) => {
+        return b.name.localeCompare(a.name);
+      });
+    }
+
+    if (filterOne === "Spend (Low-High)") {
+      result.sort((a, b) => {
+        return a.total_spent - b.total_spent;
+      });
+    }
+
+    if (filterOne === "Spend (High-Low)") {
+      result.sort((a, b) => {
+        return b.total_spent - a.total_spent;
+      });
+    }
+    if (filterOne === "Most Orders") {
+      result.sort((a, b) => {
+        return b.total_orders - a.total_orders;
+      });
+    }
+    if (filterOne === "Least Orders") {
+      result.sort((a, b) => {
+        return a.total_orders - b.total_orders;
+      });
+    }
+
+    return result;
+  }, [customers, debouncedValue, status, filterOne]);
+
+  const totalPages = Math.ceil(filterCustomers.length / rowsPerPage);
+  const rows = filterCustomers.slice(
+    (page - 1) * rowsPerPage,
+    page * rowsPerPage
+  );
   const navigate = useNavigate(null);
 
   // store the Latest filter status
-
-  const [filterOne, setfilterOne] = useState("Latest");
-  const [filterOneOpen, setfilterOneOpen] = useState(false);
 
   const filterOneItems = [
     "Latest",
@@ -49,10 +141,13 @@ function Customer() {
 
   // Filter two status
 
-  const [statusOpen, setStatusOpen] = useState(false);
-  const [status, setStatus] = useState("All Status");
+  const statuses = ["All Status", "Active", "Blocked"];
 
-  const statuses = ["All Status", "Active", "Inactive", "Blocked"];
+  //  pagination side logic
+
+  const start = (page - 1) * rowsPerPage + 1;
+  const end = Math.min(page * rowsPerPage, filterCustomers.length);
+  const total = filterCustomers.length;
 
   return (
     <div className="p-[24px] bg-[#F6F8F9] min-h-screen">
@@ -81,6 +176,8 @@ function Customer() {
               <Search className="w-4 h-4 text-[#686868]" />
               <input
                 type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search by Name, Email, Phone number"
                 className="outline-none text-sm text-[#686868] w-full bg-transparent"
               />
@@ -146,9 +243,9 @@ function Customer() {
 
               <button
                 onClick={() => {
-                  setSelectedSort("Price: Low → High");
-                  setSelectedCategory("Category");
-                  setSelectedStatus("Status");
+                  setStatus("All Status");
+                  setfilterOne("Latest");
+                  setPage(1);
                 }}
                 className="border rounded-lg px-3 py-2 text-sm text-[#686868] flex items-center justify-between gap-2 bg-[#F8FBFC]  hover:bg-gray-100">
                 <FunnelX size={18} />
@@ -192,7 +289,7 @@ function Customer() {
                     <td className="px-4 py-3 text-gray-600">{r.email}</td>
                     <td className="px-4 py-3">{r.phone}</td>
                     <td className="px-4 py-3">{r.total_orders}</td>
-                    <td className="px-4 py-3">₹{r.total_spend}</td>
+                    <td className="px-4 py-3">₹{r.total_spent}</td>
                     <td className="px-4 py-3">{r.last_order_date}</td>
 
                     {/* Status */}
@@ -237,45 +334,36 @@ function Customer() {
           </div>
 
           {/* Pagination */}
-          <div className="flex items-center justify-between px-4 lg:px-6 py-3  bg-white text-sm">
-            <button
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              className="inline-flex items-center gap-1 px-2 py-1 rounded hover:bg-gray-100 disabled:opacity-40"
-              disabled={page === 1}
-              aria-label="Previous Page">
-              <ChevronLeft className="w-4 h-4" />
-              Previous
-            </button>
 
-            <div className="flex items-center gap-1">
-              {Array.from({ length: totalPages }).map((_, i) => {
-                const n = i + 1;
-                const isActive = n === page;
-                return (
-                  <button
-                    key={n}
-                    onClick={() => setPage(n)}
-                    className={classNames(
-                      "w-8 h-8 rounded text-sm flex items-center justify-center",
-                      isActive
-                        ? "bg-gray-900 text-white"
-                        : "bg-white border hover:bg-gray-100"
-                    )}
-                    aria-label={`Page ${n}`}>
-                    {String(n).padStart(2, "0")}
-                  </button>
-                );
-              })}
+          <div className="flex items-center justify-between px-6 py-3  text-sm text-gray-600">
+            {/* Showing text */}
+            <div>
+              Showing <span className="font-medium">{start}</span>–
+              <span className="font-medium">{end}</span> of{" "}
+              <span className="font-medium">{total}</span> results
             </div>
 
-            <button
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              className="inline-flex items-center gap-1 px-2 py-1 rounded hover:bg-gray-100 disabled:opacity-40"
-              disabled={page === totalPages}
-              aria-label="Next Page">
-              Next
-              <ChevronLeft className="w-4 h-4 rotate-180" />
-            </button>
+            {/* Pagination controls */}
+            <div className="flex items-center gap-2">
+              <button
+                className="px-3 py-1 border rounded disabled:opacity-40"
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page === 1}>
+                ‹
+              </button>
+
+              <div className="px-4 py-1 border rounded">
+                Page {String(page).padStart(2, "0")} of{" "}
+                {String(totalPages).padStart(2, "0")}
+              </div>
+
+              <button
+                className="px-3 py-1 border rounded disabled:opacity-40"
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={page === totalPages}>
+                ›
+              </button>
+            </div>
           </div>
         </div>
       </div>

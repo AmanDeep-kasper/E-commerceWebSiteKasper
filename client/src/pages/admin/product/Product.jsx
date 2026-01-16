@@ -270,11 +270,6 @@ const Products = () => {
 
   const { uuid } = useParams();
 
-  // const Editproduct = useMemo(() => {
-  //   if (!productData || productData.length === 0) return undefined;
-  //   return productData.find((p) => p.uuid.toLowerCase() === uuid.toLowerCase());
-  // }, [productData, uuid]);
-
   const Editproduct = useMemo(() => {
     if (!uuid || !productData?.length) return null;
 
@@ -339,19 +334,17 @@ const Products = () => {
 
   const [selectedStatus, setSelectedStatus] = useState("Status");
   const [selectedCategory, setSelectedCategory] = useState("Category");
-  // console.log(selectedCategory);
-  // console.log(selectedStatus);
 
   // 🔹 Filter products by debouncedSearch
   let filteredProducts = productData.filter((p) => {
-    // 🔍 Search filter
+    //  Search filter
     const searchMatch = (p.title || "").toLowerCase().includes(debouncedSearch);
 
-    // 📌 Status filter
+    //  Status filter
     const statusMatch =
       selectedStatus === "Status" || p.status === selectedStatus;
 
-    // 🗂️ Category filter
+    //  Category filter
     const categoryMatch =
       selectedCategory === "Category" || p.category === selectedCategory;
 
@@ -414,6 +407,7 @@ const Products = () => {
   //////////////////////////
 
   const dropdownRef = useRef(null);
+  const filterRef = useRef(null);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -422,6 +416,19 @@ const Products = () => {
         setOpen(false);
       }
     };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // status  drop down close
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (filterRef.current && !filterRef.current.contains(event.target)) {
+        setActiveFilter(null); // close status/category
+        setOpen(false); // close price dropdown
+      }
+    };
+
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
@@ -464,9 +471,9 @@ const Products = () => {
     },
   ];
 
-  const handleEdit = () => {
-    navigate(`/admin/add-product/${Editproduct.uuid}`);
-  };
+  // const handleEdit = () => {
+  //   navigate(`/admin/add-product/${Editproduct.uuid}`);
+  // };
 
   return (
     <>
@@ -483,7 +490,7 @@ const Products = () => {
 
             <div>
               <Link to={`/admin/add-product`}>
-                <button className="bg-[#1C3753] text-white px-4 py-2 rounded-lg hover:bg-orange-600">
+                <button className="bg-[#1C3753] text-white px-4 py-2 rounded-lg hover:bg-[#344558]">
                   + Add Product
                 </button>
               </Link>
@@ -540,71 +547,30 @@ const Products = () => {
               />
             </div>
 
-            <div className=" relative flex flex-wrap gap-4 text-[#000000]">
+            <div
+              ref={filterRef}
+              className=" relative flex flex-wrap justify-center items-center gap-2 text-[#000000]">
               <button
-                onClick={() => {
-                  setSelectedSort("Price: Low → High");
-                  setSelectedCategory("Category");
-                  setSelectedStatus("Status");
-                }}
-                className="border rounded-lg px-4 py-2 bg-[#F8F8F8] text-[#686868] flex items-center justify-between gap-2">
-                <FunnelX size={18}/>
-                Clear Filter
+                onClick={() =>
+                  setActiveFilter((prev) =>
+                    prev === "status" ? null : "status"
+                  )
+                }
+                className=" border rounded-lg px-4 py-2 flex items-center justify-center gap-6 text-[#686868] bg-[#F8F8F8]">
+                All Status
+                <ChevronDown />
+              </button>
+              <button
+                onClick={() =>
+                  setActiveFilter((prev) =>
+                    prev === "category" ? null : "category"
+                  )
+                }
+                className=" border rounded-lg px-4 py-2 flex items-center justify-center gap-6 text-[#686868] bg-[#F8F8F8]">
+                All Categories
+                <ChevronDown />
               </button>
               <div className="relative inline-block">
-                <button
-                  onClick={() => {
-                    // setFilterOpen((prev) => !prev);
-                    setFilterOpen(true);
-                    setActiveFilter(null);
-                  }}
-                  className=" border rounded-lg px-4 py-2 flex items-center justify-center gap-6 text-[#686868] bg-[#F8F8F8]">
-                  <ListFilter size={18} />
-                  <span>
-                    {activeFilter === "status"
-                      ? selectedStatus
-                      : activeFilter === "category"
-                      ? selectedCategory
-                      : "Filter"}
-                  </span>
-                </button>
-
-                {/* FIRST DROPDOWN */}
-                {/* {filterOpen && (
-                  <ul className="absolute left-0 top-full mt-1 w-36 bg-white border rounded-lg shadow z-20">
-                  
-                    <li
-                      onClick={() => {
-                        setActiveFilter("status");
-                        setFilterOpen(false);
-                      }}
-                      className="px-4 py-2 cursor-pointer hover:bg-[#F5F8FA]">
-                      <div className="flex items-center justify-between">
-                        <p className="text-[#686868]">Status</p>
-                        <ChevronRight
-                          className="text-[#686868]"
-                          size={"16px"}
-                        />
-                      </div>
-                    </li>
-
-                    <li
-                      onClick={() => {
-                        setActiveFilter("category");
-                        setFilterOpen(false);
-                      }}
-                      className="px-4 py-2 cursor-pointer hover:bg-[#F5F8FA]">
-                      <div className="flex items-center justify-between">
-                        <p className="text-[#686868]">Category</p>
-                        <ChevronRight
-                          className="text-[#686868]"
-                          size={"16px"}
-                        />
-                      </div>
-                    </li>
-                  </ul>
-                )} */}
-
                 {filterOpen && (
                   <div
                     className="absolute mt-2 right-16 top-9 w-40 bg-white border rounded-lg shadow"
@@ -612,14 +578,18 @@ const Products = () => {
                     <div
                       className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center justify-between"
                       onClick={() => setActiveFilter("status")}>
-                      Status
+                      {selectedStatus === "Status"
+                        ? "All Status"
+                        : selectedStatus}
                       <ChevronRight className="text-[#686868]" size={"16px"} />
                     </div>
 
                     <div
                       className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center justify-between"
                       onClick={() => setActiveFilter("category")}>
-                      Category
+                      {selectedCategory === "Category"
+                        ? "All Categories"
+                        : selectedCategory}
                       <ChevronRight className="text-[#686868]" size={"16px"} />
                     </div>
                   </div>
@@ -627,7 +597,7 @@ const Products = () => {
               </div>
 
               {activeFilter === "status" && (
-                <div className="absolute left-56 top-11 ml-2 w-48 z-30">
+                <div className="absolute left-0 top-11 ml-2 w-36 z-30">
                   <ul className=" bg-white border rounded-lg shadow">
                     {["Active", "Draft", "Archived"].map((status) => (
                       <li
@@ -635,7 +605,6 @@ const Products = () => {
                         onClick={() => {
                           setSelectedStatus(status);
                           setActiveFilter(null);
-                          setFilterOpen(false);
                         }}
                         className="px-4 py-2 cursor-pointer hover:bg-[#F5F8FA]">
                         {status}
@@ -646,7 +615,7 @@ const Products = () => {
               )}
 
               {activeFilter === "category" && (
-                <div className="absolute left-60 top-11 ml-2 w-56 z-30">
+                <div className="absolute left-40 top-11 ml-2 w-64 z-30">
                   <ul className="bg-white border rounded-lg shadow max-h-60 overflow-auto">
                     {categories.map((cat) => (
                       <li
@@ -654,7 +623,6 @@ const Products = () => {
                         onClick={() => {
                           setSelectedCategory(cat);
                           setActiveFilter(null);
-                          setFilterOpen(false);
                         }}
                         className="px-4 py-2 cursor-pointer hover:bg-[#F5F8FA]">
                         {cat}
@@ -665,7 +633,7 @@ const Products = () => {
               )}
 
               {/* Price Dropdown */}
-              <div className="relative inline-block" ref={dropdownRef}>
+              <div className="relative inline-block" ref={filterRef}>
                 <button
                   onClick={() => setOpen((prev) => !prev)}
                   className="w-full border rounded-lg px-4 py-2 flex items-center justify-center gap-6 bg-[#F8F8F8] text-[15px] text-[#686868] focus:outline-none">
@@ -697,6 +665,16 @@ const Products = () => {
                   </ul>
                 )}
               </div>
+              <button
+                onClick={() => {
+                  setSelectedSort("Price: Low → High");
+                  setSelectedCategory("Category");
+                  setSelectedStatus("Status");
+                }}
+                className="text-[#1C3753] flex items-center justify-between gap-2">
+                {/* <FunnelX size={18} /> */}
+                Clear Filter
+              </button>
             </div>
           </div>
 
@@ -765,7 +743,7 @@ const Products = () => {
                         e.target.tagName !== "path"
                       ) {
                         // navigate(`/admin/product-info/:uuid${item.sku}`);
-                        navigate(`/admin/product-info/${item.uuid}`);
+                        // navigate(`/admin/product-info/${item.uuid}`);
                       }
                     }}>
                     {/* <td className="px-4 py-3"> */}
@@ -886,7 +864,8 @@ const Products = () => {
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            navigate(`/admin/add-product/${item.uuid}`);
+                            // navigate(`/admin/add-product/${item.uuid}`);
+                            navigate(`/admin/product-info/${item.uuid}`);
                           }}
                           className="relative p-2 rounded group">
                           <PencilLine className="w-5 h-5 text-gray-900" />
@@ -924,7 +903,7 @@ const Products = () => {
                 disabled={currentPage === 1}>
                 ‹
               </button>
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+              {/* {Array.from({ length: totalPages }, (_, i) => i + 1).map(
                 (page) => (
                   <button
                     key={page}
@@ -935,7 +914,12 @@ const Products = () => {
                     {page}
                   </button>
                 )
-              )}
+              )} */}
+              <div className="px-4 py-1.5 border rounded text-sm text-gray-700">
+                Page {String(currentPage).padStart(2, "0")} of{" "}
+                {String(totalPages).padStart(2, "0")}
+              </div>
+
               <button
                 className="px-3 py-1 border rounded"
                 onClick={() =>

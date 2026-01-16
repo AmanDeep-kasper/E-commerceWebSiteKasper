@@ -16,10 +16,10 @@ import { BsLayoutSidebar } from "react-icons/bs";
 
 const dashboard = [
   { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
-  { name: "Users", path: "/customers", icon: Contact },
-  { name: "Products", path: "/products", icon: Package },
-  { name: "Categories", path: "/categories", icon: Layers },
+  { name: "All Products", path: "/products", icon: Package },
   { name: "Orders", path: "/orders", icon: ShoppingCart },
+  { name: "Categories", path: "/categories", icon: Layers },
+  { name: "Customers", path: "/customers", icon: Contact },
   { name: "Sales", path: "/sales", icon: BadgeIndianRupee },
   { name: "Stocks", path: "/stocks", icon: Warehouse },
   { name: "Accounts", path: "/accounts", icon: Warehouse },

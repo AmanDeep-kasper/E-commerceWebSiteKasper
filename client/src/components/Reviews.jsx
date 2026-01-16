@@ -1,4 +1,6 @@
-import React from "react";
+import { ChevronRight, ListChevronsUpDown } from "lucide-react";
+import React, { useState } from "react";
+import StarRating from "./StarRating";
 
 const reviews = [
   { star: 5, numOfReviews: 289 },
@@ -81,15 +83,13 @@ const reviews = [
 // }
 
 function Reviews({ reviews = [] }) {
-
   const avgRating =
-  reviews.length > 0
-    ? reviews.reduce((sum, r) => sum + Number(r.rating || 0), 0) /
-      reviews.length
-    : 0;
+    reviews.length > 0
+      ? reviews.reduce((sum, r) => sum + Number(r.rating || 0), 0) /
+        reviews.length
+      : 0;
 
-
-      // console.log(avgRating)
+  // console.log(avgRating);
 
   //  If no reviews, show message
   if (!reviews || reviews.length === 0) {
@@ -109,42 +109,84 @@ function Reviews({ reviews = [] }) {
 
   const totalReviews = reviews.length;
 
+  const [sortOpen, setSortOpen] = useState(false);
+  const [storeSortItem, setStoreSortItem] = useState("Status");
+
   return (
-    <div className="flex flex-wrap md:flex-nowrap justify-start items-center gap-8 mt-3">
+    <>
+      {" "}
+      <div className="flex flex-wrap md:flex-nowrap  items-center gap-8 mb-4">
+        {/* ⭐ Average Rating Section */}
+        <div className="flex flex-col items-start text-neutral-700 ">
+          <h1 className="mb-4 text-[16px] text-[#1C1C1C]">Average Rating</h1>
+          <h2 className="text-4xl font-semibold text-gray-800 flex items-center gap-3">
+            {avgRating.toFixed(1)}
+            <StarRating rating={avgRating} />
+            {/* <span className="text-yellow-400 ml-1">&#9733;</span> */}
+          </h2>
+          <p className="text-sm text-gray-500">
+            {avgRating.toFixed(1)} Rating{" "}
+          </p>
+          <p className="text-sm text-gray-500">{` Based on ${totalReviews} Reviews`}</p>
+        </div>
 
-      {/* ⭐ Average Rating Section */}
-      <div className="flex flex-col items-start text-neutral-700 ">
-        <h2 className="text-4xl font-semibold text-gray-800">
-          {avgRating.toFixed(1)}
-          <span className="text-yellow-400 ml-1">&#9733;</span>
-        </h2>
-        <p className="text-sm text-gray-500">{avgRating.toFixed(1)} Rating </p>
-        <p className="text-sm text-gray-500">{totalReviews} Reviews</p>
-      </div>
-
-      {/* 📊 Rating Distribution */}
-      <div className="flex flex-col gap-1 w-1/2">
-        {[5, 4, 3, 2, 1].map((rating) => {
-          const count = ratingCounts[rating] || 0;
-          const percentage = (count / totalReviews) * 100;
-          return (
-            <div key={rating} className="flex items-center gap-3">
-              <span className="w-4 text-sm">{rating}</span>
-              <span className="text-yellow-400">&#9733;</span>
-              <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-yellow-400 rounded-full"
-                  style={{ width: `${percentage}%` }}
-                ></div>
+        {/* 📊 Rating Distribution */}
+        <div className="flex flex-col gap-1 w-1/2">
+          {[5, 4, 3, 2, 1].map((rating) => {
+            const count = ratingCounts[rating] || 0;
+            const percentage = (count / totalReviews) * 100;
+            return (
+              <div key={rating} className="flex items-center gap-3">
+                <span className="w-4 text-sm">{rating}</span>
+                <span className="text-yellow-400">&#9733;</span>
+                <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-yellow-400 rounded-full"
+                    style={{ width: `${percentage}%` }}></div>
+                </div>
+                <span className="text-sm text-gray-700 w-6 text-right">
+                  {count}
+                </span>
               </div>
-              <span className="text-sm text-gray-700 w-6 text-right">
-                {count}
-              </span>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
-    </div>
+      <div className="relative flex items-end justify-end mb-6">
+        <div
+          onClick={() => {
+            setSortOpen((prev) => !prev);
+            console.log("dldljd");
+          }}
+          className="px-3 py-1 border border-[#EFEFEF] hover:bg-gray-100 cursor-pointer flex items-center justify-between gap-2 rounded-lg">
+          <ListChevronsUpDown className="text-[#686868]" size={"16px"} />
+          <p className="text-[#686868]">{storeSortItem || Status}</p>
+        </div>
+
+        {sortOpen && (
+          <div className="absolute right-11 top-9 ml-2 w-36 z-30">
+            <ul className=" bg-white border rounded-lg shadow">
+              {[
+                "Most Recent",
+                "Most Oldest",
+                "Highest Rated",
+                "Lowest Rated",
+              ].map((status) => (
+                <li
+                  key={status}
+                  onClick={() => {
+                    setStoreSortItem(status);
+                    setSortOpen(false);
+                  }}
+                  className="px-4 py-2 cursor-pointer hover:bg-[#F5F8FA]">
+                  {status}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+    </>
   );
 }
 
