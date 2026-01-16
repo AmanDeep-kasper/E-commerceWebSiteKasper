@@ -580,22 +580,23 @@
 
 // export default Product;
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   ChevronDown,
   ChevronRight,
   Pencil,
   Search,
-
   CirclePlus,
   Circle,
-
+  PencilLine,
 } from "lucide-react";
 import { Link, useNavigate, useParams } from "react-router";
 import productData from "../../data/products.json";
+import CategoriesPopOnClick from "./CategoriesPopOnClick";
+import SubCategoriesPopOnClick from "./SubCategoriesPopOnClick";
+import CategoriesPopUpEdit from "./CategoriesPopUpEdit";
+import SubCategoriesPopUpEdit from "./SubCategoriesPopUpEdit";
 // import axiosInstance from "../../../api/axiosInstance";
-// import kpiCards from "./KpiCardProductlist";
-// import Active_product from "../../../assets/icons/Icon.png";
 
 const Products = () => {
   const [product, setProduct] = useState([]);
@@ -634,13 +635,8 @@ const Products = () => {
     const visibleIds = currentItems.map((item) => item.id || item.uuid);
 
     if (e.target.checked) {
-      // Add only visible product IDs
-      // const visibleIds = currentItems.map((item) => item.id);
       setSelectedItems((prev) => [...new Set([...prev, ...visibleIds])]);
     } else {
-      // Remove only visible product IDs
-      // const visibleIds = currentItems.map((item) => item.id);
-
       setSelectedItems((prev) => prev.filter((id) => !visibleIds.includes(id)));
     }
   };
@@ -653,14 +649,14 @@ const Products = () => {
 
   //  Single checkbox toggle
 
-  const handleCheckboxChange = (id) => {
-    setSelectedItems(
-      (prev) =>
-        prev.includes(id)
-          ? prev.filter((x) => x !== id) // unselect
-          : [...prev, id] // select
-    );
-  };
+  // const handleCheckboxChange = (id) => {
+  //   setSelectedItems(
+  //     (prev) =>
+  //       prev.includes(id)
+  //         ? prev.filter((x) => x !== id) // unselect
+  //         : [...prev, id] // select
+  //   );
+  // };
 
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -698,7 +694,6 @@ const Products = () => {
     return searchMatch && statusMatch && categoryMatch;
   });
 
-  const [selectedSort, setSelectedSort] = useState("Price: Low → High");
   // Apply category filter
   const categories = [
     "Spiritual & Religious Art",
@@ -710,28 +705,6 @@ const Products = () => {
     "Festival & Occasion",
     "Reflection Art",
   ];
-
-  ///////////////////////////////////
-  // Sorting options
-  const priceOptions = [
-    "Price: Low → High",
-    "Price: High → Low",
-    "Alphabetical (A–Z)",
-    "Alphabetical (Z–A)",
-  ];
-
-  // Apply sorting
-  if (selectedSort === "Price: Low → High") {
-    filteredProducts.sort((a, b) => (a.costPrice || 0) - (b.costPrice || 0));
-  } else if (selectedSort === "Price: High → Low") {
-    filteredProducts.sort((a, b) => (b.costPrice || 0) - (a.costPrice || 0));
-  } else if (selectedSort === "Alphabetical (A–Z)") {
-    filteredProducts.sort((a, b) => a.title.localeCompare(b.title));
-  } else if (selectedSort === "Alphabetical (Z–A)") {
-    filteredProducts.sort((a, b) => b.title.localeCompare(a.title));
-  }
-
-  // console.log(filteredProducts);
 
   /////////////////////////////////
   const [currentPage, setCurrentPage] = useState(1);
@@ -784,8 +757,40 @@ const Products = () => {
   //   navigate(`/admin/add-product/${Editproduct.uuid}`);
   // };
 
+  // pop up Add Cat & SubCat
+  const [openCategory, setOpenCategory] = useState(false);
+  const [openSubCategory, setOpenSubCategory] = useState(false);
+
+  // pop up Edit Cat & SubCat
+  const [openEditCategory, setOpenEditCategory] = useState(false);
+  const [openEditSubCategory, setOpenEditSubCategory] = useState(false);
+
+  // click the category open bottom row
+  const [expandedCategoryId, setExpandedCategoryId] = useState(null);
+
   return (
     <>
+      <CategoriesPopOnClick
+        open={openCategory}
+        onclose={() => setOpenCategory(false)}
+      />
+      <SubCategoriesPopOnClick
+        open={openSubCategory}
+        onClose={() => {
+          setOpenSubCategory(false);
+        }}
+      />
+
+      <CategoriesPopUpEdit
+        open={openEditCategory}
+        onClose={() => setOpenEditCategory(false)}
+      />
+      <SubCategoriesPopUpEdit
+        open={openEditSubCategory}
+        onClose={() => setOpenEditSubCategory(false)}
+        data={"metal wall art"}
+      />
+
       <div className="p-[24px] bg-[#F6F8F9] rounded-md min-h-screen">
         {/* Header */}
 
@@ -799,9 +804,13 @@ const Products = () => {
 
           <div>
             {/* <Link to={`/admin/add-product`}> */}
-              <button className="bg-[#1C3753] text-white px-4 py-2 rounded-lg hover:bg-[#344558]">
-                + Add Category
-              </button>
+            <button
+              onClick={() => {
+                setOpenCategory(true);
+              }}
+              className="bg-[#1C3753] text-white px-4 py-2 rounded-lg hover:bg-[#344558]">
+              + Add Category
+            </button>
             {/* </Link> */}
           </div>
         </div>
@@ -908,12 +917,11 @@ const Products = () => {
               )}
               <button
                 onClick={() => {
-                  setSelectedSort("Price: Low → High");
+                  // setSelectedStatus("Price: Low → High");
                   setSelectedCategory("Category");
                   setSelectedStatus("Status");
                 }}
                 className="text-[#1C3753] flex items-center justify-between gap-2">
-                {/* <FunnelX size={18} /> */}
                 Clear Filter
               </button>
             </div>
@@ -939,74 +947,76 @@ const Products = () => {
               </thead>
 
               <tbody>
-                {currentItems.map((item) => (
-                  <tr
-                    key={item.uuid || item.id || item.route}
-                    className={`border-t hover:bg-gray-50 transition${
-                      selectedItems.includes(item.id) ? "bg-red-50" : ""
-                    }`}>
-                    <td className="px-4 py-3 text-left text-[15px] text-[#1F2937]">
-                      <div className="flex items-center gap-1">
-                        <ChevronRight size={16} />
-                        <span>{item.category}</span>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 text-center text-[15px]">
-                      {item.subcategory?.length || 0}
-                    </td>
-                    <td className="px-4 py-3 text-center text-[15px]">
-                      {item.productCount || 0}
-                    </td>
-                    <td className="px-4 py-3 text-[16px] text-center text-[#1F2937]">
-                      {item.status === "Active" ? (
-                        <div className="inline-flex items-center gap-2 bg-[#E0F4DE] px-3 py-1 rounded-lg text-[#00A63E] text-sm">
-                          <Circle
-                            fill="#00A63E"
-                            color="#00A63E"
-                            size={10}
-                            className=""
+                {currentItems.map((item, index) => (
+                  <React.Fragment key={item.uuid}>
+                    <tr
+                      // key={item.uuid || item.id || item.route}
+                      className={`border-t hover:bg-gray-50 transition${
+                        selectedItems.includes(item.id) ? "bg-red-50" : ""
+                      }`}>
+                      <td className="px-4 py-3 text-left text-[15px] text-[#1F2937]">
+                        <div
+                          onClick={() => {
+                            setExpandedCategoryId(
+                              expandedCategoryId == item.uuid ? null : item.uuid
+                            );
+                          }}
+                          className="flex items-center gap-2 cursor-pointer">
+                          <ChevronRight
+                            size={16}
+                            className={`transition-transform ${
+                              expandedCategoryId === item.uuid
+                                ? "rotate-90"
+                                : ""
+                            }`}
                           />
-                          Active
+                          <span>{item.category}</span>
                         </div>
-                      ) : item.status === "Inactive" ? (
-                        <div className="inline-flex items-center gap-2 bg-[#EFEFEF] px-3 py-1 rounded-lg text-[#686868] text-sm">
-                          <Circle
-                            fill="#686868"
-                            color="#686868"
-                            size={10}
-                            className=""
-                          />
-                          Drift
-                        </div>
-                      ) : (
-                        // <div className="inline-flex items-center gap-2 bg-[#FFFBEB] px-3 py-1 rounded-lg text-[#F8A14A] text-sm">
-                        //   <Circle
-                        //     fill="#F8A14A"
-                        //     color="#F8A14A"
-                        //     size={10}
-                        //     className=""
-                        //   />
-                        //   Archived
-                        // </div>
-                        ""
-                      )}
-                    </td>
+                      </td>
+                      <td className="px-4 py-3 text-center text-[15px]">
+                        {item.subcategory?.length || 0}
+                      </td>
+                      <td className="px-4 py-3 text-center text-[15px]">
+                        {item.productCount || 0}
+                      </td>
+                      <td className="px-4 py-3 text-[16px] text-center text-[#1F2937]">
+                        {item.status === "Active" ? (
+                          <div className="inline-flex items-center gap-2 bg-[#E0F4DE] px-3 py-1 rounded-lg text-[#00A63E] text-sm">
+                            <Circle
+                              fill="#00A63E"
+                              color="#00A63E"
+                              size={10}
+                              className=""
+                            />
+                            Active
+                          </div>
+                        ) : item.status === "Inactive" ? (
+                          <div className="inline-flex items-center gap-2 bg-[#EFEFEF] px-3 py-1 rounded-lg text-[#686868] text-sm">
+                            <Circle
+                              fill="#686868"
+                              color="#686868"
+                              size={10}
+                              className=""
+                            />
+                            Drift
+                          </div>
+                        ) : (
+                          ""
+                        )}
+                      </td>
 
-                    {/* Centered action icons (hidden until hover) */}
-                    <td className="px-4 py-3 text-center">
-                      <div className="flex items-center justify-center gap-3">
-                        <button
-                          // onClick={(e) => {
-                          //   e.stopPropagation();
-                          //   // navigate(`/admin/add-product/${item.uuid}`);
-                          //   navigate(`/admin/product-info/${item.uuid}`);
-                          // }}
-                          className="relative p-2 rounded group">
-                          <CirclePlus className="w-5 h-5 text-gray-900" />
-
-                          <div
-                            className="
-      absolute left-1/2 top-10 -translate-x-1/2
+                      {/* Centered action icons (hidden until hover) */}
+                      <td className="px-4 py-3 text-center">
+                        <div className="flex items-center justify-center gap-3">
+                          <button
+                            onClick={() => {
+                              setOpenSubCategory(true);
+                            }}
+                            className="relative p-2 rounded group">
+                            <CirclePlus className="w-5 h-5 text-[#1C1C1C]" />
+                            <div
+                              className="
+      absolute left-1/2 top-8 -translate-x-1/2
       bg-[#F5F8FA] py-1 px-3 rounded-lg
       text-xs font-medium
       opacity-0
@@ -1015,16 +1025,53 @@ const Products = () => {
       whitespace-nowrap
       pointer-events-none
     ">
-                            Add
-                          </div>
-                        </button>
+                              Add <br /> Sub-catgeory
+                            </div>
+                          </button>
 
-                        <button className="p-2 rounded">
-                          <Pencil className="w-5 h-5 text-[#1C1C1C]" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
+                          <button
+                            onClick={() => setOpenEditCategory(true)}
+                            className=" relative p-2 rounded group">
+                            <Pencil className="w-5 h-5 text-[#1C1C1C]" />
+                            <div
+                              className="
+      absolute left-1/2 top-8 -translate-x-1/2
+      bg-[#F5F8FA] py-1 px-3 rounded-lg
+      text-xs font-medium
+      opacity-0
+      group-hover:opacity-100
+      transition-opacity duration-200
+      whitespace-nowrap
+      pointer-events-none
+    ">
+                              Edit <br /> Category
+                            </div>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+
+                    {expandedCategoryId === item.uuid && (
+                      <tr className=" bg-[#F8FBFC] border-t">
+                        <td colSpan={5} className="px-3 text-sm text-gray-600">
+                          <p className="p-2">Sub-Categories</p>
+                          <div className="flex items-center justify-start gap-3 pb-4">
+                            <div className="flex items-center justify-evenly gap-2 bg-[#D5E5F5] py-2 px-3 rounded-full ">
+                              <Circle size={8} fill="#686868" />
+                              <p className="text-sm">
+                                {item.subcategory}
+                                {"(1)"}
+                              </p>
+                              <button
+                                onClick={() => setOpenEditSubCategory(true)}>
+                                <PencilLine size={14} />
+                              </button>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
                 ))}
               </tbody>
             </table>

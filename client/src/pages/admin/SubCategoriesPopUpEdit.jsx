@@ -1,40 +1,50 @@
 import React, { useState } from "react";
 
-const SubCategoriesPopOnClick = ({ open, onClose }) => {
-  const [subcategory, setSubCategory] = useState("");
-  const [status, setStatus] = useState("Active");
-
+const SubCategoriesPopUpEdit = ({ open, onClose, data }) => {
   if (!open) return null;
+
+  const [SubEditcategory, setSubEditCategory] = useState("");
+  const [SubEditstatus, setSubEditStatus] = useState("Active");
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
     const payload = {
-      name: subcategory,
-      status: status,
+      name: SubEditcategory,
+      status: SubEditstatus,
     };
 
     console.log(payload);
-
-    setSubCategory("");
-    setStatus("Active");
+    setSubEditCategory("");
+    setSubEditStatus("Active");
     onClose();
   };
   return (
     <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center">
       <div className="bg-white w-[380px] rounded-xl p-4">
-        <h2 className="text-lg font-medium mb-4">Add Sub-Category</h2>
+        <h2 className="text-lg font-medium mb-4">Edit Sub-Category</h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <label htmlFor="Category Name">Add Sub-Category</label>
-          <input
-            type="text"
-            placeholder="Enter Sub-Category Name"
-            value={subcategory}
-            onChange={(e) => setSubCategory(e.target.value)}
-            className="w-full border px-3 py-2 rounded-lg"
-            required
-          />
+          {/* Category Name (READ ONLY) */}
+          <div>
+            <label className="text-sm font-medium">Category Name</label>
+            <input
+              type="text"
+              value={data}
+              disabled
+              className="w-full mt-1 px-3 py-2 rounded-lg bg-gray-100 border text-gray-600"
+            />
+          </div>
+          <div>
+            <label className="text-sm font-medium" htmlFor="Category Name">Edit Sub-Category</label>
+            <input
+              type="text"
+              placeholder="Enter Sub-Category Name"
+              value={SubEditcategory}
+              onChange={(e) => setSubEditCategory(e.target.value)}
+              className="w-full border px-3 py-2 rounded-lg"
+              required
+            />
+          </div>
 
           <div>
             <p className="text-sm font-medium mb-2">Sub-Category Status</p>
@@ -43,8 +53,8 @@ const SubCategoriesPopOnClick = ({ open, onClose }) => {
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="radio"
-                  checked={status === "Active"}
-                  onChange={() => setStatus("Active")}
+                  checked={SubEditstatus === "Active"}
+                  onChange={() => setSubEditStatus("Active")}
                 />
                 <span className="text-[#1C3753] font-medium">Active</span>
               </label>
@@ -52,8 +62,8 @@ const SubCategoriesPopOnClick = ({ open, onClose }) => {
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="radio"
-                  checked={status === "Inactive"}
-                  onChange={() => setStatus("Inactive")}
+                  checked={SubEditstatus === "Inactive"}
+                  onChange={() => setSubEditStatus("Inactive")}
                 />
                 <span className="text-[#1C3753] font-medium">Inactive</span>
               </label>
@@ -81,4 +91,4 @@ const SubCategoriesPopOnClick = ({ open, onClose }) => {
   );
 };
 
-export default SubCategoriesPopOnClick;
+export default SubCategoriesPopUpEdit;

@@ -1,14 +1,16 @@
 import {
-  BadgeIndianRupee,
   Contact,
   Layers,
   LayoutDashboard,
   Package,
-  ShoppingCart,
-  Warehouse,
-  ChevronRight,
   LogOut,
   Settings,
+  ShoppingBag,
+  ClipboardCheck,
+  CalendarSync,
+  Wallet,
+  Ticket,
+  SquareDashedKanban,
 } from "lucide-react";
 import React from "react";
 import { Link, useLocation } from "react-router";
@@ -17,12 +19,17 @@ import { BsLayoutSidebar } from "react-icons/bs";
 const dashboard = [
   { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
   { name: "All Products", path: "/products", icon: Package },
-  { name: "Orders", path: "/orders", icon: ShoppingCart },
+  { name: "Inventory", path: "#", icon: ClipboardCheck },
+  { name: "Orders", path: "/orders", icon: ShoppingBag },
+  { name: "Returns", path: "#", icon: CalendarSync },
   { name: "Categories", path: "/categories", icon: Layers },
   { name: "Customers", path: "/customers", icon: Contact },
-  { name: "Sales", path: "/sales", icon: BadgeIndianRupee },
-  { name: "Stocks", path: "/stocks", icon: Warehouse },
-  { name: "Accounts", path: "/accounts", icon: Warehouse },
+  { name: "Payments", path: "#", icon: Wallet },
+  { name: "Report & Analysis", path: "#", icon: SquareDashedKanban  },
+  { name: "Support & Ticket", path: "#", icon: Ticket },
+  // { name: "Sales", path: "/sales", icon: BadgeIndianRupee },
+  // { name: "Stocks", path: "/stocks", icon: Warehouse },
+  // { name: "Accounts", path: "/accounts", icon: Warehouse },
 ];
 
 function AdminSidebar({ isCollapsed, setIsCollapsed }) {
@@ -40,9 +47,8 @@ function AdminSidebar({ isCollapsed, setIsCollapsed }) {
         )} */}
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="p-2 absolute border -right-4 top-0 bg-[#FFFFFF]  rounded-full hover:bg-[#F5F8FA] text-[#686868] hover:text-[#1C3753] transition-colors"
-        >
-          <BsLayoutSidebar 
+          className="p-2 absolute border -right-4 top-0 bg-[#FFFFFF]  rounded-full hover:bg-[#F5F8FA] text-[#686868] hover:text-[#1C3753] transition-colors">
+          <BsLayoutSidebar
             className={`transform ${
               isCollapsed ? "rotate-180" : ""
             } transition-transform`}
@@ -62,31 +68,27 @@ function AdminSidebar({ isCollapsed, setIsCollapsed }) {
             } gap-3 p-3 mb-1 rounded-lg transition-all duration-200 ${
               isActive(path)
                 ? "bg-[#F5F8FA] text-[#1C3753]  border-l-4 border-l-[#1C3753]"
-
                 : "text-[#686868] hover:bg-[#F5F8FA] hover:text-[#1C3753]"
-            }`}
-          >
+            }`}>
             <Icon size={20} />
             {!isCollapsed && <span className="font-medium">{name}</span>}
           </Link>
         ))}
       </nav>
 
-
       {/* Footer */}
-      <div className="mt-auto border-t px-4 pt-4">
+      <div className="mt-auto  px-4 pt-4">
         <Link
           to="/admin/settings/general"
-          className="flex items-center gap-3 p-3 mb-1 rounded-lg text-[#686868] hover:bg-[#FFFFFF]  hover:text-[#686868] transition-colors"
-        >
+          className="flex items-center gap-3 p-2 mb-1 rounded-lg text-[#686868] hover:bg-[#FFFFFF]  hover:text-[#686868] transition-colors">
           <Settings size={20} />
           {!isCollapsed && <span className="font-medium">Settings</span>}
         </Link>
 
-        <button className="flex items-center gap-3 p-3 w-full rounded-lg text-[#686868] hover:bg-[#FFFFFF] hover:text-[#686868] transition-colors">
+        {/* <button className="flex items-center gap-3 p-3 w-full rounded-lg text-[#686868] hover:bg-[#FFFFFF] hover:text-[#686868] transition-colors">
           <LogOut size={20} />
           {!isCollapsed && <span className="font-medium">Logout</span>}
-        </button>
+        </button> */}
       </div>
     </div>
   );
