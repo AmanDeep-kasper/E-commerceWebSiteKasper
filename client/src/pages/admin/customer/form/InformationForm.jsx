@@ -1,221 +1,352 @@
-import React, { useState } from "react";
-import { ChevronDown, Upload } from "lucide-react";
-
-const Label = ({ children }) => (
-  <label className="text-[13px] font-medium text-gray-700">{children}</label>
-);
-
-const Input = ({ className = "", ...props }) => (
-  <input
-    readOnly
-    className={`w-full h-9 rounded-md border border-gray-300 bg-white px-3 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-200 ${className}`}
-    {...props}
-  />
-);
-
-const Select = ({ options, value, onChange, placeholder }) => (
-  <div className="relative">
-    <select
-      value={value}
-      onChange={onChange}
-      className="w-full h-9 appearance-none rounded-md border border-gray-300 bg-white px-3 pr-8 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-200"
-    >
-      {placeholder && (
-        <option value="" disabled>
-          {placeholder}
-        </option>
-      )}
-      {options.map((o) => (
-        <option key={o} value={o}>
-          {o}
-        </option>
-      ))}
-    </select>
-    <ChevronDown className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
-  </div>
-);
-
-const Toggle = ({ checked, onChange }) => (
-  <button
-    type="button"
-    role="switch"
-    aria-checked={checked}
-    onClick={() => onChange(!checked)}
-    className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
-      checked ? "bg-amber-600" : "bg-gray-200"
-    }`}
-  >
-    <span
-      className={`inline-block h-4 w-4 transform rounded-full bg-white transition ${
-        checked ? "translate-x-4" : "translate-x-0.5"
-      }`}
-    />
-  </button>
-);
+import React, { useMemo, useState } from "react";
+import { useParams } from "react-router";
+// import customers from "../../data/customer.json";
+import { useOutletContext } from "react-router";
 
 function InformationForm() {
-  
-  const [form, setForm] = useState({
-    fullName: "Neha Pal",
-    email: "neha@gmail.com",
-    phone: "8448******",
-    dob: "",
-    gender: "",
-    customerId: "CUST1024",
-    accountType: "Guest / Registered",
-    status: "Active / Inactive / Banned",
-    gmailVerified: false,
-    phoneVerified: false,
-    language: "English / Hindi / etc.",
-    marketing: false,
-  });
+  const { id } = useParams();
+  const { customer, form, setForm, addressUpdate, setAddressUpdate } =
+    useOutletContext();
 
-  const update = (k, v) => setForm((f) => ({ ...f, [k]: v }));
+  // const  customers = useMemo(
+  //   () => customer.find((c) => String(c.id) === String(id)),
+  //   [id],
+  // );
+  // console.log(customer);
+
+  // const [form, setForm] = useState({
+  //   fullName: customer?.name || "",
+  //   email: customer?.email || "",
+  //   phone: customer?.phone || "",
+  //   gender: customer?.gender || "NA",
+  //   dob: customer?.dob || "NA",
+  // });
+
+  // const [addressUpdate, setAddressUpdate] = useState({
+  //   fullName: customer?.name || "",
+  //   phoneNumber: customer?.phone || "",
+  //   address: customer?.address || "",
+  //   pinCode: customer?.zip_code || "",
+  //   landMark: customer.landMark || "",
+  //   city: customer?.city || "",
+  //   state: customer?.state || "",
+  //   addressType: customer?.addressType || "",
+  // });
+
+  if (!customer) {
+    return <div>Customer not found</div>;
+  }
+
+  const [adressEditToggle, setAdressEditToggle] = useState(false);
 
   return (
-        <div className="p-4 lg:p-6">
-          {/* Row 1 */}
-          <div className="grid grid-cols-3 gap-4">
-            <div>
-              <Label>Full Name</Label>
-              <Input
+    <>
+      {" "}
+      
+      <div className="bg-white rounded-xl p-6 ">
+        <h2 className="text-lg font-medium mb-4">Edit Personal Details</h2>
+
+        <form action="">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col items-start">
+              <label className="" htmlFor="fullName">
+                Full Name
+              </label>
+              <input
+                id="fullName"
+                className="border p-2 rounded-md text-sm w-full bg-[#F8FBFC]"
                 value={form.fullName}
-                onChange={(e) => update("fullName", e.target.value)}
-                placeholder="Full Name"
+                onChange={(e) => setForm({ ...form, fullName: e.target.value })}
               />
             </div>
-            <div>
-              <Label>Email Address</Label>
-              <Input
+
+            <div className="flex flex-col items-start">
+              <label htmlFor="email">Email Address</label>
+              <input
+                id="email"
+                className="border p-2 rounded-md w-full text-sm bg-[#F8FBFC]"
                 value={form.email}
-                onChange={(e) => update("email", e.target.value)}
-                placeholder="Email Address"
+                onChange={(e) => setForm({ ...form, email: e.target.value })}
+              />
+              <p className="flex items-start gap-2 text-[12px]">
+                <span className="text-[#D53B35]">*</span>
+                <span className="text-[#686868]">
+                  Changing email will require user verification
+                </span>
+              </p>
+            </div>
+            <div className="flex flex-col items-start">
+              <label htmlFor="Phone Number">Phone Number</label>
+              <input
+                id="Phone Number"
+                className="border p-2 rounded-md w-full text-sm bg-[#F8FBFC]"
+                value={form.phone}
+                onChange={(e) => setForm({ ...form, phone: e.target.value })}
+              />
+              <p className="flex items-start gap-2 text-[12px]">
+                <span className="text-[#D53B35]">*</span>
+                <span className="text-[#686868]">
+                  Changing phone number will require user verification
+                </span>
+              </p>
+            </div>
+            <div className="flex flex-col items-start">
+              <label htmlFor="Gender">Gender</label>
+              <input
+                id="Gender"
+                disabled
+                className="border p-2 rounded-md w-full text-sm bg-[#DEDEDE] text-[#686868]"
+                value={form.gender}
+                onChange={(e) => setForm({ ...form, gender: e.target.value })}
               />
             </div>
-            <div>
-              <Label>Phone Number</Label>
-              <Input
-                value={form.phone}
-                onChange={(e) => update("phone", e.target.value)}
-                placeholder="Phone Number"
+            <div className="flex flex-col items-start">
+              <label htmlFor="Date of Birth (DOB)">Date of Birth (DOB)</label>
+              <input
+                id="Date of Birth (DOB)"
+                disabled
+                className="border p-2 rounded-md w-full text-sm bg-[#DEDEDE] text-[#686868]"
+                value={form.dob}
+                onChange={(e) => setForm({ ...form, dob: e.target.value })}
               />
             </div>
           </div>
+        </form>
+      </div>
+      <div className="p-3 mt-6 bg-white rounded-xl">
+        <div className="flex justify-between items-center ">
+          <h2 className="text-lg font-medium text-gray-900 flex items-center gap-2">
+            Edit Address Details
+          </h2>
+        </div>
 
-          {/* Row 2 */}
-          <div className="mt-4 grid grid-cols-3 gap-4">
-            <div>
-              <Label>Date of Birth</Label>
-              <Input
-                value={form.dob}
-                onChange={(e) => update("dob", e.target.value)}
-                placeholder="MM/DD/YYYY"
-              />
-            </div>
-            <div>
-              <Label>Gender</Label>
-              <Select
-                value={form.gender}
-                onChange={(e) => update("gender", e.target.value)}
-                placeholder="Female/Male/Others"
-                options={["Female", "Male", "Others"]}
-              />
-            </div>
-            <div>
-              <Label>Profile Picture</Label>
-              <div className="relative">
-                <Input placeholder="Upload Image" className="pr-24" readOnly />
+        {adressEditToggle == true ? (
+          <form action="post">
+            <div className="flex-1 space-y-3 gap-4 border p-2 rounded-lg mt-2">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex flex-col items-start">
+                  <label className="" htmlFor="Full Name">
+                    Full Name
+                  </label>
+                  <input
+                    id="Full Name"
+                    type="text"
+                    className="border p-2 rounded-md text-sm w-full bg-[#F8FBFC]"
+                    value={addressUpdate.fullName}
+                    onChange={(e) =>
+                      setAddressUpdate({
+                        ...addressUpdate,
+                        fullName: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+                <div className="flex flex-col items-start">
+                  <label htmlFor="Phone Number">Phone Number</label>
+                  <input
+                    id="Phone Number"
+                    type="tel"
+                    inputMode="numeric"
+                    pattern="[0-9]{10}"
+                    maxLength={10}
+                    className="border p-2 rounded-md w-full text-sm bg-[#F8FBFC]"
+                    value={addressUpdate.phoneNumber}
+                    onChange={(e) =>
+                      setAddressUpdate({
+                        ...addressUpdate,
+                        phoneNumber: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+              </div>
+
+              <div className="flex flex-col items-start">
+                <label htmlFor="address">
+                  Address (Flat no.,Street, and Area)
+                </label>
+                <textarea
+                  id="address"
+                  rows={3}
+                  className="border p-2 rounded-md w-full text-sm bg-[#F8FBFC] resize-none"
+                  value={addressUpdate.address}
+                  onChange={(e) =>
+                    setAddressUpdate({
+                      ...addressUpdate,
+                      address: e.target.value,
+                    })
+                  }
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="email">Pin-code</label>
+                  <input
+                    type="tel"
+                    inputMode="numeric"
+                    pattern="[0-9]{6}"
+                    maxLength={6}
+                    value={addressUpdate.pinCode}
+                    onChange={(e) => {
+                      setAddressUpdate({
+                        ...addressUpdate,
+                        pinCode: e.target.value,
+                      });
+                    }}
+                    className="border p-2 rounded-md w-full text-sm bg-[#F8FBFC]"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="email">Landmark</label>
+                  <input
+                    type="text"
+                    value={addressUpdate.landMark}
+                    onChange={(e) => {
+                      setAddressUpdate({
+                        ...addressUpdate,
+                        landMark: e.target.value,
+                      });
+                    }}
+                    className="border p-2 rounded-md w-full text-sm bg-[#F8FBFC]"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="City">City/District/Town</label>
+                  <input
+                    id="City"
+                    type="text"
+                    value={addressUpdate.city}
+                    onChange={(e) => {
+                      setAddressUpdate({
+                        ...addressUpdate,
+                        city: e.target.value,
+                      });
+                    }}
+                    className="border p-2 rounded-md w-full text-sm bg-[#F8FBFC]"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="State">State</label>
+                  <input
+                    id="State"
+                    type="text"
+                    value={addressUpdate.state}
+                    onChange={(e) => {
+                      setAddressUpdate({
+                        ...addressUpdate,
+                        state: e.target.value,
+                      });
+                    }}
+                    className="border p-2 rounded-md w-full text-sm bg-[#F8FBFC]"
+                  />
+                </div>
+              </div>
+
+              <div className="flex flex-col items-start space-y-2">
+                <label>Address Type</label>
+
+                <div className="flex items-start gap-4">
+                  {/* Home */}
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="addressType"
+                      value="Home"
+                      checked={addressUpdate.addressType === "Home"}
+                      onChange={(e) =>
+                        setAddressUpdate({
+                          ...addressUpdate,
+                          addressType: e.target.value,
+                        })
+                      }
+                    />
+                    <span>Home (All day delivery)</span>
+                  </label>
+
+                  {/* Work */}
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="addressType"
+                      value="Work"
+                      checked={addressUpdate.addressType === "Work"}
+                      onChange={(e) =>
+                        setAddressUpdate({
+                          ...addressUpdate,
+                          addressType: e.target.value,
+                        })
+                      }
+                    />
+                    <span>Work (Delivery between 10AM - 6PM)</span>
+                  </label>
+
+                  {/* Other */}
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="addressType"
+                      value="Other"
+                      checked={addressUpdate.addressType === "Other"}
+                      onChange={(e) =>
+                        setAddressUpdate({
+                          ...addressUpdate,
+                          addressType: e.target.value,
+                        })
+                      }
+                    />
+                    <span>Other</span>
+                  </label>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-4">
+                {/* <button className="bg-[#1C3753] text-white px-8 rounded-lg py-2">
+                  Save
+                </button> */}
                 <button
-                  type="button"
-                  className="absolute right-1 top-1/2 -translate-y-1/2 inline-flex items-center gap-1 rounded-md border px-2.5 py-1 text-sm bg-white hover:bg-gray-50"
-                >
-                  <Upload className="h-4 w-4" /> Upload Image
+                  onClick={() => {
+                    setAdressEditToggle(false);
+                  }}
+                  className=" text-[#ffff] bg-[#1C3753] font-medium px-8 rounded-lg py-2">
+                  Cancel
                 </button>
               </div>
             </div>
-          </div>
-
-          {/* Divider */}
-          <hr className="my-5 border-gray-200" />
-
-          {/* Account + Verification */}
-          <div className="grid grid-cols-2 gap-8">
-            <div>
-              <h3 className="text-sm font-semibold mb-3">Account Type:</h3>
-              <div className="space-y-4">
-                <div>
-                  <Label>Customer ID</Label>
-                  <Input value={form.customerId} readOnly />
-                </div>
-                <div>
-                  <Label>Account Type</Label>
-                  <Select
-                    value={form.accountType}
-                    onChange={(e) => update("accountType", e.target.value)}
-                    placeholder="Guest / Registered"
-                    options={["Guest", "Registered"]}
-                  />
-                </div>
-                <div>
-                  <Label>Status</Label>
-                  <Select
-                    value={form.status}
-                    onChange={(e) => update("status", e.target.value)}
-                    placeholder="Active / Inactive / Banned"
-                    options={["Active", "Inactive", "Banned"]}
-                  />
-                </div>
+          </form>
+        ) : (
+          <div className="flex-1 border p-2 rounded-lg mt-2">
+            <div className="flex  items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-base font-medium">{customer.name}</span>
+                <span className="px-1 py-0.5 rounded-md text-xs bg-[#D5E5F5] text-[#1C3753] border border-[#1C3753]">
+                  Work
+                </span>
+              </div>
+              <div>
+                <span className="px-2 py-1 rounded-lg text-xs bg-[#EFEFEF] text-[#1C1C1C]">
+                  Default
+                </span>
               </div>
             </div>
-
-            <div>
-              <h3 className="text-sm font-semibold mb-3">Verification</h3>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="flex items-center justify-between">
-                  <Label>Gmail Verified</Label>
-                  <Toggle
-                    checked={form.gmailVerified}
-                    onChange={(v) => update("gmailVerified", v)}
-                  />
-                </div>
-                <div className="flex items-center justify-between">
-                  <Label>Phone Verified</Label>
-                  <Toggle
-                    checked={form.phoneVerified}
-                    onChange={(v) => update("phoneVerified", v)}
-                  />
-                </div>
-                <div className="col-span-2">
-                  <Label>Preferred Language</Label>
-                  <Select
-                    value={form.language}
-                    onChange={(e) => update("language", e.target.value)}
-                    placeholder="English / Hindi / etc."
-                    options={["English", "Hindi", "Bengali", "Tamil", "Telugu"]}
-                  />
-                </div>
-                <div className="col-span-2">
-                  <Label>Marketing Opt-in</Label>
-                  <Input
-                    value="Subscribed to Email Offers"
-                    readOnly
-                    className="opacity-60"
-                  />
-                </div>
-              </div>
+            <div className="text-[14px] font-medium mt-1">
+              <p>{`${customer.address}, ${customer.state}, ${customer.city}, ${customer.zip_code}, ${customer.country}`}</p>
+              <p>Phone Number: {customer.phone}</p>
             </div>
-          </div>
-
-          {/* Footer */}
-          <div className="mt-8 flex items-center justify-end gap-2">
-            <button className="inline-flex items-center gap-2 rounded-md bg-amber-500 px-3 py-1.5 text-sm text-white hover:bg-amber-600">
-              Save
-            </button>
-            <button className="inline-flex items-center gap-2 rounded-md border px-3 py-1.5 text-sm hover:bg-gray-50">
-              Reset Form
+            <button
+              onClick={() => {
+                setAdressEditToggle(true);
+              }}
+              type="button"
+              className="text-sm text-[#006EE1]">
+              Edit Address
             </button>
           </div>
-        </div>
+        )}
+      </div>
+    </>
   );
 }
 

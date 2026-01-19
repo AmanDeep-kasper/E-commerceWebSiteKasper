@@ -12,7 +12,12 @@
         "delivery_status": "Delivered",
         "order_date": "26 Aug 2025",
         "shipping_address": "21 MG Road, 2nd Floor, Apt 5B, Delhi 110001, India",
-        "tracking_id": "DEL53530XYZ"
+        "tracking_id": "DEL53530XYZ",
+        "totalOrder": 2,
+        "totalSpend": 4178,
+        "cancelledOrder": 1,
+        "lastOrderDate": "12 Sep 2025",
+        "topcategoryPurchased": "Statue"
     },
     {
         "customer_name": "Rohit Sharma",
@@ -24,7 +29,7 @@
         "amazon_price": "\u20b91755",
         "payment_method": "UPI",
         "payment_status": "Paid",
-        "delivery_status": "Delivered",
+        "delivery_status": "Pending",
         "order_date": "01 Mar 2025",
         "shipping_address": "34 Camp Road, Ahmedabad 380001, India",
         "tracking_id": "DEL44861XYZ"
@@ -39,7 +44,7 @@
         "amazon_price": "\u20b94361",
         "payment_method": "UPI",
         "payment_status": "Paid",
-        "delivery_status": "Delivered",
+        "delivery_status": "Return Initiated",
         "order_date": "20 Nov 2025",
         "shipping_address": "12 MG Layout, 1st Floor, Bangalore 560001, India",
         "tracking_id": "DEL14661XYZ"
@@ -54,7 +59,7 @@
         "amazon_price": "\u20b94245",
         "payment_method": "Net Banking",
         "payment_status": "Paid",
-        "delivery_status": "Delivered",
+        "delivery_status": "Cancelled",
         "order_date": "06 Oct 2022",
         "shipping_address": "90 South Avenue, Mumbai 400001, India",
         "tracking_id": "DEL80345XYZ"
@@ -83,8 +88,8 @@
         "price": "\u20b92046",
         "amazon_price": "\u20b94308",
         "payment_method": "UPI",
-        "payment_status": "Paid",
-        "delivery_status": "Delivered",
+        "payment_status": "Pending",
+        "delivery_status": "Returned",
         "order_date": "30 Mar 2025",
         "shipping_address": "88 Sector 15, Gurgaon 122001, India",
         "tracking_id": "DEL11399XYZ"
@@ -98,7 +103,7 @@
         "price": "\u20b9919",
         "amazon_price": "\u20b95759",
         "payment_method": "Debit Card",
-        "payment_status": "Paid",
+        "payment_status": "Refund Initiated",
         "delivery_status": "Cancelled",
         "order_date": "24 Apr 2022",
         "shipping_address": "78 Civil Lines, Lucknow 226001, India",
@@ -113,7 +118,7 @@
         "price": "\u20b94256",
         "amazon_price": "\u20b94180",
         "payment_method": "Net Banking",
-        "payment_status": "Paid",
+        "payment_status": "Refunded",
         "delivery_status": "Processing",
         "order_date": "20 Sep 2023",
         "shipping_address": "34 Camp Road, Ahmedabad 380001, India",

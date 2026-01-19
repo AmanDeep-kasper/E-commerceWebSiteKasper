@@ -285,8 +285,8 @@ function Customer() {
                   <tr
                     key={r.id}
                     className="border-t hover:bg-gray-50 transition">
-                    <td className="px-4 py-3 font-medium">{r.name}</td>
-                    <td className="px-4 py-3 text-gray-600">{r.email}</td>
+                    <td className="px-4 py-3">{r.name}</td>
+                    <td className="px-4 py-3">{r.email}</td>
                     <td className="px-4 py-3">{r.phone}</td>
                     <td className="px-4 py-3">{r.total_orders}</td>
                     <td className="px-4 py-3">₹{r.total_spent}</td>
@@ -299,18 +299,18 @@ function Customer() {
                 ${
                   r.status === "Active"
                     ? "bg-green-100 text-green-600"
-                    : r.status === "Inactive"
-                    ? "bg-gray-200 text-gray-600"
-                    : "bg-red-100 text-red-600"
+                    : r.status === "Blocked"
+                    ? "bg-red-100 text-red-600"
+                    : ""
                 }
               `}>
                         <span
                           className={`w-2 h-2 rounded-xl ${
                             r.status === "Active"
                               ? "bg-green-500"
-                              : r.status === "Inactive"
-                              ? "bg-gray-500"
-                              : "bg-red-500"
+                              : r.status === "Blocked"
+                              ? "bg-red-500"
+                              : ""
                           }`}
                         />
                         {r.status}

@@ -144,19 +144,20 @@ const PageRouter = () => {
           {/* Customer */}
           <Route path="customers/:id" element={<CustomerLayout />}>
             <Route path="customer-info" element={<Information />} />
+            <Route path="edit" element={<InformationForm />} />
             <Route path="order-insight" element={<OrderInsight />} />
             <Route path="wishlist-cart" element={<WishlistCartInfo />} />
             <Route path="address-book" element={<Addresses />} />
             <Route path="support-feedback" element={<Feedback />} />
           </Route>
           {/* Forms */}
-          <Route path="" element={<CustomerForm />}>
+          {/* <Route path="" element={<CustomerForm />}>
             <Route path="customer-form" element={<InformationForm />} />
             <Route path="insight-form" element={<OrderInsightForm />} />
             <Route path="wishlist-form" element={<WishlistCartForm />} />
             <Route path="address-form" element={<AddressBookForm />} />
             <Route path="support-form" element={<SupportFeedbackForm />} />
-          </Route>
+          </Route> */}
           {/* Details */}
           <Route path="product-info/:uuid" element={<ProductInformation />} />
           <Route path="order-info/:orderId" element={<OrderInformation />} />
