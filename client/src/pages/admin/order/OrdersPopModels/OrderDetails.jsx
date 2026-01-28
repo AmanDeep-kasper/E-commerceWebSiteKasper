@@ -40,8 +40,8 @@ const OrderDetails = ({ data, setSelectedOrderId }) => {
             <span className="text-sm font-medium">
               Order ID #{data.orderId}
             </span>
-            <div className="text-[#686868] text-sm">
-              <span>{data.orderDate}</span>.<span>{data.orderTime}</span>
+            <div className="text-[#686868] text-sm flex items-start gap-1">
+              <span>{data.orderDate}</span><i className="text-[#DEDEDE]">●</i><span>{data.orderTime}</span>
             </div>
           </div>
           <div>

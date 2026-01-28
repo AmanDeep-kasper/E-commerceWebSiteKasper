@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useOutletContext } from "react-router";
 import { ChevronDown, ListFilter, Search } from "lucide-react";
 import OrderDetails from "./OrdersPopModels/OrderDetails";
+import OrdersTimelines from "./OrdersPopModels/OrdersTimelines";
 
 const ShippedOrders = () => {
   const { orders } = useOutletContext();
@@ -104,6 +105,13 @@ const ShippedOrders = () => {
   );
 
   /////////////////////////////////////////////////////////////
+
+  // this is for timeline pop model
+  const [openTimelineId, setOpenTimelineId] = useState(null);
+  const selectTimeline = orders.find(
+    (orders) => orders.orderId === openTimelineId,
+  );
+
   return (
     <>
       {/* pop models */}
@@ -130,6 +138,32 @@ const ShippedOrders = () => {
           </div>
         </div>
       )}
+
+      {/* Order Timelines */}
+      {selectTimeline && (
+        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center">
+          <div
+            className="
+        bg-[#FFFFFF]
+        w-[500px]
+        max-w-[90vw]
+        max-h-[90vh]
+        p-[24px]
+        rounded-xl
+        relative
+        md:w-[500px]
+        overflow-y-auto
+        overscroll-contain
+        scrollbar-hide
+      ">
+            <OrdersTimelines
+              data={selectTimeline}
+              setSelectedOrderId={() => setOpenTimelineId(null)}
+            />
+          </div>
+        </div>
+      )}
+
       {/* serach  and filter  */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2 w-[30%] rounded-lg px-3 py-2 bg-[#F8FBFC]">
@@ -261,7 +295,11 @@ const ShippedOrders = () => {
 
                 <div className="flex items-center justify-center ">
                   <td className="px-4 py-3 text-right">
-                    <button className="p-2  text-[#2C87E2]">
+                    <button
+                      onClick={() => {
+                        setOpenTimelineId(order.orderId);
+                      }}
+                      className="p-2  text-[#2C87E2]">
                       View Tracking
                     </button>
                   </td>

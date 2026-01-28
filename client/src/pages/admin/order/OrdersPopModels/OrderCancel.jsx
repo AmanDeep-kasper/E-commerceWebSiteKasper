@@ -1,7 +1,15 @@
 import { TriangleAlert } from "lucide-react";
 import React from "react";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
-const OrderCancel = ({ close, order, cancelReason, setCancelReason }) => {
+const OrderCancel = ({
+  close,
+  order,
+  cancelReason,
+  setCancelReason,
+  onConfirmCancel,
+}) => {
   return (
     <div>
       <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center">
@@ -41,8 +49,12 @@ const OrderCancel = ({ close, order, cancelReason, setCancelReason }) => {
                 className="px-3 py-1 border border-[#686868] text-sm text-[#686868] rounded-lg">
                 Keep Order
               </button>
+
               <button
-                onClick={close}
+                onClick={() => {
+                  onConfirmCancel();
+                  setTimeout(close, 50);
+                }}
                 disabled={!cancelReason.trim()}
                 className="px-3 py-1 border border-[#686868] text-sm rounded-lg bg-[#1C3753] text-white">
                 Cancel Order

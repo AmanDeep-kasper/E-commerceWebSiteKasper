@@ -4,6 +4,9 @@ import { BrowserRouter, Route, Routes } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { syncCart } from "./redux/cart/cartSlice";
 import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+
 
 // Admin Pages
 import Dashboard from "./pages/admin/Dashboard";

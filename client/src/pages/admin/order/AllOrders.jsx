@@ -4,6 +4,9 @@ import { ChevronDown, ListFilter, MoreVertical, Search } from "lucide-react";
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
 import OrderDetails from "./OrdersPopModels/OrderDetails";
+import { div } from "framer-motion/m";
+import OrdersTimelines from "./OrdersPopModels/OrdersTimelines";
+import OrderSectionInvoice from "./OrdersPopModels/OrderSectionInvoice";
 
 const AllOrders = () => {
   const { orders } = useOutletContext();
@@ -215,9 +218,21 @@ const AllOrders = () => {
   const [actionItem, setActionItem] = useState(null);
   const ActionElement = ["Order Detail", "Order Timeline", "View Invoice"];
 
+  // this is for timeline pop model
+  const [openTimelineId, setOpenTimelineId] = useState(null);
+  const selectTimeline = orders.find(
+    (orders) => orders.orderId === openTimelineId,
+  );
+
+  //  this is for invoice pop model
+  const [openInvoiceId, setOpenInvoiceId] = useState(null);
+  const selectInvoice = orders.find(
+    (orders) => orders.orderId === openInvoiceId,
+  );
+
   return (
     <>
-      {/* pop models */}
+      {/* Order Detail */}
       {selectOrder && (
         <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center">
           <div
@@ -237,6 +252,57 @@ const AllOrders = () => {
             <OrderDetails
               data={selectOrder}
               setSelectedOrderId={() => setSelectedOrderId(null)}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Order Timelines */}
+      {selectTimeline && (
+        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center">
+          <div
+            className="
+        bg-[#FFFFFF]
+        w-[500px]
+        max-w-[90vw]
+        max-h-[90vh]
+        p-[24px]
+        rounded-xl
+        relative
+        md:w-[500px]
+        overflow-y-auto
+        overscroll-contain
+        scrollbar-hide
+      ">
+            <OrdersTimelines
+              data={selectTimeline}
+              setSelectedOrderId={() => setOpenTimelineId(null)}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Order Invoice */}
+
+      {selectInvoice && (
+        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center">
+          <div
+            className="
+        bg-[#FFFFFF]
+        w-[500px]
+        max-w-[90vw]
+        max-h-[90vh]
+        p-[24px]
+        rounded-xl
+        relative
+        md:w-[500px]
+        overflow-y-auto
+        overscroll-contain
+        scrollbar-hide
+      ">
+            <OrderSectionInvoice
+              data={selectInvoice}
+              setSelectedOrderId={() => setOpenInvoiceId(null)}
             />
           </div>
         </div>
@@ -491,7 +557,6 @@ const AllOrders = () => {
               ))}
             </tr>
           </thead>
-
           <tbody>
             {paginatedOrders.map((order) => (
               <tr
@@ -571,6 +636,7 @@ bg-white border rounded-lg shadow-md z-50">
                                   console.log(
                                     "Open timeline for",
                                     order.orderId,
+                                    setOpenTimelineId(order.orderId),
                                   );
                                 }
 
@@ -578,6 +644,7 @@ bg-white border rounded-lg shadow-md z-50">
                                   console.log(
                                     "Open invoice for",
                                     order.orderId,
+                                    setOpenInvoiceId(order.orderId),
                                   );
                                 }
                               }}
@@ -595,7 +662,7 @@ bg-white border rounded-lg shadow-md z-50">
           </tbody>
         </table>
 
-        {/* Pagination Footer */}
+        {/* Pagination on the bottom */}
         <div className="flex items-center justify-between px-6 py-3 text-sm text-gray-600">
           <div>
             Showing <span className="font-medium">{startIndex + 1}</span>–

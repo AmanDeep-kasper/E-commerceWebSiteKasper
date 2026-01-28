@@ -5,6 +5,7 @@ import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
 import OrderDetails from "./OrdersPopModels/OrderDetails";
 import OrderCancel from "./OrdersPopModels/OrderCancel";
+import { toast } from "react-toastify";
 
 const PendingOrders = () => {
   const { orders } = useOutletContext();
@@ -149,6 +150,25 @@ const PendingOrders = () => {
   const selectCancelOrder = orders.find(
     (orders) => orders.orderId === openCancelModule,
   );
+  // Accepted order
+
+  const [acceptedOrders, setAcceptedOrders] = useState([]);
+
+  const handleAcceptedOrders = (orderId) => {
+    setAcceptedOrders((prev) => [...prev, orderId]);
+  };
+
+  const handleCancelOrder = (orderId) => {
+    toast.error("Order has been cancelled", {
+      icon: true,
+      style: {
+        background: "#FDECEC",
+        color: "#1C1C1C",
+      },
+    });
+
+    setopenCancelModule(null);
+  };
 
   return (
     <>
@@ -179,13 +199,14 @@ const PendingOrders = () => {
 
       {selectCancelOrder && (
         <OrderCancel
+          order={selectCancelOrder}
+          setCancelReason={setCancelResionData}
+          cancelReason={cancelResionData}
           close={() => {
             setopenCancelModule(null);
             setCancelResionData("");
           }}
-          setCancelReason={setCancelResionData}
-          cancelReason={cancelResionData}
-          order={selectCancelOrder}
+          onConfirmCancel={() => handleCancelOrder(selectCancelOrder.orderId)}
         />
       )}
       <div className="flex items-center justify-between mb-4">
@@ -459,32 +480,26 @@ const PendingOrders = () => {
                 </td>
                 <td className="px-4 py-3">{order.orderTime}</td>
 
-                {/* <td className="px-4 py-3">
-                  <span
-                    className={`px-3 py-1 rounded-md text-xs font-medium
-                    ${
-                      order.orderStatus === "Delivered"
-                        ? "bg-green-100 text-green-600"
-                        : order.orderStatus === "Cancelled"
-                          ? "bg-red-100 text-red-600"
-                          : order.orderStatus === "Pending"
-                            ? "bg-gray-200 text-gray-600"
-                            : "bg-blue-100 text-blue-600"
-                    }
-                  `}>
-                    {order.orderStatus}
-                  </span>
-                </td> */}
-
                 <td className="px-4 py-3 text-right flex items-center justify-center gap-2">
-                  <button className="px-6 py-1.5 rounded-md flex items-center justify-center text-white bg-[#1C3753]">
-                    Accept
-                  </button>
-                  <button
-                    onClick={() => setopenCancelModule(order.orderId)}
-                    className="px-6 py-1.5 rounded-md  flex items-center justify-center text-[#1C3753] bg-white border border-[#1C3753]">
-                    Cancel
-                  </button>
+                  {acceptedOrders.includes(order.orderId) ? (
+                    <span className="px-6 py-1.5 rounded-md text-sm font-medium bg-green-100 text-green-600">
+                      Accepted
+                    </span>
+                  ) : (
+                    <>
+                      <button
+                        onClick={() => handleAcceptedOrders(order.orderId)}
+                        className="px-6 py-1.5 rounded-md flex items-center justify-center text-white bg-[#1C3753]">
+                        Accept
+                      </button>
+
+                      <button
+                        onClick={() => setopenCancelModule(order.orderId)}
+                        className="px-6 py-1.5 rounded-md flex items-center justify-center text-[#1C3753] bg-white border border-[#1C3753]">
+                        Cancel
+                      </button>
+                    </>
+                  )}
                 </td>
               </tr>
             ))}
