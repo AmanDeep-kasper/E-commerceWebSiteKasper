@@ -1,5 +1,5 @@
 // PageRouter.js
-import { BrowserRouter, Routes, Route } from "react-router";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router";
 
 // Public Pages
 import Home from "../pages/Home";
@@ -74,6 +74,12 @@ import Login from "../pages/user/Login";
 import Register from "../pages/user/RegisterPage";
 import ForgotPassword from "../components/forms/ForgotPassword";
 import ResetPassword from "../components/forms/ResetPassword";
+import AllOrders from "../pages/admin/order/AllOrders";
+import PendingOrders from "../pages/admin/order/PendingOrders";
+import ProcessingOrders from "../pages/admin/order/ProcessingOrders";
+import ShippedOrders from "../pages/admin/order/ShippedOrders";
+import DeliveredOrders from "../pages/admin/order/DeliveredOrders";
+import CancelledOrders from "../pages/admin/order/CancelledOrders";
 
 const PageRouter = () => {
   return (
@@ -132,12 +138,19 @@ const PageRouter = () => {
         <Route path="/admin" element={<AdminLayout />}>
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="add-product" element={<AddProduct />} />
-          <Route path="add-product/:uuid" element={<AddProduct />} /> // update
-          the data
+          <Route path="add-product/:uuid" element={<AddProduct />} />
           <Route path="customers" element={<Customer />} />
           <Route path="products" element={<Products />} />
           <Route path="categories" element={<Categories />} />
-          <Route path="orders" element={<Order />} />
+          <Route path="orders" element={<Order />}>
+            <Route index element={<Navigate to="all" replace />} />
+            <Route path="all" element={<AllOrders />} />
+            <Route path="pending" element={<PendingOrders />} />
+            <Route path="processing" element={<ProcessingOrders />} />
+            <Route path="shipped" element={<ShippedOrders />} />
+            <Route path="delivered" element={<DeliveredOrders />} />
+            <Route path="cancelled" element={<CancelledOrders />} />
+          </Route>
           <Route path="users" element={<User />} />
           <Route path="sales" element={<Sale />} />
           <Route path="stocks" element={<Stock />} />

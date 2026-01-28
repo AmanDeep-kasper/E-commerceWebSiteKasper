@@ -51,10 +51,18 @@
 
 // export default ProfileCard;
 
-import { BanknoteX, BadgeCheck, UserLock } from "lucide-react";
+import {
+  BanknoteX,
+  BadgeCheck,
+  UserLock,
+  Banknote,
+  Shield,
+} from "lucide-react";
 import React, { useState } from "react";
 import AccountActivityRow from "./AccountActivityRow";
 import AccountActivityVerfiy from "./AccountActivityVerfiy";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Card = ({ children, className = "" }) => (
   <div className={`bg-white rounded-xl shadow-sm overflow-hidden ${className}`}>
@@ -63,21 +71,156 @@ const Card = ({ children, className = "" }) => (
 );
 
 function ProfileCard({ customer }) {
-  // const [showDropdown, setShowDropdown] = useState(false);
+  console.log(customer);
 
-  // Calculate customer status based on order count
-  const getCustomerStatus = (orderCount) => {
-    if (orderCount > 15)
-      return { label: "VIP", color: "bg-purple-100 text-purple-800" };
-    if (orderCount > 5)
-      return { label: "Regular", color: "bg-blue-100 text-blue-800" };
-    return { label: "New", color: "bg-gray-100 text-gray-800" };
-  };
-
-  // const status = getCustomerStatus(customer.total_orders || 0);
+  const [openStatus, setOpenStatus] = useState(false);
+  const [status, setStatus] = useState(customer.status);
+  const [showPopup, setShowPopup] = useState(false);
+  const [reVerfiy, setReVerfiy] = useState(false);
+  const [cashDelivery, setCashDelivery] = useState("Disable Cash on Delivery");
 
   return (
     <div className="col-span-3 relative">
+      {showPopup && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-5 w-[467px]">
+            <h3 className="text-lg font-medium mb-2">
+              {cashDelivery === "Enable Cash on Delivery"
+                ? "Disable"
+                : "Enable"}{" "}
+              cash on delivery for this customer?
+            </h3>
+
+            <p className="text-sm text-[#1C1C1C] mb-4">
+              This will
+              <span>
+                {cashDelivery === "Enable Cash on Delivery"
+                  ? " prevent the"
+                  : " give access to "}
+              </span>{" "}
+              the customer from paying on delivery. They
+              <span>
+                {cashDelivery === "Enable Cash on Delivery"
+                  ? " will have to prepaid"
+                  : " can pay on delivery on "}
+              </span>{" "}
+              their new orders.
+            </p>
+
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setShowPopup(false)}
+                className="px-7 py-1.5 border rounded-md text-sm">
+                Cancel
+              </button>
+
+              <button
+                onClick={() => {
+                  setCashDelivery(
+                    cashDelivery === "Enable Cash on Delivery"
+                      ? "Disable Cash on Delivery"
+                      : "Enable Cash on Delivery",
+                  );
+                  setShowPopup(false);
+                }}
+                className="px-7 py-1.5 bg-[#1C3753] text-white rounded-md text-sm">
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {reVerfiy && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-5 w-[467px]">
+            <h3 className="text-lg font-medium mb-2">
+              Re-verification of customer credentials?
+            </h3>
+
+            <p className="text-sm text-[#1C1C1C] mb-4">
+              Customer have to re-verify their credentials via email or OTP.
+            </p>
+
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setReVerfiy(false)}
+                className="px-7 py-1.5 border rounded-md text-sm">
+                Cancel
+              </button>
+
+              <button
+                // onClick={() => {
+                //   setCashDelivery(
+                //     cashDelivery === "Enable Cash on Delivery"
+                //       ? "Disable Cash on Delivery"
+                //       : "Enable Cash on Delivery",
+                //   );
+                //   setShowPopup(false);
+                // }}
+                className="px-7 py-1.5 bg-[#1C3753] text-white rounded-md text-sm">
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {openStatus && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-5 w-[400px]">
+            <h3 className="text-lg font-medium mb-2">
+              {status === "Unblock" ? "Block" : "Unblock"} this customer?
+            </h3>
+
+            <p className="text-sm text-[#1C1C1C] mb-4">
+              This will
+              <span>
+                {status === "Unblock" ? " prevent the" : " restore "}
+              </span>{" "}
+              access to their account and
+              <span>
+                {status === "Unblock"
+                  ? " will have to prepaid"
+                  : " allow them to place orders"}
+              </span>{" "}
+              {/* their new orders. */}
+            </p>
+
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setOpenStatus(false)}
+                className="px-7 py-1.5 border rounded-md text-sm">
+                Cancel
+              </button>
+
+              <button
+                onClick={() => {
+                  setStatus(status === "Unblock" ? "Block" : "Unblock");
+                  setOpenStatus(false);
+
+                  if (status === "Block") {
+                    toast.success("Customer unblocked successfully", {
+                      className:
+                        "bg-[#E0F4DE] text-[#00A63E] border-l-4 border-[#00A63E] rounded-xl text-sm",
+                      // icon: true,
+                      hideProgressBar: true,
+                    });
+                  } else {
+                    toast.success("Customer blocked successfully", {
+                      className:
+                        "bg-[#E0F4DE] text-[#00A63E] border-l-4 border-[#00A63E] rounded-xl text-sm",
+                      // icon: false,
+                      hideProgressBar: true,
+                    });
+                  }
+                }}
+                className="px-7 py-1.5 bg-[#1C3753] text-white rounded-md text-sm">
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <Card className="p-6 ">
         {/* Dropdown menu */}
         {/* {showDropdown && (
@@ -120,19 +263,12 @@ function ProfileCard({ customer }) {
             />
             <div
               className={`absolute top-3 right-3 ${
-                customer.status == "Active"
+                status === "Unblock"
                   ? `bg-[#E0F4DE] text-[#00A63E] px-2 font-medium py-0.5 text-sm rounded-md`
                   : `bg-[#FFEAE9] text-[#D53B35] px-2 font-medium py-0.5 text-sm rounded-md`
               }`}>
-              {customer.status}
+              {status}
             </div>
-
-            {/* <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 bg-white px-3 py-1 rounded-full shadow-md border border-gray-200">
-              <div className="flex items-center gap-1">
-                <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                <span className="text-xs font-medium">4.8</span>
-              </div>
-            </div> */}
           </div>
 
           <div className="text-center">
@@ -231,9 +367,13 @@ function ProfileCard({ customer }) {
             lable={"Signup Date"}
             value={customer.joined_date ?? "-"}
           />
-          
-            <AccountActivityRow lable={"Login Method"} value={"Phone Number"} isBadge  />
-          
+
+          <AccountActivityRow
+            lable={"Login Method"}
+            value={"Phone Number"}
+            isBadge
+          />
+
           <AccountActivityVerfiy
             label={"Email Verified"}
             verified={customer.email_verified}
@@ -250,25 +390,80 @@ function ProfileCard({ customer }) {
         <div className="p-[16px]">
           <h1 className="font-medium">Admin Actions</h1>
           <div className="flex flex-col space-y-4 mt-2">
-            <button className="flex items-center justify-start gap-2 bg-[#F8FBFC] border px-2 py-2 rounded-lg">
-              <BanknoteX width={16.5} height={16.5} />
-              <span className="text-sm font-medium">
-                Disable Cash on Delivery
-              </span>
+            <button
+              // onClick={() => {
+              //   setCashDelivery(
+              //     cashDelivery === "Enable Cash on Delivery"
+              //       ? "Disable Cash on Delivery"
+              //       : "Enable Cash on Delivery",
+              //   );
+              // }}
+              onClick={() => setShowPopup(true)}
+              className="flex items-center justify-start gap-2 bg-[#F8FBFC] border px-2 py-2 rounded-lg">
+              {cashDelivery === "Disable Cash on Delivery" ? (
+                <>
+                  <BanknoteX width={16.5} height={16.5} />
+                  <span className="text-sm font-medium">{cashDelivery}</span>
+                </>
+              ) : (
+                <>
+                  <Banknote width={16.5} height={16.5} />
+                  <span className="text-sm font-medium">{cashDelivery}</span>
+                </>
+              )}
             </button>
-            <button className="flex items-center justify-start gap-2 bg-[#F8FBFC] border px-2 py-2 rounded-lg">
+            <button
+              onClick={() => setReVerfiy(true)}
+              className="flex items-center justify-start gap-2 bg-[#F8FBFC] border px-2 py-2 rounded-lg">
               <BadgeCheck width={16.5} height={16.5} />
               <span className="text-sm font-medium">
                 Re-Verification of User
               </span>
             </button>
-            <button className="flex items-center justify-start gap-2 bg-[#F8FBFC] border px-2 py-2 rounded-lg text-[#D53B35]">
-              <UserLock width={16.5} height={16.5} className="text-[#D53B35]" />
-              <span className="text-sm font-medium">Block User</span>
+            <button
+              // onClick={() => {
+              //   setStatus(status === "Unblock" ? "Block" : "Unblock");
+              // }}
+              onClick={() => setOpenStatus(true)}
+              className={`flex items-center justify-start gap-2 border px-2 py-2 rounded-lg
+    ${
+      status === "Unblock"
+        ? "bg-[#E0F4DE] text-[#00A63E]"
+        : "bg-[#FFEAE9] text-[#D53B35]"
+    }`}>
+              {status === "Unblock" ? (
+                <>
+                  <Shield
+                    width={16.5}
+                    height={16.5}
+                    className={
+                      status === "Unblock" ? "text-[#00A63E]" : "text-[#D53B35]"
+                    }
+                  />
+                  <span className="text-sm font-medium">{status} User</span>
+                </>
+              ) : (
+                <>
+                  <UserLock
+                    width={16.5}
+                    height={16.5}
+                    className={
+                      status === "Unblock" ? "text-[#00A63E]" : "text-[#D53B35]"
+                    }
+                  />
+                  <span className="text-sm font-medium">{status} User</span>
+                </>
+              )}
             </button>
           </div>
         </div>
       </Card>
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        closeButton={false}
+        pauseOnHover
+      />
     </div>
   );
 }

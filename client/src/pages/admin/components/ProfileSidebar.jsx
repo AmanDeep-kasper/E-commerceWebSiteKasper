@@ -21,8 +21,6 @@ const Card = ({ children, className = "" }) => (
 const profileMenu = [
   { label: "Personal Information", path: "/customer-info", icon: User },
   { label: "Orders Information", path: "/order-insight", icon: BarChart2 },
-  // { label: "Wishlist & Cart Info", path: "/wishlist-cart", icon: Heart },
-  // { label: "Address Book", path: "/address-book", icon: MapPin },
   { label: "Support & Ticket", path: "/support-feedback", icon: MessageSquare },
 ];
 
@@ -45,15 +43,8 @@ function ProfileSidebar({ customer, isEditPage }) {
                 className={`relative py-2 text-md font-medium transition-colors flex items-center gap-2 ${
                   isActive ? " text-[#1C3753] font-medium" : "text-gray-600"
                 } `}>
-                {/* <Icon
-                className={`w-5 h-5 flex-shrink-0 ${
-                  isActive
-                    ? "text-[#1C3753]"
-                    : "text-gray-400 group-hover:text-gray-600"
-                }`}
-              /> */}
                 {label}
-                {/* underline  */}
+
                 {isActive && (
                   <span className="absolute left-0 bottom-0 h-[2px] w-full bg-blue-600 rounded-full" />
                 )}
