@@ -1,0 +1,335 @@
+[
+    {
+        "returnId": "RE-CW-2401",
+        "type": "Return",
+        "status": "Pending",
+        "requestedAt": "2026-01-10T11:20:00",
+        "orderDetails": {
+            "orderId": "ORD-1001",
+            "orderStatus": "Delivered",
+            "paymentStatus": "Paid",
+            "orderDate": "2026-01-08",
+            "totalAmount": 4500
+        },
+        "item": {
+            "productName": "Metal Leaf Wall Art",
+            "sku": "SK-MW-11",
+            "variant": "30x15",
+            "quantity": 1,
+            "price": 4500
+        },
+        "returnReason": "Poor build quality",
+        "customerDetails": {
+            "name": "Amit Iyer",
+            "customerId": "CX-1001",
+            "phone": "+91 9876543210",
+            "email": "amit.iyer@gmail.com",
+            "address": "Gurugram, Haryana, India"
+        }
+    },
+    {
+        "returnId": "RE-CW-2402",
+        "type": "Exchange",
+        "status": "Pending",
+        "requestedAt": "2026-01-11T10:45:00",
+        "orderDetails": {
+            "orderId": "ORD-1002",
+            "orderStatus": "Delivered",
+            "paymentStatus": "Paid",
+            "orderDate": "2026-01-09",
+            "totalAmount": 3200
+        },
+        "item": {
+            "productName": "Mandala Wall Decor",
+            "sku": "SK-MD-21",
+            "variant": "Black | 24x12",
+            "quantity": 1,
+            "price": 3200
+        },
+        "returnReason": "Want different color",
+        "exchangeDetails": {
+            "newOrderId": "ORD-2002",
+            "newPrice": 3500,
+            "shippingCost": 100
+        },
+        "customerDetails": {
+            "name": "Rohit Sharma",
+            "customerId": "CX-1002",
+            "phone": "+91 9812345678",
+            "email": "rohit.sharma@gmail.com",
+            "address": "Delhi, India"
+        }
+    },
+    {
+        "returnId": "RE-CW-2403",
+        "type": "Return",
+        "status": "Approved",
+        "requestedAt": "2026-01-12T14:10:00",
+        "orderDetails": {
+            "orderId": "ORD-1003",
+            "orderStatus": "Delivered",
+            "paymentStatus": "Paid",
+            "orderDate": "2026-01-10",
+            "totalAmount": 2800
+        },
+        "item": {
+            "productName": "Abstract Metal Art",
+            "sku": "SK-AM-09",
+            "variant": "Gold | 20x10",
+            "quantity": 1,
+            "price": 2800
+        },
+        "returnReason": "Didn't like the product",
+        "customerDetails": {
+            "name": "Neha Verma",
+            "customerId": "CX-1003",
+            "phone": "+91 9123456789",
+            "email": "neha.verma@gmail.com",
+            "address": "Noida, UP, India"
+        }
+    },
+    {
+        "returnId": "RE-CW-2404",
+        "type": "Exchange",
+        "status": "Pending",
+        "requestedAt": "2026-01-13T16:30:00",
+        "orderDetails": {
+            "orderId": "ORD-1004",
+            "orderStatus": "Delivered",
+            "paymentStatus": "Paid",
+            "orderDate": "2026-01-11",
+            "totalAmount": 5200
+        },
+        "item": {
+            "productName": "Peacock Metal Wall Art",
+            "sku": "SK-PW-18",
+            "variant": "Blue | 36x18",
+            "quantity": 1,
+            "price": 5200
+        },
+        "returnReason": "Damaged product",
+        "exchangeDetails": {
+            "newOrderId": "ORD-2004",
+            "newPrice": 5200,
+            "shippingCost": 0
+        },
+        "customerDetails": {
+            "name": "Suresh Kumar",
+            "customerId": "CX-1004",
+            "phone": "+91 9988776655",
+            "email": "suresh.k@gmail.com",
+            "address": "Jaipur, Rajasthan, India"
+        }
+    },
+    {
+        "returnId": "RE-CW-2405",
+        "type": "Return",
+        "status": "Rejected",
+        "requestedAt": "2026-01-14T09:40:00",
+        "orderDetails": {
+            "orderId": "ORD-1005",
+            "orderStatus": "Delivered",
+            "paymentStatus": "Paid",
+            "orderDate": "2026-01-12",
+            "totalAmount": 1800
+        },
+        "item": {
+            "productName": "Geometric Wall Frame",
+            "sku": "SK-GW-07",
+            "variant": "Black | 18x18",
+            "quantity": 1,
+            "price": 1800
+        },
+        "returnReason": "Ordered by mistake",
+        "customerDetails": {
+            "name": "Pooja Singh",
+            "customerId": "CX-1005",
+            "phone": "+91 9090909090",
+            "email": "pooja.s@gmail.com",
+            "address": "Lucknow, UP, India"
+        }
+    },
+    {
+        "returnId": "RE-CW-2406",
+        "type": "Exchange",
+        "status": "Approved",
+        "requestedAt": "2026-01-15T13:00:00",
+        "orderDetails": {
+            "orderId": "ORD-1006",
+            "orderStatus": "Delivered",
+            "paymentStatus": "Paid",
+            "orderDate": "2026-01-13",
+            "totalAmount": 3900
+        },
+        "item": {
+            "productName": "Tree of Life Wall Art",
+            "sku": "SK-TL-12",
+            "variant": "Brown | 30x30",
+            "quantity": 1,
+            "price": 3900
+        },
+        "returnReason": "Product not as described",
+        "exchangeDetails": {
+            "newOrderId": "ORD-2006",
+            "newPrice": 4200,
+            "shippingCost": 150
+        },
+        "customerDetails": {
+            "name": "Karan Malhotra",
+            "customerId": "CX-1006",
+            "phone": "+91 8899776655",
+            "email": "karan.m@gmail.com",
+            "address": "Chandigarh, India"
+        }
+    },
+    {
+        "returnId": "RE-CW-2407",
+        "type": "Return",
+        "status": "Pending",
+        "requestedAt": "2026-01-16T10:15:00",
+        "orderDetails": {
+            "orderId": "ORD-1007",
+            "orderStatus": "Delivered",
+            "paymentStatus": "Paid",
+            "orderDate": "2026-01-14",
+            "totalAmount": 2600
+        },
+        "item": {
+            "productName": "Lotus Metal Wall Art",
+            "sku": "SK-LT-22",
+            "variant": "Gold | 24x24",
+            "quantity": 1,
+            "price": 2600
+        },
+        "returnReason": "No longer needed",
+        "customerDetails": {
+            "name": "Anjali Mehta",
+            "customerId": "CX-1007",
+            "phone": "+91 9871203456",
+            "email": "anjali.mehta@gmail.com",
+            "address": "Ahmedabad, Gujarat, India"
+        }
+    },
+    {
+        "returnId": "RE-CW-2408",
+        "type": "Exchange",
+        "status": "Pending",
+        "requestedAt": "2026-01-16T15:40:00",
+        "orderDetails": {
+            "orderId": "ORD-1008",
+            "orderStatus": "Delivered",
+            "paymentStatus": "Paid",
+            "orderDate": "2026-01-14",
+            "totalAmount": 4800
+        },
+        "item": {
+            "productName": "Sun Face Metal Art",
+            "sku": "SK-SF-10",
+            "variant": "Rust | 32x32",
+            "quantity": 1,
+            "price": 4800
+        },
+        "returnReason": "Want a different size",
+        "exchangeDetails": {
+            "newOrderId": "ORD-2008",
+            "newPrice": 5200,
+            "shippingCost": 200
+        },
+        "customerDetails": {
+            "name": "Vikas Arora",
+            "customerId": "CX-1008",
+            "phone": "+91 9811122233",
+            "email": "vikas.arora@gmail.com",
+            "address": "Faridabad, Haryana, India"
+        }
+    },
+    {
+        "returnId": "RE-CW-2409",
+        "type": "Return",
+        "status": "Approved",
+        "requestedAt": "2026-01-17T09:55:00",
+        "orderDetails": {
+            "orderId": "ORD-1009",
+            "orderStatus": "Delivered",
+            "paymentStatus": "Paid",
+            "orderDate": "2026-01-15",
+            "totalAmount": 3100
+        },
+        "item": {
+            "productName": "Birds on Branch Wall Decor",
+            "sku": "SK-BB-14",
+            "variant": "Black | 28x14",
+            "quantity": 1,
+            "price": 3100
+        },
+        "returnReason": "Quality not as expected",
+        "customerDetails": {
+            "name": "Sneha Kulkarni",
+            "customerId": "CX-1009",
+            "phone": "+91 9822334455",
+            "email": "sneha.k@gmail.com",
+            "address": "Pune, Maharashtra, India"
+        }
+    },
+    {
+        "returnId": "RE-CW-2410",
+        "type": "Exchange",
+        "status": "Approved",
+        "requestedAt": "2026-01-17T18:20:00",
+        "orderDetails": {
+            "orderId": "ORD-1010",
+            "orderStatus": "Delivered",
+            "paymentStatus": "Paid",
+            "orderDate": "2026-01-15",
+            "totalAmount": 3600
+        },
+        "item": {
+            "productName": "Ganesha Metal Wall Hanging",
+            "sku": "SK-GN-05",
+            "variant": "Copper | 20x30",
+            "quantity": 1,
+            "price": 3600
+        },
+        "returnReason": "Received damaged item",
+        "exchangeDetails": {
+            "newOrderId": "ORD-2010",
+            "newPrice": 3600,
+            "shippingCost": 0
+        },
+        "customerDetails": {
+            "name": "Ravi Patel",
+            "customerId": "CX-1010",
+            "phone": "+91 9900112233",
+            "email": "ravi.patel@gmail.com",
+            "address": "Surat, Gujarat, India"
+        }
+    },
+    {
+        "returnId": "RE-CW-2411",
+        "type": "Return",
+        "status": "Rejected",
+        "requestedAt": "2026-01-18T12:05:00",
+        "orderDetails": {
+            "orderId": "ORD-1011",
+            "orderStatus": "Delivered",
+            "paymentStatus": "Paid",
+            "orderDate": "2026-01-16",
+            "totalAmount": 2100
+        },
+        "item": {
+            "productName": "Minimal Line Art Frame",
+            "sku": "SK-ML-03",
+            "variant": "White | 16x20",
+            "quantity": 1,
+            "price": 2100
+        },
+        "returnReason": "Return window expired",
+        "customerDetails": {
+            "name": "Divya Nair",
+            "customerId": "CX-1011",
+            "phone": "+91 9846012345",
+            "email": "divya.nair@gmail.com",
+            "address": "Kochi, Kerala, India"
+        }
+    }
+]

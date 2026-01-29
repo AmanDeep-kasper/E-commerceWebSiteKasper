@@ -27,7 +27,12 @@ import AccountLayout from "../pages/account/AccountLayout";
 import MyReviews from "../components/MyReviews";
 import Contact from "../components/Contact";
 import OrderDetail from "../components/OrderDetail";
-import ReturnPage from "../pages/ReturnPage";
+import ReturnPage from "../pages/admin/Returns/ReturnPage";
+
+import ReturnRequested from "../pages/admin/Returns/ReturnRequested";
+import ReturnInitiated from "../pages/admin/Returns/ReturnInitiated";
+import ReceivedReturns from "../pages/admin/Returns/ReceivedReturns";
+import ReturnClosed from "../pages/admin/Returns/ReturnClosed";
 // import PaymentSuccess from "../pages/PaymentSuccess";
 // Admin Pages
 import Dashboard from "../pages/admin/Dashboard";
@@ -136,12 +141,16 @@ const PageRouter = () => {
 
         {/* Admin Route */}
         <Route path="/admin" element={<AdminLayout />}>
+          {/* dashboard */}
           <Route path="dashboard" element={<Dashboard />} />
+          {/* add product */}
           <Route path="add-product" element={<AddProduct />} />
           <Route path="add-product/:uuid" element={<AddProduct />} />
+          {/* customers */}
           <Route path="customers" element={<Customer />} />
           <Route path="products" element={<Products />} />
           <Route path="categories" element={<Categories />} />
+          {/* orders */}
           <Route path="orders" element={<Order />}>
             <Route index element={<Navigate to="all" replace />} />
             <Route path="all" element={<AllOrders />} />
@@ -151,6 +160,15 @@ const PageRouter = () => {
             <Route path="delivered" element={<DeliveredOrders />} />
             <Route path="cancelled" element={<CancelledOrders />} />
           </Route>
+          {/* returns */}
+          <Route path="returns" element={<ReturnPage />}>
+            <Route index element={<Navigate to="ReturnRequested" replace />} />
+            <Route path="ReturnRequested" element={<ReturnRequested />} />
+            <Route path="ReturnInitiated" element={<ReturnInitiated />} />
+            <Route path="ReceivedReturns" element={<ReceivedReturns />} />
+            <Route path="ReturnClosed" element={<ReturnClosed />} />
+          </Route>
+
           <Route path="users" element={<User />} />
           <Route path="sales" element={<Sale />} />
           <Route path="stocks" element={<Stock />} />

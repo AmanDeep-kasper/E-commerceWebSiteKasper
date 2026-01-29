@@ -86,7 +86,7 @@ function Order() {
     <div className="p-[24px] bg-[#F6F8F9] min-h-screen">
       <div>
         <div className="flex items-center justify-between">
-          <div className="flex items-center justify-between  16px px-2 rounded-md">
+          <div className="flex items-center justify-between 16px px-2 rounded-md">
             <h2 className="text-[20px] font-semibold text-gray-800">Orders</h2>
           </div>
         </div>
