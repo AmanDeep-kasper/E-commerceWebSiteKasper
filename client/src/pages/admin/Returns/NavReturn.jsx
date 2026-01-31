@@ -23,7 +23,7 @@ const NavReturn = ({ profileMenu }) => {
 
             {isActive && (
               <span
-                className="absolute -left-2 bottom-0 h-[2px] w-24
+                className="absolute left-0 bottom-0 h-[2px] w-full
                   bg-blue-600 rounded-full transition-all"
               />
             )}

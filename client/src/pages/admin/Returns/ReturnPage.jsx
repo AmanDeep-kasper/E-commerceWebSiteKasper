@@ -18,10 +18,10 @@ const Badge = ({ children, tone }) => {
 };
 
 const profileMenu = [
-  { label: "ReturnRequested", path: "ReturnRequested" },
-  { label: "ReturnInitiated", path: "ReturnInitiated" },
-  { label: "ReceivedReturns", path: "ReceivedReturns" },
-  { label: "ReturnClosed", path: "ReturnClosed" },
+  { label: "Return Requested", path: "ReturnRequested" },
+  { label: "Return Initiated", path: "ReturnInitiated" },
+  { label: "Received", path: "ReceivedReturns" },
+  { label: "Return Closed", path: "ReturnClosed" },
 ];
 
 function ReturnPage() {

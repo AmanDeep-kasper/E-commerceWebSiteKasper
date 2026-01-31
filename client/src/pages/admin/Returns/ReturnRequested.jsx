@@ -6,9 +6,11 @@ import "react-day-picker/dist/style.css";
 // import OrderDetails from ". /OrdersPopModels/OrderDetails";
 // import OrderCancel from "./OrdersPopModels/OrderCancel";
 import { toast } from "react-toastify";
+import ReturnRejectedModule from "./ReturnPopModules/ReturnRejectedModule";
+import ReturnRequestedModule from "./ReturnPopModules/ReturnRequestedModule";
 
 const ReturnRequested = () => {
-  const { returns } = useOutletContext();
+  const { returns: contextReturns } = useOutletContext();
 
   const columns = [
     "Return ID",
@@ -43,22 +45,27 @@ const ReturnRequested = () => {
   const [filterOne, setfilterOne] = useState("Latest");
   const [filterOneOpen, setfilterOneOpen] = useState(false);
 
-  const filterOneItems = [
-    "Latest",
-    "Latest Return Date",
-    "Oldest Return Date",
-    // "Order Value (Low-High)",
-    // "Order Value (High-Low)",
-  ];
+  const filterOneItems = ["Latest", "Latest Return Date", "Oldest Return Date"];
+
+  const [returnsData, setReturnsData] = useState([]);
+
+  useEffect(() => {
+    setReturnsData(contextReturns || []);
+  }, [contextReturns]);
 
   const filteredOrders = useMemo(() => {
-    let result = [...returns];
+    let result = [...returnsData];
 
     /* 🔍 SEARCH */
     if (debouncedValue.trim()) {
-      result = result.filter((item) =>
-        item.returnId.toLowerCase().includes(debouncedValue.toLowerCase()),
-      );
+      const searchValue = debouncedValue.toLowerCase();
+
+      result = result.filter((item) => {
+        const returnId = item.returnId?.toLowerCase() || "";
+        const orderId = item.orderDetails?.orderId?.toLowerCase() || "";
+
+        return returnId.includes(searchValue) || orderId.includes(searchValue);
+      });
     }
 
     /* 💳 PAYMENT */
@@ -75,16 +82,8 @@ const ReturnRequested = () => {
       result.sort((a, b) => new Date(a.requestedAt) - new Date(b.requestedAt));
     }
 
-    // if (filterOne === "Order Value (Low-High)") {
-    //   result.sort((a, b) => a.orderValue - b.orderValue);
-    // }
-
-    // if (filterOne === "Order Value (High-Low)") {
-    //   result.sort((a, b) => b.orderValue - a.orderValue);
-    // }
-
     return result;
-  }, [returns, debouncedValue, paymentstatus, filterOne]);
+  }, [returnsData, debouncedValue, paymentstatus, filterOne]);
 
   useEffect(() => {
     setPage(1);
@@ -101,24 +100,60 @@ const ReturnRequested = () => {
 
   //////////////////////////////////////////////////
   const [selectedOrderId, setSelectedOrderId] = useState(null);
-  const selectOrder = returns.find(
-    (orders) => orders.orderId === selectedOrderId,
+  const selectOrder = returnsData.find(
+    (orders) => orders.returnId === selectedOrderId,
   );
 
+  ///////////////////////////////////////////////////
   // cancel order module
 
   const [openCancelModule, setopenCancelModule] = useState(null);
   const [cancelResionData, setCancelResionData] = useState("");
 
-  const selectCancelOrder = returns.find(
-    (orders) => orders.orderId === openCancelModule,
+  const selectCancelOrder = returnsData.find(
+    (orders) => orders.returnId === openCancelModule,
   );
+
   // Accepted order
 
   const [acceptedOrders, setAcceptedOrders] = useState([]);
 
+  // const handleAcceptedOrders = (orderId) => {
+  //   setAcceptedOrders((prev) => [...prev, orderId]);
+  // };
+
+  // const handleAcceptedOrders = (orderId) => {
+  //   const updatedReturns = returnsData.map((item) => {
+  //     if (item.returnId === orderId) {
+  //       return { ...item, status: "Approved" };
+  //     }
+  //     return item;
+  //   });
+
+  //   setReturnsData(updatedReturns);
+
+  //   setAcceptedOrders((prev) => [...prev, orderId]);
+  // };
+
+  // agin
   const handleAcceptedOrders = (orderId) => {
-    setAcceptedOrders((prev) => [...prev, orderId]);
+    const updatedReturns = returnsData.map((item) => {
+      if (item.returnId === orderId) {
+        return {
+          ...item,
+          status: "Approved",
+          shippingDetails: {
+            shippingPartner: "Blue Dart",
+            trackingId: "DLV123456789",
+            shippingStatus: "In Transit",
+            expectedDate: "2026-02-06",
+          },
+        };
+      }
+      return item;
+    });
+
+    setReturnsData(updatedReturns);
   };
 
   const handleCancelOrder = (orderId) => {
@@ -140,28 +175,32 @@ const ReturnRequested = () => {
         <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center">
           <div
             className="
-        bg-[#FFFFFF]
-        w-[500px]
-        max-w-[90vw]
-        max-h-[90vh]
-        p-[24px]
-        rounded-xl
-        relative
-        md:w-[500px]
-        overflow-y-auto
-        overscroll-contain
-        scrollbar-hide
-      ">
-            <OrderDetails
+    bg-white
+    w-[750px]
+    max-w-[95vw]
+    max-h-[90vh]
+    p-6
+    rounded-xl
+    relative
+    overflow-y-auto
+    overscroll-contain
+    scrollbar-hide
+  ">
+            <ReturnRequestedModule
               data={selectOrder}
               setSelectedOrderId={() => setSelectedOrderId(null)}
+              setopenCancelModule={setopenCancelModule}
+              handleAcceptedOrders={() =>
+                handleAcceptedOrders(selectOrder.returnId)
+              }
             />
           </div>
         </div>
       )}
 
+
       {selectCancelOrder && (
-        <OrderCancel
+        <ReturnRejectedModule
           order={selectCancelOrder}
           setCancelReason={setCancelResionData}
           cancelReason={cancelResionData}
@@ -179,7 +218,7 @@ const ReturnRequested = () => {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by Order ID"
+            placeholder="Search by Return ID and Order ID"
             className="outline-none text-sm text-[#686868] w-full bg-transparent"
           />
         </div>
@@ -284,21 +323,28 @@ const ReturnRequested = () => {
                 <td className="px-4 py-3">{order.requestedAt}</td>
 
                 <td className="px-4 py-3 text-right flex items-center justify-center gap-3">
-                  <span className="hover:underline text-[#1C3753]">view</span>
-                  {acceptedOrders.includes(order.returnId) ? (
+                  <span
+                    onClick={() => {
+                      setSelectedOrderId(order.returnId);
+                    }}
+                    className="hover:underline text-[#1C3753]">
+                    view
+                  </span>
+                  {/* {acceptedOrders.includes(order.returnId) ? ( */}
+                  {order.status === "Approved" ? (
                     <span className="px-6 py-1.5 rounded-md text-sm font-medium bg-green-100 text-green-600">
-                      Accepted
+                      Approved
                     </span>
                   ) : (
                     <>
                       <button
-                        onClick={() => handleAcceptedOrders(order.orderId)}
+                        onClick={() => handleAcceptedOrders(order.returnId)}
                         className="px-6 py-1.5 rounded-md flex items-center justify-center text-white bg-[#1C3753]">
                         Approve
                       </button>
 
                       <button
-                        onClick={() => setopenCancelModule(order.orderId)}
+                        onClick={() => setopenCancelModule(order.returnId)}
                         className="px-6 py-1.5 rounded-md flex items-center justify-center text-[#1C3753] bg-white border border-[#1C3753]">
                         Reject
                       </button>

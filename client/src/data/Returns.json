@@ -3,7 +3,14 @@
         "returnId": "RE-CW-2401",
         "type": "Return",
         "status": "Pending",
+        "returnStatus": "Refund Initiated",
         "requestedAt": "2026-01-10T11:20:00",
+        "trackingDetails": {
+            "trackingId": "630123456789",
+            "deliveryStatus": "Pickup scheduled",
+            "expectedDeliveryDate": "20 Jan",
+            "deliveryPartner": "Blue Dart"
+        },
         "orderDetails": {
             "orderId": "ORD-1001",
             "orderStatus": "Delivered",
@@ -16,9 +23,22 @@
             "sku": "SK-MW-11",
             "variant": "30x15",
             "quantity": 1,
-            "price": 4500
+            "price": 4500,
+            "images": [
+                "https://cdn.example.com/products/metal-leaf-1.jpg",
+                "https://cdn.example.com/products/metal-leaf-2.jpg"
+            ]
         },
         "returnReason": "Poor build quality",
+        "returnProof": {
+            "images": [
+                "https://cdn.example.com/returns/RE-CW-2401-1.jpg",
+                "https://cdn.example.com/returns/RE-CW-2401-2.jpg",
+                "https://cdn.example.com/products/metal-leaf-3.jpg",
+                "https://cdn.example.com/products/metal-leaf-4`.jpg",
+                "https://cdn.example.com/products/metal-leaf-5.jpg"
+            ]
+        },
         "customerDetails": {
             "name": "Amit Iyer",
             "customerId": "CX-1001",
@@ -31,7 +51,14 @@
         "returnId": "RE-CW-2402",
         "type": "Exchange",
         "status": "Pending",
+        "returnStatus": "Exchange Initiated",
         "requestedAt": "2026-01-11T10:45:00",
+        "trackingDetails": {
+            "trackingId": "630123456790",
+            "deliveryStatus": "Pickup scheduled",
+            "expectedDeliveryDate": "21 Jan",
+            "deliveryPartner": "Blue Dart"
+        },
         "orderDetails": {
             "orderId": "ORD-1002",
             "orderStatus": "Delivered",
@@ -44,13 +71,24 @@
             "sku": "SK-MD-21",
             "variant": "Black | 24x12",
             "quantity": 1,
-            "price": 3200
+            "price": 3200,
+            "images": [
+                "https://cdn.example.com/products/mandala-black.jpg"
+            ]
         },
         "returnReason": "Want different color",
         "exchangeDetails": {
             "newOrderId": "ORD-2002",
             "newPrice": 3500,
-            "shippingCost": 100
+            "shippingCost": 100,
+            "exchangedItem": {
+                "productName": "Mandala Wall Decor",
+                "variant": "Gold | 24x12",
+                "price": 3500,
+                "images": [
+                    "https://cdn.example.com/products/mandala-gold.jpg"
+                ]
+            }
         },
         "customerDetails": {
             "name": "Rohit Sharma",
@@ -63,8 +101,15 @@
     {
         "returnId": "RE-CW-2403",
         "type": "Return",
-        "status": "Approved",
+        "status": "Pass",
+        "returnStatus": "Refunded",
         "requestedAt": "2026-01-12T14:10:00",
+        "trackingDetails": {
+            "trackingId": "630123456791",
+            "deliveryStatus": "Picked up",
+            "expectedDeliveryDate": "22 Jan",
+            "deliveryPartner": "Blue Dart"
+        },
         "orderDetails": {
             "orderId": "ORD-1003",
             "orderStatus": "Delivered",
@@ -77,9 +122,17 @@
             "sku": "SK-AM-09",
             "variant": "Gold | 20x10",
             "quantity": 1,
-            "price": 2800
+            "price": 2800,
+            "images": [
+                "https://cdn.example.com/products/abstract-gold.jpg"
+            ]
         },
         "returnReason": "Didn't like the product",
+        "returnProof": {
+            "images": [
+                "https://cdn.example.com/returns/RE-CW-2403.jpg"
+            ]
+        },
         "customerDetails": {
             "name": "Neha Verma",
             "customerId": "CX-1003",
@@ -92,7 +145,14 @@
         "returnId": "RE-CW-2404",
         "type": "Exchange",
         "status": "Pending",
+        "returnStatus": "Exchange Initiated",
         "requestedAt": "2026-01-13T16:30:00",
+        "trackingDetails": {
+            "trackingId": "630123456792",
+            "deliveryStatus": "In transit",
+            "expectedDeliveryDate": "25 Jan",
+            "deliveryPartner": "Blue Dart"
+        },
         "orderDetails": {
             "orderId": "ORD-1004",
             "orderStatus": "Delivered",
@@ -105,13 +165,24 @@
             "sku": "SK-PW-18",
             "variant": "Blue | 36x18",
             "quantity": 1,
-            "price": 5200
+            "price": 5200,
+            "images": [
+                "https://cdn.example.com/products/peacock-blue.jpg"
+            ]
         },
         "returnReason": "Damaged product",
         "exchangeDetails": {
             "newOrderId": "ORD-2004",
             "newPrice": 5200,
-            "shippingCost": 0
+            "shippingCost": 0,
+            "exchangedItem": {
+                "productName": "Peacock Metal Wall Art",
+                "variant": "Green | 36x18",
+                "price": 5200,
+                "images": [
+                    "https://cdn.example.com/products/peacock-green.jpg"
+                ]
+            }
         },
         "customerDetails": {
             "name": "Suresh Kumar",
@@ -124,8 +195,15 @@
     {
         "returnId": "RE-CW-2405",
         "type": "Return",
-        "status": "Rejected",
+        "status": "Fail",
+        "returnStatus": "Rejected",
         "requestedAt": "2026-01-14T09:40:00",
+        "trackingDetails": {
+            "trackingId": "630123456793",
+            "deliveryStatus": "Out for delivery",
+            "expectedDeliveryDate": "28 Jan",
+            "deliveryPartner": "Blue Dart"
+        },
         "orderDetails": {
             "orderId": "ORD-1005",
             "orderStatus": "Delivered",
@@ -138,7 +216,10 @@
             "sku": "SK-GW-07",
             "variant": "Black | 18x18",
             "quantity": 1,
-            "price": 1800
+            "price": 1800,
+            "images": [
+                "https://cdn.example.com/products/geometric-black.jpg"
+            ]
         },
         "returnReason": "Ordered by mistake",
         "customerDetails": {
@@ -152,8 +233,15 @@
     {
         "returnId": "RE-CW-2406",
         "type": "Exchange",
-        "status": "Approved",
+        "status": "Pass",
+        "returnStatus": "Exchanged",
         "requestedAt": "2026-01-15T13:00:00",
+        "trackingDetails": {
+            "trackingId": "630123456794",
+            "deliveryStatus": "In transit",
+            "expectedDeliveryDate": "26 Jan",
+            "deliveryPartner": "Blue Dart"
+        },
         "orderDetails": {
             "orderId": "ORD-1006",
             "orderStatus": "Delivered",
@@ -166,13 +254,24 @@
             "sku": "SK-TL-12",
             "variant": "Brown | 30x30",
             "quantity": 1,
-            "price": 3900
+            "price": 3900,
+            "images": [
+                "https://cdn.example.com/products/tree-brown.jpg"
+            ]
         },
         "returnReason": "Product not as described",
         "exchangeDetails": {
             "newOrderId": "ORD-2006",
             "newPrice": 4200,
-            "shippingCost": 150
+            "shippingCost": 150,
+            "exchangedItem": {
+                "productName": "Tree of Life Wall Art",
+                "variant": "Black | 30x30",
+                "price": 4200,
+                "images": [
+                    "https://cdn.example.com/products/tree-black.jpg"
+                ]
+            }
         },
         "customerDetails": {
             "name": "Karan Malhotra",
@@ -186,150 +285,409 @@
         "returnId": "RE-CW-2407",
         "type": "Return",
         "status": "Pending",
-        "requestedAt": "2026-01-16T10:15:00",
+        "returnStatus": "Refund Initiated",
+        "requestedAt": "2026-01-16T11:00:00",
+        "trackingDetails": {
+            "trackingId": "630123456795",
+            "deliveryStatus": "Pickup scheduled",
+            "expectedDeliveryDate": "30 Jan",
+            "deliveryPartner": "Blue Dart"
+        },
         "orderDetails": {
             "orderId": "ORD-1007",
             "orderStatus": "Delivered",
             "paymentStatus": "Paid",
             "orderDate": "2026-01-14",
-            "totalAmount": 2600
+            "totalAmount": 2500
         },
         "item": {
-            "productName": "Lotus Metal Wall Art",
-            "sku": "SK-LT-22",
+            "productName": "Sunburst Wall Art",
+            "sku": "SK-SW-10",
             "variant": "Gold | 24x24",
             "quantity": 1,
-            "price": 2600
+            "price": 2500,
+            "images": [
+                "https://cdn.example.com/products/sunburst-gold.jpg"
+            ]
         },
-        "returnReason": "No longer needed",
+        "returnReason": "Damaged product",
+        "returnProof": {
+            "images": [
+                "https://cdn.example.com/returns/RE-CW-2407.jpg"
+            ]
+        },
         "customerDetails": {
-            "name": "Anjali Mehta",
+            "name": "Anita Rao",
             "customerId": "CX-1007",
-            "phone": "+91 9871203456",
-            "email": "anjali.mehta@gmail.com",
-            "address": "Ahmedabad, Gujarat, India"
+            "phone": "+91 9871122334",
+            "email": "anita.rao@gmail.com",
+            "address": "Bengaluru, Karnataka, India"
         }
     },
     {
         "returnId": "RE-CW-2408",
         "type": "Exchange",
         "status": "Pending",
-        "requestedAt": "2026-01-16T15:40:00",
+        "returnStatus": "Exchange Initiated",
+        "requestedAt": "2026-01-17T10:00:00",
+        "trackingDetails": {
+            "trackingId": "630123456796",
+            "deliveryStatus": "Pickup scheduled",
+            "expectedDeliveryDate": "31 Jan",
+            "deliveryPartner": "Blue Dart"
+        },
         "orderDetails": {
             "orderId": "ORD-1008",
-            "orderStatus": "Delivered",
-            "paymentStatus": "Paid",
-            "orderDate": "2026-01-14",
-            "totalAmount": 4800
-        },
-        "item": {
-            "productName": "Sun Face Metal Art",
-            "sku": "SK-SF-10",
-            "variant": "Rust | 32x32",
-            "quantity": 1,
-            "price": 4800
-        },
-        "returnReason": "Want a different size",
-        "exchangeDetails": {
-            "newOrderId": "ORD-2008",
-            "newPrice": 5200,
-            "shippingCost": 200
-        },
-        "customerDetails": {
-            "name": "Vikas Arora",
-            "customerId": "CX-1008",
-            "phone": "+91 9811122233",
-            "email": "vikas.arora@gmail.com",
-            "address": "Faridabad, Haryana, India"
-        }
-    },
-    {
-        "returnId": "RE-CW-2409",
-        "type": "Return",
-        "status": "Approved",
-        "requestedAt": "2026-01-17T09:55:00",
-        "orderDetails": {
-            "orderId": "ORD-1009",
             "orderStatus": "Delivered",
             "paymentStatus": "Paid",
             "orderDate": "2026-01-15",
             "totalAmount": 3100
         },
         "item": {
-            "productName": "Birds on Branch Wall Decor",
-            "sku": "SK-BB-14",
-            "variant": "Black | 28x14",
+            "productName": "Lotus Wall Decor",
+            "sku": "SK-LD-15",
+            "variant": "Silver | 20x20",
             "quantity": 1,
-            "price": 3100
+            "price": 3100,
+            "images": [
+                "https://cdn.example.com/products/lotus-silver.jpg"
+            ]
         },
-        "returnReason": "Quality not as expected",
+        "returnReason": "Wrong color",
+        "exchangeDetails": {
+            "newOrderId": "ORD-2008",
+            "newPrice": 3200,
+            "shippingCost": 100,
+            "exchangedItem": {
+                "productName": "Lotus Wall Decor",
+                "variant": "Gold | 20x20",
+                "price": 3200,
+                "images": [
+                    "https://cdn.example.com/products/lotus-gold.jpg"
+                ]
+            }
+        },
         "customerDetails": {
-            "name": "Sneha Kulkarni",
-            "customerId": "CX-1009",
-            "phone": "+91 9822334455",
-            "email": "sneha.k@gmail.com",
+            "name": "Vikram Singh",
+            "customerId": "CX-1008",
+            "phone": "+91 9988223344",
+            "email": "vikram.s@gmail.com",
             "address": "Pune, Maharashtra, India"
+        }
+    },
+    {
+        "returnId": "RE-CW-2409",
+        "type": "Return",
+        "status": "Pass",
+        "returnStatus": "Refunded",
+        "requestedAt": "2026-01-18T12:00:00",
+        "trackingDetails": {
+            "trackingId": "630123456797",
+            "deliveryStatus": "Picked up",
+            "expectedDeliveryDate": "2 Feb",
+            "deliveryPartner": "Blue Dart"
+        },
+        "orderDetails": {
+            "orderId": "ORD-1009",
+            "orderStatus": "Delivered",
+            "paymentStatus": "Paid",
+            "orderDate": "2026-01-16",
+            "totalAmount": 2800
+        },
+        "item": {
+            "productName": "Moonlight Wall Art",
+            "sku": "SK-MW-20",
+            "variant": "Silver | 24x24",
+            "quantity": 1,
+            "price": 2800,
+            "images": [
+                "https://cdn.example.com/products/moonlight-silver.jpg"
+            ]
+        },
+        "returnReason": "Damaged product",
+        "returnProof": {
+            "images": [
+                "https://cdn.example.com/returns/RE-CW-2409.jpg"
+            ]
+        },
+        "customerDetails": {
+            "name": "Priya Desai",
+            "customerId": "CX-1009",
+            "phone": "+91 9877766554",
+            "email": "priya.desai@gmail.com",
+            "address": "Mumbai, Maharashtra, India"
         }
     },
     {
         "returnId": "RE-CW-2410",
         "type": "Exchange",
-        "status": "Approved",
-        "requestedAt": "2026-01-17T18:20:00",
+        "status": "Pass",
+        "returnStatus": "Exchanged",
+        "requestedAt": "2026-01-19T14:00:00",
+        "trackingDetails": {
+            "trackingId": "630123456798",
+            "deliveryStatus": "In transit",
+            "expectedDeliveryDate": "4 Feb",
+            "deliveryPartner": "Blue Dart"
+        },
         "orderDetails": {
             "orderId": "ORD-1010",
             "orderStatus": "Delivered",
             "paymentStatus": "Paid",
-            "orderDate": "2026-01-15",
-            "totalAmount": 3600
+            "orderDate": "2026-01-17",
+            "totalAmount": 3500
         },
         "item": {
-            "productName": "Ganesha Metal Wall Hanging",
-            "sku": "SK-GN-05",
-            "variant": "Copper | 20x30",
+            "productName": "Floral Wall Decor",
+            "sku": "SK-FD-25",
+            "variant": "Gold | 18x18",
             "quantity": 1,
-            "price": 3600
+            "price": 3500,
+            "images": [
+                "https://cdn.example.com/products/floral-gold.jpg"
+            ]
         },
-        "returnReason": "Received damaged item",
+        "returnReason": "Wrong variant",
         "exchangeDetails": {
             "newOrderId": "ORD-2010",
             "newPrice": 3600,
-            "shippingCost": 0
+            "shippingCost": 100,
+            "exchangedItem": {
+                "productName": "Floral Wall Decor",
+                "variant": "Silver | 18x18",
+                "price": 3600,
+                "images": [
+                    "https://cdn.example.com/products/floral-silver.jpg"
+                ]
+            }
         },
         "customerDetails": {
-            "name": "Ravi Patel",
+            "name": "Rahul Mehta",
             "customerId": "CX-1010",
-            "phone": "+91 9900112233",
-            "email": "ravi.patel@gmail.com",
-            "address": "Surat, Gujarat, India"
+            "phone": "+91 9988112233",
+            "email": "rahul.mehta@gmail.com",
+            "address": "Hyderabad, Telangana, India"
         }
     },
     {
         "returnId": "RE-CW-2411",
         "type": "Return",
-        "status": "Rejected",
-        "requestedAt": "2026-01-18T12:05:00",
+        "status": "Fail",
+        "returnStatus": "Rejected",
+        "requestedAt": "2026-01-20T09:30:00",
+        "trackingDetails": {
+            "trackingId": "630123456799",
+            "deliveryStatus": "Out for delivery",
+            "expectedDeliveryDate": "6 Feb",
+            "deliveryPartner": "Blue Dart"
+        },
         "orderDetails": {
             "orderId": "ORD-1011",
             "orderStatus": "Delivered",
             "paymentStatus": "Paid",
-            "orderDate": "2026-01-16",
-            "totalAmount": 2100
+            "orderDate": "2026-01-18",
+            "totalAmount": 2200
         },
         "item": {
-            "productName": "Minimal Line Art Frame",
-            "sku": "SK-ML-03",
-            "variant": "White | 16x20",
+            "productName": "Vintage Wall Frame",
+            "sku": "SK-VW-30",
+            "variant": "Brown | 20x20",
             "quantity": 1,
-            "price": 2100
+            "price": 2200,
+            "images": [
+                "https://cdn.example.com/products/vintage-brown.jpg"
+            ]
         },
-        "returnReason": "Return window expired",
+        "returnReason": "Ordered by mistake",
         "customerDetails": {
-            "name": "Divya Nair",
+            "name": "Sonal Kapoor",
             "customerId": "CX-1011",
-            "phone": "+91 9846012345",
-            "email": "divya.nair@gmail.com",
-            "address": "Kochi, Kerala, India"
+            "phone": "+91 9875544332",
+            "email": "sonal.k@gmail.com",
+            "address": "Chennai, India"
+        }
+    },
+    {
+        "returnId": "RE-CW-2412",
+        "type": "Exchange",
+        "status": "Pending",
+        "returnStatus": "Exchange Initiated",
+        "requestedAt": "2026-01-21T11:00:00",
+        "trackingDetails": {
+            "trackingId": "630123456800",
+            "deliveryStatus": "Pickup scheduled",
+            "expectedDeliveryDate": "8 Feb",
+            "deliveryPartner": "Blue Dart"
+        },
+        "orderDetails": {
+            "orderId": "ORD-1012",
+            "orderStatus": "Delivered",
+            "paymentStatus": "Paid",
+            "orderDate": "2026-01-19",
+            "totalAmount": 3100
+        },
+        "item": {
+            "productName": "Modern Wall Art",
+            "sku": "SK-MA-35",
+            "variant": "White | 24x24",
+            "quantity": 1,
+            "price": 3100,
+            "images": [
+                "https://cdn.example.com/products/modern-white.jpg"
+            ]
+        },
+        "returnReason": "Wrong size",
+        "exchangeDetails": {
+            "newOrderId": "ORD-2012",
+            "newPrice": 3200,
+            "shippingCost": 100,
+            "exchangedItem": {
+                "productName": "Modern Wall Art",
+                "variant": "Black | 24x24",
+                "price": 3200,
+                "images": [
+                    "https://cdn.example.com/products/modern-black.jpg"
+                ]
+            }
+        },
+        "customerDetails": {
+            "name": "Manish Gupta",
+            "customerId": "CX-1012",
+            "phone": "+91 9988221100",
+            "email": "manish.g@gmail.com",
+            "address": "Kolkata, India"
+        }
+    },
+    {
+        "returnId": "RE-CW-2413",
+        "type": "Return",
+        "status": "Pass",
+        "returnStatus": "Refunded",
+        "requestedAt": "2026-01-22T12:30:00",
+        "trackingDetails": {
+            "trackingId": "630123456801",
+            "deliveryStatus": "Picked up",
+            "expectedDeliveryDate": "10 Feb",
+            "deliveryPartner": "Blue Dart"
+        },
+        "orderDetails": {
+            "orderId": "ORD-1013",
+            "orderStatus": "Delivered",
+            "paymentStatus": "Paid",
+            "orderDate": "2026-01-20",
+            "totalAmount": 2700
+        },
+        "item": {
+            "productName": "Artistic Wall Decor",
+            "sku": "SK-AW-40",
+            "variant": "Blue | 20x20",
+            "quantity": 1,
+            "price": 2700,
+            "images": [
+                "https://cdn.example.com/products/artistic-blue.jpg"
+            ]
+        },
+        "returnReason": "Damaged product",
+        "returnProof": {
+            "images": [
+                "https://cdn.example.com/returns/RE-CW-2413.jpg"
+            ]
+        },
+        "customerDetails": {
+            "name": "Rita Nair",
+            "customerId": "CX-1013",
+            "phone": "+91 9876612345",
+            "email": "rita.nair@gmail.com",
+            "address": "Ahmedabad, Gujarat, India"
+        }
+    },
+    {
+        "returnId": "RE-CW-2414",
+        "type": "Exchange",
+        "status": "Pending",
+        "returnStatus": "Exchange Initiated",
+        "requestedAt": "2026-01-23T14:00:00",
+        "trackingDetails": {
+            "trackingId": "630123456802",
+            "deliveryStatus": "Pickup scheduled",
+            "expectedDeliveryDate": "12 Feb",
+            "deliveryPartner": "Blue Dart"
+        },
+        "orderDetails": {
+            "orderId": "ORD-1014",
+            "orderStatus": "Delivered",
+            "paymentStatus": "Paid",
+            "orderDate": "2026-01-21",
+            "totalAmount": 3300
+        },
+        "item": {
+            "productName": "Classic Wall Frame",
+            "sku": "SK-CF-45",
+            "variant": "Brown | 24x24",
+            "quantity": 1,
+            "price": 3300,
+            "images": [
+                "https://cdn.example.com/products/classic-brown.jpg"
+            ]
+        },
+        "returnReason": "Wrong variant",
+        "exchangeDetails": {
+            "newOrderId": "ORD-2014",
+            "newPrice": 3400,
+            "shippingCost": 100,
+            "exchangedItem": {
+                "productName": "Classic Wall Frame",
+                "variant": "Black | 24x24",
+                "price": 3400,
+                "images": [
+                    "https://cdn.example.com/products/classic-black.jpg"
+                ]
+            }
+        },
+        "customerDetails": {
+            "name": "Vikas Jain",
+            "customerId": "CX-1014",
+            "phone": "+91 9988112234",
+            "email": "vikas.j@gmail.com",
+            "address": "Lucknow, UP, India"
+        }
+    },
+    {
+        "returnId": "RE-CW-2415",
+        "type": "Return",
+        "status": "Fail",
+        "returnStatus": "Rejected",
+        "requestedAt": "2026-01-24T10:30:00",
+        "trackingDetails": {
+            "trackingId": "630123456803",
+            "deliveryStatus": "Out for delivery",
+            "expectedDeliveryDate": "14 Feb",
+            "deliveryPartner": "Blue Dart"
+        },
+        "orderDetails": {
+            "orderId": "ORD-1015",
+            "orderStatus": "Delivered",
+            "paymentStatus": "Paid",
+            "orderDate": "2026-01-22",
+            "totalAmount": 2400
+        },
+        "item": {
+            "productName": "Contemporary Wall Art",
+            "sku": "SK-CW-50",
+            "variant": "White | 20x20",
+            "quantity": 1,
+            "price": 2400,
+            "images": [
+                "https://cdn.example.com/products/contemporary-white.jpg"
+            ]
+        },
+        "returnReason": "Ordered by mistake",
+        "customerDetails": {
+            "name": "Sunita Reddy",
+            "customerId": "CX-1015",
+            "phone": "+91 9877001122",
+            "email": "sunita.r@gmail.com",
+            "address": "Bhopal, MP, India"
         }
     }
 ]
