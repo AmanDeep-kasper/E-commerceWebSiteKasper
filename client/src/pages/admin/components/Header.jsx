@@ -40,19 +40,19 @@ function Header({ isCollapsed }) {
   const [adminDetails, setAdminDetails] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchAdmin = async () => {
-      try {
-        const res = await axiosInstance.get("/users/me");
-        setAdminDetails(res.data);
-      } catch (error) {
-        console.error("Failed to fetch admin details", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchAdmin();
-  }, []);
+  // useEffect(() => {
+  //   const fetchAdmin = async () => {
+  //     try {
+  //       const res = await axiosInstance.get("/users/me");
+  //       setAdminDetails(res.data);
+  //     } catch (error) {
+  //       console.error("Failed to fetch admin details", error);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+  //   fetchAdmin();
+  // }, []);
 
   // console.log(adminDetails);
   return (

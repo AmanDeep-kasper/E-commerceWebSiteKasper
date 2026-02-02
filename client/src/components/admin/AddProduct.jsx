@@ -84,7 +84,7 @@ const AddProduct = () => {
   useEffect(() => {
     if (uuid) {
       const productToEdit = product.find(
-        (p) => p.uuid.toLowerCase() === uuid.toLowerCase()
+        (p) => p.uuid.toLowerCase() === uuid.toLowerCase(),
       );
 
       if (productToEdit) {
@@ -293,8 +293,8 @@ const AddProduct = () => {
       const uniqueFiles = compressedFiles.filter(
         (file) =>
           !existingImages.some(
-            (img) => img.name === file.name && img.size === file.size
-          )
+            (img) => img.name === file.name && img.size === file.size,
+          ),
       );
 
       updatedVariants[index].variantImage = [
@@ -528,7 +528,7 @@ const AddProduct = () => {
           headers: {
             "Content-Type": "multipart/form-data",
           },
-        }
+        },
       );
 
       console.log("SERVER RESPONSE:", response.data);
@@ -541,7 +541,7 @@ const AddProduct = () => {
           position: "top-right",
           autoClose: 2000,
           className: "bg-[#EEFFEF] text-black rounded-lg",
-        }
+        },
       );
 
       localStorage.setItem("addProductForm", JSON.stringify(formDataWithUUID));
@@ -767,7 +767,7 @@ const AddProduct = () => {
 
     // close form if no variants left
     setItemsOpenVar((prevOpen) =>
-      formData.variants.length - 1 === 0 ? false : prevOpen
+      formData.variants.length - 1 === 0 ? false : prevOpen,
     );
   };
 
@@ -821,7 +821,7 @@ const AddProduct = () => {
       /> */}
 
       <form
-        className="rounded-md min-h-screen"
+        className="p-[24px] bg-[#F6F8F9] min-h-screen"
         onSubmit={handleSubmit}
         encType="multipart/form-data"
       >
@@ -867,8 +867,8 @@ const AddProduct = () => {
               isCompleted
                 ? "bg-[#CBFFC5] text-[#00A63E]"
                 : isActive
-                ? "bg-[#FFFFFF] text-[#1C3753] border border-1"
-                : "bg-gray-200 text-gray-600"
+                  ? "bg-[#FFFFFF] text-[#1C3753] border border-1"
+                  : "bg-gray-200 text-gray-600"
             }`}
                   >
                     {isCompleted ? <LucideCheck size={16} /> : item.id}
@@ -892,6 +892,8 @@ const AddProduct = () => {
           {/* Basic Details Section */}
           {step === 1 && (
             <>
+              {/* start */}
+
               <div className="bg-white rounded-2xl border p-4 h-full flex flex-col">
                 {/* Header */}
                 <h2 className="text-[18px] font-medium font-['Inter'] mb-4">
@@ -902,15 +904,19 @@ const AddProduct = () => {
                 <div className="flex flex-col gap-5 flex-1">
                   {/* Product Title */}
                   <div>
-                    <label className="block text-black text-[14px] mb-2">
-                      Enter Product Name
-                    </label>
+                    <div className="flex items-start gap-1">
+                      {" "}
+                      <label className="block text-black text-[14px] mb-2">
+                        Product Name
+                      </label>
+                      <span className="">*</span>
+                    </div>
                     <input
                       type="text"
                       name="title"
                       value={formData.title}
                       onChange={handleChange}
-                      placeholder="Product Name"
+                      placeholder="Enter product name"
                       className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-3
           text-[#686868] text-sm bg-[#F8FAFB] placeholder-[#686868]
           focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-[#686868] "
@@ -920,70 +926,90 @@ const AddProduct = () => {
                   {/* Description */}
                   <div className="flex flex-col flex-1">
                     <label className="block text-black text-[14px] font-normal mb-2">
-                      Write a description of the product
+                      Description
                     </label>
                     <textarea
-                      placeholder="Description"
+                      placeholder="Write a description of the product"
                       name="description"
                       value={formData.description}
                       onChange={handleChange}
                       className="w-full flex-1 min-h-[120px] border border-[#D0D0D0] rounded-lg px-3 py-2
           text-[#686868] text-sm bg-[#F8FAFB] placeholder-[#686868]
-          focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 resize-none"
+          focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 resize-none "
                     />
                   </div>
                 </div>
               </div>
-              <div className="bg-white rounded-2xl p-4 border">
-                <h2 className="text-black text-[18px] font-medium mb-4">
-                  Product Category
-                </h2>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-2 lg:grid-cols-1 gap-6">
-                  <div>
-                    <label className="block text-black text-[14px] mb-2">
-                      Category
-                    </label>
-                    <input
-                      type="text"
-                      name="category"
-                      value={formData.category}
-                      onChange={handleChange}
-                      placeholder="Enter Category"
-                      className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-3
-          text-[#6B6B6B] text-sm bg-[#F8FAFB] placeholder-[#686868]
-          focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400"
-                    />
+              {/* Product   */}
+              <div className="flex flex-col space-y-3">
+                <div className="bg-white rounded-2xl p-4 border">
+                  <h2 className="text-black text-[18px] font-medium mb-4">
+                    Product Status
+                  </h2>
+                  <div className="flex items-center justify-start gap-4">
+                    <div className="flex items-center gap-3">
+                      <input type="radio" id="Active" name="status" />
+                      <label htmlFor="Active">Active</label>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <input type="radio" id="Archived" name="status" />
+                      <label htmlFor="Archived">Archived</label>
+                    </div>
                   </div>
-                  <div>
-                    <label className="block text-black text-[14px] mb-2">
-                      Sub-Category
-                    </label>
-                    <input
-                      type="text"
-                      name="subcategory"
-                      value={formData.subcategory}
-                      onChange={handleChange}
-                      placeholder="Enter Sub-Category"
-                      className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-3
+                </div>
+
+                <div className="bg-white rounded-2xl p-4 border">
+                  <h2 className="text-black text-[18px] font-medium mb-4">
+                    Product Classification
+                  </h2>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-2 lg:grid-cols-1 gap-6">
+                    <div>
+                      <label className="block text-black text-[14px] mb-2">
+                        Category <span className="text-[#D53B35]">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        name="category"
+                        value={formData.category}
+                        onChange={handleChange}
+                        placeholder="Select category"
+                        className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-3
           text-[#6B6B6B] text-sm bg-[#F8FAFB] placeholder-[#686868]
           focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-black text-[14px] mb-2">
-                      Material
-                    </label>
-                    <input
-                      type="text"
-                      name="materialType"
-                      value={formData.materialType}
-                      onChange={handleChange}
-                      placeholder="Enter Material"
-                      className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-3
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-black text-[14px] mb-2">
+                        Sub-Category
+                      </label>
+                      <input
+                        type="text"
+                        name="subcategory"
+                        value={formData.subcategory}
+                        onChange={handleChange}
+                        placeholder="Select sub-category"
+                        className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-3
           text-[#6B6B6B] text-sm bg-[#F8FAFB] placeholder-[#686868]
           focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400"
-                    />
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-black text-[14px] mb-2">
+                        Material
+                      </label>
+                      <input
+                        type="text"
+                        name="materialType"
+                        value={formData.materialType}
+                        onChange={handleChange}
+                        placeholder="Enter material"
+                        className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-3
+          text-[#6B6B6B] text-sm bg-[#F8FAFB] placeholder-[#686868]
+          focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1001,7 +1027,7 @@ const AddProduct = () => {
                 <div className="mb-6">
                   <div>
                     <label className="block text-sm font-normal mb-2">
-                      Product Color
+                      Product Color <span className="text-[#D53B35]">*</span>
                     </label>
                     <input
                       type="number"
@@ -1137,7 +1163,7 @@ const AddProduct = () => {
               </div>
 
               <div className="bg-white rounded-2xl p-4 border">
-                <h1 className="text-[16px] font-medium mb-3">Upload Images</h1>
+                <h1 className="text-[16px] font-medium mb-3">Upload Images <span>*</span></h1>
 
                 {/* Thumbnails */}
                 {formData.images.length > 0 && (
@@ -1279,7 +1305,7 @@ const AddProduct = () => {
                   {/* Sub Category */}
                   <div>
                     <label className="block text-sm font-normal mb-2">
-                      Low stock alert
+                      Low stock alert <span className="text-[#D53B35]">*</span>
                     </label>
                     <input
                       type="number"
@@ -1291,7 +1317,7 @@ const AddProduct = () => {
                     />
                   </div>
                   <div ref={dropdownRefCategory}>
-                    <div className="relative inline-block w-full">
+                    {/* <div className="relative inline-block w-full">
                       <label className="block text-sm font-normal mb-2">
                         Limit per Order
                       </label>
@@ -1337,7 +1363,7 @@ const AddProduct = () => {
                           ))}
                         </ul>
                       )}
-                    </div>
+                    </div> */}
                   </div>
                 </div>
               </div>
