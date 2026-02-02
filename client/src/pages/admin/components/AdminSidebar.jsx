@@ -47,12 +47,7 @@ function AdminSidebar({ isCollapsed, setIsCollapsed }) {
         )} */}
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
-<<<<<<< HEAD
-          className="p-2 absolute border  -right-4 top-0  rounded-full hover:bg-[#FFFFFF] text-[#686868] hover:text-[#1C3753] transition-colors"
-        >
-=======
           className="p-2 absolute border -right-4 top-0 bg-[#FFFFFF]  rounded-full hover:bg-[#F5F8FA] text-[#686868] hover:text-[#1C3753] transition-colors">
->>>>>>> 378de83a1110938fb4215e1d67fa06a9c1cac6fd
           <BsLayoutSidebar
             className={`transform ${
               isCollapsed ? "rotate-180" : ""
@@ -72,16 +67,9 @@ function AdminSidebar({ isCollapsed, setIsCollapsed }) {
               isCollapsed ? "justify-center" : ""
             } gap-3 p-3 mb-1 rounded-lg transition-all duration-200 ${
               isActive(path)
-<<<<<<< HEAD
-                ? "bg-white text-[#1C3753]  border-l-4 border-l-[#1C3753]"
-                : "text-[#686868] hover:bg-[#FFFFFF] hover:text-[#1C3753]"
-            }`}
-          >
-=======
                 ? "bg-[#F5F8FA] text-[#1C3753]  border-l-4 border-l-[#1C3753]"
                 : "text-[#686868] hover:bg-[#F5F8FA] hover:text-[#1C3753]"
             }`}>
->>>>>>> 378de83a1110938fb4215e1d67fa06a9c1cac6fd
             <Icon size={20} />
             {!isCollapsed && <span className="font-medium">{name}</span>}
           </Link>
@@ -89,12 +77,7 @@ function AdminSidebar({ isCollapsed, setIsCollapsed }) {
       </nav>
 
       {/* Footer */}
-<<<<<<< HEAD
-      {/* <div className="mt-auto border-t border-gray-700 pt-4"> */}
-      <div className="mt-auto border-gray-700 pt-4">
-=======
       <div className="mt-auto  px-4 pt-4">
->>>>>>> 378de83a1110938fb4215e1d67fa06a9c1cac6fd
         <Link
           to="/admin/settings/general"
           className="flex items-center gap-3 p-2 mb-1 rounded-lg text-[#686868] hover:bg-[#FFFFFF]  hover:text-[#686868] transition-colors">
@@ -102,19 +85,10 @@ function AdminSidebar({ isCollapsed, setIsCollapsed }) {
           {!isCollapsed && <span className="font-medium">Settings</span>}
         </Link>
 
-<<<<<<< HEAD
-        {/* <Link to="/admin/login"> */}
-          <button className="flex items-center gap-3 p-3 w-full rounded-lg text-[#686868] hover:bg-[#FFFFFF] hover:text-[#686868] transition-colors">
-            <LogOut size={20} />
-            {!isCollapsed && <span className="font-medium">Logout</span>}
-          </button>
-        {/* </Link> */}
-=======
         {/* <button className="flex items-center gap-3 p-3 w-full rounded-lg text-[#686868] hover:bg-[#FFFFFF] hover:text-[#686868] transition-colors">
           <LogOut size={20} />
           {!isCollapsed && <span className="font-medium">Logout</span>}
         </button> */}
->>>>>>> 378de83a1110938fb4215e1d67fa06a9c1cac6fd
       </div>
     </div>
   );

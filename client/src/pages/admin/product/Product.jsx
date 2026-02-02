@@ -244,36 +244,16 @@ import {
   CopyCheck,
   FunnelX,
 } from "lucide-react";
-<<<<<<< HEAD
-import { Link, useNavigate } from "react-router";
-import productService from "../../../services/productService";
-=======
 import { Link, useNavigate, useParams } from "react-router";
 import productData from "../../../data/products.json";
 // import axiosInstance from "../../../api/axiosInstance";
 // import kpiCards from "./KpiCardProductlist";
 // import Active_product from "../../../assets/icons/Icon.png";
->>>>>>> 378de83a1110938fb4215e1d67fa06a9c1cac6fd
 
 const Products = () => {
   const [product, setProduct] = useState([]);
   const [loading, setLoading] = useState(true);
 
-<<<<<<< HEAD
-  useEffect(() => {
-    const fetchProduct = async () => {
-      try {
-        const data = await productService.getAllProducts();
-        setProduct(data);
-      } catch (error) {
-        console.error("Error fetching products:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchProduct();
-  }, []);
-=======
   // useEffect(() => {
   //   const fetchProduct = async () => {
   //     try {
@@ -297,7 +277,6 @@ const Products = () => {
       (p) => p.uuid && p.uuid.toLowerCase() === uuid.toLowerCase()
     );
   }, [productData, uuid]);
->>>>>>> 378de83a1110938fb4215e1d67fa06a9c1cac6fd
 
 
   //  Delete button + selected items
