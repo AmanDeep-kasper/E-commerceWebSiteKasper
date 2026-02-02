@@ -42,7 +42,7 @@ function AdminSidebar({ isCollapsed, setIsCollapsed }) {
           onClick={() => setIsCollapsed(!isCollapsed)}
           className="p-2 absolute border  -right-4 top-0  rounded-full hover:bg-[#FFFFFF] text-[#686868] hover:text-[#1C3753] transition-colors"
         >
-          <BsLayoutSidebar 
+          <BsLayoutSidebar
             className={`transform ${
               isCollapsed ? "rotate-180" : ""
             } transition-transform`}
@@ -62,7 +62,6 @@ function AdminSidebar({ isCollapsed, setIsCollapsed }) {
             } gap-3 p-3 mb-1 rounded-lg transition-all duration-200 ${
               isActive(path)
                 ? "bg-white text-[#1C3753]  border-l-4 border-l-[#1C3753]"
-
                 : "text-[#686868] hover:bg-[#FFFFFF] hover:text-[#1C3753]"
             }`}
           >
@@ -72,9 +71,9 @@ function AdminSidebar({ isCollapsed, setIsCollapsed }) {
         ))}
       </nav>
 
-
       {/* Footer */}
-      <div className="mt-auto border-t border-gray-700 pt-4">
+      {/* <div className="mt-auto border-t border-gray-700 pt-4"> */}
+      <div className="mt-auto border-gray-700 pt-4">
         <Link
           to="/admin/settings/general"
           className="flex items-center gap-3 p-3 mb-1 rounded-lg text-[#686868] hover:bg-[#FFFFFF]  hover:text-[#686868] transition-colors"
@@ -83,10 +82,12 @@ function AdminSidebar({ isCollapsed, setIsCollapsed }) {
           {!isCollapsed && <span className="font-medium">Settings</span>}
         </Link>
 
-        <button className="flex items-center gap-3 p-3 w-full rounded-lg text-[#686868] hover:bg-[#FFFFFF] hover:text-[#686868] transition-colors">
-          <LogOut size={20} />
-          {!isCollapsed && <span className="font-medium">Logout</span>}
-        </button>
+        {/* <Link to="/admin/login"> */}
+          <button className="flex items-center gap-3 p-3 w-full rounded-lg text-[#686868] hover:bg-[#FFFFFF] hover:text-[#686868] transition-colors">
+            <LogOut size={20} />
+            {!isCollapsed && <span className="font-medium">Logout</span>}
+          </button>
+        {/* </Link> */}
       </div>
     </div>
   );

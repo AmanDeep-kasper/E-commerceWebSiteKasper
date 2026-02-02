@@ -237,31 +237,26 @@ import {
   Trash2,
 } from "lucide-react";
 import { Link, useNavigate } from "react-router";
-// import productData from "../../../data/products.json";
-import axiosInstance from "../../../api/axiosInstance";
+import productService from "../../../services/productService";
 
 const Products = () => {
-  // const res = axiosInstance.get("/products/all")
-
-  // const all = res.data
-  //   const [products] = useState(all);
-
   const [product, setProduct] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const res = await axiosInstance.get("/products/all");
-        setProduct(res.data);
+        const data = await productService.getAllProducts();
+        setProduct(data);
       } catch (error) {
         console.error("Error fetching products:", error);
       } finally {
         setLoading(false);
       }
     };
-    fetchProduct()
+    fetchProduct();
   }, []);
+
 
   //  Delete button + selected items
   const [selectedItems, setSelectedItems] = useState([]);

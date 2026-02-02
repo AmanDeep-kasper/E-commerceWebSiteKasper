@@ -1,6 +1,7 @@
 import { Clock, Globe, Key, Mail, Phone, User } from "lucide-react";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router";
+import axiosInstance from "../../../api/axiosInstance";
 
 const InfoRow = ({ label, value, icon: Icon, verified }) => (
   <div className="flex flex-col gap-1 p-3 bg-gray-50 rounded-lg">
@@ -25,19 +26,36 @@ function AdminProfileSetting() {
     password: "********",
   };
 
+  const [adminDetails, setAdminDetails] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchAdmin = async () => {
+      try {
+        const res = await axiosInstance.get("/users/me");
+        setAdminDetails(res.data);
+      } catch (error) {
+        console.error("Failed to fetch admin details", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAdmin();
+  }, []);
+
   return (
     <div className=" bg-gray-50 text-gray-900 ">
       <div className="grid grid-cols-8 gap-4">
         {/* Left Profile Card */}
         <div className="bg-white col-span-2 border rounded-xl shadow-sm p-6 flex flex-col items-center text-center">
           <img
-            src="/name1.jpg"
+            src={adminDetails?.profileImage}
             alt="Rohit Sharma"
             className="w-16 h-16 rounded-full object-cover mb-3"
           />
-          <h3 className="text-sm font-medium">Rohit Sharma</h3>
-          <p className="text-xs text-gray-500">rohitsharma@gmail.com</p>
-          <p className="text-xs text-gray-400 mt-1">Joined Date: 12 Jan 2024</p>
+          <h3 className="text-sm font-medium">{adminDetails?.name}</h3>
+          <p className="text-xs text-gray-500">{adminDetails?.email}</p>
+          <p className="text-xs text-gray-400 mt-1">{adminDetails?.dateOfBirth}</p>
         </div>
 
         {/* Center Admin Settings */}
@@ -47,9 +65,9 @@ function AdminProfileSetting() {
             Admin Profile Setting
           </h2>
           <div className="grid grid-cols-2 gap-4 text-sm">
-            <InfoRow label="Full Name" value={admin.name} icon={User} />
-            <InfoRow label="Email Address" value={admin.email} icon={Mail} />
-            <InfoRow label="Phone Number" value={admin.phone} icon={Phone} />
+            <InfoRow label="Full Name" value={adminDetails?.name} icon={User} />
+            <InfoRow label="Email Address" value={adminDetails?.email} icon={Mail} />
+            <InfoRow label="Phone Number" value={adminDetails?.alternateMobile} icon={Phone} />
             <InfoRow label="Joined Date" value={admin.joined} icon={Clock} />
             <InfoRow label="Language" value={admin.language} icon={Globe} />
             <InfoRow label="Change Password" value={admin.name} icon={Key} />
@@ -57,7 +75,7 @@ function AdminProfileSetting() {
         </div>
 
         {/* Right Profile Card */}
-        <div className="bg-white col-span-2 border rounded-xl shadow-sm p-6 flex flex-col items-center text-center">
+        {/* <div className="bg-white col-span-2 border rounded-xl shadow-sm p-6 flex flex-col items-center text-center">
           <img
             src="/name1.jpg"
             alt="Rohit Sharma"
@@ -66,7 +84,7 @@ function AdminProfileSetting() {
           <h3 className="text-sm font-medium">Rohit Sharma</h3>
           <p className="text-xs text-gray-500">rohitsharma@gmail.com</p>
           <p className="text-xs text-gray-400 mt-1">Joined Date: 12 Jan 2024</p>
-        </div>
+        </div> */}
       </div>
       <div className="flex items-center gap-2 justify-end mt-6">
         <Link

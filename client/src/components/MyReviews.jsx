@@ -12,54 +12,54 @@ import {
 import EmptyState from "./EmptyState";
 
 const reviews = [
-  // {
-  //   name: "Adiyogi Shiva Metal Wall Art | Sculpture For Home Living Room ...",
-  //   rating: 5,
-  //   reviewTitle: "Awesome",
-  //   review:
-  //     "Absolutely beautiful! The detail in the metal is stunning and it looks elegant on our living room wall.",
-  //   image: img,
-  //   like: 0,
-  //   dislike: 0,
-  //   userName: "Admin",
-  //   date: "11 Jun 2025",
-  // },
-  // {
-  //   name: "Adiyogi Shiva Metal Wall Art | Sculpture For Home Living Room ...",
-  //   rating: 5,
-  //   reviewTitle: "Awesome",
-  //   review:
-  //     "Absolutely beautiful! The detail in the metal is stunning and it looks elegant on our living room wall.",
-  //   image: img,
-  //   like: 0,
-  //   dislike: 0,
-  //   userName: "Admin",
-  //   date: "11 Jun 2025",
-  // },
-  // {
-  //   name: "Adiyogi Shiva Metal Wall Art | Sculpture For Home Living Room ...",
-  //   rating: 5,
-  //   reviewTitle: "Awesome",
-  //   review:
-  //     "Absolutely beautiful! The detail in the metal is stunning and it looks elegant on our living room wall.",
-  //   image: img,
-  //   like: 0,
-  //   dislike: 0,
-  //   userName: "Admin",
-  //   date: "11 Jun 2025",
-  // },
-  // {
-  //   name: "Adiyogi Shiva Metal Wall Art | Sculpture For Home Living Room ...",
-  //   rating: 5,
-  //   reviewTitle: "Awesome",
-  //   review:
-  //     "Absolutely beautiful! The detail in the metal is stunning and it looks elegant on our living room wall.",
-  //   image: img,
-  //   like: 0,
-  //   dislike: 0,
-  //   userName: "Admin",
-  //   date: "11 Jun 2025",
-  // },
+  {
+    name: "Adiyogi Shiva Metal Wall Art | Sculpture For Home Living Room ...",
+    rating: 5,
+    reviewTitle: "Awesome",
+    review:
+      "Absolutely beautiful! The detail in the metal is stunning and it looks elegant on our living room wall.",
+    image: img,
+    like: 0,
+    dislike: 0,
+    userName: "Admin",
+    date: "11 Jun 2025",
+  },
+  {
+    name: "Adiyogi Shiva Metal Wall Art | Sculpture For Home Living Room ...",
+    rating: 5,
+    reviewTitle: "Awesome",
+    review:
+      "Absolutely beautiful! The detail in the metal is stunning and it looks elegant on our living room wall.",
+    image: img,
+    like: 0,
+    dislike: 0,
+    userName: "Admin",
+    date: "11 Jun 2025",
+  },
+  {
+    name: "Adiyogi Shiva Metal Wall Art | Sculpture For Home Living Room ...",
+    rating: 5,
+    reviewTitle: "Awesome",
+    review:
+      "Absolutely beautiful! The detail in the metal is stunning and it looks elegant on our living room wall.",
+    image: img,
+    like: 0,
+    dislike: 0,
+    userName: "Admin",
+    date: "11 Jun 2025",
+  },
+  {
+    name: "Adiyogi Shiva Metal Wall Art | Sculpture For Home Living Room ...",
+    rating: 5,
+    reviewTitle: "Awesome",
+    review:
+      "Absolutely beautiful! The detail in the metal is stunning and it looks elegant on our living room wall.",
+    image: img,
+    like: 0,
+    dislike: 0,
+    userName: "Admin",
+    date: "11 Jun 2025",
+  },
 ];
 
 function MyReviews({ totalItems = 0 }) {

@@ -18,8 +18,8 @@ router.put("/me", isAuthenticated, updateUserDetails);
 router.patch(
   "/me/profile-image",
   isAuthenticated,
-  uploadProfileImage,    // <-- FIXED
-  updateUserProfileImage
+  uploadProfileImage,   
+  updateUserProfileImage  
 );
 
 router.patch("/me/update-email", isAuthenticated, updateUserEmail);

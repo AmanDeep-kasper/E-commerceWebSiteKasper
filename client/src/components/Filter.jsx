@@ -81,6 +81,8 @@ function Filter({
     };
   }, [showModal]);
 
+
+  
   // 🟡 Shared content (used in both desktop + mobile)
   const FiltersContent = ({ isMobile = false }) => (
     <>
