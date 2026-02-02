@@ -23,8 +23,8 @@ function CustomerForm() {
   ];
 
   return (
-        <div className="h-max flex flex-col gap-4 overflow-y-auto bg-white border rounded-xl shadow-sm">
-          <div className="px-4 lg:px-6 pt-4 border-b">
+        <div className="p-6 bg-[#F6F8F9] min-h-screen">
+          {/* <div className="px-4 lg:px-6 pt-4 border-b">
             <nav className="flex gap-6 text-sm">
               {tabs.map((t) => (
                 <Link
@@ -40,7 +40,7 @@ function CustomerForm() {
                 </Link>
               ))}
             </nav>
-          </div>
+          </div> */}
           <Outlet />
         </div>
   );

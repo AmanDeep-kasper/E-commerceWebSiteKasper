@@ -42,40 +42,37 @@
 
 // export default Information;
 
-
-
 import React from "react";
-import { 
-  User, 
-  Phone, 
-  Mail, 
-  Calendar, 
-  Shield, 
-  CheckCircle, 
+import {
+  User,
+  Phone,
+  Mail,
+  Calendar,
+  Shield,
+  CheckCircle,
   Clock,
   CreditCard,
   Activity,
-  VenusAndMars
+  VenusAndMars,
 } from "lucide-react";
 import { Link, useOutletContext } from "react-router";
 
 const Card = ({ children, className = "" }) => (
-  <div className={`bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden ${className}`}>
+  <div
+    className={`bg-white  rounded-xl shadow-sm overflow-hidden ${className}`}>
     {children}
   </div>
 );
 
 const InfoRow = ({ label, value, icon: Icon, verified }) => (
-  <div className="flex flex-col gap-1 p-3 bg-gray-50 rounded-lg">
-    <div className="flex items-center gap-2 text-xs font-medium text-gray-500 uppercase tracking-wide">
-      {Icon && <Icon className="w-3.5 h-3.5" />}
+  <div className="flex flex-col gap-1 p-1 rounded-lg">
+    <div className="flex  items-center text-xs font-medium text-gray-500 tracking-wide">
+      {/* {Icon && <Icon className="w-3.5 h-3.5" />} */}
       <span>{label}</span>
     </div>
     <div className="flex items-center gap-2">
       <span className="text-sm font-medium text-gray-900">{value}</span>
-      {verified && (
-        <CheckCircle className="w-4 h-4 text-green-500" />
-      )}
+      {verified && <CheckCircle className="w-4 h-4 text-green-500" />}
     </div>
   </div>
 );
@@ -87,9 +84,12 @@ const StatusBadge = ({ status }) => {
     pending: "bg-yellow-100 text-yellow-800",
     suspended: "bg-red-100 text-red-800",
   };
-  
+
   return (
-    <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[status] || statusColors.inactive}`}>
+    <span
+      className={`px-2 py-1 rounded-full text-xs font-medium ${
+        statusColors[status] || statusColors.inactive
+      }`}>
       {status}
     </span>
   );
@@ -100,63 +100,53 @@ function Information() {
   const { customer } = useOutletContext();
   const formatDate = (dateString) => {
     if (!dateString) return "N/A";
-    const options = { year: 'numeric', month: 'short', day: 'numeric' };
+    const options = { year: "numeric", month: "short", day: "numeric" };
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
 
   return (
-    <div className="col-span-7">
-      <Card className="p-6">
-        <div className="flex justify-between items-center mb-6">
+    <>
+      <Card className="p-3">
+        <div className="flex justify-between items-center mb-2">
           <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-            <User className="w-5 h-5" />
-            Customer Information
+            Personal Details
           </h2>
-          <StatusBadge status={customer.status} />
         </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+        <div className=" gap-4">
           {/* Personal Information Section */}
-          <div className="space-y-3">
-            <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide border-b pb-2">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3">
+            {/* <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide border-b pb-2">
               Personal Details
-            </h3>
-            <InfoRow 
-              label="Customer ID" 
-              value={customer.id} 
-              icon={User}
-            />
-            <InfoRow 
-              label="Full Name" 
-              value={customer.name} 
-              icon={User}
-            />
-            <InfoRow 
-              label="Phone Number" 
-              value={customer.phone} 
-              icon={Phone}
-              verified={customer.phone_verified}
-            />
-            <InfoRow 
-              label="Email Address" 
-              value={customer.email} 
+            </h3> */}
+            {/* <InfoRow label="Customer ID" value={customer.id} icon={User} /> */}
+            <InfoRow label="Full Name" value={customer.name} icon={User} />
+            <InfoRow
+              label="Email"
+              value={customer.email}
               icon={Mail}
-              verified={customer.email_verified}
+              // verified={customer.email_verified}
             />
-            <InfoRow 
-              label="Gender" 
-              value={customer?.gender || "Male"} 
+            <InfoRow
+              label="Phone Number"
+              value={customer.phone}
+              icon={Phone}
+              // verified={customer.phone_verified}
+            />
+            <InfoRow
+              label="Gender"
+              value={customer?.gender || "Male"}
               icon={VenusAndMars}
             />
-            <InfoRow 
-              label="Date of Birth" 
-              value={customer?.dob ? formatDate(customer.dob) : "21st Aug"} 
+            <InfoRow
+              label="Date of Birth(DOB)"
+              value={customer?.dob ? formatDate(customer.dob) : "01/03/1998"}
               icon={Calendar}
             />
           </div>
-          
+
           {/* Account Information Section */}
-          <div className="space-y-3">
+          {/* <div className="space-y-3">
             <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide border-b pb-2">
               Account Details
             </h3>
@@ -192,9 +182,9 @@ function Information() {
               value={formatDate(customer.last_order_date)} 
               icon={Clock}
             />
-          </div>
+          </div> */}
         </div>
-        
+
         {/* Additional Stats Section */}
         {/* <div className="mt-6 pt-4 border-t border-gray-200">
           <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">
@@ -220,18 +210,49 @@ function Information() {
           </div>
         </div> */}
       </Card>
-      <div className="flex items-center gap-2 justify-end mt-6">
-              <Link to={'/admin/customer-form'} className="inline-flex items-center gap-2 border rounded-md px-3 py-1.5 text-sm hover:bg-gray-50">
-                Edit
-              </Link>
-              <button className="inline-flex items-center gap-2 border rounded-md px-3 py-1.5 text-sm hover:bg-gray-50">
-                Cancel
-              </button>
-              <button className="inline-flex items-center gap-2 rounded-md px-3 py-1.5 text-sm bg-amber-500 text-white hover:bg-amber-600">
-                Delete
-              </button>
+      {/* <div className="flex items-center gap-2 justify-end mt-6">
+        <Link
+          to={"/admin/customer-form"}
+          className="inline-flex items-center gap-2 border rounded-md px-3 py-1.5 text-sm hover:bg-gray-50">
+          Edit
+        </Link>
+        <button className="inline-flex items-center gap-2 border rounded-md px-3 py-1.5 text-sm hover:bg-gray-50">
+          Cancel
+        </button>
+        <button className="inline-flex items-center gap-2 rounded-md px-3 py-1.5 text-sm bg-amber-500 text-white hover:bg-amber-600">
+          Delete
+        </button>
+      </div> */}
+
+      <Card className="p-3 mt-6">
+        <div className="flex justify-between items-center ">
+          <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+            {/* <User className="w-5 h-5" /> */}
+            Address Details
+          </h2>
+          {/* <StatusBadge status={customer.status} /> */}
+        </div>
+        <div className="flex-1 border p-2 rounded-lg mt-2">
+          <div className="flex  items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium">{customer.name}</span>
+              <span className="px-2 py-0.5 rounded-md text-xs bg-[#D5E5F5] text-[#1C3753] border border-[#1C3753]">
+                Work
+              </span>
             </div>
-    </div>
+            <div>
+              <span className="px-2 py-1 rounded-lg text-xs bg-[#EFEFEF] text-[#1C1C1C]">
+                Default
+              </span>
+            </div>
+          </div>
+          <div className="text-[14px] font-medium mt-1">
+            <p>{`${customer.address}, ${customer.state}, ${customer.city}, ${customer.zip_code}, ${customer.country}`}</p>
+            <p>Phone Number: {customer.phone}</p>
+          </div>
+        </div>
+      </Card>
+    </>
   );
 }
 

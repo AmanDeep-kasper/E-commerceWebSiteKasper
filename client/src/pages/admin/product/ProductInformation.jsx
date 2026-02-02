@@ -1,35 +1,21 @@
-import React, { use, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 import products from "../../../data/products.json";
-import {
-  Package,
-  ArrowLeft,
-  ThumbsUp,
-  ThumbsDown,
-  ThumbsDownIcon,
-} from "lucide-react";
+import { ChevronLeft, Search, Eye, Pin } from "lucide-react";
 import ReviewIcon from "../../../assets/review.svg";
 import Ratings from "../../../components/Ratings";
 import Reviews from "../../../components/Reviews";
 
 function ProductInformation() {
-  // const { uuid } = useParams();
   const { uuid } = useParams();
-  // console.log(products);
+
   const navigate = useNavigate();
 
   const product = useMemo(() => {
     if (!products || products.length === 0) return undefined;
     return products.find((p) => p.uuid.toLowerCase() === uuid.toLowerCase());
   }, [products, uuid]);
-
-  // console.log("UUID from useParams:", uuid);
-  // console.log(
-  //   "All product UUIDs:",
-  //   products.map((p) => p.uuid)
-  // );
-
-  // console.log(product.images);
+  // console.log(product)
 
   /////////////////////////
 
@@ -45,27 +31,6 @@ function ProductInformation() {
       : 0;
 
   /////////////////////////
-  function timeAgo(dateString) {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffMs = now - date;
-
-    const seconds = Math.floor(diffMs / 1000);
-    const minutes = Math.floor(seconds / 60);
-    const hours = Math.floor(minutes / 60);
-    const days = Math.floor(hours / 24);
-    const months = Math.floor(days / 30);
-    const years = Math.floor(days / 365);
-
-    if (years > 0) return `${years} year${years > 1 ? "s" : ""} ago`;
-    if (months > 0) return `${months} month${months > 1 ? "s" : ""} ago`;
-    if (days > 0) return `${days} day${days > 1 ? "s" : ""} ago`;
-    if (hours > 0) return `${hours} hour${hours > 1 ? "s" : ""} ago`;
-    if (minutes > 0) return `${minutes} minute${minutes > 1 ? "s" : ""} ago`;
-    return "just now";
-  }
-
-  ///////////////////////////Edit page logic
 
   const handleEdit = () => {
     // if (!products.uuid) {
@@ -78,319 +43,361 @@ function ProductInformation() {
 
   // console.log(product)
 
+  const [selectedType, setSelectedType] = useState("product");
+  const [selectedVariant, setSelectedVariant] = useState(null);
+
+  // search define
+  const [searchData, setSearchData] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  // Debounce logic
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchData);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchData]);
+
+  // search logic
+  const text = debouncedSearch?.toLowerCase() || "";
+
+  // main
+  const mainProductMatch =
+    product?.SKU?.toLowerCase().includes(text) ||
+    product?.title?.toLowerCase().includes(text) ||
+    product?.ProductColor?.toLowerCase().includes(text);
+    // add kar ha size bhi
+
+  // varinats
+
+  const filterVariants = (product?.variants || []).filter((v) => {
+    return (
+      v.variantId?.toLowerCase().includes(text) ||
+      v.variantValue?.toLowerCase().includes(text) ||
+      v.color?.toLowerCase().includes(text) ||
+      v.size?.toLowerCase().includes(text)
+    );
+  });
   return (
-    <div className="min-h-screen  bg-gray-50">
+    <div className="p-[24px] bg-[#F6F8F9] rounded-md min-h-screen">
       {/* Header */}
-      <div className="h-16 bg-white rounded-lg flex items-center justify-between gap-3 px-4">
+      <div className="rounded-lg flex items-center justify-between">
         <Link to="/admin/products" className="flex items-center gap-2">
-          <ArrowLeft className="w-6 h-6 text-gray-800" />
-          <h1 className="text-black text-xl font-semibold">{product.title}</h1>
+          <ChevronLeft className="w-8 h-8 text-gray-800" />
+          <h1 className="text-black text-[20px] font-semibold">
+            {product.title}
+          </h1>
         </Link>
         <button
           onClick={handleEdit}
-          className="bg-[#F8F8F8] px-5 py-1.5 border text-base rounded-lg"
-        >
-          Edit
+          className="px-5 py-1.5 text-[#1C3753] border border-[#1C3753] text-base rounded-lg">
+          Edit Product
         </button>
       </div>
 
       {/* Product Info Grid */}
-      <div className="grid lg:grid-cols-2 gap-6 mt-4">
-        {/* Left Section */}
-        <div className="bg-white rounded-2xl  p-5 flex flex-col gap-4">
-          <div className="flex items-center gap-3">
-            <h2 className="flex items-center gap-2 text-lg font-medium">
-              <Package className="w-6 h-6 text-gray-700" />
-              Basic Information
-            </h2>
+      <div className="grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-6 mt-4 items-start">
+        <div className="bg-white px-4 py-4 rounded-2xl flex flex-col h-[calc(100vh-140px)]">
+          <p className="text-[18px] font-semibold mb-3">Variants</p>
 
-            {/* {product.variants.map((item,i)=>( */}
+          {/* Search */}
+          <div className="flex items-center bg-[#F8FBFC] border rounded-xl px-4 py-2 mb-4">
+            <Search className="w-4 h-4 text-gray-500 mr-2" />
+            <input
+              type="text"
+              value={searchData}
+              onChange={(e) => {
+                setSearchData(e.target.value);
+              }}
+              placeholder="Search by SKU, color, size"
+              className="outline-none flex-1 bg-transparent text-sm"
+            />
+          </div>
+
+          {/* Variant List (Scrollable) */}
+          <div className="flex flex-col gap-3 flex-1 overflow-y-auto pr-1">
+            {/* MAIN PRODUCT */}
+            {(!debouncedSearch || mainProductMatch) && (
+              <div
+                onClick={() => {
+                  setSelectedType("product");
+                  setSelectedVariant(null);
+                }}
+                className={`flex items-center gap-4 bg-[#F5F8FA] border rounded-xl p-3 hover:border-gray-400 cursor-pointer transition ${
+                  selectedType === "product"
+                    ? "bg-blue-50 border-blue-400"
+                    : "bg-blue-50 border-blue-400"
+                }`}>
+                <img
+                  className="w-10 h-10 rounded-md object-cover"
+                  src={product.images?.[0]}
+                  alt="product"
+                />
+
+                <div className="flex-1">
+                  <div className="flex justify-between text-sm font-medium">
+                    <p>{product.SKU}</p>
+                    <p>₹ {product.sellingPrice}</p>
+                  </div>
+
+                  <div className="flex justify-between text-xs text-gray-600 mt-0.5">
+                    <div className="flex gap-2">
+                      <p className="border border-[#495F75] px-1 rounded-md">
+                        Black
+                      </p>
+                      <p className="border border-[#495F75] px-1 rounded-md">
+                        20×20
+                      </p>
+                    </div>
+                    <p>{product.variantQuantity} in stock</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* VARIANTS */}
+            {filterVariants.map((item, index) => (
+              <div
+                key={item.variantId || index}
+                onClick={() => {
+                  setSelectedType("variant");
+                  setSelectedVariant(item);
+                }}
+                className={`flex items-center gap-4 bg-[#F5F8FA] border rounded-xl p-3 hover:border-gray-400 cursor-pointer transition${
+                  selectedType === "variant"
+                    ? "variant"
+                    : "bg-[#F5F8FA] hover:border-gray-400"
+                }`}>
+                <img
+                  className="w-10 h-10 rounded-md object-cover"
+                  src={item.variantImage?.[0]}
+                  alt="variant"
+                />
+
+                <div className="flex-1">
+                  <div className="flex justify-between text-sm font-medium">
+                    <p>{item.variantId}</p>
+                    <p>₹ {product.sellingPrice}</p>
+                  </div>
+
+                  <div className="flex justify-between text-xs text-gray-600 mt-0.5">
+                    <div className="flex gap-2">
+                      <p className="border border-[#495F75] px-1 rounded-md">
+                        {item.variantValue}
+                      </p>
+                      <p className="border border-[#495F75] px-1 rounded-md">
+                        20×20
+                      </p>
+                    </div>
+                    <p>{item.variantQuantity} in stock</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Basic Information */}
+        <div className="flex flex-col gap-6">
+          <div className="bg-white rounded-2xl p-4">
+            <h3 className="text-lg font-semibold mb-2">Basic Details</h3>
+
             <div>
-              <span className="bg-purple-100 px-3 py-1 rounded-full text-purple-700 text-sm font-medium">
-                {product.type}
+              <p className="">Product Name</p>
+              <span className="text-[#686868] text-sm">
+                {selectedType === "product"
+                  ? product.title
+                  : selectedVariant?.variantName || "-"}
               </span>
             </div>
-            {/* ))} */}
+            <div className="mb-4">
+              <p className="text-md font-medium mb-1">Description</p>
+              <p className="text-[#2C2C2C] text-sm leading-relaxed break-words whitespace-pre-line">
+                {product.description}
+              </p>
+            </div>
           </div>
-          <div>
-            <p className="text-[#797979] font-medium text-base">Description</p>
-            <p className="text-[#2C2C2C] font-medium text-base">
-              {product.description}
-            </p>
-          </div>
-          <div>
-            <label className="block text-[#797979] text-sm font-medium mb-2">
-              Product Image
-            </label>
-            <div className="flex flex-wrap gap-3 items-start">
-              {product.images.map((img, i) => (
-                <div key={i} className="relative group">
+
+          {/* Variant Details */}
+          <div className="bg-white rounded-2xl p-4">
+            <h3 className="text-lg font-semibold mb-2">Variant Details</h3>
+
+            <div>
+              <p className="text-[14px] text-[#686868] text-sm mb-2">Images</p>
+              <div className="flex flex-wrap gap-3 items-start">
+                {(selectedType === "product"
+                  ? product?.images || []
+                  : selectedVariant?.variantImage || []
+                ).map((img, i) => (
                   <img
+                    key={i}
                     src={img}
-                    alt={`preview ${i}`}
-                    className="w-[137px] h-[137px] object-cover rounded-lg border border-neutral-200"
+                    alt={`preview-${i}`}
+                    className="w-[80px] h-[80px] object-cover rounded-lg border border-neutral-200"
                   />
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Right Section */}
-        <div className="bg-white rounded-2xl  p-6 flex flex-col gap-2">
-          <h2 className="text-black text-lg font-medium mb-2">
-            Product Details
-          </h2>
-
-          <div className="grid grid-flow-row grid-cols-3 gap-14">
-            <div className="flex flex-col flex-wrap justify-start space-y-[10px]">
-              <div>
-                <p className="text-base text-[#797979] font-medium">SKU-ID</p>
-                <span className="text-base text-[#2C2C2C] font-medium">
-                  {product.SKU}
-                </span>
+                ))}
               </div>
-              <div>
-                <p className="text-base text-[#797979] font-medium">
-                  MaterialType
-                </p>
-                <span className="text-base text-[#2C2C2C] font-medium">
-                  {product.materialType}
-                </span>
-              </div>
-              <div>
-                <p className="text-base text-[#797979] font-medium">
-                  Stock Quantity
-                </p>
-                <span className="text-base text-[#2C2C2C] font-medium">
-                  {product.stockQuantity}
-                </span>
-              </div>
-
-              <div></div>
-            </div>
-            <div className="flex flex-col flex-wrap  justify-start space-y-[10px]">
-              <div>
-                <p className="text-base text-[#797979] font-medium">Category</p>
-                <span className="text-base text-[#2C2C2C] font-medium">
-                  {product.category}
-                </span>
-              </div>
-              <div className="text-start">
-                <p className="text-base text-[#797979] font-medium">Weight</p>
-                <span className="text-base text-[#2C2C2C] font-medium">
-                  {product.weight}
-                </span>
-              </div>
-              <div>
-                <p className="text-base text-[#797979] font-medium">Tags</p>
-                <div className="flex flex-wrap gap-1 mt-2">
-                  {product.tags.map((tag, index) => (
-                    <span
-                      key={index}
-                      className="bg-gray-100 text-[#2C2C2C] text-sm font-medium px-3 py-1 rounded-full"
-                    >
-                      {tag}
+              <div className="grid grid-flow-row grid-cols-3 gap-14 mt-4">
+                <div className="flex flex-col flex-wrap justify-start space-y-[10px]">
+                  <div>
+                    <p className="text-sm text-[#686868] font-medium">SKU-ID</p>
+                    <span className="text-base text-[#2C2C2C] font-medium">
+                      {selectedType === "product"
+                        ? product.SKU
+                        : selectedVariant.variantId}
                     </span>
-                  ))}
+                  </div>
+                  <div className="text-start">
+                    <p className="text-sm text-[#686868] font-medium">Weight</p>
+                    <span className="text-base text-[#2C2C2C] font-medium">
+                      {product.weight}
+                    </span>
+                  </div>
+                  <div>
+                    <p className="text-sm text-[#686868] font-medium">
+                      Category
+                    </p>
+                    <span className="text-base text-[#2C2C2C] font-medium">
+                      {product.category}
+                    </span>
+                  </div>
+                  <div>
+                    <p className="text-sm text-[#686868] font-medium">
+                      Dimension
+                    </p>
+                    <span className="text-base text-[#2C2C2C] font-medium">
+                      55L x 35W cm
+                    </span>
+                  </div>
+                </div>
+                <div className="flex flex-col flex-wrap  justify-start space-y-[10px]">
+                  <div>
+                    <p className="text-sm text-[#686868] font-medium">Stock</p>
+                    <span className="text-base text-[#2C2C2C] font-medium">
+                      {/* {product.stockQuantity} */}
+                      20
+                    </span>
+                  </div>
+
+                  <div className="text-start">
+                    <p className="text-sm text-[#686868] font-medium">
+                      Frame Color
+                    </p>
+                    <span className="text-base text-[#2C2C2C] font-medium">
+                      Black
+                    </span>
+                  </div>
+                  <div>
+                    <p className="text-sm text-[#686868] font-medium">
+                      Subcategory
+                    </p>
+                    <span className="text-base text-[#2C2C2C] font-medium">
+                      {product.subcategory}
+                    </span>
+                  </div>
+                  <div className="text-start">
+                    <p className="text-sm text-[#686868] font-medium">Weight</p>
+                    <span className="text-base text-[#2C2C2C] font-medium">
+                      {product.weight}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex flex-col flex-wrap items-start text-start justify-start space-y-[10px]">
+                  <div>
+                    <p className="text-sm text-[#686868] font-medium">
+                      Low Stock Alert
+                    </p>
+                    <span className="text-base text-[#2C2C2C] font-medium">
+                      {/* {product.stockQuantity} */}
+                      20
+                    </span>
+                  </div>
+                  <div className="">
+                    <p className="text-sm  text-[#686868] font-medium">
+                      Material
+                    </p>
+                    <span className="text-base text-[#2C2C2C] font-medium">
+                      {product.materialType}
+                    </span>
+                  </div>
+                  <div>
+                    <p className="text-sm text-[#686868] font-medium">
+                      Product Color
+                    </p>
+                    <span className="text-base text-[#2C2C2C] font-medium">
+                      {/* {product.materialType} */}
+                      Black
+                    </span>
+                  </div>
                 </div>
               </div>
-
-              {/* <div></div> */}
-            </div>
-            <div className="flex flex-col flex-wrap items-center text-start justify-start space-y-[10px]">
-              <div>
-                <p className="text-base text-[#797979] font-medium">
-                  Subcategory
-                </p>
-                <span className="text-base text-[#2C2C2C] font-medium">
-                  {product.subcategory}
-                </span>
-              </div>
-              <div>
-                <p className="text-base text-[#797979] font-medium">
-                  Dimension
-                </p>
-                <span className="text-base text-[#2C2C2C] font-medium">
-                  55L x 35W cm
-                </span>
-              </div>
-              {/* <div>
-                <p className="text-base text-[#797979] font-medium">SKU-ID</p>
-                <span className="text-base text-[#2C2C2C] font-medium">
-                  SRA-GAN-001
-                </span>
-              </div> */}
-
-              <div></div>
             </div>
           </div>
 
-          <h2 className="text-black text-lg font-medium mb-2">Pricing</h2>
-          <div className="grid grid-flow-row grid-cols-3 gap-14">
-            <div className="flex flex-col flex-wrap justify-start space-y-[10px]">
-              <div>
-                <p className="text-base text-[#797979] font-medium">MRP</p>
-                <span className="text-base text-[#2C2C2C] font-medium">
-                  {product.mrp}
-                </span>
-              </div>
-              <div>
-                <p className="text-base text-[#797979] font-medium">Profit</p>
-                <span className="text-base text-[#2C2C2C] font-medium">
-                  {product.profit}
-                </span>
-              </div>
-              {/* <div>
-                <p className="text-base text-[#797979] font-medium">
-                Cost Price (₹)
-                </p>
-                <span className="text-base text-[#2C2C2C] font-medium">45</span>
-              </div> */}
-
-              <div></div>
-            </div>
-            <div className="flex flex-col flex-wrap   justify-start space-y-[10px]">
-              <div>
-                <p className="text-base text-[#797979] font-medium">
-                  Selling Price (₹)
-                </p>
-                <span className="text-base text-[#2C2C2C] font-medium">
-                  {product.sellingPrice}
-                </span>
-              </div>
-              <div className="text-start">
-                <p className="text-base text-[#797979] font-medium">Discount</p>
-                <span className="text-base text-[#2C2C2C] font-medium">
-                  <span>{product.discountPercent}%</span>
-                </span>
-              </div>
-              {/* <div>
-                  <p className="text-base text-[#797979] font-medium">Tags</p>
+          <div className="bg-white rounded-2xl p-4">
+            <h3 className="text-lg font-semibold mb-2">Pricing</h3>
+            <div className="grid grid-flow-row grid-cols-3 gap-14">
+              <div className="flex flex-col flex-wrap justify-start space-y-[10px]">
+                <div>
+                  <p className="text-sm text-[#797979] font-medium">MRP</p>
                   <span className="text-base text-[#2C2C2C] font-medium">
-                    Bestseller
+                    {product.mrp}
                   </span>
-                </div> */}
+                </div>
+                <div>
+                  <p className="text-sm text-[#797979] font-medium">Profit</p>
+                  <span className="text-base text-[#2C2C2C] font-medium">
+                    {product.profit}
+                  </span>
+                </div>
 
-              <div></div>
-            </div>
-            <div className="flex flex-col flex-wrap  justify-start space-y-[10px]">
-              <div>
-                <p className="text-base text-[#797979] font-medium">
-                  Cost Price (₹)
-                </p>
-                <span className="text-base text-[#2C2C2C] font-medium">
-                  {product.costPrice}
-                </span>
+                <div></div>
               </div>
-              <div>
-                <p className="text-base text-[#797979] font-medium">Tax</p>
-                <span className="text-base text-[#2C2C2C] font-medium">
-                  {product.taxPercent}%
-                </span>
+              <div className="flex flex-col flex-wrap   justify-start space-y-[10px]">
+                <div>
+                  <p className="text-sm text-[#797979] font-medium">
+                    Selling Price
+                  </p>
+                  <span className="text-base text-[#2C2C2C] font-medium">
+                    {product.sellingPrice}
+                  </span>
+                </div>
+                <div className="text-start">
+                  <p className="text-sm text-[#797979] font-medium">Discount</p>
+                  <span className="text-base text-[#2C2C2C] font-medium">
+                    <span>{product.discountPercent}%</span>
+                  </span>
+                </div>
+              </div>
+              <div className="flex flex-col flex-wrap  justify-start space-y-[10px]">
+                <div>
+                  <p className="text-sm text-[#797979] font-medium">
+                    Cost Price
+                  </p>
+                  <span className="text-base text-[#2C2C2C] font-medium">
+                    {product.costPrice}
+                  </span>
+                </div>
+                <div>
+                  <p className="text-sm text-[#797979] font-medium">GST</p>
+                  <span className="text-base text-[#2C2C2C] font-medium">
+                    {product.taxPercent}%
+                  </span>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-
-      {/* Variants Section */}
-      <div className="mt-6 bg-white rounded-md p-4">
-        <h2 className="text-lg font-medium mb-2">Variants</h2>
-        <table className="w-full text-left text-gray-600">
-          <thead className="bg-[#F8F8F8] h-[54px] ">
-            <tr className="text-[#777777] text-[18px] rounded-2xl">
-              <th className="px-4 py-3 font-normal">Image</th>
-              <th className="px-4 py-3 font-normal">VariantName</th>
-              <th className="px-4 py-3 font-normal">Variant Type</th>
-              <th className="px-4 py-3 font-normal">Value</th>
-              <th className="px-4 py-3 font-normal">Quantity</th>
-              <th className="px-4 py-3 font-normal">Reorder Limit</th>
-            </tr>
-          </thead>
-          <tbody className="">
-            {product.variants.map((item, index) => {
-              return (
-                <tr
-                  key={item.variantId || item.variantName}
-                  className="border-t hover:bg-gray-50 transition group"
-                >
-                  <td className="px-0 py-4">
-                    <div className="flex relative w-full items-center justify-start">
-                      <div className="h-[50px] w-[50px] ml-2 bg-[#D9D9D9] rounded-md overflow-hidden">
-                        {item.variantImage?.length > 0 ? (
-                          <div className="relative">
-                            <img
-                              src={
-                                typeof item.variantImage[0] === "string"
-                                  ? item.variantImage[0] // If the image is a string (URL)
-                                  : item.variantImage[0].preview || // If it's a file object, get preview
-                                    URL.createObjectURL(item.variantImage[0]) // Otherwise, create a URL
-                              }
-                              className="w-full h-full object-cover rounded-lg border border-neutral-200"
-                              alt={item.variantName}
-                            />
-                            {/* If there are more than 1 image, show the "+{N}" badge */}
-                            {item.variantImage.length > 1 && (
-                              <div
-                                onClick={() => {
-                                  setSelectedImages(item.variantImage); // Set selected images
-                                  const first =
-                                    typeof item.variantImage[0] === "string"
-                                      ? item.variantImage[0]
-                                      : item.variantImage[0].preview ||
-                                        URL.createObjectURL(
-                                          item.variantImage[0]
-                                        );
-                                  setCurrentImage(first); // Set the first image as the current image
-                                  setIsModalOpen(true); // Open the modal
-                                }}
-                                className="absolute inset-0 bg-black/50 flex items-center justify-center text-white text-xs font-medium rounded-lg "
-                              >
-                                +{item.variantImage.length - 1}{" "}
-                                {/* Display the number of extra images */}
-                              </div>
-                            )}
-                          </div>
-                        ) : (
-                          ""
-                        )}
-                      </div>
-                    </div>
-                  </td>
-
-                  {/* Display variant details */}
-                  <td className="px-4 py-3 text-base text-[#171028]">
-                    {item.variantName}
-                  </td>
-                  <td className="px-4 py-3 text-base text-[#171028]">
-                    {item.variantType}
-                  </td>
-                  <td className="px-4 py-3 text-base text-[#171028]">
-                    {item.variantValue}
-                  </td>
-                  <td className="px-4 py-3 text-base text-[#171028]">
-                    {item.stockQuantity}
-                  </td>
-                  <td className="px-4 py-3 text-base text-[#171028]">
-                    {item.variantReorderLimit}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
       </div>
 
       {/* Customer Reviews */}
       <div className="mt-6 bg-white rounded-xl p-4">
-        <h2 className="text-lg font-medium mb-2">Customer Reviews</h2>
+        <h2 className="text-lg font-medium mb-2">Rating & Reviews</h2>
 
+        <Reviews reviews={product?.reviews} avgRating={avgRating} />
         {reviews && reviews.length > 0 ? (
-          <div className="mt-4">
-            <h1>Rating Breakdown</h1>
-            <Reviews reviews={product?.reviews} avgRating={avgRating} />
-            <h1 className="text-[#0A0A0A] mb-4">Reviews</h1>
+          <div className="max-h-[450px] overflow-y-auto pr-2">
             {reviews.map(
               (
                 {
@@ -398,17 +405,16 @@ function ProductInformation() {
                   userImage,
                   comment,
                   rating,
-                  likes,
-                  dislike,
+                  // likes,
+                  // dislike,
                   images,
-                  date,
+                  // date,
                 },
                 index
               ) => (
                 <div
                   key={index}
-                  className="py-4 flex gap-3 flex-col border border-[#CBCACA] px-6 rounded-xl mb-4"
-                >
+                  className="py-4 flex gap-3 flex-col border border-[#CBCACA] px-4 rounded-xl mb-4">
                   <div className="flex justify-between">
                     <div className="flex gap-4">
                       {userImage ? (
@@ -432,12 +438,16 @@ function ProductInformation() {
                             reviews={product?.reviews}
                             avgRating={rating}
                           />
-                          <span className="text-[#717182] text-sm">•</span>
-                          <span className="text-[#6C6B6B] text-[12px]">
-                            {timeAgo(date)}
-                          </span>
                         </div>
                       </div>
+                    </div>
+                    <div className="flex items-center justify-center gap-2">
+                      <button className="bg-gray-200 p-1 rounded-lg">
+                        <Eye size={20} color="#1C1C1C" />
+                      </button>
+                      <button className="bg-gray-200 p-1 rounded-lg">
+                        <Pin size={20} color="#1C1C1C" />
+                      </button>
                     </div>
                   </div>
                   <p className="text-sm">{comment}</p>
@@ -445,7 +455,7 @@ function ProductInformation() {
                     <div className="flex gap-3">
                       {images.map((img, index) => (
                         <img
-                          className="w-[78px] h-[97px]"
+                          className="w-[60px] h-[60px] rounded-md"
                           src={img}
                           alt="product"
                           key={index}
@@ -453,16 +463,20 @@ function ProductInformation() {
                       ))}
                     </div>
                   )}
-                  <div className="flex gap-2 text-[#6C6B6B] text-[14px]">
-                    <span>
+                  <div className="flex items-end justify-end gap-2 text-[#6C6B6B] text-[14px]">
+                    {/* <span>
                       <ThumbsUp />
-                    </span>
+                    </span> */}
 
-                    <span>{likes}</span>
+                    {/* <span>{likes}</span>
                     <span className="ml-4">
                       <ThumbsDownIcon />
                     </span>
-                    <span>{dislike}</span>
+                    <span>{dislike}</span> */}
+                    {/* <span className="text-[#717182] text-sm">•</span> */}
+                    <span className="text-[#6C6B6B] text-[12px]">
+                      {`Reviewed ${new Date().toISOString().split("T")[0]}`}
+                    </span>
                   </div>
                 </div>
               )

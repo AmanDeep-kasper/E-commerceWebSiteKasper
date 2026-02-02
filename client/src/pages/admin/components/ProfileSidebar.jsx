@@ -1,3 +1,5 @@
+// 2026 hide this code
+
 import React, { useState } from "react";
 import {
   BarChart2,
@@ -8,7 +10,7 @@ import {
   User,
 } from "lucide-react";
 import { use } from "react";
-import { Link, useNavigate, useLocation } from "react-router";
+import { Link, useNavigate, useLocation, useParams } from "react-router";
 
 const Card = ({ children, className = "" }) => (
   <div className={`bg-white border rounded-xl shadow-sm ${className}`}>
@@ -17,38 +19,20 @@ const Card = ({ children, className = "" }) => (
 );
 
 const profileMenu = [
-  { label: "Customer Info", path: "/customer-info", icon: User },
-  { label: "Order Insights", path: "/order-insight", icon: BarChart2 },
-  { label: "Wishlist & Cart Info", path: "/wishlist-cart", icon: Heart },
-  { label: "Address Book", path: "/address-book", icon: MapPin },
-  {
-    label: "Support / Feedback",
-    path: "/support-feedback",
-    icon: MessageSquare,
-  },
+  { label: "Personal Information", path: "/customer-info", icon: User },
+  { label: "Orders Information", path: "/order-insight", icon: BarChart2 },
+  { label: "Support & Ticket", path: "/support-feedback", icon: MessageSquare },
 ];
 
-function ProfileSidebar({ customer }) {
+function ProfileSidebar({ customer, isEditPage }) {
   const location = useLocation(null);
-
+  const { id } = useParams();
 
   return (
-    <div className="!col-span-2">
-      <Card className="p-4">
-        {/* <div className="space-y-1">
-          {profileMenu.map(({ label, path, icon: Icon }) => (
-            <Link
-              key={label}
-              to={`/admin/customers/${customer.id}${path}`}
-              className={`w-full inline-flex items-center gap-2 px-3 py-2 text-sm rounded-md hover:bg-gray-50 text-gray-900 ${
-                location.pathname.includes(path) ? "font-medium text-black" : ""
-              }`}
-            >
-              <Icon className="w-4 h-4" /> {label}
-            </Link>
-          ))}
-        </div> */}
-        <div className="p-2">
+    <>
+      {/* <Card className="p-4"> */}
+      {!isEditPage ? (
+        <div className="flex gap-8 px-2">
           {profileMenu.map(({ label, path, icon: Icon }) => {
             const isActive = location.pathname.includes(path);
 
@@ -56,31 +40,71 @@ function ProfileSidebar({ customer }) {
               <Link
                 key={label}
                 to={`/admin/customers/${customer.id}${path}`}
-                className={`whitespace-nowrap w-full flex items-center gap-3 p-3 text-sm rounded-lg mb-1 transition-all duration-200 group ${
-                  isActive
-                    ? "bg-blue-50 text-blue-700 font-medium border-l-4 border-blue-500"
-                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-                } `}
-                
-              >
-                <Icon
-                  className={`w-5 h-5 flex-shrink-0 ${
-                    isActive
-                      ? "text-blue-600"
-                      : "text-gray-400 group-hover:text-gray-600"
-                  }`}
-                />
+                className={`relative py-2 text-md font-medium transition-colors flex items-center gap-2 ${
+                  isActive ? " text-[#1C3753] font-medium" : "text-gray-600"
+                } `}>
                 {label}
+
+                {isActive && (
+                  <span className="absolute left-0 bottom-0 h-[2px] w-full bg-blue-600 rounded-full" />
+                )}
               </Link>
             );
           })}
         </div>
-      </Card>
-    </div>
+      ) : (
+        ""
+      )}
+      {/* </Card> */}
+    </>
   );
 }
 
 export default ProfileSidebar;
+
+//  Add his code (AD)
+
+// import React from "react";
+// import { Link, useLocation, useParams } from "react-router";
+
+// const tabs = [
+//   { label: "Personal Information", path: "/customer-info" },
+//   { label: "Orders Information", path: "/order-insight" },
+//   { label: "Support & Ticket", path: "/support-feedback" },
+// ];
+
+// function ProfileTopTabs() {
+//   const location = useLocation();
+//   const { id } = useParams();
+
+//   return (
+//     <div className="border-b bg-white">
+//       <div className="flex gap-8 px-6">
+//         {tabs.map((tab) => {
+//           const isActive = location.pathname.includes(tab.path);
+
+//           return (
+//             <Link
+//               key={tab.label}
+//               to={`/admin/customers/${id}${tab.path}`}
+//               className={`relative py-4 text-sm font-medium transition-colors ${
+//                 isActive ? "text-blue-600" : "text-gray-500 hover:text-gray-800"
+//               }`}>
+//               {tab.label}
+
+//               {/* underline */}
+//               {isActive && (
+//                 <span className="absolute left-0 bottom-0 h-[2px] w-full bg-blue-600 rounded-full" />
+//               )}
+//             </Link>
+//           );
+//         })}
+//       </div>
+//     </div>
+//   );
+// }
+
+// export default ProfileTopTabs;
 
 // import React, { useState } from "react";
 // import {

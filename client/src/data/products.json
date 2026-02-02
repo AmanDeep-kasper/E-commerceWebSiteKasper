@@ -7,7 +7,9 @@
     "type": "Framed",
     "category": "Geometric & Abstract",
     "subcategory": "Abstract Decor",
-    "tags": ["metal"],
+    "tags": [
+      "metal"
+    ],
     "images": [
       "/polygonAnimal1.jpg",
       "/polygonAnimal2.jpg",
@@ -25,6 +27,7 @@
     "amazonPrice": 2999,
     "mrp": 2999,
     "sellingPrice": 1499,
+    "status": "Active",
     "costPrice": 749,
     "profit": 750,
     "discountPercent": 50,
@@ -39,8 +42,9 @@
         "variantName": "Color",
         "variantQuantity": 6,
         "variantReorderLimit": 5,
-        "variantImage": ["/polygonAnimal4.jpg"],
-
+        "variantImage": [
+          "/polygonAnimal4.jpg"
+        ],
         "width": 60,
         "height": 40
       },
@@ -51,8 +55,9 @@
         "variantName": "Color",
         "variantQuantity": 5,
         "variantReorderLimit": 4,
-        "variantImage": ["/polygonAnimal3.jpg"],
-
+        "variantImage": [
+          "/polygonAnimal3.jpg"
+        ],
         "width": 60,
         "height": 40
       },
@@ -63,20 +68,100 @@
         "variantName": "Material",
         "variantQuantity": 4,
         "variantReorderLimit": 3,
-        "variantImage": ["/polygonAnimal2.jpg"],
-
+        "variantImage": [
+          "/polygonAnimal2.jpg"
+        ],
         "width": 60,
         "height": 40
       },
       {
         "variantId": "dwl-art-001-v4",
+        "variantType": "Framed",
+        "variantValue": "silver",
+        "variantName": "Material",
+        "variantQuantity": 4,
+        "variantReorderLimit": 3,
+        "variantImage": [
+          "/polygonAnimal2.jpg"
+        ],
+        "width": 60,
+        "height": 40
+      },
+      {
+        "variantId": "dwl-art-001-v5",
+        "variantType": "Framed",
+        "variantValue": "silver",
+        "variantName": "Material",
+        "variantQuantity": 4,
+        "variantReorderLimit": 3,
+        "variantImage": [
+          "/polygonAnimal2.jpg"
+        ],
+        "width": 60,
+        "height": 40
+      },
+      {
+        "variantId": "dwl-art-001-v6",
+        "variantType": "Framed",
+        "variantValue": "silver",
+        "variantName": "Material",
+        "variantQuantity": 4,
+        "variantReorderLimit": 3,
+        "variantImage": [
+          "/polygonAnimal2.jpg"
+        ],
+        "width": 60,
+        "height": 40
+      },
+      {
+        "variantId": "dwl-art-001-v7",
+        "variantType": "Framed",
+        "variantValue": "silver",
+        "variantName": "Material",
+        "variantQuantity": 4,
+        "variantReorderLimit": 3,
+        "variantImage": [
+          "/polygonAnimal2.jpg"
+        ],
+        "width": 60,
+        "height": 40
+      },
+      {
+        "variantId": "dwl-art-001-v8",
         "variantType": "Unframed",
         "variantValue": "white",
         "variantName": "Material",
         "variantQuantity": 3,
         "variantReorderLimit": 2,
-        "variantImage": ["/polygonAnimal1.jpg"],
-
+        "variantImage": [
+          "/polygonAnimal1.jpg"
+        ],
+        "width": 60,
+        "height": 40
+      },
+      {
+        "variantId": "dwl-art-001-v8",
+        "variantType": "Unframed",
+        "variantValue": "white",
+        "variantName": "Material",
+        "variantQuantity": 3,
+        "variantReorderLimit": 2,
+        "variantImage": [
+          "/polygonAnimal1.jpg"
+        ],
+        "width": 60,
+        "height": 40
+      },
+      {
+        "variantId": "dwl-art-001-v8",
+        "variantType": "Unframed",
+        "variantValue": "white",
+        "variantName": "Material",
+        "variantQuantity": 3,
+        "variantReorderLimit": 2,
+        "variantImage": [
+          "/polygonAnimal1.jpg"
+        ],
         "width": 60,
         "height": 40
       }
@@ -89,7 +174,9 @@
         "rating": "5",
         "likes": 42,
         "dislike": 0,
-        "images": ["/polygonAnimal1.jpg"],
+        "images": [
+          "/polygonAnimal1.jpg"
+        ],
         "date": "2025-04-05"
       },
       {
@@ -99,7 +186,9 @@
         "rating": "4",
         "likes": 42,
         "dislike": 0,
-        "images": ["/polygonAnimal1.jpg"],
+        "images": [
+          "/polygonAnimal1.jpg"
+        ],
         "date": "2025-04-05"
       }
     ]
@@ -112,8 +201,15 @@
     "type": "Framed",
     "category": "Nature & Wildlife",
     "subcategory": "Floral Decor",
-    "tags": ["bloom"],
-    "images": ["/forest1.jpg", "/forest2.jpg", "/forest3.jpg", "/forest4.jpg"],
+    "tags": [
+      "bloom"
+    ],
+    "images": [
+      "/forest1.jpg",
+      "/forest2.jpg",
+      "/forest3.jpg",
+      "/forest4.jpg"
+    ],
     "SKU": "DWL-ART-002",
     "materialType": "metal",
     "weight": "1kg",
@@ -124,6 +220,7 @@
     "amazonPrice": 2599,
     "mrp": 2599,
     "sellingPrice": 1299,
+    "status": "Archived",
     "costPrice": 649,
     "profit": 650,
     "discountPercent": 50,
@@ -145,7 +242,9 @@
           "/forest1.jpg",
           "/forest4.jpg"
         ],
-        "images": ["/forest2.jpg"]
+        "images": [
+          "/forest2.jpg"
+        ]
       },
       {
         "variantId": "dwl-art-002-v2",
@@ -154,8 +253,11 @@
         "variantName": "Color",
         "variantQuantity": 6,
         "variantReorderLimit": 5,
-        "variantImage": ["/forest3.jpg", "/forest1.jpg", "/forest4.jpg"],
-
+        "variantImage": [
+          "/forest3.jpg",
+          "/forest1.jpg",
+          "/forest4.jpg"
+        ],
         "width": 60,
         "height": 40
       },
@@ -166,8 +268,11 @@
         "variantName": "Material",
         "variantQuantity": 7,
         "variantReorderLimit": 6,
-        "variantImage": ["/forest4.jpg", "/forest2.jpg", "/forest3.jpg"],
-
+        "variantImage": [
+          "/forest4.jpg",
+          "/forest2.jpg",
+          "/forest3.jpg"
+        ],
         "width": 60,
         "height": 40
       },
@@ -178,8 +283,10 @@
         "variantName": "Material",
         "variantQuantity": 8,
         "variantReorderLimit": 7,
-        "variantImage": ["/forest1.jpg", "/forest2.jpg"],
-
+        "variantImage": [
+          "/forest1.jpg",
+          "/forest2.jpg"
+        ],
         "width": 60,
         "height": 40
       }
@@ -192,7 +299,9 @@
         "rating": "5",
         "likes": 42,
         "dislike": 0,
-        "images": ["/polygonAnimal1.jpg"],
+        "images": [
+          "/polygonAnimal1.jpg"
+        ],
         "date": "2025-04-05"
       },
       {
@@ -202,7 +311,9 @@
         "rating": "4",
         "likes": 42,
         "dislike": 0,
-        "images": ["/polygonAnimal1.jpg"],
+        "images": [
+          "/polygonAnimal1.jpg"
+        ],
         "date": "2025-04-05"
       }
     ]
@@ -215,7 +326,9 @@
     "type": "Framed",
     "category": "Spiritual & Religious Art",
     "subcategory": "Nature Decor",
-    "tags": ["tree"],
+    "tags": [
+      "tree"
+    ],
     "images": [
       "/tree1.jpg",
       "/tree2.jpg",
@@ -223,7 +336,6 @@
       "/tree4.jpg",
       "/tree5.jpg"
     ],
-
     "SKU": "DWL-ART-003",
     "materialType": "metal",
     "weight": "1.3kg",
@@ -234,6 +346,7 @@
     "amazonPrice": 3299,
     "mrp": 3299,
     "sellingPrice": 1699,
+    "status": "Draft",
     "costPrice": 881,
     "profit": 818,
     "discountPercent": 48,
@@ -248,12 +361,12 @@
         "variantName": "Dimension",
         "variantQuantity": 7,
         "variantReorderLimit": 6,
-        "variantImage": ["/tree1.jpg"],
-
+        "variantImage": [
+          "/tree1.jpg"
+        ],
         "width": 60,
         "height": 40
       },
-
       {
         "variantId": "dwl-art-003-v2",
         "variantType": "Framed",
@@ -261,8 +374,9 @@
         "variantName": "Color",
         "variantQuantity": 3,
         "variantReorderLimit": 2,
-        "variantImage": ["/tree2.jpg"],
-
+        "variantImage": [
+          "/tree2.jpg"
+        ],
         "width": 60,
         "height": 40
       },
@@ -273,8 +387,9 @@
         "variantName": "Material",
         "variantQuantity": 6,
         "variantReorderLimit": 5,
-        "variantImage": ["/tree3.jpg"],
-
+        "variantImage": [
+          "/tree3.jpg"
+        ],
         "width": 60,
         "height": 40
       },
@@ -285,8 +400,9 @@
         "variantName": "Material",
         "variantQuantity": 4,
         "variantReorderLimit": 3,
-        "variantImage": ["/tree4.jpg"],
-
+        "variantImage": [
+          "/tree4.jpg"
+        ],
         "width": 60,
         "height": 40
       }
@@ -297,11 +413,13 @@
     "uuid": "dwl-art-004",
     "route": "/product/dwl-art-004",
     "title": "Lakshmi Artwork",
-    "description": "Sacred Lakshmi artwork symbolizing prosperity and blessings.",
+    "description": "Enhance your interior or exterior space with the timeless elegance of the Flower Mandala Laser Cut Metal Wall Art. Designed with intricate floral mandala patterns, this piece represents balance, harmony, and aesthetic symmetry, making it a refined addition to modern, contemporary, or traditional décor. Crafted using precision laser-cutting technology, the artwork features clean edges and detailed geometry that highlight the depth and craftsmanship of the design. Made from durable metal, it is built to last and maintains its visual appeal over time.",
     "type": "Framed",
     "category": "Festival & Occasion",
     "subcategory": "Diwali Decor",
-    "tags": ["lakshmi"],
+    "tags": [
+      "lakshmi"
+    ],
     "images": [
       "/couple1.jpg",
       "/couple3.jpg",
@@ -333,8 +451,9 @@
         "variantName": "Dimension",
         "variantQuantity": 10,
         "variantReorderLimit": 9,
-        "variantImage": ["/couple1.jpg"],
-
+        "variantImage": [
+          "/couple1.jpg"
+        ],
         "width": 60,
         "height": 40
       },
@@ -345,8 +464,9 @@
         "variantName": "Color",
         "variantQuantity": 8,
         "variantReorderLimit": 7,
-        "variantImage": ["/couple2.jpg"],
-
+        "variantImage": [
+          "/couple2.jpg"
+        ],
         "width": 60,
         "height": 40
       },
@@ -357,8 +477,9 @@
         "variantName": "Material",
         "variantQuantity": 6,
         "variantReorderLimit": 5,
-        "variantImage": ["/couple3.jpg"],
-
+        "variantImage": [
+          "/couple3.jpg"
+        ],
         "width": 60,
         "height": 40
       },
@@ -369,8 +490,9 @@
         "variantName": "Material",
         "variantQuantity": 4,
         "variantReorderLimit": 3,
-        "variantImage": ["/couple4.jpg"],
-
+        "variantImage": [
+          "/couple4.jpg"
+        ],
         "width": 60,
         "height": 40
       }
@@ -383,7 +505,9 @@
         "rating": "5",
         "likes": 42,
         "dislike": 0,
-        "images": ["/polygonAnimal1.jpg"],
+        "images": [
+          "/polygonAnimal1.jpg"
+        ],
         "date": "2025-04-05"
       },
       {
@@ -393,7 +517,57 @@
         "rating": "4",
         "likes": 42,
         "dislike": 0,
-        "images": ["/polygonAnimal1.jpg"],
+        "images": [
+          "/polygonAnimal1.jpg"
+        ],
+        "date": "2025-04-05"
+      },
+      {
+        "user": "Rohit Sharma",
+        "userImage": "https://randomuser.me/api/portraits/men/32.jpg",
+        "comment": "calms your mind whenever you look and excellent product… must-have for home decor.",
+        "rating": "5",
+        "likes": 42,
+        "dislike": 0,
+        "images": [
+          "/polygonAnimal1.jpg"
+        ],
+        "date": "2025-04-05"
+      },
+      {
+        "user": "Neha Sharma",
+        "userImage": "https://randomuser.me/api/portraits/women/32.jpg",
+        "comment": "calms your mind whenever you look and excellent product… must-have for home decor.",
+        "rating": "4",
+        "likes": 42,
+        "dislike": 0,
+        "images": [
+          "/polygonAnimal1.jpg"
+        ],
+        "date": "2025-04-05"
+      },
+      {
+        "user": "Rohit Sharma",
+        "userImage": "https://randomuser.me/api/portraits/men/32.jpg",
+        "comment": "calms your mind whenever you look and excellent product… must-have for home decor.",
+        "rating": "5",
+        "likes": 42,
+        "dislike": 0,
+        "images": [
+          "/polygonAnimal1.jpg"
+        ],
+        "date": "2025-04-05"
+      },
+      {
+        "user": "Neha Sharma",
+        "userImage": "https://randomuser.me/api/portraits/women/32.jpg",
+        "comment": "calms your mind whenever you look and excellent product… must-have for home decor.",
+        "rating": "4",
+        "likes": 42,
+        "dislike": 0,
+        "images": [
+          "/polygonAnimal1.jpg"
+        ],
         "date": "2025-04-05"
       }
     ]
@@ -406,8 +580,15 @@
     "type": "Framed",
     "category": "Geometric & Abstract",
     "subcategory": "Abstract Decor",
-    "tags": ["sun"],
-    "images": ["/art1.jpg", "/art2.jpg", "/art3.jpg", "/art4.jpg"],
+    "tags": [
+      "sun"
+    ],
+    "images": [
+      "/art1.jpg",
+      "/art2.jpg",
+      "/art3.jpg",
+      "/art4.jpg"
+    ],
     "SKU": "DWL-ART-005",
     "materialType": "metal",
     "weight": "1.6kg",
@@ -432,8 +613,9 @@
         "variantName": "Color",
         "variantQuantity": 6,
         "variantReorderLimit": 5,
-        "variantImage": ["/art1.jpg"],
-
+        "variantImage": [
+          "/art1.jpg"
+        ],
         "width": 60,
         "height": 40
       },
@@ -444,8 +626,9 @@
         "variantName": "Color",
         "variantQuantity": 4,
         "variantReorderLimit": 3,
-        "variantImage": ["/art2.jpg"],
-
+        "variantImage": [
+          "/art2.jpg"
+        ],
         "width": 60,
         "height": 40
       },
@@ -456,8 +639,9 @@
         "variantName": "Material",
         "variantQuantity": 7,
         "variantReorderLimit": 6,
-        "variantImage": ["/art3.jpg"],
-
+        "variantImage": [
+          "/art3.jpg"
+        ],
         "width": 60,
         "height": 40
       },
@@ -468,8 +652,9 @@
         "variantName": "Material",
         "variantQuantity": 8,
         "variantReorderLimit": 7,
-        "variantImage": ["/art4.jpg"],
-
+        "variantImage": [
+          "/art4.jpg"
+        ],
         "width": 60,
         "height": 40
       }
@@ -482,7 +667,9 @@
         "rating": "5",
         "likes": 42,
         "dislike": 0,
-        "images": ["/polygonAnimal1.jpg"],
+        "images": [
+          "/polygonAnimal1.jpg"
+        ],
         "date": "2025-04-05"
       },
       {
@@ -492,7 +679,9 @@
         "rating": "4",
         "likes": 42,
         "dislike": 0,
-        "images": ["/polygonAnimal1.jpg"],
+        "images": [
+          "/polygonAnimal1.jpg"
+        ],
         "date": "2025-04-05"
       }
     ]
@@ -505,9 +694,15 @@
     "type": "Framed",
     "category": "Nature & Wildlife",
     "subcategory": "Nature Decor",
-    "tags": ["feather"],
-    "images": ["/human1.jpg", "/human2.jpg", "/human3.jpg", "/human4.jpg"],
-
+    "tags": [
+      "feather"
+    ],
+    "images": [
+      "/human1.jpg",
+      "/human2.jpg",
+      "/human3.jpg",
+      "/human4.jpg"
+    ],
     "SKU": "DWL-ART-06",
     "materialType": "metal",
     "weight": "1kg",
@@ -515,6 +710,7 @@
     "returnPolicy": "Eligible for return within 7 days of delivery.",
     "deliverBy": 5,
     "hasVariants": true,
+    "status": "Draft",
     "amazonPrice": 2999,
     "mrp": 2999,
     "sellingPrice": 1499,
@@ -532,8 +728,9 @@
         "variantName": "Dimension",
         "variantQuantity": 7,
         "variantReorderLimit": 6,
-        "variantImage": ["/human1.jpg"],
-
+        "variantImage": [
+          "/human1.jpg"
+        ],
         "width": 60,
         "height": 40
       },
@@ -544,8 +741,9 @@
         "variantName": "Color",
         "variantQuantity": 5,
         "variantReorderLimit": 4,
-        "variantImage": ["/human2.jpg"],
-
+        "variantImage": [
+          "/human2.jpg"
+        ],
         "width": 60,
         "height": 40
       },
@@ -556,8 +754,9 @@
         "variantName": "Color",
         "variantQuantity": 8,
         "variantReorderLimit": 7,
-        "variantImage": ["/human3.jpg"],
-
+        "variantImage": [
+          "/human3.jpg"
+        ],
         "width": 60,
         "height": 40
       },
@@ -568,8 +767,9 @@
         "variantName": "Color",
         "variantQuantity": 6,
         "variantReorderLimit": 5,
-        "variantImage": ["/human4.jpg"],
-
+        "variantImage": [
+          "/human4.jpg"
+        ],
         "width": 60,
         "height": 40
       }
@@ -582,7 +782,9 @@
         "rating": "5",
         "likes": 42,
         "dislike": 0,
-        "images": ["/polygonAnimal1.jpg"],
+        "images": [
+          "/polygonAnimal1.jpg"
+        ],
         "date": "2025-04-05"
       },
       {
@@ -592,7 +794,9 @@
         "rating": "4",
         "likes": 42,
         "dislike": 0,
-        "images": ["/polygonAnimal1.jpg"],
+        "images": [
+          "/polygonAnimal1.jpg"
+        ],
         "date": "2025-04-05"
       }
     ]
@@ -605,9 +809,15 @@
     "type": "Framed",
     "category": "Nature & Wildlife",
     "subcategory": "Water Decor",
-    "tags": ["ocean"],
-    "images": ["/waves1.jpg", "/waves2.jpg", "/waves3.jpg", "/waves4.jpg"],
-
+    "tags": [
+      "ocean"
+    ],
+    "images": [
+      "/waves1.jpg",
+      "/waves2.jpg",
+      "/waves3.jpg",
+      "/waves4.jpg"
+    ],
     "SKU": "DWL-ART-07",
     "materialType": "metal",
     "weight": "1.4kg",
@@ -632,12 +842,12 @@
         "variantName": "Color",
         "variantQuantity": 5,
         "variantReorderLimit": 4,
-        "variantImage": ["/waves1.jpg"],
-
+        "variantImage": [
+          "/waves1.jpg"
+        ],
         "width": 60,
         "height": 40
       },
-
       {
         "variantId": "dwl-art-07-v2",
         "variantType": "Framed",
@@ -645,12 +855,12 @@
         "variantName": "Color",
         "variantQuantity": 6,
         "variantReorderLimit": 5,
-        "variantImage": ["/waves2.jpg"],
-
+        "variantImage": [
+          "/waves2.jpg"
+        ],
         "width": 60,
         "height": 40
       },
-
       {
         "variantId": "dwl-art-07-v3",
         "variantType": "Unframed",
@@ -658,12 +868,12 @@
         "variantName": "Material",
         "variantQuantity": 7,
         "variantReorderLimit": 6,
-        "variantImage": ["/waves3.jpg"],
-
+        "variantImage": [
+          "/waves3.jpg"
+        ],
         "width": 60,
         "height": 40
       },
-
       {
         "variantId": "dwl-art-07-v4",
         "variantType": "Framed",
@@ -671,8 +881,9 @@
         "variantName": "Material",
         "variantQuantity": 4,
         "variantReorderLimit": 3,
-        "variantImage": ["/waves4.jpg"],
-
+        "variantImage": [
+          "/waves4.jpg"
+        ],
         "width": 60,
         "height": 40
       }
@@ -685,7 +896,9 @@
         "rating": "5",
         "likes": 42,
         "dislike": 0,
-        "images": ["/polygonAnimal1.jpg"],
+        "images": [
+          "/polygonAnimal1.jpg"
+        ],
         "date": "2025-04-05"
       },
       {
@@ -695,7 +908,9 @@
         "rating": "4",
         "likes": 42,
         "dislike": 0,
-        "images": ["/polygonAnimal1.jpg"],
+        "images": [
+          "/polygonAnimal1.jpg"
+        ],
         "date": "2025-04-05"
       }
     ]
@@ -708,9 +923,15 @@
     "type": "Framed",
     "category": "Nature & Wildlife",
     "subcategory": "Sky Decor",
-    "tags": ["sunset"],
-    "images": ["/sacred1.jpg", "/sacred2.jpg", "/sacred3.jpg", "/sacred4.jpg"],
-
+    "tags": [
+      "sunset"
+    ],
+    "images": [
+      "/sacred1.jpg",
+      "/sacred2.jpg",
+      "/sacred3.jpg",
+      "/sacred4.jpg"
+    ],
     "SKU": "DWL-ART-08",
     "materialType": "metal",
     "weight": "1.2kg",
@@ -735,8 +956,9 @@
         "variantName": "Color",
         "variantQuantity": 5,
         "variantReorderLimit": 4,
-        "variantImage": ["/sacred1.jpg"],
-
+        "variantImage": [
+          "/sacred1.jpg"
+        ],
         "width": 60,
         "height": 40
       },
@@ -747,8 +969,9 @@
         "variantName": "Color",
         "variantQuantity": 7,
         "variantReorderLimit": 6,
-        "variantImage": ["/sacred2.jpg"],
-
+        "variantImage": [
+          "/sacred2.jpg"
+        ],
         "width": 60,
         "height": 40
       },
@@ -759,8 +982,9 @@
         "variantName": "Material",
         "variantQuantity": 6,
         "variantReorderLimit": 5,
-        "variantImage": ["/sacred3.jpg"],
-
+        "variantImage": [
+          "/sacred3.jpg"
+        ],
         "width": 60,
         "height": 40
       },
@@ -771,8 +995,9 @@
         "variantName": "Material",
         "variantQuantity": 4,
         "variantReorderLimit": 3,
-        "variantImage": ["/sacred4.jpg"],
-
+        "variantImage": [
+          "/sacred4.jpg"
+        ],
         "width": 60,
         "height": 40
       }
@@ -785,7 +1010,9 @@
         "rating": "5",
         "likes": 42,
         "dislike": 0,
-        "images": ["/polygonAnimal1.jpg"],
+        "images": [
+          "/polygonAnimal1.jpg"
+        ],
         "date": "2025-04-05"
       },
       {
@@ -795,7 +1022,9 @@
         "rating": "4",
         "likes": 42,
         "dislike": 0,
-        "images": ["/polygonAnimal1.jpg"],
+        "images": [
+          "/polygonAnimal1.jpg"
+        ],
         "date": "2025-04-05"
       }
     ]
@@ -808,9 +1037,15 @@
     "type": "Framed",
     "category": "Nature & Wildlife",
     "subcategory": "Mountain Decor",
-    "tags": ["mountain"],
-    "images": ["/Nature1.png", "/Nature2.png", "/Nature3.png", "/Nature4.png"],
-
+    "tags": [
+      "mountain"
+    ],
+    "images": [
+      "/Nature1.png",
+      "/Nature2.png",
+      "/Nature3.png",
+      "/Nature4.png"
+    ],
     "SKU": "DWL-ART-09",
     "materialType": "metal",
     "weight": "1.7kg",
@@ -835,8 +1070,9 @@
         "variantName": "Color",
         "variantQuantity": 5,
         "variantReorderLimit": 4,
-        "variantImage": ["/Nature1.png"],
-
+        "variantImage": [
+          "/Nature1.png"
+        ],
         "width": 60,
         "height": 40
       },
@@ -847,8 +1083,9 @@
         "variantName": "Color",
         "variantQuantity": 4,
         "variantReorderLimit": 3,
-        "variantImage": ["/Nature3.png"],
-
+        "variantImage": [
+          "/Nature3.png"
+        ],
         "width": 60,
         "height": 40
       },
@@ -859,8 +1096,9 @@
         "variantName": "Material",
         "variantQuantity": 6,
         "variantReorderLimit": 5,
-        "variantImage": ["/Nature4.png"],
-
+        "variantImage": [
+          "/Nature4.png"
+        ],
         "width": 60,
         "height": 40
       }
@@ -873,7 +1111,9 @@
         "rating": "5",
         "likes": 42,
         "dislike": 0,
-        "images": ["/polygonAnimal1.jpg"],
+        "images": [
+          "/polygonAnimal1.jpg"
+        ],
         "date": "2025-04-05"
       },
       {
@@ -883,7 +1123,9 @@
         "rating": "4",
         "likes": 42,
         "dislike": 0,
-        "images": ["/polygonAnimal1.jpg"],
+        "images": [
+          "/polygonAnimal1.jpg"
+        ],
         "date": "2025-04-05"
       }
     ]
@@ -896,9 +1138,12 @@
     "type": "Framed",
     "category": "Nature & Wildlife",
     "subcategory": "Animal Decor",
-    "tags": ["wildlife"],
-    "images": ["/horses1.jpg"],
-
+    "tags": [
+      "wildlife"
+    ],
+    "images": [
+      "/horses1.jpg"
+    ],
     "SKU": "DWL-ART-010",
     "materialType": "metal",
     "weight": "1.4kg",
@@ -923,8 +1168,9 @@
         "variantName": "Color",
         "variantQuantity": 4,
         "variantReorderLimit": 3,
-        "variantImage": ["/horses1.jpg"],
-
+        "variantImage": [
+          "/horses1.jpg"
+        ],
         "width": 60,
         "height": 40
       },
@@ -935,8 +1181,9 @@
         "variantName": "Material",
         "variantQuantity": 3,
         "variantReorderLimit": 2,
-        "variantImage": ["/horses3.jpg"],
-
+        "variantImage": [
+          "/horses3.jpg"
+        ],
         "width": 60,
         "height": 40
       },
@@ -947,8 +1194,9 @@
         "variantName": "Material",
         "variantQuantity": 5,
         "variantReorderLimit": 4,
-        "variantImage": ["/horses4.jpg"],
-
+        "variantImage": [
+          "/horses4.jpg"
+        ],
         "width": 60,
         "height": 40
       },
@@ -959,8 +1207,9 @@
         "variantName": "Color",
         "variantQuantity": 6,
         "variantReorderLimit": 5,
-        "variantImage": ["/horses5.jpg"],
-
+        "variantImage": [
+          "/horses5.jpg"
+        ],
         "width": 60,
         "height": 40
       }
@@ -973,7 +1222,9 @@
         "rating": "5",
         "likes": 42,
         "dislike": 0,
-        "images": ["/polygonAnimal1.jpg"],
+        "images": [
+          "/polygonAnimal1.jpg"
+        ],
         "date": "2025-04-05"
       },
       {
@@ -983,7 +1234,9 @@
         "rating": "4",
         "likes": 42,
         "dislike": 0,
-        "images": ["/polygonAnimal1.jpg"],
+        "images": [
+          "/polygonAnimal1.jpg"
+        ],
         "date": "2025-04-05"
       }
     ]
@@ -996,9 +1249,12 @@
     "type": "Framed",
     "category": "Nature & Wildlife",
     "subcategory": "Floral Decor",
-    "tags": ["gold"],
-    "images": ["/floral1.jpg"],
-
+    "tags": [
+      "gold"
+    ],
+    "images": [
+      "/floral1.jpg"
+    ],
     "SKU": "DWL-ART-011",
     "materialType": "metal",
     "weight": "1.1kg",
@@ -1023,8 +1279,9 @@
         "variantName": "Color",
         "variantQuantity": 6,
         "variantReorderLimit": 5,
-        "variantImage": ["/floral1.jpg"],
-
+        "variantImage": [
+          "/floral1.jpg"
+        ],
         "width": 60,
         "height": 40
       },
@@ -1035,8 +1292,9 @@
         "variantName": "Material",
         "variantQuantity": 5,
         "variantReorderLimit": 4,
-        "variantImage": ["/floral1.jpg"],
-
+        "variantImage": [
+          "/floral1.jpg"
+        ],
         "width": 60,
         "height": 40
       },
@@ -1047,8 +1305,9 @@
         "variantName": "Material",
         "variantQuantity": 4,
         "variantReorderLimit": 3,
-        "variantImage": ["/floral1.jpg"],
-
+        "variantImage": [
+          "/floral1.jpg"
+        ],
         "width": 60,
         "height": 40
       },
@@ -1059,8 +1318,9 @@
         "variantName": "Color",
         "variantQuantity": 6,
         "variantReorderLimit": 5,
-        "variantImage": ["/floral1.jpg"],
-
+        "variantImage": [
+          "/floral1.jpg"
+        ],
         "width": 60,
         "height": 40
       }
@@ -1073,7 +1333,9 @@
         "rating": "5",
         "likes": 42,
         "dislike": 0,
-        "images": ["/polygonAnimal1.jpg"],
+        "images": [
+          "/polygonAnimal1.jpg"
+        ],
         "date": "2025-04-05"
       },
       {
@@ -1083,7 +1345,9 @@
         "rating": "4",
         "likes": 42,
         "dislike": 0,
-        "images": ["/polygonAnimal1.jpg"],
+        "images": [
+          "/polygonAnimal1.jpg"
+        ],
         "date": "2025-04-05"
       }
     ]
@@ -1096,16 +1360,22 @@
     "type": "Framed",
     "category": "Nature & Wildlife",
     "subcategory": "Ocean Decor",
-    "tags": ["coral"],
-    "images": ["/mandala1.jpg","/mandala2.jpg","/mandala3.jpg","/mandala4.jpg"],
-
+    "tags": [
+      "coral"
+    ],
+    "images": [
+      "/mandala1.jpg",
+      "/mandala2.jpg",
+      "/mandala3.jpg",
+      "/mandala4.jpg"
+    ],
     "SKU": "DWL-ART-012",
     "materialType": "metal",
     "weight": "1.4kg",
     "variantQuantity": 9,
     "returnPolicy": "Eligible for return within 7 days of delivery.",
     "deliverBy": 7,
-    "hasVariants": true, 
+    "hasVariants": true,
     "amazonPrice": 3399,
     "mrp": 3399,
     "sellingPrice": 1699,
@@ -1123,12 +1393,12 @@
         "variantName": "Color",
         "variantQuantity": 5,
         "variantReorderLimit": 4,
-        "variantImage": ["/mandala1.jpg"],
-
+        "variantImage": [
+          "/mandala1.jpg"
+        ],
         "width": 60,
         "height": 40
       },
-
       {
         "variantId": "dwl-art-012-v2",
         "variantType": "Framed",
@@ -1136,12 +1406,12 @@
         "variantName": "Material",
         "variantQuantity": 6,
         "variantReorderLimit": 5,
-        "variantImage": ["/mandala2.jpg"],
-
+        "variantImage": [
+          "/mandala2.jpg"
+        ],
         "width": 60,
         "height": 40
       },
-
       {
         "variantId": "dwl-art-012-v3",
         "variantType": "Unframed",
@@ -1149,12 +1419,12 @@
         "variantName": "Color",
         "variantQuantity": 7,
         "variantReorderLimit": 6,
-        "variantImage": ["/mandala3.jpg"],
-
+        "variantImage": [
+          "/mandala3.jpg"
+        ],
         "width": 60,
         "height": 40
       },
-
       {
         "variantId": "dwl-art-012-v4",
         "variantType": "Framed",
@@ -1162,8 +1432,9 @@
         "variantName": "Material",
         "variantQuantity": 8,
         "variantReorderLimit": 7,
-        "variantImage": ["/mandala4.jpg"],
-
+        "variantImage": [
+          "/mandala4.jpg"
+        ],
         "width": 60,
         "height": 40
       }
@@ -1176,7 +1447,9 @@
         "rating": "5",
         "likes": 42,
         "dislike": 0,
-        "images": ["/polygonAnimal1.jpg"],
+        "images": [
+          "/polygonAnimal1.jpg"
+        ],
         "date": "2025-04-05"
       },
       {
@@ -1186,7 +1459,9 @@
         "rating": "4",
         "likes": 42,
         "dislike": 0,
-        "images": ["/polygonAnimal1.jpg"],
+        "images": [
+          "/polygonAnimal1.jpg"
+        ],
         "date": "2025-04-05"
       }
     ]
@@ -1199,14 +1474,15 @@
     "type": "Framed",
     "category": "Reflection Art",
     "subcategory": "Abstract Decor",
-    "tags": ["reflection"],
+    "tags": [
+      "reflection"
+    ],
     "images": [
       "/Reflection1.jpg",
       "/Reflection2.jpg",
       "/Reflection3.jpg",
       "/Reflection4.png"
     ],
-
     "SKU": "DWL-ART-013",
     "materialType": "glass",
     "weight": "1.2kg",
@@ -1231,8 +1507,9 @@
         "variantName": "Material",
         "variantQuantity": 5,
         "variantReorderLimit": 4,
-        "variantImage": ["/Reflection1.jpg"],
-
+        "variantImage": [
+          "/Reflection1.jpg"
+        ],
         "width": 60,
         "height": 40
       },
@@ -1243,8 +1520,9 @@
         "variantName": "Material",
         "variantQuantity": 119,
         "variantReorderLimit": 3,
-        "variantImage": ["/Reflection2.jpg"],
-
+        "variantImage": [
+          "/Reflection2.jpg"
+        ],
         "width": 60,
         "height": 40
       }
@@ -1257,7 +1535,9 @@
         "rating": "5",
         "likes": 42,
         "dislike": 0,
-        "images": ["/polygonAnimal1.jpg"],
+        "images": [
+          "/polygonAnimal1.jpg"
+        ],
         "date": "2025-04-05"
       },
       {
@@ -1267,7 +1547,9 @@
         "rating": "4",
         "likes": 42,
         "dislike": 0,
-        "images": ["/polygonAnimal1.jpg"],
+        "images": [
+          "/polygonAnimal1.jpg"
+        ],
         "date": "2025-04-05"
       }
     ]
@@ -1280,9 +1562,15 @@
     "type": "Framed",
     "category": "Clones",
     "subcategory": "Abstract Decor",
-    "tags": ["clones"],
-    "images": ["/Clone1.png", "/Clone2.png", "/Clone3.png", "/Clone4.png"],
-
+    "tags": [
+      "clones"
+    ],
+    "images": [
+      "/Clone1.png",
+      "/Clone2.png",
+      "/Clone3.png",
+      "/Clone4.png"
+    ],
     "SKU": "DWL-ART-014",
     "materialType": "metal",
     "weight": "1.5kg",
@@ -1307,8 +1595,9 @@
         "variantName": "Color",
         "variantQuantity": 4,
         "variantReorderLimit": 3,
-        "variantImage": ["/Clone1.png"],
-
+        "variantImage": [
+          "/Clone1.png"
+        ],
         "width": 60,
         "height": 40
       },
@@ -1319,8 +1608,9 @@
         "variantName": "Material",
         "variantQuantity": 3,
         "variantReorderLimit": 2,
-        "variantImage": ["/Clone2.png"],
-
+        "variantImage": [
+          "/Clone2.png"
+        ],
         "width": 60,
         "height": 40
       }
@@ -1333,7 +1623,9 @@
         "rating": "5",
         "likes": 42,
         "dislike": 0,
-        "images": ["/polygonAnimal1.jpg"],
+        "images": [
+          "/polygonAnimal1.jpg"
+        ],
         "date": "2025-04-05"
       },
       {
@@ -1343,7 +1635,9 @@
         "rating": "4",
         "likes": 42,
         "dislike": 0,
-        "images": ["/polygonAnimal1.jpg"],
+        "images": [
+          "/polygonAnimal1.jpg"
+        ],
         "date": "2025-04-05"
       }
     ]
@@ -1356,14 +1650,15 @@
     "type": "Framed",
     "category": "Typography & Symbols",
     "subcategory": "Inspirational Quotes",
-    "tags": ["typography"],
+    "tags": [
+      "typography"
+    ],
     "images": [
       "/Typography1.png",
       "/Typography2.png",
       "/Typography3.png",
       "/typography1.jpg"
     ],
-
     "SKU": "DWL-ART-023",
     "materialType": "metal",
     "weight": "1.0kg",
@@ -1388,7 +1683,9 @@
         "variantName": "Color",
         "variantQuantity": 6,
         "variantReorderLimit": 5,
-        "variantImage": ["/Typography1.png"],
+        "variantImage": [
+          "/Typography1.png"
+        ],
         "width": 60,
         "height": 40
       },
@@ -1399,7 +1696,9 @@
         "variantName": "Material",
         "variantQuantity": 6,
         "variantReorderLimit": 5,
-        "variantImage": ["/Typography2.png"],
+        "variantImage": [
+          "/Typography2.png"
+        ],
         "width": 60,
         "height": 40
       }
@@ -1412,7 +1711,9 @@
         "rating": "5",
         "likes": 42,
         "dislike": 0,
-        "images": ["/polygonAnimal1.jpg"],
+        "images": [
+          "/polygonAnimal1.jpg"
+        ],
         "date": "2025-04-05"
       },
       {
@@ -1422,7 +1723,9 @@
         "rating": "4",
         "likes": 42,
         "dislike": 0,
-        "images": ["/polygonAnimal1.jpg"],
+        "images": [
+          "/polygonAnimal1.jpg"
+        ],
         "date": "2025-04-05"
       }
     ]
@@ -1435,9 +1738,15 @@
     "type": "Framed",
     "category": "Wall Arts",
     "subcategory": "Abstract Art",
-    "tags": ["abstract"],
-    "images": ["/Art1.webp", "/Art2.png", "/art3.jpg", "/Art4.webp"],
-
+    "tags": [
+      "abstract"
+    ],
+    "images": [
+      "/Art1.webp",
+      "/Art2.png",
+      "/art3.jpg",
+      "/Art4.webp"
+    ],
     "SKU": "DWL-ART-024",
     "materialType": "canvas",
     "weight": "2.0kg",
@@ -1462,8 +1771,9 @@
         "variantName": "Color",
         "variantQuantity": 8,
         "variantReorderLimit": 7,
-        "variantImage": ["/Art1.webp"],
-
+        "variantImage": [
+          "/Art1.webp"
+        ],
         "width": 60,
         "height": 40
       },
@@ -1474,8 +1784,9 @@
         "variantName": "Material",
         "variantQuantity": 7,
         "variantReorderLimit": 6,
-        "variantImage": ["/Art2.png"],
-
+        "variantImage": [
+          "/Art2.png"
+        ],
         "width": 60,
         "height": 40
       }
@@ -1488,7 +1799,9 @@
         "rating": "5",
         "likes": 42,
         "dislike": 0,
-        "images": ["/polygonAnimal1.jpg"],
+        "images": [
+          "/polygonAnimal1.jpg"
+        ],
         "date": "2025-04-05"
       },
       {
@@ -1498,7 +1811,9 @@
         "rating": "4",
         "likes": 42,
         "dislike": 0,
-        "images": ["/polygonAnimal1.jpg"],
+        "images": [
+          "/polygonAnimal1.jpg"
+        ],
         "date": "2025-04-05"
       }
     ]

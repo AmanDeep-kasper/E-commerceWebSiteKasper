@@ -1,20 +1,20 @@
 # Dependencies
-frontend/node_modules/
-frontend/.env
-frontend/.env.local
-frontend/.env.development.local
-frontend/.env.production.local
-frontend/.env.test.local
+node_modules
+.env
+.env.local
+.env.development.local
+.env.production.local
+.env.test.local
 
 # Build output
-frontend/build/
-frontend/dist/
-frontend/.next/
-frontend/out/
+build
+dist
+.next
+out
 
 # Editor / System Files
-.vscode/
-.idea/
+.vscode
+.idea
 *.suo
 *.ntvs*
 *.njsproj

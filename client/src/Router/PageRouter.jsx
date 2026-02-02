@@ -1,5 +1,5 @@
 // PageRouter.js
-import { BrowserRouter, Routes, Route } from "react-router";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router";
 
 // Public Pages
 import Home from "../pages/Home";
@@ -27,7 +27,12 @@ import AccountLayout from "../pages/account/AccountLayout";
 import MyReviews from "../components/MyReviews";
 import Contact from "../components/Contact";
 import OrderDetail from "../components/OrderDetail";
-import ReturnPage from "../pages/ReturnPage";
+import ReturnPage from "../pages/admin/Returns/ReturnPage";
+
+import ReturnRequested from "../pages/admin/Returns/ReturnRequested";
+import ReturnInitiated from "../pages/admin/Returns/ReturnInitiated";
+import ReceivedReturns from "../pages/admin/Returns/ReceivedReturns";
+import ReturnClosed from "../pages/admin/Returns/ReturnClosed";
 // import PaymentSuccess from "../pages/PaymentSuccess";
 // Admin Pages
 import Dashboard from "../pages/admin/Dashboard";
@@ -74,6 +79,12 @@ import Login from "../pages/user/Login";
 import Register from "../pages/user/RegisterPage";
 import ForgotPassword from "../components/forms/ForgotPassword";
 import ResetPassword from "../components/forms/ResetPassword";
+import AllOrders from "../pages/admin/order/AllOrders";
+import PendingOrders from "../pages/admin/order/PendingOrders";
+import ProcessingOrders from "../pages/admin/order/ProcessingOrders";
+import ShippedOrders from "../pages/admin/order/ShippedOrders";
+import DeliveredOrders from "../pages/admin/order/DeliveredOrders";
+import CancelledOrders from "../pages/admin/order/CancelledOrders";
 
 const PageRouter = () => {
   return (
@@ -130,33 +141,54 @@ const PageRouter = () => {
 
         {/* Admin Route */}
         <Route path="/admin" element={<AdminLayout />}>
+          {/* dashboard */}
           <Route path="dashboard" element={<Dashboard />} />
+          {/* add product */}
           <Route path="add-product" element={<AddProduct />} />
-          <Route path="add-product/:uuid" element={<AddProduct />} /> // update
-          the data
+          <Route path="add-product/:uuid" element={<AddProduct />} />
+          {/* customers */}
           <Route path="customers" element={<Customer />} />
           <Route path="products" element={<Products />} />
           <Route path="categories" element={<Categories />} />
-          <Route path="orders" element={<Order />} />
+          {/* orders */}
+          <Route path="orders" element={<Order />}>
+            <Route index element={<Navigate to="all" replace />} />
+            <Route path="all" element={<AllOrders />} />
+            <Route path="pending" element={<PendingOrders />} />
+            <Route path="processing" element={<ProcessingOrders />} />
+            <Route path="shipped" element={<ShippedOrders />} />
+            <Route path="delivered" element={<DeliveredOrders />} />
+            <Route path="cancelled" element={<CancelledOrders />} />
+          </Route>
+          {/* returns */}
+          <Route path="returns" element={<ReturnPage />}>
+            <Route index element={<Navigate to="ReturnRequested" replace />} />
+            <Route path="ReturnRequested" element={<ReturnRequested />} />
+            <Route path="ReturnInitiated" element={<ReturnInitiated />} />
+            <Route path="ReceivedReturns" element={<ReceivedReturns />} />
+            <Route path="ReturnClosed" element={<ReturnClosed />} />
+          </Route>
+
           <Route path="users" element={<User />} />
           <Route path="sales" element={<Sale />} />
           <Route path="stocks" element={<Stock />} />
           {/* Customer */}
           <Route path="customers/:id" element={<CustomerLayout />}>
             <Route path="customer-info" element={<Information />} />
+            <Route path="edit" element={<InformationForm />} />
             <Route path="order-insight" element={<OrderInsight />} />
             <Route path="wishlist-cart" element={<WishlistCartInfo />} />
             <Route path="address-book" element={<Addresses />} />
             <Route path="support-feedback" element={<Feedback />} />
           </Route>
           {/* Forms */}
-          <Route path="" element={<CustomerForm />}>
+          {/* <Route path="" element={<CustomerForm />}>
             <Route path="customer-form" element={<InformationForm />} />
             <Route path="insight-form" element={<OrderInsightForm />} />
             <Route path="wishlist-form" element={<WishlistCartForm />} />
             <Route path="address-form" element={<AddressBookForm />} />
             <Route path="support-form" element={<SupportFeedbackForm />} />
-          </Route>
+          </Route> */}
           {/* Details */}
           <Route path="product-info/:uuid" element={<ProductInformation />} />
           <Route path="order-info/:orderId" element={<OrderInformation />} />

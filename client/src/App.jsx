@@ -4,6 +4,9 @@ import { BrowserRouter, Route, Routes } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { syncCart } from "./redux/cart/cartSlice";
 import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+
 
 // Admin Pages
 import Dashboard from "./pages/admin/Dashboard";
@@ -60,8 +63,8 @@ function App() {
   useEffect(() => {
     if (isAuthenticated && !user) {
       dispatch(getUserDetails());
-      dispatch(fetchAddresses())
-      dispatch(fetchAllProducts())
+      dispatch(fetchAddresses());
+      dispatch(fetchAllProducts());
     }
   }, [dispatch, isAuthenticated, user]);
 
@@ -69,10 +72,9 @@ function App() {
     dispatch(syncCart());
   }, [dispatch]);
 
-
   return (
     <>
-      <ToastContainer
+      {/* <ToastContainer
         position="top-center"
         autoClose={1000}
         pauseOnHover={false}
@@ -82,8 +84,15 @@ function App() {
         newestOnTop // Show the latest toast on top
         theme="light"
         style={{ fontSize: "14px", padding: "8px" }} // Minimal styling
+      /> */}
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar
+        closeButton={false}
+        pauseOnHover
       />
-      
+
       <PageRouter></PageRouter>
     </>
   );
@@ -94,59 +103,59 @@ export default App;
 // tgvfv
 // <BrowserRouter>
 //         <Routes>
-          // <Route path="/admin" element={<AdminLayout />}>
-          //   <Route index element={<Dashboard />} />
-          //   <Route path="add-product" element={<AddProduct />} />
-          //   <Route path="customers" element={<Customer />} />
-          //   <Route path="products" element={<Product />} />
-          //   <Route path="categories" element={<Categories />} />
-          //   <Route path="orders" element={<Order />} />
-          //   <Route path="users" element={<User />} />
-          //   <Route path="sales" element={<Sale />} />
-          //   <Route path="stocks" element={<Stock />} />
+// <Route path="/admin" element={<AdminLayout />}>
+//   <Route index element={<Dashboard />} />
+//   <Route path="add-product" element={<AddProduct />} />
+//   <Route path="customers" element={<Customer />} />
+//   <Route path="products" element={<Product />} />
+//   <Route path="categories" element={<Categories />} />
+//   <Route path="orders" element={<Order />} />
+//   <Route path="users" element={<User />} />
+//   <Route path="sales" element={<Sale />} />
+//   <Route path="stocks" element={<Stock />} />
 
-          //   {/* Customer */}
-          //   <Route path="customers/:id" element={<CustomerLayout />}>
-          //     <Route path="customer-info" element={<Information />} />
-          //     <Route path="order-insight" element={<OrderInsight />} />
-          //     <Route path="wishlist-cart" element={<WishlistCartInfo />} />
-          //     <Route path="address-book" element={<Address />} />
-          //     <Route path="support-feedback" element={<Feedback />} />
-          //   </Route>
+//   {/* Customer */}
+//   <Route path="customers/:id" element={<CustomerLayout />}>
+//     <Route path="customer-info" element={<Information />} />
+//     <Route path="order-insight" element={<OrderInsight />} />
+//     <Route path="wishlist-cart" element={<WishlistCartInfo />} />
+//     <Route path="address-book" element={<Address />} />
+//     <Route path="support-feedback" element={<Feedback />} />
+//   </Route>
 
-          //   {/* Forms */}
-          //   <Route path="" element={<CustomerForm />}>
-          //     <Route path="customer-form" element={<InformationForm />} />
-          //     <Route path="insight-form" element={<OrderInsightForm />} />
-          //     <Route path="wishlist-form" element={<WishlistCartForm />} />
-          //     <Route path="address-form" element={<AddressBookForm />} />
-          //     <Route path="support-form" element={<SupportFeedbackForm />} />
-          //   </Route>
+//   {/* Forms */}
+//   <Route path="" element={<CustomerForm />}>
+//     <Route path="customer-form" element={<InformationForm />} />
+//     <Route path="insight-form" element={<OrderInsightForm />} />
+//     <Route path="wishlist-form" element={<WishlistCartForm />} />
+//     <Route path="address-form" element={<AddressBookForm />} />
+//     <Route path="support-form" element={<SupportFeedbackForm />} />
+//   </Route>
 
-          //   {/* Details */}
-          //   <Route path="product-info/:uuid" element={<ProductInformation />} />
-          //   <Route path="order-info/:orderId" element={<OrderInformation />} />
-          //   <Route path="stock-info/:uuid" element={<StockDetail />} />
-          //   <Route path="stock-form" element={<StockEditForm />} />
+//   {/* Details */}
+//   <Route path="product-info/:uuid" element={<ProductInformation />} />
+//   <Route path="order-info/:orderId" element={<OrderInformation />} />
+//   <Route path="stock-info/:uuid" element={<StockDetail />} />
+//   <Route path="stock-form" element={<StockEditForm />} />
 
-          //   {/* Admin Profile */}
-          //   <Route path="profile-setting" element={<AdminProfileSetting />} />
-          //   <Route path="profile-form" element={<AdminProfileForm />} />
+//   {/* Admin Profile */}
+//   <Route path="profile-setting" element={<AdminProfileSetting />} />
+//   <Route path="profile-form" element={<AdminProfileForm />} />
 
-          //   {/* Settings */}
-          //   <Route path="settings" element={<SettingsLayout />}>
-          //     <Route path="general" element={<GeneralSettings />} />
-          //     <Route path="notification" element={<NotificationSettings />} />
-          //     <Route path="payment" element={<PaymentSettings />} />
-          //     <Route path="taxes" element={<TaxesSettings />} />
-          //     {/* <Route path="product" element={<ProductSettings />} /> */}
+//   {/* Settings */}
+//   <Route path="settings" element={<SettingsLayout />}>
+//     <Route path="general" element={<GeneralSettings />} />
+//     <Route path="notification" element={<NotificationSettings />} />
+//     <Route path="payment" element={<PaymentSettings />} />
+//     <Route path="taxes" element={<TaxesSettings />} />
+//     {/* <Route path="product" element={<ProductSettings />} /> */}
 
-          //     {/* Settings form */}
-          //   </Route>
-          //   <Route path="settings/general-form" element={<GeneralSettingsForm />} />
-          //   <Route path="settings/notification-form" element={<NotificationSettingsForm />} />
-          //   <Route path="settings/payment-form" element={<PaymentSettingsForm />} />
-          //   <Route path="settings/tax-form" element={<TaxSettingsForm />} />
-          // </Route>
+//     {/* Settings form */}
+//   </Route>
+//   <Route path="settings/general-form" element={<GeneralSettingsForm />} />
+//   <Route path="settings/notification-form" element={<NotificationSettingsForm />} />
+//   <Route path="settings/payment-form" element={<PaymentSettingsForm />} />
+//   <Route path="settings/tax-form" element={<TaxSettingsForm />} />
+// </Route>
 //         </Routes>
 //       </BrowserRouter>

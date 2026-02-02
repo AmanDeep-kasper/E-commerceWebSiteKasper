@@ -1,0 +1,142 @@
+[
+    {
+        "returnId": "RE-CW-24012",
+        "type": "Return",
+        "status": "Pending",
+        "returnStatus": "Return to Origin",
+        "requestedAt": "2026-01-14T14:30:00",
+        "orderDetails": {
+            "orderId": "ORD-FF-2354",
+            "orderStatus": "Delivered",
+            "paymentStatus": "Paid",
+            "orderDate": "2026-01-12",
+            "totalAmount": 10000
+        },
+        "items": [
+            {
+                "productId": "PRD-001",
+                "name": "Flower Mandela Laser Cut Metal Wall Art",
+                "skuId": "SK-FLV1-391",
+                "color": "Red",
+                "size": "25X12",
+                "quantity": 1,
+                "price": 4000,
+                "image": "https://images.unsplash.com/photo-1547949003-9792a18a2601"
+            }
+        ],
+        "returnReason": {
+            "code": "QUALITY_ISSUE",
+            "message": "Poor build or finish quality"
+        },
+        "returnProof": [
+            {
+                "type": "image",
+                "url": "https://images.unsplash.com/photo-1523275335684-37898b6baf30"
+            },
+            {
+                "type": "video",
+                "url": "/assets/video/video-placeholder.mp4"
+            },
+            {
+                "type": "image",
+                "url": "https://plus.unsplash.com/premium_photo-1679913792906-13ccc5c84d44"
+            }
+        ],
+        "customerDetails": {
+            "customerId": "CX-AI-3942",
+            "name": "Amit Iyer",
+            "phone": "+91 7324848914",
+            "email": "amit.iyer@gmail.com",
+            "address": {
+                "line1": "Shop No.61, Huda market",
+                "line2": "Sector 46, Near Axis Bank",
+                "city": "Gurugram",
+                "state": "Haryana",
+                "postalCode": "122002",
+                "country": "India"
+            }
+        },
+        "paymentSummary": {
+            "returnedItemCost": 4000,
+            "shippingCost": 0,
+            "totalRefundableAmount": 4000,
+            "refundMethod": "Original payment method"
+        },
+        "actions": {
+            "canApprove": true,
+            "canReject": true
+        }
+    },
+    {
+        "returnId": "RE-CW-24013",
+        "type": "Exchange",
+        "status": "Pending",
+        "requestedAt": "2026-01-14T14:30:00",
+        "orderDetails": {
+            "orderId": "ORD-FF-2354",
+            "orderStatus": "Delivered",
+            "paymentStatus": "Paid",
+            "orderDate": "2026-01-05",
+            "totalAmount": 2000
+        },
+        "items": [
+            {
+                "productId": "PRD-001",
+                "name": "Flower Mandela Laser Cut Metal Wall Art",
+                "skuId": "SK-FLV1-391",
+                "color": "Blue",
+                "size": "25X12",
+                "quantity": 1,
+                "price": 2000,
+                "image": "https://images.unsplash.com/photo-1547949003-9792a18a2601"
+            }
+        ],
+        "returnReason": {
+            "code": "COLOR_CHANGE",
+            "message": "Want different color"
+        },
+        "customerDetails": {
+            "customerId": "CX-AI-3942",
+            "name": "Amit Iyer",
+            "phone": "+91 7324848914",
+            "email": "amit.iyer@gmail.com",
+            "address": {
+                "line1": "Shop No.61, Huda market",
+                "line2": "Sector 46, Near Axis Bank",
+                "city": "Gurugram",
+                "state": "Haryana",
+                "postalCode": "122002",
+                "country": "India"
+            }
+        },
+        "exchangeDetails": {
+            "exchangedItem": {
+                "productId": "PRD-002",
+                "name": "Flower Mandela Laser Cut Metal Wall Art",
+                "skuId": "SK-FLV1-391",
+                "color": "White",
+                "size": "25X12",
+                "quantity": 1,
+                "price": 2500
+            },
+            "newOrder": {
+                "orderId": "ORD-FF-4624",
+                "orderStatus": "Pending",
+                "paymentStatus": "Paid (Prepaid)",
+                "orderDate": "2026-01-14",
+                "totalAmount": 2500
+            }
+        },
+        "paymentSummary": {
+            "returnedItemCost": 2000,
+            "exchangedItemCost": 2500,
+            "shippingCost": 100,
+            "totalPayableAmount": 600,
+            "currency": "INR"
+        },
+        "actions": {
+            "canApprove": true,
+            "canReject": true
+        }
+    }
+]

@@ -91,238 +91,196 @@
 // }
 
 // export default Orders;
-
-import {
-  Package,
-  Calendar,
-  CreditCard,
-  TrendingUp,
-  ShoppingCart,
-  Truck,
-  XCircle,
-  Star,
-  MapPin,
-  DollarSign,
-} from "lucide-react";
 import { Link, useOutletContext } from "react-router";
+import customers from "../data/orders.json";
+import { useState } from "react";
 
 const Card = ({ children, className = "" }) => (
-  <div
-    className={`bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden ${className}`}
-  >
+  <div className={`bg-white rounded-xl overflow-hidden mb-4 ${className}`}>
     {children}
   </div>
 );
 
-const InfoRow = ({ label, value, icon: Icon, trend, className = "" }) => (
-  <div className={`flex flex-col gap-1 p-3 bg-gray-50 rounded-lg ${className}`}>
-    <div className="flex items-center gap-2 text-xs font-medium text-gray-500 uppercase tracking-wide">
-      {Icon && <Icon className="w-3.5 h-3.5" />}
+const InfoRow = ({ label, value }) => (
+  <div className="flex flex-col gap-1 p-1 rounded-lg">
+    <div className="flex items-center text-xs font-medium text-gray-500 tracking-wide">
       <span>{label}</span>
     </div>
-    <div className="flex items-center justify-between">
+    <div className="flex items-center gap-2">
       <span className="text-sm font-medium text-gray-900">{value}</span>
-      {trend && (
-        <span
-          className={`text-xs px-1.5 py-0.5 rounded-full ${
-            trend.value > 0
-              ? "bg-green-100 text-green-800"
-              : "bg-red-100 text-red-800"
-          }`}
-        >
-          {trend.value > 0 ? "↑" : "↓"} {Math.abs(trend.value)}%
-        </span>
-      )}
     </div>
-  </div>
-);
-
-const Section = ({ title, children }) => (
-  <div className="mb-6 last:mb-0">
-    {title && (
-      <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide border-b pb-2 mb-4">
-        {title}
-      </h3>
-    )}
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">{children}</div>
   </div>
 );
 
 function Orders() {
-  // Format currency values
-  const { customer } = useOutletContext();
-  const formatCurrency = (amount) => {
-    if (!amount) return "$0.00";
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-    }).format(amount);
-  };
+  const [page, setPage] = useState(1);
+  const rowsPerPage = 10;
 
-  // Format percentages
-  const formatPercent = (value) => {
-    if (!value) return "0%";
-    return `${value}%`;
+  // Pagination calculations
+  const start = (page - 1) * rowsPerPage + 1;
+  const end = Math.min(page * rowsPerPage, customers.length);
+  const total = customers.length;
+  const totalPages = Math.ceil(customers.length / rowsPerPage);
+  const rows = customers.slice((page - 1) * rowsPerPage, page * rowsPerPage);
+
+  // ======= SUMMARY OBJECT FOR InfoRow =======
+  const orderSummary = {
+    totalOrder: customers.length,
+    totalSpend: customers
+      .filter(
+        (o) => o.payment_status === "Paid" && o.delivery_status === "Delivered",
+      )
+      .reduce((sum, o) => sum + Number(o.amazon_price), 0),
+    cancelledOrder: customers.filter((o) => o.delivery_status === "Cancelled")
+      .length,
+    lastOrderDate: customers
+      .map((o) => new Date(o.order_date))
+      .sort((a, b) => b - a)[0]
+      ?.toDateString(),
+    topCategoryPurchased: (() => {
+      const map = {};
+      customers.forEach((o) => {
+        map[o.category] = (map[o.category] || 0) + 1;
+      });
+      return Object.keys(map).reduce((a, b) => (map[a] > map[b] ? a : b));
+    })(),
   };
 
   return (
-    <div className="col-span-7">
-      <Card className="p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-            <Package className="w-5 h-5" />
-            Order Insights
-          </h2>
-          <span className="px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-            {customer?.total_orders || 0} Orders
-          </span>
-        </div>
+    <div className="text-gray-900">
+      <div className="bg-white px-4 py-2 rounded-xl border">
+        <Card>
+          <div className="flex justify-between items-center mb-2">
+            <h2 className="text-lg font-medium text-gray-900 flex items-center gap-2">
+              Order Details
+            </h2>
+          </div>
 
-        {/* Order Summary Section */}
-        <Section title="Order Summary">
-          <InfoRow
-            label="Total Orders"
-            value={customer?.total_orders || "0"}
-            icon={Package}
-            trend={{ value: 12 }}
-          />
-          <InfoRow
-            label="Total Spend"
-            value={formatCurrency(customer.total_spent)}
-            icon={DollarSign}
-            trend={{ value: 8 }}
-          />
-          <InfoRow
-            label="Avg. Order Value"
-            value={formatCurrency(customer?.avgValue || 0)}
-            icon={TrendingUp}
-          />
-          <InfoRow
-            label="Last Order Value"
-            value={formatCurrency(customer.lastValue || 0)}
-            icon={DollarSign}
-          />
-        </Section>
-
-        {/* Order Timeline Section */}
-        <Section title="Order Timeline">
-          <InfoRow
-            label="First Order Date"
-            value={customer?.firstDate || "24 Aug 2023"}
-            icon={Calendar}
-          />
-          <InfoRow
-            label="Last Order Date"
-            value={customer.last_order_date || "Recent"}
-            icon={Calendar}
-          />
-          <InfoRow
-            label="Order Frequency"
-            value={customer.freq || "Every 2 weeks"}
-            icon={Calendar}
-          />
-          <InfoRow
-            label="Cancelled Orders"
-            value={String(customer.cancelled || "0").padStart(2, "0")}
-            icon={XCircle}
-            className={customer.cancelled > 0 ? "bg-red-50" : ""}
-          />
-        </Section>
-
-        {/* Product Insights Section */}
-        <Section title="Product Insights">
-          <InfoRow
-            label="Most Purchased Product"
-            value={customer?.mostProduct || "Classic T-Shirt"}
-            icon={Star}
-          />
-          <InfoRow
-            label="Top Category Purchased"
-            value={customer?.topCategory || "Clothing"}
-            icon={Package}
-          />
-          <InfoRow
-            label="Cart Abandonment Rate"
-            value={formatPercent(customer?.cartAbandon || "15")}
-            icon={ShoppingCart}
-            trend={{ value: -5 }}
-          />
-          <InfoRow
-            label="Discount Code Usage"
-            value={formatPercent(customer?.discountUsage || "25")}
-            icon={CreditCard}
-          />
-        </Section>
-
-        {/* Payment & Delivery Section */}
-        <Section title="Payment & Delivery">
-          <InfoRow
-            label="Preferred Payment Method"
-            value={customer.preferred_payment_method || "Credit Card"}
-            icon={CreditCard}
-          />
-          <InfoRow
-            label="Failed Payment Attempts"
-            value={customer?.failedPayments || "2"}
-            icon={XCircle}
-            className={customer?.failedPayments > 0 ? "bg-red-50" : ""}
-          />
-          <InfoRow
-            label="Delivery Success Rate"
-            value={formatPercent(customer?.deliveryRate || "98")}
-            icon={Truck}
-            trend={{ value: 2 }}
-          />
-          <InfoRow
-            label="Shipping Location(s)"
-            value={customer.address || "Primary address"}
-            icon={MapPin}
-          />
-        </Section>
-
-        {/* Performance Metrics */}
-        {/* <div className="mt-6 pt-4 border-t border-gray-200">
-          <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-4">
-            Performance Metrics
-          </h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <div className="text-center p-3 bg-blue-50 rounded-lg">
-              <div className="text-xl font-bold text-blue-700">
-                {customer?.total_orders || 0}
-              </div>
-              <div className="text-xs text-gray-600">Total Orders</div>
-            </div>
-            <div className="text-center p-3 bg-green-50 rounded-lg">
-              <div className="text-xl font-bold text-green-700">
-                {formatCurrency(customer.total_spent)}
-              </div>
-              <div className="text-xs text-gray-600">Total Value</div>
-            </div>
-            <div className="text-center p-3 bg-amber-50 rounded-lg">
-              <div className="text-xl font-bold text-amber-700">
-                {formatPercent(customer?.deliveryRate || "98")}
-              </div>
-              <div className="text-xs text-gray-600">Success Rate</div>
-            </div>
-            <div className="text-center p-3 bg-purple-50 rounded-lg">
-              <div className="text-xl font-bold text-purple-700">
-                {formatPercent(customer?.cartAbandon || "15")}
-              </div>
-              <div className="text-xs text-gray-600">Abandon Rate</div>
+          <div className="gap-4">
+            {/* Info Section */}
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <InfoRow label="Total Orders" value={orderSummary.totalOrder} />
+              <InfoRow
+                label="Total Spend"
+                value={`₹${orderSummary.totalSpend}`}
+              />
+              <InfoRow
+                label="Cancelled Orders"
+                value={orderSummary.cancelledOrder}
+              />
+              <InfoRow
+                label="Last Order Date"
+                value={orderSummary.lastOrderDate}
+              />
+              <InfoRow
+                label="Top Category Purchased"
+                value={orderSummary.topCategoryPurchased}
+              />
             </div>
           </div>
-        </div> */}
-      </Card>
-      <div className="flex items-center gap-2 justify-end mt-6">
-        <Link to={'/admin/insight-form'} className="inline-flex items-center gap-2 border rounded-md px-3 py-1.5 text-sm hover:bg-gray-50">
-          Edit
-        </Link>
-        <button className="inline-flex items-center gap-2 border rounded-md px-3 py-1.5 text-sm hover:bg-gray-50">
-          Cancel
-        </button>
-        <button className="inline-flex items-center gap-2 rounded-md px-3 py-1.5 text-sm bg-amber-500 text-white hover:bg-amber-600">
-          Delete
-        </button>
+        </Card>
+
+        {/* Table */}
+        <div className="overflow-hidden rounded-xl border bg-white">
+          <table className="min-w-full text-sm">
+            <thead className="bg-[#F5F8FA] text-gray-600">
+              <tr>
+                {[
+                  "Order ID",
+                  "Order Date",
+                  "Amount",
+                  "Payment",
+                  "Order Status",
+                  "Action",
+                ].map((h) => (
+                  <th
+                    key={h}
+                    className="px-4 py-4 font-medium text-center whitespace-nowrap">
+                    {h}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+
+            <tbody>
+              {rows.map((r) => (
+                <tr
+                  key={r.order_id}
+                  className="border-t hover:bg-gray-50 transition text-center">
+                  <td className="px-4 py-3">{r.order_id}</td>
+                  <td className="px-4 py-3  ">{r.order_date}</td>
+                  <td className="px-4 py-3 ">₹{r.amazon_price}</td>
+                  <td className="px-4 py-3 ">
+                    <span
+                      className={`inline-flex text-sm font-medium  ${r.payment_status === "Paid" ? "text-[#00A63E]" : r.payment_status === "Pending" ? "text-[#F8A14A]" : r.payment_status === "Refund Initiated" ? "text-[#E91DD1]" : r.payment_status ? "text-[#8A38F5]" : ""}`}>
+                      {r.payment_status}
+                    </span>
+                  </td>
+                  <td className="px-1 py-3 ">
+                    <span
+                      className={`inline-flex items-center gap-2 px-3 py-1 rounded-md text-xs font-medium ${
+                        r.delivery_status === "Pending"
+                          ? "bg-[#FFF9E0] text-[#F8A14A]"
+                          : r.delivery_status === "Processing"
+                            ? "bg-[#E6D3FF] text-[#8A38F5]"
+                            : r.delivery_status === "Shipped"
+                              ? "bg-[#D5E5F5] text-[#1C3753]"
+                              : r.delivery_status === "Return Initiated"
+                                ? "bg-[#FBDBF7] text-[#E91DD1]"
+                                : r.delivery_status === "Cancelled"
+                                  ? "bg-[#EFEFEF] text-[#686868]"
+                                  : r.delivery_status === "Returned"
+                                    ? "bg-[#C7FCFF] text-[#008D94]"
+                                    : r.delivery_status === "Delivered"
+                                      ? "bg-[#E0F4DE] text-[#00A63E]"
+                                      : ""
+                      }`}>
+                      {r.delivery_status}
+                    </span>
+                  </td>
+
+                  <td className="px-4 py-3">
+                    <Link
+                      to={`/orders/${r.order_id}`}
+                      className="text-blue-500 hover:underline">
+                      View
+                    </Link>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Pagination */}
+        <div className="flex items-center justify-between py-3 text-sm text-gray-600">
+          <div>
+            Showing <span className="font-medium">{start}</span>–
+            <span className="font-medium">{end}</span> of{" "}
+            <span className="font-medium">{total}</span> results
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              className="px-3 py-1 border rounded disabled:opacity-40"
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page === 1}>
+              ‹
+            </button>
+
+            <div className="px-4 py-1 border rounded">
+              Page {String(page).padStart(2, "0")} of{" "}
+              {String(totalPages).padStart(2, "0")}
+            </div>
+
+            <button
+              className="px-3 py-1 border rounded disabled:opacity-40"
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}>
+              ›
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
