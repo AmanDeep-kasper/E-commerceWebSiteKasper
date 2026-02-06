@@ -11,10 +11,11 @@ import {
 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { Link } from "react-router";
+import axiosInstance from "../../../api/axiosInstance";
 
 const links = [
-  // { icon: MoonIcon, name: "Theme" },
-  // { icon: MessageSquareIcon, name: "Messages", badge: 3 },
+  { icon: MoonIcon, name: "Theme" },
+  { icon: MessageSquareIcon, name: "Messages", badge: 3 },
   { icon: BellIcon, name: "Notifications", badge: "" },
 ];
 
@@ -36,6 +37,24 @@ function Header({ isCollapsed }) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  const [adminDetails, setAdminDetails] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  // useEffect(() => {
+  //   const fetchAdmin = async () => {
+  //     try {
+  //       const res = await axiosInstance.get("/users/me");
+  //       setAdminDetails(res.data);
+  //     } catch (error) {
+  //       console.error("Failed to fetch admin details", error);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+  //   fetchAdmin();
+  // }, []);
+
+  // console.log(adminDetails);
   return (
     <header
       className={`fixed top-0 left-0 right-0 h-16 bg-white border-b border-gray-200 shadow-sm flex items-center justify-between px-6 z-50`}
@@ -85,7 +104,7 @@ function Header({ isCollapsed }) {
           >
             <div className="relative w-9 h-9 rounded-full overflow-hidden group">
               <img
-                src="/name1.jpg"
+                src={adminDetails?.profileImage || "profile img"}
                 alt="Profile"
                 className="w-full h-full object-cover rounded-full group-hover:scale-110 transition-transform duration-300"
               />
@@ -107,8 +126,12 @@ function Header({ isCollapsed }) {
             </div>
 
             <div className="hidden md:block">
-              <p className="text-sm font-medium">Rohit Sharma</p>
-              <p className="text-xs text-gray-500">Admin</p>
+              <p className="text-sm font-medium">
+                {adminDetails?.name || "Admin"}{" "}
+              </p>
+              <p className="text-xs text-gray-500">
+                {adminDetails?.role || "role"}
+              </p>
             </div>
 
             <ChevronDown
@@ -120,17 +143,26 @@ function Header({ isCollapsed }) {
 
           {isProfileOpen && (
             <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
-              <div className="px-4 py-2 border-b border-gray-200">
+              {/* <div className="px-4 py-2 border-b border-gray-200">
                 <p className="text-sm font-medium">Rohit Sharma</p>
                 <p className="text-xs text-gray-500">admin@example.com</p>
-              </div>
+              </div> */}
 
               <Link
                 to="/admin/profile-setting"
                 className="flex items-center gap-2 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                 onClick={() => setIsProfileOpen(false)}
               >
-                <User className="w-4 h-4" />
+                <User
+                  // alternateMobile={adminDetails?.alternateMobile}
+                  // dateOfjoin={adminDetails?.dateOfBirth}
+                  // email={adminDetails?.email}
+                  // gender={adminDetails?.gender}
+                  // name={adminDetails?.name}
+                  // profileImage={adminDetails?.profileImage}
+                  // role={adminDetails?.role}
+                  className="w-4 h-4"
+                />
                 Profile
               </Link>
               <Link

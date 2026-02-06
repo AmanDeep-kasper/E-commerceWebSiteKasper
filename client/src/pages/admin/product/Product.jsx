@@ -278,6 +278,7 @@ const Products = () => {
     );
   }, [productData, uuid]);
 
+
   //  Delete button + selected items
   const [selectedItems, setSelectedItems] = useState([]);
   const deletebtnShow = selectedItems.length > 0;

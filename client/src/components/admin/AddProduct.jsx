@@ -10,11 +10,11 @@ import imageCompression from "browser-image-compression";
 import { IoIosArrowForward } from "react-icons/io";
 import { FiUpload } from "react-icons/fi";
 
-import { ChevronDown, ChevronLeft, Trash } from "lucide-react";
+import { ChevronDown, ChevronLeft, LucideCheck, Trash } from "lucide-react";
 import { data, Link } from "react-router";
-import AddCategoryPopUp from "./AddCategoryPopUp";
-import AddSubCategoryPopup from "./AddSubCategoryPopup";
-import DisplayVariantImg from "./DisplayVariantImg";
+// import AddCategoryPopUp from "./AddCategoryPopUp";
+// import AddSubCategoryPopup from "./AddSubCategoryPopup";
+// import DisplayVariantImg from "./DisplayVariantImg";
 
 const AddProduct = () => {
   const fileInputRef = useRef(null);
@@ -84,7 +84,7 @@ const AddProduct = () => {
   useEffect(() => {
     if (uuid) {
       const productToEdit = product.find(
-        (p) => p.uuid.toLowerCase() === uuid.toLowerCase()
+        (p) => p.uuid.toLowerCase() === uuid.toLowerCase(),
       );
 
       if (productToEdit) {
@@ -293,8 +293,8 @@ const AddProduct = () => {
       const uniqueFiles = compressedFiles.filter(
         (file) =>
           !existingImages.some(
-            (img) => img.name === file.name && img.size === file.size
-          )
+            (img) => img.name === file.name && img.size === file.size,
+          ),
       );
 
       updatedVariants[index].variantImage = [
@@ -528,7 +528,7 @@ const AddProduct = () => {
           headers: {
             "Content-Type": "multipart/form-data",
           },
-        }
+        },
       );
 
       console.log("SERVER RESPONSE:", response.data);
@@ -541,7 +541,7 @@ const AddProduct = () => {
           position: "top-right",
           autoClose: 2000,
           className: "bg-[#EEFFEF] text-black rounded-lg",
-        }
+        },
       );
 
       localStorage.setItem("addProductForm", JSON.stringify(formDataWithUUID));
@@ -767,13 +767,25 @@ const AddProduct = () => {
 
     // close form if no variants left
     setItemsOpenVar((prevOpen) =>
-      formData.variants.length - 1 === 0 ? false : prevOpen
+      formData.variants.length - 1 === 0 ? false : prevOpen,
     );
   };
 
+  const [step, setStep] = useState(1);
+  // const [currentStep, setCurrentStep] = useState(1);
+  const [preview, setPreview] = useState(null);
+
+  const PayrollData = [
+    { id: 1, pageName: "Basic Details" },
+    { id: 2, pageName: "Product Details" },
+    { id: 3, pageName: "Pricing" },
+    { id: 4, pageName: "Variants" },
+    { id: 5, pageName: "Shipping" },
+  ];
+
   return (
     <>
-      {showCategoryModal && (
+      {/* {showCategoryModal && (
         <AddCategoryPopUp
           setNewCategory={setNewCategory}
           newCategory={newCategory}
@@ -806,10 +818,10 @@ const AddProduct = () => {
         setIsModalOpen={setIsModalOpen}
         variantIndex={activeVariantIndex}
         onRemoveImage={removeVariantImage}
-      />
+      /> */}
 
       <form
-        className="rounded-md min-h-screen"
+        className="p-[24px] bg-[#F6F8F9] min-h-screen"
         onSubmit={handleSubmit}
         encType="multipart/form-data"
       >
@@ -841,924 +853,720 @@ const AddProduct = () => {
           </div>
         </div>
 
+        <div>
+          <div className="flex gap-6 mb-6">
+            {PayrollData.map((item) => {
+              const isCompleted = step > item.id;
+              const isActive = step === item.id;
+
+              return (
+                <div key={item.id} className="flex items-center gap-2">
+                  <div
+                    className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium
+            ${
+              isCompleted
+                ? "bg-[#CBFFC5] text-[#00A63E]"
+                : isActive
+                  ? "bg-[#FFFFFF] text-[#1C3753] border border-1"
+                  : "bg-gray-200 text-gray-600"
+            }`}
+                  >
+                    {isCompleted ? <LucideCheck size={16} /> : item.id}
+                  </div>
+
+                  <span
+                    className={`text-sm ${
+                      isActive ? "text-[#1C3753] font-medium" : "text-gray-500"
+                    }`}
+                  >
+                    {item.pageName}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
         {/* Product Info Grid */}
         <div className="grid lg:grid-cols-2 gap-6">
-          {/* Left Section */}
-          <div className="bg-white rounded-2xl border p-4 h-full flex flex-col">
-            {/* Header */}
-            <h2 className="text-[18px] font-medium font-['Inter'] mb-4">
-              Basic Details
-            </h2>
+          {/* Basic Details Section */}
+          {step === 1 && (
+            <>
+              {/* start */}
 
-            {/* Content */}
-            <div className="flex flex-col gap-5 flex-1">
-              {/* Product Title */}
-              <div>
-                <label className="block text-black text-[14px] mb-2">
-                  Product Name
-                </label>
-                <input
-                  type="text"
-                  name="title"
-                  value={formData.title}
-                  onChange={handleChange}
-                  placeholder="Product Name"
-                  className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-3
+              <div className="bg-white rounded-2xl border p-4 h-full flex flex-col">
+                {/* Header */}
+                <h2 className="text-[18px] font-medium font-['Inter'] mb-4">
+                  Basic Details
+                </h2>
+
+                {/* Content */}
+                <div className="flex flex-col gap-5 flex-1">
+                  {/* Product Title */}
+                  <div>
+                    <div className="flex items-start gap-1">
+                      {" "}
+                      <label className="block text-black text-[14px] mb-2">
+                        Product Name
+                      </label>
+                      <span className="">*</span>
+                    </div>
+                    <input
+                      type="text"
+                      name="title"
+                      value={formData.title}
+                      onChange={handleChange}
+                      placeholder="Enter product name"
+                      className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-3
           text-[#686868] text-sm bg-[#F8FAFB] placeholder-[#686868]
           focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-[#686868] "
-                />
-              </div>
+                    />
+                  </div>
 
-              {/* Description */}
-              <div className="flex flex-col flex-1">
-                <label className="block text-black text-[14px] font-normal mb-2">
-                  Description
-                </label>
-                <textarea
-                  placeholder="Description"
-                  name="description"
-                  value={formData.description}
-                  onChange={handleChange}
-                  className="w-full flex-1 min-h-[120px] border border-[#D0D0D0] rounded-lg px-3 py-2
+                  {/* Description */}
+                  <div className="flex flex-col flex-1">
+                    <label className="block text-black text-[14px] font-normal mb-2">
+                      Description
+                    </label>
+                    <textarea
+                      placeholder="Write a description of the product"
+                      name="description"
+                      value={formData.description}
+                      onChange={handleChange}
+                      className="w-full flex-1 min-h-[120px] border border-[#D0D0D0] rounded-lg px-3 py-2
           text-[#686868] text-sm bg-[#F8FAFB] placeholder-[#686868]
-          focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 resize-none"
-                />
-              </div>
-            </div>
-            <div className="mt-5 flex items-center gap-2">
-              {/* Eligible for return */}
-              <label className="flex items-center gap-2 text-sm font-medium">
-                <input
-                  type="checkbox"
-                  name="returnPolicy"
-                  checked={formData.returnPolicy}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      [e.target.name]: e.target.checked,
-                    }))
-                  }
-                  className="w-4 h-4 border-gray-300 text-blue-600 focus:ring-blue-500"
-                />
-                Eligible for return
-              </label>
-            </div>
-          </div>
-
-          {/* <div> */}
-
-          <div className="bg-white rounded-2xl p-4 border">
-            <h1 className="text-[16px] font-medium mb-3">Upload Images</h1>
-
-            {/* Thumbnails */}
-            {formData.images.length > 0 && (
-              <div className="flex gap-3 mb-4">
-                {formData.images.slice(0, 5).map((img, index) => {
-                  const imgSrc =
-                    typeof img === "string"
-                      ? img
-                      : img.preview || URL.createObjectURL(img);
-
-                  const remaining = formData.images.length - 5;
-
-                  return (
-                    <div
-                      key={index}
-                      className="relative w-[120px] h-[120px] rounded-lg overflow-hidden border border-neutral-200 bg-gray-100"
-                    >
-                      <img
-                        src={imgSrc}
-                        alt={`preview-${index}`}
-                        className="w-full h-full object-cover"
-                      />
-
-                      {/* +N overlay */}
-                      {index === 4 && remaining > 0 && (
-                        <div className="absolute inset-0 bg-black/60 flex items-center justify-center text-white text-sm font-semibold">
-                          +{remaining}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-
-            {/* Upload box (ONLY when no images) */}
-            {formData.images.length === 0 && (
-              <div className="bg-[#F8FAFB] border border-dashed h-[250px] border-[#C4C4C4] rounded-lg px-6 py-[90px] flex flex-col items-center gap-3 space-y-3">
-                <button
-                  type="button"
-                  onClick={handleButtonClick}
-                  className="px-4 py-1 flex items-center justify-center gap-2 border border-[#686868] text-[#1C3753] rounded-md bg-[#E4E5E6]  font-normal hover:bg-[#dddfe0] transition"
-                >
-                  <FiUpload className="text-[#1C3753] w-5 h-5" /> Upload Images
-                </button>
-
-                <div className="text-center text-[#686868] text-[12px]">
-                  <p>Max. Size is 5MB</p>
-                  <p>Only *.png, *.jpg and *.jpeg image files are accepted</p>
-                </div>
-              </div>
-            )}
-
-            {/* Add More Images button (when images exist) */}
-            {formData.images.length > 0 && (
-              <div className="flex flex-col space-y-4 justify-center items-center">
-                <button
-                  type="button"
-                  onClick={handleButtonClick}
-                  className="px-4 py-2 border border-[#1C3753] text-[#1C3753] rounded-md text-sm font-medium hover:bg-blue-50 transition"
-                >
-                  Upload More Images
-                </button>
-                <div>
-                  <div className="text-center text-[#686868] text-[12px]">
-                    <p>Max. Size is 5MB</p>
-                    <p>Only *.png, *.jpg and *.jpeg image files are accepted</p>
+          focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 resize-none "
+                    />
                   </div>
                 </div>
               </div>
-            )}
 
-            {/* Hidden input */}
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".png,.jpg,.jpeg,.webp,.svg"
-              multiple
-              onChange={handleFileChange}
-              className="hidden"
-            />
-          </div>
+              {/* Product   */}
+              <div className="flex flex-col space-y-3">
+                <div className="bg-white rounded-2xl p-4 border">
+                  <h2 className="text-black text-[18px] font-medium mb-4">
+                    Product Status
+                  </h2>
+                  <div className="flex items-center justify-start gap-4">
+                    <div className="flex items-center gap-3">
+                      <input type="radio" id="Active" name="status" />
+                      <label htmlFor="Active">Active</label>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <input type="radio" id="Archived" name="status" />
+                      <label htmlFor="Archived">Archived</label>
+                    </div>
+                  </div>
+                </div>
 
-          {/* </div> */}
+                <div className="bg-white rounded-2xl p-4 border">
+                  <h2 className="text-black text-[18px] font-medium mb-4">
+                    Product Classification
+                  </h2>
 
-          {/* /////////////////////////////////////////// */}
-          {/* Right Section */}
-
-          <div className="bg-white rounded-2xl p-4 border">
-            <h2 className="text-[#1C1C1C] text-[18px] font-medium mb-4">
-              Product Details
-            </h2>
-
-            <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
-              {/* SKU ID */}
-              <div>
-                <label className="block text-sm font-normal mb-2">
-                  Product SKU ID <span className="text-[#D53B35]">*</span>
-                </label>
-
-                <div className="relative">
-                  <input
-                    type="text"
-                    name="SKU"
-                    value={formData.SKU}
-                    onChange={handleChange}
-                    placeholder="Enter SKU ID"
-                    className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-3 pr-28
-        bg-[#F8FAFB] text-sm text-[#6B6B6B] placeholder-[#686868]
-        focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400"
-                  />
-
-                  <button
-                    type="button"
-                    onClick={generatedSKU}
-                    className="absolute right-2 top-1/2 -translate-y-1/2
-        h-[32px] px-4 bg-[#1C3753] text-white text-sm font-normal
-        rounded-md hover:bg-[#264464] transition"
-                  >
-                    Generate
-                  </button>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-2 lg:grid-cols-1 gap-6">
+                    <div>
+                      <label className="block text-black text-[14px] mb-2">
+                        Category <span className="text-[#D53B35]">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        name="category"
+                        value={formData.category}
+                        onChange={handleChange}
+                        placeholder="Select category"
+                        className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-3
+          text-[#6B6B6B] text-sm bg-[#F8FAFB] placeholder-[#686868]
+          focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-black text-[14px] mb-2">
+                        Sub-Category
+                      </label>
+                      <input
+                        type="text"
+                        name="subcategory"
+                        value={formData.subcategory}
+                        onChange={handleChange}
+                        placeholder="Select sub-category"
+                        className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-3
+          text-[#6B6B6B] text-sm bg-[#F8FAFB] placeholder-[#686868]
+          focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-black text-[14px] mb-2">
+                        Material
+                      </label>
+                      <input
+                        type="text"
+                        name="materialType"
+                        value={formData.materialType}
+                        onChange={handleChange}
+                        placeholder="Enter material"
+                        className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-3
+          text-[#6B6B6B] text-sm bg-[#F8FAFB] placeholder-[#686868]
+          focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400"
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
+            </>
+          )}
 
-              {/* Stock */}
-              <div>
-                <label className="block text-sm font-normal mb-2">Stock</label>
-                <input
-                  type="number"
-                  name="stockQuantity"
-                  value={formData.stockQuantity}
-                  onChange={handleChange}
-                  placeholder="Enter Total Stock Quantity"
-                  className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#F8FAFB] text-sm placeholder-[#686868] text-gray-600 focus:outline-none"
-                />
-              </div>
-              {/* Sub Category */}
-              <div>
-                <label className="block text-sm font-normal mb-2">
-                  Reorder Limit
-                </label>
-                <input
-                  type="number"
-                  name="ReorderLimit"
-                  value={formData.ReorderLimit}
-                  onChange={handleChange}
-                  placeholder="Enter Total Stock Quantity"
-                  className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#F8FAFB] text-sm placeholder-[#686868] text-gray-600 focus:outline-none"
-                />
-              </div>
+          {step === 2 && (
+            <>
+              <div className="bg-white rounded-2xl p-4 border">
+                <h2 className="text-[#1C1C1C] text-[18px] font-medium mb-4">
+                  Product Details
+                </h2>
 
-              {/* Category */}
-              <div ref={dropdownRefCategory}>
-                <div className="relative inline-block w-full">
-                  <label className="block text-sm font-normal mb-2">
-                    Frame Type
-                  </label>
+                {/* SKU ID */}
+                <div className="mb-6">
+                  <div>
+                    <label className="block text-sm font-normal mb-2">
+                      Product Color <span className="text-[#D53B35]">*</span>
+                    </label>
+                    <input
+                      type="number"
+                      name="stockQuantity"
+                      value={formData.stockQuantity}
+                      onChange={handleChange}
+                      placeholder="Enter Total Stock Quantity"
+                      className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#F8FAFB] text-sm placeholder-[#686868] text-gray-600 focus:outline-none"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+                  {/* Stock */}
+                  <div>
+                    <label className="block text-sm font-normal mb-2">
+                      Stock
+                    </label>
+                    <input
+                      type="number"
+                      name="stockQuantity"
+                      value={formData.stockQuantity}
+                      onChange={handleChange}
+                      placeholder="Enter Total Stock Quantity"
+                      className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#F8FAFB] text-sm placeholder-[#686868] text-gray-600 focus:outline-none"
+                    />
+                  </div>
+                  {/* Sub Category */}
+                  <div>
+                    <label className="block text-sm font-normal mb-2">
+                      Reorder Limit
+                    </label>
+                    <input
+                      type="number"
+                      name="ReorderLimit"
+                      value={formData.ReorderLimit}
+                      onChange={handleChange}
+                      placeholder="Enter Total Stock Quantity"
+                      className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#F8FAFB] text-sm placeholder-[#686868] text-gray-600 focus:outline-none"
+                    />
+                  </div>
 
-                  <button
-                    type="button"
-                    onClick={() => setCategoriesOpen((prev) => !prev)}
-                    className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-4
+                  {/* Category */}
+                  <div ref={dropdownRefCategory}>
+                    <div className="relative inline-block w-full">
+                      <label className="block text-sm font-normal mb-2">
+                        Frame Type
+                      </label>
+
+                      <button
+                        type="button"
+                        onClick={() => setCategoriesOpen((prev) => !prev)}
+                        className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-4
       flex items-center justify-between bg-[#F8FAFB]
       text-sm text-[#6B6B6B] focus:outline-none"
-                  >
-                    <span>{formData.type || "Select Frame Type"}</span>
+                      >
+                        <span>{formData.type || "Select Frame Type"}</span>
 
-                    <ChevronDown
-                      size={18}
-                      className={`transition-transform duration-200 ${
-                        categoriesopen ? "rotate-180" : ""
-                      }`}
-                    />
-                  </button>
+                        <ChevronDown
+                          size={18}
+                          className={`transition-transform duration-200 ${
+                            categoriesopen ? "rotate-180" : ""
+                          }`}
+                        />
+                      </button>
 
-                  {categoriesopen && (
-                    <ul className="absolute z-20 mt-1 w-full border rounded-lg bg-white shadow-md text-sm">
-                      {variantsType.map((option) => (
-                        <li
-                          key={option}
-                          onClick={() => {
-                            setFormData((prev) => ({
-                              ...prev,
-                              type: option, // ✅ CORRECT FIELD
-                            }));
-                            setCategoriesOpen(false);
-                          }}
-                          className={`px-4 py-2 cursor-pointer hover:bg-[#FFEAD2]
+                      {categoriesopen && (
+                        <ul className="absolute z-20 mt-1 w-full border rounded-lg bg-white shadow-md text-sm">
+                          {variantsType.map((option) => (
+                            <li
+                              key={option}
+                              onClick={() => {
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  type: option, // ✅ CORRECT FIELD
+                                }));
+                                setCategoriesOpen(false);
+                              }}
+                              className={`px-4 py-2 cursor-pointer hover:bg-[#FFEAD2]
               ${
                 formData.type === option
                   ? "bg-[#FFF5E5] font-medium text-[#1C3753]"
                   : "text-[#6B6B6B]"
               }`}
-                        >
-                          {option}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              </div>
+                            >
+                              {option}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  </div>
 
-              {/* Tags */}
-              <div>
-                <label className="block text-sm font-normal mb-2">Color</label>
-                <input
-                  type="text"
-                  name="color"
-                  value={formData.color}
-                  onChange={handleChange}
-                  placeholder="Enter Color"
-                  className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#F8FAFB] text-sm placeholder-[#686868] text-gray-600 focus:outline-none"
-                />
-              </div>
+                  {/* Tags */}
+                  <div>
+                    <label className="block text-sm font-normal mb-2">
+                      Frame Color
+                    </label>
+                    <input
+                      type="text"
+                      name="color"
+                      value={formData.color}
+                      onChange={handleChange}
+                      placeholder="Enter Color"
+                      className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#F8FAFB] text-sm placeholder-[#686868] text-gray-600 focus:outline-none"
+                    />
+                  </div>
 
-              {/* Weight */}
-              <div>
-                <label className="block text-sm font-normal mb-2">
-                  Dimension
-                </label>
-                <div className="flex items-center justify-center gap-3">
-                  <input
-                    type="text"
-                    name="ProductDimensionWidth"
-                    value={formData.ProductDimensionWidth}
-                    onChange={handleChange}
-                    placeholder="Enter Width (In)"
-                    className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#F8FAFB] text-sm placeholder-[#686868] text-gray-600 focus:outline-none"
-                  />
-                  <input
-                    type="text"
-                    name="ProductDimensionHeight"
-                    value={formData.ProductDimensionHeight}
-                    onChange={handleChange}
-                    placeholder="Enter Height (In)"
-                    className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#F8FAFB] text-sm placeholder-[#686868] text-gray-600 focus:outline-none"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-2xl p-4 border">
-            <h2 className="text-black text-[18px] font-medium mb-4">
-              Product Category
-            </h2>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-2 lg:grid-cols-1 gap-6">
-              <div>
-                <label className="block text-black text-[14px] mb-2">
-                  Category
-                </label>
-                <input
-                  type="text"
-                  name="category"
-                  value={formData.category}
-                  onChange={handleChange}
-                  placeholder="Enter Category"
-                  className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-3
-          text-[#6B6B6B] text-sm bg-[#F8FAFB] placeholder-[#686868]
-          focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400"
-                />
-              </div>
-              <div>
-                <label className="block text-black text-[14px] mb-2">
-                  Sub-Category
-                </label>
-                <input
-                  type="text"
-                  name="subcategory"
-                  value={formData.subcategory}
-                  onChange={handleChange}
-                  placeholder="Enter Sub-Category"
-                  className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-3
-          text-[#6B6B6B] text-sm bg-[#F8FAFB] placeholder-[#686868]
-          focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400"
-                />
-              </div>
-              <div>
-                <label className="block text-black text-[14px] mb-2">
-                  Material
-                </label>
-                <input
-                  type="text"
-                  name="materialType"
-                  value={formData.materialType}
-                  onChange={handleChange}
-                  placeholder="Enter Material"
-                  className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-3
-          text-[#6B6B6B] text-sm bg-[#F8FAFB] placeholder-[#686868]
-          focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Pricing Section */}
-        <div className="bg-white rounded-2xl  p-4 mt-6 border">
-          <h2 className="text-black text-xl font-medium mb-4">Pricing</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div>
-              <label className="block text-sm font-normal mb-2">MRP</label>
-              <input
-                type="number"
-                name="mrp"
-                value={formData.mrp}
-                onChange={handleChange}
-                placeholder="Enter MRP"
-                className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#F8FAFB] text-sm text-[#686868] focus:outline-none placeholder-[#686868]"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-normal mb-2">
-                Selling Price (₹)
-              </label>
-              <input
-                type="number"
-                name="sellingPrice"
-                value={formData.sellingPrice}
-                onChange={handleChange}
-                placeholder="Enter Selling Price"
-                className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#F8FAFB] text-sm text-[#686868] focus:outline-none placeholder-[#686868]"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-normal mb-2">
-                Cost Price (₹)
-              </label>
-              <input
-                type="number"
-                name="costPrice"
-                value={formData.costPrice}
-                onChange={handleChange}
-                placeholder="Enter Cost Price"
-                className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#F8FAFB] text-sm text-gray-600 focus:outline-none placeholder-[#686868]"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-normal mb-2">Profit</label>
-              <input
-                type="number"
-                name="profit"
-                value={formData.profit}
-                readOnly
-                // onChange={handleChange}
-                placeholder="Profit (₹)"
-                className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#F8FAFB] text-sm text-gray-600 focus:outline-none placeholder-[#686868]"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-normal mb-2">Discount</label>
-              <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="flex flex-row">
-                  <input
-                    type="text"
-                    name="discountPercent"
-                    value={formData.discountPercent}
-                    onChange={handleChange}
-                    placeholder="Enter Discount (%)"
-                    className="flex-1 border border-[#D0D0D0] rounded-lg  px-3 w-[140px] h-[45px] bg-[#F8FAFB] text-sm text-[#6B6B6B] placeholder-[#686868] focus:outline-none"
-                  />
-                </div>
-                <div className="flex flex-row">
-                  <input
-                    type="text"
-                    name="discountAmount"
-                    value={formData.discountAmount}
-                    onChange={handleChange}
-                    placeholder="Enter Discount (₹)"
-                    className="flex-1 border border-[#D0D0D0] rounded-lg px-3 w-[140px] h-[45px] bg-[#F8FAFB] text-sm text-[#6B6B6B] placeholder-[#686868] focus:outline-none"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="">
-              {/* Label */}
-              <label className="block text-sm font-normal mb-2">
-                GST Tax Rates
-              </label>
-
-              {/* Dropdown */}
-              <div className="relative inline-block w-full h-[45px]">
-                <button
-                  type="button"
-                  onClick={() => setOpenGstBox((prev) => !prev)}
-                  className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-4 flex items-center justify-between
-        bg-[#F8FAFB] text-sm text-[#686868] focus:outline-none "
-                >
-                  <span>{formData.taxPercent || "Select GST (%)"}</span>
-                  <ChevronDown
-                    size={18}
-                    className={`text-[#686868] transition-transform duration-200 ${
-                      opengstbosx ? "rotate-180" : ""
-                    }`}
-                  />
-                </button>
-
-                {/* Dropdown Menu */}
-                {opengstbosx && (
-                  <ul className="absolute z-10 w-full mt-1 border rounded-lg bg-white shadow-md max-h-60 overflow-y-auto text-sm">
-                    {gstRateList.map((p, i) => (
-                      <li
-                        key={i}
-                        onClick={() => {
-                          setFormData((prev) => ({ ...prev, taxPercent: p }));
-                          setOpenGstBox(false);
-                        }}
-                        className="px-4 py-2 hover:bg-[#FFEAD2] cursor-pointer"
-                      >
-                        {p}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-        {!itemsOpenvar && savedVariants.length > 0 && (
-          <div className="mb-4 mt-6 border rounded-lg overflow-hidden">
-            <div className="flex items-center justify-between px-3 py-4">
-              <h1 className="text-[16px]">Variant</h1>
-              <button
-                type="button"
-                onClick={addVariant}
-                className="bg-[#DD851F] text-white px-4 py-2 rounded-lg text-sm hover:bg-orange-600"
-              >
-                + Add Variants
-              </button>
-            </div>
-            <table className="w-full text-sm">
-              <thead className="bg-[#F5F8FA] text-left text-[16px]">
-                <tr>
-                  <th className="px-3 py-2 font-medium">SKU</th>
-                  <th className="px-3 py-2 font-medium">Color</th>
-                  <th className="px-3 py-2 font-medium">Dimension</th>
-                  <th className="px-3 py-2 font-medium">Variant Type</th>
-                  <th className="px-3 py-2 font-medium">Selling Price</th>
-                  <th className="px-3 py-2 font-medium">Stock</th>
-                  <th className="px-3 py-2 font-medium">Reorder Limit</th>
-                  <th className="px-3 py-2 font-medium">Action btn</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {savedVariants.map((v, i) => (
-                  <tr key={i} className="border-t text-[16px]">
-                    <td className="px-3 py-2">{v.variantSkuId}</td>
-                    <td className="px-3 py-2">{v.variantColor}</td>
-                    <td className="px-3 py-2">{`${v.variantWidth}x${v.variantHeight}`}</td>
-                    <td className="px-3 py-2">{v.variantFrameType}</td>
-                    <td className="px-3 py-2">{v.variantSellingPrice}</td>
-                    <td className="px-3 py-2">{v.variantStockQuantity}</td>
-                    <td className="px-3 py-2">{v.variantReorderLimit}</td>
-                    <td className="px-3 py-2">
-                      <button
-                        type="button"
-                        onClick={() => removeVariant(i)}
-                        className="p-2 rounded hover:bg-red-100 transition"
-                      >
-                        <Trash className="w-[27px] h-[27px] text-red-700" />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-
-        {/* </div> */}
-        <div className="bg-white rounded-2xl  px-3 py-4 mt-6 border">
-          <div className="mb-5 flex items-center justify-between">
-            <h1 className="text-[20px] font-medium">Variant</h1>
-
-            <div className="flex items-center gap-3">
-              <button
-                type="button"
-                onClick={addVariant}
-                className="bg-[#DD851F] text-white px-4 py-2 rounded-md"
-              >
-                + Add Variant
-              </button>
-            </div>
-          </div>
-
-          {/* {itemsOpenvar && editingVariant && ( */}
-
-          {/* {itemsOpenvar && editingVariant && ( */}
-          {itemsOpenvar && editingVariant && ( 
-            <div className="bg-white rounded-2xl mt-4 transition-all">
-              <h1 className="text-[18px]">Variant Details</h1>
-
-              {formData.variants.map((variant, index) => (
-                <div key={index} className="mb-8 border-b pb-6">
-                  {/* ===== BASIC DETAILS ===== */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-2">
-                    {/* Color */}
-                    <div>
-                      <label className="block text-sm font-medium mb-2">
-                        Enter Color
-                      </label>
+                  {/* Weight */}
+                  <div>
+                    <label className="block text-sm font-normal mb-2">
+                      Dimension
+                    </label>
+                    <div className="flex items-center justify-center gap-3">
                       <input
-                        value={variant.variantColor}
-                        placeholder="Enter Color"
-                        onChange={(e) =>
-                          handleVariantChange(
-                            index,
-                            "variantColor",
-                            e.target.value
-                          )
-                        }
-                        className="w-full h-[45px] border rounded-lg px-3 bg-[#F8FBFC]"
+                        type="text"
+                        name="ProductDimensionWidth"
+                        value={formData.ProductDimensionWidth}
+                        onChange={handleChange}
+                        placeholder="Enter Width (In)"
+                        className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#F8FAFB] text-sm placeholder-[#686868] text-gray-600 focus:outline-none"
+                      />
+                      <input
+                        type="text"
+                        name="ProductDimensionHeight"
+                        value={formData.ProductDimensionHeight}
+                        onChange={handleChange}
+                        placeholder="Enter Height (In)"
+                        className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#F8FAFB] text-sm placeholder-[#686868] text-gray-600 focus:outline-none"
                       />
                     </div>
+                  </div>
+                </div>
+              </div>
 
-                    {/* Dimension */}
+              <div className="bg-white rounded-2xl p-4 border">
+                <h1 className="text-[16px] font-medium mb-3">Upload Images <span>*</span></h1>
+
+                {/* Thumbnails */}
+                {formData.images.length > 0 && (
+                  <div className="flex gap-3 mb-4">
+                    {formData.images.slice(0, 5).map((img, index) => {
+                      const imgSrc =
+                        typeof img === "string"
+                          ? img
+                          : img.preview || URL.createObjectURL(img);
+
+                      const remaining = formData.images.length - 5;
+
+                      return (
+                        <div
+                          key={index}
+                          className="relative w-[120px] h-[120px] rounded-lg overflow-hidden border border-neutral-200 bg-gray-100"
+                        >
+                          <img
+                            src={imgSrc}
+                            alt={`preview-${index}`}
+                            className="w-full h-full object-cover"
+                          />
+
+                          {/* +N overlay */}
+                          {index === 4 && remaining > 0 && (
+                            <div className="absolute inset-0 bg-black/60 flex items-center justify-center text-white text-sm font-semibold">
+                              +{remaining}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {/* Upload box (ONLY when no images) */}
+                {formData.images.length === 0 && (
+                  <div className="bg-[#F8FAFB] border border-dashed h-[250px] border-[#C4C4C4] rounded-lg px-6 py-[90px] flex flex-col items-center gap-3 space-y-3">
+                    <button
+                      type="button"
+                      onClick={handleButtonClick}
+                      className="px-4 py-1 flex items-center justify-center gap-2 border border-[#686868] text-[#1C3753] rounded-md bg-[#E4E5E6]  font-normal hover:bg-[#dddfe0] transition"
+                    >
+                      <FiUpload className="text-[#1C3753] w-5 h-5" /> Upload
+                      Images
+                    </button>
+
+                    <div className="text-center text-[#686868] text-[12px]">
+                      <p>Max. Size is 5MB</p>
+                      <p>
+                        Only *.png, *.jpg and *.jpeg image files are accepted
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Add More Images button (when images exist) */}
+                {formData.images.length > 0 && (
+                  <div className="flex flex-col space-y-4 justify-center items-center">
+                    <button
+                      type="button"
+                      onClick={handleButtonClick}
+                      className="px-4 py-2 border border-[#1C3753] text-[#1C3753] rounded-md text-sm font-medium hover:bg-blue-50 transition"
+                    >
+                      Upload More Images
+                    </button>
                     <div>
-                      <label className="block text-sm font-medium mb-2">
-                        Dimension
-                      </label>
-                      <div className="flex gap-2">
-                        <input
-                          type="number"
-                          placeholder="Width"
-                          value={variant.variantWidth || ""}
-                          onChange={(e) =>
-                            handleVariantChange(
-                              index,
-                              "variantWidth",
-                              e.target.value
-                            )
-                          }
-                          className="w-full h-[45px] border rounded-lg px-3 bg-[#F8FBFC]"
-                        />
-                        <input
-                          type="number"
-                          placeholder="Height"
-                          value={variant.variantHeight || ""}
-                          onChange={(e) =>
-                            handleVariantChange(
-                              index,
-                              "variantHeight",
-                              e.target.value
-                            )
-                          }
-                          className="w-full h-[45px] border rounded-lg px-3 bg-[#F8FBFC]"
-                        />
+                      <div className="text-center text-[#686868] text-[12px]">
+                        <p>Max. Size is 5MB</p>
+                        <p>
+                          Only *.png, *.jpg and *.jpeg image files are accepted
+                        </p>
                       </div>
                     </div>
-                    <div>
-                      {" "}
-                      <label className="block text-sm font-medium mb-2">
-                        {" "}
-                        Frame Type{" "}
-                      </label>{" "}
+                  </div>
+                )}
+
+                {/* Hidden input */}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".png,.jpg,.jpeg,.webp,.svg"
+                  multiple
+                  onChange={handleFileChange}
+                  className="hidden"
+                />
+              </div>
+
+              <div className="bg-white rounded-2xl p-4 border">
+                <h2 className="text-[#1C1C1C] text-[18px] font-medium mb-4">
+                  Inventory
+                </h2>
+
+                <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+                  {/* SKU ID */}
+                  <div>
+                    <label className="block text-sm font-normal mb-2">
+                      Product SKU ID <span className="text-[#D53B35]">*</span>
+                    </label>
+
+                    <div className="relative">
+                      <input
+                        type="text"
+                        name="SKU"
+                        value={formData.SKU}
+                        onChange={handleChange}
+                        placeholder="Enter SKU ID"
+                        className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-3 pr-28
+        bg-[#F8FAFB] text-sm text-[#6B6B6B] placeholder-[#686868]
+        focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400"
+                      />
+
                       <button
                         type="button"
-                        onClick={() =>
-                          setVariantTypeOpen(
-                            variantTypeOpen === index ? null : index
-                          )
-                        }
-                        className="w-full h-[45px] border rounded-lg px-4 bg-[#F8FBFC] flex justify-between items-center"
+                        onClick={generatedSKU}
+                        className="absolute right-2 top-1/2 -translate-y-1/2
+        h-[32px] px-4 bg-[#1C3753] text-white text-sm font-normal
+        rounded-md hover:bg-[#264464] transition"
                       >
-                        {" "}
-                        <span className="text-[#686868]">
-                          {" "}
-                          {variant.variantFrameType || "Select Frame Type"}{" "}
-                        </span>{" "}
-                        <ChevronDown className="text-[#686868]" size={18} />{" "}
-                      </button>{" "}
-                      {variantTypeOpen === index && (
-                        <ul className="border mt-1 rounded-lg bg-white shadow absolute">
-                          {" "}
-                          {variantsType.map((opt, i) => (
+                        Generate
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Stock */}
+                  <div>
+                    <label className="block text-sm font-normal mb-2">
+                      Stock
+                    </label>
+                    <input
+                      type="number"
+                      name="stockQuantity"
+                      value={formData.stockQuantity}
+                      onChange={handleChange}
+                      placeholder="Enter Total Stock Quantity"
+                      className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#F8FAFB] text-sm placeholder-[#686868] text-gray-600 focus:outline-none"
+                    />
+                  </div>
+                  {/* Sub Category */}
+                  <div>
+                    <label className="block text-sm font-normal mb-2">
+                      Low stock alert <span className="text-[#D53B35]">*</span>
+                    </label>
+                    <input
+                      type="number"
+                      name="ReorderLimit"
+                      value={formData.ReorderLimit}
+                      onChange={handleChange}
+                      placeholder="Enter Total Stock Quantity"
+                      className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#F8FAFB] text-sm placeholder-[#686868] text-gray-600 focus:outline-none"
+                    />
+                  </div>
+                  <div ref={dropdownRefCategory}>
+                    {/* <div className="relative inline-block w-full">
+                      <label className="block text-sm font-normal mb-2">
+                        Limit per Order
+                      </label>
+
+                      <button
+                        type="button"
+                        onClick={() => setCategoriesOpen((prev) => !prev)}
+                        className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-4
+      flex items-center justify-between bg-[#F8FAFB]
+      text-sm text-[#6B6B6B] focus:outline-none"
+                      >
+                        <span>{formData.type || "Select Frame Type"}</span>
+
+                        <ChevronDown
+                          size={18}
+                          className={`transition-transform duration-200 ${
+                            categoriesopen ? "rotate-180" : ""
+                          }`}
+                        />
+                      </button>
+
+                      {categoriesopen && (
+                        <ul className="absolute z-20 mt-1 w-full border rounded-lg bg-white shadow-md text-sm">
+                          {variantsType.map((option) => (
+                            <li
+                              key={option}
+                              onClick={() => {
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  type: option, // ✅ CORRECT FIELD
+                                }));
+                                setCategoriesOpen(false);
+                              }}
+                              className={`px-4 py-2 cursor-pointer hover:bg-[#FFEAD2]
+              ${
+                formData.type === option
+                  ? "bg-[#FFF5E5] font-medium text-[#1C3753]"
+                  : "text-[#6B6B6B]"
+              }`}
+                            >
+                              {option}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div> */}
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+
+          {step == 3 && (
+            <>
+              <div className="bg-white rounded-2xl  p-4 mt-6 border">
+                <h2 className="text-black text-xl font-medium mb-4">Pricing</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {/* MRP */}
+                  <div>
+                    <label className="block text-sm font-normal mb-2">
+                      MRP
+                    </label>
+                    <input
+                      type="number"
+                      name="mrp"
+                      value={formData.mrp}
+                      onChange={handleChange}
+                      placeholder="Enter MRP"
+                      className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-3 bg-[#F8FAFB]
+                 text-sm text-[#686868] placeholder-[#686868] focus:outline-none"
+                    />
+                  </div>
+
+                  {/* Cost Price */}
+                  <div>
+                    <label className="block text-sm font-normal mb-2">
+                      Cost Price (₹)
+                    </label>
+                    <input
+                      type="number"
+                      name="costPrice"
+                      value={formData.costPrice}
+                      onChange={handleChange}
+                      placeholder="Enter Cost Price"
+                      className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-3 bg-[#F8FAFB]
+                 text-sm text-[#686868] placeholder-[#686868] focus:outline-none"
+                    />
+                  </div>
+
+                  {/* Selling Price */}
+                  <div>
+                    <label className="block text-sm font-normal mb-2">
+                      Selling Price (₹)
+                    </label>
+                    <input
+                      type="number"
+                      name="sellingPrice"
+                      value={formData.sellingPrice}
+                      onChange={handleChange}
+                      placeholder="Enter Selling Price"
+                      className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-3 bg-[#F8FAFB]
+                 text-sm text-[#686868] placeholder-[#686868] focus:outline-none"
+                    />
+                  </div>
+
+                  {/* GST */}
+                  <div>
+                    <label className="block text-sm font-normal mb-2">
+                      GST Tax Rates
+                    </label>
+                    <div className="relative">
+                      <button
+                        type="button"
+                        onClick={() => setOpenGstBox((prev) => !prev)}
+                        className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-4
+                   flex items-center justify-between bg-[#F8FAFB]
+                   text-sm text-[#686868] focus:outline-none"
+                      >
+                        <span>{formData.taxPercent || "Select GST (%)"}</span>
+                        <ChevronDown
+                          size={18}
+                          className={`transition-transform duration-200 ${
+                            opengstbosx ? "rotate-180" : ""
+                          }`}
+                        />
+                      </button>
+
+                      {opengstbosx && (
+                        <ul
+                          className="absolute z-10 w-full mt-1 border border-[#D0D0D0]
+                       rounded-lg bg-white shadow-md max-h-60 overflow-y-auto text-sm"
+                        >
+                          {gstRateList.map((p, i) => (
                             <li
                               key={i}
                               onClick={() => {
-                                handleVariantChange(
-                                  index,
-                                  "variantFrameType",
-                                  opt
-                                );
-                                setVariantTypeOpen(null);
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  taxPercent: p,
+                                }));
+                                setOpenGstBox(false);
                               }}
-                              className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                              className="px-4 py-2 hover:bg-[#FFEAD2] cursor-pointer"
                             >
-                              {" "}
-                              {opt}{" "}
+                              {p}
                             </li>
-                          ))}{" "}
+                          ))}
                         </ul>
-                      )}{" "}
-                    </div>
-
-                    {/* ===== SKU WITH GENERATE ===== */}
-                    <div>
-                      <label className="block text-sm font-medium mb-2">
-                        SKU ID <span className="text-red-500">*</span>
-                      </label>
-
-                      <div className="relative">
-                        <input
-                          value={variant.variantSkuId}
-                          onChange={(e) =>
-                            handleVariantChange(
-                              index,
-                              "variantSkuId",
-                              e.target.value
-                            )
-                          }
-                          placeholder="Enter Variant SKU ID"
-                          className="w-full h-[45px] border rounded-lg px-3 pr-24 bg-[#F8FAFB]"
-                        />
-
-                        <button
-                          type="button"
-                          onClick={() => generateVariantSKU(index)}
-                          className="absolute right-2 top-1/2 -translate-y-1/2
-                  h-[32px] px-4 bg-[#1C3753] text-white text-sm rounded-md"
-                        >
-                          Generate
-                        </button>
-                      </div>
-                    </div>
-                    <div>
-                      {" "}
-                      <label className="block text-sm font-medium mb-2">
-                        {" "}
-                        Stock Quantity{" "}
-                      </label>{" "}
-                      <input
-                        type="number"
-                        name="variantStockQuantity"
-                        value={variant.variantStockQuantity}
-                        onChange={(e) =>
-                          handleVariantChange(
-                            index,
-                            "variantStockQuantity",
-                            e.target.value
-                          )
-                        }
-                        placeholder="Enter Stock Quantity"
-                        className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#F8FAFB] text-sm text-gray-600 placeholder-[#686868]"
-                      />{" "}
-                    </div>
-                    <div>
-                      {" "}
-                      <label className="block text-sm font-medium mb-2">
-                        {" "}
-                        Reorder Limit{" "}
-                      </label>{" "}
-                      <input
-                        type="number"
-                        name="variantReorderLimit"
-                        value={variant.variantReorderLimit}
-                        onChange={(e) =>
-                          handleVariantChange(
-                            index,
-                            "variantReorderLimit",
-                            e.target.value
-                          )
-                        }
-                        placeholder="Enter Reorder Limit"
-                        className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#F8FAFB] text-sm text-gray-600 placeholder-[#686868]"
-                      />{" "}
-                    </div>
-                  </div>
-
-                  {/* ===== PRICING ===== */}
-                  <div className="grid grid-cols-1 md:grid-cols-5 gap-4 p-2 mt-4">
-                    <div>
-                      {" "}
-                      <label className="block text-sm font-medium mb-2">
-                        {" "}
-                        MRP{" "}
-                      </label>{" "}
-                      <input
-                        type="number"
-                        name="variantMrp"
-                        placeholder="Enter MRP"
-                        value={variant.variantMrp || ""}
-                        onChange={(e) =>
-                          handleVariantChange(
-                            index,
-                            "variantMrp",
-                            e.target.value
-                          )
-                        }
-                        className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-3 bg-[#F8FAFB] text-sm text-gray-600 placeholder-[#686868]"
-                      />{" "}
-                    </div>
-
-                    <div>
-                      {" "}
-                      <label className="block text-sm font-medium mb-2">
-                        {" "}
-                        Selling Price{" "}
-                      </label>{" "}
-                      <input
-                        type="number"
-                        name="variantSellingPrice"
-                        placeholder="Enter Selling Price"
-                        value={variant.variantSellingPrice || ""}
-                        onChange={(e) =>
-                          handleVariantChange(
-                            index,
-                            "variantSellingPrice",
-                            e.target.value
-                          )
-                        }
-                        className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-3 bg-[#F8FAFB] text-sm text-gray-600 placeholder-[#686868]"
-                      />{" "}
-                    </div>
-
-                    <div>
-                      {" "}
-                      <label className="block text-sm font-medium mb-2">
-                        {" "}
-                        Cost Price{" "}
-                      </label>{" "}
-                      <input
-                        type="number"
-                        name="variantCostPrice"
-                        placeholder="Enter Cost Price"
-                        value={variant.variantCostPrice || ""}
-                        onChange={(e) =>
-                          handleVariantChange(
-                            index,
-                            "variantCostPrice",
-                            e.target.value
-                          )
-                        }
-                        className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-3 bg-[#F8FAFB] text-sm text-gray-600 placeholder-[#686868]"
-                      />{" "}
-                    </div>
-
-                    {/* PROFIT (AUTO) */}
-                    <div>
-                      {" "}
-                      <label className="block text-sm font-medium mb-2">
-                        {" "}
-                        Profit{" "}
-                      </label>{" "}
-                      <input
-                        type="number"
-                        name="variantProfit"
-                        placeholder="Profit"
-                        value={variant.variantProfit}
-                        readOnly
-                        onChange={(e) =>
-                          handleVariantChange(
-                            index,
-                            "variantDiscount",
-                            e.target.value
-                          )
-                        }
-                        className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-3 bg-[#F8FAFB] text-sm text-gray-600 placeholder-[#686868]"
-                      />{" "}
-                    </div>
-
-                    {/* DISCOUNT (USER EDITABLE) */}
-                    <div>
-                      {" "}
-                      <label className="block text-sm font-medium mb-2">
-                        {" "}
-                        Discount{" "}
-                      </label>{" "}
-                      <input
-                        type="number"
-                        name="variantDiscount"
-                        placeholder="Enter Discount (%)"
-                        value={variant.variantDiscount || ""}
-                        onChange={(e) =>
-                          handleVariantChange(index, "height", e.target.value)
-                        }
-                        className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-3 bg-[#F8FAFB] text-sm text-gray-600 placeholder-[#686868]"
-                      />{" "}
-                    </div>
-                  </div>
-                  {/* ===== UPLOAD VARIANT IMAGES ===== */}
-                  <div className="p-2 mt-4">
-                    <h1 className="mb-3 text-[14px]">Upload Variant Images</h1>
-
-                    <div className="flex gap-3">
-                      {variant.variantImage?.map((img, imgIndex) => {
-                        const imgSrc =
-                          typeof img === "string"
-                            ? img
-                            : img.preview || URL.createObjectURL(img);
-
-                        return (
-                          <img
-                            key={imgIndex}
-                            src={imgSrc}
-                            alt={`variant-${imgIndex}`}
-                            className="w-[70px] h-[70px] object-cover rounded-lg border cursor-pointer"
-                            onClick={() => {
-                              setSelectedImages(variant.variantImage);
-                              setCurrentImage(imgSrc);
-                              setActiveVariantIndex(index);
-                              setIsModalOpen(true);
-                            }}
-                          />
-                        );
-                      })}
-
-                      {variant.variantImage.length < 10 && (
-                        <label
-                          htmlFor={`variantImage-${index}`}
-                          className="w-[70px] h-[70px] flex items-center justify-center
-                  border rounded-lg cursor-pointer"
-                        >
-                          <input
-                            id={`variantImage-${index}`}
-                            type="file"
-                            accept="image/*"
-                            multiple
-                            className="hidden"
-                            onChange={(e) => handleVariantImageChange(e, index)}
-                          />
-                          <FiUpload className="text-gray-500 text-[30px]" />
-                        </label>
                       )}
-
-                      
                     </div>
                   </div>
 
-                  {/* ===== SAVE BUTTON ===== */}
-                  <div className="flex justify-end mt-6">
-                    <button
-                      type="button"
-                      onClick={() => handleSaveVariant(index)}
-                      className="bg-[#F8FAFB] px-6 py-2 text-black rounded-md"
-                    >
-                      Save Variants
-                    </button>
+                  {/* Discount */}
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-normal mb-2">
+                      Discount
+                    </label>
+
+                    <div className="flex gap-4">
+                      <input
+                        type="text"
+                        name="discountPercent"
+                        value={formData.discountPercent}
+                        onChange={handleChange}
+                        placeholder="Discount (%)"
+                        className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-3 bg-[#F8FAFB]"
+                      />
+                      <input
+                        type="text"
+                        name="discountAmount"
+                        value={formData.discountAmount}
+                        onChange={handleChange}
+                        placeholder="Discount (₹)"
+                        className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-3 bg-[#F8FAFB]"
+                      />
+                    </div>
                   </div>
                 </div>
-              ))}
-            </div>
+              </div>
+
+              <div className="bg-[#EFF6EE] rounded-2xl space-y-6 p-4 mt-6 border border-[#00A63E]">
+                <h2 className="text-black text-xl font-medium mb-4">
+                  Profit Analysis
+                </h2>
+
+                <div className="bg-[#fff] rounded-lg">
+                  <div className="border-[1px] border-[#DEDEDE]  px-4 py-2  rounded-lg">
+                    <label className="block text-[14px] text-[#686868] font-normal mb-2">
+                      Profit Amount / Profit Margin
+                    </label>
+                    <input
+                      type="text"
+                      name="profit"
+                      value={`% ${formData.profit}`}
+                      readOnly
+                      // onChange={handleChange}
+                      placeholder="Profit (₹)"
+                      className="w-full h-[45px] rounded-lg   text-[24px] text-[#00A63E] focus:outline-none placeholder-[#686868]"
+                    />
+                  </div>
+                </div>
+                <div className="bg-[#fff] rounded-lg">
+                  <div className="border-[1px] border-[#DEDEDE] rounded-lg px-4 py-2 ">
+                    <label className="block text-[14px] text-[#686868] font-normal mb-2">
+                      Profit Amount
+                    </label>
+                    <input
+                      type="text"
+                      name="profit"
+                      value={`₹ ${formData.profit}`}
+                      readOnly
+                      // onChange={handleChange}
+                      placeholder="Profit (₹)"
+                      className="w-full h-[45px] rounded-lg   text-[24px] text-[#00A63E] focus:outline-none placeholder-[#686868]"
+                    />
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+
+        <div className="flex items-end justify-end gap-4 mt-6">
+          {step > 1 && (
+            <button
+              type="button"
+              onClick={() => setStep(step - 1)}
+              className="px-6 py-1 bg-[#F6F8F9] border border-[#1C3753] text-[#1C3753] font-medium rounded-md"
+            >
+              Previous
+            </button>
           )}
 
-          {/* )} */}
-
-          {/* // )} */}
+          {step < 5 ? (
+            <button
+              type="button"
+              onClick={() => setStep(step + 1)}
+              className="px-6 py-1 bg-[#F6F8F9] border border-[#1C3753] text-[#1C3753] font-medium rounded-md"
+            >
+              Next
+            </button>
+          ) : (
+            <button
+              type="submit"
+              className="px-4 py-2 bg-green-600 text-white rounded"
+            >
+              Save Product
+            </button>
+          )}
         </div>
       </form>
     </>
@@ -1766,403 +1574,3 @@ const AddProduct = () => {
 };
 
 export default AddProduct;
-
-// Add product image old code aman
-
-//  <div>
-//               <label className="block text-black text-sm font-medium mb-2">
-//                 Product Image
-//               </label>
-
-//               <div className="flex flex-wrap gap-3 items-start">
-//                 {Array.isArray(formData.images) &&
-//                   formData.images.map((img, i) => {
-//                     const imgSrc =
-//                       img instanceof File
-//                         ? URL.createObjectURL(img)
-//                         : typeof img === "string"
-//                         ? img
-//                         : null;
-
-//                     if (!imgSrc) return null;
-
-//                     return (
-//                       <div key={i} className="relative group">
-//                         <img
-//                           src={imgSrc}
-//                           alt={`preview ${i}`}
-//                           className="w-[134px] h-[134px] object-cover rounded-lg border border-neutral-200"
-//                         />
-
-//                         {/* Overlay */}
-//                         <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition rounded-lg"></div>
-
-//                         {/* Remove button */}
-//                         <button
-//                           type="button"
-//                           onClick={() =>
-//                             setFormData((prev) => ({
-//                               ...prev,
-//                               images: prev.images.filter(
-//                                 (_, index) => index !== i
-//                               ),
-//                             }))
-//                           }
-//                           className="absolute top-2 right-2 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition"
-//                         >
-//                           <Trash size={20} />
-//                         </button>
-//                       </div>
-//                     );
-//                   })}
-
-//                 {/* Upload Box */}
-//                 {formData.images.length < 10 && (
-//                   <label
-//                     htmlFor="productImage"
-//                     className="w-[137px] h-[137px] bg-[#ECECF0] border border-neutral-200 rounded-lg flex items-center justify-center cursor-pointer hover:bg-gray-200 transition"
-//                   >
-//                     <input
-//                       id="productImage"
-//                       type="file"
-//                       multiple
-//                       accept=".png,.jpg,.jpeg,.webp,.svg"
-//                       className="hidden"
-//                       onChange={handleFileChange}
-//                     />
-//                     <div className="w-12 h-12 flex items-center justify-center rounded-full border border-[#D0D0D0] bg-white">
-//                       <Plus className="text-[#5F5F5F] w-6 h-6" />
-//                     </div>
-//                   </label>
-//                 )}
-//               </div>
-//             </div>
-
-{
-  /* <div className="flex gap-6 mb-5 ">
-              {["Framed", "Unframed"].map((option) => (
-                <label
-                  key={option}
-                  className="flex items-center gap-2 cursor-pointer"
-                >
-                  <input
-                    type="radio"
-                    name="type"
-                    value={option}
-                    checked={formData.type === option}
-                    onChange={handleChange}
-                    className="scale-125 text-blue-600 border-gray-300 focus:ring-blue-500"
-                  />
-
-                  <span className="text-stone-600 text-sm font-normal">
-                    {option}
-                  </span>
-                </label>
-              ))}
-            </div> */
-}
-
-{
-  /* Return Eligible Checkbox */
-}
-{
-  /* <div className="mt-5 flex items-center gap-2">
-              <label className="flex items-center gap-2 text-sm font-medium">
-                <input
-                  type="checkbox"
-                  name="returnPolicy"
-                  checked={formData.returnPolicy}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      [e.target.name]: e.target.checked,
-                    }))
-                  }
-                  className="w-4 h-4 border-gray-300 text-blue-600 focus:ring-blue-500"
-                />
-                Eligible for return
-              </label>
-            </div> */
-}
-
-//  the action delete btn
-{
-  /* Action (Trash) */
-}
-// <div className="flex flex-col items-center justify-start opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-//   <label className="block text-sm font-medium mb-2">
-//     Action
-//   </label>
-//   <button
-//     type="button"
-//     onClick={() => removeVariant(index)}
-//     className="p-2 rounded hover:bg-red-100 transition"
-//   >
-//     <Trash className="w-[27px] h-[27px] text-red-700" />
-//   </button>
-// </div>
-
-// // Add varitan photo
-//  <div className=" w-full">
-//                               {variant.variantImage?.length > 0 ? (
-//                                 <div className="flex-wrap w-[70px] h-[70px] flex mb-2">
-//                                   <img
-//                                     src={
-//                                       typeof variant.variantImage[0] ===
-//                                       "string"
-//                                         ? variant.variantImage[0]
-//                                         : variant.variantImage[0].preview ||
-//                                           URL.createObjectURL(
-//                                             variant.variantImage[0]
-//                                           )
-//                                     }
-//                                     alt="Variant"
-//                                     className="w-[70px] h-[70px] object-cover rounded-lg border border-neutral-200 cursor-pointer"
-//                                     onClick={() => {
-//                                       setSelectedImages(variant.variantImage);
-//                                       const first =
-//                                         typeof variant.variantImage[0] ===
-//                                         "string"
-//                                           ? variant.variantImage[0]
-//                                           : variant.variantImage[0].preview ||
-//                                             URL.createObjectURL(
-//                                               variant.variantImage[0]
-//                                             );
-//                                       setCurrentImage(first);
-//                                       setIsModalOpen(true);
-//                                       setActiveVariantIndex(index);
-//                                     }}
-//                                   />
-//                                   {/* +1 over lay */}
-//                                   {/* {variant.variantImage.length > 1 && (
-//                                     <div
-//                                       onClick={() => {
-//                                         setSelectedImages(variant.variantImage);
-//                                         const first =
-//                                           typeof variant.variantImage[0] ===
-//                                           "string"
-//                                             ? variant.variantImage[0]
-//                                             : variant.variantImage[0].preview ||
-//                                               URL.createObjectURL(
-//                                                 variant.variantImage[0]
-//                                               );
-//                                         setCurrentImage(first);
-//                                         setActiveVariantIndex(index);
-//                                         setIsModalOpen(true);
-//                                       }}
-//                                       className="absolute inset-0 bg-black/50 flex items-center justify-center text-white text-xl font-medium rounded-lg cursor-pointer"
-//                                     >
-//                                       +{variant.variantImage.length - 1}
-//                                     </div>
-//                                   )} */}
-
-//                                   <div className="flex items-center justify-evenly gap-2">
-//                                     {variant.variantImage.map(
-//                                       (img, imgIndex) => {
-//                                         const imgSrc =
-//                                           typeof img === "string"
-//                                             ? img
-//                                             : img.preview ||
-//                                               URL.createObjectURL(img);
-
-//                                         return (
-//                                           <img
-//                                             key={imgIndex}
-//                                             src={imgSrc}
-//                                             className="w-[60px] h-[60px] object-cover rounded-lg border cursor-pointer hover:opacity-80 transition"
-//                                             alt={`variant-${imgIndex}`}
-//                                             onClick={() => {
-//                                               setSelectedImages(
-//                                                 variant.variantImage
-//                                               );
-//                                               setCurrentImage(imgSrc);
-//                                               setActiveVariantIndex(index);
-//                                               setIsModalOpen(true);
-//                                             }}
-//                                           />
-//                                         );
-//                                       }
-//                                     )}
-//                                   </div>
-
-//                                   {variant.variantImage.length < 10 && (
-//                                     <label
-//                                       htmlFor={`variantImage-${index}`}
-//                                       className="absolute bottom-4 left-24 -top-1  w-[75px] h-[75px] bg-[#FFFFFF] border border-neutral-200 rounded-lg flex items-center justify-center cursor-pointer hover:bg-[#DEDEDE]"
-//                                     >
-//                                       <input
-//                                         id={`variantImage-${index}`}
-//                                         type="file"
-//                                         accept="image/*"
-//                                         multiple
-//                                         className="hidden"
-//                                         onChange={(e) =>
-//                                           handleVariantImageChange(e, index)
-//                                         }
-//                                       />
-//                                       {/* <Plus className="text-gray-500 w-3 h-3" /> */}
-//                                       <div>
-//                                         <BiImageAdd className="text-gray-500 text-[35px] hover:text-blue-600 transition" />
-//                                       </div>
-//                                     </label>
-//                                   )}
-//                                 </div>
-
-//                               ) : (
-//                                 <label
-//                                   htmlFor={`variantImage-${index}`}
-//                                   className="w-[80px] h-[80px] bg-[#FFFFFF] border border-neutral-200 rounded-lg flex items-center justify-center cursor-pointer hover:bg-[#DEDEDE]"
-//                                 >
-//                                   <input
-//                                     id={`variantImage-${index}`}
-//                                     type="file"
-//                                     accept="image/*"
-//                                     multiple
-//                                     className="hidden"
-//                                     onChange={(e) =>
-//                                       handleVariantImageChange(e, index)
-//                                     }
-//                                   />
-//                                   {/* <div className="w-[20px] h-[20px] flex items-center justify-center rounded-full border border-[#D0D0D0] bg-white"> */}
-//                                   <div>
-//                                     <BiImageAdd className="text-gray-500 text-[35px] hover:text-blue-600 transition" />
-//                                   </div>
-//                                 </label>
-//                               )}
-//                             </div>
-// /////////////////////////
-{
-  /* <div className="flex items-center justify-center text-[14px] gap-3">
-            <Link to={`/admin/products`}>
-              <h1 className="text-[#686868]">All Product</h1>
-            </Link>
-            <IoIosArrowForward />
-            <h1 className="text-[#1626FF] font-normal cursor-pointer">
-              Add Product
-            </h1>
-          </div> */
-}
-// //////////////////////////// variant aimages
-{
-  /* <div className="flex items-start justify-start gap-16  "> */
-}
-{
-  /* 6️ Variant Image */
-}
-{
-  /* <div className="flex flex-col items-start justify-start ">
-                        <label className="block text-sm font-medium mb-2">
-                          Images
-                        </label>
-                        <div className="relative w-full">
-                          {variant.variantImage?.length > 0 ? (
-                            <div className="relative w-[45px] h-[45px]">
-                              <img
-                                src={
-                                  typeof variant.variantImage[0] === "string"
-                                    ? variant.variantImage[0]
-                                    : variant.variantImage[0].preview ||
-                                      URL.createObjectURL(
-                                        variant.variantImage[0]
-                                      )
-                                }
-                                alt="Variant"
-                                className="w-[45px] h-[45px] object-cover rounded-lg border border-neutral-200 cursor-pointer"
-                                onClick={() => {
-                                  setSelectedImages(variant.variantImage);
-                                  const first =
-                                    typeof variant.variantImage[0] === "string"
-                                      ? variant.variantImage[0]
-                                      : variant.variantImage[0].preview ||
-                                        URL.createObjectURL(
-                                          variant.variantImage[0]
-                                        );
-                                  setCurrentImage(first);
-                                  setIsModalOpen(true);
-                                  setActiveVariantIndex(index);
-                                }}
-                              />
-                              {variant.variantImage.length > 1 && (
-                                <div
-                                  onClick={() => {
-                                    setSelectedImages(variant.variantImage);
-                                    const first =
-                                      typeof variant.variantImage[0] ===
-                                      "string"
-                                        ? variant.variantImage[0]
-                                        : variant.variantImage[0].preview ||
-                                          URL.createObjectURL(
-                                            variant.variantImage[0]
-                                          );
-                                    setCurrentImage(first);
-                                    setActiveVariantIndex(index); // ✅ store which variant is open
-                                    setIsModalOpen(true);
-                                  }}
-                                  className="absolute inset-0 bg-black/50 flex items-center justify-center text-white text-xs font-medium rounded-lg cursor-pointer"
-                                >
-                                  +{variant.variantImage.length - 1}
-                                </div>
-                              )}
-
-                              {variant.variantImage.length < 10 && (
-                                <label
-                                  htmlFor={`variantImage-${index}`}
-                                  className="absolute bottom-4 left-16  -translate-x-1/2 w-5 h-5 bg-white border border-gray-300 rounded-full flex items-center justify-center cursor-pointer hover:bg-gray-100"
-                                >
-                                  <input
-                                    id={`variantImage-${index}`}
-                                    type="file"
-                                    accept="image/*"
-                                    multiple
-                                    className="hidden"
-                                    onChange={(e) =>
-                                      handleVariantImageChange(e, index)
-                                    }
-                                  />
-                                  <Plus className="text-gray-500 w-3 h-3" />
-                                </label>
-                              )}
-                            </div>
-                          ) : (
-                            <label
-                              htmlFor={`variantImage-${index}`}
-                              className="w-[45px] h-[45px] bg-[#ECECF0] border border-neutral-200 rounded-lg flex items-center justify-center cursor-pointer hover:bg-gray-200"
-                            >
-                              <input
-                                id={`variantImage-${index}`}
-                                type="file"
-                                accept="image/*"
-                                multiple
-                                className="hidden"
-                                onChange={(e) =>
-                                  handleVariantImageChange(e, index)
-                                }
-                              />
-                              <div className="w-[20px] h-[20px] flex items-center justify-center rounded-full border border-[#D0D0D0] bg-white">
-                                <Plus className="text-[#5F5F5F] w-[9px] h-[9px]" />
-                              </div>
-                            </label>
-                          )}
-                        </div>
-                      </div> */
-}
-{
-  /* </div> */
-}
-{
-  /*  Action (Trash) */
-}
-{
-  /* <div className="flex flex-col items-center justify-start opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      <label className="block text-sm font-medium mb-2">
-                        Action
-                      </label>
-                      <button
-                        type="button"
-                        onClick={() => removeVariant(index)}
-                        className="p-2 rounded hover:bg-red-100 transition"
-                      >
-                        <Trash className="w-[27px] h-[27px] text-red-700" />
-                      </button>
-                    </div> */
-}

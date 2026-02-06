@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useOutletContext } from "react-router";
 import { ChevronDown, ListFilter, Search } from "lucide-react";
+import ReturnTimeline from "./ReturnPopModules/ReturnTimeline";
 // import OrderDetails from "./OrdersPopModels/OrderDetails";
 // import OrdersTimelines from "./OrdersPopModels/OrdersTimelines";
 
@@ -125,7 +126,7 @@ const ReturnInitiated = () => {
   // this is for timeline pop model
   const [openTimelineId, setOpenTimelineId] = useState(null);
   const selectTimeline = returns.find(
-    (orders) => orders.orderId === openTimelineId,
+    (orders) => orders.returnId === openTimelineId,
   );
 
   return (
@@ -172,7 +173,7 @@ const ReturnInitiated = () => {
         overscroll-contain
         scrollbar-hide
       ">
-            <OrdersTimelines
+            <ReturnTimeline
               data={selectTimeline}
               setSelectedOrderId={() => setOpenTimelineId(null)}
             />
@@ -326,8 +327,9 @@ const ReturnInitiated = () => {
                 <div className="flex items-center justify-center ">
                   <td className="px-4 py-3 text-right">
                     <button
-                      onClick={() => {
-                        setOpenTimelineId(order.orderId);
+                      onClick={(e) => {
+                         e.stopPropagation(); // optional, prevents row click conflicts
+      setOpenTimelineId(order.returnId);
                       }}
                       className="p-2  text-[#2C87E2]">
                       View Tracking
