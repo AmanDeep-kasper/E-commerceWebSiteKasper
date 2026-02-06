@@ -14,9 +14,9 @@ const ReturnRequested = () => {
 
   const columns = [
     "Return ID",
-    "Return Type",
+    "Product Name",
     "Return Reason",
-    "Return Date",
+    "Created Date",
     "Action",
   ];
 
@@ -45,7 +45,7 @@ const ReturnRequested = () => {
   const [filterOne, setfilterOne] = useState("Latest");
   const [filterOneOpen, setfilterOneOpen] = useState(false);
 
-  const filterOneItems = ["Latest", "Latest Return Date", "Oldest Return Date"];
+  const filterOneItems = ["Latest", "Latest Date", "Oldest Date"];
 
   const [returnsData, setReturnsData] = useState([]);
 
@@ -198,7 +198,6 @@ const ReturnRequested = () => {
         </div>
       )}
 
-
       {selectCancelOrder && (
         <ReturnRejectedModule
           order={selectCancelOrder}
@@ -303,10 +302,32 @@ const ReturnRequested = () => {
                   onClick={() => {
                     setSelectedOrderId(order.returnId);
                   }}
-                  className="px-4 py-3 hover:underline text-[#2C87E2]">
+                  className="px-4 py-3 hover:underline text-[#000000]">
                   {order.returnId}
                 </td>
-                <td className="px-4 py-3 font-medium text-xs ">
+                <td className="px-0 py-4">
+                  <div className="flex items-center justify-center text-center bg-emerald- gap-2">
+                    <div className="h-[50px] w-[50px] ml-2 bg-[#EFEFEF] p-1 rounded-md overflow-hidden">
+                      <img
+                        className="h-full w-full object-cover object-center"
+                        src={order?.item?.images?.[0] || "/no-image.png"}
+                        alt={order?.item?.productName || "Product image"}
+                      />
+                    </div>
+
+                    <div>
+                      <span className="text-[#1F2937] text-[16px] font-medium cursor-pointer">
+                        {order.item.productName.split(" ").length > 3
+                          ? order.item.productName
+                              .split(" ")
+                              .slice(0, 3)
+                              .join(" ") + "..."
+                          : order.item.productName}
+                      </span>
+                    </div>
+                  </div>
+                </td>
+                {/* <td className="px-4 py-3 font-medium text-xs ">
                   <span
                     className={`inline-flex items-center justify-center min-w-[110px] px-4 py-1.5 rounded-md font-medium text-center ${
                       order.type === "Return"
@@ -317,21 +338,21 @@ const ReturnRequested = () => {
                     }`}>
                     {order.type}
                   </span>
-                </td>
+                </td> */}
                 <td className="px-4 py-3">{order.returnReason}</td>
 
                 <td className="px-4 py-3">{order.requestedAt}</td>
 
-                <td className="px-4 py-3 text-right flex items-center justify-center gap-3">
+                <td className="px-4 py-3 gap-3">
                   <span
                     onClick={() => {
                       setSelectedOrderId(order.returnId);
                     }}
-                    className="hover:underline text-[#1C3753]">
+                    className="hover:underline text-[#2C87E2]">
                     view
                   </span>
                   {/* {acceptedOrders.includes(order.returnId) ? ( */}
-                  {order.status === "Approved" ? (
+                  {/* {order.status === "Approved" ? (
                     <span className="px-6 py-1.5 rounded-md text-sm font-medium bg-green-100 text-green-600">
                       Approved
                     </span>
@@ -349,7 +370,7 @@ const ReturnRequested = () => {
                         Reject
                       </button>
                     </>
-                  )}
+                  )} */}
                 </td>
               </tr>
             ))}
