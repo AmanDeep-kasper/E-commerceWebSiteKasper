@@ -15,6 +15,7 @@ import { data, Link } from "react-router";
 import AddCategoryPopUp from "./AddCategoryPopUp";
 import AddSubCategoryPopup from "./AddSubCategoryPopup";
 import DisplayVariantImg from "./DisplayVariantImg";
+//  metariol ui
 
 const AddProduct = () => {
   const fileInputRef = useRef(null);
@@ -781,6 +782,10 @@ const AddProduct = () => {
     handleSubmit({ preventDefault: () => {} });
   };
 
+  //  step 4 in process
+
+  const [isOn, setIsOn] = useState(false);
+
   return (
     <>
       {showCategoryModal && (
@@ -821,7 +826,8 @@ const AddProduct = () => {
       <form
         className="p-6 bg-[#F6F8F9] min-h-screen"
         onSubmit={handleSubmit}
-        encType="multipart/form-data">
+        encType="multipart/form-data"
+      >
         {/* Header */}
 
         <div className="flex items-center justify-between h-16 w-full rounded-lg">
@@ -837,18 +843,21 @@ const AddProduct = () => {
           <div className="flex items-center gap-4 px-2">
             <button
               type="button"
-              className="py-1 px-3 rounded border border-[#737373] text-[#737373] hover:bg-[#706f6f] hover:text-white bg-[#F6F8F9] font-medium">
+              className="py-1 px-3 rounded border border-[#737373] text-[#737373] hover:bg-[#706f6f] hover:text-white bg-[#F6F8F9] font-medium"
+            >
               Discard
             </button>
             <button
               type="button"
               onClick={handleSaveDraft}
-              className="py-1 px-3 rounded border border-[#737373] text-[#737373] hover:bg-[#706f6f] hover:text-white bg-[#F6F8F9] font-medium">
+              className="py-1 px-3 rounded border border-[#737373] text-[#737373] hover:bg-[#706f6f] hover:text-white bg-[#F6F8F9] font-medium"
+            >
               Save Draft
             </button>
             <button
               type="submit"
-              className="py-1 px-3 rounded-lg bg-[#1C3753] text-[#FFFFFF] font-medium">
+              className="py-1 px-3 rounded-lg bg-[#1C3753] text-[#FFFFFF] font-medium"
+            >
               {isEditing ? "Update Product" : "Add Product"}
             </button>
           </div>
@@ -870,14 +879,16 @@ const AddProduct = () => {
                 : isActive
                   ? "bg-[#FFFFFF] text-[#1C3753] border border-1"
                   : "bg-gray-200 text-gray-600"
-            }`}>
+            }`}
+                  >
                     {isCompleted ? <LucideCheck size={16} /> : item.id}
                   </div>
 
                   <span
                     className={`text-sm ${
                       isActive ? "text-[#4EA7FF] font-medium" : "text-gray-500"
-                    }`}>
+                    }`}
+                  >
                     {item.pageName}
                   </span>
                 </div>
@@ -1118,7 +1129,8 @@ const AddProduct = () => {
                             onClick={generatedSKU}
                             className="absolute right-2 top-1/2 -translate-y-1/2
               h-[32px] px-4 bg-[#1C3753] text-white text-sm font-normal
-              rounded-md hover:bg-[#264464] transition">
+              rounded-md hover:bg-[#264464] transition"
+                          >
                             Generate
                           </button>
                         </div>
@@ -1176,7 +1188,8 @@ const AddProduct = () => {
                         return (
                           <div
                             key={index}
-                            className="relative w-[120px] h-[120px] rounded-lg overflow-hidden border border-neutral-200 bg-gray-100">
+                            className="relative w-[120px] h-[120px] rounded-lg overflow-hidden border border-neutral-200 bg-gray-100"
+                          >
                             <img
                               src={imgSrc}
                               alt={`preview-${index}`}
@@ -1201,7 +1214,8 @@ const AddProduct = () => {
                       <button
                         type="button"
                         onClick={handleButtonClick}
-                        className="px-4 py-1 flex items-center justify-center gap-2 border border-[#686868] text-[#1C3753] rounded-md bg-[#E4E5E6]  font-normal hover:bg-[#dddfe0] transition">
+                        className="px-4 py-1 flex items-center justify-center gap-2 border border-[#686868] text-[#1C3753] rounded-md bg-[#E4E5E6]  font-normal hover:bg-[#dddfe0] transition"
+                      >
                         <FiUpload className="text-[#1C3753] w-5 h-5" /> Upload
                         Images
                       </button>
@@ -1221,7 +1235,8 @@ const AddProduct = () => {
                       <button
                         type="button"
                         onClick={handleButtonClick}
-                        className="px-4 py-2 border border-[#1C3753] text-[#1C3753] rounded-md text-sm font-medium hover:bg-blue-50 transition">
+                        className="px-4 py-2 border border-[#1C3753] text-[#1C3753] rounded-md text-sm font-medium hover:bg-blue-50 transition"
+                      >
                         Upload More Images
                       </button>
                       <div>
@@ -1317,7 +1332,8 @@ const AddProduct = () => {
                           onClick={() => setOpenGstBox((prev) => !prev)}
                           className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-4
                    flex items-center justify-between bg-[#F8FAFB]
-                   text-sm text-[#686868] focus:outline-none">
+                   text-sm text-[#686868] focus:outline-none"
+                        >
                           <span>{formData.taxPercent || "Select GST (%)"}</span>
                           <ChevronDown
                             size={18}
@@ -1330,7 +1346,8 @@ const AddProduct = () => {
                         {opengstbosx && (
                           <ul
                             className="absolute z-10 w-full mt-1 border border-[#D0D0D0]
-                       rounded-lg bg-white shadow-md max-h-60 overflow-y-auto text-sm">
+                       rounded-lg bg-white shadow-md max-h-60 overflow-y-auto text-sm"
+                          >
                             {gstRateList.map((p, i) => (
                               <li
                                 key={i}
@@ -1341,7 +1358,8 @@ const AddProduct = () => {
                                   }));
                                   setOpenGstBox(false);
                                 }}
-                                className="px-4 py-2 hover:bg-[#FFEAD2] cursor-pointer">
+                                className="px-4 py-2 hover:bg-[#FFEAD2] cursor-pointer"
+                              >
                                 {p}
                               </li>
                             ))}
@@ -1418,7 +1436,68 @@ const AddProduct = () => {
             </>
           )}
 
-          {/* {step == 4 && ()} */}
+          {step == 4 && (
+            <>
+              {/* toggle btn switch  */}
+              <div className="bg-white p-[16px] rounded-2xl">
+                <div className="flex items-center justify-between mb-2">
+                  <h1 className="text-[16px]">
+                    Does this Product has Variants?
+                  </h1>
+                  <button
+                    type="button"
+                    onClick={() => setIsOn(!isOn)}
+                    className={`relative w-12 h-6 flex items-center rounded-full p-1 transition-colors duration-300
+        ${isOn ? "bg-[#686868]" : "bg-gray-300"}`}
+                  >
+                    <span
+                      className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-300
+          ${isOn ? "translate-x-6" : "translate-x-0"}`}
+                    />
+                  </button>
+                </div>
+                <p className="text-sm text-[#686868]">
+                  Enable this if your product comes in different sizes, colours,
+                  or other options. If disabled, you'll only need to fill basic
+                  product details.
+                </p>
+              </div>
+              {/* Select Variants Types  */}
+              <div className="bg-white p-4 rounded-2xl space-y-4">
+                <h1 className="text-lg font-semibold">Select Variant Types</h1>
+
+                <div className="flex items-center gap-3">
+                  <input
+                    type="checkbox"
+                    id="color"
+                    name="variants"
+                    value="color"
+                    className="h-4 w-4 accent-black"
+                  />
+                  <label htmlFor="color" className="text-sm">
+                    Color
+                  </label>
+                  {/* </div> */}
+
+                  <input
+                    type="checkbox"
+                    id="siDimensionze"
+                    name="variants"
+                    value="Dimension"
+                    className="h-4 w-4 accent-black"
+                  />
+                  <label htmlFor="Dimension" className="text-sm">
+                    Dimension
+                  </label>
+                </div>
+
+                <div className="border-t-2">
+
+                </div>
+              </div>
+              
+            </>
+          )}
         </div>
 
         <div className="flex items-end justify-end gap-4 mt-6">
@@ -1426,7 +1505,8 @@ const AddProduct = () => {
             <button
               type="button"
               onClick={() => setStep(step - 1)}
-              className="px-6 py-1 bg-[#F6F8F9] border border-[#1C3753] text-[#1C3753] font-medium rounded-md">
+              className="px-6 py-1 bg-[#F6F8F9] border border-[#1C3753] text-[#1C3753] font-medium rounded-md"
+            >
               Previous
             </button>
           )}
@@ -1435,7 +1515,8 @@ const AddProduct = () => {
             <button
               type="button"
               onClick={() => setStep(step + 1)}
-              className="px-6 py-1 bg-[#F6F8F9] border border-[#1C3753] text-[#1C3753] font-medium rounded-md">
+              className="px-6 py-1 bg-[#F6F8F9] border border-[#1C3753] text-[#1C3753] font-medium rounded-md"
+            >
               Next
             </button>
           ) : (
