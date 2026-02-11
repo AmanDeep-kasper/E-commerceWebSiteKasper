@@ -54,7 +54,8 @@ const AddProduct = () => {
       {
         variantId: "",
         variantColor: "",
-        variantDimension: "",
+        variantLength: "",
+        variantBreadth: "",
         variantWidth: "",
         variantSkuId: "",
         variantImage: [],
@@ -554,9 +555,9 @@ const AddProduct = () => {
     }
   };
 
-  // sku id generated in random
+  // sku id generated in random by product title
   const generatedSKU = () => {
-    const title = formData.title?.trim() || "";
+    const title = formData.productTittle?.trim() || "";
 
     if (title.length < 3) {
       toast.error("Enter product title first!", {
@@ -566,7 +567,7 @@ const AddProduct = () => {
       return;
     }
 
-    const prefix = title.substring(0, 3).toUpperCase(); // First 3 letters of product name
+    const prefix = title.substring(0, 3).toUpperCase();
     const randomNum = String(Math.floor(Math.random() * 999)).padStart(3, "0"); // 000–999
 
     const newSKU = `${prefix}-ART-${randomNum}`;
@@ -604,7 +605,8 @@ const AddProduct = () => {
   // this is first drop down
   const [categoriesopen, setCategoriesOpen] = useState(false);
   // selected option
-  const [selected, setSelected] = useState("Select Price Range");
+  const [selectedPriceRange, setSelectedPriceRange] =
+    useState("Select Price Range");
 
   const [subdropdown, setSubDropDown] = useState(false);
 
@@ -785,6 +787,119 @@ const AddProduct = () => {
   //  step 4 in process
 
   const [isOn, setIsOn] = useState(false);
+
+  //  in this code we are going to handle the toggle btn in variants listing
+
+  const colors = [
+    "Black",
+    "Blue",
+    "Red",
+    "Green",
+    "White",
+    "Brown",
+    "Green",
+    "Gray",
+    "Yellow",
+    "Purple",
+    "Orange",
+    "Gold",
+    "Silver",
+    "Beige",
+    "Cream",
+    "Pink",
+    "Violet",
+    "Maroon",
+    "Charcoal",
+    "Burgundy",
+    "Cooper",
+    "Bronze",
+    "Natural Wood",
+  ];
+
+  const [selectedColors, setSelectedColors] = useState([]);
+
+  const handleSelect = (e) => {
+    const value = e.target.value;
+    if (!selectedColors.includes(value)) {
+      setSelectedColors([...selectedColors, value]);
+    }
+  };
+
+  const removeItem = (item) => {
+    setSelectedColors(selectedColors.filter((i) => i !== item));
+  };
+
+  // dimesnsion
+
+  const [dimension, setDimension] = useState({ length: "", breadth: "" });
+  const [sizes, setSizes] = useState([]); // ["20X10", "30X20"]
+
+  const onDimChange = (e) => {
+    const { name, value } = e.target;
+    setDimension((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const addSize = () => {
+    const l = String(dimension.length).trim();
+    const b = String(dimension.breadth).trim();
+
+    if (!l || !b) return;
+
+    const length = Number(l);
+    const breadth = Number(b);
+    if (
+      !Number.isFinite(length) ||
+      !Number.isFinite(breadth) ||
+      length <= 0 ||
+      breadth <= 0
+    )
+      return;
+
+    const chip = `${length}X${breadth}`;
+
+    if (sizes.includes(chip)) {
+      setDimension({ length: "", breadth: "" });
+      return;
+    }
+
+    setSizes((prev) => [...prev, chip]);
+    setDimension({ length: "", breadth: "" });
+  };
+
+  const removeSize = (chip) => {
+    setSizes((prev) => prev.filter((x) => x !== chip));
+  };
+
+  const onKeyDown = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      addSize();
+    }
+  };
+
+  // variant image
+  const variantFileRefs = useRef([]);
+
+  const triggerVariantUpload = (variantIndex) => {
+    variantFileRefs.current[variantIndex]?.click();
+  };
+
+  const openVariantImages = (variantIndex) => {
+    const imgs = formData.variants[variantIndex]?.variantImage || [];
+
+    setActiveVariantIndex(variantIndex);
+    setSelectedImages(imgs);
+
+    const first =
+      imgs.length > 0
+        ? typeof imgs[0] === "string"
+          ? imgs[0]
+          : imgs[0].preview || URL.createObjectURL(imgs[0])
+        : "";
+
+    setCurrentImage(first);
+    setIsModalOpen(true);
+  };
 
   return (
     <>
@@ -1448,7 +1563,7 @@ const AddProduct = () => {
                     type="button"
                     onClick={() => setIsOn(!isOn)}
                     className={`relative w-12 h-6 flex items-center rounded-full p-1 transition-colors duration-300
-        ${isOn ? "bg-[#686868]" : "bg-gray-300"}`}
+        ${isOn ? "bg-[#1C3753]" : "bg-gray-300"}`}
                   >
                     <span
                       className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-300
@@ -1463,7 +1578,7 @@ const AddProduct = () => {
                 </p>
               </div>
               {/* Select Variants Types  */}
-              <div className="bg-white p-4 rounded-2xl space-y-4">
+              {/* <div className="bg-white p-4 rounded-2xl space-y-4">
                 <h1 className="text-lg font-semibold">Select Variant Types</h1>
 
                 <div className="flex items-center gap-3">
@@ -1477,7 +1592,6 @@ const AddProduct = () => {
                   <label htmlFor="color" className="text-sm">
                     Color
                   </label>
-                  {/* </div> */}
 
                   <input
                     type="checkbox"
@@ -1492,10 +1606,417 @@ const AddProduct = () => {
                 </div>
 
                 <div className="border-t-2">
+                  <div>
+                    <div className="w-full max-w-full space-y-2">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">
+                          Color
+                        </label>
+                        <p className="text-xs text-gray-500">
+                          Add different color options
+                        </p>
+                      </div>
 
+                      <div className="flex flex-wrap items-center gap-2 rounded-lg p-2 w-full">
+                        <select
+                          onChange={handleSelect}
+                          className="rounded-md w-[288px] border px-3 py-2 text-sm focus:outline-none"
+                          defaultValue=""
+                        >
+                          <option value="" disabled>
+                            Select color
+                          </option>
+                          {colors.map((color) => (
+                            <option key={color} value={color}>
+                              {color}
+                            </option>
+                          ))}
+                        </select>
+
+                        {selectedColors.map((item) => (
+                          <span
+                            key={item}
+                            className="flex items-center gap-1 rounded-md border border-blue-400 bg-blue-50 px-3 py-1 text-sm text-blue-700"
+                          >
+                            {item}
+                            <button
+                              onClick={() => removeItem(item)}
+                              className="ml-1 text-xs font-bold hover:text-red-500"
+                            >
+                              ✕
+                            </button>
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
-              
+                <div className="border-t-2">
+                  <div>
+                    <div className="w-full">
+                      <div className="text-sm font-semibold text-gray-900">
+                        Dimension
+                      </div>
+                      <div className="text-xs text-gray-500 mb-2">
+                        Add different Size options
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-2 w-full">
+                        <input
+                          type="number"
+                          name="length"
+                          value={dimension.length}
+                          onChange={onDimChange}
+                          onKeyDown={onKeyDown}
+                          placeholder="Length"
+                          className="h-10 w-[120px] rounded-md border border-gray-200 px-3 text-sm focus:outline-none"
+                        />
+
+                        <input
+                          type="number"
+                          name="breadth"
+                          value={dimension.breadth}
+                          onChange={onDimChange}
+                          onKeyDown={onKeyDown}
+                          placeholder="Breadth"
+                          className="h-10 w-[120px] rounded-md border border-gray-200 px-3 text-sm focus:outline-none"
+                        />
+
+                        {sizes.map((chip) => (
+                          <span
+                            key={chip}
+                            className="flex h-10 items-center gap-2 rounded-md border border-slate-400 bg-slate-100 px-3 text-sm text-slate-900"
+                          >
+                            {chip}
+                            <button
+                              type="button"
+                              onClick={() => removeSize(chip)}
+                              className="text-base leading-none hover:text-red-500"
+                              aria-label={`Remove ${chip}`}
+                            >
+                              ×
+                            </button>
+                          </span>
+                        ))}
+                      </div>
+
+                      <div className="mt-1 text-[11px] text-gray-400">
+                        Tip: Press "Enter" to add Dimension.
+                      </div>
+                    </div>
+                  </div>
+                  <button className="px-4 py-1 bg-[#1C3753] text-sm text-white rounded-md">
+                    Create Variants
+                  </button>
+                </div>
+              </div> */}
+
+              {isOn && (
+                <div className="w-full rounded-lg bg-white p-4 mt-4">
+                  {/* Header */}
+                  <div className="mb-4 flex items-center justify-between">
+                    <h1 className="text-lg font-semibold">Variant Listings</h1>
+                    <button
+                      type="button"
+                      className="rounded-md bg-[#1C3753] px-4 py-1 text-sm text-white"
+                    >
+                      + Add Variant
+                    </button>
+                  </div>
+
+                  {/* Table Wrapper */}
+                  <div className="overflow-x-auto rounded-t-xl">
+                    <table className="w-full min-w-[1200px] text-sm">
+                      <thead className="bg-[#F5F8FA]">
+                        <tr>
+                          <th className="px-3 py-2 text-left"></th>
+                          <th className="px-3 py-2 text-left">Color</th>
+                          <th className="px-3 py-2 text-left">
+                            Dimension (Inches)
+                          </th>
+                          <th className="px-3 py-2 text-left">Weight (Kg)</th>
+                          <th className="px-3 py-2 text-left">
+                            Variant SKU ID
+                          </th>
+                          <th className="px-3 py-2 text-left">Images</th>
+                          <th className="px-3 py-2 text-left">MRP</th>
+                          <th className="px-3 py-2 text-left">Selling Price</th>
+                          <th className="px-3 py-2 text-left">Cost Price</th>
+                          <th className="px-3 py-2 text-left">
+                            Available Stock
+                          </th>
+                        </tr>
+                      </thead>
+
+                      <tbody>
+                        {formData.variants.map((variant, index) => (
+                          <tr key={index} className="hover:bg-gray-50 border-b">
+                            {/* Checkbox */}
+                            <td className=" px-3 py-2">
+                              <input type="checkbox" />
+                            </td>
+
+                            {/* Color */}
+                            <td className=" px-3 py-2">
+                              <div className="flex flex-wrap items-center gap-2 rounded-lg p-2 w-[140px]">
+                                <select
+                                  value={variant.variantColor || ""}
+                                  // onChange={handleSelect}
+                                  onChange={(e) =>
+                                    handleVariantChange(
+                                      index,
+                                      "variantColor",
+                                      e.target.value,
+                                    )
+                                  }
+                                  // className="rounded-md border px-3 py-2 text-sm focus:outline-none"
+                                  className="w-[140px] rounded-md border px-3 py-2 text-sm focus:outline-none"
+                                  defaultValue=""
+                                >
+                                  <option value="" disabled>
+                                    Select color
+                                  </option>
+                                  {colors.map((color, index) => (
+                                    <option key={index} value={color}>
+                                      {color}
+                                    </option>
+                                  ))}
+                                </select>
+                              </div>
+                            </td>
+
+                            {/* Dimension */}
+                            <td className=" px-3 py-2">
+                              <div className="flex gap-2">
+                                <input
+                                  type="number"
+                                  value={variant.variantLength || ""}
+                                  onChange={(e) =>
+                                    handleVariantChange(
+                                      index,
+                                      "variantLength",
+                                      e.target.value,
+                                    )
+                                  }
+                                  placeholder="Enter Length"
+                                  className="w-32 rounded border px-2 py-1"
+                                />
+                                <input
+                                  type="number"
+                                  value={variant.variantBreadth || ""}
+                                  onChange={(e) =>
+                                    handleVariantChange(
+                                      index,
+                                      "variantBreadth",
+                                      e.target.value,
+                                    )
+                                  }
+                                  placeholder="Enter Breadth"
+                                  className="w-32 rounded border px-2 py-1"
+                                />
+                              </div>
+                            </td>
+
+                            {/* Weight */}
+                            <td className="px-3 py-2">
+                              <input
+                                type="number"
+                                value={variant.variantWidth || ""}
+                                onChange={(e) =>
+                                  handleVariantChange(
+                                    index,
+                                    "variantWidth",
+                                    e.target.value,
+                                  )
+                                }
+                                placeholder="Enter Weight"
+                                className="w-32 rounded border px-2 py-1"
+                              />
+                            </td>
+
+                            {/* SKU */}
+                            <td className="px-3 py-2">
+                              <div>
+                                <div className="relative">
+                                  <input
+                                    type="text"
+                                    name="SKU"
+                                    value={variant.variantSkuId || ""}
+                                    onChange={(e) =>
+                                      handleVariantChange(
+                                        index,
+                                        "variantSkuId",
+                                        e.target.value,
+                                      )
+                                    }
+                                    placeholder="Generate Variant SKU ID"
+                                    className="w-full h-[35px] border border-[#D0D0D0] rounded-lg px-3 pr-28
+              bg-[#F8FAFB] text-sm text-[#6B6B6B] placeholder-[#686868]
+              focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400"
+                                  />
+
+                                  <button
+                                    type="button"
+                                    onClick={() => generateVariantSKU(index)}
+                                    className="absolute right-2 top-1/2 -translate-y-1/2
+              h-[24px] px-4 bg-[#1C3753] text-white text-sm font-normal
+              rounded-md hover:bg-[#264464] transition"
+                                  >
+                                    Generate
+                                  </button>
+                                </div>
+                              </div>
+                            </td>
+
+                            {/* Images Column */}
+                            <td className=" px-3 py-2">
+                              {(() => {
+                                const imgs =
+                                  formData.variants[index].variantImage || [];
+
+                                const count = imgs.length;
+                                const firstImg = imgs[0];
+
+                                const thumbSrc = firstImg
+                                  ? typeof firstImg === "string"
+                                    ? firstImg
+                                    : firstImg.preview ||
+                                      URL.createObjectURL(firstImg)
+                                  : "";
+
+                                return (
+                                  <div className="flex items-center gap-4 whitespace-nowrap">
+                                    {/* CASE 1: No images → show Add Images */}
+                                    {count === 0 && (
+                                      <button
+                                        type="button"
+                                        onClick={() =>
+                                          triggerVariantUpload(index)
+                                        }
+                                        className="flex items-center gap-2"
+                                      >
+                                        <div className="h-9 w-9 rounded-md border bg-[#EFEFEF] flex items-center justify-center">
+                                          <FiUpload className="h-5 w-5 text-[#1C3753]" />
+                                        </div>
+                                        <span className="text-sm text-[#1C3753]">
+                                          Add Images
+                                        </span>
+                                      </button>
+                                    )}
+
+                                    {/* CASE 2: Images exist → show thumb + +N */}
+                                    {count > 0 && (
+                                      <button
+                                        type="button"
+                                        onClick={() => openVariantImages(index)}
+                                        className="flex items-center gap-2"
+                                      >
+                                        <div className="h-9 w-9 rounded-md overflow-hidden border bg-gray-100">
+                                          <img
+                                            src={thumbSrc}
+                                            alt=""
+                                            className="h-full w-full object-cover"
+                                          />
+                                        </div>
+
+                                        <span className="text-sm text-[#1C3753]">
+                                          +{count} Images
+                                        </span>
+                                      </button>
+                                    )}
+
+                                    {/* Hidden input (always present) */}
+                                    <input
+                                      type="file"
+                                      multiple
+                                      accept=".png,.jpg,.jpeg,.webp,.svg"
+                                      className="hidden"
+                                      ref={(el) =>
+                                        (variantFileRefs.current[index] = el)
+                                      }
+                                      onChange={(e) =>
+                                        handleVariantImageChange(e, index)
+                                      }
+                                    />
+                                  </div>
+                                );
+                              })()}
+                            </td>
+
+                            {/* MRP */}
+                            <td className=" px-3 py-2">
+                              <input
+                                type="number"
+                                value={variant.variantMrp || ""}
+                                onChange={(e) =>
+                                  handleVariantChange(
+                                    index,
+                                    "variantMrp",
+                                    e.target.value,
+                                  )
+                                }
+                                className="w-24 rounded border px-2 py-1"
+                                placeholder="₹1600"
+                              />
+                            </td>
+
+                            {/* Selling Price */}
+                            <td className=" px-3 py-2">
+                              <input
+                                type="number"
+                                value={variant.variantSellingPrice || ""}
+                                onChange={(e) =>
+                                  handleVariantChange(
+                                    index,
+                                    "variantSellingPrice",
+                                    e.target.value,
+                                  )
+                                }
+                                className="w-24 rounded border px-2 py-1"
+                                placeholder="₹1500"
+                              />
+                            </td>
+
+                            {/* Cost Price */}
+                            <td className=" px-3 py-2">
+                              <input
+                                type="number"
+                                value={variant.variantCostPrice || ""}
+                                onChange={(e) =>
+                                  handleVariantChange(
+                                    index,
+                                    "variantCostPrice",
+                                    e.target.value,
+                                  )
+                                }
+                                className="w-24 rounded border px-2 py-1"
+                                placeholder="₹800"
+                              />
+                            </td>
+
+                            {/* Stock */}
+                            <td className=" px-3 py-2">
+                              <input
+                                type="number"
+                                value={variant.variantStock || ""}
+                                onChange={(e) =>
+                                  handleVariantChange(
+                                    index,
+                                    "variantStock",
+                                    e.target.value,
+                                  )
+                                }
+                                className="w-20 rounded border px-2 py-1"
+                                placeholder="10"
+                              />
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
             </>
           )}
         </div>
