@@ -56,18 +56,13 @@ const AddProduct = () => {
         variantColor: "",
         variantLength: "",
         variantBreadth: "",
-        variantDimensionunit: "",
         variantWidth: "",
-        variantWidthUnit: "",
         variantSkuId: "",
         variantImage: [],
         variantMrp: "",
-        variantCostPrice: "",
         variantSellingPrice: "",
-        variantDiscount: "",
-        variantDiscountUnit: "",
+        variantCostPrice: "",
         variantAvailableStock: "",
-        variantLowStockAlertStock: "",
       },
     ],
   });
@@ -1067,7 +1062,7 @@ const AddProduct = () => {
                 </div>
 
                 <div className="flex flex-col space-y-3">
-                  {/* <div className="bg-white rounded-2xl p-4 border">
+                  <div className="bg-white rounded-2xl p-4 border">
                     <h2 className="text-black text-[18px] font-medium mb-4">
                       Product Status
                     </h2>
@@ -1099,7 +1094,7 @@ const AddProduct = () => {
                         </label>
                       </div>
                     </div>
-                  </div> */}
+                  </div>
 
                   <div className="bg-white rounded-2xl p-4 border">
                     <h2 className="text-black text-[18px] font-medium mb-4">
@@ -1159,7 +1154,7 @@ const AddProduct = () => {
             </>
           )}
 
-          {/* {step === 2 && (
+          {step === 2 && (
             <>
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
                 <div className="lg:col-span-2 flex flex-col gap-6">
@@ -1218,12 +1213,14 @@ const AddProduct = () => {
                     </div>
                   </div>
 
+                  {/* inventory */}
                   <div className="bg-white rounded-2xl p-4 border">
                     <h2 className="text-[#1C1C1C] text-[18px] font-medium mb-4">
                       Inventory
                     </h2>
 
                     <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+                      {/* SKU ID */}
                       <div>
                         <label className="block text-sm font-normal mb-2">
                           Product SKU ID{" "}
@@ -1254,7 +1251,7 @@ const AddProduct = () => {
                         </div>
                       </div>
 
-                    
+                      {/* Stock */}
                       <div>
                         <label className="block text-sm font-normal mb-2">
                           Available Stock
@@ -1268,7 +1265,7 @@ const AddProduct = () => {
                           className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-3 py-2 bg-[#F8FAFB] text-sm placeholder-[#686868] text-gray-600 focus:outline-none"
                         />
                       </div>
-
+                      {/* Low stock alert */}
                       <div>
                         <label className="block text-sm font-normal mb-2">
                           Low stock alert{" "}
@@ -1286,12 +1283,13 @@ const AddProduct = () => {
                     </div>
                   </div>
                 </div>
-
+                {/* uploded images */}
                 <div className=" rounded-2xl p-4 border  flex flex-col h-fit bg-white">
                   <h1 className="text-[16px] font-medium mb-3">
                     Upload Images <span>*</span>
                   </h1>
 
+                  {/* Thumbnails */}
                   {formData.images.length > 0 && (
                     <div className="flex gap-3 mb-4">
                       {formData.images.slice(0, 5).map((img, index) => {
@@ -1314,7 +1312,7 @@ const AddProduct = () => {
                             />
 
                             {/* +N overlay */}
-                            {/* {index === 4 && remaining > 0 && (
+                            {index === 4 && remaining > 0 && (
                               <div className="absolute inset-0 bg-black/60 flex items-center justify-center text-white text-sm font-semibold">
                                 +{remaining}
                               </div>
@@ -1323,9 +1321,10 @@ const AddProduct = () => {
                         );
                       })}
                     </div>
-                  )} */}
+                  )}
 
-                  {/* {formData.images.length === 0 && (
+                  {/* Upload box (ONLY when no images) */}
+                  {formData.images.length === 0 && (
                     <div className="bg-[#F8FAFB] border border-dashed h-[250px] border-[#C4C4C4] rounded-lg px-6 py-[90px] flex flex-col items-center gap-3 space-y-3">
                       <button
                         type="button"
@@ -1343,9 +1342,10 @@ const AddProduct = () => {
                         </p>
                       </div>
                     </div>
-                  )} */}
+                  )}
 
-                  {/* {formData.images.length > 0 && (
+                  {/* Add More Images button (when images exist) */}
+                  {formData.images.length > 0 && (
                     <div className="flex flex-col space-y-4 justify-center items-center">
                       <button
                         type="button"
@@ -1364,8 +1364,9 @@ const AddProduct = () => {
                         </div>
                       </div>
                     </div>
-                  )} */}
-{/* 
+                  )}
+
+                  {/* Hidden input */}
                   <input
                     ref={fileInputRef}
                     type="file"
@@ -1377,9 +1378,7 @@ const AddProduct = () => {
                 </div>
               </div>
             </>
-          )} */} 
-
-
+          )}
 
           {step == 3 && (
             <>
@@ -1555,7 +1554,7 @@ const AddProduct = () => {
           {step == 4 && (
             <>
               {/* toggle btn switch  */}
-              {/* <div className="bg-white p-[16px] rounded-2xl">
+              <div className="bg-white p-[16px] rounded-2xl">
                 <div className="flex items-center justify-between mb-2">
                   <h1 className="text-[16px]">
                     Does this Product has Variants?
@@ -1577,7 +1576,7 @@ const AddProduct = () => {
                   or other options. If disabled, you'll only need to fill basic
                   product details.
                 </p>
-              </div> */}
+              </div>
               {/* Select Variants Types  */}
               {/* <div className="bg-white p-4 rounded-2xl space-y-4">
                 <h1 className="text-lg font-semibold">Select Variant Types</h1>
@@ -1714,6 +1713,7 @@ const AddProduct = () => {
 
               {isOn && (
                 <div className="w-full rounded-lg bg-white p-4 mt-4">
+                  {/* Header */}
                   <div className="mb-4 flex items-center justify-between">
                     <h1 className="text-lg font-semibold">Variant Listings</h1>
                     <button
@@ -1724,27 +1724,26 @@ const AddProduct = () => {
                     </button>
                   </div>
 
+                  {/* Table Wrapper */}
                   <div className="overflow-x-auto rounded-t-xl">
                     <table className="w-full min-w-[1200px] text-sm">
                       <thead className="bg-[#F5F8FA]">
                         <tr>
                           <th className="px-3 py-2 text-left"></th>
                           <th className="px-3 py-2 text-left">Color</th>
-                          <th className="px-3 py-2 text-left">Dimension</th>
-                          <th className="px-3 py-2 text-left">Weight</th>
+                          <th className="px-3 py-2 text-left">
+                            Dimension (Inches)
+                          </th>
+                          <th className="px-3 py-2 text-left">Weight (Kg)</th>
                           <th className="px-3 py-2 text-left">
                             Variant SKU ID
                           </th>
                           <th className="px-3 py-2 text-left">Images</th>
                           <th className="px-3 py-2 text-left">MRP</th>
-                          <th className="px-3 py-2 text-left">Cost Price</th>
                           <th className="px-3 py-2 text-left">Selling Price</th>
-                          <th className="px-3 py-2 text-left">Discount</th>
+                          <th className="px-3 py-2 text-left">Cost Price</th>
                           <th className="px-3 py-2 text-left">
                             Available Stock
-                          </th>
-                          <th className="px-3 py-2 text-left">
-                            Low Stock Alert
                           </th>
                         </tr>
                       </thead>
@@ -1752,14 +1751,17 @@ const AddProduct = () => {
                       <tbody>
                         {formData.variants.map((variant, index) => (
                           <tr key={index} className="hover:bg-gray-50 border-b">
+                            {/* Checkbox */}
                             <td className=" px-3 py-2">
                               <input type="checkbox" />
                             </td>
 
+                            {/* Color */}
                             <td className=" px-3 py-2">
                               <div className="flex flex-wrap items-center gap-2 rounded-lg p-2 w-[140px]">
                                 <select
                                   value={variant.variantColor || ""}
+                                  // onChange={handleSelect}
                                   onChange={(e) =>
                                     handleVariantChange(
                                       index,
@@ -1767,6 +1769,7 @@ const AddProduct = () => {
                                       e.target.value,
                                     )
                                   }
+                                  // className="rounded-md border px-3 py-2 text-sm focus:outline-none"
                                   className="w-[140px] rounded-md border px-3 py-2 text-sm focus:outline-none"
                                   defaultValue=""
                                 >
@@ -1782,6 +1785,7 @@ const AddProduct = () => {
                               </div>
                             </td>
 
+                            {/* Dimension */}
                             <td className=" px-3 py-2">
                               <div className="flex gap-2">
                                 <input
@@ -1810,34 +1814,27 @@ const AddProduct = () => {
                                   placeholder="Enter Breadth"
                                   className="w-32 rounded border px-2 py-1"
                                 />
-                                <select className=" border rounded-lg px-3 bg-[#F8FAFB] text-sm">
-                                  <option>In</option>
-                                </select>
                               </div>
                             </td>
 
+                            {/* Weight */}
                             <td className="px-3 py-2">
-                              <div className="flex items-center justify-center gap-2">
-                                {" "}
-                                <input
-                                  type="number"
-                                  value={variant.variantWidth || ""}
-                                  onChange={(e) =>
-                                    handleVariantChange(
-                                      index,
-                                      "variantWidth",
-                                      e.target.value,
-                                    )
-                                  }
-                                  placeholder="Enter Weight"
-                                  className="w-32 rounded border px-2 py-1"
-                                />
-                                <select className="border rounded-lg px-3 bg-[#F8FAFB] text-sm">
-                                  <option>kg</option>
-                                </select>
-                              </div>
+                              <input
+                                type="number"
+                                value={variant.variantWidth || ""}
+                                onChange={(e) =>
+                                  handleVariantChange(
+                                    index,
+                                    "variantWidth",
+                                    e.target.value,
+                                  )
+                                }
+                                placeholder="Enter Weight"
+                                className="w-32 rounded border px-2 py-1"
+                              />
                             </td>
 
+                            {/* SKU */}
                             <td className="px-3 py-2">
                               <div>
                                 <div className="relative">
@@ -1853,7 +1850,7 @@ const AddProduct = () => {
                                       )
                                     }
                                     placeholder="Generate Variant SKU ID"
-                                    className="w-[274px] h-[35px] border border-[#D0D0D0] rounded-lg px-3 pr-28
+                                    className="w-full h-[35px] border border-[#D0D0D0] rounded-lg px-3 pr-28
               bg-[#F8FAFB] text-sm text-[#6B6B6B] placeholder-[#686868]
               focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400"
                                   />
@@ -1871,6 +1868,7 @@ const AddProduct = () => {
                               </div>
                             </td>
 
+                            {/* Images Column */}
                             <td className=" px-3 py-2">
                               {(() => {
                                 const imgs =
@@ -1888,6 +1886,7 @@ const AddProduct = () => {
 
                                 return (
                                   <div className="flex items-center gap-4 whitespace-nowrap">
+                                    {/* CASE 1: No images → show Add Images */}
                                     {count === 0 && (
                                       <button
                                         type="button"
@@ -1905,6 +1904,7 @@ const AddProduct = () => {
                                       </button>
                                     )}
 
+                                    {/* CASE 2: Images exist → show thumb + +N */}
                                     {count > 0 && (
                                       <button
                                         type="button"
@@ -1925,6 +1925,7 @@ const AddProduct = () => {
                                       </button>
                                     )}
 
+                                    {/* Hidden input (always present) */}
                                     <input
                                       type="file"
                                       multiple
@@ -1942,7 +1943,8 @@ const AddProduct = () => {
                               })()}
                             </td>
 
-                            <td className="px-3 py-2">
+                            {/* MRP */}
+                            <td className=" px-3 py-2">
                               <input
                                 type="number"
                                 value={variant.variantMrp || ""}
@@ -1958,22 +1960,7 @@ const AddProduct = () => {
                               />
                             </td>
 
-                            <td className=" px-3 py-2">
-                              <input
-                                type="number"
-                                value={variant.variantCostPrice || ""}
-                                onChange={(e) =>
-                                  handleVariantChange(
-                                    index,
-                                    "variantCostPrice",
-                                    e.target.value,
-                                  )
-                                }
-                                className="w-24 rounded border px-2 py-1"
-                                placeholder="₹800"
-                              />
-                            </td>
-
+                            {/* Selling Price */}
                             <td className=" px-3 py-2">
                               <input
                                 type="number"
@@ -1990,48 +1977,37 @@ const AddProduct = () => {
                               />
                             </td>
 
-                            <td className="px-3 py-2">
-                              <div className="flex items-center justify-center gap-2">
-                                <input
-                                  type="text"
-                                  placeholder="Discount"
-                                  className="w-24  border px-2 py-1  text-sm"
-                                />
-                                <select className=" border rounded-lg px-3 bg-[#F8FAFB] text-sm">
-                                  <option>In</option>
-                                </select>
-                              </div>
-                            </td>
+                            {/* Cost Price */}
                             <td className=" px-3 py-2">
                               <input
                                 type="number"
-                                value={variant.variantAvailableStock || ""}
+                                value={variant.variantCostPrice || ""}
                                 onChange={(e) =>
                                   handleVariantChange(
                                     index,
-                                    "variantAvailableStock",
+                                    "variantCostPrice",
                                     e.target.value,
                                   )
                                 }
-                                className="w-28 rounded border px-2 py-1"
-                                placeholder="10"
+                                className="w-24 rounded border px-2 py-1"
+                                placeholder="₹800"
                               />
                             </td>
-                            <td className="px-3 py-2">
+
+                            {/* Stock */}
+                            <td className=" px-3 py-2">
                               <input
                                 type="number"
-                                name="ReorderLimit"
-                                value={variant.variantLowStockAlertStock || ""}
+                                value={variant.variantStock || ""}
                                 onChange={(e) =>
                                   handleVariantChange(
                                     index,
-                                    "variantLowStockAlertStock",
+                                    "variantStock",
                                     e.target.value,
                                   )
                                 }
-                                cl
-                                placeholder="Enter Total Stock Quantity"
-                                className="w-28 rounded border px-2 py-1"
+                                className="w-20 rounded border px-2 py-1"
+                                placeholder="10"
                               />
                             </td>
                           </tr>
@@ -2065,6 +2041,11 @@ const AddProduct = () => {
               Next
             </button>
           ) : (
+            // <button
+            //   type="submit"
+            //   className="px-4 py-2 bg-green-600 text-white rounded">
+            //   Save Product
+            // </button>
             ""
           )}
         </div>
@@ -2072,5 +2053,5 @@ const AddProduct = () => {
     </>
   );
 };
-
+  
 export default AddProduct;
