@@ -15,6 +15,7 @@ import { data, Link } from "react-router";
 import AddCategoryPopUp from "./AddCategoryPopUp";
 import AddSubCategoryPopup from "./AddSubCategoryPopup";
 import DisplayVariantImg from "./DisplayVariantImg";
+import { RiDeleteBin6Line } from "react-icons/ri";
 //  metariol ui
 
 const AddProduct = () => {
@@ -46,6 +47,8 @@ const AddProduct = () => {
     mrp: "",
     costPrice: "",
     sellingPrice: "",
+    discountname: "",
+    extradiscountamount: "",
     discountPercent: "",
     discountAmount: "",
     taxPercent: "",
@@ -66,6 +69,29 @@ const AddProduct = () => {
       },
     ],
   });
+
+  // variants
+  const emptyVariant = () => ({
+    variantId: uuidv4(),
+    variantColor: "",
+    variantLength: "",
+    variantBreadth: "",
+    variantWidth: "",
+    variantSkuId: "",
+    variantImage: [],
+    variantMrp: "",
+    variantSellingPrice: "",
+    variantCostPrice: "",
+    variantAvailableStock: "",
+  });
+
+  // ✅ Adds a new empty row in the table
+  const addVariantRow = () => {
+    setFormData((prev) => ({
+      ...prev,
+      variants: [...prev.variants, emptyVariant()],
+    }));
+  };
 
   // edit product
   const [isEditing, setIsEditing] = useState(false);
@@ -344,19 +370,17 @@ const AddProduct = () => {
   //  Add new variant section dynamically
   const addVariant = () => {
     setEditingVariant({
+      variantId: "",
       variantColor: "",
+      variantLength: "",
+      variantBreadth: "",
       variantWidth: "",
-      variantHeight: "",
-      variantFrameType: "",
       variantSkuId: "",
-      variantStockQuantity: "",
-      variantReorderLimit: "",
+      variantImage: [],
       variantMrp: "",
       variantSellingPrice: "",
       variantCostPrice: "",
-      variantProfit: "",
-      variantDiscount: "",
-      variantImage: [],
+      variantAvailableStock: "",
     });
 
     setItemsOpenVar(true);
@@ -900,6 +924,9 @@ const AddProduct = () => {
     setCurrentImage(first);
     setIsModalOpen(true);
   };
+
+  // extra discount in step 3 add state is toggle btn
+  const [discounttoggle, setDiscounttoggle] = useState(false);
 
   return (
     <>
@@ -1511,6 +1538,8 @@ const AddProduct = () => {
                   </div>
                 </div>
 
+                {/* right section in profit detalis */}
+
                 <div className="bg-[#EFF6EE] rounded-2xl space-y-6 p-4 border border-[#00A63E]">
                   <h2 className="text-black text-xl font-medium mb-4">
                     Profit Analysis
@@ -1546,6 +1575,65 @@ const AddProduct = () => {
                       />
                     </div>
                   </div>
+                </div>
+                <div className="bg-white rounded-2xl p-4 border">
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-black text-xl font-medium mb-4">
+                      Additional Discounts
+                    </h2>
+                    {discounttoggle ? (
+                      <button
+                        type="button"
+                        onClick={() => setDiscounttoggle(false)}
+                        className="w-10 h-10 flex items-center justify-center rounded-lg bg-red-50 text-red-500 hover:bg-red-100 transition"
+                      >
+                        <RiDeleteBin6Line />
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => setDiscounttoggle(true)}
+                        className="px-4 py-2 bg-[#1C3753] text-white rounded-lg"
+                      >
+                        + Add Discount
+                      </button>
+                    )}
+                  </div>
+                  {discounttoggle && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {/* Discount Name */}
+                      <div>
+                        <label className="block text-sm font-normal mb-2">
+                          Discount Name
+                        </label>
+                        <input
+                          type="text"
+                          name="discountname"
+                          value={formData.discountname}
+                          onChange={handleChange}
+                          placeholder="e.g. Prepaid Order"
+                          className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-3 bg-[#F8FAFB]
+                 text-sm text-[#686868] placeholder-[#686868] focus:outline-none"
+                        />
+                      </div>
+
+                      {/* Discount Amount */}
+                      <div>
+                        <label className="block text-sm font-normal mb-2">
+                          Discount Amount
+                        </label>
+                        <input
+                          type="number"
+                          name="discountamount"
+                          value={formData.extradiscountamount}
+                          onChange={handleChange}
+                          placeholder="Enter amount (₹)"
+                          className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-3 bg-[#F8FAFB]
+                 text-sm text-[#686868] placeholder-[#686868] focus:outline-none"
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </>
@@ -1718,6 +1806,7 @@ const AddProduct = () => {
                     <h1 className="text-lg font-semibold">Variant Listings</h1>
                     <button
                       type="button"
+                      onClick={addVariantRow}
                       className="rounded-md bg-[#1C3753] px-4 py-1 text-sm text-white"
                     >
                       + Add Variant
@@ -1750,7 +1839,10 @@ const AddProduct = () => {
 
                       <tbody>
                         {formData.variants.map((variant, index) => (
-                          <tr key={index} className="hover:bg-gray-50 border-b">
+                          <tr
+                            key={variant.variantId || index}
+                            className="hover:bg-gray-50 border-b"
+                          >
                             {/* Checkbox */}
                             <td className=" px-3 py-2">
                               <input type="checkbox" />
@@ -1998,11 +2090,11 @@ const AddProduct = () => {
                             <td className=" px-3 py-2">
                               <input
                                 type="number"
-                                value={variant.variantStock || ""}
+                                value={variant.variantAvailableStock || ""}
                                 onChange={(e) =>
                                   handleVariantChange(
                                     index,
-                                    "variantStock",
+                                    "variantAvailableStock",
                                     e.target.value,
                                   )
                                 }
