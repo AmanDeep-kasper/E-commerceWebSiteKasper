@@ -146,6 +146,7 @@ const PendingOrders = () => {
 
   const [openCancelModule, setopenCancelModule] = useState(null);
   const [cancelResionData, setCancelResionData] = useState("");
+  
 
   const selectCancelOrder = orders.find(
     (orders) => orders.orderId === openCancelModule,
@@ -174,24 +175,37 @@ const PendingOrders = () => {
     <>
       {/* pop models */}
       {selectOrder && (
-        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center">
+        <div
+          className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center"
+          onMouseDown={() => setSelectedOrderId(null)} // click outside close
+        >
           <div
-            className="
-        bg-[#FFFFFF]
-        w-[500px]
-        max-w-[90vw]
-        max-h-[90vh]
-        p-[24px]
-        rounded-xl
-        relative
-        md:w-[500px]
-        overflow-y-auto
-        overscroll-contain
-        scrollbar-hide
-      ">
+            className="bg-white w-[500px] max-w-[90vw] max-h-[90vh] p-[24px] rounded-xl overflow-y-auto"
+            onMouseDown={(e) => e.stopPropagation()} // prevent outside close when clicking inside
+          >
+            {/* <OrderDetails
+              data={selectOrder}
+              setSelectedOrderId={() => setSelectedOrderId(null)}
+              handleAcceptedOrders={() =>
+                handleAcceptedOrders(selectOrder.orderId)
+              }
+              setopenCancelModule={() =>
+                setopenCancelModule(selectOrder.orderId)
+              }
+
+              acceptedOrders={acceptedOrders}
+
+            /> */}
             <OrderDetails
               data={selectOrder}
               setSelectedOrderId={() => setSelectedOrderId(null)}
+              onAcceptOrder={({ orderId, deliveryPartner }) => {
+                // API call: set orderStatus = "Processing", save deliveryPartner
+              }}
+              onSaveTracking={({ orderId, trackingId, trackingUrl }) => {
+                // API call: set orderStatus = "Shipped", save trackingId+trackingUrl
+              }}
+              setopenCancelModule={setopenCancelModule}
             />
           </div>
         </div>
@@ -387,7 +401,8 @@ const PendingOrders = () => {
           <div className="relative">
             <button
               onClick={() => setPaymentStatusOpen((p) => !p)}
-              className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 bg-[#F8FBFC] rounded-lg hover:bg-gray-100 border">
+              className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 bg-[#F8FBFC] rounded-lg hover:bg-gray-100 border"
+            >
               {paymentstatus}
               <ChevronDown className="w-4 h-4 text-gray-500" />
             </button>
@@ -403,7 +418,8 @@ const PendingOrders = () => {
                     }}
                     className={`px-4 py-2 text-sm cursor-pointer text-[#686868] hover:bg-gray-100
             ${paymentstatus === s ? "bg-gray-100 font-medium" : ""}
-          `}>
+          `}
+                  >
                     {s}
                   </div>
                 ))}
@@ -414,7 +430,8 @@ const PendingOrders = () => {
           <div className="relative">
             <button
               className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 bg-[#F8FBFC] rounded-lg hover:bg-gray-100 border"
-              onClick={() => setfilterOneOpen((p) => !p)}>
+              onClick={() => setfilterOneOpen((p) => !p)}
+            >
               <ListFilter className="w-4 h-4" />
               {filterOne}
             </button>
@@ -432,7 +449,8 @@ const PendingOrders = () => {
                         filterOne === s
                           ? "bg-gray-100 text-[#686868] font-medium"
                           : ""
-                      }`}>
+                      }`}
+                    >
                       {s}
                     </div>
                   );
@@ -458,12 +476,14 @@ const PendingOrders = () => {
             {paginatedOrders.map((order) => (
               <tr
                 key={order.orderId}
-                className="border-t hover:bg-gray-50 transition text-center cursor-pointer">
+                className="border-t hover:bg-gray-50 transition text-center cursor-pointer"
+              >
                 <td
-                  onClick={() => {
-                    setSelectedOrderId(order.orderId);
-                  }}
-                  className="px-4 py-3 hover:underline text-[#2C87E2]">
+                  // onClick={() => {
+                  //   setSelectedOrderId(order.orderId);
+                  // }}
+                  className="px-4 py-3"
+                >
                   {order.orderId}
                 </td>
                 <td className="px-4 py-3">{order.quantity}</td>
@@ -475,13 +495,14 @@ const PendingOrders = () => {
                       : order.paymentType
                         ? "text-[#F8A14A]"
                         : ""
-                  }`}>
+                  }`}
+                >
                   {order.paymentType}
                 </td>
                 <td className="px-4 py-3">{order.orderTime}</td>
 
                 <td className="px-4 py-3 text-right flex items-center justify-center gap-2">
-                  {acceptedOrders.includes(order.orderId) ? (
+                  {/* {acceptedOrders.includes(order.orderId) ? (
                     <span className="px-6 py-1.5 rounded-md text-sm font-medium bg-green-100 text-green-600">
                       Accepted
                     </span>
@@ -489,17 +510,27 @@ const PendingOrders = () => {
                     <>
                       <button
                         onClick={() => handleAcceptedOrders(order.orderId)}
-                        className="px-6 py-1.5 rounded-md flex items-center justify-center text-white bg-[#1C3753]">
+                        className="px-6 py-1.5 rounded-md flex items-center justify-center text-white bg-[#1C3753]"
+                      >
                         Accept
                       </button>
 
                       <button
                         onClick={() => setopenCancelModule(order.orderId)}
-                        className="px-6 py-1.5 rounded-md flex items-center justify-center text-[#1C3753] bg-white border border-[#1C3753]">
+                        className="px-6 py-1.5 rounded-md flex items-center justify-center text-[#1C3753] bg-white border border-[#1C3753]"
+                      >
                         Cancel
                       </button>
                     </>
-                  )}
+                  )} */}
+                  <p
+                    onClick={() => {
+                      setSelectedOrderId(order.orderId);
+                    }}
+                    className="hover:underline text-[#2C87E2]"
+                  >
+                    View
+                  </p>
                 </td>
               </tr>
             ))}
@@ -518,7 +549,8 @@ const PendingOrders = () => {
             <button
               className="px-3 py-1 border rounded disabled:opacity-40"
               onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={page === 1}>
+              disabled={page === 1}
+            >
               ‹
             </button>
 
@@ -530,7 +562,8 @@ const PendingOrders = () => {
             <button
               className="px-3 py-1 border rounded disabled:opacity-40"
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              disabled={page === totalPages}>
+              disabled={page === totalPages}
+            >
               ›
             </button>
           </div>

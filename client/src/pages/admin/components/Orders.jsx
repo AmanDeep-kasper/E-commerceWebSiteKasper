@@ -94,6 +94,7 @@
 import { Link, useOutletContext } from "react-router";
 import customers from "../data/orders.json";
 import { useState } from "react";
+import OrderViewModal from "../components/OrderViewModal";
 
 const Card = ({ children, className = "" }) => (
   <div className={`bg-white rounded-xl overflow-hidden mb-4 ${className}`}>
@@ -146,6 +147,9 @@ function Orders() {
     })(),
   };
 
+  const [open, setOpen] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+
   return (
     <div className="text-gray-900">
       <div className="bg-white px-4 py-2 rounded-xl border">
@@ -195,7 +199,8 @@ function Orders() {
                 ].map((h) => (
                   <th
                     key={h}
-                    className="px-4 py-4 font-medium text-center whitespace-nowrap">
+                    className="px-4 py-4 font-medium text-center whitespace-nowrap"
+                  >
                     {h}
                   </th>
                 ))}
@@ -206,13 +211,15 @@ function Orders() {
               {rows.map((r) => (
                 <tr
                   key={r.order_id}
-                  className="border-t hover:bg-gray-50 transition text-center">
+                  className="border-t hover:bg-gray-50 transition text-center"
+                >
                   <td className="px-4 py-3">{r.order_id}</td>
                   <td className="px-4 py-3  ">{r.order_date}</td>
                   <td className="px-4 py-3 ">₹{r.amazon_price}</td>
                   <td className="px-4 py-3 ">
                     <span
-                      className={`inline-flex text-sm font-medium  ${r.payment_status === "Paid" ? "text-[#00A63E]" : r.payment_status === "Pending" ? "text-[#F8A14A]" : r.payment_status === "Refund Initiated" ? "text-[#E91DD1]" : r.payment_status ? "text-[#8A38F5]" : ""}`}>
+                      className={`inline-flex text-sm font-medium  ${r.payment_status === "Paid" ? "text-[#00A63E]" : r.payment_status === "Pending" ? "text-[#F8A14A]" : r.payment_status === "Refund Initiated" ? "text-[#E91DD1]" : r.payment_status ? "text-[#8A38F5]" : ""}`}
+                    >
                       {r.payment_status}
                     </span>
                   </td>
@@ -234,17 +241,23 @@ function Orders() {
                                     : r.delivery_status === "Delivered"
                                       ? "bg-[#E0F4DE] text-[#00A63E]"
                                       : ""
-                      }`}>
+                      }`}
+                    >
                       {r.delivery_status}
                     </span>
                   </td>
 
                   <td className="px-4 py-3">
-                    <Link
-                      to={`/orders/${r.order_id}`}
-                      className="text-blue-500 hover:underline">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedOrder(r);
+                        setOpen(true);
+                      }}
+                      className="text-blue-500 hover:underline"
+                    >
                       View
-                    </Link>
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -264,7 +277,8 @@ function Orders() {
             <button
               className="px-3 py-1 border rounded disabled:opacity-40"
               onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={page === 1}>
+              disabled={page === 1}
+            >
               ‹
             </button>
 
@@ -276,11 +290,20 @@ function Orders() {
             <button
               className="px-3 py-1 border rounded disabled:opacity-40"
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              disabled={page === totalPages}>
+              disabled={page === totalPages}
+            >
               ›
             </button>
           </div>
         </div>
+        <OrderViewModal
+          open={open}
+          data={selectedOrder}
+          setSelectedOrderId={() => {
+            setOpen(false);
+            setSelectedOrder(null);
+          }}
+        />
       </div>
     </div>
   );

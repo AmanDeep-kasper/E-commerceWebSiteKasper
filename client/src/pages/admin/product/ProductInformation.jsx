@@ -67,7 +67,7 @@ function ProductInformation() {
     product?.SKU?.toLowerCase().includes(text) ||
     product?.title?.toLowerCase().includes(text) ||
     product?.ProductColor?.toLowerCase().includes(text);
-    // add kar ha size bhi
+  // add kar ha size bhi
 
   // varinats
 
@@ -91,7 +91,8 @@ function ProductInformation() {
         </Link>
         <button
           onClick={handleEdit}
-          className="px-5 py-1.5 text-[#1C3753] border border-[#1C3753] text-base rounded-lg">
+          className="px-5 py-1.5 text-[#1C3753] border border-[#1C3753] text-base rounded-lg"
+        >
           Edit Product
         </button>
       </div>
@@ -128,7 +129,8 @@ function ProductInformation() {
                   selectedType === "product"
                     ? "bg-blue-50 border-blue-400"
                     : "bg-blue-50 border-blue-400"
-                }`}>
+                }`}
+              >
                 <img
                   className="w-10 h-10 rounded-md object-cover"
                   src={product.images?.[0]}
@@ -168,7 +170,8 @@ function ProductInformation() {
                   selectedType === "variant"
                     ? "variant"
                     : "bg-[#F5F8FA] hover:border-gray-400"
-                }`}>
+                }`}
+              >
                 <img
                   className="w-10 h-10 rounded-md object-cover"
                   src={item.variantImage?.[0]}
@@ -248,18 +251,62 @@ function ProductInformation() {
                         : selectedVariant.variantId}
                     </span>
                   </div>
-                  <div className="text-start">
+                  {/* <div className="text-start">
                     <p className="text-sm text-[#686868] font-medium">Weight</p>
                     <span className="text-base text-[#2C2C2C] font-medium">
                       {product.weight}
                     </span>
-                  </div>
+                  </div> */}
                   <div>
                     <p className="text-sm text-[#686868] font-medium">
                       Category
                     </p>
                     <span className="text-base text-[#2C2C2C] font-medium">
                       {product.category}
+                    </span>
+                  </div>
+                  {/* <div>
+                    <p className="text-sm text-[#686868] font-medium">
+                      Dimension
+                    </p>
+                    <span className="text-base text-[#2C2C2C] font-medium">
+                      55L x 35W cm
+                    </span>
+                  </div> */}
+                  <div>
+                    <p className="text-sm text-[#686868] font-medium">
+                      Product Color
+                    </p>
+                    <span className="text-base text-[#2C2C2C] font-medium">
+                      Black
+                    </span>
+                  </div>
+                </div>
+                <div className="flex flex-col flex-wrap  justify-start space-y-[10px]">
+                  <div>
+                    <p className="text-sm text-[#686868] font-medium">
+                      Available Stock
+                    </p>
+                    <span className="text-base text-[#2C2C2C] font-medium">
+                      {/* {product.stockQuantity} */}
+                      20
+                    </span>
+                  </div>
+
+                  {/* <div className="text-start">
+                    <p className="text-sm text-[#686868] font-medium">
+                      Frame Color
+                    </p>
+                    <span className="text-base text-[#2C2C2C] font-medium">
+                      Black
+                    </span>
+                  </div> */}
+                  <div>
+                    <p className="text-sm text-[#686868] font-medium">
+                      Subcategory
+                    </p>
+                    <span className="text-base text-[#2C2C2C] font-medium">
+                      {product.subcategory}
                     </span>
                   </div>
                   <div>
@@ -270,38 +317,12 @@ function ProductInformation() {
                       55L x 35W cm
                     </span>
                   </div>
-                </div>
-                <div className="flex flex-col flex-wrap  justify-start space-y-[10px]">
-                  <div>
-                    <p className="text-sm text-[#686868] font-medium">Stock</p>
-                    <span className="text-base text-[#2C2C2C] font-medium">
-                      {/* {product.stockQuantity} */}
-                      20
-                    </span>
-                  </div>
-
-                  <div className="text-start">
-                    <p className="text-sm text-[#686868] font-medium">
-                      Frame Color
-                    </p>
-                    <span className="text-base text-[#2C2C2C] font-medium">
-                      Black
-                    </span>
-                  </div>
-                  <div>
-                    <p className="text-sm text-[#686868] font-medium">
-                      Subcategory
-                    </p>
-                    <span className="text-base text-[#2C2C2C] font-medium">
-                      {product.subcategory}
-                    </span>
-                  </div>
-                  <div className="text-start">
+                  {/* <div className="text-start">
                     <p className="text-sm text-[#686868] font-medium">Weight</p>
                     <span className="text-base text-[#2C2C2C] font-medium">
                       {product.weight}
                     </span>
-                  </div>
+                  </div> */}
                 </div>
                 <div className="flex flex-col flex-wrap items-start text-start justify-start space-y-[10px]">
                   <div>
@@ -321,15 +342,21 @@ function ProductInformation() {
                       {product.materialType}
                     </span>
                   </div>
-                  <div>
+                  <div className="text-start">
+                    <p className="text-sm text-[#686868] font-medium">Weight</p>
+                    <span className="text-base text-[#2C2C2C] font-medium">
+                      {product.weight}
+                    </span>
+                  </div>
+                  {/* <div>
                     <p className="text-sm text-[#686868] font-medium">
                       Product Color
                     </p>
                     <span className="text-base text-[#2C2C2C] font-medium">
-                      {/* {product.materialType} */}
+                    
                       Black
                     </span>
-                  </div>
+                  </div> */}
                 </div>
               </div>
             </div>
@@ -410,11 +437,12 @@ function ProductInformation() {
                   images,
                   // date,
                 },
-                index
+                index,
               ) => (
                 <div
                   key={index}
-                  className="py-4 flex gap-3 flex-col border border-[#CBCACA] px-4 rounded-xl mb-4">
+                  className="py-4 flex gap-3 flex-col border border-[#CBCACA] px-4 rounded-xl mb-4"
+                >
                   <div className="flex justify-between">
                     <div className="flex gap-4">
                       {userImage ? (
@@ -479,7 +507,7 @@ function ProductInformation() {
                     </span>
                   </div>
                 </div>
-              )
+              ),
             )}
           </div>
         ) : (

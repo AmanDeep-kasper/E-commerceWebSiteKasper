@@ -17,8 +17,8 @@ const ProcessingOrders = () => {
     "Order ID",
     "Quantity",
     "Order Value",
-    "Label Generated",
-    "Dispatch Date",
+    "Status",
+    // "Dispatch Date",
     "Delivery Partner",
     "Action",
   ];
@@ -130,10 +130,22 @@ const ProcessingOrders = () => {
             overflow-y-auto
             overscroll-contain
             scrollbar-hide
-          ">
+          "
+          >
+            {/* <OrderDetails
+              data={selectOrder}
+              setSelectedOrderId={() => setSelectedOrderId(null)}
+            /> */}
             <OrderDetails
               data={selectOrder}
               setSelectedOrderId={() => setSelectedOrderId(null)}
+              onAcceptOrder={({ orderId, deliveryPartner }) => {
+                // API call: set orderStatus = "Processing", save deliveryPartner
+              }}
+              onSaveTracking={({ orderId, trackingId, trackingUrl }) => {
+                // API call: set orderStatus = "Shipped", save trackingId+trackingUrl
+              }}
+              setopenCancelModule={setopenCancelModule}
             />
           </div>
         </div>
@@ -156,7 +168,8 @@ const ProcessingOrders = () => {
             <div className="relative">
               <button
                 onClick={() => setPaymentStatusOpen((p) => !p)}
-                className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 bg-[#F8FBFC] rounded-lg hover:bg-gray-100 border">
+                className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 bg-[#F8FBFC] rounded-lg hover:bg-gray-100 border"
+              >
                 {paymentstatus}
                 <ChevronDown className="w-4 h-4 text-gray-500" />
               </button>
@@ -172,7 +185,8 @@ const ProcessingOrders = () => {
                       }}
                       className={`px-4 py-2 text-sm cursor-pointer text-[#686868] hover:bg-gray-100
                     ${paymentstatus === s ? "bg-gray-100 font-medium" : ""}
-                  `}>
+                  `}
+                    >
                       {s}
                     </div>
                   ))}
@@ -183,7 +197,8 @@ const ProcessingOrders = () => {
             <div className="relative">
               <button
                 className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 bg-[#F8FBFC] rounded-lg hover:bg-gray-100 border"
-                onClick={() => setfilterOneOpen((p) => !p)}>
+                onClick={() => setfilterOneOpen((p) => !p)}
+              >
                 <ListFilter className="w-4 h-4" />
                 {filterOne}
               </button>
@@ -201,7 +216,8 @@ const ProcessingOrders = () => {
                           filterOne === s
                             ? "bg-gray-100 text-[#686868] font-medium"
                             : ""
-                        }`}>
+                        }`}
+                      >
                         {s}
                       </div>
                     );
@@ -227,12 +243,14 @@ const ProcessingOrders = () => {
             {paginatedOrders.map((order) => (
               <tr
                 key={order.orderId}
-                className="border-t hover:bg-gray-50 transition  cursor-pointer">
+                className="border-t hover:bg-gray-50 transition  cursor-pointer"
+              >
                 <td
-                  onClick={() => {
-                    setSelectedOrderId(order.orderId);
-                  }}
-                  className="px-4 py-3 hover:underline text-[#2C87E2]">
+                  // onClick={() => {
+                  //   setSelectedOrderId(order.orderId);
+                  // }}
+                  className="px-4 py-3"
+                >
                   {order.orderId}
                 </td>
                 <td className="px-4 py-3">{order.quantity}</td>
@@ -240,28 +258,30 @@ const ProcessingOrders = () => {
                 <td className="px-4 py-3 font-medium text-xs">
                   <span
                     className={`inline-flex items-center justify-center min-w-[110px] px-4 py-1.5 rounded-lg font-medium text-center ${
-                      order.labelGenerated === "Generated"
+                      order.labelGenerated === "Ready to Ship"
                         ? "bg-[#E0F4DE] text-[#00A63E]"
-                        : order.labelGenerated
+                        : order.labelGenerated === "In Process"
                           ? "bg-[#DEDEDE] text-[#686868]"
                           : ""
-                    }`}>
+                    }`}
+                  >
                     {order.labelGenerated}
                   </span>
                 </td>
-                <td className="px-4 py-3">{order.dispatchDate}</td>
+                {/* <td className="px-4 py-3">{order.dispatchDate}</td> */}
 
                 <td className="px-4 py-3 text-xs">
                   <span
                     className={` bg-[#D5E5F5] inline-flex items-center justify-center min-w-[110px] px-4 py-1.5 rounded-lg font-medium text-center
-                  `}>
+                  `}
+                  >
                     {order.deliveryPartner}
                   </span>
                 </td>
 
                 <div className="flex items-center justify-center">
                   <td className="px-4 py-3 text-right">
-                    {order.labelGenerated === "Generated" ? (
+                    {/* {order.labelGenerated === "Generated" ? (
                       <>
                         <button className="px-4 py-1.5 rounded-md flex items-center justify-center text-white gap-2 bg-[#1C3753]">
                           <Download size={16} />
@@ -275,7 +295,15 @@ const ProcessingOrders = () => {
                           Label
                         </button>
                       </>
-                    )}
+                    )} */}
+                    <p
+                      onClick={() => {
+                        setSelectedOrderId(order.orderId);
+                      }}
+                      className="hover:underline text-[#2C87E2]"
+                    >
+                      View
+                    </p>
                   </td>
                 </div>
               </tr>
@@ -295,7 +323,8 @@ const ProcessingOrders = () => {
             <button
               className="px-3 py-1 border rounded disabled:opacity-40"
               onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={page === 1}>
+              disabled={page === 1}
+            >
               ‹
             </button>
 
@@ -307,7 +336,8 @@ const ProcessingOrders = () => {
             <button
               className="px-3 py-1 border rounded disabled:opacity-40"
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              disabled={page === totalPages}>
+              disabled={page === totalPages}
+            >
               ›
             </button>
           </div>

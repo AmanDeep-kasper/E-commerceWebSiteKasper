@@ -130,7 +130,8 @@ const ShippedOrders = () => {
             overflow-y-auto
             overscroll-contain
             scrollbar-hide
-          ">
+          "
+          >
             <OrderDetails
               data={selectOrder}
               setSelectedOrderId={() => setSelectedOrderId(null)}
@@ -155,7 +156,8 @@ const ShippedOrders = () => {
         overflow-y-auto
         overscroll-contain
         scrollbar-hide
-      ">
+      "
+          >
             <OrdersTimelines
               data={selectTimeline}
               setSelectedOrderId={() => setOpenTimelineId(null)}
@@ -181,7 +183,8 @@ const ShippedOrders = () => {
           <div className="relative">
             <button
               onClick={() => setPaymentStatusOpen((p) => !p)}
-              className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 bg-[#F8FBFC] rounded-lg hover:bg-gray-100 border">
+              className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 bg-[#F8FBFC] rounded-lg hover:bg-gray-100 border"
+            >
               {paymentstatus}
               <ChevronDown className="w-4 h-4 text-gray-500" />
             </button>
@@ -197,7 +200,8 @@ const ShippedOrders = () => {
                     }}
                     className={`px-4 py-2 text-sm cursor-pointer text-[#686868] hover:bg-gray-100
                       ${paymentstatus === s ? "bg-gray-100 font-medium" : ""}
-                    `}>
+                    `}
+                  >
                     {s}
                   </div>
                 ))}
@@ -208,7 +212,8 @@ const ShippedOrders = () => {
           <div className="relative">
             <button
               className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 bg-[#F8FBFC] rounded-lg hover:bg-gray-100 border"
-              onClick={() => setfilterOneOpen((p) => !p)}>
+              onClick={() => setfilterOneOpen((p) => !p)}
+            >
               <ListFilter className="w-4 h-4" />
               {filterOne}
             </button>
@@ -226,7 +231,8 @@ const ShippedOrders = () => {
                         filterOne === s
                           ? "bg-gray-100 text-[#686868] font-medium"
                           : ""
-                      }`}>
+                      }`}
+                    >
                       {s}
                     </div>
                   );
@@ -244,7 +250,8 @@ const ShippedOrders = () => {
               {columns.map((col) => (
                 <th
                   key={col}
-                  className="px-4 py-3 font-medium text-[#1C1C1C] text-center">
+                  className="px-4 py-3 font-medium text-[#1C1C1C] text-center"
+                >
                   {col}
                 </th>
               ))}
@@ -255,12 +262,14 @@ const ShippedOrders = () => {
             {paginatedOrders.map((order) => (
               <tr
                 key={order.orderId}
-                className="border-t hover:bg-gray-50 transition  cursor-pointer text-center">
+                className="border-t hover:bg-gray-50 transition  cursor-pointer text-center"
+              >
                 <td
-                  onClick={() => {
-                    setSelectedOrderId(order.orderId);
-                  }}
-                  className="px-4 py-3 hover:underline text-[#2C87E2]">
+                  // onClick={() => {
+                  //   setSelectedOrderId(order.orderId);
+                  // }}
+                  className="px-4 py-3"
+                >
                   {order.orderId}
                 </td>
                 {/* <td className="px-4 py-3">{order.quantity}</td> */}
@@ -279,7 +288,8 @@ const ShippedOrders = () => {
                               : order.shipmentStatus === "Shipped"
                                 ? "text-[#1C3753] bg-[#D5E5F5]"
                                 : ""
-                    }`}>
+                    }`}
+                  >
                     {order.shipmentStatus}
                   </span>
                 </td>
@@ -288,7 +298,8 @@ const ShippedOrders = () => {
                 <td className="px-4 py-3 font-medium text-xs">
                   <span
                     className={` bg-[#D5E5F5] inline-flex items-center justify-center min-w-[110px] px-4 py-1.5 rounded-lg font-medium text-center
-                  `}>
+                  `}
+                  >
                     {order.deliveryPartner}
                   </span>
                 </td>
@@ -296,11 +307,15 @@ const ShippedOrders = () => {
                 <div className="flex items-center justify-center ">
                   <td className="px-4 py-3 text-right">
                     <button
+                      // onClick={() => {
+                      //   setOpenTimelineId(order.orderId);
+                      // }}
                       onClick={() => {
-                        setOpenTimelineId(order.orderId);
+                        setSelectedOrderId(order.orderId);
                       }}
-                      className="p-2  text-[#2C87E2]">
-                      View Tracking
+                      className="p-2  text-[#2C87E2]"
+                    >
+                      View
                     </button>
                   </td>
                 </div>
@@ -321,7 +336,8 @@ const ShippedOrders = () => {
             <button
               className="px-3 py-1 border rounded disabled:opacity-40"
               onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={page === 1}>
+              disabled={page === 1}
+            >
               ‹
             </button>
 
@@ -333,7 +349,8 @@ const ShippedOrders = () => {
             <button
               className="px-3 py-1 border rounded disabled:opacity-40"
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              disabled={page === totalPages}>
+              disabled={page === totalPages}
+            >
               ›
             </button>
           </div>

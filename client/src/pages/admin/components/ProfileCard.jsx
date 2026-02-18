@@ -390,7 +390,7 @@ function ProfileCard({ customer }) {
         <div className="p-[16px]">
           <h1 className="font-medium">Admin Actions</h1>
           <div className="flex flex-col space-y-4 mt-2">
-            <button
+            {/* <button
               // onClick={() => {
               //   setCashDelivery(
               //     cashDelivery === "Enable Cash on Delivery"
@@ -411,7 +411,7 @@ function ProfileCard({ customer }) {
                   <span className="text-sm font-medium">{cashDelivery}</span>
                 </>
               )}
-            </button>
+            </button> */}
             <button
               onClick={() => setReVerfiy(true)}
               className="flex items-center justify-start gap-2 bg-[#F8FBFC] border px-2 py-2 rounded-lg">

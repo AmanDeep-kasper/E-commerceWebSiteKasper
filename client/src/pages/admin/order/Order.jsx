@@ -19,7 +19,7 @@ const Badge = ({ children, tone }) => {
 
 const profileMenu = [
   { label: "All Orders", path: "all" },
-  { label: "Pending", path: "pending" },
+  { label: "New Orders", path: "pending" },
   { label: "Processing", path: "processing" },
   { label: "Shipped", path: "shipped" },
   { label: "Delivered", path: "delivered" },
@@ -46,7 +46,7 @@ function Order() {
 
   const kpicardData = [
     {
-      name: "Pending",
+      name: "New Orders",
       data: "45",
       icon: <ClipboardClock />,
       iconbg: "bg-[#D5E5F5]",

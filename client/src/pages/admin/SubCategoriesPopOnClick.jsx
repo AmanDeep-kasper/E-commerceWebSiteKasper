@@ -1,77 +1,158 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
-const SubCategoriesPopOnClick = ({ open, onClose }) => {
-  const [subcategory, setSubCategory] = useState("");
+const SubCategoriesPopOnClick = ({
+  open,
+  onClose,
+  categoryName,
+  categoryId,
+}) => {
+  const [subInput, setSubInput] = useState("");
+  const [subcategories, setSubcategories] = useState([]);
   const [status, setStatus] = useState("Active");
 
+  // reset when modal opens/closes
+  useEffect(() => {
+    if (!open) {
+      setSubInput("");
+      setSubcategories([]);
+      setStatus("Active");
+    }
+  }, [open]);
+
   if (!open) return null;
+
+  const addSubcategory = () => {
+    const value = subInput.trim();
+    if (!value) return;
+
+    // prevent duplicates (case-insensitive)
+    const exists = subcategories.some(
+      (s) => s.toLowerCase() === value.toLowerCase(),
+    );
+    if (exists) {
+      setSubInput("");
+      return;
+    }
+
+    setSubcategories((prev) => [...prev, value]);
+    setSubInput("");
+  };
+
+  const removeSubcategory = (idx) => {
+    setSubcategories((prev) => prev.filter((_, i) => i !== idx));
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    // if user didn't click "add" for last typed value, add it automatically
+    const pending = subInput.trim();
+    let finalSubs = [...subcategories];
+
+    if (pending) {
+      const exists = finalSubs.some(
+        (s) => s.toLowerCase() === pending.toLowerCase(),
+      );
+      if (!exists) finalSubs.push(pending);
+    }
+
+    if (finalSubs.length === 0) return;
+
     const payload = {
-      name: subcategory,
-      status: status,
+      categoryId,
+      categoryName,
+      subcategories, // array
+      status,
     };
+    console.log(payload);
 
     console.log(payload);
 
-    setSubCategory("");
-    setStatus("Active");
     onClose();
   };
+
   return (
     <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center">
-      <div className="bg-white w-[380px] rounded-xl p-4">
+      <div className="bg-white w-[420px] rounded-xl p-4">
         <h2 className="text-lg font-medium mb-4">Add Sub-Category</h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <label htmlFor="Category Name">Add Sub-Category</label>
-          <input
-            type="text"
-            placeholder="Enter Sub-Category Name"
-            value={subcategory}
-            onChange={(e) => setSubCategory(e.target.value)}
-            className="w-full border px-3 py-2 rounded-lg"
-            required
-          />
-
+          {/* Category Name (Default/ReadOnly) */}
           <div>
-            <p className="text-sm font-medium mb-2">Sub-Category Status</p>
+            <label className="block text-sm mb-1">Category Name</label>
+            <input
+              type="text"
+              value={categoryName}
+              readOnly
+              className="w-full border px-3 py-2 rounded-lg bg-gray-100 cursor-not-allowed"
+            />
+          </div>
 
-            <div className="flex gap-6">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="radio"
-                  checked={status === "Active"}
-                  onChange={() => setStatus("Active")}
-                />
-                <span className="text-[#1C3753] font-medium">Active</span>
-              </label>
+          {/* Add multiple subcategories */}
+          <div className="mb-2">
+            <label className="text-sm mb-2 block">Add Sub-Category Name</label>
 
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="radio"
-                  checked={status === "Inactive"}
-                  onChange={() => setStatus("Inactive")}
-                />
-                <span className="text-[#1C3753] font-medium">Inactive</span>
-              </label>
+            <div className="flex flex-col gap-2">
+              <input
+                type="text"
+                placeholder="Enter sub-category name"
+                value={subInput}
+                onChange={(e) => setSubInput(e.target.value)}
+                className="w-full border px-3 py-2 rounded-lg outline-none"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    addSubcategory();
+                  }
+                }}
+              />
+
+              <button
+                type="button"
+                onClick={addSubcategory}
+                className="text-start text-[#006EE1] text-sm"
+              >
+                + Add more sub-category
+              </button>
             </div>
+
+            {/* Show added subcategories */}
+            {subcategories.length > 0 && (
+              <div className="mt-3 flex flex-col gap-2">
+                {subcategories.map((sub, idx) => (
+                  <span
+                    key={`${sub}-${idx}`}
+                    className="flex items-center justify-between gap-2 px-3 py-2 rounded-lg bg-[#F8FBFC] text-sm border"
+                  >
+                    {sub}
+                    <button
+                      type="button"
+                      onClick={() => removeSubcategory(idx)}
+                      className="text-red-500 font-bold"
+                      aria-label="Remove"
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Buttons */}
           <div className="flex gap-2 pt-2">
             <button
               type="submit"
-              className="flex-1 bg-[#1C3753] text-sm text-white py-2 rounded-lg">
-              Save Sub-Category
+              className="flex-1 bg-[#1C3753] text-sm text-white py-2 rounded-lg"
+            >
+              Save Sub-Categories
             </button>
 
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 text-sm border py-2 rounded-lg">
+              className="flex-1 text-sm border py-2 rounded-lg"
+            >
               Cancel
             </button>
           </div>

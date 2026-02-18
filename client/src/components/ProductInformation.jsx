@@ -139,7 +139,7 @@ function ProductInformation() {
                 </span>
               </div>
               <div>
-                <p className="text-base text-[#797979] font-medium">
+                <p className="text-base tdlljext-[#797979] font-medium">
                   MaterialType
                 </p>
                 <span className="text-base text-[#2C2C2C] font-medium">

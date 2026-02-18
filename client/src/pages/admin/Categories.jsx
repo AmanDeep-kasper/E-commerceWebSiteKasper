@@ -622,7 +622,7 @@ const Products = () => {
     if (!uuid || !productData?.length) return null;
 
     return productData.find(
-      (p) => p.uuid && p.uuid.toLowerCase() === uuid.toLowerCase()
+      (p) => p.uuid && p.uuid.toLowerCase() === uuid.toLowerCase(),
     );
   }, [productData, uuid]);
 
@@ -768,6 +768,11 @@ const Products = () => {
   // click the category open bottom row
   const [expandedCategoryId, setExpandedCategoryId] = useState(null);
 
+  // pass the data in sub category
+  const [selectedCategoryRow, setSelectedCategoryRow] = useState(null);
+  // pass the data is edit the category and sub category
+  const [selectedRow, setSelectedRow] = useState(null);
+
   return (
     <>
       <CategoriesPopOnClick
@@ -778,17 +783,22 @@ const Products = () => {
         open={openSubCategory}
         onClose={() => {
           setOpenSubCategory(false);
+          setSelectedCategoryRow(null);
         }}
+        categoryName={selectedCategoryRow?.category || ""} // ✅ default category
+        categoryId={selectedCategoryRow?.uuid || ""}
       />
 
       <CategoriesPopUpEdit
         open={openEditCategory}
         onClose={() => setOpenEditCategory(false)}
+        data={selectedRow}
       />
       <SubCategoriesPopUpEdit
         open={openEditSubCategory}
         onClose={() => setOpenEditSubCategory(false)}
         data={"metal wall art"}
+        categoryName={selectedCategory?.name}
       />
 
       <div className="p-[24px] bg-[#F6F8F9] rounded-md min-h-screen">
@@ -808,7 +818,8 @@ const Products = () => {
               onClick={() => {
                 setOpenCategory(true);
               }}
-              className="bg-[#1C3753] text-white px-4 py-2 rounded-lg hover:bg-[#344558]">
+              className="bg-[#1C3753] text-white px-4 py-2 rounded-lg hover:bg-[#344558]"
+            >
               + Add Category
             </button>
             {/* </Link> */}
@@ -833,24 +844,27 @@ const Products = () => {
 
             <div
               ref={filterRef}
-              className=" relative flex flex-wrap justify-center items-center gap-2 text-[#000000]">
+              className=" relative flex flex-wrap justify-center items-center gap-2 text-[#000000]"
+            >
               <button
                 onClick={() =>
                   setActiveFilter((prev) =>
-                    prev === "status" ? null : "status"
+                    prev === "status" ? null : "status",
                   )
                 }
-                className=" border rounded-lg px-4 py-2 flex items-center justify-center gap-6 text-[#686868] bg-[#F8F8F8]">
+                className=" border rounded-lg px-4 py-2 flex items-center justify-center gap-6 text-[#686868] bg-[#F8F8F8]"
+              >
                 All Status
                 <ChevronDown />
               </button>
               <button
                 onClick={() =>
                   setActiveFilter((prev) =>
-                    prev === "category" ? null : "category"
+                    prev === "category" ? null : "category",
                   )
                 }
-                className=" border rounded-lg px-4 py-2 flex items-center justify-center gap-6 text-[#686868] bg-[#F8F8F8]">
+                className=" border rounded-lg px-4 py-2 flex items-center justify-center gap-6 text-[#686868] bg-[#F8F8F8]"
+              >
                 All Categories
                 <ChevronDown />
               </button>
@@ -858,10 +872,12 @@ const Products = () => {
                 {filterOpen && (
                   <div
                     className="absolute mt-2 right-16 top-9 w-40 bg-white border rounded-lg shadow"
-                    onClick={(e) => e.stopPropagation()}>
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     <div
                       className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center justify-between"
-                      onClick={() => setActiveFilter("status")}>
+                      onClick={() => setActiveFilter("status")}
+                    >
                       {selectedStatus === "Status"
                         ? "All Status"
                         : selectedStatus}
@@ -870,7 +886,8 @@ const Products = () => {
 
                     <div
                       className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center justify-between"
-                      onClick={() => setActiveFilter("category")}>
+                      onClick={() => setActiveFilter("category")}
+                    >
                       {selectedCategory === "Category"
                         ? "All Categories"
                         : selectedCategory}
@@ -890,7 +907,8 @@ const Products = () => {
                           setSelectedStatus(status);
                           setActiveFilter(null);
                         }}
-                        className="px-4 py-2 cursor-pointer hover:bg-[#F5F8FA]">
+                        className="px-4 py-2 cursor-pointer hover:bg-[#F5F8FA]"
+                      >
                         {status}
                       </li>
                     ))}
@@ -908,7 +926,8 @@ const Products = () => {
                           setSelectedCategory(cat);
                           setActiveFilter(null);
                         }}
-                        className="px-4 py-2 cursor-pointer hover:bg-[#F5F8FA]">
+                        className="px-4 py-2 cursor-pointer hover:bg-[#F5F8FA]"
+                      >
                         {cat}
                       </li>
                     ))}
@@ -921,7 +940,8 @@ const Products = () => {
                   setSelectedCategory("Category");
                   setSelectedStatus("Status");
                 }}
-                className="text-[#1C3753] flex items-center justify-between gap-2">
+                className="text-[#1C3753] flex items-center justify-between gap-2"
+              >
                 Clear Filter
               </button>
             </div>
@@ -953,15 +973,19 @@ const Products = () => {
                       // key={item.uuid || item.id || item.route}
                       className={`border-t hover:bg-gray-50 transition${
                         selectedItems.includes(item.id) ? "bg-red-50" : ""
-                      }`}>
+                      }`}
+                    >
                       <td className="px-4 py-3 text-left text-[15px] text-[#1F2937]">
                         <div
                           onClick={() => {
                             setExpandedCategoryId(
-                              expandedCategoryId == item.uuid ? null : item.uuid
+                              expandedCategoryId == item.uuid
+                                ? null
+                                : item.uuid,
                             );
                           }}
-                          className="flex items-center gap-2 cursor-pointer">
+                          className="flex items-center gap-2 cursor-pointer"
+                        >
                           <ChevronRight
                             size={16}
                             className={`transition-transform ${
@@ -1010,9 +1034,11 @@ const Products = () => {
                         <div className="flex items-center justify-center gap-3">
                           <button
                             onClick={() => {
+                              setSelectedCategoryRow(item);
                               setOpenSubCategory(true);
                             }}
-                            className="relative p-2 rounded group">
+                            className="relative p-2 rounded group"
+                          >
                             <CirclePlus className="w-5 h-5 text-[#1C1C1C]" />
                             <div
                               className="
@@ -1024,14 +1050,19 @@ const Products = () => {
       transition-opacity duration-200
       whitespace-nowrap
       pointer-events-none
-    ">
+    "
+                            >
                               Add <br /> Sub-catgeory
                             </div>
                           </button>
 
                           <button
-                            onClick={() => setOpenEditCategory(true)}
-                            className=" relative p-2 rounded group">
+                            onClick={() => {
+                              setOpenEditCategory(true);
+                              setSelectedRow(item);
+                            }}
+                            className=" relative p-2 rounded group"
+                          >
                             <Pencil className="w-5 h-5 text-[#1C1C1C]" />
                             <div
                               className="
@@ -1043,8 +1074,9 @@ const Products = () => {
       transition-opacity duration-200
       whitespace-nowrap
       pointer-events-none
-    ">
-                              Edit <br /> Category
+    "
+                            >
+                              Edit
                             </div>
                           </button>
                         </div>
@@ -1055,18 +1087,23 @@ const Products = () => {
                       <tr className=" bg-[#F8FBFC] border-t">
                         <td colSpan={5} className="px-3 text-sm text-gray-600">
                           <p className="p-2">Sub-Categories</p>
-                          <div className="flex items-center justify-start gap-3 pb-4">
-                            <div className="flex items-center justify-evenly gap-2 bg-[#D5E5F5] py-2 px-3 rounded-full ">
-                              <Circle size={8} fill="#686868" />
-                              <p className="text-sm">
-                                {item.subcategory}
-                                {"(1)"}
+                          <div className="flex flex-wrap gap-3 pb-4">
+                            {item.subcategory?.length > 0 ? (
+                              item.subcategory.map((sub, idx) => (
+                                <div
+                                  key={`${item.uuid}-${idx}`} // ✅ important
+                                  className="flex items-center gap-2 bg-[#D5E5F5] py-2 px-3 rounded-full"
+                                >
+                                  <Circle size={8} fill="#686868" />
+                                  <p className="text-sm">{sub}</p>
+                                  {"(1)"}
+                                </div>
+                              ))
+                            ) : (
+                              <p className="text-sm text-gray-500">
+                                No sub-categories
                               </p>
-                              <button
-                                onClick={() => setOpenEditSubCategory(true)}>
-                                <PencilLine size={14} />
-                              </button>
-                            </div>
+                            )}
                           </div>
                         </td>
                       </tr>
@@ -1081,7 +1118,8 @@ const Products = () => {
               <button
                 className="px-3 py-1 border rounded"
                 onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-                disabled={currentPage === 1}>
+                disabled={currentPage === 1}
+              >
                 ‹
               </button>
 
@@ -1095,7 +1133,8 @@ const Products = () => {
                 onClick={() =>
                   setCurrentPage((p) => Math.min(p + 1, totalPages))
                 }
-                disabled={currentPage === totalPages}>
+                disabled={currentPage === totalPages}
+              >
                 ›
               </button>
             </div>

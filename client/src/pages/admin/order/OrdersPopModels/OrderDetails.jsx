@@ -6,8 +6,16 @@ import {
   WalletCards,
   X,
 } from "lucide-react";
+import { useState } from "react";
 
-const OrderDetails = ({ data, setSelectedOrderId }) => {
+const OrderDetails = ({
+  data,
+  setSelectedOrderId,
+  onAcceptOrder = () => {},
+  onSaveTracking = () => {},
+  setopenCancelModule = () => {},
+}) => {
+
   // //////////////////////////////////
   const items = data?.items || [];
 
@@ -21,6 +29,24 @@ const OrderDetails = ({ data, setSelectedOrderId }) => {
 
   const totalAmount = itemSubtotal - discount + shippingCost;
 
+  const deliveryPartners = ["Delhivery", "Blue Dart", "DTDC", "India Post"];
+
+  const orderId = data?.orderId;
+
+  const [selectedPartner, setSelectedPartner] = useState(
+    data?.deliveryPartner || "",
+  );
+  const [trackingId, setTrackingId] = useState(data?.trackingId || "");
+  const [trackingUrl, setTrackingUrl] = useState(data?.trackingUrl || "");
+
+  const isPending = data?.orderStatus === "Pending";
+  const isProcessing = data?.orderStatus === "Processing";
+  const isShipped = data?.orderStatus === "Shipped";
+
+  const canAccept = isPending && !!selectedPartner;
+  const showTrackingSection = isProcessing || isShipped;
+  const trackingAlreadySaved = !!data?.trackingId;
+
   return (
     <div className="bg-[#FFFFFF] w-full">
       {/* Header */}
@@ -28,7 +54,8 @@ const OrderDetails = ({ data, setSelectedOrderId }) => {
         <span className="text-[18px]">Order Details</span>
         <button
           className="border-[1px] border-black rounded-full shrink-0"
-          onClick={setSelectedOrderId}>
+          onClick={setSelectedOrderId}
+        >
           <X size={18} />
         </button>
       </div>
@@ -41,7 +68,9 @@ const OrderDetails = ({ data, setSelectedOrderId }) => {
               Order ID #{data.orderId}
             </span>
             <div className="text-[#686868] text-sm flex items-start gap-1">
-              <span>{data.orderDate}</span><i className="text-[#DEDEDE]">●</i><span>{data.orderTime}</span>
+              <span>{data.orderDate}</span>
+              <i className="text-[#DEDEDE]">●</i>
+              <span>{data.orderTime}</span>
             </div>
           </div>
           <div>
@@ -59,7 +88,8 @@ const OrderDetails = ({ data, setSelectedOrderId }) => {
                     : data.orderStatus === "Shipped"
                       ? "bg-[#D5E5F5] text-[#1C3753]"
                       : ""
-          }`}>
+          }`}
+            >
               {data.orderStatus}
             </span>
           </div>
@@ -117,6 +147,149 @@ const OrderDetails = ({ data, setSelectedOrderId }) => {
           </div>
         </div>
       </div>
+
+      {/* Delivery Summmary  */}
+      <div className="mt-2">
+        <span className="text-sm mt-3 mb-3">Delivery Summary</span>
+        <div className="w-full p-3 text-sm text-gray-600 border rounded-md">
+          <div className="space-y-3">
+            <div className="flex items-center justify-between w-full flex-nowrap">
+              <div className="flex items-center gap-1 min-w-0">
+                <Box size={15} />
+                <span>Delivery Type</span>
+              </div>
+              <div className="text-black font-medium shrink-0">
+                {/* change by contant */}
+                {data.quantity ? data.quantity : ""}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {/* Delivery Partner */}
+      <div className="mt-2">
+        <span className="text-sm mt-3 mb-3 block">Delivery Partner</span>
+
+        <div className="w-full p-2 text-sm text-gray-600 border rounded-md">
+          <div className="flex items-center justify-between w-full flex-nowrap">
+            <div className="flex items-center gap-1 min-w-0">
+              {/* <Box size={15} /> */}
+              <span>Select a delivery partner</span>
+            </div>
+
+            <div className="shrink-0">
+              <select
+                value={selectedPartner}
+                disabled={!isPending}
+                onChange={(e) => setSelectedPartner(e.target.value)}
+                className={`w-full px-3 py-2 text-sm border rounded-md
+    ${isPending ? "bg-white text-black" : "bg-[#F8FAFB] text-gray-500 cursor-not-allowed"}`}
+              >
+                <option value="">Select</option>
+                {deliveryPartners.map((p) => (
+                  <option key={p} value={p}>
+                    {p}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* traking details */}
+      {/* {data.trakingDeatils && (
+        <div className="mt-2 flex flex-col space-y-3">
+          <span className="text-sm block">Tracking Details</span>
+          <div className="w-full  text-sm text-gray-600 border rounded-md">
+            <div className="flex items-center justify-between w-full flex-nowrap">
+              <input
+                readOnly
+                type="text"
+                className="p-2 w-full outline-none"
+                value={selectedPartner}
+                placeholder="Shipping Partner"
+              />
+            </div>
+          </div>
+          <div className="w-full  text-sm text-gray-600 border rounded-md">
+            <div className="flex items-center justify-between w-full flex-nowrap">
+              <input
+                type="text"
+                className="p-2 w-full outline-none"
+                placeholder="Enter traking ID"
+              />
+            </div>
+          </div>
+          <div className="w-full  text-sm text-gray-600 border rounded-md">
+            <div className="flex items-center justify-between w-full flex-nowrap">
+              <input
+                type="text"
+                className="p-2 w-full outline-none"
+                placeholder="Enter tracking URL"
+              />
+            </div>
+          </div>
+        </div>
+      )} */}
+      {showTrackingSection && (
+        <div className="mt-3">
+          <p className="text-sm font-medium mb-2">Tracking Details</p>
+
+          {/* Shipped OR Tracking already exists */}
+          {trackingAlreadySaved ? (
+            <div className="p-3 border rounded-md bg-[#F8FAFB] text-sm space-y-1">
+              <div>
+                <span className="text-gray-600">Partner:</span>{" "}
+                {data.deliveryPartner}
+              </div>
+              <div>
+                <span className="text-gray-600">Tracking ID:</span>{" "}
+                {data.trackingId}
+              </div>
+
+              {data.trackingUrl && (
+                <a
+                  href={data.trackingUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-[#2C87E2] underline"
+                >
+                  Open Tracking URL
+                </a>
+              )}
+            </div>
+          ) : (
+            <>
+              {/* only in Processing */}
+              <input
+                value={trackingId}
+                onChange={(e) => setTrackingId(e.target.value)}
+                className="w-full border rounded-md p-2 text-sm mb-2"
+                placeholder="Enter Tracking ID"
+              />
+              <input
+                value={trackingUrl}
+                onChange={(e) => setTrackingUrl(e.target.value)}
+                className="w-full border rounded-md p-2 text-sm"
+                placeholder="Enter Tracking URL"
+              />
+
+              <button
+                type="button"
+                disabled={!trackingId}
+                onClick={() =>
+                  onSaveTracking({ orderId, trackingId, trackingUrl })
+                }
+                className={`mt-2 px-4 py-2 rounded-md text-sm
+            ${trackingId ? "bg-[#1C3753] text-white" : "bg-gray-300 text-gray-600 cursor-not-allowed"}`}
+              >
+                Save Tracking
+              </button>
+            </>
+          )}
+        </div>
+      )}
 
       {/* Customer Details */}
       <div className="mt-2">
@@ -251,6 +424,43 @@ const OrderDetails = ({ data, setSelectedOrderId }) => {
             </div>
           </div>
         </div>
+      </div>
+      <div className="flex items-center justify-end gap-2 mt-4">
+        {isPending && (
+          <>
+            <button
+              type="button"
+              disabled={!canAccept}
+              onClick={() =>
+                onAcceptOrder({ orderId, deliveryPartner: selectedPartner })
+              }
+              className={`px-6 py-1.5 rounded-md text-white
+          ${canAccept ? "bg-[#1C3753]" : "bg-gray-300 cursor-not-allowed"}`}
+            >
+              Accept
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setopenCancelModule(orderId)}
+              className="px-6 py-1.5 rounded-md text-[#1C3753] bg-white border border-[#1C3753]"
+            >
+              Reject
+            </button>
+          </>
+        )}
+
+        {isProcessing && (
+          <span className="px-6 py-1.5 rounded-md text-sm font-medium bg-green-100 text-green-600">
+            Accepted
+          </span>
+        )}
+
+        {isShipped && (
+          <span className="px-6 py-1.5 rounded-md text-sm font-medium bg-[#D5E5F5] text-[#1C3753]">
+            Shipped
+          </span>
+        )}
       </div>
     </div>
   );

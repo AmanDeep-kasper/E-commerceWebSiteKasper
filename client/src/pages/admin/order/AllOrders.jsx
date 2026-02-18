@@ -248,10 +248,18 @@ const AllOrders = () => {
         overflow-y-auto
         overscroll-contain
         scrollbar-hide
-      ">
+      "
+          >
+            {/* <OrderDetails
+              data={selectOrder}
+              setSelectedOrderId={() => setSelectedOrderId(null)}
+              handleAcceptedOrders={handleAcceptedOrders}
+            /> */}
             <OrderDetails
               data={selectOrder}
               setSelectedOrderId={() => setSelectedOrderId(null)}
+              onAcceptOrder={({ orderId, deliveryPartner }) => {}}
+              onSaveTracking={({ orderId, trackingId, trackingUrl }) => {}}
             />
           </div>
         </div>
@@ -273,7 +281,8 @@ const AllOrders = () => {
         overflow-y-auto
         overscroll-contain
         scrollbar-hide
-      ">
+      "
+          >
             <OrdersTimelines
               data={selectTimeline}
               setSelectedOrderId={() => setOpenTimelineId(null)}
@@ -299,7 +308,8 @@ const AllOrders = () => {
         overflow-y-auto
         overscroll-contain
         scrollbar-hide
-      ">
+      "
+          >
             <OrderSectionInvoice
               data={selectInvoice}
               setSelectedOrderId={() => setOpenInvoiceId(null)}
@@ -325,7 +335,8 @@ const AllOrders = () => {
           <div className="relative">
             <button
               onClick={() => setOpenDatefilter((p) => !p)}
-              className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 bg-[#F8FBFC] rounded-lg border hover:bg-gray-100">
+              className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 bg-[#F8FBFC] rounded-lg border hover:bg-gray-100"
+            >
               {storeDate}
               <ChevronDown className="w-4 h-4 text-gray-500" />
             </button>
@@ -346,7 +357,8 @@ const AllOrders = () => {
                           setOpenDatefilter(false);
                         }
                       }}
-                      className="px-4 py-2 text-sm cursor-pointer hover:bg-gray-100 text-[#686868]">
+                      className="px-4 py-2 text-sm cursor-pointer hover:bg-gray-100 text-[#686868]"
+                    >
                       {item}
                     </div>
                   ))}
@@ -367,7 +379,8 @@ const AllOrders = () => {
     ${
       range.from ? "bg-[#D5E5F5] text-[#1C3753]" : "bg-[#FFFFFF] text-[#1C3753]"
     }
-  `}>
+  `}
+                      >
                         {range.from
                           ? range.from.toLocaleDateString()
                           : "Start Date"}
@@ -379,7 +392,8 @@ const AllOrders = () => {
                           activePicker === "to"
                             ? "border-[#1C3753] text-[#1C3753]"
                             : "text-gray-500"
-                        }`}>
+                        }`}
+                      >
                         {range.to ? range.to.toLocaleDateString() : "End Date"}
                       </button>
                     </div>
@@ -396,7 +410,8 @@ const AllOrders = () => {
                             ),
                           )
                         }
-                        className="flex-1 border rounded px-2 py-1 text-sm">
+                        className="flex-1 border rounded px-2 py-1 text-sm"
+                      >
                         {months.map((m, i) => (
                           <option key={m} value={i}>
                             {m}
@@ -414,7 +429,8 @@ const AllOrders = () => {
                             ),
                           )
                         }
-                        className="flex-1 border rounded px-2 py-1 text-sm">
+                        className="flex-1 border rounded px-2 py-1 text-sm"
+                      >
                         {years.map((y) => (
                           <option key={y} value={y}>
                             {y}
@@ -457,7 +473,8 @@ const AllOrders = () => {
                           setRange({ from: undefined, to: undefined });
                           setShowCustomDate(false);
                         }}
-                        className="px-4 py-1.5 border rounded text-sm">
+                        className="px-4 py-1.5 border rounded text-sm"
+                      >
                         Cancel
                       </button>
 
@@ -474,7 +491,8 @@ const AllOrders = () => {
                           range?.from && range?.to
                             ? "bg-blue-600 text-white"
                             : "bg-gray-200 text-gray-500"
-                        }`}>
+                        }`}
+                      >
                         Done
                       </button>
                     </div>
@@ -487,7 +505,8 @@ const AllOrders = () => {
           <div className="relative">
             <button
               onClick={() => setPaymentStatusOpen((p) => !p)}
-              className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 bg-[#F8FBFC] rounded-lg hover:bg-gray-100 border">
+              className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 bg-[#F8FBFC] rounded-lg hover:bg-gray-100 border"
+            >
               {paymentstatus}
               <ChevronDown className="w-4 h-4 text-gray-500" />
             </button>
@@ -503,7 +522,8 @@ const AllOrders = () => {
                     }}
                     className={`px-4 py-2 text-sm cursor-pointer text-[#686868] hover:bg-gray-100
             ${paymentstatus === s ? "bg-gray-100 font-medium" : ""}
-          `}>
+          `}
+                  >
                     {s}
                   </div>
                 ))}
@@ -514,7 +534,8 @@ const AllOrders = () => {
           <div className="relative">
             <button
               className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 bg-[#F8FBFC] rounded-lg hover:bg-gray-100 border"
-              onClick={() => setfilterOneOpen((p) => !p)}>
+              onClick={() => setfilterOneOpen((p) => !p)}
+            >
               <ListFilter className="w-4 h-4" />
               {filterOne}
             </button>
@@ -532,7 +553,8 @@ const AllOrders = () => {
                         filterOne === s
                           ? "bg-gray-100 text-[#686868] font-medium"
                           : ""
-                      }`}>
+                      }`}
+                    >
                       {s}
                     </div>
                   );
@@ -551,7 +573,8 @@ const AllOrders = () => {
               {columns.map((col) => (
                 <th
                   key={col}
-                  className="px-4 py-3 font-medium text-[#1C1C1C] text-center">
+                  className="px-4 py-3 font-medium text-[#1C1C1C] text-center"
+                >
                   {col}
                 </th>
               ))}
@@ -561,12 +584,14 @@ const AllOrders = () => {
             {paginatedOrders.map((order) => (
               <tr
                 key={order.orderId}
-                className="border-t hover:bg-gray-50 transition  cursor-pointer text-center">
+                className="border-t hover:bg-gray-50 transition  cursor-pointer text-center"
+              >
                 <td
-                  onClick={() => {
-                    setSelectedOrderId(order.orderId);
-                  }}
-                  className="px-4 py-3 hover:underline text-[#2C87E2]">
+                  // onClick={() => {
+                  //   setSelectedOrderId(order.orderId);
+                  // }}
+                  className="px-4 py-3"
+                >
                   {order.orderId}
                 </td>
                 <td className="px-4 py-3">{order.quantity}</td>
@@ -578,7 +603,8 @@ const AllOrders = () => {
                       : order.paymentType
                         ? "text-[#F8A14A]"
                         : ""
-                  }`}>
+                  }`}
+                >
                   {order.paymentType}
                 </td>
                 <td className="px-4 py-3 ">{order.orderDate}</td>
@@ -599,7 +625,8 @@ const AllOrders = () => {
                                 ? "bg-[#D5E5F5] text-[#1C3753]"
                                 : ""
                     }
-                  `}>
+                  `}
+                  >
                     {order.orderStatus}
                   </span>
                 </td>
@@ -613,10 +640,19 @@ const AllOrders = () => {
                           openActionId === order.orderId ? null : order.orderId,
                         );
                       }}
-                      className="p-2 rounded-full hover:bg-gray-100 flex items-center justify-center">
-                      <MoreVertical className="w-4 h-4 text-gray-600" />
+                      className="p-2 rounded-full  flex items-center justify-center"
+                    >
+                      {/* <MoreVertical className="w-4 h-4 text-gray-600" /> */}
+                      <p
+                        className="hover:underline text-[#2C87E2]"
+                        onClick={() => {
+                          setSelectedOrderId(order.orderId);
+                        }}
+                      >
+                        view
+                      </p>
                     </button>
-                    {openActionId === order.orderId && (
+                    {/* {openActionId === order.orderId && (
                       <div
                         className="absolute mt-2 w-40 right-0 top-10
 bg-white border rounded-lg shadow-md z-50">
@@ -654,7 +690,7 @@ bg-white border rounded-lg shadow-md z-50">
                           );
                         })}
                       </div>
-                    )}
+                    )} */}
                   </td>
                 </div>
               </tr>
@@ -674,7 +710,8 @@ bg-white border rounded-lg shadow-md z-50">
             <button
               className="px-3 py-1 border rounded disabled:opacity-40"
               onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={page === 1}>
+              disabled={page === 1}
+            >
               ‹
             </button>
 
@@ -686,7 +723,8 @@ bg-white border rounded-lg shadow-md z-50">
             <button
               className="px-3 py-1 border rounded disabled:opacity-40"
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              disabled={page === totalPages}>
+              disabled={page === totalPages}
+            >
               ›
             </button>
           </div>

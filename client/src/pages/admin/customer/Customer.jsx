@@ -72,7 +72,7 @@ function Customer() {
 
     if (filterOne === "Latest") {
       result.sort(
-        (a, b) => new Date(b.last_order_date) - new Date(a.last_order_date)
+        (a, b) => new Date(b.last_order_date) - new Date(a.last_order_date),
       );
     }
 
@@ -122,7 +122,7 @@ function Customer() {
   const totalPages = Math.ceil(filterCustomers.length / rowsPerPage);
   const rows = filterCustomers.slice(
     (page - 1) * rowsPerPage,
-    page * rowsPerPage
+    page * rowsPerPage,
   );
   const navigate = useNavigate(null);
 
@@ -151,7 +151,7 @@ function Customer() {
 
   return (
     <div className="p-[24px] bg-[#F6F8F9] min-h-screen">
-      <div className="min-h-screen text-gray-900">
+      <div className=" text-gray-900">
         {/* Top Navigation */}
         <div className="mb-4">
           <div className="mx-auto">
@@ -172,7 +172,7 @@ function Customer() {
         <div className="bg-white p-4 rounded-xl border">
           {/* Header */}
           <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2 w-[40%] border rounded-lg px-3 py-2 bg-[#F8FBFC]">
+            <div className="flex items-center gap-2  w-full md:w-[45%] lg:w-[40%] border rounded-lg px-3 py-2 bg-[#F8FBFC]">
               <Search className="w-4 h-4 text-[#686868]" />
               <input
                 type="text"
@@ -188,7 +188,8 @@ function Customer() {
                 {/* Button */}
                 <button
                   onClick={() => setStatusOpen((p) => !p)}
-                  className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 bg-[#F8FBFC] rounded-lg hover:bg-gray-100 border">
+                  className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 bg-[#F8FBFC] rounded-lg hover:bg-gray-100 border"
+                >
                   {status}
                   <ChevronDown className="w-4 h-4 text-gray-500" />
                 </button>
@@ -205,7 +206,8 @@ function Customer() {
                         }}
                         className={`px-4 py-2 text-sm cursor-pointer hover:bg-gray-100
             ${status === s ? "bg-gray-100 font-medium" : ""}
-          `}>
+          `}
+                      >
                         {s}
                       </div>
                     ))}
@@ -216,7 +218,8 @@ function Customer() {
               <div className="relative">
                 <button
                   className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 bg-[#F8FBFC] rounded-lg hover:bg-gray-100 border"
-                  onClick={() => setfilterOneOpen((p) => !p)}>
+                  onClick={() => setfilterOneOpen((p) => !p)}
+                >
                   <ListFilter className="w-4 h-4" />
                   {filterOne}
                 </button>
@@ -232,7 +235,8 @@ function Customer() {
                           }}
                           className={`px-4 py-2 text-sm cursor-pointer hover:bg-gray-100 ${
                             filterOne === s ? "bg-gray-100 font-medium" : ""
-                          }`}>
+                          }`}
+                        >
                           {s}
                         </div>
                       );
@@ -247,7 +251,8 @@ function Customer() {
                   setfilterOne("Latest");
                   setPage(1);
                 }}
-                className="border rounded-lg px-3 py-2 text-sm text-[#686868] flex items-center justify-between gap-2 bg-[#F8FBFC]  hover:bg-gray-100">
+                className="border rounded-lg px-3 py-2 text-sm text-[#686868] flex items-center justify-between gap-2 bg-[#F8FBFC]  hover:bg-gray-100"
+              >
                 <FunnelX size={18} />
                 Clear Filter
               </button>
@@ -255,10 +260,10 @@ function Customer() {
           </div>
 
           {/* Table */}
-          <div className="overflow-hidden rounded-xl border bg-white">
-            <table className="min-w-full text-sm">
-              <thead className="bg-[#F5F8FA] text-gray-600">
-                <tr>
+          <div className="overflow-x-auto bg-white shadow rounded-lg">
+            <table className="w-full text-sm text-gray-600">
+              <thead className="bg-[#F5F8FA] h-[54px]">
+                <tr className="text-[#4B5563] text-[16px]">
                   {[
                     "Customer Name",
                     "Email",
@@ -267,13 +272,14 @@ function Customer() {
                     "Total Spend",
                     "Last Order Date",
                     "Status",
-                    "Action",
+                    // "Action",
                   ].map((h, i) => (
                     <th
                       key={h}
                       className={`px-4 py-4 font-medium text-left whitespace-nowrap ${
                         i === 7 ? "text-right" : ""
-                      }`}>
+                      }`}
+                    >
                       {h}
                     </th>
                   ))}
@@ -284,7 +290,9 @@ function Customer() {
                 {rows.map((r) => (
                   <tr
                     key={r.id}
-                    className="border-t hover:bg-gray-50 transition">
+                      onClick={() => navigate(`/admin/customers/${r.id}/customer-info`)}
+                    className="border-t hover:bg-gray-50 transition cursor-pointer"
+                  >
                     <td className="px-4 py-3">{r.name}</td>
                     <td className="px-4 py-3">{r.email}</td>
                     <td className="px-4 py-3">{r.phone}</td>
@@ -300,17 +308,18 @@ function Customer() {
                   r.status === "Active"
                     ? "bg-green-100 text-green-600"
                     : r.status === "Blocked"
-                    ? "bg-red-100 text-red-600"
-                    : ""
+                      ? "bg-red-100 text-red-600"
+                      : ""
                 }
-              `}>
+              `}
+                      >
                         <span
                           className={`w-2 h-2 rounded-xl ${
                             r.status === "Active"
                               ? "bg-green-500"
                               : r.status === "Blocked"
-                              ? "bg-red-500"
-                              : ""
+                                ? "bg-red-500"
+                                : ""
                           }`}
                         />
                         {r.status}
@@ -318,15 +327,16 @@ function Customer() {
                     </td>
 
                     {/* Action */}
-                    <td className="px-4 py-3 text-right">
+                    {/* <td className="px-4 py-3 text-right">
                       <button
                         className="p-1.5 rounded hover:bg-gray-100"
                         onClick={() =>
                           navigate(`/admin/customers/${r.id}/customer-info`)
-                        }>
+                        }
+                      >
                         <PencilLine className="w-4 h-4 text-gray-600" />
                       </button>
-                    </td>
+                    </td> */}
                   </tr>
                 ))}
               </tbody>
@@ -348,7 +358,8 @@ function Customer() {
               <button
                 className="px-3 py-1 border rounded disabled:opacity-40"
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page === 1}>
+                disabled={page === 1}
+              >
                 ‹
               </button>
 
@@ -360,7 +371,8 @@ function Customer() {
               <button
                 className="px-3 py-1 border rounded disabled:opacity-40"
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                disabled={page === totalPages}>
+                disabled={page === totalPages}
+              >
                 ›
               </button>
             </div>
