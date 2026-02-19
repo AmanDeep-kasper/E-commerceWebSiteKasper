@@ -85,6 +85,7 @@ import ProcessingOrders from "../pages/admin/order/ProcessingOrders";
 import ShippedOrders from "../pages/admin/order/ShippedOrders";
 import DeliveredOrders from "../pages/admin/order/DeliveredOrders";
 import CancelledOrders from "../pages/admin/order/CancelledOrders";
+import Transporter from "../pages/admin/Transporter/Transporter";
 
 const PageRouter = () => {
   return (
@@ -172,6 +173,9 @@ const PageRouter = () => {
           <Route path="users" element={<User />} />
           <Route path="sales" element={<Sale />} />
           <Route path="stocks" element={<Stock />} />
+
+          <Route path="transporter" element={<Transporter />} />
+
           {/* Customer */}
           <Route path="customers/:id" element={<CustomerLayout />}>
             <Route path="customer-info" element={<Information />} />

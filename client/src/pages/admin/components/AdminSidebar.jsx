@@ -19,17 +19,14 @@ import { BsLayoutSidebar } from "react-icons/bs";
 const dashboard = [
   { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
   { name: "All Products", path: "/products", icon: Package },
-  { name: "Inventory", path: "#", icon: ClipboardCheck },
   { name: "Orders", path: "/orders/all", icon: ShoppingBag },
   { name: "Returns", path: "/returns/ReturnRequested", icon: CalendarSync },
   { name: "Categories", path: "/categories", icon: Layers },
   { name: "Customers", path: "/customers", icon: Contact },
+  { name: "Transporter", path: "/transporter", icon: ClipboardCheck },
   { name: "Payments", path: "#", icon: Wallet },
   { name: "Report & Analysis", path: "#", icon: SquareDashedKanban  },
   { name: "Support & Ticket", path: "#", icon: Ticket },
-  // { name: "Sales", path: "/sales", icon: BadgeIndianRupee },
-  // { name: "Stocks", path: "/stocks", icon: Warehouse },
-  // { name: "Accounts", path: "/accounts", icon: Warehouse },
 ];
 
 function AdminSidebar({ isCollapsed, setIsCollapsed }) {
