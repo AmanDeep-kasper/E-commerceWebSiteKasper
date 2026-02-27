@@ -10,8 +10,6 @@ import {
 } from "../controllers/productController.js";
 import { uploadProductImages } from "../middlewares/multerConfig.js";
 import { isAuthenticated, isAdmin } from "../middlewares/authMiddleware.js";
-// import { updateProduct } from "../../client/src/redux/cart/productSlice.js";
-// import { getAllCategories } from "../controllers/categoryController.js";
 
 const router = express.Router();
 
@@ -37,18 +35,13 @@ router.post(
 
 // 🌐 Public access
 router.get("/all", getAllProducts);
-router.get("/category/:categoryName", getProductByCategory);
 router.get("/categories", getAllCategories);
-router.get(
-  "/category/:categoryName/:subcategoryName",
-  getProductsByCategoryAndSubcategory
-);
+router.get("/category/:categoryName", getProductByCategory);
+router.get("/category/:categoryName/:subcategoryName", getProductsByCategoryAndSubcategory);
 
-// 🔹 Product detail (by Mongo _id)
-router.get("/:id", getProductDetails);
-
-// 🔹 Product detail (by SEO-friendly slug/route)
+// ✅ move slug before /:id
 router.get("/slug/:route", getProductByRoute);
+router.get("/:id", getProductDetails);
 
 // Category
 // router.get("/categories", getAllCategories);

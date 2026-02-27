@@ -7,7 +7,7 @@ import googlePay from "../assets/googlePay.svg";
 import phonePe from "../assets/phonepe.svg";
 import paytm from "../assets/paytm.svg";
 import { useSelector, useDispatch } from "react-redux";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { toast } from "react-toastify";
 import EmptyState from "../components/EmptyState";
 // import StripeContainer from "../pages/StripeIntegrate/StripeContainer";
@@ -16,7 +16,7 @@ import axios from "axios";
 // 👉 import cart actions
 import { placeOrder } from "../redux/cart/orderSlice";
 import { clearCart, resetBuyNow } from "../redux/cart/cartSlice";
-import { PackageCheck, Truck } from "lucide-react";
+import { ChevronLeft, PackageCheck, Truck } from "lucide-react";
 
 function Payment() {
   const {
@@ -215,7 +215,9 @@ function Payment() {
         <div className="flex flex-col lg:flex-row justify-between md:gap-6">
           {/* Delivery Address Section */}
           <div className="p-4 md:p-6 md:shadow-sm bg-white md:rounded-md w-full lg:w-2/3">
-            <h2 className="text-lg font-semibold mb-3">Delivery Addresss</h2>
+             <div className="text-lg sm:text-xl flex gap-2 items-center font-semibold text-gray-800">
+              <Link to="/bag"><ChevronLeft className="w-8 h-8"/></Link>  Payment Options
+              </div>
 
             {selectedAddress ? (
               <div className="border border-gray-200 rounded-lg p-4">
@@ -229,7 +231,7 @@ function Payment() {
                 </p>
                 <button
                   onClick={() => navigate("/checkout/delivery")}
-                  className="mt-3 text-sm text-amber-600 hover:underline"
+                  className="mt-3 text-sm text-[#006EE1] hover:underline"
                 >
                   Change Address
                 </button>

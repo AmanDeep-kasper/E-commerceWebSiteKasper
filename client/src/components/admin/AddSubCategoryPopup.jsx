@@ -3,43 +3,65 @@ import { toast } from "react-toastify";
 
 const AddSubCategoryPopup = ({
   setShowSubCategoryModal,
-//   categories,
-//   setCategories,
+  categories,
   subcategories,
   setSubcategories,
+  setFormData,
+  selectedCategory,
 }) => {
-//   const [subcategoryInput, setSuCategoryInput] = useState("");
   const [subCategoryInput, setSubCategoryInput] = useState("");
+  const [categoryInput, setCategoryInput] = useState(selectedCategory || "");
 
   const handleSave = () => {
-    if (!subCategoryInput.trim()) {
-      toast.error("Please fill in all fields!", {
+    const cat = String(categoryInput || "").trim();
+    const sub = String(subCategoryInput || "").trim();
+
+    if (!cat) {
+      toast.error("Select/enter a Category first!", {
         className: "bg-red-700 text-white rounded-lg",
         position: "top-right",
         autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
       });
       return;
     }
 
-    // setCategories([...categories, categoryInput.trim()]);
-    setSubcategories([...subcategories, subCategoryInput.trim()]);
+    if (!sub) {
+      toast.error("Enter a Subcategory name!", {
+        className: "bg-red-700 text-white rounded-lg",
+        position: "top-right",
+        autoClose: 3000,
+      });
+      return;
+    }
 
-    toast.success("Category added successfully!", {
+    setSubcategories((prev) => {
+      const obj = prev && typeof prev === "object" ? prev : {};
+      const existing = Array.isArray(obj[cat]) ? obj[cat] : [];
+
+      if (existing.includes(sub)) return obj; // no duplicates
+
+      return {
+        ...obj,
+        [cat]: [...existing, sub],
+      };
+    });
+
+    // optional: auto set in main form
+    if (setFormData) {
+      setFormData((prev) => ({
+        ...prev,
+        category: cat,
+        subcategory: sub,
+      }));
+    }
+
+    toast.success("Subcategory added successfully!", {
       className: "bg-[#EEFFEF] text-black rounded-lg",
       position: "top-right",
       autoClose: 3000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
     });
 
     setShowSubCategoryModal(false);
-    // setCategoryInput("");
     setSubCategoryInput("");
   };
 
@@ -48,17 +70,23 @@ const AddSubCategoryPopup = ({
       <div className="bg-white p-6 rounded-lg w-[40%] relative">
         <h2 className="text-xl font-semibold mb-4">Add SubCategory</h2>
 
-        {/* Category Input */}
-        {/* <label className="block text-black text-[14px] font-medium mb-2">
-          SubCategory Name
-        </label> */}
-        {/* <input
-          type="text"
-          placeholder="Category Name"
+        {/* Choose Category */}
+        <label className="block text-black text-[14px] font-medium mb-2">
+          Category
+        </label>
+
+        <select
           value={categoryInput}
           onChange={(e) => setCategoryInput(e.target.value)}
           className="w-full border p-2 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-blue-200"
-        /> */}
+        >
+          <option value="">Select Category</option>
+          {(categories || []).map((c) => (
+            <option key={c} value={c}>
+              {c}
+            </option>
+          ))}
+        </select>
 
         {/* Subcategory Input */}
         <label className="block text-black text-[14px] font-medium mb-2">
@@ -83,7 +111,7 @@ const AddSubCategoryPopup = ({
           </button>
           <button
             type="button"
-            className="px-6 py-2 bg-amber-600 rounded-lg text-white font-medium hover:bg-amber-700"
+            className="px-6 py-2 bg-[#1C3753] rounded-lg text-white font-medium hover:bg-[#1C3753]"
             onClick={handleSave}
           >
             Save

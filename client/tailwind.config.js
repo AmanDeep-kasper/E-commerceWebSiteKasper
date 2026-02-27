@@ -19,6 +19,7 @@ export default {
         // playfair: ["Playfair Display"],
         // poppins: ['Poppins', 'sans-serif'],
         // montserrat: ['Montserrat', 'sans-serif'],
+        imprima: ['Imprima', 'sans-serif'],
       },
       screens: {
         xs: "393px",

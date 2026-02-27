@@ -53,7 +53,7 @@ function PriceDetails({
               transition={{ duration: 0.3, ease: "easeInOut" }}
               className="overflow-hidden"
             >
-              <div className="space-y-4">
+              <div className="space-y-4 bg-[#F8F8F8] rounded-lg px-2 py-1">
                 {/* Items */}
                 <div className="flex justify-between border-t border-gray-200 pt-4 mt-4">
                   <span className="text-gray-600 font-medium">
@@ -64,7 +64,7 @@ function PriceDetails({
 
                 {/* Discount */}
                 <div className="flex justify-between">
-                  <span className="text-gray-600 font-medium">Discount</span>
+                  <span className="text-[#00A63E] font-medium">Discount</span>
                   <span className="text-green-600 font-medium">
                     - {formatPrice(totalDiscount)}
                     {/* {console.log(totalDiscount)} */}
@@ -120,10 +120,10 @@ function PriceDetails({
           </div>
 
           {/* Savings Info */}
-          <div className="mt-6 p-3 bg-green-50 rounded-lg flex items-start gap-2">
-            <Info className="text-green-500 mt-0.5 flex-shrink-0" size={16} />
+          <div className="mt-6 p-3 bg-[#F8F8F8] rounded-lg flex items-start gap-2">
+            <Info className="text-[#1C3753] mt-0.5 flex-shrink-0" size={16} />
             <div>
-              <p className="text-green-700 font-medium text-sm sm:text-base">
+              <p className="text-[#1C3753] font-medium text-sm sm:text-base">
                 You're saving ₹{totalDiscount.toLocaleString("en-IN")} on this
                 order!
               </p>
@@ -150,25 +150,25 @@ function PriceDetails({
                 ) : (
                   <Link
                     to="/checkout/delivery"
-                    className="bg-[#212121] rounded-full hover:bg-black text-white md:px-8 md:py-3 px-4 py-2 text-base font-medium transition-colors flex items-center gap-2"
+                    className="bg-[#1C3753] rounded-lg hover:bg-black text-white md:px-8 md:py-3 px-4 py-2 text-base font-medium transition-colors flex items-center gap-2"
                   >
-                    Checkout <ArrowRight size={16}></ArrowRight>
+                    Proceed to Checkout 
                   </Link>
                 ))}
 
               {step === "delivery" && canProceed && (
                 <button
                   onClick={goToPayment}
-                  className="bg-[#212121] rounded-full hover:bg-black text-white md:px-8 md:py-3 px-4 py-2 text-base font-medium transition-colors flex items-center gap-2"
+                  className="bg-[#1C3753] rounded-lg hover:bg-black text-white md:px-8 md:py-3 px-4 py-2 text-base font-medium transition-colors flex items-center gap-2"
                 >
-                  Proceed <ArrowRight size={16}></ArrowRight>
+                  Proceed to Checkout
                 </button>
               )}
 
               {step === "payment" && (
                 <button
                   onClick={handlePlaceOrder}
-                  className="bg-[#212121] rounded-full hover:bg-black text-white md:px-8 md:py-3 px-4 py-2 text-base font-medium transition-colors flex items-center gap-2 whitespace-nowrap"
+                  className="bg-[#1C3753] rounded-lg hover:bg-black text-white md:px-8 md:py-3 px-4 py-2 text-base font-medium transition-colors flex items-center gap-2 whitespace-nowrap"
                 >
                   {buyNowMode ? "Buy Now & Pay" : "Place Order"} <ArrowRight size={16}></ArrowRight>
                 </button>

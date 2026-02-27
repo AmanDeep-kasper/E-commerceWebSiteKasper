@@ -74,7 +74,7 @@ function RegisterForm({ onOtpSent }) {
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Name Field */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+            <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
               {/* <User className="w-4 h-4" /> */}
               Full Name
             </label>
@@ -95,7 +95,7 @@ function RegisterForm({ onOtpSent }) {
 
           {/* Email Field */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+            <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
               {/* <Mail className="w-4 h-4" /> */}
               Email Address
             </label>
@@ -116,7 +116,7 @@ function RegisterForm({ onOtpSent }) {
 
           {/* Password Field */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+            <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
               {/* <Lock className="w-4 h-4" /> */}
               Password
             </label>
@@ -164,15 +164,15 @@ function RegisterForm({ onOtpSent }) {
             >
               By continuing, I agree to the website's{" "}
               <Link
-                to="/terms"
-                className="text-amber-600 hover:text-amber-700 underline font-medium"
+                to="/termsconditions"
+                className="text-[#F8A14A] hover:text-amber-700 underline font-medium"
               >
                 Terms of Use
               </Link>{" "}
               and{" "}
               <Link
-                to="/privacy"
-                className="text-amber-600 hover:text-amber-700 underline font-medium"
+                to="/policy"
+                className="text-[#F8A14A] hover:text-amber-700 underline font-medium"
               >
                 Privacy Policy
               </Link>
@@ -190,7 +190,7 @@ function RegisterForm({ onOtpSent }) {
           <button
             type="submit"
             disabled={loading || !termsAccepted}
-            className="w-full bg-amber-600 hover:bg-amber-700 disabled:bg-gray-400 text-white py-3 px-4 rounded-lg font-semibold transition-all duration-200 transform hover:scale-[1.02] disabled:scale-100 disabled:cursor-not-allowed"
+            className="w-full bg-[#1C3753] text-white hover:bg-[#1C3753] hover:text-white disabled:bg-[#DEDEDE] disabled:text-[#686868] py-3 px-4 rounded-lg font-medium transition-all duration-200 transform hover:scale-[1.02] disabled:scale-100 disabled:cursor-not-allowed"
           >
             {loading ? (
               <div className="flex items-center justify-center gap-2">
@@ -209,7 +209,7 @@ function RegisterForm({ onOtpSent }) {
             Already have an account?{" "}
             <Link
               to="/login"
-              className="text-amber-600 hover:text-amber-700 font-semibold underline"
+              className="text-[#F8A14A] hover:text-amber-700 font-semibold underline"
             >
               Log In
             </Link>

@@ -10,7 +10,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
     "@material-tailwind/react": "^3.0.0-beta.24",
+    "@mui/material": "^7.3.8",
     "@reduxjs/toolkit": "^2.8.2",
     "@stripe/react-stripe-js": "^5.4.0",
     "@stripe/stripe-js": "^8.5.2",
@@ -22,6 +25,7 @@
     "jspdf": "^3.0.2",
     "jspdf-autotable": "^5.0.2",
     "lucide-react": "^0.546.0",
+    "number-to-words": "^1.2.4",
     "razorpay": "^2.9.6",
     "react": "^19.1.0",
     "react-chartjs-2": "^5.3.1",

@@ -1,54 +1,19 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { use, useMemo, useState } from "react";
 import { Link, useParams } from "react-router";
 import products from "../data/products.json";
 
 import { Package, ArrowLeft } from "lucide-react";
-// import axiosInstance from "../src/api/axiosInstance";
 
 function ProductInformation() {
+  // const { uuid } = useParams();
+  // console.log(pr)
   const { uuid } = useParams();
   // console.log(products);
-
-  // const [products, setProducts] = useState([]);
-  // const [loading, setLoading] = useState(true);
-
-  // useEffect(() => {
-  //   const fetchProduct = async () => {
-  //     try {
-  //       const res = await axiosInstance.get("/products/all");
-  //       setProducts(res.data);
-  //     } catch (error) {
-  //       console.log("the error is show in", error);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-
-
-  //   fetchProduct();
-  // }, []);
-
 
   const product = useMemo(() => {
     if (!products || products.length === 0) return undefined;
     return products.find((p) => p.uuid.toLowerCase() === uuid.toLowerCase());
   }, [products, uuid]);
-
-//  if (loading) {
-//     return (
-//       <div className="p-6 text-center text-gray-600">
-//         Loading product details...
-//       </div>
-//     );
-//   }
-
-//     if (!product) {
-//     return (
-//       <div className="p-6 text-center text-red-600">
-//         Product not found!
-//       </div>
-//     );
-//   }
 
   // console.log("UUID from useParams:", uuid);
   // console.log(
@@ -61,8 +26,8 @@ function ProductInformation() {
   /////////////////////////
 
   const [reviews, setReviews] = useState(product?.reviews || []);
-  // console.log("Product:", product);
-  // console.log("Reviews:", reviews);
+  console.log("Product:", product);
+  console.log("Reviews:", reviews);
 
   // if (!product) {
   //   <div className="p-6 text-center text-red-600">
@@ -75,7 +40,7 @@ function ProductInformation() {
       <div className="h-16 bg-white rounded-lg flex items-center justify-between gap-3 px-4">
         <Link to="/admin/products" className="flex items-center gap-2">
           <ArrowLeft className="w-6 h-6 text-gray-800" />
-          <h1 className="text-black text-xl font-semibold">{product?.title}</h1>
+          <h1 className="text-black text-xl font-semibold">{product.title}</h1>
         </Link>
         <button className="bg-[#F8F8F8] px-5 py-1.5 border text-base rounded-lg">
           Edit
@@ -139,7 +104,7 @@ function ProductInformation() {
                 </span>
               </div>
               <div>
-                <p className="text-base tdlljext-[#797979] font-medium">
+                <p className="text-base text-[#797979] font-medium">
                   MaterialType
                 </p>
                 <span className="text-base text-[#2C2C2C] font-medium">

@@ -125,7 +125,7 @@ const AddressForm = ({ initialData = null, onClose, inline = false }) => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="text-sm font-medium text-gray-700">
-                Full Name *
+                Full Name <span className="text-[#D53B35]">*</span>
               </label>
               <input
                 type="text"
@@ -139,7 +139,7 @@ const AddressForm = ({ initialData = null, onClose, inline = false }) => {
 
             <div>
               <label className="text-sm font-medium text-gray-700">
-                phone Number *
+                phone Number <span className="text-[#D53B35]">*</span>
               </label>
               <input
                 type="tel"
@@ -153,7 +153,7 @@ const AddressForm = ({ initialData = null, onClose, inline = false }) => {
             </div>
 
             <div>
-              <label className="text-sm font-medium text-gray-700">Email</label>
+              <label className="text-sm font-medium text-gray-700">Email <span className="text-[#D53B35]">*</span></label>
               <input
                 type="email"
                 name="email"
@@ -165,7 +165,7 @@ const AddressForm = ({ initialData = null, onClose, inline = false }) => {
 
             <div>
               <label className="text-sm font-medium text-gray-700">
-                Pincode *
+                Pincode <span className="text-[#D53B35]">*</span>
               </label>
               <input
                 type="text"
@@ -180,7 +180,7 @@ const AddressForm = ({ initialData = null, onClose, inline = false }) => {
 
             <div className="md:col-span-2">
               <label className="text-sm font-medium text-gray-700">
-                Address *
+                Address <span className="text-[#D53B35]">*</span>
               </label>
               <textarea
                 name="street"
@@ -195,7 +195,7 @@ const AddressForm = ({ initialData = null, onClose, inline = false }) => {
 
             <div>
               <label className="text-sm font-medium text-gray-700">
-                City *
+                City <span className="text-[#D53B35]">*</span>
               </label>
               <input
                 type="text"
@@ -211,7 +211,7 @@ const AddressForm = ({ initialData = null, onClose, inline = false }) => {
 
             <div>
               <label className="text-sm font-medium text-gray-700">
-                State *
+                State <span className="text-[#D53B35]">*</span>
               </label>
               <input
                 type="text"
@@ -228,7 +228,7 @@ const AddressForm = ({ initialData = null, onClose, inline = false }) => {
 
           {/* Address Type */}
           <div className="space-y-2">
-            <p className="text-sm font-medium text-gray-700">Address Type *</p>
+            <p className="text-sm font-medium text-gray-700">Address Type </p>
             <div className="flex flex-wrap gap-3">
               {[
                 { value: "Home", icon: <House size={16} /> },
@@ -276,16 +276,16 @@ const AddressForm = ({ initialData = null, onClose, inline = false }) => {
               <button
                 type="button"
                 onClick={onClose}
-                className="flex-1 px-6 py-3 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50"
+                className="flex-1 px-6 py-3 border border-[#1C3753] rounded-lg text-[#1C3753] font-medium hover:bg-gray-50"
               >
                 Cancel
               </button>
             )}
             <button
               type="submit"
-              className="flex-1 px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700"
+              className="flex-1 px-6 py-3 bg-[#1C3753] text-white font-medium rounded-lg hover:bg-[#101f30]"
             >
-              {initialData ? "Update Address" : "Save Address"}
+              {initialData ? "Update Address" : "Save"}
             </button>
           </div>
         </form>

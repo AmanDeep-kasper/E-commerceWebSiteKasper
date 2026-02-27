@@ -16,6 +16,13 @@ function Card({ cardData = [] }) {
   const { wishlistItems } = useSelector((w) => w.wishlist);
   const [loadingIds, setLoadingIds] = useState([]);
 
+  const calcAvgRating = (reviews = []) => {
+    if (!Array.isArray(reviews) || reviews.length === 0) return 0;
+
+    const total = reviews.reduce((sum, r) => sum + Number(r?.rating || 0), 0);
+    return total / reviews.length;
+  };
+
   const handleAddToCart = (item, defaultVariant) => {
     // Mark this item as loading
     setLoadingIds((prev) => [...prev, item.uuid]);
@@ -27,9 +34,7 @@ function Card({ cardData = [] }) {
       title: item.title,
       basePrice: defaultVariant.price,
       discountPercent: item.discountPercent,
-      // stockQuantity: defaultVariant.stockQuantity,
-      // stockQuantity: defaultVariant.variantQuantity,
-       stockQuantity: variant.variantQuantity,
+      stockQuantity: defaultVariant?.variantQuantity ?? 0,
 
       // SAFE IMAGE HANDLING
       image:
@@ -98,7 +103,7 @@ function Card({ cardData = [] }) {
 
           const inCart = cartItems.some(
             (i) =>
-              i.uuid === item.uuid && i.variantId === defaultVariant.variantId
+              i.uuid === item.uuid && i.variantId === defaultVariant.variantId,
           );
           const isLoading = loadingIds.includes(item.uuid);
 
@@ -108,7 +113,7 @@ function Card({ cardData = [] }) {
               onClick={() =>
                 navigate(`/product/${encodeURIComponent(item.uuid)}`)
               }
-              className="relative group flex flex-col lg:justify-between items-center bg-white sm:h-[333px] max-sm:h-max overflow-hidden group lg:hover:drop-shadow-md aspect-4/3 object-top cursor-pointer border border-gray-200"
+              className="relative group flex flex-col lg:justify-between items-center bg-white rounded-lg sm:h-[333px] max-sm:h-max overflow-hidden group lg:hover:drop-shadow-md aspect-4/3 object-top cursor-pointer border border-gray-200"
             >
               {/* {cartItems.some(i => i.uuid === item.uuid && i.variantId === item.variantId) && <div className="absolute bg-white/70 px-2 py-1 rounded-full text-xs top-1 left-1 z-20 backdrop-blur-xl h-8 w-8 flex items-center"><ShoppingCart size={16}/></div>} */}
 
@@ -119,13 +124,13 @@ function Card({ cardData = [] }) {
                   wishlistItems.some(
                     (i) =>
                       i.uuid === item.uuid &&
-                      i.variantId === defaultVariant.variantId
+                      i.variantId === defaultVariant.variantId,
                   )
                     ? dispatch(
                         removeFromWishlist({
                           uuid: item.uuid,
                           variantId: defaultVariant.variantId,
-                        })
+                        }),
                       )
                     : dispatch(
                         addToWishlist({
@@ -144,7 +149,7 @@ function Card({ cardData = [] }) {
                             type: defaultVariant.type,
                             dimension: defaultVariant.dimension,
                           },
-                        })
+                        }),
                       );
                 }}
               >
@@ -154,7 +159,7 @@ function Card({ cardData = [] }) {
                     wishlistItems.some(
                       (i) =>
                         i.uuid === item.uuid &&
-                        i.variantId === defaultVariant.variantId
+                        i.variantId === defaultVariant.variantId,
                     )
                       ? "red"
                       : "white"
@@ -163,7 +168,7 @@ function Card({ cardData = [] }) {
                     wishlistItems.some(
                       (i) =>
                         i.uuid === item.uuid &&
-                        i.variantId === defaultVariant.variantId
+                        i.variantId === defaultVariant.variantId,
                     )
                       ? "red"
                       : "black"
@@ -177,8 +182,8 @@ function Card({ cardData = [] }) {
                   imageUrl.startsWith("http")
                     ? imageUrl
                     : imageUrl.startsWith("/")
-                    ? imageUrl
-                    : `http://localhost:5000${imageUrl}`
+                      ? imageUrl
+                      : `http://localhost:5000${imageUrl}`
                 }
                 alt={item?.title || "Product"}
               />
@@ -188,21 +193,20 @@ function Card({ cardData = [] }) {
                   {item.title || "Untitled Product"}
                 </p>
 
-                {item.tags && (
-                  <p className="absolute top-2 text-[10px] lg:hidden text-white py-0.5 px-1 bg-[#e99000] rounded-sm w-max">
-                    {/* {item.tags.join(", ")} */}
+                {/* {item.tags && (
+                  <p className="absolute top-2 text-[10px] lg:hidden text-white py-0.5 px-1 bg-[#1C3753] rounded-sm w-max">
                     {item.tags[0]}
                   </p>
-                )}
+                )} */}
 
-                {item.reviews && (
+                {/* {item.reviews && (
                   <div className="lg:hidden flex gap-2 items-center">
                     <Ratings avgRating={item.reviews?.length || 0} />
                     <p className="text-[10px] text-[#383838]">
                       ({item.reviews?.length || "0"})
                     </p>
                   </div>
-                )}
+                )} */}
                 <div>
                   {/* {item.amazonPrice && (
                     <p className="text-[#aa2f1f] text-sm">
@@ -210,26 +214,37 @@ function Card({ cardData = [] }) {
                     </p>
                   )} */}
                   <div className="flex items-center flex-wrap gap-2">
-                    <span className="text-gray-900 font-medium tracking-tight">
+                    <span className="text-gray-900 font-medium text-lg tracking-tight">
                       {formatPrice(effective)}
                     </span>
 
                     {discountPercent > 0 && (
                       <>
-                        <span className="text-gray-400 text-xs line-through font-light">
+                        {/* <span className="text-gray-400 text-xs line-through font-light">
                           {formatPrice(base)}
-                        </span>
-                        <span className="bg-green-700 text-white text-xs px-2 py-0.5 rounded">
+                        </span> */}
+                        <span className="text-[#168408] text-sm">
                           {discountPercent}% Off
                         </span>
                       </>
                     )}
                   </div>
+                  <span className="text-gray-400 text-xs line-through font-light">
+                    {formatPrice(base)}
+                  </span>
                 </div>
+                {Array.isArray(item?.reviews) && item.reviews.length > 0 && (
+                  <div className="lg:hidden flex gap-2 items-center">
+                    <Ratings avgRating={calcAvgRating(item.reviews)} />
+                    <p className="text-[10px] text-[#383838]">
+                      ({item.reviews.length})
+                    </p>
+                  </div>
+                )}
 
-                <p className="text-[10px] lg:hidden ">
+                {/* <p className="text-[10px] lg:hidden ">
                   Delivery in {item.deliverBy || "3-5"} days
-                </p>
+                </p> */}
 
                 {/* {item.color?.[0] && (
                   <div
@@ -253,12 +268,12 @@ function Card({ cardData = [] }) {
                     ))}
                   </div>
                 )} */}
-                <div
+                {/* <div
                   className={twMerge(
-                    "w-4 h-4 ring-2 max-xl:hidden ring-[#BEBEBE] ring-offset-2 ml-1 rounded-full",
-                    colorMap[defaultVariant?.color] || "bg-gray-300"
+                    "w-4 h-4 ring-2 max-xl:hidden ring-[#BEBEBE] ring-offset-2 ml-1 mb-2 rounded-full",
+                    colorMap[defaultVariant?.color] || "bg-gray-300",
                   )}
-                />
+                /> */}
 
                 {/* <div
                   onClick={(e) => {
@@ -284,7 +299,7 @@ function Card({ cardData = [] }) {
                       Out of Stock
                     </button>
                   ) : inCart ? (
-                    <div className="flex items-center w-full text-xs justify-between gap-2 px-2 ring-2 ring-[#D49A06]/50 p-1 rounded-full">
+                    <div className="flex items-center w-full text-xs justify-between gap-2 px-2 ring-2 ring-[#1C3753]/50 p-1 rounded-full">
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
@@ -292,7 +307,7 @@ function Card({ cardData = [] }) {
                             decreaseQty({
                               uuid: item.uuid,
                               variantId: defaultVariant.variantId,
-                            })
+                            }),
                           );
                         }}
                         className="w-6 h-6 flex items-center justify-center"
@@ -301,7 +316,7 @@ function Card({ cardData = [] }) {
                         {cartItems.find(
                           (i) =>
                             i.uuid === item.uuid &&
-                            i.variantId === defaultVariant.variantId
+                            i.variantId === defaultVariant.variantId,
                         )?.quantity === 1 ? (
                           <Trash2 size={16} />
                         ) : (
@@ -313,7 +328,7 @@ function Card({ cardData = [] }) {
                         {cartItems.find(
                           (i) =>
                             i.uuid === item.uuid &&
-                            i.variantId === defaultVariant.variantId
+                            i.variantId === defaultVariant.variantId,
                         )?.quantity || 0}
                       </span>
 
@@ -324,7 +339,7 @@ function Card({ cardData = [] }) {
                             increaseQty({
                               uuid: item.uuid,
                               variantId: defaultVariant.variantId,
-                            })
+                            }),
                           );
                         }}
                         className="w-6 h-6 flex items-center justify-center"
@@ -333,7 +348,7 @@ function Card({ cardData = [] }) {
                           cartItems.find(
                             (i) =>
                               i.uuid === item.uuid &&
-                              i.variantId === defaultVariant.variantId
+                              i.variantId === defaultVariant.variantId,
                           )?.quantity >= variantStock
                         }
                       >
@@ -347,7 +362,7 @@ function Card({ cardData = [] }) {
                         handleAddToCart(item, defaultVariant);
                       }}
                       disabled={isLoading}
-                      className="px-4 py-2 bg-[#ebb100] text-xs w-full text-center text-black rounded-full"
+                      className="px-4 py-2 bg-[#1C3753] text-xs w-full text-center rounded-lg text-white"
                     >
                       {isLoading ? (
                         <div className="flex items-center gap-2">

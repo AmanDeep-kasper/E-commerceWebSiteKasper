@@ -29,16 +29,25 @@ const accountDetails = [
 ];
 
 function UserProfile({ setIsProfileOpen }) {
-  // ✅ Redux state
+  //  Redux state
   const { user, isAuthenticated } = useSelector((state) => state.user);
 
+  // console.log(user);
   return (
     <div className="h-max md:w-[413px] sm:w-[350px] w-[280px] overflow-hidden mx-auto bg-white z-50">
       {/* Top section: user icon and welcome message */}
       <div className="flex gap-4 items-center px-4 py-5 border-b border-gray-200 cursor-default">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center">
-            <UserRound size={20} className="text-amber-600" />
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-[#D5E5F5] flex items-center justify-center">
+            {user?.profileImage ? (
+              <img
+                src={user?.profileImage}
+                alt="UserImage"
+                className=" rounded-full"
+              />
+            ) : (
+              <UserRound size={20} className="text-[#1C3753]" />
+            )}
           </div>
           <div>
             <p className="font-medium text-gray-900">{user?.name || "Guest"}</p>
@@ -58,7 +67,7 @@ function UserProfile({ setIsProfileOpen }) {
             onClick={() => setIsProfileOpen(false)}
             className={({ isActive }) =>
               `flex items-center gap-4 p-3 my-1 rounded-lg transition-colors duration-200 group ${
-                isActive ? "bg-yellow-50" : "hover:bg-gray-50"
+                isActive ? "bg-[#e8eff7]" : "hover:bg-gray-50"
               }`
             }
           >
@@ -67,22 +76,22 @@ function UserProfile({ setIsProfileOpen }) {
                 <div
                   className={`p-2 rounded-lg transition-colors duration-200 ${
                     isActive
-                      ? "bg-yellow-100"
-                      : "bg-gray-100 group-hover:bg-yellow-100"
+                      ? "bg-[#D5E5F5]"
+                      : "bg-[#D5E5F5] group-hover:bg-[#D5E5F5]"
                   }`}
                 >
                   <Icon
                     className={`w-5 h-5 ${
                       isActive
-                        ? "text-yellow-600"
-                        : "text-gray-600 group-hover:text-yellow-600"
+                        ? "text-[#1C3753]"
+                        : "text-gray-600 group-hover:text-[#1C3753]"
                     }`}
                   />
                 </div>
                 <div className="flex-1">
                   <h2
-                    className={`font-medium text-sm ${
-                      isActive ? "text-yellow-700" : "text-gray-800"
+                    className={`font-medium text-[16px] ${
+                      isActive ? "text-[#1C3753]" : "text-gray-800"
                     }`}
                   >
                     {listName}

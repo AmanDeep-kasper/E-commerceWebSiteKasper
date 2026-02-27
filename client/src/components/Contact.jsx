@@ -7,7 +7,7 @@ function ContactSection() {
     email: "",
     phone: "",
     subject: "",
-    message: ""
+    message: "",
   });
 
   const handleInputChange = (e) => {
@@ -29,7 +29,9 @@ function ContactSection() {
           <div className="lg:col-span-2">
             <div className="p-6 border-b border-gray-200 bg-gray-50">
               <div>
-                <h1 className="text-lg sm:text-xl font-semibold text-gray-800">Contact Us</h1>
+                <h1 className="text-lg sm:text-xl font-semibold text-gray-800">
+                  Contact Us
+                </h1>
                 <p className="text-sm text-gray-500 mt-1">
                   We'd love to hear from you. Fill out this form below.
                 </p>
@@ -50,7 +52,7 @@ function ContactSection() {
                   id="name"
                   value={formData.name}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1C3753] focus:border-[#1C3753] outline-none transition"
                   placeholder="John Doe"
                   required
                 />
@@ -69,7 +71,7 @@ function ContactSection() {
                   id="email"
                   value={formData.email}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1C3753] focus:border-[#1C3753] outline-none transition"
                   placeholder="your@email.com"
                   required
                 />
@@ -81,14 +83,14 @@ function ContactSection() {
                   htmlFor="phone"
                   className="block text-sm font-medium text-gray-700 mb-2"
                 >
-                  Phone Number
+                  Mobile Number <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="tel"
                   id="phone"
                   value={formData.phone}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1C3753] focus:border-[#1C3753] outline-none transition"
                   placeholder="1234567890"
                   pattern="[0-9]{10}"
                   maxLength="10"
@@ -96,7 +98,7 @@ function ContactSection() {
               </div>
 
               {/* Subject */}
-              <div>
+              {/* <div>
                 <label
                   htmlFor="subject"
                   className="block text-sm font-medium text-gray-700 mb-2"
@@ -108,10 +110,35 @@ function ContactSection() {
                   id="subject"
                   value={formData.subject}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1C3753] focus:border-[#1C3753] outline-none transition"
                   placeholder="Your query subject"
                   required
                 />
+              </div> */}
+              {/* Subject */}
+              <div>
+                <label
+                  htmlFor="subject"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
+                  Subject <span className="text-red-500">*</span>
+                </label>
+
+                <select
+                  id="subject"
+                  value={formData.subject}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm bg-white focus:ring-2 focus:ring-[#1C3753] focus:border-[#1C3753] outline-none transition"
+                  required
+                >
+                  <option value="">Select subject</option>
+                  <option value="Order Issue">Order Issue</option>
+                  <option value="Payment Issue">Payment Issue</option>
+                  <option value="Return / Replace">Return / Replace</option>
+                  <option value="Product Query">Product Query</option>
+                  <option value="Technical Support">Technical Support</option>
+                  <option value="Other">Other</option>
+                </select>
               </div>
 
               {/* Message */}
@@ -127,7 +154,7 @@ function ContactSection() {
                   rows={4}
                   value={formData.message}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1C3753] focus:border-[#1C3753] outline-none transition"
                   placeholder="Write your message..."
                   required
                 />
@@ -136,7 +163,7 @@ function ContactSection() {
               {/* Submit */}
               <button
                 type="submit"
-                className="w-full md:w-auto px-6 py-3 text-sm font-medium bg-[#212121] text-white rounded-lg shadow-sm hover:bg-black transition flex items-center justify-center"
+                className="w-full md:w-auto px-6 py-3 text-sm font-medium bg-[#1C3753] text-white rounded-lg shadow-sm hover:bg-black transition flex items-center justify-center"
               >
                 <Send className="w-4 h-4 mr-2" />
                 Submit
@@ -145,18 +172,20 @@ function ContactSection() {
           </div>
 
           {/* ===== Right: Contact Info ===== */}
-          <div className="p-8 flex flex-col justify-center bg-gradient-to-b from-yellow-50 to-white space-y-6">
+          <div className="p-8 flex flex-col justify-center bg-gradient-to-b from-[#D5E5F5] to-white space-y-6">
             <div className="text-center mb-1">
-              <h2 className="text-lg font-semibold text-gray-800">Get in Touch</h2>
+              <h2 className="text-lg font-semibold text-gray-800">
+                Get in Touch
+              </h2>
               <p className="text-sm text-gray-500 mt-1">
                 We're here to help with any questions
               </p>
             </div>
-            
-            <div className="w-full bg-white rounded-lg p-5 border border-gray-200 shadow-sm space-y-5">
-              <div className="flex items-center gap-4 p-3 bg-gray-50 rounded-lg">
-                <div className="p-2 bg-blue-100 rounded-lg">
-                  <Mail className="w-5 h-5 text-blue-600" />
+
+            <div className="w-full bg-[#F6F8F9] rounded-lg p-5 border border-gray-200 shadow-sm space-y-3">
+              <div className="flex items-center gap-4 p-3 bg-white rounded-lg">
+                <div className="p-2 bg-[#F5F8FA] rounded-lg">
+                  <Mail className="w-5 h-5 text-[#1C3753]" />
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-700">Email</p>
@@ -164,9 +193,9 @@ function ContactSection() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-4 p-3 bg-gray-50 rounded-lg">
-                <div className="p-2 bg-green-100 rounded-lg">
-                  <Phone className="w-5 h-5 text-green-600" />
+              <div className="flex items-center gap-4 p-3 bg-white rounded-lg">
+                <div className="p-2 bg-[#F5F8FA] rounded-lg">
+                  <Phone className="w-5 h-5 text-[#1C3753]" />
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-700">Phone</p>
@@ -174,9 +203,9 @@ function ContactSection() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-4 p-3 bg-gray-50 rounded-lg">
-                <div className="p-2 bg-red-100 rounded-lg">
-                  <MapPin className="w-5 h-5 text-red-600" />
+              <div className="flex items-center gap-4 p-3 bg-white rounded-lg">
+                <div className="p-2 bg-[#F5F8FA] rounded-lg">
+                  <MapPin className="w-5 h-5 text-[#1C3753]" />
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-700">Address</p>
@@ -184,18 +213,20 @@ function ContactSection() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-4 p-3 bg-gray-50 rounded-lg">
-                <div className="p-2 bg-purple-100 rounded-lg">
-                  <Clock className="w-5 h-5 text-purple-600" />
+              <div className="flex items-center gap-4 p-3 bg-white rounded-lg">
+                <div className="p-2 bg-[#F5F8FA] rounded-lg">
+                  <Clock className="w-5 h-5 text-[#1C3753]" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-700">Working Hours</p>
+                  <p className="text-sm font-medium text-gray-700">
+                    Working Hours
+                  </p>
                   <p className="text-sm text-gray-500">Mon - Fri, 9am - 6pm</p>
                 </div>
               </div>
             </div>
-            
-            <div className="text-xs text-gray-400 mt-4 text-center">
+
+            <div className="text-xs text-[#686868] mt-4 text-center">
               We typically respond within 24 hours
             </div>
           </div>
@@ -205,4 +236,4 @@ function ContactSection() {
   );
 }
 
-export default ContactSection
+export default ContactSection;

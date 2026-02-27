@@ -1,4 +1,4 @@
-import { Wallet, Camera } from "lucide-react";
+import { Wallet, Camera, LogOut } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import axiosInstance from "../api/axiosInstance";
 import { Link, NavLink } from "react-router";
@@ -78,9 +78,9 @@ function AccountSidebar() {
   };
 
   return (
-    <div className="sticky top-20 h-max min-w-[310px] !w-[310px] bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200">
+    <div className="sticky top-20 h-max min-w-[310px] !w-[310px] bg-white rounded-lg shadow-sm overflow-hidden ">
       {/* Account holder */}
-      <div className="px-6 py-4 flex gap-4 items-center text-white bg-[#E4C590] border-l-black rounded-b-3xl rounded-t-lg m-1">
+      <div className="px-6 py-4 flex gap-4 items-center text-white bg-[#D5E5F5] border-l-black rounded-b-3xl rounded-t-lg m-1">
         <div className="relative group w-14 h-14 rounded-full overflow-hidden border-2 border-white/90 hover:border-white/50 transition-all duration-300">
           <img
             src={image || "/name1.jpg"}
@@ -117,18 +117,18 @@ function AccountSidebar() {
           </h3>
           <ul className="space-y-1">
             {accountMenu.map(({ label, path, icon: Icon }) => (
-              <li key={label}>
+              <li key={label} >
                 <NavLink
                   to={`/accounts${path}`}
                   className={({ isActive }) =>
                     `flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
                       isActive
-                        ? "bg-amber-50 text-amber-800"
+                        ? "bg-[#F5F8FA] text-[#1C3753] border-l-4 border-[#1C3753]"
                         : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
                     }`
                   }
                 >
-                  {Icon && <Icon className="w-5 h-5 mr-3 opacity-70" />}
+                  {Icon && <Icon className="w-5 h-5 mr-3 " />}
                   {label}
                 </NavLink>
               </li>
@@ -177,33 +177,12 @@ function AccountSidebar() {
         <hr />
         <button
           onClick={handleLogout}
-          className="w-full flex items-center px-3 py-3 mt-1 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200 group"
+          className="w-full flex items-center px-3 py-3 mt-1 text-lg font-normal text-[#1C1C1C] hover:bg-[#D5E5F5] rounded-lg transition-all duration-200 group"
         >
-          <div className="p-1.5 mr-3 bg-red-100 rounded-lg group-hover:bg-red-200 transition-all duration-200">
-            <svg
-              fill="#DC2626"
-              height="18px"
-              width="18px"
-              viewBox="0 0 325.214 325.214"
-              className="transition-all duration-200"
-            >
-              <g>
-                <path
-                  d="M288.777,93.565c-15.313-23.641-36.837-42.476-62.243-54.472c-1.616-0.763-3.109-1.134-4.564-1.134
-                      c-1.969,0-8.392,0.833-8.392,11.541v17.75c0,8.998,5.479,13.113,7.159,14.16c32.613,20.33,52.083,55.317,52.083,93.59
-                      c0,60.772-49.442,110.214-110.214,110.214S52.393,235.772,52.393,175c0-38.872,19.942-74.144,53.346-94.353
-                      c4.475-2.707,6.839-7.426,6.839-13.647V49c0-7.959-5.077-10.783-9.424-10.783c-1.714,0-3.542,0.422-5.144,1.188
-                      C72.781,51.471,51.42,70.305,36.237,93.872C20.638,118.084,12.393,146.137,12.393,175c0,82.828,67.386,150.214,150.214,150.214
-                      S312.821,257.828,312.821,175C312.821,146.008,304.507,117.848,288.777,93.565z"
-                />
-                <path
-                  d="M152.579,117h21c5.514,0,10-4.486,10-10V10c0-5.514-4.486-10-10-10h-21c-5.514,0-10,4.486-10,10v97
-                      C142.579,112.514,147.064,117,152.579,117z"
-                />
-              </g>
-            </svg>
+          <div className="p-1.5 mr-3 bg-[#D5E5F5] text-[#1C3753] rounded-lg group-hover:bg-[#D5E5F5] transition-all duration-200">
+            <LogOut />
           </div>
-          Logout
+          Log Out
         </button>
       </div>
     </div>

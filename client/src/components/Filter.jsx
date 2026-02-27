@@ -43,10 +43,10 @@ function Filter({
             .filter(
               (item) =>
                 item.category.trim().toLowerCase() ===
-                categoryName.trim().toLowerCase()
+                categoryName.trim().toLowerCase(),
             )
             .map((item) => item.subcategory?.trim())
-            .filter(Boolean)
+            .filter(Boolean),
         ),
       ];
       setFilterSubcategories(matchedSubcategories);
@@ -81,71 +81,98 @@ function Filter({
     };
   }, [showModal]);
 
+  const [filteropen, setFilterOpen] = useState(false);
+  const [subopen, setSubOpen] = useState(false);
+  const [open, setOpen] = useState(false);
 
-  
   // 🟡 Shared content (used in both desktop + mobile)
   const FiltersContent = ({ isMobile = false }) => (
     <>
       {/* Filters */}
-      <div className="mb-6 max-lg:hidden">
-        <h1 className="text-lg sm:text-xl font-semibold text-gray-800 flex justify-between items-center border-b border-gray-300 pb-2">
+      <div className="mb-6 max-lg:hidden border-b pb-2">
+        {/* <h1 className="text-lg sm:text-xl font-semibold text-gray-800 flex justify-between items-center border-b border-gray-300 pb-2">
           Filters
-        </h1>
-        <div className="flex flex-wrap gap-2 mt-3">
-          {sortOptions.map(({ label, value }) => (
-            <button
-              key={value}
-              className={`px-3 py-1.5 whitespace-nowrap rounded-full text-sm transition ${
-                selectedSort === label
-                  ? "bg-yellow-500 text-white cursor-default"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              }`}
-              onClick={() => {
-                setSelectedSort(label);
-                sort(value);
-                setSortOpen(false);
-              }}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
+        </h1> */}
+        <button
+          type="button"
+          onClick={() => setFilterOpen((prev) => !prev)}
+          className="w-full text-lg sm:text-xl font-medium text-gray-800 flex justify-between items-center"
+        >
+          <span>Filters</span>
+          <ChevronDown
+            className={`h-5 w-5 transition-transform duration-200 ${
+              filteropen ? "rotate-180" : ""
+            }`}
+          />
+        </button>
+        {filteropen && (
+          <div className="flex flex-wrap gap-2 mt-3">
+            {sortOptions.map(({ label, value }) => (
+              <button
+                key={value}
+                className={`px-3 py-1.5 whitespace-nowrap rounded-full text-sm transition ${
+                  selectedSort === label
+                    ? "bg-[#D5E5F5] text-black cursor-default"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+                onClick={() => {
+                  setSelectedSort(label);
+                  sort(value);
+                  setSortOpen(false);
+                }}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
       {/* Categories */}
-      <div className="mb-6">
-        <h1 className="text-lg sm:text-xl font-semibold text-gray-800 flex justify-between items-center border-b border-gray-300 pb-2">
-          Categories
-        </h1>
-        <div className="flex flex-wrap gap-2 mt-3">
-          {filterSubcategories.map((subcat, index) => (
-            <button
-              key={index}
-              className={`px-3 py-1.5 whitespace-nowrap rounded-full text-sm transition ${
-                (isMobile ? tempCategory : selectedCategory) === subcat
-                  ? "bg-yellow-500 text-white cursor-default"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              }`}
-              onClick={() =>
-                isMobile
-                  ? setTempCategory(subcat)
-                  : (() => {
-                      setSelectedCategory(subcat);
-                      navigate(
-                        `/products/${encodeURIComponent(categoryName)}/${
-                          subcat === "All" ? "" : encodeURIComponent(subcat)
-                        }`
-                      );
-                    })()
-              }
-            >
-              {subcat}
-            </button>
-          ))}
-        </div>
+      <div className="mb-6 border-b pb-2">
+        <button
+          type="button"
+          onClick={() => setSubOpen((prev) => !prev)}
+          className="w-full text-lg sm:text-xl font-medium text-gray-800 flex justify-between items-center"
+        >
+          <span>Sub-Categories</span>
+          <ChevronDown
+            className={`h-5 w-5 transition-transform duration-200 ${
+              subopen ? "rotate-180" : ""
+            }`}
+          />
+        </button>
+        {subopen && (
+          <div className="flex flex-wrap gap-2 mt-3">
+            {filterSubcategories.map((subcat, index) => (
+              <button
+                key={index}
+                className={`px-3 py-1.5 whitespace-nowrap rounded-full text-sm transition ${
+                  (isMobile ? tempCategory : selectedCategory) === subcat
+                    ? "bg-[#D5E5F5] text-black cursor-default"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+                onClick={() =>
+                  isMobile
+                    ? setTempCategory(subcat)
+                    : (() => {
+                        setSelectedCategory(subcat);
+                        navigate(
+                          `/products/${encodeURIComponent(categoryName)}/${
+                            subcat === "All" ? "" : encodeURIComponent(subcat)
+                          }`,
+                        );
+                      })()
+                }
+              >
+                {subcat}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Colors */}
-      <div className="mb-6">
+      {/* <div className="mb-6">
         <h1 className="text-lg sm:text-xl font-semibold text-gray-800 flex justify-between items-center border-b border-gray-300 pb-2">
           Colors
         </h1>
@@ -158,12 +185,12 @@ function Filter({
                 colorCode,
                 (isMobile ? tempColor : val) === colorName
                   ? "ring-yellow-500 scale-110"
-                  : "ring-gray-300"
+                  : "ring-gray-300",
               )}
               onClick={() =>
                 isMobile
                   ? setTempColor((prev) =>
-                      prev === colorName ? "" : colorName
+                      prev === colorName ? "" : colorName,
                     )
                   : setColor((prev) => (prev === colorName ? "" : colorName))
               }
@@ -171,6 +198,55 @@ function Filter({
             ></div>
           ))}
         </div>
+      </div> */}
+
+      <div className="mb-6">
+        {/* Dropdown Header */}
+        <button
+          type="button"
+          onClick={() => setOpen((prev) => !prev)}
+          className="w-full text-lg sm:text-xl font-medium text-gray-800 flex justify-between items-center"
+        >
+          <span>Colors</span>
+          <ChevronDown
+            className={`h-5 w-5 transition-transform duration-200 ${
+              open ? "rotate-180" : ""
+            }`}
+          />
+        </button>
+
+        {/* Dropdown Content */}
+        {open && (
+          <div className="flex flex-wrap gap-2 mt-3">
+            {colors.map(({ colorName }) => {
+              const isActive = (isMobile ? tempColor : val) === colorName;
+
+              return (
+                <button
+                  key={colorName}
+                  type="button"
+                  className={twMerge(
+                    "text-left px-2 py-1 border rounded-md transition text-xs",
+                    isActive
+                      ? "bg-[#D5E5F5]  text-black font-medium"
+                      : "border-gray-300 hover:bg-gray-100",
+                  )}
+                  onClick={() =>
+                    isMobile
+                      ? setTempColor((prev) =>
+                          prev === colorName ? "" : colorName,
+                        )
+                      : setColor((prev) =>
+                          prev === colorName ? "" : colorName,
+                        )
+                  }
+                >
+                  {colorName}
+                </button>
+              );
+            })}
+          </div>
+        )}
       </div>
     </>
   );
@@ -259,7 +335,7 @@ function Filter({
                   Clear
                 </button>
                 <button
-                  className="flex-1 py-2 bg-yellow-500 text-white rounded-md"
+                  className="flex-1 py-2 bg-[#1C3753] text-white rounded-md"
                   onClick={() => {
                     // apply changes
                     setSelectedCategory(tempCategory);
@@ -269,7 +345,7 @@ function Filter({
                         tempCategory === "All"
                           ? ""
                           : encodeURIComponent(tempCategory)
-                      }`
+                      }`,
                     );
                     setShowModal(false);
                   }}

@@ -5,11 +5,8 @@ const AddCategoryPopUp = ({
   setShowCategoryModal,
   categories,
   setCategories,
-  // subcategories,
-  // setSubcategories,
 }) => {
   const [categoryInput, setCategoryInput] = useState("");
-  // const [subCategoryInput, setSubCategoryInput] = useState("");
 
   const handleSave = () => {
     if (!categoryInput.trim()) {
@@ -26,7 +23,6 @@ const AddCategoryPopUp = ({
     }
 
     setCategories([...categories, categoryInput.trim()]);
-    // setSubcategories([...subcategories, subCategoryInput.trim()]);
 
     toast.success("Category added successfully!", {
       className: "bg-[#EEFFEF] text-black rounded-lg",
@@ -40,7 +36,6 @@ const AddCategoryPopUp = ({
 
     setShowCategoryModal(false);
     setCategoryInput("");
-    // setSubCategoryInput("");
   };
 
   return (
@@ -48,7 +43,6 @@ const AddCategoryPopUp = ({
       <div className="bg-white p-6 rounded-lg w-[40%] relative">
         <h2 className="text-xl font-semibold mb-4">Add Category</h2>
 
-        {/* Category Input */}
         <label className="block text-black text-[14px] font-medium mb-2">
           Category Name
         </label>
@@ -59,18 +53,6 @@ const AddCategoryPopUp = ({
           onChange={(e) => setCategoryInput(e.target.value)}
           className="w-full border p-2 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-blue-200"
         />
-
-        {/* Subcategory Input
-        <label className="block text-black text-[14px] font-medium mb-2">
-          Sub Category
-        </label>
-        <input
-          type="text"
-          placeholder="Sub Category Name"
-          value={subCategoryInput}
-          onChange={(e) => setSubCategoryInput(e.target.value)}
-          className="w-full border p-2 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-blue-200"
-        /> */}
 
         {/* Buttons */}
         <div className="flex justify-end gap-4 mt-6">
@@ -83,7 +65,7 @@ const AddCategoryPopUp = ({
           </button>
           <button
             type="button"
-            className="px-6 py-2 bg-amber-600 rounded-lg text-white font-medium hover:bg-amber-700"
+            className="px-6 py-2 bg-[#1C3753] rounded-lg text-white font-medium hover:bg-[#1C3753]"
             onClick={handleSave}
           >
             Save

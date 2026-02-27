@@ -1,34 +1,28 @@
 import Category from "../models/Category.js";
 
-/**
- * Adds a new category or updates existing one with subcategory.
- * @param {string} categoryName
- * @param {string} subcategoryName
- */
-export const syncCategoryWithProduct = async (
-  categoryName,
-  subcategoryName
-) => {
-  const existingCategory = await Category.findOne({ name: categoryName });
+// GET /categories
+export const getAllCategories = async (req, res) => {
+  try {
+    const categories = await Category.find({}, { name: 1, subcategories: 1, _id: 0 })
+      .sort({ name: 1 });
 
-  if (!existingCategory) {
-    // Create new category with initial subcategory
-    await Category.create({
-      name: categoryName,
-      subcategories: [subcategoryName],
-    });
-  } else if (!existingCategory.subcategories.includes(subcategoryName)) {
-    // Add subcategory if it's new
-    existingCategory.subcategories.push(subcategoryName);
-    await existingCategory.save();
+    return res.status(200).json({ success: true, categories });
+  } catch (err) {
+    return res.status(500).json({ success: false, error: err.message });
   }
 };
 
-export const getAllCategories = async (req, res) => {
-  try {
-    const categories = await Category.find();
-    res.status(200).json({ categories });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+// sync helper (use inside addProduct)
+export const syncCategoryWithProduct = async (categoryName, subcategoryName) => {
+  if (!categoryName) return;
+
+  const name = String(categoryName).trim();
+  const sub = String(subcategoryName || "").trim();
+
+  const update = { $setOnInsert: { name } };
+
+  // add subcategory only if provided
+  if (sub) update.$addToSet = { subcategories: sub };
+
+  await Category.updateOne({ name }, update, { upsert: true });
 };

@@ -1,13 +1,13 @@
 // import { twMerge } from "tailwind-merge";
 import { useEffect, useState } from "react";
-import hero1 from "../assets/hero1.png";
+import TopbannerImg from "../assets/TopBannerImg/TopBanner.png";
 import hero3 from "../assets/hero3.png";
 import hero4 from "../assets/hero4.png";
 import hero2 from "../assets/heroIcon2.png";
 import Offer from "../components/Offer";
 import { motion, useAnimation } from "framer-motion";
 import products from "../data/products.json";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { Link } from "react-router";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Autoplay } from "swiper/modules";
@@ -16,51 +16,6 @@ import { Navigation, Autoplay } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 import axiosInstance from "../api/axiosInstance";
-
-// import { useEffect } from "react";
-
-// const heros = [
-//   {
-//     id: 1,
-//     title: "Bismillah Wall Art",
-//     subtitle: "Grace Your Space with the Beauty of Bismillah.",
-//     img: hero1,
-//     size: "lg:h-[600px] md:h-[432px] md:object-top object-top-left w-full h-[300px]",
-//     align: "md:top-[20%] md:left-[55%] top-[35%] left-[20%]",
-//     btn: "md:left-[55%] right-4 top-[85%]",
-//   },
-//   {
-//     id: 2,
-//     title: "Crafted in Metal. Designed for Your Space.",
-//     subtitle:
-//       "Explore premium laser-cut wall art that brings life to your walls.",
-//     img: hero2,
-//     color: "bg-[#F0E7E0] md:justify-end ",
-//     size: "lg:w-[547px] lg:h-[547px] md:w-[388px] md:h-[388px] w-[167px] h-[167px] mt-4 mr-12",
-//     align: "md:top-12 top-[58%] left-12",
-//     btn: "md:left-12 right-4 top-[85%]",
-//   },
-//   {
-//     id: 3,
-//     title: "Art rooms Adiyogi Shiva Metal Wall Art",
-//     subtitle: "Transform walls into Sanctuaries of Peace & Power.",
-//     img: hero3,
-//     color: "bg-[#C2E0E4] md:justify-start",
-//     size: "lg:w-[511px] lg:h-[499px] md:w-[363px] md:h-[355px] w-[277px] h-[271px] lg:mt-28 md:mt-20 md:ml-8 mt-8  bg-[#FEDAB8B2]/70 rounded-t-full",
-//     align: "md:top-[20%] md:left-[50%] left-12 top-2",
-//     btn: "right-4 top-[85%]",
-//   },
-//   {
-//     id: 4,
-//     title: "Elevate Your Wall with Graceful Motion ",
-//     subtitle:
-//       "Explore our elegant 3-Bird Metal Wall Art handcrafted for timeless beauty.",
-//     img: hero4,
-//     size: "lg:h-[600px] md:h-[516px] w-full h-[298px] object-[50%] md:object-left-top",
-//     align: "md:top-[20%] md:left-[50%] left-12 top-2",
-//     btn: "right-4 top-[85%]",
-//   },
-// ];
 
 function Hero() {
   const [isHovered, setIsHovered] = useState(false);
@@ -72,7 +27,7 @@ function Hero() {
     const fetchProducts = async () => {
       try {
         const res = await axiosInstance.get("/products/all");
-        //  console.log("PRODUCTS:", res.data);
+        // console.log("PRODUCTS:", res.data);
         setselectedProducts(res.data);
       } catch (error) {
         console.log(error);
@@ -84,7 +39,7 @@ function Hero() {
 
   const selectedProducts = sideslider.filter(
     (item, index, self) =>
-      index === self.findIndex((obj) => obj.category === item.category)
+      index === self.findIndex((obj) => obj.category === item.category),
   );
 
   // console.log(selectedProducts)
@@ -123,7 +78,7 @@ function Hero() {
   // Manual navigation
   const handlePrev = () => {
     setImageIndex((prevIndex) =>
-      prevIndex === 0 ? selectedProducts.length - 1 : prevIndex - 1
+      prevIndex === 0 ? selectedProducts.length - 1 : prevIndex - 1,
     );
   };
 
@@ -234,20 +189,23 @@ function Hero() {
     <section className="w-full mx-auto sm:py-10 bg-gray-50 pb-1">
       <div className="mx-auto w-full flex flex-col-reverse md:flex-row md:gap-8 justify-center items-center px-0 sm:px-4 md:px-16 lg:px-20">
         {/* Left Section */}
-        <div className="w-full min-h-max max-md:py-4 md:min-h-[500px] flex flex-col md:flex-row items-center justify-center lg:justify-between sm:rounded-lg border overflow-hidden bg-[#FFE0C3] shadow-sm">
+        <div className="w-full min-h-max max-md:py-4 md:min-h-[500px] flex flex-col md:flex-row items-center justify-center lg:justify-between sm:rounded-lg border overflow-hidden bg-[#D5E5F5] shadow-sm">
           {/* Text Block */}
           <div className="flex flex-col gap-4 px-4 md:px-6 lg:px-8 text-center md:text-left">
-            <h1 className="text-[24px] sm:text-3xl md:text-[2.5rem] lg:text-[3rem] font-sans hero-title tracking-tight font-medium lg:w-[400px] !leading-[0.9]">
+            <h1 className="font-imprima text-[24px] sm:text-3xl md:text-[2.5rem] lg:text-[3rem] tracking-tight font-light lg:w-[400px] !leading-[1.2]">
               Modern Metal Art Designs
             </h1>
             <p className="text-[14px] sm:text-[18px] text-gray-800 lg:w-[400px]">
               Shop our exquisite collection of handcrafted metal designs.
             </p>
             <Link
-              className="w-max px-4 sm:px-8 py-2 sm:py-3 mt-4 text-[14px] sm:text-lg bg-gray-900 text-white rounded-full flex items-center gap-2 transition-all hover:gap-4 hover:shadow-lg mx-auto md:mx-0"
+              className="w-max px-4 sm:px-8 py-2 sm:py-3 mt-4 text-[14px] sm:text-lg bg-[#1C3753] text-white rounded-lg flex items-center gap-2 transition-all hover:gap-4 hover:shadow-lg mx-auto md:mx-0"
               to={`products`}
             >
-              Shop Collection <span className="text-sm">→</span>
+              Shop Collection{" "}
+              <span className="text-sm">
+                <ArrowRight />
+              </span>
             </Link>
           </div>
 
@@ -255,7 +213,7 @@ function Hero() {
           <div className="w-full max-lg:hidden lg:w-1/2 h-[250px] sm:h-[350px] md:h-[500px] bg-white flex items-center">
             <img
               className="w-full h-full object-cover"
-              src="/tree1.jpg"
+              src={TopbannerImg}
               alt="Metal Art"
             />
           </div>
@@ -311,7 +269,7 @@ function Hero() {
           <Swiper
             modules={[Navigation, Autoplay]}
             slidesPerView={1}
-            loop={selectedProducts.length > 1} // ✅ FIX
+            loop={selectedProducts.length > 1} // FIX
             navigation={{
               nextEl: ".swiper-next",
               prevEl: ".swiper-prev",
@@ -330,17 +288,21 @@ function Hero() {
           >
             {selectedProducts.map((product) => (
               <SwiperSlide key={product.uuid}>
+                {/* {console.log(product)} */}
                 <Link
                   to={`/products/${encodeURIComponent(product.category)}`}
                   className="relative w-full h-full block"
                 >
                   <img
                     className="h-full w-full object-cover mx-auto flex-shrink-0"
-                    src={product.images[0]}
-                    alt={product.category}
+                    src={
+                      product?.variants?.[0]?.variantImage?.[0] || TopbannerImg
+                    }
+                    alt={product?.category || "Category"}
                   />
-                  <span className="absolute text-sm sm:text-lg font-medium bottom-4 left-4 bg-white px-4 py-2 rounded-full border border-gray-200 shadow-lg flex items-center gap-2">
+                  <span className="absolute text-sm sm:text-lg font-medium bottom-4 left-4 bg-[#D5E5F5] px-4 py-2 rounded-lg border border-[#1C3753] shadow-lg flex items-center gap-2">
                     {product.category}
+                    <ArrowRight className="w-5 h-5" />
                   </span>
                 </Link>
               </SwiperSlide>

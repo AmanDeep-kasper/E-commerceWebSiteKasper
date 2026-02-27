@@ -1,4 +1,4 @@
-import { Minus, Plus, ShoppingCart, Trash2 } from "lucide-react";
+import { ChevronLeft, Minus, Plus, ShoppingCart, Trash2 } from "lucide-react";
 import PriceDetails from "../components/PriceDetails";
 import DeliveryDetailsDialog from "../components/DeliveryDetailsDialog";
 import { useState } from "react";
@@ -23,7 +23,7 @@ function Cart() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { cartItems, totalPrice, totalItems, totalDiscount } = useSelector(
-    (s) => s.cart
+    (s) => s.cart,
   );
   const dispatch = useDispatch();
   const closeDialog = () => setOpen(false);
@@ -35,7 +35,7 @@ function Cart() {
 
   // detect out of stock
   const hasOutOfStock = cartItems.some(
-    (item) => !item.stockQuantity || item.quantity > item.stockQuantity
+    (item) => !item.stockQuantity || item.quantity > item.stockQuantity,
   );
 
   // const hasOutOfStock = cartItems.some(
@@ -55,9 +55,13 @@ function Cart() {
             {/* Cart Items Section */}
             <div className=" bg-white md:rounded-lg shadow-sm">
               <div className="p-4 md:p-6 flex items-center justify-between border-b border-gray-200">
-                <h2 className="text-xl font-medium text-gray-800">
-                  Cart ({totalItems})
-                </h2>
+                <div className="text-xl font-medium flex items-center gap-2 text-gray-800">
+                  <Link to="/">
+                    {" "}
+                    <ChevronLeft className="w-7 h-7" />
+                  </Link>{" "}
+                  Shopping Cart ({totalItems})
+                </div>
                 {cartItems.length > 1 && (
                   <button
                     // onClick={() => dispatch(clearCart())}
@@ -112,7 +116,7 @@ function Cart() {
                       const base = Number(item.basePrice);
                       const effective = Number(item.effectivePrice);
 
-                     const isOutOfStock = item.stockQuantity <= 0;
+                      const isOutOfStock = item.stockQuantity <= 0;
 
                       const colorMap = {
                         black: "bg-black",
@@ -128,7 +132,7 @@ function Cart() {
                         >
                           <div className="flex flex-row md:gap-6 gap-4 ">
                             {/* Image + Qty */}
-                            <div className="flex flex-col items-center gap-2">
+                            <div className="flex flex-col  items-center gap-2">
                               <Link
                                 className="sm:w-36 sm:h-36 w-20 h-20 rounded-md overflow-hidden border border-gray-200"
                                 to={`/product/${item.uuid}`}
@@ -139,25 +143,6 @@ function Cart() {
                                   alt={item.title}
                                 />
                               </Link>
-
-                              {/* Qty Controls */}
-                              <div className="flex items-center justify-between w-full px-2 border-[#D49A06] ring-2 ring-[#D49A06]/50 shadow-md p-1 rounded-full transition-all ease-in">
-                                <button
-                                  onClick={() => dispatch(decreaseQty(item))}
-                                  className="w-4 h-4 flex items-center justify-center rounded-full transition-colors"
-                                >
-                                  {item.quantity === 1 ? <Trash2 /> : <Minus />}
-                                </button>
-                                <span className="w-6 text-center">
-                                  {item.quantity}
-                                </span>
-                                <button
-                                  onClick={() => dispatch(increaseQty(item))}
-                                  className="w-4 h-4 flex items-center justify-center rounded-full transition-colors"
-                                >
-                                  <Plus></Plus>
-                                </button>
-                              </div>
                             </div>
 
                             {/* Details */}
@@ -167,6 +152,21 @@ function Cart() {
                                   <h3 className="md:text-lg text-sm font-medium text-gray-800 line-clamp-2">
                                     {item.title}
                                   </h3>
+
+                                  <div className="flex flex-col text-sm">
+                                    <div className="text-[#686868]">
+                                      Color:{" "}
+                                      <span className="text-black">
+                                        {"gold"}
+                                      </span>
+                                    </div>
+                                    <div className="text-[#686868]">
+                                      Size:{" "}
+                                      <span className="text-black">
+                                        {"40X25 Inches"}
+                                      </span>
+                                    </div>
+                                  </div>
                                   {isOutOfStock && (
                                     <p className="text-red-600 text-sm mt-1">
                                       Currently Out of Stock
@@ -180,47 +180,81 @@ function Cart() {
                                 <span className="md:text-xl text-base font-semibold text-gray-800">
                                   {formatPrice(effective)}
                                 </span>
-                                <span className="text-gray-400 md:text-sm text-xs line-through">
+                                <span className="text-[#686868] md:text-sm text-xs line-through">
                                   {formatPrice(base)}
                                 </span>
-                                <span className="text-green-600 md:text-sm text-sm bg-green-50 px-2 py-0.5 rounded">
-                                  Save ₹
+                                {/* <span className="text-green-600 md:text-sm text-sm ">
+                                 
                                   {(
-                                    (item.discountPercent * item.basePrice) /
-                                    100
-                                  ).toFixed(2)}
+                                    ( item.basePrice - item.discountPercent) /
+                                   
+                                    (item.basePrice) *100
+                                  ).toFixed(2)} Off
+                                </span> */}
+                                <span className="text-green-600 text-sm">
+                                  {Math.round(
+                                    ((item.basePrice - item.discountPercent) /
+                                      item.basePrice) *
+                                      100,
+                                  )}
+                                  % Off
                                 </span>
                               </div>
 
-                              <div
+                              {/* <div
                                 className={twMerge(
                                   "md:w-4 w-3 md:h-4 h-3 ring-2 ring-[#BEBEBE] ring-offset-2 ml-1 my-2 rounded-full transition-all duration-150 ease-in-out",
                                   colorMap[item.selectedOptions?.color] ||
-                                    "bg-gray-200"
+                                    "bg-gray-200",
                                 )}
-                              />
+                              /> */}
 
-                              <div className="mt-2 text-xs text-gray-500">
-                                Delivery by{" "}
-                                {item.deliverBy < 2
-                                  ? "Tomorrow"
-                                  : `${item.deliverBy} days`}
+                              <div className="mt-2 text-xs text-gray-500 mb-4">
+                                inclusive of all taxes
                               </div>
 
-                              {/* Actions */}
-                              <div className="flex mt-2 md:gap-4 gap-2">
-                                <button
-                                  className="text-xs bg-gray-50 text-gray-500 cursor-pointer border rounded-full border-gray-400 md:px-4 px-1.5 md:py-1 py-0.5"
-                                  onClick={() => dispatch(removeFromCart(item))}
-                                >
-                                  Remove
-                                </button>
+                              <div className="flex gap-4 items-center">
+                                {/* Qty Controls */}
+                                <div className="flex w-[106px] items-center justify-between px-2 border-[#D49A06] ring-2 ring-[#686868]/50 shadow-md p-1 rounded-lg transition-all ease-in">
+                                  <button
+                                    onClick={() => dispatch(decreaseQty(item))}
+                                    className="w-4 h-4 flex items-center justify-center rounded-lg transition-colors"
+                                  >
+                                    {item.quantity === 1 ? (
+                                      <Trash2 />
+                                    ) : (
+                                      <Minus />
+                                    )}
+                                  </button>
+                                  <span className="w-6 text-center">
+                                    {item.quantity}
+                                  </span>
+                                  <button
+                                    onClick={() => dispatch(increaseQty(item))}
+                                    className="w-4 h-4 flex items-center justify-center rounded-lg"
+                                  >
+                                    <Plus></Plus>
+                                  </button>
+                                </div>
 
-                                <div
-                                  className="text-xs bg-[#eaa600]/5 cursor-pointer rounded-full border border-[#eaa600] text-[#eaa600] hover:bg-[#eaa60011] md:px-4 px-1.5 md:py-1 py-0.5"
-                                  onClick={() => moveToWishlist(item)}
-                                >
-                                  Save for later
+                                {/* Actions */}
+                                <div className="flex md:gap-4 gap-2 font-medium">
+                                  <button
+                                    className="text-sm text-[#1C3753] cursor-pointer md:px-1 px-1.5 md:py-1 py-0.5"
+                                    onClick={() =>
+                                      dispatch(removeFromCart(item))
+                                    }
+                                  >
+                                    Remove
+                                  </button>
+                                  <div>|</div>
+
+                                  <div
+                                    className="text-sm cursor-pointer rounded-full  text-[#1C3753]  md:px-1 px-1 md:py-1 py-0.5"
+                                    onClick={() => moveToWishlist(item)}
+                                  >
+                                    Save for later
+                                  </div>
                                 </div>
                               </div>
                             </div>
@@ -236,7 +270,8 @@ function Cart() {
             </div>
           </div>
 
-          {/* Price Summary Section */}
+          {/* 
+           Section */}
           {totalItems > 0 && (
             <PriceDetails
               totalItems={totalItems}

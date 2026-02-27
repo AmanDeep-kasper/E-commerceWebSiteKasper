@@ -3,13 +3,14 @@ import { Link, useNavigate } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { Eye, EyeOff, Mail, Lock, Star, LogIn, ArrowRight } from "lucide-react";
 import { loginUser } from "../../redux/cart/userSlice";
+import MainLog from "../../assets/IconsUsed/MainLogo.png";
 
 function Login() {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
   const dispatch = useDispatch();
   const { loading, error, isAuthenticated } = useSelector(
-    (state) => state.user
+    (state) => state.user,
   );
   const navigate = useNavigate();
 
@@ -27,7 +28,7 @@ function Login() {
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate("/"); 
+      navigate("/");
     }
   }, [isAuthenticated, navigate]);
 
@@ -35,48 +36,46 @@ function Login() {
     <div className="flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
       <div className="w-full h-screen flex bg-white shadow-2xl overflow-y-auto ">
         {/* Left Side - Welcome Section */}
-        <div className="hidden md:flex flex-1 bg-gradient-to-br from-[#0b0b0b] to-[#212121] p-8 text-white">
+        <div className="hidden md:flex flex-1 bg-gradient-to-br from-[#1C3753] to-[#1C3753] p-8 text-white">
           <div className="flex flex-col justify-between h-full">
             <div className="flex items-center gap-3 mb-8">
-              <div className="bg-white p-2 rounded-full">
+              {/* <div className="bg-white p-2 rounded-full">
                 <Star className="w-6 h-6 text-amber-600" fill="currentColor" />
               </div>
-              <h1 className="text-2xl font-bold">LaserCut</h1>
+              <h1 className="text-2xl font-bold">LaserCut</h1> */}
+              <img src={MainLog} alt="lazercut" />
             </div>
 
             <div className="space-y-6">
               <div>
-                <h2 className="text-4xl font-bold mb-4">Welcome Back!</h2>
-                <p className="text-amber-100 text-lg">
-                  Ready to continue your creative journey?
-                </p>
+                <h2 className="text-4xl font-medium mb-4">Welcome Back!</h2>
+                <p className="text-white text-lg">Ready to continue?</p>
               </div>
 
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
                   <div className="w-2 h-2 bg-white rounded-full"></div>
-                  <span className="text-amber-100">
-                    Access your personalized dashboard
+                  <span className="text-white">
+                    Designed for a seamless shopping experience
                   </span>
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="w-2 h-2 bg-white rounded-full"></div>
-                  <span className="text-amber-100">
-                    Manage your projects and orders
+                  <span className="text-white">
+                    Fast checkout. Smooth experience
                   </span>
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="w-2 h-2 bg-white rounded-full"></div>
-                  <span className="text-amber-100">
-                    Get exclusive member discounts
+                  <span className="text-white">
+                    Everything you need, right here
                   </span>
                 </div>
               </div>
             </div>
-
-            <div className="bg-black bg-opacity-20 rounded-lg p-4 mt-8">
-              <p className="text-amber-100 text-sm">
-                "Precision cutting for perfect creations every time"
+            <div className=" mt-8">
+              <p className="text-white text-sm">
+                *Precision cutting for perfect creations every time*
               </p>
             </div>
           </div>
@@ -98,8 +97,8 @@ function Login() {
 
             {/* Form Header */}
             <div className="text-center mb-8">
-              <div className="bg-amber-100 p-3 rounded-full w-12 h-12 mx-auto mb-4 flex items-center justify-center">
-                <LogIn className="w-6 h-6 text-amber-600" />
+              <div className="bg-[#D5E5F5] p-3 rounded-full w-12 h-12 mx-auto mb-4 flex items-center justify-center">
+                <LogIn className="w-6 h-6 text-[#1C3753]" />
               </div>
               <h2 className="text-3xl font-bold text-gray-900">Welcome Back</h2>
               <p className="text-gray-600 mt-2">Log In & Save Big!</p>
@@ -119,7 +118,7 @@ function Login() {
                     placeholder="your@email.com"
                     value={formData.email}
                     onChange={handleChange}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent transition-all"
                     required
                     disabled={loading}
                   />
@@ -136,7 +135,7 @@ function Login() {
                   </label>
                   <Link
                     to="/forgot-password"
-                    className="text-sm text-amber-600 hover:text-amber-700 font-medium transition-colors"
+                    className="text-sm text-[#F8A14A] hover:text-amber-700 font-medium transition-colors"
                   >
                     Forgot Password?
                   </Link>
@@ -148,7 +147,7 @@ function Login() {
                     placeholder="Enter your password"
                     value={formData.password}
                     onChange={handleChange}
-                    className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
+                    className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent transition-all"
                     required
                     disabled={loading}
                   />
@@ -186,7 +185,7 @@ function Login() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-amber-600 hover:bg-amber-700 disabled:bg-gray-400 text-white py-3 px-4 rounded-lg font-semibold transition-all duration-200 transform hover:scale-[1.02] disabled:scale-100 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full bg-[#DEDEDE]  hover:bg-[#1C3753] hover:text-white disabled:bg-gray-400 text-[#686868] py-3 px-4 rounded-lg font-medium transition-all duration-200 transform hover:scale-[1.02] disabled:scale-100 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {loading ? (
                   <>
@@ -209,7 +208,7 @@ function Login() {
                 New to LaserCut?{" "}
                 <Link
                   to="/register"
-                  className="text-amber-600 hover:text-amber-700 font-semibold underline transition-colors"
+                  className="text-[#F8A14A] hover:text-amber-700 font-semibold underline transition-colors"
                 >
                   Create an account
                 </Link>

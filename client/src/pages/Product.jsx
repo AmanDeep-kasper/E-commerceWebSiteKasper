@@ -15,10 +15,10 @@ import { PackageOpen } from "lucide-react";
 
 // colors
 const colors = [
-  { colorName: "golden", colorCode: "bg-[#D49A06]" },
-  { colorName: "black", colorCode: "bg-[#000]" },
-  { colorName: "white", colorCode: "bg-[#fff]" },
-  { colorName: "silver", colorCode: "bg-[#C0C0C0]" },
+  { colorName: "golden" },
+  { colorName: "black" },
+  { colorName: "white" },
+  { colorName: "silver" },
 ];
 
 function Product() {
@@ -42,7 +42,7 @@ function Product() {
       // Filter by category
       if (categoryName) {
         filteredProducts = filteredProducts.filter(
-          (p) => p.category.toLowerCase() === categoryName.toLowerCase()
+          (p) => p.category.toLowerCase() === categoryName.toLowerCase(),
         );
       }
 
@@ -51,7 +51,7 @@ function Product() {
         filteredProducts = filteredProducts.filter(
           (p) =>
             p.subcategory &&
-            p.subcategory.toLowerCase() === subcategoryName.toLowerCase()
+            p.subcategory.toLowerCase() === subcategoryName.toLowerCase(),
         );
       }
 
@@ -75,7 +75,7 @@ function Product() {
         break;
       case "atoz":
         setItems((prev) =>
-          [...prev].sort((a, b) => a.title.localeCompare(b.title))
+          [...prev].sort((a, b) => a.title.localeCompare(b.title)),
         );
         break;
       case "rating":
@@ -89,7 +89,7 @@ function Product() {
               b.reviews.reduce((sum, r) => sum + r.rating, 0) /
               b.reviews.length;
             return avgB - avgA;
-          })
+          }),
         );
       case "latest":
         setItems([...items].reverse());
@@ -101,11 +101,11 @@ function Product() {
 
   // Filter by search param (param) and color
   const filterArts = items.filter((p) =>
-    p.category.toLowerCase().includes(param)
+    p.category.toLowerCase().includes(param),
   );
 
   const filteredArts = filterArts.filter(
-    (p) => !color.length || p.variants.some((v) => color.includes(v.color))
+    (p) => !color.length || p.variants.some((v) => color.includes(v.color)),
   );
 
   return (

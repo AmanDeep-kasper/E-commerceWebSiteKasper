@@ -1,5 +1,5 @@
 import React from "react";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import Navbar from "../components/Navbar";
 import Footer from "../sections/Footer";
 import { Link } from "react-router";
@@ -70,9 +70,9 @@ function Faqs() {
         <p className="text-[#565656]">FAQS</p>
       </Link>
 
-      <section className="lg:px-20 md:px-[60px] px-4 flex flex-col gap-8 py-[23px]">
+      <section className="lg:px-20 md:px-[60px] px-4 flex flex-col  gap-8 py-[23px]">
         {/* FAQ Content */}
-        <div className="max-w-screen-lg w-full mx-auto">
+        <div className=" w-full mx-auto">
           <h1 className="text-3xl md:text-4xl font-[400] mb-6">
             Frequently Asked Questions (FAQs)
           </h1>
@@ -93,21 +93,21 @@ function Faqs() {
         {/* Contact + Newsletter */}
         <div>
           {/* Still Have Questions */}
-          <div className="h-auto bg-[#FFC10733] flex flex-col items-center py-6 px-4 gap-2 rounded-md">
+          <div className="h-auto bg-[#D5E5F5] flex flex-col items-center py-6 px-4 gap-2 rounded-md">
             <h1 className="text-lg sm:text-xl text-gray-800 md:text-[20px] font-medium">
-              Still have questions?
+             Do you still have any questions?
             </h1>
-            <p className="text-[#828282] text-center text-sm md:text-base max-w-lg">
+            <p className="text-[#1C1C1C] text-center text-sm md:text-base max-w-lg">
               Can’t find the answer you’re looking for? Please chat to our
               friendly team.
             </p>
-            <button className="py-2 px-6 bg-[#EBB100] rounded-md mt-4">
-              Contact Us
+            <button className="py-2 px-6 flex items-center gap-2 bg-[#1C3753] text-white  rounded-md mt-4">
+              Contact Us  <ArrowRight className="w-5 h-5" />
             </button>
           </div>
 
           {/* Newsletter Section */}
-          <div className="flex flex-col lg:flex-row justify-between items-center gap-8 my-10">
+          {/* <div className="flex flex-col lg:flex-row justify-between items-center gap-8 my-10">
             <div className="flex flex-col justify-center items-center text-center lg:text-left flex-1">
               <h1 className="text-lg sm:text-xl text-gray-800 font-medium">
                 Sign up for our Newsletter
@@ -144,7 +144,7 @@ function Faqs() {
                 alt="FAQs"
               />
             </div>
-          </div>
+          </div> */}
         </div>
       </section>
 

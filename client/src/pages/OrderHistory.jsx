@@ -374,7 +374,7 @@ function OrderHistory() {
       // Status filter
       if (status.trim()) {
         filtered = filtered.filter((order) =>
-          order.orderStatus.toLowerCase().includes(status.toLowerCase())
+          order.orderStatus.toLowerCase().includes(status.toLowerCase()),
         );
       }
 
@@ -390,12 +390,12 @@ function OrderHistory() {
         } else if (time.startsWith("year")) {
           const year = parseInt(time.replace("year", ""), 10);
           filtered = filtered.filter(
-            (order) => new Date(order.orderDate).getFullYear() === year
+            (order) => new Date(order.orderDate).getFullYear() === year,
           );
         } else if (time === "older") {
           const cutoffYear = new Date().getFullYear() - 2;
           filtered = filtered.filter(
-            (order) => new Date(order.orderDate).getFullYear() < cutoffYear
+            (order) => new Date(order.orderDate).getFullYear() < cutoffYear,
           );
         }
       }
@@ -404,8 +404,8 @@ function OrderHistory() {
       if (param.trim()) {
         filtered = filtered.filter((order) =>
           order.items.some((item) =>
-            item.name.toLowerCase().includes(param.toLowerCase())
-          )
+            item.name.toLowerCase().includes(param.toLowerCase()),
+          ),
         );
       }
 
@@ -418,38 +418,48 @@ function OrderHistory() {
   return (
     <div className="w-full">
       <div className="md:mb-6 relative flex flex-row justify-between items-center border border-gray-200 bg-white md:rounded-lg p-3 gap-3 sm:gap-4">
-        {/* Search Input */}
-        <div className="flex items-center w-full sm:w-auto px-3 py-2 bg-gray-50 rounded-md focus-within:ring-2 focus-within:ring-[#212121] transition-all">
-          <Search className="text-[#212121] w-5 h-5" />
-          <input
-            type="text"
-            placeholder="Search your orders..."
-            className="outline-none bg-transparent w-full ml-2 text-gray-700 placeholder-gray-400 text-xs sm:text-sm"
-            value={param}
-            onChange={(e) => setParam(e.target.value)}
-          />
+        <div>
+          <p className="text-lg font-semibold">Your Orders</p>
+          <span className="text-sm text-[#686868]">
+            Manage your personal information
+          </span>
         </div>
+        {/* Search Input */}
 
-        {/* Filter Button - Desktop */}
-        <button
-          className="hidden sm:flex items-center justify-center py-2 px-5 text-xs sm:text-sm hover:text-white border border-[#212121] hover:bg-[#212121] rounded-full transition-colors shadow-sm"
-          onClick={() => setIsFilterOpen(!isFilterOpen)}
-        >
-          <ListFilter className="w-4 h-4 mr-2" />
-          Filters
-        </button>
-
-        {isFilterOpen && (
-          <div className="absolute top-16 z-30 right-0 w-64 max-w-[90vw]">
-            <OrderFilter
-              setStatus={setStatus}
-              status={status}
-              setTime={setTime}
-              time={time}
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center w-full sm:w-auto px-3 py-2 bg-gray-50 border rounded-md focus-within:ring-2 focus-within:ring-[#212121] transition-all">
+            <Search className="text-gray-500 w-4 h-4" />
+            <input
+              type="text"
+              placeholder="Search your orders..."
+              className="outline-none bg-transparent w-64 ml-2 text-gray-700 placeholder-[#686868] text-xs sm:text-sm"
+              value={param}
+              onChange={(e) => setParam(e.target.value)}
             />
           </div>
-        )}
+
+          {/* Filter Button - Desktop */}
+          <button
+            className="hidden sm:flex items-center justify-center py-2 px-5 text-xs sm:text-sm hover:text-white border border-[#212121] hover:bg-[#212121] rounded-full transition-colors shadow-sm"
+            onClick={() => setIsFilterOpen(!isFilterOpen)}
+          >
+            <ListFilter className="w-4 h-4 mr-2" />
+            Filters
+          </button>
+
+          {isFilterOpen && (
+            <div className="absolute top-16 z-30 right-0 w-64 max-w-[90vw]">
+              <OrderFilter
+                setStatus={setStatus}
+                status={status}
+                setTime={setTime}
+                time={time}
+              />
+            </div>
+          )}
+        </div>
       </div>
+
       {/* Order Cards */}
       <div className="flex flex-col gap-6 rounded-md">
         {orderA.length === 0 ? (
@@ -469,7 +479,7 @@ function OrderHistory() {
                 className="bg-white md:rounded-lg md:shadow-sm text-xs sm:text-sm md:text-base"
               >
                 {/* Order Header */}
-                <div className="flex flex-wrap sm:flex-row justify-between gap-3 sm:gap-0 items-start sm:items-center px-4 sm:px-6 py-4 border-b">
+                <div className="flex flex-wrap sm:flex-row justify-between gap-3 bg-[#EFEFEF] sm:gap-0 items-start sm:items-center px-4 sm:px-6 py-4 border-b">
                   <div>
                     <span className="text-gray-500 block">Order Placed</span>
                     <p className="font-medium">{formatDate(order.orderDate)}</p>
@@ -486,13 +496,24 @@ function OrderHistory() {
                       {order.orderStatus}
                     </p>
                   </div>
-                  <div className="flex justify-end max-sm:w-full">
+                  <div className="flex flex-col justify-end max-sm:w-full">
                     <Link
-                      className="border border-gray-400 text-gray-500 px-3 py-1 rounded-md text-xs sm:text-sm"
+                      className="border border-[#1C3753] text-[#1C3753] text-center mb-1 px-3 py-1 rounded-md text-xs sm:text-sm"
                       to={`/accounts/order-detail/${order.orderId.slice(1)}`}
                     >
                       Order Details
                     </Link>
+                    <div className="flex items-center gap-4 text-[#1C3753]">
+                      <p
+                        onClick={() =>
+                          navigate(`/order-history/${order.orderId.slice(1)}`)
+                        }
+                        className="cursor-pointer"
+                      >
+                        Track Order
+                      </p>
+                      |<p className="">Invoice</p>
+                    </div>
                   </div>
                 </div>
 
@@ -519,15 +540,15 @@ function OrderHistory() {
                               {item.name}
                             </h3>
                             <p className="text-gray-600 text-xs sm:text-sm">
-                              Quantity: {item.quantity}
+                              Color: {item.color ? item.color : "Gold"}
                             </p>
                             <p className="text-gray-600 text-xs sm:text-sm">
-                              Price: ₹{item.price.toLocaleString()}
+                              Quantity: {item.size ? item.size : "40X25 Inches"}
                             </p>
-                            <button className="mt-2 text-[#212121] text-xs flex items-center gap-1">
+                            {/* <button className="mt-2 text-[#212121] text-xs flex items-center gap-1">
                               <StarIcon className="w-4 h-4 text-[#ebb100]" />
                               Rate & Review
-                            </button>
+                            </button> */}
                           </div>
                         </div>
 
@@ -544,32 +565,30 @@ function OrderHistory() {
                               ></div>
                               <p className="capitalize">{order.orderStatus}</p>
                             </div> */}
-                            <p className="text-gray-500 mt-1">
+                            {/* <p className="text-gray-500 mt-1">
                               {order.orderStatus === "Delivered"
                                 ? `Delivered on ${formatDate(
-                                    order.deliveryDate
+                                    order.deliveryDate,
                                   )}`
                                 : `Expected by ${formatDate(
-                                    order.deliveryDate
+                                    order.deliveryDate,
                                   )}`}
-                            </p>
-                            <p className="mt-2">
-                              Tracking ID: {order.trackingId}
-                            </p>
-                            <button
+                            </p> */}
+                            <p className="mt-2">Quantity: {item.quantity}</p>
+                            {/* <button
                               className="mt-3 text-blue-600 hover:underline text-xs sm:text-sm"
                               onClick={() =>
                                 navigate(
-                                  `/order-history/${order.orderId.slice(1)}`
+                                  `/order-history/${order.orderId.slice(1)}`,
                                 )
                               }
                             >
                               Track Package
-                            </button>
+                            </button> */}
                           </div>
                         )}
                       </div>
-                    )
+                    ),
                   )}
 
                   {/* Show More / Less Button */}

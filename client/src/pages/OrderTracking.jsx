@@ -3,6 +3,7 @@ import AccountSidebar from "../components/AccountSidebar";
 import {
   Calendar,
   Check,
+  ChevronLeft,
   Clock,
   Headset,
   Mail,
@@ -14,7 +15,7 @@ import {
 import { useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { MapPin } from "lucide-react";
-import { useParams } from "react-router";
+import { Link, useParams } from "react-router";
 // import orders from "../data/orders.json";
 import Navbar from "../components/Navbar";
 import Footer from "../sections/Footer";
@@ -110,7 +111,7 @@ function OrderTracking() {
   return (
     <>
       <Navbar />
-      <section className="lg:px-20 md:px-[60px] px-4 py-8 bg-gray-50">
+      <section className="lg:px-20 md:px-[60px] px-4 py-8 bg-white">
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Sidebar */}
           <div className="max-lg:hidden">
@@ -121,9 +122,20 @@ function OrderTracking() {
           <div className="w-full">
             {/* Order Tracking Header */}
             <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 ">
-              <h2 className="text-lg sm:text-xl fontd-semibold text-gray-800 mb-6 text-center sm:text-left">
-                Order {order.orderId} Tracking
+              <h2 className="text-lg flex flex-col space-y-2  sm:text-xl fontd-semibold text-gray-800 mb-6 text-center sm:text-left">
+                <span className="flex items-center font-semibold gap-2">
+                  {" "}
+                  <Link to="/accounts/order-history">
+                    {" "}
+                    <ChevronLeft className="w-6 h-6" />{" "}
+                  </Link>{" "}
+                  Track Order
+                </span>
+                <span className="text-sm"> Order {order.orderId} </span>
               </h2>
+              <div className="mb-2">
+                <span className="text-sm font-medium">Order Status</span>
+              </div>
 
               {/* Progress Tracker */}
               <div className="relative w-full">
@@ -141,9 +153,7 @@ function OrderTracking() {
                       <span
                         key={idx}
                         className={`text-sm ${
-                          active >= idx * 25
-                            ? "text-[#19A971]"
-                            : "text-gray-400"
+                          active >= idx * 25 ? "text-[#0A63E]" : "text-gray-400"
                         }`}
                       >
                         {label}
@@ -160,7 +170,7 @@ function OrderTracking() {
                       className={`h-2 rounded-full ${
                         active === -1
                           ? "bg-red-500" // cancelled
-                          : "bg-gradient-to-r from-[#19A971] to-[#2ECC71]"
+                          : "bg-gradient-to-r from-[#00A63E] to-[#00A63E]"
                       }`}
                     />
                     {[0, 25, 50, 75, 100].map((pos) => (
@@ -174,8 +184,8 @@ function OrderTracking() {
                             active === -1
                               ? "bg-red-500"
                               : active >= pos
-                              ? "bg-[#19A971]"
-                              : "bg-gray-300"
+                                ? "bg-[#19A971]"
+                                : "bg-gray-300"
                           }`}
                         >
                           <Check size={12} className="text-white" />
@@ -234,14 +244,14 @@ function OrderTracking() {
             {/* Order Details */}
             <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {/* Shipping Info */}
-              <div className="bg-white p-5 rounded-lg shadow-sm">
+              <div className="bg-[#F6F8F9] p-5 rounded-lg shadow-sm">
                 <h2 className="text-lg font-medium text-gray-800 mb-4 flex items-center gap-2">
-                  <Truck className="text-[#EBB100]" size={18} /> Shipping
+                  <Truck className="text-[#1C3753]" size={18} /> Shipping
                   Information
                 </h2>
                 <div className="space-y-3 text-sm">
                   <div>
-                    <p className="text-gray-500">Carrier</p>
+                    <p className="text-gray-500">Carrier:</p>
                     <p className="font-medium">FedEx Ground</p>
                   </div>
                   <div>
@@ -251,17 +261,17 @@ function OrderTracking() {
                       {order.deliveryAddress.city}
                     </p>
                   </div>
-                  <div>
+                  {/* <div>
                     <p className="text-gray-500">Tracking Number</p>
                     <p className="font-medium">{order.trackingId}</p>
-                  </div>
+                  </div> */}
                 </div>
               </div>
 
               {/* Delivery Estimate */}
-              <div className="bg-white p-5 rounded-lg shadow-sm">
+              <div className="bg-[#F6F8F9] p-5 rounded-lg shadow-sm">
                 <h2 className="text-lg font-medium text-gray-800 mb-4 flex items-center gap-2">
-                  <Calendar className="text-[#EBB100]" size={18} /> Delivery
+                  <Calendar className="text-[#1C3753]" size={18} /> Delivery
                   Estimate
                 </h2>
                 <div className="space-y-3 text-sm">
@@ -277,7 +287,7 @@ function OrderTracking() {
                         trackOrder === "Cancelled" ? "text-red-500" : ""
                       }`}
                     >
-                      <span className="w-2 h-2 rounded-full bg-yellow-400 animate-pulse"></span>
+                      <span className="w-2 h-2 rounded-full bg-[#1C3753] animate-pulse"></span>
                       {order.orderStatus}
                     </p>
                   </div>
@@ -289,37 +299,40 @@ function OrderTracking() {
               </div>
 
               {/* Recent Updates */}
-              <div className="bg-white p-5 rounded-lg shadow-sm">
+              <div className="bg-[#F6F8F9] p-5 rounded-lg shadow-sm">
                 <h2 className="text-lg font-medium text-gray-800 mb-4 flex items-center gap-2">
-                  <Clock className="text-[#EBB100]" size={18} /> Recent Updates
+                  Track Order
                 </h2>
                 <div className="space-y-4">
                   <div className="flex gap-3">
-                    <div className="flex flex-col items-center">
+                    {/* <div className="flex flex-col items-center">
                       <div className="w-2 h-2 rounded-full bg-[#EBB100] mt-1"></div>
                       <div className="w-px h-full bg-gray-300"></div>
-                    </div>
+                    </div> */}
                     <div>
-                      <p className="text-sm font-medium">{order.orderStatus}</p>
+                      <p className="text-sm text-gray-500 font-medium">Tracking Link:</p>
                       {/* <p className="text-xs text-gray-500">Today, 9:42 AM</p> */}
-                      <p className="text-xs mt-1 text-gray-600">
-                        Your package is on its way to you
+                      <p className="text-xs mt-1 ">
+                      {order.tracklink?order.tracklink:" htps://www.xyz.com/en-us/tracking.html"}
                       </p>
                     </div>
                   </div>
                   <div className="flex gap-3">
-                    <div className="flex flex-col items-center">
+                    {/* <div className="flex flex-col items-center">
                       <div className="w-2 h-2 rounded-full bg-[#EBB100] mt-1"></div>
                       <div className="w-px h-full bg-gray-300"></div>
-                    </div>
+                    </div> */}
                     <div>
-                      <p className="text-sm font-medium">Departed facility</p>
-                      <p className="text-xs text-gray-500">
-                        Yesterday, 5:18 PM
+                      <p className="text-sm text-gray-500 font-medium">Tracking No.: </p>
+                      <p className="text-xs ">
+                        {order.trackingId}
                       </p>
-                      <p className="text-xs mt-1 text-gray-600">
+                      <p className="text-sm text-gray-500 mt-2">
+                        *Please copy this link and paste it in your browser and then paste this tracking number to track your order.
+                      </p>
+                      {/* <p className="text-xs mt-1 text-gray-600">
                         Dallas, TX distribution center
-                      </p>
+                      </p> */}
                     </div>
                   </div>
                 </div>
@@ -330,8 +343,8 @@ function OrderTracking() {
             <div className="mt-8 bg-white rounded-lg shadow-sm overflow-hidden">
               <div className="flex flex-col lg:flex-row">
                 <div className="p-6 lg:w-1/2">
-                  <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                    <Headset className="text-[#EBB100]" size={20} /> Need Help
+                  <h2 className="text-xl font-medium text-gray-800 mb-4 flex items-center gap-2">
+                     Need Help
                     With Your Order?
                   </h2>
                   <p className="text-sm text-gray-600 mb-6">
@@ -340,7 +353,7 @@ function OrderTracking() {
                   </p>
 
                   <div className="space-y-4">
-                    <div className="flex items-start gap-3">
+                    {/* <div className="flex items-start gap-3">
                       <div className="bg-[#EBB100]/10 p-2 rounded-full">
                         <MessageCircle className="text-[#EBB100]" size={18} />
                       </div>
@@ -350,11 +363,11 @@ function OrderTracking() {
                           Get instant help from our support team
                         </p>
                       </div>
-                    </div>
+                    </div> */}
 
                     <div className="flex items-start gap-3">
-                      <div className="bg-[#EBB100]/10 p-2 rounded-full">
-                        <Mail className="text-[#EBB100]" size={18} />
+                      <div className="bg-[#F6F8F9]/10 p-2 rounded-full">
+                        <Mail className="text-[#1C3753]" size={18} />
                       </div>
                       <div>
                         <h3 className="font-medium text-gray-800">Email Us</h3>
@@ -365,8 +378,8 @@ function OrderTracking() {
                     </div>
 
                     <div className="flex items-start gap-3">
-                      <div className="bg-[#EBB100]/10 p-2 rounded-full">
-                        <Phone className="text-[#EBB100]" size={18} />
+                      <div className="bg-[#F6F8F9]/10 p-2 rounded-full">
+                        <Phone className="text-[#1C3753]" size={18} />
                       </div>
                       <div>
                         <h3 className="font-medium text-gray-800">Call Us</h3>
@@ -377,8 +390,8 @@ function OrderTracking() {
                     </div>
                   </div>
 
-                  <button className="mt-6 flex items-center px-4 justify-center py-2.5 group border border-[#EBB100] text-[#EBB100] hover:bg-[#EBB100] hover:text-white transition-colors">
-                    <MessageCircleQuestion
+                  <button className="mt-6 flex items-center px-4 justify-center py-2.5 rounded-xl group border border-[#1C3753] text-[#1C3753] hover:bg-[#1C3753] hover:text-white transition-colors">
+                    <Headset
                       className="mr-2 group-hover:text-white"
                       size={16}
                     />

@@ -1,21 +1,18 @@
 import React, { useEffect, useState } from "react";
 import PriceDetails from "../components/PriceDetails";
-import { Trash2, MapPin } from "lucide-react";
+import { Trash2, MapPin, ChevronLeft } from "lucide-react";
 import { useSelector, useDispatch } from "react-redux";
 import Navbar from "../components/Navbar";
 import Footer from "../sections/Footer";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { toast } from "react-toastify";
-import {
-  selectAddress,
-  removeAddress,
-} from "../redux/cart/addressSlice"; 
+import { selectAddress, removeAddress } from "../redux/cart/addressSlice";
 import AddressForm from "../components/forms/AddressForm";
 import EmptyState from "../components/EmptyState";
 
 function Delivery() {
   const { cartItems, totalPrice, totalItems, totalDiscount } = useSelector(
-    (s) => s.cart
+    (s) => s.cart,
   );
 
   const { addresses, selectedAddress } = useSelector((s) => s.address);
@@ -75,12 +72,12 @@ function Delivery() {
           {/* Address Section */}
           <div className="w-full lg:w-2/3 p-4 md:p-6 md:shadow-sm bg-white md:rounded-md">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-lg sm:text-xl font-semibold text-gray-800">
-                Delivery Address
-              </h2>
+              <div className="text-lg sm:text-xl flex gap-2 items-center font-semibold text-gray-800">
+              <Link to="/bag"><ChevronLeft className="w-8 h-8"/></Link>  Delivery Address
+              </div>
               <button
                 onClick={() => setOpen(true)}
-                className="bg-[#212121] hover:bg-black text-white rounded-full px-6 py-2 text-sm font-medium transition-colors"
+                className="bg-[#1C3753] hover:bg-black text-white rounded-lg px-6 py-2 text-sm font-medium transition-colors"
               >
                 + Add New Address
               </button>
@@ -108,14 +105,14 @@ function Delivery() {
 
                           {/* Address type tag */}
                           {addr.tag && (
-                            <span className="text-xs px-2 py-0.5 bg-gray-100 rounded-full text-gray-600">
+                            <span className="text-xs px-2 py-0.5 bg-white rounded-md border-[#1C3753] border text-[#1C3753]">
                               {addr.tag}
                             </span>
                           )}
 
                           {/* Default badge */}
                           {addr.isDefault && (
-                            <span className="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full">
+                            <span className="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded-md border-[#1C3753] border">
                               Default
                             </span>
                           )}
@@ -126,11 +123,22 @@ function Delivery() {
                         {addr.email && (
                           <p className="text-sm text-gray-500">{addr.email}</p>
                         )}
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setEditingAddress(addr);
+                            setOpen(true);
+                          }}
+                          className="text-[#006EE1] hover:text-gray-800 text-sm rounded-full p-1 hover:bg-gray-100"
+                        >
+                          Edit Address
+                        </button>
                       </div>
 
                       {/* Edit & Delete */}
                       <div className="flex gap-2">
-                        <button
+                        {/* <button
                           type="button"
                           onClick={(e) => {
                             e.stopPropagation();
@@ -140,7 +148,7 @@ function Delivery() {
                           className="text-gray-500 hover:text-gray-800 text-sm rounded-full p-1 hover:bg-gray-100"
                         >
                           Edit
-                        </button>
+                        </button> */}
                         <button
                           type="button"
                           onClick={(e) => {
@@ -155,6 +163,30 @@ function Delivery() {
                     </div>
                   </div>
                 ))}
+
+                <div className="flex justify-between items-start ">
+                  <div className="space-y-1  w-full">
+                    <p className="font-medium text-gray-900 text-lg mt-2">
+                      Select a delivery type
+                    </p>
+                    <div className="flex flex-col items-start gap-2 border rounded-lg p-2">
+                      <div className="flex gap-4">
+                        <input type="radio" name="input" className="w-5" />
+                        <div>
+                          <p className="text-lg">Standard Delivery</p>
+                          <span className="text-sm">5-8 business days</span>
+                        </div>
+                      </div>
+                      <div className="flex gap-4">
+                        <input type="radio" name="input" className="w-5" />
+                        <div>
+                          <p className="text-lg">Fast Delivery</p>
+                          <span className="text-sm">1-3 business days</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             ) : (
               <EmptyState

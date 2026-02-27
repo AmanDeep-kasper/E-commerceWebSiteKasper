@@ -82,7 +82,7 @@ const reviews = [
 //   );
 // }
 
-function Reviews({ reviews = [] }) {
+function Reviews({ reviews = [], onAddReview }) {
   const avgRating =
     reviews.length > 0
       ? reviews.reduce((sum, r) => sum + Number(r.rating || 0), 0) /
@@ -122,7 +122,6 @@ function Reviews({ reviews = [] }) {
           <h2 className="text-4xl font-semibold text-gray-800 flex items-center gap-3">
             {avgRating.toFixed(1)}
             <StarRating rating={avgRating} />
-            {/* <span className="text-yellow-400 ml-1">&#9733;</span> */}
           </h2>
           <p className="text-sm text-gray-500">
             {avgRating.toFixed(1)} Rating{" "}
@@ -142,7 +141,8 @@ function Reviews({ reviews = [] }) {
                 <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
                   <div
                     className="h-full bg-yellow-400 rounded-full"
-                    style={{ width: `${percentage}%` }}></div>
+                    style={{ width: `${percentage}%` }}
+                  ></div>
                 </div>
                 <span className="text-sm text-gray-700 w-6 text-right">
                   {count}
@@ -152,7 +152,21 @@ function Reviews({ reviews = [] }) {
           })}
         </div>
       </div>
-      <div className="relative flex items-end justify-end mb-6">
+      {/* write a reviews in link */}
+      <div className="flex flex-col items-start space-y-2">
+        <div>
+          <p className="text-lg">Review This Product</p>
+          <span className="text-[#686868] text-xs">
+            Share your thoughts with other customers
+          </span>
+        </div>
+
+        <button onClick={onAddReview} className="py-1 px-10 border border-[#1C3753] rounded-lg hover:bg-[#1C3753] hover:text-white transform translate ease-in-out delay-100 translate hover:scale-105">
+          Write a product review
+        </button>
+      </div>
+      {/* sort filter for reviews */}
+      {/* <div className="relative flex items-end justify-end mb-6">
         <div
           onClick={() => {
             setSortOpen((prev) => !prev);
@@ -185,7 +199,7 @@ function Reviews({ reviews = [] }) {
             </ul>
           </div>
         )}
-      </div>
+      </div> */}
     </>
   );
 }

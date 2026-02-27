@@ -59,7 +59,7 @@ function AccountDetails() {
 
   return (
     <div className="w-full font-inter">
-      <div className="bg-white md:rounded-md shadow-sm md:border border-gray-200 overflow-hidden">
+      <div className="bg-white md:rounded-md shadow-sm  overflow-hidden">
         <div className="flex flex-col-reverse lg:grid lg:grid-cols-3">
           {/* ===== Left: Form ===== */}
           <div className="lg:col-span-2 max-sm:pb-4">
@@ -79,14 +79,14 @@ function AccountDetails() {
                     <>
                       <button
                         onClick={handleCancel}
-                        className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition"
+                        className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium border-[#1C3753] text-[#1C3753] border  rounded-lg hover:bg-gray-50 transition"
                       >
                         Cancel
                       </button>
                       <button
                         onClick={handleSave}
                         disabled={loading}
-                        className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium bg-yellow-600 text-white rounded-lg shadow-sm hover:bg-yellow-700 transition flex items-center"
+                        className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium bg-[#1C3753] text-white rounded-lg shadow-sm hover:bg-[#1C3753] transition flex items-center"
                       >
                         <Save className="w-4 h-4 mr-1" />
                         {loading ? "Saving..." : "Save"}
@@ -95,7 +95,7 @@ function AccountDetails() {
                   ) : (
                     <button
                       onClick={() => setIsEditing(true)}
-                      className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition flex items-center"
+                      className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-[#1C3753] border border-[#1C3753] rounded-lg hover:bg-gray-50 transition flex items-center"
                     >
                       <Edit2 className="w-4 h-4 mr-1" />
                       Edit Profile
@@ -110,8 +110,8 @@ function AccountDetails() {
               {/* Email */}
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 bg-blue-50 rounded-lg border border-blue-100">
                 <div className="flex items-start gap-3">
-                  <div className="p-2 bg-blue-100 rounded-lg">
-                    <Mail className="w-5 h-5 text-blue-600" />
+                  <div className="p-2 bg-[#FFFFFF] rounded-full">
+                    <Mail className="w-5 h-5 text-[#1C3753]" />
                   </div>
                   <div>
                     <label className="block text-xs sm:text-sm text-gray-500 mb-1">
@@ -186,19 +186,19 @@ function AccountDetails() {
                         onClick={() => handleInputChange("gender", g)}
                         className={`flex-1 py-2 sm:py-3 text-sm flex items-center justify-center gap-2 transition-colors ${
                           tempData?.gender === g
-                            ? "bg-yellow-50 text-black font-medium"
+                            ? "bg-[#D5E5F5] text-black font-medium"
                             : "hover:bg-gray-50 text-gray-600"
                         }`}
                       >
                         {tempData?.gender === g && (
-                          <Check className="w-4 h-4 text-yellow-600" />
+                          <Check className="w-4 h-4 text-[#1C3753]" />
                         )}
                         {g.charAt(0).toUpperCase() + g.slice(1)}
                       </button>
                     ))}
                   </div>
                 ) : (
-                  <div className="px-3 sm:px-4 py-2 sm:py-3 bg-gray-50 rounded-lg border border-gray-200">
+                  <div className="px-3 sm:px-4 py-2 sm:py-3 bg-[#DEDEDE] rounded-lg border border-gray-200">
                     <p className="text-gray-800 capitalize text-sm sm:text-base">
                       {user?.gender || "Not provided"}
                     </p>
@@ -215,13 +215,17 @@ function AccountDetails() {
                   <input
                     type="tel"
                     value={tempData?.alternateMobile || ""}
-                    onChange={(e) =>
-                      handleInputChange("alternateMobile", e.target.value)
-                    }
-                    className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition"
-                    placeholder="Enter 10-digit mobile number"
-                    pattern="[0-9]{10}"
+                    onChange={(e) => {
+                      const onlyNums = e.target.value.replace(/\D/g, ""); // remove non-digits
+                      if (onlyNums.length <= 10) {
+                        handleInputChange("alternateMobile", onlyNums);
+                      }
+                    }}
+                    inputMode="numeric"
+                    pattern="[0-9]*"
                     maxLength={10}
+                    className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1C3753] focus:border-[#1C3753] outline-none transition"
+                    placeholder="Enter 10-digit mobile number"
                   />
                 ) : (
                   <div className="px-3 sm:px-4 py-2 sm:py-3 bg-gray-50 rounded-lg border border-gray-200">
@@ -235,8 +239,8 @@ function AccountDetails() {
           </div>
 
           {/* ===== Right: Profile Summary ===== */}
-          <div className="p-6 sm:p-8 flex flex-col items-center bg-gradient-to-b from-yellow-50 to-white space-y-5 sm:space-y-6">
-            <div className="w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center bg-yellow-100 rounded-full shadow-inner">
+          <div className="p-6 sm:p-8 flex flex-col items-center rounded-md bg-gradient-to-b from-[#D5E5F5] to-[#FFFFFF] space-y-5 sm:space-y-6">
+            <div className="w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center bg-[#F6F8F9] rounded-full shadow-inner">
               {user?.profileImage ? (
                 <img
                   className="rounded-full object-cover w-full h-full"
@@ -259,11 +263,11 @@ function AccountDetails() {
               </p>
             </div>
 
-            <div className="w-full bg-white rounded-lg p-4 sm:p-5 border border-gray-200 shadow-sm">
+            <div className="w-full bg-[#F6F8F9] rounded-lg p-4 sm:p-5 border border-gray-200 shadow-sm">
               <div className="space-y-3">
-                <div className="flex items-center gap-3 sm:gap-4 p-3 bg-gray-50 rounded-lg">
-                  <div className="p-2 bg-blue-100 rounded-lg">
-                    <Calendar className="w-4 sm:w-5 h-4 sm:h-5 text-blue-600" />
+                <div className="flex items-center gap-3 sm:gap-4 p-3 bg-[#FFFFFF] rounded-lg">
+                  <div className="p-2 bg-[#F5F8FA] rounded-lg">
+                    <Calendar className="w-4 sm:w-5 h-4 sm:h-5 text-[#1C3753]" />
                   </div>
                   <div>
                     <p className="text-xs sm:text-sm font-medium text-gray-700">
@@ -275,9 +279,9 @@ function AccountDetails() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 sm:gap-4 p-3 bg-gray-50 rounded-lg">
-                  <div className="p-2 bg-green-100 rounded-lg">
-                    <Phone className="w-4 sm:w-5 h-4 sm:h-5 text-green-600" />
+                <div className="flex items-center gap-3 sm:gap-4 p-3 bg-[#FFFFFF] rounded-lg">
+                  <div className="p-2 bg-[#F5F8FA] rounded-lg">
+                    <Phone className="w-4 sm:w-5 h-4 sm:h-5 text-[#1C3753]" />
                   </div>
                   <div>
                     <p className="text-xs sm:text-sm font-medium text-gray-700">
@@ -289,9 +293,9 @@ function AccountDetails() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 sm:gap-4 p-3 bg-gray-50 rounded-lg">
-                  <div className="p-2 bg-red-100 rounded-lg">
-                    <User className="w-4 sm:w-5 h-4 sm:h-5 text-red-600" />
+                <div className="flex items-center gap-3 sm:gap-4 p-3 bg-[#FFFFFF] rounded-lg">
+                  <div className="p-2 bg-[#F5F8FA] rounded-lg">
+                    <User className="w-4 sm:w-5 h-4 sm:h-5 text-[#1C3753]" />
                   </div>
                   <div>
                     <p className="text-xs sm:text-sm font-medium text-gray-700">

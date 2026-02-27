@@ -5,7 +5,7 @@ twMerge
 function Title({children, subtitle, heading="", subHeading="", className=""}) {
   return (
     <div className={twMerge("flex flex-col w-full", className)}>
-      <h1 className={twMerge("md:text-2xl text-[20px] py-[10px] font-semibold", heading)}>
+      <h1 className={twMerge("md:text-2xl text-[20px] py-[10px] ", heading)}>
         {children}
       </h1>
       {subtitle && (

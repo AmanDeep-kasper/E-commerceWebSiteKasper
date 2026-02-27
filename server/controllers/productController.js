@@ -1,16 +1,66 @@
 import Product from "../models/Product.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
-import { syncCategoryWithProduct } from "./categoryController.js";
 import { randomUUID } from "crypto";
+import { syncCategoryWithProduct } from "./categoryController.js";
 
-// Helper: generate SEO-friendly slug from title
+/** ----------------------------------------
+ * Helpers
+ * ---------------------------------------- */
 const makeSlug = (str) =>
-  str
+  String(str || "")
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-") // replace non-alphanumeric with -
-    .replace(/(^-|-$)+/g, ""); // remove leading/trailing -
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)+/g, "");
 
-//  POST /add-product
+const toNumber = (v) => {
+  if (v === "" || v === undefined || v === null) return 0;
+  const n = Number(v);
+  return Number.isFinite(n) ? n : 0;
+};
+
+const toBool = (v) => v === "true" || v === true || v === 1 || v === "1";
+
+function safeJsonParse(str, fallback) {
+  try {
+    return JSON.parse(str);
+  } catch {
+    return fallback;
+  }
+}
+
+/** OLD FORMAT SUPPORT:
+ * variants[0][variantColor] etc.
+ */
+function parseVariantsFromBracketBody(body) {
+  const variants = [];
+
+  for (const key of Object.keys(body || {})) {
+    const match = key.match(/^variants\[(\d+)\]\[(.+)\]$/);
+    if (!match) continue;
+
+    const idx = Number(match[1]);
+    const field = match[2];
+
+    variants[idx] = variants[idx] || {};
+    variants[idx][field] = body[key];
+  }
+
+  return variants.filter(Boolean);
+}
+
+/** normalize req.files from multer:
+ * - multer.array => req.files is array
+ * - multer.fields => req.files is object of arrays
+ */
+function normalizeFiles(reqFiles) {
+  if (!reqFiles) return [];
+  if (Array.isArray(reqFiles)) return reqFiles;
+  return Object.values(reqFiles).flat();
+}
+
+/** ----------------------------------------
+ * POST /products/add-product
+ * ---------------------------------------- */
 export const addProduct = async (req, res) => {
   try {
     console.log("BODY:", req.body);
@@ -19,236 +69,240 @@ export const addProduct = async (req, res) => {
     const {
       uuid,
       route,
-      title,
+      productTittle,
+      description,
+      status,
       category,
       subcategory,
+      materialType,
+       isFestive,
+      productcolor,
+
+      ProductWidthValue,
+      ProductWidthUnit,
+      ProductHeightValue,
+      ProductDimensionUnit,
+
       SKU,
-      dimension,
+      stockQuantity,
+      ReorderLimit,
+
+      mrp,
+      costPrice,
+      sellingPrice,
+
+      discountname,
+      extradiscountamount,
       discountPercent,
       discountAmount,
-      materialType,
-      stockQuantity,
-      ReorderLimit, // ✅ ADD THIS
-      color,
-      returnPolicy,
-      weight,
-      type,
-      description,
-      tags,
-      deliverBy,
-      bulletPoints,
-      mrp,
-      sellingPrice,
-      costPrice,
-      profit,
-      includesTax,
+
       taxPercent,
-      hasVariants,
-      variants,
+
+      variantlistings,
+      variants, // will be JSON string in your new frontend
     } = req.body;
 
-    // REQUIRED FIELDS
-    if (!title || !category || !SKU || !type) {
+    // ✅ required
+    if (!productTittle || !category || !SKU) {
       return res.status(400).json({
-        message: "Missing required fields: title, category, SKU, type",
+        success: false,
+        message: "Missing required fields: productTittle, category, SKU",
       });
     }
+    // ✅ Sync Category Collection
+    await syncCategoryWithProduct(category, subcategory);
+    
+    /** -------------------------------
+     * 1) Upload images from req.files
+     * ------------------------------- */
+    const filesArr = normalizeFiles(req.files);
 
-    // 🔧 Helpers
-    const toNumber = (v) => (v ? Number(v) : 0);
-    const toBool = (v) => v === "true" || v === true;
+    const productImages = [];
+    const variantImageMap = {}; // { 0: [url,url], 1: [url] }
 
-    const normalizeSingle = (v) => (Array.isArray(v) ? v[0] : v || "");
-    const normalizeField = (field, separator = ",") => {
-      if (!field) return [];
-      if (Array.isArray(field)) return field.map((f) => f.trim());
-      if (typeof field === "string")
-        return field.split(separator).map((f) => f.trim());
-      return [];
-    };
+    for (const file of filesArr) {
+      const cloudUrl = await uploadOnCloudinary(file.path);
+      if (!cloudUrl) continue;
 
-    // --------------------------------------------------------
-    //  CLOUDINARY UPLOAD LOGIC
-    // --------------------------------------------------------
-    let productImages = [];
-    let variantImageMap = {}; // e.g. { "0": ["url1","url2"], "1": ["url3"] }
+      // ✅ product images (if you add later)
+      if (file.fieldname === "images") {
+        productImages.push(cloudUrl);
+        continue;
+      }
 
-    if (req.files && req.files.length > 0) {
-      for (const file of req.files) {
-        const cloudUrl = await uploadOnCloudinary(file.path);
-        if (!cloudUrl) continue;
-
-        // variant images → fieldname = variants[0][variantImage]
-        if (file.fieldname.startsWith("variants[")) {
-          const match = file.fieldname.match(
-            /variants\[(\d+)\]\[variantImage\]/
-          );
-          if (match) {
-            const index = match[1];
-            if (!variantImageMap[index]) variantImageMap[index] = [];
-            variantImageMap[index].push(cloudUrl);
-          }
-        } else {
-          // product images
-          productImages.push(cloudUrl);
+      // ✅ NEW frontend: variantImages_0, variantImages_1 ...
+      if (file.fieldname.startsWith("variantImages_")) {
+        const idxStr = file.fieldname.replace("variantImages_", "");
+        const idx = Number(idxStr);
+        if (Number.isFinite(idx)) {
+          variantImageMap[idx] = variantImageMap[idx] || [];
+          variantImageMap[idx].push(cloudUrl);
         }
+        continue;
+      }
+
+      // ✅ OLD frontend support: variants[0][variantImage]
+      if (file.fieldname.startsWith("variants[")) {
+        const match = file.fieldname.match(/variants\[(\d+)\]\[variantImage\]/);
+        if (match) {
+          const idx = Number(match[1]);
+          variantImageMap[idx] = variantImageMap[idx] || [];
+          variantImageMap[idx].push(cloudUrl);
+        }
+        continue;
       }
     }
 
-    // --------------------------------------------------------
-    //  PARSE VARIANTS
-    // --------------------------------------------------------
-    let parsedVariants = [];
+    /** -------------------------------
+     * 2) Parse variants
+     * ------------------------------- */
+    let variantsRaw = [];
 
-    if (variants) {
-      try {
-        let parsed;
-
-        // If variants comes as string → parse JSON
-        if (typeof variants === "string") {
-          parsed = JSON.parse(variants);
-        }
-        // If variants is already array → use directly
-        else if (Array.isArray(variants)) {
-          parsed = variants;
-        } else {
-          parsed = [];
-        }
-
-        parsedVariants = parsed.map((v, idx) => {
-          if (!v.variantSkuId) {
-            throw new Error(`Variant SKU is required at index ${idx}`);
-          }
-
-          return {
-            variantId: v.variantId || randomUUID(),
-            variantSkuId: v.variantSkuId,
-
-            variantColor: v.variantColor || "",
-            variantFrameType: v.variantFrameType || "",
-
-            variantWidth: Number(v.variantWidth) || 0,
-            variantHeight: Number(v.variantHeight) || 0,
-
-            variantStockQuantity: Number(v.variantStockQuantity) || 0,
-            variantReorderLimit: Number(v.variantReorderLimit) || 0,
-
-            variantMrp: Number(v.variantMrp) || 0,
-            variantSellingPrice: Number(v.variantSellingPrice) || 0,
-            variantCostPrice: Number(v.variantCostPrice) || 0,
-            variantProfit: Number(v.variantProfit) || 0,
-            variantDiscount: Number(v.variantDiscount) || 0,
-
-            variantImage: variantImageMap[idx] || [],
-          };
-        });
-      } catch (err) {
-        console.warn("⚠️ Could not parse variants JSON:", err.message);
-      }
+    // ✅ NEW: variants is JSON string
+    if (typeof variants === "string" && variants.trim()) {
+      variantsRaw = safeJsonParse(variants, []);
+    } else {
+      // ✅ OLD fallback: variants[0][field] pattern
+      variantsRaw = parseVariantsFromBracketBody(req.body);
     }
 
-    // --------------------------------------------------------
-    //  CREATE PRODUCT
-    // --------------------------------------------------------
-    const product = new Product({
+    // Ensure always array
+    if (!Array.isArray(variantsRaw)) variantsRaw = [];
+
+    const parsedVariants = variantsRaw.map((v, idx) => ({
+      variantId: v.variantId || randomUUID(),
+      variantSkuId: v.variantSkuId || "",
+
+      variantColor: v.variantColor || "",
+
+      variantLength: v.variantLength || "",
+      variantBreadth: v.variantBreadth || "",
+      variantDimensionunit: v.variantDimensionunit || "In",
+
+      variantWidth: v.variantWidth || "",
+      variantWidthUnit: v.variantWidthUnit || "kg",
+
+      variantMrp: toNumber(v.variantMrp),
+      variantCostPrice: toNumber(v.variantCostPrice),
+      variantSellingPrice: toNumber(v.variantSellingPrice),
+
+      variantDiscount: toNumber(v.variantDiscount),
+      variantDiscountUnit: v.variantDiscountUnit || "%",
+
+      variantAvailableStock: toNumber(v.variantAvailableStock),
+      variantLowStockAlertStock: toNumber(v.variantLowStockAlertStock),
+
+      // ✅ attach correct images for this variant index
+      variantImage: variantImageMap[idx] || [],
+
+      isSelected: false,
+    }));
+
+    /** -------------------------------
+     * 3) Create product doc
+     * ------------------------------- */
+    const safeRoute =
+      route ||
+      `/product/${makeSlug(productTittle)}-${String(SKU || "").toLowerCase()}`;
+
+    const productDoc = new Product({
       uuid: uuid || randomUUID(),
-      route: route || `/product/${makeSlug(title)}-${SKU}`,
+      route: safeRoute,
 
-      title,
+      productTittle,
+      description: description || "",
+      status: status || "ACTIVE",
+
       category,
-      subcategory,
+      subcategory: subcategory || "",
+      materialType: materialType || "",
+      isFestive: toBool(isFestive),
+      productcolor: productcolor || "",
+
+      ProductWidthValue: ProductWidthValue || "",
+      ProductWidthUnit: ProductWidthUnit || "",
+      ProductHeightValue: ProductHeightValue || "",
+      ProductDimensionUnit: ProductDimensionUnit || "",
+
       SKU,
-
-      ProductDimensionWidth: toNumber(req.body.ProductDimensionWidth),
-      ProductDimensionHeight: toNumber(req.body.ProductDimensionHeight),
-
-      mrp: toNumber(mrp),
-      sellingPrice: toNumber(sellingPrice),
-      costPrice: toNumber(costPrice),
-      profit: toNumber(profit),
-
-      discountPercent: toNumber(discountPercent),
-      discountAmount: toNumber(discountAmount),
 
       stockQuantity: toNumber(stockQuantity),
       ReorderLimit: toNumber(ReorderLimit),
 
-      color: normalizeSingle(color),
+      mrp: toNumber(mrp),
+      costPrice: toNumber(costPrice),
+      sellingPrice: toNumber(sellingPrice),
 
-      materialType,
-      returnPolicy: toBool(returnPolicy),
-      type,
-      description,
+      discountname: discountname || "",
+      extradiscountamount: toNumber(extradiscountamount),
+      discountPercent: toNumber(discountPercent),
+      discountAmount: toNumber(discountAmount),
 
-      taxPercent,
-      hasVariants: toBool(hasVariants),
+      taxPercent: toNumber(taxPercent),
+
+      variantlistings: toBool(variantlistings),
 
       images: productImages,
       variants: parsedVariants,
     });
 
-    await product.save();
+    await productDoc.save();
 
-    res.status(201).json({
+    return res.status(201).json({
+      success: true,
       message: "Product created successfully",
-      product,
+      product: productDoc,
     });
   } catch (err) {
-    console.error(" Add Product Error:", err);
-    res.status(500).json({ error: err.message });
+    console.error("Add Product Error:", err);
+    return res.status(500).json({ success: false, error: err.message });
   }
 };
 
-//  GET /all
+/** ----------------------------------------
+ * GET /products/all
+ * ---------------------------------------- */
 export const getAllProducts = async (req, res) => {
   try {
     const products = await Product.find();
-    // .populate({
-    //   path: "reviews",
-    //   populate: {
-    //     path: "user",
-    //     select: "name email profileImage",
-    //   },
-    // })
-    // .sort({ createdAt: -1 });  // this is hide for the some reasion reviews is not the ..
-
-    res.json(products);
+    return res.status(200).json(products);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    return res.status(500).json({ error: err.message });
   }
 };
 
-//  GET /category/:categoryName
+/** ----------------------------------------
+ * GET /products/category/:categoryName
+ * ---------------------------------------- */
 export const getProductByCategory = async (req, res) => {
   try {
     const category = decodeURIComponent(req.params.categoryName).trim();
 
     const products = await Product.find({ category }).populate({
       path: "reviews",
-      populate: {
-        path: "user",
-        select: "name email profileImage",
-      },
+      populate: { path: "user", select: "name email profileImage" },
     });
 
     if (!products.length) {
       return res.status(404).json({ message: "No products found" });
     }
 
-    res.json(products);
+    return res.json(products);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    return res.status(500).json({ error: err.message });
   }
 };
 
-//  GET /products/category/:categoryName/:subcategoryName
+/** ----------------------------------------
+ * GET /products/category/:categoryName/:subcategoryName
+ * ---------------------------------------- */
 export const getProductsByCategoryAndSubcategory = async (req, res) => {
   try {
     const categoryName = decodeURIComponent(
-      req.params.categoryName || ""
+      req.params.categoryName || "",
     ).trim();
     const subcategoryName = decodeURIComponent(
-      req.params.subcategoryName || ""
+      req.params.subcategoryName || "",
     ).trim();
 
     const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -258,56 +312,50 @@ export const getProductsByCategoryAndSubcategory = async (req, res) => {
     };
 
     if (subcategoryName) {
-      query.category = {
+      query.subcategory = {
         $regex: `^${escapeRegex(subcategoryName)}$`,
         $options: "i",
       };
     }
 
-    console.log("Final Query:", query);
-
     const products = await Product.find(query).populate({
       path: "reviews",
-      populate: {
-        path: "user",
-        select: "name email profileImage",
-      },
+      populate: { path: "user", select: "name email profileImage" },
     });
 
     if (!products.length) {
       return res.status(404).json({ message: "No products found" });
     }
 
-    res.status(200).json({ products });
+    return res.status(200).json({ products });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    return res.status(500).json({ error: err.message });
   }
 };
 
-//  GET /product/:id (Mongo _id)
+/** ----------------------------------------
+ * GET /products/product/:id
+ * ---------------------------------------- */
 export const getProductDetails = async (req, res) => {
   try {
     const { id } = req.params;
 
     const product = await Product.findById(id).populate({
       path: "reviews",
-      populate: {
-        path: "user",
-        select: "name email profileImage",
-      },
+      populate: { path: "user", select: "name email profileImage" },
     });
 
-    if (!product) {
-      return res.status(404).json({ message: "Product not found" });
-    }
+    if (!product) return res.status(404).json({ message: "Product not found" });
 
-    res.json(product);
+    return res.json(product);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    return res.status(500).json({ error: err.message });
   }
 };
 
-//  GET /product/slug/:route
+/** ----------------------------------------
+ * GET /products/product/slug/:route
+ * ---------------------------------------- */
 export const getProductByRoute = async (req, res) => {
   try {
     const { route } = req.params;
@@ -317,38 +365,32 @@ export const getProductByRoute = async (req, res) => {
       populate: { path: "user", select: "name email profileImage" },
     });
 
-    if (!product) {
-      return res.status(404).json({ message: "Product not found" });
-    }
+    if (!product) return res.status(404).json({ message: "Product not found" });
 
-    res.json(product);
+    return res.json(product);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    return res.status(500).json({ error: err.message });
   }
 };
 
-//  GET /categories
+/** ----------------------------------------
+ * GET /products/categories
+ * ---------------------------------------- */
 export const getAllCategories = async (req, res) => {
   try {
     const categories = await Product.aggregate([
       {
         $group: {
           _id: "$category",
-          subcategories: { $addToSet: "$subcategory" }, // unique subcategories
+          subcategories: { $addToSet: "$subcategory" },
         },
       },
-      {
-        $project: {
-          name: "$_id",
-          _id: 0,
-          subcategories: 1,
-        },
-      },
+      { $project: { name: "$_id", _id: 0, subcategories: 1 } },
     ]);
 
-    res.status(200).json({ categories });
+    return res.status(200).json({ categories });
   } catch (err) {
     console.error("Get Categories Error:", err);
-    res.status(500).json({ error: err.message });
+    return res.status(500).json({ error: err.message });
   }
 };

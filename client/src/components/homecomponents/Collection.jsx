@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, useAnimation } from "framer-motion";
+import Rating from "@mui/material/Rating";
+import Stack from "@mui/material/Stack";
 import icon from "../../assets/black-star-icon.svg";
 // import products from "../../data/products.json";
 // import newProducts from "../../data/products.json";
@@ -18,7 +20,6 @@ import {
   getPrices,
   formatPrice,
 } from "../../utils/homePageUtils";
-
 
 function Collection() {
   const ref = useRef(null);
@@ -138,7 +139,7 @@ function Collection() {
 
   const collections = newProducts.filter(
     (item, index, self) =>
-      index === self.findIndex((obj) => obj.category === item.category)
+      index === self.findIndex((obj) => obj.category === item.category),
   );
 
   return (
@@ -146,11 +147,11 @@ function Collection() {
       <div className="mx-auto bg-white px-4 py-10">
         <div className="max-w-4xl mx-auto text-center mb-12">
           <div className="flex justify-center mb-4">
-            <div className="w-12 h-1 bg-[#eaa100]"></div>
+            <div className="w-12 h-1 bg-[#1C3753]"></div>
           </div>
           <h1 className="text-2xl md:text-3xl lg:text-4xl font-light text-gray-800 mb-3">
             Explore Our{" "}
-            <span className="font-serif italic text-[#ebb100]">
+            <span className="font-serif italic text-[#1C3753]">
               Masterpieces
             </span>
           </h1>
@@ -259,7 +260,7 @@ function Collection() {
                   className="!w-[224px] max-sm:!w-40 rounded-md overflow-hidden"
                 >
                   <Link
-                    className="bg-white block group/image h-full rounded-md shadow-sm"
+                    className=" border block group/image h-full rounded-md shadow-sm"
                     to={getProductUrl(p)}
                   >
                     <div className="relative w-full h-[224px] max-sm:h-40 overflow-hidden">
@@ -273,25 +274,40 @@ function Collection() {
                     </div>
 
                     <div className="w-full py-2 px-3">
-                      <h3 className="text-sm font-serif text-gray-800 line-clamp-1 mb-2">
+                      <h3 className="text-[16px] font-serif text-gray-800 line-clamp-1 mb-2">
                         {p.title}
                       </h3>
 
-                      <div className="flex items-center flex-wrap gap-2">
-                        <span className="text-gray-900 font-medium tracking-tight">
+                      <div className="flex items-center flex-wrap ">
+                        <span className="text-gray-900 font-medium text-[28px] tracking-tight">
                           {formatPrice(effective)}
                         </span>
 
                         {discountPercent > 0 && (
                           <>
-                            <span className="text-gray-400 text-xs line-through font-light">
-                              {formatPrice(base)}
-                            </span>
-                            <span className="bg-green-700 text-white text-xs px-2 py-0.5 rounded">
+                            <span className=" text-[#168408] text-[16px] px-2 py-0.5 rounded">
                               {discountPercent}% Off
                             </span>
                           </>
                         )}
+                      </div>
+                      <div className="flex flex-col items-start justify-start">
+                        <span className="text-gray-400 text-[16px] line-through font-light">
+                          {formatPrice(base)}
+                        </span>
+
+                        <div className="flex gap-1 ">
+                          <Stack spacing={1}>
+                            <Rating
+                              name="size-small"
+                              defaultValue={2}
+                              size="small"
+                            />
+                          </Stack>
+                          <span className="text-[12px] text-[#686868]">
+                            (345)
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </Link>
@@ -301,11 +317,11 @@ function Collection() {
           </Swiper>
 
           {/* ✅ Navigation Buttons */}
-          <button className="collections-prev absolute -left-4 top-1/2 -translate-y-1/2 w-10 h-16 flex items-center justify-center bg-white shadow-sm hover:bg-gray-50 transition-all duration-200 z-10 border border-gray-200">
+          <button className="collections-prev absolute -left-4 top-1/2 -translate-y-1/2 w-10 h-16 flex items-center justify-center bg-[#D5E5F5] shadow-sm hover:bg-gray-50 transition-all duration-200 z-10 border border-gray-200">
             <ChevronLeft size={20} className="text-gray-600" />
           </button>
 
-          <button className="collections-next absolute -right-4 top-1/2 -translate-y-1/2 w-10 h-16 flex items-center justify-center bg-white shadow-sm hover:bg-gray-50 transition-all duration-200 z-10 border border-gray-200">
+          <button className="collections-next absolute -right-4 top-1/2 -translate-y-1/2 w-10 h-16 flex items-center justify-center bg-[#D5E5F5] shadow-sm hover:bg-gray-50 transition-all duration-200 z-10 border border-gray-200">
             <ChevronRight size={20} className="text-gray-600" />
           </button>
         </div>

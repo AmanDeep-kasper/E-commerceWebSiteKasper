@@ -204,7 +204,7 @@ function Design() {
               </div>
             ))}
           </motion.div>
-          <div className="absolute lg:opacity-0 group-hover:opacity-100 bottom-0 bg-[#FFF4E6] m-3 p-3 rounded-md shadow-md transition-all ease-in">
+          <div className="absolute lg:opacity-0 group-hover:opacity-100 bottom-0 bg-[#D5E5F5] m-3 p-3 rounded-md shadow-md transition-all ease-in">
             <h2 className="text-lg sm:text-xl md:text-2xl text-gray-800 md:line-clamp-none line-clamp-2 font-sans font-medium tracking-tight !leading-tight">
               {product3.title}
             </h2>
@@ -212,15 +212,15 @@ function Design() {
               {product3.description}
             </p>
           </div>
-          <div
-            className="bg-black md:w-14 md:h-14 w-10 h-10 absolute md:top-4 md:right-4 top-2 right-2  rounded-lg text-white flex items-center justify-center lg:opacity-0 group-hover:opacity-100 transition-all ease-in-out duration-300 cursor-pointer"
+          {/* <div
+            className="bg-[#D5E5F5] md:w-14 md:h-14 w-10 h-10 absolute md:top-4 md:right-4 top-2 right-2 border-2 border-[#1C3753] rounded-lg text-[#1C3753] flex items-center justify-center lg:opacity-0 group-hover:opacity-100 transition-all ease-in-out duration-300 cursor-pointer"
             onClick={() => navigate(`/products/${product3.category}`)}
           >
             <ChevronRight
               className="group-hover:-rotate-45 transition-all delay-150 duration-300"
               size={34}
             />
-          </div>
+          </div> */}
         </div>
 
         {/* Right column images */}
@@ -239,7 +239,7 @@ function Design() {
                   </div>
                 ))}
               </motion.div>
-              <div className="absolute lg:opacity-0 group-hover:opacity-100 bottom-0 bg-[#E6F0F6] m-3 p-3 rounded-md shadow-md transition-all ease-in">
+              <div className="absolute lg:opacity-0 group-hover:opacity-100 bottom-0 bg-[#D5E5F5] m-3 p-3 rounded-md shadow-md transition-all ease-in">
                 <h3 className="text-xs md:line-clamp-none line-clamp-2 sm:text-lg md:text-xl lg:text-2xl font-medium tracking-tight !leading-tight">
                   {product1.title}
                 </h3>
@@ -247,15 +247,15 @@ function Design() {
                   {product1.description}
                 </p>
               </div>
-              <div
-                className="bg-black md:w-10 md:h-10 w-8 h-8 absolute md:top-4 md:right-4 top-2 right-2 rounded-lg text-white flex items-center justify-center lg:opacity-0 group-hover:opacity-100 transition-all ease-in-out duration-300 cursor-pointer"
+              {/* <div
+                className="bg-[#D5E5F5] md:w-10 md:h-10 w-8 h-8 absolute md:top-4 md:right-4 top-2 right-2 rounded-lg border-2 border-[#1C3753]  text-[#1C3753] flex items-center justify-center lg:opacity-0 group-hover:opacity-100 transition-all ease-in-out duration-300 cursor-pointer"
                 onClick={() => navigate(`/products/${product1.category}`)}
               >
                 <ChevronRight
                   className="group-hover:-rotate-45 transition-all delay-150 duration-300"
                   size={24}
                 />
-              </div>
+              </div> */}
             </div>
             <div className="group relative overflow-hidden w-full h-max object-cover rounded-md">
               <motion.div
@@ -270,7 +270,7 @@ function Design() {
                   </div>
                 ))}
               </motion.div>
-              <div className="absolute lg:opacity-0 group-hover:opacity-100 bottom-0 bg-[#F6E1E1] m-3 p-3 rounded-md shadow-md transition-all ease-in">
+              <div className="absolute lg:opacity-0 group-hover:opacity-100 bottom-0 bg-[#D5E5F5] m-3 p-3 rounded-md shadow-md transition-all ease-in">
                 <h3 className="text-xs md:line-clamp-none line-clamp-2 sm:text-lg md:text-xl lg:text-2xl  font-medium tracking-tight !leading-tight">
                   {product2.title}
                 </h3>
@@ -278,15 +278,15 @@ function Design() {
                   {product2.description}
                 </p>
               </div>
-              <div
-                className="bg-black md:w-10 md:h-10 w-8 h-8 absolute md:top-4 md:right-4 top-2 right-2 rounded-lg text-white flex items-center justify-center lg:opacity-0 group-hover:opacity-100 transition-all ease-in-out duration-300 cursor-pointer"
+              {/* <div
+                className="bg-[#D5E5F5] md:w-10 md:h-10 w-8 h-8 absolute md:top-4 md:right-4 top-2 right-2 border-2 border-[#1C3753]  rounded-lg text-[#1C3753] flex items-center justify-center lg:opacity-0 group-hover:opacity-100 transition-all ease-in-out duration-300 cursor-pointer"
                 onClick={() => navigate(`/products/${product2.category}`)}
               >
                 <ChevronRight
                   className="group-hover:-rotate-45 transition-all delay-150 duration-300"
                   size={24}
                 />
-              </div>
+              </div> */}
             </div>
           </div>
           {/* <div className="grid grid-cols-3 gap-2.5">
@@ -307,13 +307,12 @@ function Design() {
             />
           </div> */}
 
-          <div className="relative h-full bg-[#FFECD9]/50 border border-[#FFECD9] rounded-lg px-4 py-4 max-lg:py-10 flex flex-col gap-4 justify-center group max-sm:items-center max-sm:text-center">
-            <h2 className="w-[90%] text-[24px] sm:text-3xl md:text-[2.5rem] lg:text-[3rem] font-sans hero-title tracking-tight font-medium md:leading-[0.9] leading-[1]">
-              Design Your Own Metal Masterpiece
+          <div className="relative h-full bg-[#1C3753] border border-[#FFECD9] text-[#FFFFFF] rounded-lg px-4 py-4 max-lg:py-10 flex flex-col gap-4 justify-center group max-sm:items-center max-sm:text-center">
+            <h2 className="w-[90%] text-[24px] sm:text-3xl md:text-[2.5rem] lg:text-[3rem] font-imprima  tracking-tight font-medium md:leading-[0.9] leading-[1]">
+             Elevate Your Walls with Precision
             </h2>
-            <p className="text-[14px] sm:text-[18px] text-gray-800 w-[90%]">
-              From butterflies to blessings — upload your idea or choose
-              elements you love, and we'll craft it into stunning laser-cut art.
+            <p className="text-[14px] text-[#FFFFFF] sm:text-[18px] w-[90%]">
+            Precision laser-cut metal designs crafted with sharp detail and refined finishes, built to elevate living rooms, bedrooms, and statement walls.
             </p>
 
             {/* <div className="bg-black w-16 h-16 absolute top-4 right-4 rounded-lg text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all ease-in-out duration-300">

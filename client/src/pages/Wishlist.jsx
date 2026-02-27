@@ -42,7 +42,7 @@ function Wishlist() {
         </h1>
         {totalItems > 1 && (
           <button
-            className="bg-white text-red-500 border border-red-500 hover:bg-red-500 hover:text-white px-3 py-1.5 text-sm font-medium transition-colors rounded-md"
+            className="bg-white text-[#1C3753] border border-[#1C3753] hover:border-opacity-0 hover:bg-red-500 hover:text-white px-3 py-1.5 text-sm font-medium transition-colors rounded-md"
             onClick={() => setIsModalOpen(true)}
           >
             Clear All
@@ -115,7 +115,7 @@ function Wishlist() {
                     </div>
                     <div className="flex items-center gap-3">
                       <button
-                        className="bg-[#ebb100] md:px-4 px-2 md:py-1 py-0.5 text-sm border border-[#ebb100] transition-colors whitespace-nowrap shadow-sm hover:shadow-sm rounded-full disabled:bg-gray-300 disabled:border-gray-300 disabled:text-gray-500"
+                        className="bg-[#1C3753] md:px-4 px-2 md:py-1 py-0.5 text-sm text-white border border-[#1C3753] transition-colors whitespace-nowrap shadow-sm hover:shadow-sm rounded-lg disabled:bg-gray-300 disabled:border-gray-300 disabled:text-gray-500"
                         onClick={() => moveToCart(item)}
                         disabled={(item.stockQuantity ?? 0) <= 0}
                       >
@@ -125,7 +125,7 @@ function Wishlist() {
                       </button>
 
                       <button
-                        className="md:px-4 px-2 md:py-1 py-0.5 flex items-center text-sm border border-gray-400 text-gray-500 gap-2 rounded-full"
+                        className="md:px-4 px-2 md:py-1 py-0.5 flex items-center text-sm border border-[#1C3753] text-[#1C3753] gap-2 rounded-lg"
                         onClick={() => dispatch(removeFromWishlist(item))}
                         aria-label="Remove item"
                       >
@@ -141,10 +141,10 @@ function Wishlist() {
           {totalItems > 1 && (
             <div className="p-4 border-t border-gray-200 justify-self-end relative group w-max">
               <button
-                className={`flex w-max gap-2 items-center md:px-8 md:py-3 px-4 py-2 rounded-full text-sm font-medium transition-colors shadow-sm sm:w-auto text-center ${
+                className={`flex w-max gap-2 items-center md:px-4 md:py-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm sm:w-auto text-center ${
                   hasOutOfStock
                     ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                    : "bg-[#212121] text-white hover:bg-black"
+                    : "bg-[#1C3753] text-white hover:bg-black"
                 }`}
                 disabled={hasOutOfStock}
                 onClick={() => !hasOutOfStock && moveAllToCart(wishlistItems)}

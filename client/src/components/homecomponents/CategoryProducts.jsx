@@ -1,35 +1,11 @@
 import React, { useEffect, useState } from "react";
-import category1 from "../../assets/Category1.png";
-import category3 from "../../assets/Category3.png";
-import category2 from "../../assets/Category2.png";
-import category5 from "../../assets/Category5.png";
-import category4 from "../../assets/Category4.png";
-import category6 from "../../assets/Category6.png";
-import category7 from "../../assets/Category7.png";
-import category8 from "../../assets/Category8.png";
-import category9 from "../../assets/Category9.png";
-import category10 from "../../assets/Category10.png";
-import category11 from "../../assets/Category11.png";
-import category12 from "../../assets/Category12.png";
-import category13 from "../../assets/Category13.png";
-import category14 from "../../assets/Category14.png";
-import category15 from "../../assets/Category15.png";
-import category16 from "../../assets/Category16.png";
-import category17 from "../../assets/Category17.png";
-import category18 from "../../assets/Category18.png";
-import Tilt from "react-parallax-tilt";
-import Button from "../Button";
-import Title from "../Title";
-// import products from "../../data/products.json";
 import { Link, useNavigate } from "react-router";
 import { ArrowRight } from "lucide-react";
 import { getCardImage } from "../../utils/homePageUtils";
 import axiosInstance from "../../api/axiosInstance";
 
-
-
 function CategoryProducts() {
- const navigate = useNavigate();
+  const navigate = useNavigate();
 
   const [allcategory, setAllCategory] = useState([]);
   const [visibleCount, setVisibleCount] = useState(4);
@@ -40,6 +16,7 @@ function CategoryProducts() {
       try {
         const res = await axiosInstance.get("/products/all");
         setAllCategory(res.data);
+        // console.log(res.data);
       } catch (error) {
         console.log("Fetch error:", error);
       }
@@ -69,7 +46,6 @@ function CategoryProducts() {
     return acc;
   }, {});
 
-
   return (
     <div>
       {/* <Title className="md:items-start items-center">Art Across Styles</Title> */}
@@ -86,30 +62,41 @@ function CategoryProducts() {
             <Link
               key={category}
               to={`/products/${encodeURIComponent(category)}`}
-              className="bg-gradient-to-b border border-gray-200  bg-white py-2 px-4"
+              className="bg-gradient-to-b shadow-sm rounded-lg  bg-white py-2 px-3"
             >
-              <h2 className="md:text-2xl text-[20px] py-[10px] font-semibold">
-                {category}
-              </h2>
+              <div className="flex items-center justify-between">
+                <h2 className="md:text-2xl text-[20px] py-[9px] font-semibold">
+                  {category}
+                </h2>
+                <button
+                  className="underline text-[#2C87E2] hover:text-blue-950 py-2 text-sm"
+                  onClick={() =>
+                    navigate(`/products/${encodeURIComponent(category)}`)
+                  }
+                >
+                  view all
+                </button>
+              </div>
               <div className="grid grid-cols-2 gap-4">
                 {items.slice(0, 4).map((p, index) => (
                   <div
                     key={`${p.id || p.uuid || p.SKU || p.title}-${index}`}
                     className="cursor-pointer flex flex-col items-center transition-all duration-300 hover:shadow-sm"
-                    onClick={() => navigate(getProductHref(p))}
+                    // onClick={() => navigate(getProductHref(p))}
+                    onClick={() => navigate(`/product/${p._id}`)}
                   >
                     <div className="flex flex-col w-full h-full overflow-hidden">
                       {/* Product Image */}
                       <div className="relative w-full aspect-square rounded-md overflow-hidden">
                         <img
                           className="w-full h-full bg-white object-contain hover:scale-105 transition-transform duration-300"
-                          src={getCardImage(p)}
-                          alt={
-                            p.title ||
-                            p.slug ||
-                            `${p.category} ${p.subcategory}` ||
-                            "Product"
+                          // src={getCardImage(p)}
+                          src={
+                            p?.variants?.[0]?.variantImage?.[0] ||
+                            p?.images?.[0] ||
+                            "/fallback.png"
                           }
+                          alt={p.productTittle || p.category || "Product"}
                           loading="lazy"
                         />
 
@@ -122,21 +109,12 @@ function CategoryProducts() {
                       </div>
 
                       <h3 className="text-xs py-2 bg-transparent line-clamp-1 h-6">
-                        {p.title}
+                        {p.productTittle}
                       </h3>
                     </div>
                   </div>
                 ))}
               </div>
-
-              <button
-                className="underline text-blue-800 hover:text-blue-950 py-2 text-sm"
-                onClick={() =>
-                  navigate(`/products/${encodeURIComponent(category)}`)
-                }
-              >
-                view all
-              </button>
             </Link>
           ))}
       </div>

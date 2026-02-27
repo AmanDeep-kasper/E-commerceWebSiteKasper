@@ -22,10 +22,14 @@ import UserProfile from "./UserProfile";
 import users from "../data/user";
 import Modal from "./Modal";
 import { logout } from "../redux/cart/userSlice";
+import MainLog from "../assets/IconsUsed/HomeMainLogo.png";
+import axiosInstance from "../api/axiosInstance";
 
 function Navbar() {
   const { user, isAuthenticated } = useSelector((state) => state.user);
-  const [showChoice, setShowChoice] = useState(user?.role === "admin" ? true : false);
+  const [showChoice, setShowChoice] = useState(
+    user?.role === "admin" ? true : false,
+  );
   // console.log(showChoice)
   // const [showChoice, setShowChoice] = useState(true);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -40,9 +44,23 @@ function Navbar() {
   const dispatch = useDispatch();
   const totalItems = useSelector((state) => state.cart.totalItems);
   const totalWishlistItems = useSelector(
-    (state) => state?.wishlist?.totalItems
+    (state) => state?.wishlist?.totalItems,
   );
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [shopCategories, setShopCategories] = useState([]);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await axiosInstance.get("/products/categories");
+        setShopCategories(res.data.categories || []);
+        // console.log("CATEGORIES:", res.data);
+      } catch (err) {
+        console.error("Failed to fetch categories", err);
+      }
+    };
+    fetchCategories();
+  }, []);
 
   const handleLogout = () => {
     dispatch(logout()); // updates Redux + clears localStorage
@@ -50,27 +68,27 @@ function Navbar() {
   };
 
   // Mock shop categories data
-  const shopCategories = Object.values(
-    products.reduce((acc, { category, subcategory }) => {
-      if (!acc[category]) {
-        acc[category] = {
-          name: category,
-          path: `/products/${encodeURIComponent(category)}`, // matches your route
-          sublist: [],
-        };
-      }
+  // const shopCategories = Object.values(
+  //   products.reduce((acc, { category, subcategory }) => {
+  //     if (!acc[category]) {
+  //       acc[category] = {
+  //         name: category,
+  //         path: `/products/${encodeURIComponent(category)}`, // matches your route
+  //         sublist: [],
+  //       };
+  //     }
 
-      if (!acc[category].sublist.some((sub) => sub.name === subcategory)) {
-        acc[category].sublist.push({
-          name: subcategory,
-          category: subcategory,
-          path: `/${encodeURIComponent(subcategory)}`,
-        });
-      }
+  //     if (!acc[category].sublist.some((sub) => sub.name === subcategory)) {
+  //       acc[category].sublist.push({
+  //         name: subcategory,
+  //         category: subcategory,
+  //         path: `/${encodeURIComponent(subcategory)}`,
+  //       });
+  //     }
 
-      return acc;
-    }, {})
-  );
+  //     return acc;
+  //   }, {}),
+  // );
 
   // disable background scroll when mobile nav is open
   useEffect(() => {
@@ -98,9 +116,12 @@ function Navbar() {
   // Filter results
   const filteredResults = products
     .filter((item) =>
-      item.title.toLowerCase().includes(debouncedSearch.toLowerCase())
+      item.title.toLowerCase().includes(debouncedSearch.toLowerCase()),
     )
     .slice(0, 5);
+
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isShopOpen, setIsShopOpen] = useState(false);
 
   return (
     <>
@@ -113,11 +134,12 @@ function Navbar() {
             <div
               className="lg:hidden flex items-center justify-center w-10 h-10 rounded-lg hover:bg-amber-50 transition-colors cursor-pointer"
               onClick={() => {
-                setDropdown(!dropdown);
+                // setDropdown(!dropdown);
+                setIsMobileMenuOpen((p) => !p);
                 setIsProfileOpen(false);
               }}
             >
-              {dropdown ? (
+              {isMobileMenuOpen  ? (
                 <X size={24} className="text-gray-700" />
               ) : (
                 <Menu size={24} className="text-gray-700" />
@@ -126,9 +148,10 @@ function Navbar() {
 
             {/* Logo */}
             <Link to="/" className="flex items-center">
-              <h1 className="text-lg sm:text-xl font-semibold text-amber-600">
+              {/* <h1 className="text-lg sm:text-xl font-semibold text-amber-600">
                 Logo
-              </h1>
+              </h1> */}
+              <img src={MainLog} alt="logo" />
             </Link>
           </div>
 
@@ -136,29 +159,34 @@ function Navbar() {
           <nav className="hidden lg:flex gap-8">
             <Link
               to="/"
-              className="relative group text-gray-700 font-medium hover:text-amber-600 transition-colors flex items-center gap-1 py-2"
+              className="relative group text-gray-700  hover:text-[#1C3753] transition-colors flex items-center gap-1 py-2"
             >
               Home
               {/* Animated underline/border */}
-              <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-amber-600 transition-all duration-300 group-hover:w-full"></span>
+              <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-[#1C3753] transition-all duration-300 group-hover:w-full"></span>
             </Link>
+
+
+
 
             {/* Shop Dropdown */}
             <div className="relative">
               <button
-                className="flex items-center gap-1 text-gray-700 font-medium hover:text-amber-600 transition-colors py-2 h-16"
+                className="flex items-center gap-1 text-gray-700  hover:text-[#1C3753] transition-colors py-2 h-16"
                 onMouseEnter={() => setDropdown(true)}
                 onMouseLeave={() => setDropdown(false)}
+                // onMouseEnter={() => setIsShopOpen(true)}
+                // onMouseLeave={() => setIsShopOpen(false)}
               >
                 Shop
                 <ChevronDown
                   size={18}
                   className={`transition-transform duration-200 ${
-                    dropdown ? "rotate-180 text-amber-600" : ""
+                    dropdown ? "rotate-180 text-[#1C3753]" : ""
                   }`}
                 />
                 <span
-                  className={`absolute bottom-0 left-0 h-[2px] bg-amber-600 transition-all duration-300 ${
+                  className={`absolute bottom-0 left-0 h-[2px] bg-[#1C3753] transition-all duration-300 ${
                     dropdown ? "w-full" : "w-0"
                   }`}
                 ></span>
@@ -167,8 +195,10 @@ function Navbar() {
               {/* Backdrop blur only BELOW navbar */}
               <div
                 onMouseEnter={() => setDropdown(false)}
+                //  onMouseEnter={() => setIsShopOpen(false)}
                 className={`fixed top-16 left-0 right-0 bottom-0 bg-black/10 backdrop-blur-sm transition-all duration-300 z-40 ${
                   dropdown ? "visible opacity-100" : "invisible opacity-0"
+                  // isShopOpen ? "visible opacity-100" : "invisible opacity-0"
                 }`}
               ></div>
 
@@ -178,37 +208,38 @@ function Navbar() {
                 onMouseLeave={() => setDropdown(false)}
                 className={`fixed top-16 left-0 w-full bg-white backdrop-blur-md shadow-xl border-t border-gray-200 transition-all duration-300 z-50 ${
                   dropdown ? "visible opacity-100" : "invisible opacity-0"
+                  // isShopOpen ? "visible opacity-100" : "invisible opacity-0"
                 }`}
               >
                 <div className="max-w-7xl mx-auto px-10 py-10 grid xl:grid-cols-6 grid-cols-5 gap-8">
-                  {shopCategories.map((item, index) => (
-                    <div key={index}>
-                      {/* Category Title */}
+                  {shopCategories.map((cat) => (
+                    <div key={cat.name}>
                       <h3
-                        onClick={() => {
-                          navigate(item.path);
-                          setDropdown(false); // ✅ close after click
-                        }}
-                        className="font-semibold text-gray-900 mb-3 cursor-pointer hover:text-amber-700 transition-colors"
+                      className="font-semibold"
+                        onClick={() =>
+                          navigate(`/products/${encodeURIComponent(cat.name)}`)
+                        }
                       >
-                        {item.name}
+                        {cat.name}
                       </h3>
 
-                      {/* Subcategories */}
-                      <ul className="space-y-2 truncate">
-                        {item.sublist?.map((subItem, subIndex) => (
-                          <li key={subIndex}>
-                            <button
-                              onClick={() => {
-                                navigate(item.path + subItem.path);
-                                setDropdown(false); // ✅ close after click
-                              }}
-                              className="text-sm text-gray-600 hover:text-amber-700 transition-colors"
-                            >
-                              {subItem.name}
-                            </button>
-                          </li>
-                        ))}
+                      <ul>
+                        {(cat.subcategories || [])
+                          .filter((s) => s && s.toLowerCase() !== "all")
+                          .map((sub) => (
+                            <li key={sub}>
+                              <button
+                              className="text-[#686868] hover:underline"
+                                onClick={() =>
+                                  navigate(
+                                    `/products/${encodeURIComponent(cat.name)}/${encodeURIComponent(sub)}`,
+                                  )
+                                }
+                              >
+                                {sub}
+                              </button>
+                            </li>
+                          ))}
                       </ul>
                     </div>
                   ))}
@@ -216,12 +247,16 @@ function Navbar() {
               </div>
             </div>
 
+
+
+
+
             <Link
               to="/faqs"
-              className="relative group text-gray-700 font-medium hover:text-amber-600 transition-colors flex items-center gap-1 py-2"
+              className="relative group text-gray-700  hover:text-[#1C3753] transition-colors flex items-center gap-1 py-2"
             >
               FAQs
-              <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-amber-600 transition-all duration-300 group-hover:w-full"></span>
+              <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-[#1C3753] transition-all duration-300 group-hover:w-full"></span>
             </Link>
           </nav>
 
@@ -229,7 +264,7 @@ function Navbar() {
           <div className="flex items-center gap-4 md:gap-6">
             <div className="relative">
               {/* Desktop Search Input */}
-              <div className="hidden lg:flex items-center bg-gray-50 overflow-hidden w-64 lg:w-80 xl:w-96 border-2 border-gray-700 rounded-full">
+              <div className="hidden lg:flex items-center bg-gray-50 overflow-hidden w-64 lg:w-80 xl:w-96 border-[1.5px] border-[#686868] rounded-md">
                 <Search size={18} className="mx-2 text-gray-500" />
                 <input
                   type="text"
@@ -240,7 +275,7 @@ function Navbar() {
                     setIsOpen(true);
                   }}
                   onFocus={() => setIsOpen(true)}
-                  className="flex-1 py-2 px-2 outline-none text-sm bg-transparent"
+                  className="flex-1 py-2 px-2 outline-none text-sm bg-transparent placeholder:text-[#686868]"
                 />
               </div>
 
@@ -260,8 +295,8 @@ function Navbar() {
                               setTimeout(() => {
                                 navigate(
                                   `/products/${encodeURIComponent(
-                                    item.category
-                                  )}`
+                                    item.category,
+                                  )}`,
                                 );
                               }, 0);
                             }}
@@ -275,7 +310,7 @@ function Navbar() {
                               <p className="text-sm font-medium">
                                 {item.title}
                               </p>
-                              <p className="text-xs text-amber-600">
+                              <p className="text-xs text-[#1C3753]">
                                 in {item.category || "Uncategorized"}
                               </p>
                             </div>
@@ -323,7 +358,7 @@ function Navbar() {
                       type="text"
                       autoFocus
                       placeholder="Search for products..."
-                      value={query} // ✅ same query string
+                      value={query} //
                       onChange={(e) => setSearchParams({ q: e.target.value })}
                       className="flex-1 py-2 px-2 outline-none text-sm"
                     />
@@ -344,8 +379,8 @@ function Navbar() {
                                 setTimeout(() => {
                                   navigate(
                                     `/products/${encodeURIComponent(
-                                      item.category
-                                    )}`
+                                      item.category,
+                                    )}`,
                                   );
                                 }, 0);
                               }}
@@ -396,7 +431,7 @@ function Navbar() {
             {/* User dropdown */}
             <div className="relative group cursor-pointer">
               <button
-                className="p-2 rounded-lg hover:bg-amber-50 transition-colors"
+                className="p-2 rounded-lg hover:bg-[#D5E5F5] transition-colors"
                 onClick={() => {
                   setIsProfileOpen(!isProfileOpen);
                   setDropdown(false);
@@ -405,11 +440,11 @@ function Navbar() {
               >
                 <UserRound
                   size={20}
-                  className="text-gray-600 group-hover:text-amber-600"
+                  className="text-gray-600 group-hover:text-[#1C3753]"
                 />
               </button>
 
-              <div className="absolute -right-[340%] hidden lg:group-hover:block max-lg:hidden top-8 z-50 border border-transparent">
+              <div className="absolute -right-[340%] hidden lg:group-hover:block max-lg:hidden top-9 z-50 border border-transparent">
                 <div className="border border-gray-200 mt-4">
                   <UserProfile />
                   <div className="pt-4 border-t border-gray-200 bg-white">
@@ -420,11 +455,11 @@ function Navbar() {
                           className="flex items-center gap-4 px-7 pb-6 rounded-lg cursor-pointer transition-colors duration-200 group"
                           onClick={() => setShowLogoutModal(true)}
                         >
-                          <div className="p-2 rounded-lg bg-gray-100 group-hover:bg-red-100 transition-colors duration-200">
-                            <LogOut className="w-5 h-5 text-gray-600 group-hover:text-red-600" />
+                          <div className="p-2 rounded-lg bg-gray-100 group-hover:bg-[#D5E5F5] transition-colors duration-200">
+                            <LogOut className="w-5 h-5 text-gray-600 group-hover:text-[#1C3753]" />
                           </div>
                           <div className="flex-1">
-                            <h2 className="text-gray-800 font-medium text-sm">
+                            <h2 className="text-gray-800 font-medium text-[16px]">
                               Log Out
                             </h2>
                           </div>
@@ -436,11 +471,11 @@ function Navbar() {
                         to="/login"
                         className="flex items-center gap-4 px-7 pb-6 rounded-lg cursor-pointer transition-colors duration-200 group"
                       >
-                        <div className="p-2 rounded-lg bg-gray-100 group-hover:bg-yellow-100 transition-colors duration-200">
-                          <LogIn className="w-5 h-5 text-gray-600 group-hover:text-yellow-600" />
+                        <div className="p-2 rounded-lg bg-gray-100 group-hover:bg-[#D5E5F5] transition-colors duration-200">
+                          <LogIn className="w-5 h-5 text-gray-600 group-hover:text-[#1C3753]" />
                         </div>
                         <div className="flex-1">
-                          <h2 className="text-yellow-600 font-medium text-sm">
+                          <h2 className="text-gray-800 font-medium text-sm">
                             Log In
                           </h2>
                         </div>
@@ -456,14 +491,14 @@ function Navbar() {
             {/* Wishlist */}
             <Link
               to="/accounts/wishlist"
-              className="relative p-2 rounded-lg group hover:bg-amber-50 transition-colors"
+              className="relative p-2 rounded-lg group hover:bg-[#D5E5F5] transition-colors"
             >
               <Heart
                 size={20}
-                className="text-gray-600 group-hover:text-amber-600"
+                className="text-gray-600 group-hover:text-[#1C3753]"
               />
               {totalWishlistItems > 0 && (
-                <span className="absolute -top-1 -right-1 bg-amber-600 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 bg-[#1C3753] text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
                   {totalWishlistItems}
                 </span>
               )}
@@ -472,14 +507,14 @@ function Navbar() {
             {/* Cart */}
             <Link
               to="/bag"
-              className="relative p-2 group rounded-lg hover:bg-amber-50 transition-colors"
+              className="relative p-2 group rounded-lg hover:bg-[#D5E5F5] transition-colors"
             >
               <ShoppingCart
                 size={20}
-                className="text-gray-600 group-hover:text-amber-600"
+                className="text-gray-600 group-hover:text-[#1C3753]"
               />
               {totalItems > 0 && (
-                <span className="absolute -top-1 -right-1 bg-amber-600 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 bg-[#1C3753] text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
                   {totalItems}
                 </span>
               )}
@@ -493,7 +528,7 @@ function Navbar() {
 
       {/* Mobile Dropdown Nav */}
       <AnimatePresence>
-        {dropdown && (
+        {isMobileMenuOpen  && (
           <>
             {/* Backdrop */}
             <motion.div
@@ -547,62 +582,60 @@ function Navbar() {
                   Shop Categories
                 </h3>
 
-                {shopCategories.map((item, index) => (
-                  <div key={index} className="py-2">
-                    {/* Main Category */}
-                    <div
-                      className="flex items-center justify-between py-3 px-3 text-gray-700 font-medium rounded-lg hover:bg-amber-50 hover:text-amber-600 cursor-pointer transition-colors"
-                      onClick={() =>
-                        setSubDropdown(subDropdown === index ? null : index)
-                      }
-                    >
-                      <span>{item.name}</span>
-                      {item.sublist && (
-                        <ChevronDown
-                          size={16}
-                          className={`text-gray-400 transition-transform duration-300 ${
-                            subDropdown === index ? "rotate-180" : ""
-                          }`}
-                        />
-                      )}
-                    </div>
+               {shopCategories.map((item, index) => (
+  <div key={item.name || index} className="py-2">
+    <div
+      className="flex items-center justify-between py-3 px-3 text-gray-700 font-medium rounded-lg hover:bg-amber-50 hover:text-amber-600 cursor-pointer"
+      onClick={() => setSubDropdown(subDropdown === index ? null : index)}
+    >
+      <span>{item.name}</span>
 
-                    {/* Sublist */}
-                    <div
-                      className={`pl-6 flex flex-col gap-1 overflow-hidden transition-[max-height] duration-300 ease-in-out ${
-                        subDropdown === index ? "max-h-96" : "max-h-0"
-                      }`}
-                    >
-                      {item.sublist && (
-                        <>
-                          {/* "All" option */}
-                          <div
-                            className="py-2 px-3 text-sm text-gray-600 hover:bg-amber-50 hover:text-amber-600 cursor-pointer transition-colors"
-                            onClick={() => {
-                              navigate(item.path);
-                              setDropdown(false);
-                            }}
-                          >
-                            All
-                          </div>
+      {(item.subcategories?.length > 0) && (
+        <ChevronDown
+          size={16}
+          className={`text-gray-400 transition-transform duration-300 ${
+            subDropdown === index ? "rotate-180" : ""
+          }`}
+        />
+      )}
+    </div>
 
-                          {item.sublist.map((subItem, subIndex) => (
-                            <div
-                              key={subIndex}
-                              className="py-2 px-3 text-sm text-gray-600 hover:bg-amber-50 hover:text-amber-600 cursor-pointer transition-colors"
-                              onClick={() => {
-                                navigate(item.path + subItem.path);
-                                setDropdown(false);
-                              }}
-                            >
-                              {subItem.name}
-                            </div>
-                          ))}
-                        </>
-                      )}
-                    </div>
-                  </div>
-                ))}
+    <div
+      className={`pl-6 flex flex-col gap-1 overflow-hidden transition-[max-height] duration-300 ease-in-out ${
+        subDropdown === index ? "max-h-96" : "max-h-0"
+      }`}
+    >
+      {/* All */}
+      <div
+        className="py-2 px-3 text-sm text-gray-600 hover:bg-amber-50 hover:text-amber-600 cursor-pointer"
+        onClick={() => {
+          navigate(`/products/${encodeURIComponent(item.name)}`);
+          setIsMobileMenuOpen(false);
+        }}
+      >
+        All
+      </div>
+
+      {/* Subcategories */}
+      {(item.subcategories || [])
+        .filter((s) => s && s.toLowerCase() !== "all")
+        .map((sub) => (
+          <div
+            key={sub}
+            className="py-2 px-3 text-sm text-gray-600 hover:bg-amber-50 hover:text-amber-600 cursor-pointer"
+            onClick={() => {
+              navigate(
+                `/products/${encodeURIComponent(item.name)}/${encodeURIComponent(sub)}`
+              );
+              setIsMobileMenuOpen(false);
+            }}
+          >
+            {sub}
+          </div>
+        ))}
+    </div>
+  </div>
+))}
 
                 <div className="my-2 border-t border-gray-200"></div>
 

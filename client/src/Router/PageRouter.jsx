@@ -86,6 +86,12 @@ import ShippedOrders from "../pages/admin/order/ShippedOrders";
 import DeliveredOrders from "../pages/admin/order/DeliveredOrders";
 import CancelledOrders from "../pages/admin/order/CancelledOrders";
 import Transporter from "../pages/admin/Transporter/Transporter";
+import AboutUs from "../pages/AboutUs";
+import ShippingPolicy from "../pages/ShippingPolicy";
+import ReturnRefundPolicy from "../pages/ReturnRefundPolicy";
+import TermsConditions from "../pages/TermsConditions";
+import CancelItemsPage from "../components/CancelItemsPage";
+import UserReturnPage from "../components/UserReturnPage";
 
 const PageRouter = () => {
   return (
@@ -96,6 +102,11 @@ const PageRouter = () => {
         <Route path="/" element={<Home />} />
         <Route path="/faqs" element={<Faqs />} />
         <Route path="/policy" element={<Policy />} />
+        <Route path="/aboutUs" element={<AboutUs />} />
+        <Route path="/shippingpolicy" element={<ShippingPolicy />} />
+         <Route path="/returnrefundpolicy" element={<ReturnRefundPolicy />} />
+         <Route path="/termsconditions" element={<TermsConditions />} />
+        {/* <Route path="/contactus" element={<ContactUs />} /> */} */
 
         {/* Auth Route */}
         <Route path="/login" element={<Login />} />
@@ -111,7 +122,8 @@ const PageRouter = () => {
           <Route path="details" element={<AccountDetails />} />
           <Route path="order-history" element={<OrderHistory />} />
           <Route path="order-detail/:orderId" element={<OrderDetail />} />
-          <Route path="order-detail/:orderId/return" element={<ReturnPage />} />
+           <Route path="order-detail/:orderId/cancel" element={<CancelItemsPage />} />
+          <Route path="order-detail/:orderId/return" element={<UserReturnPage />} />
           <Route path="wishlist" element={<Wishlist />} />
           <Route path="addresses" element={<Address />} />
           <Route path="support" element={<Contact />} />

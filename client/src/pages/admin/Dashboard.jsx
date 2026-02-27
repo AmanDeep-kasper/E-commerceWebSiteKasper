@@ -338,19 +338,19 @@ function Dashboard() {
                     <div className="flex gap-2 items-center">
                       <img
                         className="w-8 h-8 rounded-full object-contain"
-                        src={order.items[0].img}
+                        src={order.items}
                         alt={order.name}
                       />
                       <div className="flex flex-col">
                         <p>Order Payment</p>
                         <p className="text-gray-700 font-light text-sm">
-                          - {order.items.length} items
+                          {/* - {order.items.length} items */}
                         </p>
                       </div>
                       <div></div>
                     </div>
                     <div className="flex flex-col gap-2 text-right">
-                      <h1>₹{order.totalAmount.toLocaleString("en-IN")}</h1>
+                      {/* <h1>₹{order.totalAmount.toLocaleString("en-IN")}</h1> */}
                       <p className="text-xs">
                         {new Date(order.orderDate).toLocaleDateString()}
                       </p>
@@ -462,7 +462,7 @@ function Dashboard() {
                     {order.deliveryAddress.name}
                   </td>
                   <td className="p-3 text-gray-800">
-                    ₹{order.totalAmount.toLocaleString("en-IN")}
+                    {/* ₹{order.totalAmount.toLocaleString("en-IN")} */}
                   </td>
                   <td className="p-3">
                     <span

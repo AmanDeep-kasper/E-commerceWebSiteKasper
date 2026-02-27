@@ -1,320 +1,85 @@
-// import mongoose from "mongoose";
-
-// const productSchema = new mongoose.Schema({
-//   uuid: {
-//     type: String,
-//     required: true,
-//     unique: true,
-//   },
-//   route: {
-//     type: String,
-//     required: true,
-//     unique: true,
-//     trim: true,
-//   },
-//   title: { type: String, required: true, trim: true },
-//   category: { type: String, required: true, trim: true },
-//   subcategory: { type: String, trim: true },
-//   tags: { type: [String], default: [] },
-//   SKU: {
-//     type: String,
-//     required: true,
-//     unique: true,
-//     uppercase: true,
-//     trim: true,
-//   },
-//   dimension: { type: String, trim: true },
-//   basePrice: { type: Number, required: true, min: 0 },
-//   amazonPrice: { type: Number, min: 0 },
-//   discountPercent: { type: Number, default: 0, min: 0, max: 100 },
-//   materialType: { type: [String], default: [] },
-//   color: { type: [String], default: [] },
-//   stockQuantity: { type: Number, default: 0, min: 0 },
-//   deliverBy: { type: Number, default: 3 },
-//   returnPolicy: { type: String, trim: true },
-//   weight: { type: String, trim: true },
-//   type: { type: String, enum: ["Framed", "Unframed"], required: true },
-//   description: { type: String, trim: true },
-//   image: {
-//     type: [String],
-//     validate: [(arr) => arr.length <= 4, "Maximum 4 images allowed"],
-//     default: [],
-//   },
-//   bulletPoints: { type: [String], default: [] },
-//   reviews: [{ type: mongoose.Schema.Types.ObjectId, ref: "Review" }],
-//   createdAt: { type: Date, default: Date.now },
-// });
-
-// //  Fix: prevent OverwriteModelError
-// const Product =
-//   mongoose.models.Product || mongoose.model("Product", productSchema);
-
-// export default Product;
-
-// old yunes
-
+// models/Product.js
 import mongoose from "mongoose";
 
-/* ===============================
-   Variant Schema
-================================ */
-const variantSchema = new mongoose.Schema(
+const VariantSchema = new mongoose.Schema(
   {
-    // Unique IDs
-    variantId: {
-      type: String,
-      required: true,
-    },
+    variantId: { type: String, required: true },
+    variantSkuId: { type: String, required: true },
 
-    variantSkuId: {
-      type: String,
-      required: true,
-      trim: true,
-      uppercase: true,
-    },
+    variantColor: { type: String, default: "" },
 
-    // Variant attributes
-    variantColor: {
-      type: String,
-      trim: true,
-    },
+    variantLength: { type: String, default: "" },
+    variantBreadth: { type: String, default: "" },
+    variantDimensionunit: { type: String, default: "In" },
 
-    variantFrameType: {
-      type: String,
-      trim: true, // Framed / Unframed
-    },
+    variantWidth: { type: String, default: "" }, // you are using this as WEIGHT value
+    variantWidthUnit: { type: String, default: "kg" },
 
-    // Dimensions
-    variantWidth: {
-      type: Number,
-      default: 0,
-      min: 0,
-    },
+    variantMrp: { type: Number, default: 0 },
+    variantCostPrice: { type: Number, default: 0 },
+    variantSellingPrice: { type: Number, default: 0 },
 
-    variantHeight: {
-      type: Number,
-      default: 0,
-      min: 0,
-    },
+    variantDiscount: { type: Number, default: 0 },
+    variantDiscountUnit: { type: String, default: "%" },
 
-    // Stock
-    variantStockQuantity: {
-      type: Number,
-      default: 0,
-      min: 0,
-    },
+    variantAvailableStock: { type: Number, default: 0 },
+    variantLowStockAlertStock: { type: Number, default: 0 },
 
-    variantReorderLimit: {
-      type: Number,
-      default: 0,
-      min: 0,
-    },
+    variantImage: { type: [String], default: [] },
 
-    // Pricing
-    variantMrp: {
-      type: Number,
-      default: 0,
-      min: 0,
-    },
-
-    variantSellingPrice: {
-      type: Number,
-      default: 0,
-      min: 0,
-    },
-
-    variantCostPrice: {
-      type: Number,
-      default: 0,
-      min: 0,
-    },
-
-    variantProfit: {
-      type: Number,
-      default: 0,
-    },
-
-    variantDiscount: {
-      type: Number,
-      default: 0,
-      min: 0,
-      max: 100,
-    },
-
-    // Images (store URLs, not files)
-    variantImage: {
-      type: [String],
-      default: [],
-    },
+    isSelected: { type: Boolean, default: false },
   },
-  { _id: false } // variants embedded, no extra _id
+  { _id: false },
 );
 
-/* ===============================
-   Product Schema
-================================ */
-const productSchema = new mongoose.Schema(
+const ProductSchema = new mongoose.Schema(
   {
-    // Core identifiers
-    uuid: {
-      type: String,
-      required: true,
-      unique: true,
-    },
+    uuid: { type: String, required: true, unique: true },
+    route: { type: String, default: "" },
 
-    route: {
-      type: String,
-      required: true,
-      unique: true,
-      trim: true,
-    },
+    productTittle: { type: String, required: true }, // frontend key
+    description: { type: String, default: "" },
+    status: { type: String, default: "ACTIVE" },
 
-    SKU: {
-      type: String,
-      required: true,
-      unique: true,
-      uppercase: true,
-      trim: true,
-    },
-
-    // Basic info
-    title: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-
-    description: {
-      type: String,
-      trim: true,
-    },
-
-    returnPolicy: {
+    category: { type: String, required: true },
+    subcategory: { type: String, default: "" },
+    materialType: { type: String, default: "" },
+    isFestive: {
       type: Boolean,
       default: false,
     },
+    // productcolor: { type: String, default: "" },
 
-    // Images (product level)
-    images: {
-      type: [String],
-      default: [],
-    },
+    // ProductWidthValue: { type: String, default: "" },
+    // ProductWidthUnit: { type: String, default: "" },
+    // ProductHeightValue: { type: String, default: "" },
+    // ProductDimensionUnit: { type: String, default: "" },
 
-    // Product details
-    type: {
-      type: String,
-      trim: true, // Framed / Unframed
-    },
+    SKU: { type: String, required: true },
 
-    color: {
-      type: String,
-      trim: true,
-    },
+    // stockQuantity: { type: Number, default: 0 },
+    // ReorderLimit: { type: Number, default: 0 },
 
-    ProductDimensionWidth: {
-      type: Number,
-      default: 0,
-      min: 0,
-    },
+    // mrp: { type: Number, default: 0 },
+    // costPrice: { type: Number, default: 0 },
+    // sellingPrice: { type: Number, default: 0 },
 
-    ProductDimensionHeight: {
-      type: Number,
-      default: 0,
-      min: 0,
-    },
+    // discountname: { type: String, default: "" },
+    // extradiscountamount: { type: Number, default: 0 },
+    // discountPercent: { type: Number, default: 0 },
+    // discountAmount: { type: Number, default: 0 },
 
-    // Category
-    category: {
-      type: String,
-      required: true,
-      trim: true,
-    },
+    // taxPercent: { type: Number, default: 0 },
 
-    subcategory: {
-      type: String,
-      trim: true,
-    },
+    // variantlistings: { type: Boolean, default: false }, // frontend key
 
-    materialType: {
-      type: String,
-      trim: true,
-    },
+    // images: { type: [String], default: [] }, // cloudinary urls
+    variants: { type: [VariantSchema], default: [] },
 
-    // Inventory
-    stockQuantity: {
-      type: Number,
-      default: 0,
-      min: 0,
-    },
-
-    ReorderLimit: {
-      type: Number,
-      default: 0,
-      min: 0,
-    },
-
-    // Pricing (product-level)
-    mrp: {
-      type: Number,
-      default: 0,
-      min: 0,
-    },
-
-    sellingPrice: {
-      type: Number,
-      default: 0,
-      min: 0,
-    },
-
-    costPrice: {
-      type: Number,
-      default: 0,
-      min: 0,
-    },
-
-    profit: {
-      type: Number,
-      default: 0,
-    },
-
-    discountPercent: {
-      type: Number,
-      default: 0,
-      min: 0,
-      max: 100,
-    },
-
-    discountAmount: {
-      type: Number,
-      default: 0,
-      min: 0,
-    },
-
-    taxPercent: {
-      type: String,
-      default: "0%",
-    },
-
-    // Variants
-    hasVariants: {
-      type: Boolean,
-      default: false,
-    },
-
-    variants: {
-      type: [variantSchema],
-      default: [],
-    },
+    // if you have reviews in your project keep this:
+    reviews: [{ type: mongoose.Schema.Types.ObjectId, ref: "Review" }],
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true },
 );
 
-/* ===============================
-   Model Export
-================================ */
-const Product =
-  mongoose.models.Product || mongoose.model("Product", productSchema);
-
-export default Product;
+export default mongoose.model("Product", ProductSchema);

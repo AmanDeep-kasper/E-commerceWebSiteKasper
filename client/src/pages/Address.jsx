@@ -25,7 +25,7 @@ function Address() {
       {/* Header */}
       <div className="md:mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-4 bg-white rounded-lg shadow-sm ">
         <h1 className="text-lg sm:text-xl font-medium text-gray-800 font-inter">
-          Saved Addresses ({addresses?.length || 0})
+          Addresses ({addresses?.length || 0})
         </h1>
       </div>
 
@@ -45,7 +45,7 @@ function Address() {
                       <h2 className="text-lg font-medium text-gray-900 capitalize">
                         {add.name}
                       </h2>
-                      <span className="px-2.5 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
+                      <span className="px-2.5 py-1 text-xs font-medium rounded-lg border border-[#1C3753] bg-blue-100 text-[#1C3753]">
                         {add.tag}
                       </span>
                     </div>
@@ -54,7 +54,8 @@ function Address() {
                   {/* Contact */}
                   <div className="flex items-center gap-2 text-gray-600 mb-5">
                     <Phone className="w-4 h-4 flex-shrink-0" />
-                    <span className="text-sm truncate">{add.phone}</span>
+                    <span className="xs">Phone Number:</span>
+                    <span className="text-lg truncate">{add.phone}</span>
                   </div>
 
                   {/* Address */}
@@ -67,7 +68,8 @@ function Address() {
                 </div>
 
                 {/* Actions */}
-                <div className="flex rounded-lg bg-gray-50 p-1">
+                <div className="flex rounded-lg justify-between bg-gray-50 px-3 py-2">
+                  {/* Default */}
                   <button
                     type="button"
                     disabled={add.isDefault}
@@ -77,12 +79,12 @@ function Address() {
                           editAddress({
                             id: add._id,
                             data: { ...add, isDefault: true },
-                          })
+                          }),
                         );
                         toast.success("Default address updated");
                       }
                     }}
-                    className={`flex-1 text-sm ${
+                    className={`text-sm ${
                       add.isDefault
                         ? "text-gray-400 cursor-not-allowed"
                         : "text-gray-700 hover:text-gray-900"
@@ -91,23 +93,27 @@ function Address() {
                     {add.isDefault ? "Default" : "Make Default"}
                   </button>
 
+                  {/* Edit */}
                   <button
                     type="button"
                     onClick={() => {
                       setEditingAddress(add);
                       setOpen(true);
                     }}
-                    className="flex-1 text-sm text-gray-700 hover:text-gray-900"
+                    className="flex items-center gap-2 text-sm text-[#686868] hover:text-gray-900"
                   >
-                    <Edit size={16} /> Edit
+                    <Edit size={16} />
+                    <span>Edit</span>
                   </button>
 
+                  {/* Remove */}
                   <button
                     type="button"
                     onClick={() => dispatch(removeAddress(add._id))}
-                    className="flex-1 text-sm text-red-600 hover:text-red-700"
+                    className="flex items-center gap-2 text-sm text-red-600 hover:text-red-700"
                   >
-                    <Trash2 size={16} /> Remove
+                    <Trash2 size={16} />
+                    <span>Remove</span>
                   </button>
                 </div>
               </div>
@@ -118,7 +124,9 @@ function Address() {
               className="bg-white rounded-xl border-2 border-dashed border-gray-300 p-6 flex flex-col items-center justify-center cursor-pointer hover:border-gray-400"
               onClick={() => setOpen(true)}
             >
-              <Plus size={24} className="text-gray-500 mb-2" />
+              <div className=" p-2 bg-[#D5E5F5] rounded-full">
+                <Plus size={24} className="text-[#1C3753] " />
+              </div>
               <h3 className="font-medium text-gray-900 mb-1">
                 Add New Address
               </h3>

@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from "react-router";
 import { toast } from "react-toastify";
 import { Eye, EyeOff, Lock, CheckCircle, Star, ArrowLeft } from "lucide-react";
 import userService from "../../services/userService";
+import MainLog from "../../assets/IconsUsed/MainLogo.png";
 
 const ResetPassword = () => {
   const { token } = useParams();
@@ -77,21 +78,22 @@ const ResetPassword = () => {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
       <div className="w-full h-screen flex bg-white rounded-2xl">
         {/* Left Side - Welcome Section */}
-        <div className="hidden md:flex flex-1 bg-gradient-to-br from-green-500 to-emerald-600 p-8 text-white">
+        <div className="hidden md:flex flex-1 bg-gradient-to-br from-[#1C3753] to-[#1C3753] p-8 text-white">
           <div className="flex flex-col justify-between h-full">
             {/* Logo */}
             <div className="flex items-center gap-3 mb-8">
-              <div className="bg-white p-2 rounded-full">
-                <Star className="w-6 h-6 text-green-600" fill="currentColor" />
+              {/* <div className="bg-white p-2 rounded-full">
+                <Star className="w-6 h-6 text-[#FFFFFF]" fill="currentColor" />
               </div>
-              <h1 className="text-2xl font-bold">LaserCut</h1>
+              <h1 className="text-2xl font-bold">LaserCut</h1> */}
+              <img src={MainLog} alt="lazercut" />
             </div>
 
             {/* Content */}
             <div className="space-y-8">
               <div>
                 <h2 className="text-4xl font-bold mb-4">Create New Password</h2>
-                <p className="text-green-100 text-lg">
+                <p className="text-[#FFFFFF] text-lg">
                   Choose a strong password to secure your account.
                 </p>
               </div>
@@ -99,42 +101,41 @@ const ResetPassword = () => {
               {/* Password Tips */}
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
-                  <CheckCircle className="w-5 h-5 text-green-300" />
-                  <span className="text-green-100">
+                  <CheckCircle className="w-5 h-5 text-[#FFFFFF]" />
+                  <span className="text-[#FFFFFF]">
                     Use at least 8 characters
                   </span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <CheckCircle className="w-5 h-5 text-green-300" />
-                  <span className="text-green-100">
+                  <CheckCircle className="w-5 h-5 text-[#FFFFFF]" />
+                  <span className="text-[#FFFFFF]">
                     Mix letters, numbers & symbols
                   </span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <CheckCircle className="w-5 h-5 text-green-300" />
-                  <span className="text-green-100">Avoid common passwords</span>
+                  <CheckCircle className="w-5 h-5 text-[#FFFFFF]" />
+                  <span className="text-[#FFFFFF]">Avoid common passwords</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <CheckCircle className="w-5 h-5 text-green-300" />
-                  <span className="text-green-100">
+                  <CheckCircle className="w-5 h-5 text-[#FFFFFF]" />
+                  <span className="text-[#FFFFFF]">
                     Don't reuse old passwords
                   </span>
                 </div>
               </div>
 
               {/* Security Info */}
-              <div className="bg-black bg-opacity-20 rounded-lg p-4 mt-8">
+              {/* <div className="bg-black bg-opacity-20 rounded-lg p-4 mt-8">
                 <p className="text-green-100 text-sm">
                   🔒 Your new password will be securely encrypted and protected.
                 </p>
-              </div>
+              </div> */}
             </div>
 
             {/* Testimonial */}
-            <div className="bg-black bg-opacity-20 rounded-lg p-4 mt-8">
-              <p className="text-green-100 text-sm italic">
-                "The password reset was seamless. Back to creating amazing
-                projects!"
+            <div className="">
+              <p className="text-white text-sm ">
+                *Your new password will be securely encrypted and protected.*
               </p>
             </div>
           </div>
@@ -146,7 +147,7 @@ const ResetPassword = () => {
             {/* Mobile Header */}
             <div className="md:hidden text-center mb-8">
               <div className="flex items-center justify-center gap-2 mb-4">
-                <div className="bg-green-600 p-2 rounded-full">
+                <div className="bg-[#1C3753]  p-2 rounded-full">
                   <Star className="w-6 h-6 text-white" fill="currentColor" />
                 </div>
                 <h1 className="text-2xl font-bold text-gray-900">LaserCut</h1>
@@ -154,7 +155,20 @@ const ResetPassword = () => {
               <p className="text-gray-600">Create your new password</p>
             </div>
 
-            {/* Back to Login */}
+           
+
+            {/* Form Header */}
+            <div className="text-center mb-8">
+              <div className="bg-[#E0F4DE] p-3 rounded-full w-12 h-12 mx-auto mb-4 flex items-center justify-center">
+                <CheckCircle className="w-6 h-6 text-[#00A63E]" />
+              </div>
+              <h2 className="text-3xl font-semibold text-gray-900">New Password</h2>
+              <p className="text-gray-600 mt-2">
+                Create a strong, secure password
+              </p>
+            </div>
+
+             {/* Back to Login */}
             <Link
               to="/login"
               className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6 transition-colors"
@@ -162,17 +176,6 @@ const ResetPassword = () => {
               <ArrowLeft className="w-4 h-4" />
               <span className="text-sm font-medium">Back to Login</span>
             </Link>
-
-            {/* Form Header */}
-            <div className="text-center mb-8">
-              <div className="bg-green-50 p-3 rounded-full w-12 h-12 mx-auto mb-4 flex items-center justify-center">
-                <CheckCircle className="w-6 h-6 text-green-600" />
-              </div>
-              <h2 className="text-3xl font-bold text-gray-900">New Password</h2>
-              <p className="text-gray-600 mt-2">
-                Create a strong, secure password
-              </p>
-            </div>
 
             <form onSubmit={handleReset} className="space-y-6">
               {/* New Password Field */}
@@ -269,7 +272,7 @@ const ResetPassword = () => {
                 disabled={
                   loading || formData.password !== formData.confirmPassword
                 }
-                className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white py-3 px-4 rounded-lg font-semibold transition-all duration-200 transform hover:scale-[1.02] disabled:scale-100 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full bg-[#DEDEDE] text-[#686868] hover:bg-[#1C3753] hover:text-white disabled:bg-gray-400  py-3 px-4 rounded-lg font-semibold transition-all duration-200 transform hover:scale-[1.02] disabled:scale-100 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {loading ? (
                   <>

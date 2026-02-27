@@ -7,23 +7,23 @@ function Policy() {
     <>
       <Navbar></Navbar>
       <section className="px-4 sm:px-8 md:px-16 lg:px-32 xl:px-[240px] py-10 sm:py-12 md:py-16 lg:py-20">
-        <div className="flex flex-col items-center gap-4 text-center">
-          <p className="text-[#E5B800] text-sm sm:text-base">
+        <div className="flex flex-col items-center gap-4">
+          {/* <p className="text-[#E5B800] text-sm sm:text-base">
             Current as of 20 Sep 2024
-          </p>
+          </p> */}
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-semibold">
             Privacy Policy
           </h1>
-          <p className="text-[#828282] text-sm sm:text-base max-w-3xl">
+          <p className="text-[#828282] text-sm sm:text-base max-w-4xl">
             Your privacy is important to us at{" "}
-            <span className="text-[#E5B800]">Laser Cut metal wall Art</span>. We
+            <span className="text-[#1C1C1C]">Laser Cut metal wall Art</span>. We
             respect your privacy regarding any information we may collect from
             you across our website.
           </p>
         </div>
 
         {/* Generic Section */}
-        <div className="text-[#828282] flex flex-col gap-6 my-12 text-sm sm:text-base leading-relaxed max-w-4xl mx-auto">
+        <div className="text-[#828282] flex flex-col  gap-6 my-12 text-sm sm:text-base leading-relaxed max-w-4xl mx-auto">
           <p>
             Mi tincidunt elit, id quisque ligula ac diam, amet. Vel etiam
             suspendisse morbi eleifend faucibus eget vestibulum felis. Dictum
