@@ -8,51 +8,51 @@ import "react-toastify/dist/ReactToastify.css";
 
 
 
-// Admin Pages
-import Dashboard from "./pages/admin/Dashboard";
-import Customer from "./pages/admin/customer/Customer";
-import Product from "./pages/admin/product/Product";
-import Categories from "./pages/admin/Categories";
-import User from "./pages/admin/User";
-import Sale from "./pages/admin/Sale";
-import Stock from "./pages/admin/stock/Stock";
-import Order from "./pages/admin/order/Order";
-import AddProduct from "./components/admin/AddProduct";
-import ProductInformation from "./pages/admin/product/ProductInformation";
-import OrderInformation from "./pages/admin/order/OrderInformation";
-import StockDetail from "./pages/admin/stock/StockDetail";
-import StockEditForm from "./pages/admin/stock/form/StockEditForm";
+// // Admin Pages
+// // import Dashboard from "./pages/admin/Dashboard";
+// import Customer from "./pages/admin/customer/Customer";
+// import Product from "./pages/admin/product/Product";
+// import Categories from "./pages/admin/Categories";
+// import User from "./pages/admin/User";
+// import Sale from "./pages/admin/Sale";
+// import Stock from "./pages/admin/stock/Stock";
+// import Order from "./pages/admin/order/Order";
+// import AddProduct from "./components/admin/AddProduct";
+// import ProductInformation from "./pages/admin/product/ProductInformation";
+// import OrderInformation from "./pages/admin/order/OrderInformation";
+// import StockDetail from "./pages/admin/stock/StockDetail";
+// import StockEditForm from "./pages/admin/stock/form/StockEditForm";
 
-// Customer Management
-import CustomerLayout from "./pages/admin/customer/CustomerLayout";
-import Information from "./pages/admin/components/Information";
-import OrderInsight from "./pages/admin/components/Orders";
-import WishlistCartInfo from "./pages/admin/components/WishlistCartInfo";
-import Address from "./pages/admin/components/AddressBook";
-import Feedback from "./pages/admin/components/SupportFeedback";
+// // Customer Management
+// import CustomerLayout from "./pages/admin/customer/CustomerLayout";
+// import Information from "./pages/admin/components/Information";
+// import OrderInsight from "./pages/admin/components/Orders";
+// import WishlistCartInfo from "./pages/admin/components/WishlistCartInfo";
+// import Address from "./pages/admin/components/AddressBook";
+// import Feedback from "./pages/admin/components/SupportFeedback";
 
-// Customer Forms
-import CustomerForm from "./pages/admin/customer/CustomerForm";
-import InformationForm from "./pages/admin/customer/form/InformationForm";
-import OrderInsightForm from "./pages/admin/customer/form/OrderInsightForm";
-import WishlistCartForm from "./pages/admin/customer/form/WishlistCartForm";
-import AddressBookForm from "./pages/admin/customer/form/AddressBookForm";
-import SupportFeedbackForm from "./pages/admin/customer/form/SupportFeedbackForm";
-import AdminLayout from "./pages/admin/AdminLayout";
-import AdminProfileSetting from "./pages/admin/profile/AdminProfileSetting";
-import AdminProfileForm from "./pages/admin/profile/AdminProfileForm";
-import GeneralSettings from "./pages/admin/setting/GeneralSettings";
-import NotificationSettings from "./pages/admin/setting/NotificationSettings";
-import PaymentSettings from "./pages/admin/setting/PaymentSettings";
-import SettingsLayout from "./pages/admin/setting/SettingsLayout";
-import TaxesSettings from "./pages/admin/setting/TaxesSettings";
-import GeneralSettingsForm from "./pages/admin/setting/form/GeneralSettingsForm";
-import NotificationSettingsForm from "./pages/admin/setting/form/NotificationsSettingsForm";
-import PaymentSettingsForm from "./pages/admin/setting/form/PaymentSettingsForm";
-import TaxSettingsForm from "./pages/admin/setting/form/TaxSettingsForm";
+// // Customer Forms
+// import CustomerForm from "./pages/admin/customer/CustomerForm";
+// import InformationForm from "./pages/admin/customer/form/InformationForm";
+// import OrderInsightForm from "./pages/admin/customer/form/OrderInsightForm";
+// import WishlistCartForm from "./pages/admin/customer/form/WishlistCartForm";
+// import AddressBookForm from "./pages/admin/customer/form/AddressBookForm";
+// import SupportFeedbackForm from "./pages/admin/customer/form/SupportFeedbackForm";
+// import AdminLayout from "./pages/admin/AdminLayout";
+// import AdminProfileSetting from "./pages/admin/profile/AdminProfileSetting";
+// import AdminProfileForm from "./pages/admin/profile/AdminProfileForm";
+// import GeneralSettings from "./pages/admin/setting/GeneralSettings";
+// import NotificationSettings from "./pages/admin/setting/NotificationSettings";
+// import PaymentSettings from "./pages/admin/setting/PaymentSettings";
+// import SettingsLayout from "./pages/admin/setting/SettingsLayout";
+// import TaxesSettings from "./pages/admin/setting/TaxesSettings";
+// import GeneralSettingsForm from "./pages/admin/setting/form/GeneralSettingsForm";
+// import NotificationSettingsForm from "./pages/admin/setting/form/NotificationsSettingsForm";
+// import PaymentSettingsForm from "./pages/admin/setting/form/PaymentSettingsForm";
+// import TaxSettingsForm from "./pages/admin/setting/form/TaxSettingsForm";
 import PageRouter from "./Router/PageRouter";
 import { getUserDetails } from "./redux/cart/userSlice";
-import About from "./sections/About";
+// import About from "./sections/About";
 import { fetchAddresses } from "./redux/cart/addressSlice";
 import { fetchAllProducts } from "./redux/cart/productSlice";
 
@@ -74,17 +74,6 @@ function App() {
 
   return (
     <>
-      {/* <ToastContainer
-        position="top-center"
-        autoClose={1000}
-        pauseOnHover={false}
-        draggable={false}
-        closeOnClick
-        limit={1} // Keep only 1 notification at a time
-        newestOnTop // Show the latest toast on top
-        theme="light"
-        style={{ fontSize: "14px", padding: "8px" }} // Minimal styling
-      /> */}
       <ToastContainer
         position="top-right"
         autoClose={3000}

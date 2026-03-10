@@ -10,7 +10,7 @@ const ShippedOrders = () => {
   const columns = [
     "Order ID",
     "Tracking ID",
-    "Shipment Status ",
+    // "Shipment Status ",
     "Expected Delivery Date",
     "Delivery Partner",
     "Action",
@@ -274,7 +274,7 @@ const ShippedOrders = () => {
                 </td>
                 {/* <td className="px-4 py-3">{order.quantity}</td> */}
                 <td className="px-4 py-3">{order.trackingId}</td>
-                <td className={`px-4 py-3 font-medium text-xs  `}>
+                {/* <td className={`px-4 py-3 font-medium text-xs  `}>
                   <span
                     className={`inline-flex items-center justify-center min-w-[110px] px-4 py-1.5 rounded-md font-medium text-center ${
                       order.shipmentStatus === "Failed delivery"
@@ -292,7 +292,7 @@ const ShippedOrders = () => {
                   >
                     {order.shipmentStatus}
                   </span>
-                </td>
+                </td> */}
                 <td className="px-4 py-3">{order.deliveryDate}</td>
 
                 <td className="px-4 py-3 font-medium text-xs">

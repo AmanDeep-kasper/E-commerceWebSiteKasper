@@ -108,9 +108,9 @@ const OrderViewModal = ({
                   Order ID #{data.orderId}
                 </span>
                 <div className="text-[#686868] text-sm flex items-start gap-1">
-                  <span>{data.orderDate}</span>
+                  <span>{data.orderDate ? data.orderDate : "NA"}</span>
                   <i className="text-[#DEDEDE]">●</i>
-                  <span>{data.orderTime}</span>
+                  <span>{data.orderTime ? data.orderTime : "NA"}</span>
                 </div>
               </div>
               <div>
@@ -121,16 +121,18 @@ const OrderViewModal = ({
               ? "bg-green-100 text-green-600"
               : data.orderStatus === "Cancelled"
                 ? "bg-[#EFEFEF] text-[#686868]"
-                : data.orderStatus === "Pending"
-                  ? "bg-[#FFF9E0] text-[#F8A14A]"
+                : data.orderStatus === "Returned"
+                  ? "bg-[#C7FCFF] text-[#008D94]"
                   : data.orderStatus === "Processing"
                     ? "bg-[#E6D3FF] text-[#8A38F5]"
                     : data.orderStatus === "Shipped"
                       ? "bg-[#D5E5F5] text-[#1C3753]"
-                      : ""
+                      : data.orderStatus === "New Order"
+                        ? "bg-[#D5E5F5] text-[#1C3753]"
+                        : ""
           }`}
                 >
-                  {data.orderStatus}
+                  {data.orderStatus ? data.orderStatus : "No Status"}
                 </span>
               </div>
             </div>
@@ -151,7 +153,7 @@ const OrderViewModal = ({
                   </div>
                 </div>
 
-                {data.deliveryPartner && (
+                {/* {data.deliveryPartner && (
                   <div className="flex items-center justify-between w-full flex-nowrap">
                     <div className="flex items-center gap-1 min-w-0">
                       <Truck size={15} />
@@ -161,9 +163,9 @@ const OrderViewModal = ({
                       {data.deliveryPartner}
                     </div>
                   </div>
-                )}
+                )} */}
 
-                {data.trackingId && (
+                {/* {data.trackingId && (
                   <div className="flex items-center justify-between w-full flex-nowrap">
                     <div className="flex items-center gap-1 min-w-0">
                       <ClipboardClock size={15} />
@@ -173,7 +175,7 @@ const OrderViewModal = ({
                       {data.trackingId}
                     </div>
                   </div>
-                )}
+                )} */}
 
                 <div className="flex items-center justify-between w-full flex-nowrap">
                   <div className="flex items-center gap-1 min-w-0">
@@ -181,203 +183,8 @@ const OrderViewModal = ({
                     <span>Payment Method</span>
                   </div>
                   <div className="text-black font-medium shrink-0">
-                    {data.paymentType}
+                    {data.paymentType ? data.paymentType : "--"}
                   </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Delivery Summmary  */}
-          <div className="mt-2">
-            <span className="text-sm mt-3 mb-3">Delivery Summary</span>
-            <div className="w-full p-3 text-sm text-gray-600 border rounded-md">
-              <div className="space-y-3">
-                <div className="flex items-center justify-between w-full flex-nowrap">
-                  <div className="flex items-center gap-1 min-w-0">
-                    <Box size={15} />
-                    <span>Delivery Type</span>
-                  </div>
-                  <div className="text-black font-medium shrink-0">
-                    {/* change by contant */}
-                    {data.quantity ? data.quantity : ""}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          {/* Delivery Partner */}
-          <div className="mt-2">
-            <span className="text-sm mt-3 mb-3 block">Delivery Partner</span>
-
-            <div className="w-full p-2 text-sm text-gray-600 border rounded-md">
-              <div className="flex items-center justify-between w-full flex-nowrap">
-                <div className="flex items-center gap-1 min-w-0">
-                  {/* <Box size={15} /> */}
-                  <span>Select a delivery partner</span>
-                </div>
-
-                <div className="shrink-0">
-                  <select
-                    value={selectedPartner}
-                    disabled={!isPending}
-                    onChange={(e) => setSelectedPartner(e.target.value)}
-                    className={`w-full px-3 py-2 text-sm border rounded-md
-    ${isPending ? "bg-white text-black" : "bg-[#F8FAFB] text-gray-500 cursor-not-allowed"}`}
-                  >
-                    <option value="">Select</option>
-                    {deliveryPartners.map((p) => (
-                      <option key={p} value={p}>
-                        {p}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* traking details */}
-          {/* {data.trakingDeatils && (
-        <div className="mt-2 flex flex-col space-y-3">
-          <span className="text-sm block">Tracking Details</span>
-          <div className="w-full  text-sm text-gray-600 border rounded-md">
-            <div className="flex items-center justify-between w-full flex-nowrap">
-              <input
-                readOnly
-                type="text"
-                className="p-2 w-full outline-none"
-                value={selectedPartner}
-                placeholder="Shipping Partner"
-              />
-            </div>
-          </div>
-          <div className="w-full  text-sm text-gray-600 border rounded-md">
-            <div className="flex items-center justify-between w-full flex-nowrap">
-              <input
-                type="text"
-                className="p-2 w-full outline-none"
-                placeholder="Enter traking ID"
-              />
-            </div>
-          </div>
-          <div className="w-full  text-sm text-gray-600 border rounded-md">
-            <div className="flex items-center justify-between w-full flex-nowrap">
-              <input
-                type="text"
-                className="p-2 w-full outline-none"
-                placeholder="Enter tracking URL"
-              />
-            </div>
-          </div>
-        </div>
-      )} */}
-          {showTrackingSection && (
-            <div className="mt-3">
-              <p className="text-sm font-medium mb-2">Tracking Details</p>
-
-              {/* Shipped OR Tracking already exists */}
-              {trackingAlreadySaved ? (
-                <div className="p-3 border rounded-md bg-[#F8FAFB] text-sm space-y-1">
-                  <div>
-                    <span className="text-gray-600">Partner:</span>{" "}
-                    {data.deliveryPartner}
-                  </div>
-                  <div>
-                    <span className="text-gray-600">Tracking ID:</span>{" "}
-                    {data.trackingId}
-                  </div>
-
-                  {data.trackingUrl && (
-                    <a
-                      href={data.trackingUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-[#2C87E2] underline"
-                    >
-                      Open Tracking URL
-                    </a>
-                  )}
-                </div>
-              ) : (
-                <>
-                  {/* only in Processing */}
-                  <input
-                    value={trackingId}
-                    onChange={(e) => setTrackingId(e.target.value)}
-                    className="w-full border rounded-md p-2 text-sm mb-2"
-                    placeholder="Enter Tracking ID"
-                  />
-                  <input
-                    value={trackingUrl}
-                    onChange={(e) => setTrackingUrl(e.target.value)}
-                    className="w-full border rounded-md p-2 text-sm"
-                    placeholder="Enter Tracking URL"
-                  />
-
-                  <button
-                    type="button"
-                    disabled={!trackingId}
-                    onClick={() =>
-                      onSaveTracking({ orderId, trackingId, trackingUrl })
-                    }
-                    className={`mt-2 px-4 py-2 rounded-md text-sm
-            ${trackingId ? "bg-[#1C3753] text-white" : "bg-gray-300 text-gray-600 cursor-not-allowed"}`}
-                  >
-                    Save Tracking
-                  </button>
-                </>
-              )}
-            </div>
-          )}
-
-          {/* Customer Details */}
-          <div className="mt-2">
-            <p className="text-sm mt-3 mb-2">Customer Details</p>
-            <div className="w-full p-3 text-sm text-gray-600 border rounded-md">
-              <div className="flex items-center gap-2 mb-3 w-full flex-nowrap">
-                <div className="w-[40px] h-[40px] rounded-full bg-gray-500 flex items-center justify-center overflow-hidden">
-                  {data?.deliveryAddress?.profileImage ? (
-                    <img
-                      src={data.deliveryAddress.profileImage}
-                      alt=""
-                      className="w-full h-full object-cover"
-                      onError={(e) => (e.currentTarget.style.display = "none")}
-                    />
-                  ) : (
-                    <span className="text-white font-semibold text-lg">
-                      {data?.deliveryAddress?.name?.charAt(0)?.toUpperCase() ||
-                        "?"}
-                    </span>
-                  )}
-                </div>
-
-                <div className=" flex flex-col min-w-0">
-                  {/* <span className="text-black">{data.deliveryAddress.name}</span> */}
-                  <span>{data.customerId ?? "N/A"} </span>
-                </div>
-              </div>
-
-              <div className="space-y-3">
-                <div className="flex items-center justify-between w-full flex-nowrap">
-                  <span>Phone Number</span>
-                  <span className="text-black font-medium shrink-0">
-                    {/* {data.deliveryAddress.mobile ?? "N/A"} */}
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between w-full flex-nowrap">
-                  <span>Email</span>
-                  <span className="text-black font-medium shrink-0">
-                    {/* {data.deliveryAddress.email ?? "N/A"} */}
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between w-full flex-nowrap">
-                  <span>Address</span>
-                  <span className="text-black font-medium shrink-0">
-                    {/* {data.deliveryAddress.addressLine1 ?? "N/A"} */}
-                  </span>
                 </div>
               </div>
             </div>
@@ -428,9 +235,9 @@ const OrderViewModal = ({
           <div className="mt-2">
             <div className="flex items-center justify-between w-full flex-nowrap">
               <p className="text-sm mt-3 mb-2">Payment</p>
-              <button className="flex items-center gap-2 text-[#2C87E2] shrink-0">
+              {/* <button className="flex items-center gap-2 text-[#2C87E2] shrink-0">
                 Download Invoice <Download size={18} />
-              </button>
+              </button> */}
             </div>
 
             <div className="w-full p-3 text-sm text-gray-600 border rounded-md">

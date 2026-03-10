@@ -617,7 +617,7 @@ const AllOrders = () => {
                         ? "bg-green-100 text-green-600"
                         : order.orderStatus === "Cancelled"
                           ? "bg-[#EFEFEF] text-[#686868]"
-                          : order.orderStatus === "Pending"
+                          : order.orderStatus === "New Orders"
                             ? "bg-[#FFF9E0] text-[#F8A14A]"
                             : order.orderStatus === "Processing"
                               ? "bg-[#E6D3FF] text-[#8A38F5]"

@@ -569,13 +569,13 @@ const CancelledOrders = () => {
             {paginatedOrders.map((order) => (
               <tr
                 key={order.orderId}
-                className="border-t hover:bg-gray-50 transition  cursor-pointer text-center"
+                className="border-t hover:bg-gray-50 transition  text-center"
               >
                 <td
-                  onClick={() => {
-                    setSelectedOrderId(order.orderId);
-                  }}
-                  className="px-4 py-3 hover:underline text-[#2C87E2]"
+                  // onClick={() => {
+                  //   setSelectedOrderId(order.orderId);
+                  // }}
+                  className="px-4 py-3"
                 >
                   {order.orderId}
                 </td>
@@ -596,10 +596,11 @@ const CancelledOrders = () => {
                   <span
                     className={`inline-flex items-center justify-center min-w-[110px] px-3 py-1.5 rounded-lg font-medium text-center
       ${
-        order.paymentStatus === "Refund Initiated"
-          ? "bg-[#FBDBF7] text-[#E91DD1]"
-          : order.paymentStatus === "Refunded"
-            ? "bg-[#E6D3FF] text-[#8A38F5]"
+        // order.paymentStatus === "Refund Initiated"
+        //   ? "bg-[#FBDBF7] text-[#E91DD1]"
+        //   :
+           order.paymentStatus === "Refunded"
+            ?"bg-[#FBDBF7] text-[#E91DD1]"
             : order.paymentStatus === "No Refund"
               ? "bg-[#EFEFEF] text-[#686868]"
               : ""

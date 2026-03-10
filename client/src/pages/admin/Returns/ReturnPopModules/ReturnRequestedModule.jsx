@@ -1,462 +1,607 @@
+import React, { useEffect, useMemo, useState } from "react";
 import { X } from "lucide-react";
-import React from "react";
-import OrderDetails from "../../order/OrdersPopModels/OrderDetails";
+import { div } from "framer-motion/m";
 
 const ReturnRequestedModule = ({
   data,
   setSelectedOrderId,
   setopenCancelModule,
   handleAcceptedOrders,
+  handleMarkAsShipped,
+  handleSaveQualityCheck,
+  handleMarkAsReturned,
+  mode = "requested",
 }) => {
-  const isExchange = data?.type === "Exchange";
-  // condition for exchange
-  const returnedItem = data.item;
-  const exchangedItem = isExchange ? data.exchangeDetails.exchangedItem : null;
-  const shippingCost = isExchange ? data.exchangeDetails.shippingCost : 0;
-  const exchangedPrice = isExchange ? data.exchangeDetails.newPrice : 0;
-  const totalRefund = isExchange
-    ? exchangedPrice + shippingCost
-    : returnedItem.price;
+  if (String(data?.type).toLowerCase() === "exchange") return null;
+  const item = data?.item || {};
+  const orderDetails = data?.orderDetails || {};
+  const customerDetails = data?.customerDetails || {};
 
-  // const [selectedOrderId, setSelectedOrderId] = useState(null);
-  // const selectOrder = data.find((orders) => orders.orderId === selectedOrderId);
-  // {
-  //   /* Order Detail */
-  // }
-  // {
-  //   selectOrder && (
-  //     <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center">
-  //       <div
-  //         className="
-  //           bg-[#FFFFFF]
-  //           w-[500px]
-  //           max-w-[90vw]
-  //           max-h-[90vh]
-  //           p-[24px]
-  //           rounded-xl
-  //           relative
-  //           md:w-[500px]
-  //           overflow-y-auto
-  //           overscroll-contain
-  //           scrollbar-hide
-  //         ">
-  //         <OrderDetails
-  //           data={selectOrder}
-  //           setSelectedOrderId={() => setSelectedOrderId(null)}
-  //         />
-  //       </div>
-  //     </div>
-  //   );
-  // }
+  // Delivery Partner dropdown (UI only, you can connect later)
+  const deliveryPartners = useMemo(
+    () => [
+      "Select a delivery partner",
+      "Blue Dart",
+      "Delhivery",
+      "DTDC",
+      "Ecom Express",
+    ],
+    [],
+  );
+
+  const [deliveryPartner, setDeliveryPartner] = useState(
+    data?.shippingDetails?.shippingPartner || deliveryPartners[0],
+  );
+
+  // Payment summary (same style as screenshot)
+  const itemSubtotal = Number(orderDetails?.totalAmount || item?.price || 0);
+  const platformFee = Number(orderDetails?.platformFee || 0); // optional
+  const deliveryCharges = Number(orderDetails?.deliveryCharges || 0); // optional
+  const refundable = Math.max(0, itemSubtotal - platformFee - deliveryCharges);
+
+  const fmt = (n) =>
+    `₹${Number(n || 0).toLocaleString("en-IN", { maximumFractionDigits: 0 })}`;
+
+  // status change
+
+  const [isApproved, setIsApproved] = useState(
+    ["approved", "pickup scheduled"].includes(
+      String(data?.status).toLowerCase(),
+    ),
+  );
+
+  const [trackingId, setTrackingId] = useState(
+    data?.shippingDetails?.trackingId || "",
+  );
+  const [trackingLink, setTrackingLink] = useState(
+    data?.shippingDetails?.trackingLink || "",
+  );
+
+  // status usestate
+  const [qualityCheck, setQualityCheck] = useState(
+    data?.qualityCheckStatus || "",
+  );
+
+  const isPickupScheduled =
+    String(data?.status).toLowerCase() === "pickup scheduled";
+
+  // timer
+  const showTrackingFields =
+    String(data?.status).toLowerCase() === "approved" || isApproved;
+
+  const isRequestedMode = mode === "requested";
+  const isInitiatedMode = mode === "initiated";
+  const isReceivedMode = mode === "received";
+
+  useEffect(() => {
+    setDeliveryPartner(
+      data?.shippingDetails?.shippingPartner || "Select a delivery partner",
+    );
+    setTrackingId(data?.shippingDetails?.trackingId || "");
+    setTrackingLink(data?.shippingDetails?.trackingLink || "");
+    setQualityCheck(data?.qualityCheckStatus || "");
+    setIsApproved(
+      ["approved", "pickup scheduled"].includes(
+        String(data?.status).toLowerCase(),
+      ),
+    );
+  }, [data]);
 
   return (
     <div className="w-full flex flex-col">
-      <div className="flex items-center justify-between mb-5">
-        <div className="flex items-center gap-4">
-          <span className="text-[18px]">
-            {" "}
-            {isExchange ? "Exchange Details" : "Return Details"}
+      {/* Header */}
+      <div className="flex items-center justify-between pb-3 border-b">
+        <div className="flex items-center gap-3">
+          <h2 className="text-[16px] font-semibold text-[#1C1C1C]">
+            Return Details
+          </h2>
+          <span
+            className={`px-3 py-0.5 rounded-md text-xs font-medium ${
+              isPickupScheduled
+                ? "bg-[#D5E5F5] text-[#1C3753]"
+                : isApproved
+                  ? "bg-[#E6FFED] text-[#027A48]"
+                  : "bg-[#D5E5F5] text-[#1C3753]"
+            }`}
+          >
+            {isPickupScheduled
+              ? "Pickup Scheduled"
+              : isApproved
+                ? "Approved"
+                : "New Return"}
           </span>
-          <button className="bg-[#E6D3FF] text-[#8A38F5] font-medium px-5 py-0.5 text-sm rounded">
-            {isExchange ? "Exchange" : "Return"}
-          </button>
         </div>
+
         <button
-          className="border border-black rounded-full shrink-0"
-          onClick={setSelectedOrderId}>
-          <X size={18} />
+          className="w-8 h-8 rounded-full border flex items-center justify-center hover:bg-gray-50"
+          onClick={setSelectedOrderId}
+          type="button"
+        >
+          <X size={16} />
         </button>
       </div>
 
-      <div className="flex w-full gap-4 border-t pt-2 border-b pb-2">
-        {/* left side */}
-        <div className="min-w-0 ">
-          <div>
-            {/* Order ID */}
+      {/* Body */}
+      <div className="flex gap-6 pt-4">
+        {/* LEFT SIDE */}
+        <div className="flex-1 min-w-0">
+          {/* Return ID + Date */}
+          <div className="mb-4">
+            <div className="text-sm font-medium text-[#1C1C1C]">
+              Return ID #{data?.returnId || "--"}
+            </div>
+            <div className="text-xs text-[#686868] mt-1">
+              {data?.requestedAt
+                ? `${new Date(data.requestedAt).toLocaleDateString()}  •  ${new Date(
+                    data.requestedAt,
+                  ).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}`
+                : "--"}
+            </div>
+          </div>
 
-            <div className="flex mb-3 w-full md:gap-4">
-              <div className="min-w-0">
-                <span className="text-sm font-medium">
-                  {isExchange ? "Exchange ID" : "Return ID"} #{data.returnId}
-                </span>
-                <div className="text-[#686868] text-sm flex items-start gap-1">
-                  <span>
-                    <span>
-                      {new Date(data.requestedAt).toLocaleDateString()}
-                    </span>
+          {/* Product Card */}
+          <div className="flex gap-3">
+            <div className="w-[84px] h-[72px] rounded-md bg-[#EFEFEF] overflow-hidden shrink-0">
+              <img
+                src={item?.images?.[0] || "/no-image.png"}
+                alt={item?.productName || "product"}
+                className="w-full h-full object-cover"
+              />
+            </div>
+
+            <div className="min-w-0 flex-1">
+              <div className="text-sm font-medium text-[#1C1C1C] truncate">
+                {item?.productName || "--"}
+              </div>
+              <div className="text-xs text-[#686868] mt-0.5">
+                SKU ID #{item?.sku || "--"}
+              </div>
+
+              <div className="flex items-center justify-between mt-2">
+                <div className="flex items-center gap-2">
+                  <span className="px-2 py-0.5 text-xs border rounded text-[#495F75]">
+                    {item?.color || "Red"}
                   </span>
-                  <i className="text-[#DEDEDE]">●</i>
-                  <span>{new Date(data.requestedAt).toLocaleTimeString()}</span>
+                  <span className="px-2 py-0.5 text-xs border rounded text-[#495F75]">
+                    {item?.size || "25x12"}
+                  </span>
                 </div>
-              </div>
-              <div>
-                <span
-                  className={`px-3 py-1 rounded-md text-xs font-medium shrink-0 ${data.status === "Pending" ? "bg-[#D5E5F5] text-[#1C3753]" : data.status === "Approved" ? "bg-[#E6FFED] text-[#027A48]" : data.status === "Rejected" ? "bg-[#FFEAEA] text-[#D53B35]" : data.status === "Return to Origin" ? "bg-[#DEDEDE] text-[#686868]" : data.status === "No Refund" ? "bg-[#EFEFEF] text-[#686868]" : data.status === "Exchanged" ? "bg-[#C7FCFF] text-[#008D94]" : data.status === "Exchange Initiated" ? "bg-[#D5E5F5] text-[#1C3753]" : data.status === "Refunded" ? "bg-[#E6D3FF] text-[#8A38F5]" : data.status === "Refund Initiated" ? "bg-[#FBDBF7] text-[#E91DD1]" : ""}`}>
-                  {data.status}
+
+                <span className="px-3 py-1 text-xs rounded-md bg-[#EFEFEF] text-[#686868]">
+                  Quantity{" "}
+                  <span className="text-[#1C1C1C] font-medium">
+                    {item?.quantity ?? 1}
+                  </span>
                 </span>
               </div>
             </div>
+          </div>
 
-            <div>
-              <span className="text-sm font-medium mb-2">
-                {" "}
-                {returnedItem.quantity} Item{returnedItem.quantity > 1 && "s"}{" "}
-                out of {returnedItem.quantity}
-              </span>
-              <div className="flex items-center gap-3 min-w-0">
-                <div className="h-[90px] w-[120px] rounded overflow-hidden">
-                  <img
-                    className="h-full w-full object-cover"
-                    src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8cHJvZHVjdHxlbnwwfHwwfHx8MA%3D%3D"
-                    alt={data.item.productName}
-                  />
-                </div>
-                <div className="space-y-3 min-w-0 w-full">
-                  <div className="flex flex-col">
-                    <span className="text-base">{data.item.productName}</span>
-                    <span className="text-xs text-[#686868]">
-                      SKU ID #{data.item.sku}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between gap-6 ">
-                    <div className="flex items-center justify-center gap-2 text-[#495F75]">
-                      {" "}
-                      <span className="border border-[#495F75]  px-2 rounded text-xs">
-                        {/* {returnedItem.variant.split("|")[1]?.trim() ||
-                          returnedItem.variant} */}
-                        Red
-                      </span>
-                      <span className="border border-[#495F75]  px-2 rounded text-xs">
-                        25X12
-                      </span>
-                    </div>
+          {/* Return Reason */}
+          <div className="mt-4 border rounded-lg p-3 bg-white">
+            <div className="text-sm font-medium text-[#1C1C1C] mb-2">
+              Return Reason
+            </div>
+            <div className="text-sm text-[#1C1C1C] border-l-2 border-[#686868] pl-2">
+              {data?.returnReason || "--"}
+            </div>
+          </div>
 
-                    <div>
-                      <span className="bg-[#EFEFEF] text-[#686868] py-1 px-3 rounded-md text-sm ">
-                        Quantity{" "}
-                        <span className="text-black">
-                          {" "}
-                          {data.item.quantity}
-                        </span>
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
+          {/* Return Proof */}
+          <div className="mt-4">
+            <div className="text-sm font-medium text-[#1C1C1C] mb-2">
+              Return Proof
             </div>
 
-            <div className="flex flex-col text-sm space-y-2 p-[12px] border rounded-md border-[#D5E5F5] mt-6 bg-[#F5F8FA]">
-              <span className=" font-medium">
-                {" "}
-                {isExchange ? "Exchange Reason" : "Return Reason"}
-              </span>
-              <span className="text-[#1C1C1C] border-l-2 border-[#686868] pl-2">
-                {data.returnReason}
-              </span>
-            </div>
-
-            {data.type === "Exchange" ? (
-              <div className="w-full mt-6">
-                <h3 className="text-base font-medium mb-2">Exchange Details</h3>
-                <div className="flex items-start justify-between">
-                  <div className="flex flex-col items-start justify-between space-y-3 text-[#686868] text-sm "></div>
-                  <div className="flex items-center gap-3  w-full">
-                    <div className="h-[90px] w-[90px] rounded overflow-hidden">
+            <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-1">
+              {(data?.proofs || []).length === 0 ? (
+                <>
+                  {/* fallback demo thumbnails (same like screenshot) */}
+                  {[1, 2, 3, 4].map((k) => (
+                    <div
+                      key={k}
+                      className="min-w-[110px] h-[78px] rounded-lg bg-[#EFEFEF] overflow-hidden"
+                    >
                       <img
-                        className="h-full w-full object-cover"
-                        src="https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fHByb2R1Y3R8ZW58MHx8MHx8fDA%3D"
-                        alt={data.item.productName}
+                        src={item?.images?.[0] || "/no-image.png"}
+                        alt="proof"
+                        className="w-full h-full object-cover"
                       />
                     </div>
-                    <div className="space-y-3 min-w-0">
-                      <div className="flex flex-col">
-                        <span className="text-base">
-                          {data.item.productName}
-                        </span>
-                        <span className="text-xs text-[#686868]">
-                          SKU ID #{data.item.sku}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between gap-6">
-                        <div className="flex items-center justify-center gap-2 text-[#495F75]">
-                          {" "}
-                          <span className="border border-[#495F75]  px-2 rounded text-xs">
-                            Red
-                          </span>
-                          <span className="border border-[#495F75]  px-2 rounded text-xs">
-                            25X12
-                          </span>
-                        </div>
-
-                        <div>
-                          <span className="bg-[#EFEFEF] text-[#686868] py-1 px-3 rounded-md text-sm ">
-                            Quantity{" "}
-                            <span className="text-black">
-                              {" "}
-                              {data.item.quantity}
-                            </span>
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="space-y-2 mt-4">
-                  <div className="flex items-start justify-between gap-6">
-                    <div className="flex flex-col items-start justify-between space-y-3 text-[#686868] text-sm ">
-                      <p>New Order ID</p>
-                      <p>Order Status</p>
-                      <p>Payment Status</p>
-                      <p>Order Date</p>
-                      <p>Total Amount</p>
-                    </div>
-                    <div className="flex flex-col items-start justify-between space-y-3 text-[#1C1C1C] text-sm font-medium">
-                      <span>#{data.exchangeDetails.newOrderId}</span>
-                      <span>
-                        {data.exchangeDetails.newOrderStatus || "Pending"}
-                      </span>
-                      <span>
-                        {data.exchangeDetails.paymentStatus || "Pending"}
-                      </span>
-                      <span>
-                        {data.exchangeDetails.orderDate || "2026-01-10"}
-                      </span>
-                      <span>₹{data.exchangeDetails.newPrice}</span>
-                    </div>
-                  </div>
-                  <button className="hover:underline font-medium text-[#1C3753] mt-2">
-                    View Order
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <div className="w-full mt-6">
-                <h3 className="text-base font-medium mb-2">Return Proof</h3>
-
-                <div
-                  className="flex gap-3 overflow-x-auto scrollbar-hide w-full min-w-0 scroll-smooth
-">
-                  <div className="min-w-[140px] h-[100px] rounded-lg overflow-hidden bg-gray-100">
+                  ))}
+                </>
+              ) : (
+                data.proofs.map((p, idx) => (
+                  <div
+                    key={idx}
+                    className="min-w-[110px] h-[78px] rounded-lg bg-[#EFEFEF] overflow-hidden"
+                  >
                     <img
-                      src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&auto=format&fit=crop&q=60"
-                      alt="proof"
+                      src={p}
+                      alt={`proof-${idx}`}
                       className="w-full h-full object-cover"
                     />
                   </div>
-
-                  <div className="min-w-[140px] h-[100px] rounded-lg overflow-hidden bg-gray-100 relative">
-                    <video
-                      muted
-                      playsInline
-                      src="https://www.pexels.com/video/assembly-line-852388/"
-                      className="w-full h-full object-cover"
-                    />
-
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="w-8 h-8 bg-black/60 rounded-full flex items-center justify-center text-white text-sm">
-                        ▶
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="min-w-[140px] h-[100px] rounded-lg overflow-hidden bg-gray-100">
-                    <img
-                      src="https://plus.unsplash.com/premium_photo-1679913792906-13ccc5c84d44?w=500&auto=format&fit=crop&q=60"
-                      alt="proof"
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-
-                  <div className="min-w-[140px] h-[100px] rounded-lg overflow-hidden bg-gray-100">
-                    <img
-                      src="https://plus.unsplash.com/premium_photo-1679913792906-13ccc5c84d44?w=500&auto=format&fit=crop&q=60"
-                      alt="proof"
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                </div>
-
-                {/* <div className="mt-2 h-1 w-24 bg-gray-300 rounded-full"></div> */}
-              </div>
-            )}
-
-            <div>
-              <div className="border-t pt-3 border-[#D5E5F5] mt-4">
-                <div className="flex items-center gap-2 shrink-0 text-sm font-medium mb-2">
-                  <span>Payment Summary</span>
-                </div>
-                <div className="w-full p-3 text-sm text-gray-600 border rounded-md space-y-2">
-                  {/* Returned Item cost */}
-                  <div className="flex items-center justify-between">
-                    <span>Returned Item cost</span>
-                    <span className="text-[#1C1C1C] font-medium">
-                      ₹{data.item.price}
-                    </span>
-                  </div>
-
-                  {/* Returned Shipping Cost */}
-                  <div className="flex items-center justify-between">
-                    <span>Shipping Cost</span>
-                    <span className="text-[#1C1C1C] font-medium">
-                      ₹{data.shippingCost || 0}
-                    </span>
-                  </div>
-
-                  {/* Exchanged Item cost (if Exchange) */}
-                  {data.type === "Exchange" && (
-                    <>
-                      <div className="flex items-center justify-between border-t pt-2">
-                        <span>Exchanged Item cost</span>
-                        <span className="text-[#1C1C1C] font-medium">
-                          ₹{data.exchangeDetails.newPrice}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span>Shipping Cost</span>
-                        <span className="text-[#1C1C1C] font-medium">
-                          ₹{data.exchangeDetails.shippingCost || 0}
-                        </span>
-                      </div>
-                    </>
-                  )}
-
-                  {/* Total refundable amount */}
-                  <div className="flex items-center justify-between border-t pt-2">
-                    <span>Total refundable amount</span>
-                    <span className="text-[#1C1C1C] font-medium">
-                      {data.type === "Exchange"
-                        ? `₹${data.item.price + (data.shippingCost || 0) + data.exchangeDetails.newPrice + (data.exchangeDetails.shippingCost || 0)}`
-                        : `₹${data.item.price + (data.shippingCost || 0)}`}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Note for refund */}
-                {data.type === "Return" || data.type === "Exchange" ? (
-                  <div className="text-xs mt-1">
-                    <span className="text-[#D53B35] text-sm">*</span>{" "}
-                    <span>
-                      Refund will be processed to the original payment method.
-                    </span>
-                  </div>
-                ) : null}
-              </div>
+                ))
+              )}
             </div>
-          </div>
-        </div>
 
-        {/* right side */}
-        <div className="w-[330px] shrink-0 border-l pl-6 space-y-4">
-          <div className="space-y-2">
-            <p className="">Order Details</p>
-            <div className="flex items-start justify-between gap-6">
-              <div className="flex flex-col items-start justify-between space-y-3 text-[#686868] text-sm ">
-                <p>Order ID</p>
-                <p>Order Status</p>
-                <p>Payment Status</p>
-                <p>Order Date</p>
-                <p>Total Amount</p>
-              </div>
-              <div className="flex flex-col items-start justify-between space-y-3 text-[#1C1C1C] text-sm font-medium">
-                <span>#{data.orderDetails.orderId}</span>
-                <span>{data.orderDetails.orderStatus}</span>
-                <span>{data.orderDetails.paymentStatus}</span>
-                <span>{data.orderDetails.orderDate}</span>
-                <span>₹{data.orderDetails.totalAmount}</span>
-              </div>
-            </div>
-            <button className="hover:underline font-medium text-[#1C3753] mt-2">
-              View Order
-            </button>
+            <div className="mt-2 h-1 w-28 bg-gray-200 rounded-full" />
           </div>
 
-          {/* Customer Details */}
-          <div className="space-y-2 border-t pt-2">
-            <span className="text-sm font-medium">Customer Details</span>
-            <div>
-              <div className="flex items-center gap-4">
-                <div className="w-[34px] h-[34px] overflow-hidden rounded-full">
-                  <img
-                    src="https://plus.unsplash.com/premium_photo-1675896084254-dcb626387e1e?w=500&auto=format&fit=crop&q=60"
-                    alt="customer"
-                    className="w-full h-full rounded-full object-cover"
-                  />
+          {/* Delivery Partner */}
+          {/* <div className="mt-4 border rounded-lg p-3 bg-white">
+            <div className="text-sm font-medium text-[#1C1C1C] mb-2">
+              Delivery Partner
+            </div>
+
+            <select
+              value={deliveryPartner}
+              onChange={(e) => setDeliveryPartner(e.target.value)}
+              className="w-full border rounded-md px-3 py-2 text-sm outline-none bg-white"
+            >
+              {deliveryPartners.map((p) => (
+                <option key={p} value={p}>
+                  {p}
+                </option>
+              ))}
+            </select>
+          </div> */}
+
+          {!isPickupScheduled ? (
+            <>
+              {/* Delivery Partner */}
+              <div className="mt-4 border rounded-lg p-3 bg-white">
+                <div className="text-sm font-medium text-[#1C1C1C] mb-2">
+                  Delivery Partner
                 </div>
-                <div className="flex flex-col text-sm">
-                  <span className="font-medium">
-                    {" "}
-                    {data.customerDetails.name}
-                  </span>
-                  <span className="text-[#686868]">
-                    {data.customerDetails.customerId}
+
+                <select
+                  value={deliveryPartner}
+                  onChange={(e) => setDeliveryPartner(e.target.value)}
+                  className="w-full border rounded-md px-3 py-2 text-sm outline-none bg-white"
+                  disabled={isApproved}
+                >
+                  {deliveryPartners.map((p) => (
+                    <option key={p} value={p}>
+                      {p}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Tracking fields only after approve */}
+              {showTrackingFields && (
+                <div className="mt-3 space-y-3">
+                  <div>
+                    <label className="text-xs text-[#686868]">
+                      Tracking ID
+                    </label>
+                    <input
+                      value={trackingId}
+                      onChange={(e) => setTrackingId(e.target.value)}
+                      placeholder="Enter tracking ID"
+                      className="w-full mt-1 border rounded-md px-3 py-2 text-sm outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-xs text-[#686868]">
+                      Tracking Link
+                    </label>
+                    <input
+                      value={trackingLink}
+                      onChange={(e) => setTrackingLink(e.target.value)}
+                      placeholder="Enter tracking link"
+                      className="w-full mt-1 border rounded-md px-3 py-2 text-sm outline-none"
+                    />
+                  </div>
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="mt-4 border rounded-lg p-3 bg-white">
+              <div className="text-sm font-medium text-[#1C1C1C] mb-3">
+                Delivery Summary
+              </div>
+
+              <div className="space-y-2 text-sm">
+                <div className="flex items-center justify-between">
+                  <span className="text-[#686868]">Shipping Partner</span>
+                  <span className="text-[#1C1C1C] font-medium">
+                    {data?.shippingDetails?.shippingPartner || "--"}
                   </span>
                 </div>
-              </div>
-              <div className="flex items-start justify-evenly gap-8 mt-3">
-                <div className="flex flex-col items-start justify-between space-y-3 text-[#686868] text-sm w-full">
-                  <span>Phone Number</span>
-                  <span>Email</span>
-                  <span>Address</span>
-                </div>
-                <div className="flex flex-col items-start justify-between space-y-3 text-[#1C1C1C] text-sm font-medium">
-                  <span>{data.customerDetails.phone}</span>
-                  <span>{data.customerDetails.email}</span>
-                  <span>{data.customerDetails.address}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-          {/* Shipping Details (Only after approval) */}
-          {data.status === "Approved" && data.shippingDetails && (
-            <div className="space-y-2 border-t pt-3">
-              <span className="text-sm font-medium">Shipping Details</span>
 
-              <div className="flex items-start justify-between gap-6">
-                <div className="flex flex-col space-y-2 text-[#686868] text-sm">
-                  <p>Courier</p>
-                  <p>Tracking ID</p>
-                  <p>Pickup Date</p>
-                  <p>Estimated Delivery</p>
-                  {/* <p>Status</p> */}
+                <div className="flex items-center justify-between">
+                  <span className="text-[#686868]">Tracking ID</span>
+                  <span className="text-[#1C1C1C] font-medium">
+                    {data?.shippingDetails?.trackingId || "--"}
+                  </span>
                 </div>
 
-                <div className="flex flex-col space-y-2 text-[#1C1C1C] text-sm font-medium">
-                  <span>{data.shippingDetails.shippingPartner}</span>
-                  <span>{data.shippingDetails.trackingId}</span>
-                  <span>{data.shippingDetails.shippingStatus}</span>
-                  <span>{data.shippingDetails.expectedDate}</span>
-                  {/* <span className="text-[#1C3753]">
-                    {data.shippingDetails.deliveryStatus}
-                  </span> */}
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-[#686868]">Tracking URL</span>
+                  <a
+                    href={data?.shippingDetails?.trackingLink || "#"}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-[#2C87E2] underline truncate max-w-[180px]"
+                  >
+                    {data?.shippingDetails?.trackingLink || "--"}
+                  </a>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-[#686868]">Expected Return Date</span>
+                  <span className="text-[#1C1C1C] font-medium">
+                    {data?.shippingDetails?.expectedDeliveryDate || "--"}
+                  </span>
                 </div>
               </div>
             </div>
           )}
         </div>
+
+        {/* RIGHT SIDE */}
+        <div className="w-[360px] shrink-0 border-l pl-6">
+          {/* Order Details */}
+          <div className="pb-4 border-b">
+            <div className="text-sm font-medium text-[#1C1C1C] mb-3">
+              Order Details
+            </div>
+
+            <div className="grid grid-cols-2 gap-y-2 text-sm">
+              <div className="text-[#686868]">Order ID</div>
+              <div className="text-[#1C1C1C] font-medium text-right">
+                {orderDetails?.orderId ? `#${orderDetails.orderId}` : "--"}
+              </div>
+
+              <div className="text-[#686868]">Order Status</div>
+              <div className="text-[#1C1C1C] font-medium text-right">
+                {orderDetails?.orderStatus || "--"}
+              </div>
+
+              <div className="text-[#686868]">Payment Status</div>
+              <div className="text-[#1C1C1C] font-medium text-right">
+                {orderDetails?.paymentStatus || "--"}
+              </div>
+
+              <div className="text-[#686868]">Order Date</div>
+              <div className="text-[#1C1C1C] font-medium text-right">
+                {orderDetails?.orderDate || "--"}
+              </div>
+            </div>
+          </div>
+
+          {/* Customer Details */}
+          <div className="py-4 border-b">
+            <div className="text-sm font-medium text-[#1C1C1C] mb-3">
+              Customer Details
+            </div>
+
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-9 h-9 rounded-full bg-[#EFEFEF] overflow-hidden">
+                <img
+                  src={
+                    customerDetails?.avatar || "https://via.placeholder.com/64"
+                  }
+                  alt="customer"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+
+              <div className="min-w-0">
+                <div className="text-sm font-medium text-[#1C1C1C] truncate">
+                  {customerDetails?.name || "--"}
+                </div>
+                <div className="text-xs text-[#686868]">
+                  {customerDetails?.customerId || "--"}
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-y-2 text-sm">
+              <div className="text-[#686868]">Phone Number</div>
+              <div className="text-[#1C1C1C] font-medium text-right">
+                {customerDetails?.phone || "--"}
+              </div>
+
+              <div className="text-[#686868]">Email</div>
+              <div className="text-[#1C1C1C] font-medium text-right break-all">
+                {customerDetails?.email || "--"}
+              </div>
+
+              <div className="text-[#686868]">Address</div>
+              <div className="text-[#1C1C1C] font-medium text-right">
+                {customerDetails?.address || "--"}
+              </div>
+            </div>
+          </div>
+
+          {/* Payment Summary */}
+          <div className="pt-4">
+            <div className="text-sm font-medium text-[#1C1C1C] mb-3">
+              Payment Summary
+            </div>
+
+            <div className="border rounded-lg p-3 bg-white text-sm">
+              <div className="flex items-center justify-between py-1">
+                <span className="text-[#686868]">Item Subtotal</span>
+                <span className="text-[#1C1C1C] font-medium">
+                  {fmt(itemSubtotal)}
+                </span>
+              </div>
+
+              <div className="flex items-center justify-between py-1">
+                <span className="text-[#686868]">Platform Fee</span>
+                <span className="text-[#1C1C1C] font-medium">
+                  - {fmt(platformFee)}
+                </span>
+              </div>
+
+              <div className="flex items-center justify-between py-1">
+                <span className="text-[#686868]">Delivery Charges</span>
+                <span className="text-[#1C1C1C] font-medium">
+                  - {fmt(deliveryCharges)}
+                </span>
+              </div>
+
+              <div className="border-t mt-2 pt-2 flex items-center justify-between">
+                <span className="text-[#686868]">Total refundable amount</span>
+                <span className="text-[#1C1C1C] font-semibold">
+                  {fmt(refundable)}
+                </span>
+              </div>
+            </div>
+
+            <div className="text-xs text-[#686868] mt-2">
+              <span className="text-[#D53B35]">*</span> Refund will be processed
+              to the original payment method.
+            </div>
+          </div>
+
+          {isReceivedMode && (
+            <div className="pt-4 border-t mt-4">
+              <div className="text-sm font-medium text-[#1C1C1C] mb-3">
+                Quality Check
+              </div>
+
+              <div className="flex items-center gap-6">
+                <label className="flex items-center gap-2 text-sm text-[#1C1C1C] cursor-pointer">
+                  <input
+                    type="radio"
+                    name="qualityCheck"
+                    value="Pass"
+                    checked={qualityCheck === "Pass"}
+                    onChange={(e) => setQualityCheck(e.target.value)}
+                  />
+                  QC Approved
+                </label>
+
+                <label className="flex items-center gap-2 text-sm text-[#1C1C1C] cursor-pointer">
+                  <input
+                    type="radio"
+                    name="qualityCheck"
+                    value="Fail"
+                    checked={qualityCheck === "Fail"}
+                    onChange={(e) => setQualityCheck(e.target.value)}
+                  />
+                  QC Deny
+                </label>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
-      {/* button */}
-      <div className="flex items-end justify-end pt-4 gap-3">
-        {data.status !== "Approved" ? (
-          <>
+
+      {/* Footer Buttons */}
+      <div className="flex items-center justify-end gap-3 pt-5">
+        {/* <button
+          type="button"
+          onClick={() => setopenCancelModule(data?.returnId)}
+          className="px-4 py-2 rounded-md border border-[#1C3753] text-[#1C3753] bg-white hover:bg-gray-50 text-sm font-medium"
+        >
+          Reject
+        </button> */}
+
+        <div className="flex items-center justify-end gap-3 pt-5">
+          {isRequestedMode && !isApproved && !isPickupScheduled && (
             <button
-              onClick={() => setopenCancelModule(data.returnId)}
-              className="px-4 py-1 rounded-md flex items-center justify-center text-[#1C3753] bg-white border border-[#1C3753]">
-              Reject
+              type="button"
+              onClick={() => {
+                if (deliveryPartner === "Select a delivery partner") {
+                  alert("Please select a delivery partner");
+                  return;
+                }
+
+                handleAcceptedOrders({
+                  returnId: data?.returnId,
+                  deliveryPartner,
+                });
+
+                setIsApproved(true);
+              }}
+              className="px-4 py-2 rounded-md bg-[#1C3753] text-white hover:opacity-95 text-sm font-medium"
+            >
+              Approve
             </button>
+          )}
+
+          {isInitiatedMode && !isPickupScheduled && (
             <button
-              onClick={() => (
-                handleAcceptedOrders(data.returnId),
-                setSelectedOrderId(null)
-              )}
-              className="px-4 py-1 rounded-md flex items-center justify-center text-white bg-[#1C3753]">
-              {isExchange ? "Approve Exchange" : "Approve Return"}
+              type="button"
+              onClick={() => {
+                if (!trackingId.trim()) {
+                  alert("Please enter tracking ID");
+                  return;
+                }
+
+                if (!trackingLink.trim()) {
+                  alert("Please enter tracking link");
+                  return;
+                }
+
+                handleMarkAsShipped({
+                  returnId: data?.returnId,
+                  deliveryPartner,
+                  trackingId,
+                  trackingLink,
+                });
+
+                setSelectedOrderId(null);
+              }}
+              className="px-4 py-2 rounded-md bg-[#1C3753] text-white hover:opacity-95 text-sm font-medium"
+            >
+              Mark as Shipped
             </button>
-          </>
-        ) : (
-          <span className="px-4 py-1 rounded-md bg-green-100 text-green-600 text-sm font-medium">
-            Approved
-          </span>
-        )}
+          )}
+
+          {isReceivedMode && (
+            <>
+              <button
+                type="button"
+                onClick={() => {
+                  if (!qualityCheck) {
+                    alert("Please select quality check status");
+                    return;
+                  }
+
+                  handleSaveQualityCheck({
+                    returnId: data?.returnId,
+                    qualityCheckStatus: qualityCheck,
+                  });
+                }}
+                className="px-4 py-2 rounded-md border border-[#1C3753] text-[#1C3753] bg-white hover:bg-gray-50 text-sm font-medium"
+              >
+                Save
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  if (!qualityCheck) {
+                    alert("Please select quality check status");
+                    return;
+                  }
+
+                  handleMarkAsReturned({
+                    returnId: data?.returnId,
+                    qualityCheckStatus: qualityCheck,
+                  });
+
+                  setSelectedOrderId(null);
+                }}
+                className="px-4 py-2 rounded-md bg-[#1C3753] text-white hover:opacity-95 text-sm font-medium"
+              >
+                Mark as Returned
+              </button>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );

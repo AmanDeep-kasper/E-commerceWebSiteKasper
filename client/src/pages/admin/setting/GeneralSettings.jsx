@@ -34,14 +34,6 @@ function GeneralSettings() {
 
   const update = (k) => setForm((f) => ({ ...f, [k]: !f[k] }));
 
-  const tabs = [
-    "General Settings",
-    "Notification Settings",
-    "Payment Settings",
-    "Taxes Settings",
-    "Product Settings",
-  ];
-
   const settings = {
     name: "Laser Cut Metal Wall Art",
     url: "https://www.lasercutmetalwallart.com",
@@ -50,52 +42,101 @@ function GeneralSettings() {
   };
 
   return (
-    <div className="bg-white ">
-      {/* Tabs */}
-
-      {/* General Settings Content */}
-
-      <div>
-        <div className="flex items-center gap-4 mb-6">
-          <div className="w-12 h-12 rounded-full bg-pink-100 flex items-center justify-center text-lg font-medium text-pink-600">
-            L
-          </div>
+    <>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="font-semibold text-[20px] mb-3">Business Details</h1>
+          <span className="text-[#686868] text-[14px]">
+            Business Identity and related information
+          </span>
+        </div>
+        <div>
+          <Link
+            to={"/admin/settings/general-form"}
+            className="inline-flex items-center bg-[#1C3753] text-white gap-2 rounded-md border px-5 py-1.5 text-sm hover:bg-gray-50"
+          >
+            Edit
+          </Link>
+        </div>
+      </div>
+      <h1 className="font-semibold text-[16px] mb-3 mt-4">Business Information</h1>
+      <div className="bg-[#FFFFFF] p-4 rounded-lg space-y-5">
+        <div className="flex items-start justify-between  border-b">
           <div>
-            <h3 className="text-sm font-medium">{settings.name}</h3>
+            <h1>Business Name</h1>
+            <span className="text-[#686868] text-[14px]">
+              Displayed on storefront, invoices and customer facing documents.
+            </span>
+          </div>
+          <div>LAZERCUT</div>
+        </div>
+        <div className="flex items-start justify-between  border-b">
+          <div>
+            <h1>Business Logo</h1>
+            <span className="text-[#686868] text-[14px]">
+              Displayed on storefront, invoices and customer facing documents.
+            </span>
+          </div>
+          <div>imgae</div>
+        </div>
+        <div className="flex items-start justify-between  border-b">
+          <div>
+            <h1>Registered Company Number</h1>
+            <span className="text-[#686868] text-[14px]">CIN number</span>
+          </div>
+          <div>U72200DL2022PTC123456</div>
+        </div>
+        <div className="flex items-start justify-between  border-b">
+          <div>
+            <h1>GST Registration Number</h1>
+            <span className="text-[#686868] text-[14px]">Used on invoices and tax reports.</span>
+          </div>
+          <div>22AAAAA0000A1Z5</div>
+        </div>
+      </div>
+      <h1 className="font-semibold mt-4">Registered Address</h1>
+      <div className="bg-[#FFFFFF] p-4 rounded-lg mt-2">
+        <div className="border p-3 rounded-lg">
+          <p  className="font-semibold">
+            Shop No.61, Huda market, Sec 46, Near Axis Bank, Gurugram, Haryana,
+            122002, India
+          </p>
+        </div>
+      </div>
+      <h1  className="font-semibold mt-4">Contact Information</h1>
+      <div className="bg-[#FFFFFF] p-4 rounded-lg space-y-5 mt-2">
+        <div className="flex items-start justify-between  border-b">
+          <div>
+            <h1>Email Address</h1>
+            <span>
+              Used for customer communication and system notifications.
+            </span>
+          </div>
+          <div className="p-2 border rounded-lg bg-[#F8FBFC]">
+            info.lazercut@example.com
           </div>
         </div>
-
-        <div className="grid grid-cols-3 gap-6 text-sm">
+        <div className="flex items-start justify-between  border-b">
           <div>
-            <span className="text-gray-500">Website URL</span>
-            <p className="font-medium text-blue-600 truncate">{settings.url}</p>
+            <h1>Primary Phone Number</h1>
+            <span>Main contact number for customers and support.</span>
           </div>
-          <div>
-            <span className="text-gray-500">Language</span>
-            <p className="font-medium">{settings.language}</p>
+          <div className="p-2 border rounded-lg bg-[#F8FBFC]">
+            +91 5256826823
           </div>
+        </div>
+        <div className="flex items-start justify-between  border-b">
           <div>
-            <span className="text-gray-500">Currency</span>
-            <p className="font-medium">{settings.currency}</p>
+            <h1>Registered Company Number</h1>
+            <span>CIN number</span>
+          </div>
+          <div className="p-2 border rounded-lg bg-[#F8FBFC]">
+           +91 3581265825
           </div>
         </div>
       </div>
-
-      {/* Footer */}
-      <div className="mt-8 flex items-center justify-end gap-2">
-        <Link to={'/admin/settings/general-form'} className="inline-flex items-center gap-2 rounded-md border px-3 py-1.5 text-sm hover:bg-gray-50">
-          Edit
-        </Link>
-        <button className="inline-flex items-center gap-2 rounded-md border px-3 py-1.5 text-sm hover:bg-gray-50">
-          Cancel
-        </button>
-        <button className="inline-flex items-center gap-2 rounded-md bg-amber-500 px-3 py-1.5 text-sm text-white hover:bg-amber-600">
-          Delete
-        </button>
-      </div>
-    </div>
+    </>
   );
 }
 
-
-export default GeneralSettings
+export default GeneralSettings;

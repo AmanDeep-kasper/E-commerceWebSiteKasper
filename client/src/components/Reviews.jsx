@@ -94,9 +94,23 @@ function Reviews({ reviews = [], onAddReview }) {
   //  If no reviews, show message
   if (!reviews || reviews.length === 0) {
     return (
-      <div className="flex justify-center items-center w-full text-neutral-600 py-6">
-        <p className="text-gray-500 text-sm italic">No reviews yet</p>
-      </div>
+      <>
+        <div className="flex flex-col items-start space-y-2">
+          <div>
+            <p className="text-lg">Review This Product</p>
+            <span className="text-[#686868] text-xs">
+              Share your thoughts with other customers
+            </span>
+          </div>
+
+          <button
+            onClick={onAddReview}
+            className="py-1 px-10 border border-[#1C3753] rounded-lg hover:bg-[#1C3753] hover:text-white transform translate ease-in-out delay-100 translate hover:scale-105"
+          >
+            Write a product review
+          </button>
+        </div>
+      </>
     );
   }
 
@@ -161,7 +175,10 @@ function Reviews({ reviews = [], onAddReview }) {
           </span>
         </div>
 
-        <button onClick={onAddReview} className="py-1 px-10 border border-[#1C3753] rounded-lg hover:bg-[#1C3753] hover:text-white transform translate ease-in-out delay-100 translate hover:scale-105">
+        <button
+          onClick={onAddReview}
+          className="py-1 px-10 border border-[#1C3753] rounded-lg hover:bg-[#1C3753] hover:text-white transform translate ease-in-out delay-100 translate hover:scale-105"
+        >
           Write a product review
         </button>
       </div>

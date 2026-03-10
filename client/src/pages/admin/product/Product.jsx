@@ -712,7 +712,7 @@ const Products = () => {
                     Price
                   </th>
                   <th className="px-4 py-3 font-normal text-[#1C1C1C]">
-                    Stock
+                    Variants
                   </th>
                   <th className="px-4 py-3 font-normal text-[#1C1C1C]">
                     Status
@@ -802,7 +802,7 @@ const Products = () => {
                     <td className="px-4 py-3 text-[16px] text-[#1F2937]">
                       ₹{item.sellingPrice}
                     </td>
-                    <td className="px-4 py-3 text-[16px] text-[#1F2937]">
+                    {/* <td className="px-4 py-3 text-[16px] text-[#1F2937]">
                       {item.sellingPrice === 0 ? (
                         <div className="text-red-500 font-semibold">
                           Out of Stock
@@ -816,6 +816,9 @@ const Products = () => {
                           In Stock
                         </div>
                       )}
+                    </td> */}
+                     <td className="px-4 py-3 text-[16px] text-[#1F2937]">
+                     4
                     </td>
                     <td className="px-4 py-3 text-[16px] text-[#1F2937]">
                       {item.status === "Active" ? (
@@ -836,7 +839,7 @@ const Products = () => {
                             size={"12px"}
                             className=""
                           />
-                          Drift
+                          Draft
                         </div>
                       ) : (
                         <div className="flex items-center justify-center gap-2 bg-[#FFFBEB] py-1.5 px-3 rounded-lg text-sm text-[#F8A14A]">
@@ -860,7 +863,6 @@ const Products = () => {
 
                     {/* Centered action icons (hidden until hover) */}
                     <td className="px-0 py-3">
-                      {/* <div className="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200"> */}
                       <div className="flex items-center justify-center gap-2 ">
                         <button
                           onClick={(e) => {
@@ -868,10 +870,11 @@ const Products = () => {
                             // navigate(`/admin/add-product/${item.uuid}`);
                             navigate(`/admin/product-info/${item.uuid}`);
                           }}
-                          className="relative p-2 rounded group">
-                          <PencilLine className="w-5 h-5 text-gray-900" />
+                          className="relative p-2 rounded group text-[#2C87E2] hover:underline">
+                          {/* <PencilLine className="w-5 h-5 text-gray-900" /> */}
+                          view
 
-                          <div
+                          {/* <div
                             className="
       absolute left-1/2 top-10 -translate-x-1/2
       bg-[#F5F8FA] py-1 px-3 rounded-lg
@@ -883,12 +886,12 @@ const Products = () => {
       pointer-events-none
     ">
                             Edit
-                          </div>
+                          </div> */}
                         </button>
 
-                        <button className="p-2 rounded">
+                        {/* <button className="p-2 rounded">
                           <CopyCheck className="w-5 h-5 text-[#1C1C1C]" />
-                        </button>
+                        </button> */}
                       </div>
                     </td>
                   </tr>

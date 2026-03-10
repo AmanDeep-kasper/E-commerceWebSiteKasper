@@ -130,7 +130,7 @@ function ProfileCard({ customer }) {
           </div>
         </div>
       )}
-      {reVerfiy && (
+      {/* {reVerfiy && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-5 w-[467px]">
             <h3 className="text-lg font-medium mb-2">
@@ -163,7 +163,7 @@ function ProfileCard({ customer }) {
             </div>
           </div>
         </div>
-      )}
+      )} */}
       {openStatus && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-5 w-[400px]">
@@ -344,7 +344,7 @@ function ProfileCard({ customer }) {
         </div> */}
       </Card>
       <Card className="mt-6">
-        <div className="p-6">
+        <div className="p-6 ">
           <h1 className="font-medium ">Account Activity</h1>
           <AccountActivityRow
             lable={"Total Orders"}
@@ -368,13 +368,13 @@ function ProfileCard({ customer }) {
             value={customer.joined_date ?? "-"}
           />
 
-          <AccountActivityRow
+          {/* <AccountActivityRow
             lable={"Login Method"}
             value={"Phone Number"}
             isBadge
-          />
+          /> */}
 
-          <AccountActivityVerfiy
+          {/* <AccountActivityVerfiy
             label={"Email Verified"}
             verified={customer.email_verified}
           />
@@ -383,7 +383,7 @@ function ProfileCard({ customer }) {
               label={"Phone Verified"}
               verified={customer.phone_verified}
             />
-          </div>
+          </div> */}
         </div>
       </Card>
       <Card className="mt-6">
@@ -412,14 +412,14 @@ function ProfileCard({ customer }) {
                 </>
               )}
             </button> */}
-            <button
+            {/* <button
               onClick={() => setReVerfiy(true)}
               className="flex items-center justify-start gap-2 bg-[#F8FBFC] border px-2 py-2 rounded-lg">
               <BadgeCheck width={16.5} height={16.5} />
               <span className="text-sm font-medium">
                 Re-Verification of User
               </span>
-            </button>
+            </button> */}
             <button
               // onClick={() => {
               //   setStatus(status === "Unblock" ? "Block" : "Unblock");

@@ -7,8 +7,14 @@ import OrderDetails from "./OrdersPopModels/OrderDetails";
 import OrderCancel from "./OrdersPopModels/OrderCancel";
 import { toast } from "react-toastify";
 
-const PendingOrders = () => {
+const NewOrders = () => {
   const { orders } = useOutletContext();
+
+  const [localOrders, setLocalOrders] = useState([]);
+
+  useEffect(() => {
+    setLocalOrders(orders || []);
+  }, [orders]);
 
   const columns = [
     "Order ID",
@@ -53,7 +59,10 @@ const PendingOrders = () => {
   ];
 
   const filteredOrders = useMemo(() => {
-    let result = [...orders];
+    // let result = [...orders];
+    let result = [...localOrders];
+
+    // result = result.filter((o) => o.orderStatus === "Pending");
 
     /* 🔍 SEARCH */
     if (debouncedValue.trim()) {
@@ -66,6 +75,7 @@ const PendingOrders = () => {
     if (paymentstatus !== "Payment Type") {
       result = result.filter((item) => item.paymentType === paymentstatus);
     }
+
 
     /* 📅 DATE */
     // const today = new Date();
@@ -121,7 +131,7 @@ const PendingOrders = () => {
     }
 
     return result;
-  }, [orders, debouncedValue, paymentstatus, filterOne]);
+  }, [localOrders, debouncedValue, paymentstatus, filterOne]);
 
   useEffect(() => {
     setPage(1);
@@ -138,18 +148,22 @@ const PendingOrders = () => {
 
   //////////////////////////////////////////////////
   const [selectedOrderId, setSelectedOrderId] = useState(null);
-  const selectOrder = orders.find(
-    (orders) => orders.orderId === selectedOrderId,
-  );
+  // const selectOrder = orders.find(
+  //   (orders) => orders.orderId === selectedOrderId,
+  // );
+  const selectOrder = localOrders.find((o) => o.orderId === selectedOrderId);
 
   // cancel order module
 
   const [openCancelModule, setopenCancelModule] = useState(null);
   const [cancelResionData, setCancelResionData] = useState("");
-  
 
-  const selectCancelOrder = orders.find(
-    (orders) => orders.orderId === openCancelModule,
+  // const selectCancelOrder = orders.find(
+  //   (orders) => orders.orderId === openCancelModule,
+  // );
+
+  const selectCancelOrder = localOrders.find(
+    (o) => o.orderId === openCancelModule,
   );
   // Accepted order
 
@@ -157,6 +171,22 @@ const PendingOrders = () => {
 
   const handleAcceptedOrders = (orderId) => {
     setAcceptedOrders((prev) => [...prev, orderId]);
+  };
+
+  const handleAcceptOrder = ({ orderId, deliveryPartner }) => {
+    setLocalOrders((prev) =>
+      prev.map((o) =>
+        o.orderId === orderId
+          ? { ...o, orderStatus: "Processing", deliveryPartner }
+          : o,
+      ),
+    );
+
+    toast.success("Order moved to Processing", {
+      style: { background: "#E0F4DE", color: "#1C1C1C" },
+    });
+
+    setSelectedOrderId(null);
   };
 
   const handleCancelOrder = (orderId) => {
@@ -199,11 +229,9 @@ const PendingOrders = () => {
             <OrderDetails
               data={selectOrder}
               setSelectedOrderId={() => setSelectedOrderId(null)}
-              onAcceptOrder={({ orderId, deliveryPartner }) => {
-                // API call: set orderStatus = "Processing", save deliveryPartner
-              }}
+              onAcceptOrder={handleAcceptOrder}
               onSaveTracking={({ orderId, trackingId, trackingUrl }) => {
-                // API call: set orderStatus = "Shipped", save trackingId+trackingUrl
+                // later: shipped update
               }}
               setopenCancelModule={setopenCancelModule}
             />
@@ -573,4 +601,4 @@ const PendingOrders = () => {
   );
 };
 
-export default PendingOrders;
+export default NewOrders;

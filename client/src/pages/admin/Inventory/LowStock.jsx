@@ -1,22 +1,23 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate, useOutletContext } from "react-router";
-import { ChevronDown, ListFilter, Search } from "lucide-react";
-import ReturnRequestedModule from "./ReturnPopModules/ReturnRequestedModule";
-// import OrderDetails from "./OrdersPopModels/OrderDetails";
-// import OrdersTimelines from "./OrdersPopModels/OrdersTimelines";
+import { useOutletContext } from "react-router";
+import { ChevronDown, ListFilter, MoreVertical, Search } from "lucide-react";
+import { DayPicker } from "react-day-picker";
+import "react-day-picker/dist/style.css";
+import { toast } from "react-toastify";
+// import ReturnRejectedModule from "./ReturnPopModules/ReturnRejectedModule";
+// import ReturnRequestedModule from "./ReturnPopModules/ReturnRequestedModule";
 
-const ReceivedReturns = () => {
-  // const { returns } = useOutletContext();
+const LowStock = () => {
+  // const { returns: contextReturns } = useOutletContext();
   const { returnsData, setReturnsData } = useOutletContext();
 
   const columns = [
-    "Return ID",
+    " SKU ID",
     "Product Name",
-    "Return Reason",
-    // "Return Type",
-    "Quality Check Status",
-    "Returned Date",
-    // "Delivery Partner",
+    "Category",
+    "Available Stock",
+    "Selling Price",
+    "Status",
     "Action",
   ];
 
@@ -36,31 +37,25 @@ const ReceivedReturns = () => {
     return () => clearTimeout(timer);
   }, [search]);
 
-  // retrun type filter
-  const [returnTypeOpen, setReturnTypeOpen] = useState(false);
-  const [returnType, setReturnType] = useState("Return Type");
-  const ReturnTypes = ["Return Type", "Exchange", "Return"];
-
   /* ================= PAYMENT FILTER ================= */
-  const [paymentstatusOpen, setPaymentStatusOpen] = useState(false);
-  const [paymentstatus, setPaymentStatus] = useState("Quality Check Status");
-  const Paymentstatuses = ["Quality Check Status", "Pending", "Pass", "Fail"];
+  // const [paymentstatusOpen, setPaymentStatusOpen] = useState(false);
+  // const [paymentstatus, setPaymentStatus] = useState("Return Type");
+  // const Paymentstatuses = ["Return Type", "Exchange", "Return"];
 
   /* ================= SORT FILTER (MOVE UP) ================= */
   const [filterOne, setfilterOne] = useState("Latest");
   const [filterOneOpen, setfilterOneOpen] = useState(false);
 
   const filterOneItems = ["Latest", "Latest Date", "Oldest Date"];
-  
+
+  // const [returnsData, setReturnsData] = useState([]);
+
+  // useEffect(() => {
+  //   setReturnsData(contextReturns || []);
+  // }, [contextReturns]);
 
   const filteredOrders = useMemo(() => {
-    let result = [...returnsData].filter(
-      (item) =>
-        item.status === "Pickup Scheduled" ||
-        item.status === "Returned" ||
-        item.status === "QC Approved" ||
-        item.status === "QC Denied",
-    );
+    let result = [...returnsData];
 
     /* 🔍 SEARCH */
     if (debouncedValue.trim()) {
@@ -74,49 +69,28 @@ const ReceivedReturns = () => {
       });
     }
 
-    /*  RETURN TYPE */
-    if (returnType !== "Return Type") {
-      result = result.filter((item) => item.type === returnType);
+    /* 💳 PAYMENT */
+    // if (paymentstatus !== "Return Type") {
+    //   result = result.filter((item) => item.type === paymentstatus);
+    // }
+
+    /* ↕️ SORT */
+    if (filterOne === "Latest Return Date") {
+      result.sort((a, b) => new Date(b.requestedAt) - new Date(a.requestedAt));
     }
 
-    /* "Quality Check Status */
-    if (paymentstatus !== "Quality Check Status") {
-      result = result.filter(
-        (item) => item.qualityCheckStatus === paymentstatus,
-      );
-    }
-
-    /*  SORT */
-    if (filterOne === "Latest") {
-      result.sort(
-        (a, b) =>
-          new Date(b.shippingDetails?.expectedDeliveryDate || 0) -
-          new Date(a.shippingDetails?.expectedDeliveryDate || 0),
-      );
-    }
-
-    if (filterOne === "Latest Date") {
-      result.sort(
-        (a, b) =>
-          new Date(b.shippingDetails?.expectedDeliveryDate || 0) -
-          new Date(a.shippingDetails?.expectedDeliveryDate || 0),
-      );
-    }
-
-    if (filterOne === "Oldest Date") {
-      result.sort(
-        (a, b) =>
-          new Date(a.shippingDetails?.expectedDeliveryDate || 0) -
-          new Date(b.shippingDetails?.expectedDeliveryDate || 0),
-      );
+    if (filterOne === "Oldest Return Date") {
+      result.sort((a, b) => new Date(a.requestedAt) - new Date(b.requestedAt));
     }
 
     return result;
-  }, [ debouncedValue, returnType, paymentstatus, filterOne]);
+    // }, [returnsData, debouncedValue, paymentstatus, filterOne]);
+  }, [returnsData, debouncedValue, filterOne]);
 
   useEffect(() => {
     setPage(1);
-  }, [debouncedValue, paymentstatus, filterOne]);
+    // }, [debouncedValue, paymentstatus, filterOne]);
+  }, [debouncedValue, filterOne]);
 
   /* ================= PAGINATION ================= */
   const total = filteredOrders.length;
@@ -126,31 +100,59 @@ const ReceivedReturns = () => {
   const endIndex = Math.min(startIndex + rowsPerPage, total);
 
   const paginatedOrders = filteredOrders.slice(startIndex, endIndex);
-  // ======================== Pops ==================
 
+  //////////////////////////////////////////////////
   const [selectedOrderId, setSelectedOrderId] = useState(null);
-
-
   const selectOrder = returnsData.find(
-    (item) => item.returnId === selectedOrderId,
+    (orders) => orders.returnId === selectedOrderId,
   );
 
-  /////////////////////////////////////////////////////////////
+  ///////////////////////////////////////////////////
+  // cancel order module
 
-  // this is for timeline pop model
-  const [openTimelineId, setOpenTimelineId] = useState(null);
+  const [openCancelModule, setopenCancelModule] = useState(null);
+  const [cancelResionData, setCancelResionData] = useState("");
 
-
-  const selectTimeline = returnsData.find(
-    (item) => item.returnId === openTimelineId,
+  const selectCancelOrder = returnsData.find(
+    (orders) => orders.returnId === openCancelModule,
   );
 
-  const handleSaveQualityCheck = ({ returnId, qualityCheckStatus }) => {
+  // Accepted order
+
+  const [acceptedOrders, setAcceptedOrders] = useState([]);
+
+  // const handleAcceptedOrders = (orderId) => {
+  //   setAcceptedOrders((prev) => [...prev, orderId]);
+  // };
+
+  // const handleAcceptedOrders = (orderId) => {
+  //   const updatedReturns = returnsData.map((item) => {
+  //     if (item.returnId === orderId) {
+  //       return { ...item, status: "Approved" };
+  //     }
+  //     return item;
+  //   });
+
+  //   setReturnsData(updatedReturns);
+
+  //   setAcceptedOrders((prev) => [...prev, orderId]);
+  // };
+
+  // agin
+  const handleAcceptedOrders = ({ returnId, deliveryPartner }) => {
     const updatedReturns = returnsData.map((item) => {
       if (item.returnId === returnId) {
         return {
           ...item,
-          qualityCheckStatus,
+          status: "Approved",
+          shippingDetails: {
+            ...(item.shippingDetails || {}),
+            shippingPartner: deliveryPartner,
+            trackingId: "",
+            trackingLink: "",
+            shippingStatus: "Approved",
+            expectedDeliveryDate: "",
+          },
         };
       }
       return item;
@@ -159,55 +161,49 @@ const ReceivedReturns = () => {
     setReturnsData(updatedReturns);
   };
 
-  const handleMarkAsReturned = ({ returnId, qualityCheckStatus }) => {
+  // marks as shipped
+  const handleMarkAsShipped = ({
+    returnId,
+    deliveryPartner,
+    trackingId,
+    trackingLink,
+  }) => {
     const updatedReturns = returnsData.map((item) => {
       if (item.returnId === returnId) {
         return {
           ...item,
-          status: qualityCheckStatus === "Pass" ? "QC Approved" : "QC Denied",
-          qualityCheckStatus,
-          returnedDate: new Date().toLocaleDateString("en-GB"),
+          status: "Pickup Scheduled",
+          shippingDetails: {
+            ...(item.shippingDetails || {}),
+            shippingPartner: deliveryPartner,
+            trackingId,
+            trackingLink,
+            shippingStatus: "Pickup Scheduled",
+            expectedDeliveryDate: "2026-02-06",
+          },
         };
       }
       return item;
     });
 
     setReturnsData(updatedReturns);
+  };
+
+  const handleCancelOrder = (orderId) => {
+    toast.error("Order has been cancelled", {
+      icon: true,
+      style: {
+        background: "#FDECEC",
+        color: "#1C1C1C",
+      },
+    });
+
+    setopenCancelModule(null);
   };
 
   return (
     <>
-      {selectOrder && (
-        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center">
-          <div
-            className="
-        bg-white
-        w-[750px]
-        max-w-[95vw]
-        max-h-[90vh]
-        p-6
-        rounded-xl
-        relative
-        overflow-y-auto
-        overscroll-contain
-        scrollbar-hide
-      "
-          >
-            <ReturnRequestedModule
-              data={selectOrder}
-              setSelectedOrderId={() => setSelectedOrderId(null)}
-              setopenCancelModule={() => {}}
-              handleAcceptedOrders={() => {}}
-              handleMarkAsShipped={() => {}}
-              handleSaveQualityCheck={handleSaveQualityCheck}
-              handleMarkAsReturned={handleMarkAsReturned}
-              mode="received"
-            />
-          </div>
-        </div>
-      )}
-
-      {/* serach  and filter  */}
+      
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2 w-[30%] rounded-lg px-3 py-2 bg-[#F8FBFC]">
           <Search className="w-4 h-4 text-[#686868]" />
@@ -221,44 +217,15 @@ const ReceivedReturns = () => {
         </div>
 
         <div className="flex items-center justify-evenly gap-4">
-          <div className="relative">
-            <button
-              onClick={() => setReturnTypeOpen((p) => !p)}
-              className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 bg-[#F8FBFC] rounded-lg hover:bg-gray-100 border"
-            >
-              {returnType}
-              <ChevronDown className="w-4 h-4 text-gray-500" />
-            </button>
-            {returnTypeOpen && (
-              <div className="absolute mt-2 w-48 right-0 top-8  bg-white border rounded-lg shadow-md z-20">
-                {ReturnTypes.map((s) => (
-                  <div
-                    key={s}
-                    onClick={() => {
-                      setReturnType(s);
-                      setReturnTypeOpen(false);
-                    }}
-                    className={`px-4 py-2 text-sm cursor-pointer text-[#686868] hover:bg-gray-100
-                      ${returnType === s ? "bg-gray-100 font-medium" : ""}
-                    `}
-                  >
-                    {s}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div className="relative">
+          {/* <div className="relative">
             <button
               onClick={() => setPaymentStatusOpen((p) => !p)}
-              className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 bg-[#F8FBFC] rounded-lg hover:bg-gray-100 border"
-            >
+              className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 bg-[#F8FBFC] rounded-lg hover:bg-gray-100 border">
               {paymentstatus}
               <ChevronDown className="w-4 h-4 text-gray-500" />
             </button>
             {paymentstatusOpen && (
-              <div className="absolute mt-2 w-48 right-0 top-8  bg-white border rounded-lg shadow-md z-20">
+              <div className="absolute mt-2 w-36 right-0 top-8  bg-white border rounded-lg shadow-md z-20">
                 {Paymentstatuses.map((s) => (
                   <div
                     key={s}
@@ -268,15 +235,14 @@ const ReceivedReturns = () => {
                       setPaymentStatusOpen(false);
                     }}
                     className={`px-4 py-2 text-sm cursor-pointer text-[#686868] hover:bg-gray-100
-                      ${paymentstatus === s ? "bg-gray-100 font-medium" : ""}
-                    `}
-                  >
+            ${paymentstatus === s ? "bg-gray-100 font-medium" : ""}
+          `}>
                     {s}
                   </div>
                 ))}
               </div>
             )}
-          </div>
+          </div> */}
 
           <div className="relative">
             <button
@@ -311,16 +277,12 @@ const ReceivedReturns = () => {
           </div>
         </div>
       </div>
-
       <div className="overflow-x-auto bg-white shadow rounded-lg">
-        <table className="w-full text-sm text-center text-gray-600">
+        <table className="w-full text-sm text-left text-gray-600">
           <thead className="bg-[#F8F8F8] h-[54px]">
-            <tr className="text-[#4B5563] text-sm ">
+            <tr className="text-[#4B5563] text-sm text-center">
               {columns.map((col) => (
-                <th
-                  key={col}
-                  className="px-4 py-3 font-medium text-[#1C1C1C] text-center"
-                >
+                <th key={col} className="px-4 py-3 font-medium text-[#1C1C1C]">
                   {col}
                 </th>
               ))}
@@ -331,13 +293,13 @@ const ReceivedReturns = () => {
             {paginatedOrders.map((order) => (
               <tr
                 key={order.returnId}
-                className="border-t hover:bg-gray-50 transition  cursor-pointer text-center"
+                className="border-t hover:bg-gray-50 transition text-center cursor-pointer"
               >
                 <td
-                  onClick={() => {
-                    setSelectedOrderId(order.returnId);
-                  }}
-                  className="px-4 py-3 hover:underline text-[#2C87E2]"
+                  // onClick={() => {
+                  //   setSelectedOrderId(order.returnId);
+                  // }}
+                  className="px-4 py-3 text-[#000000]"
                 >
                   {order.returnId}
                 </td>
@@ -363,43 +325,37 @@ const ReceivedReturns = () => {
                     </div>
                   </div>
                 </td>
-                {/* <td className="px-4 py-3">{order.quantity}</td> */}
-                <td className={`px-4 py-3 font-medium text-xs  `}>
-                  <span
-                    className={`inline-flex items-center justify-center min-w-[110px] px-4 py-1.5 rounded-md font-medium text-center`}
-                  >
-                    Poor build or finish quality
-                  </span>
-                </td>
-                <td className="px-4 py-3 font-medium text-xs">
+
+                <td className="px-4 py-3">{order.returnReason}</td>
+                <td className="px-4 py-3">{order.returnReason}</td>
+
+                <td className="px-4 py-3">{order.requestedAt}</td>
+                <td className="px-4 py-3 font-medium text-xs ">
                   <span
                     className={`inline-flex items-center justify-center min-w-[110px] px-4 py-1.5 rounded-md font-medium text-center ${
-                      order.qualityCheckStatus === "Pass"
-                        ? "text-[#008D94] bg-[#C7FCFF]"
-                        : order.qualityCheckStatus === "Fail"
-                          ? "text-[#D53B35] bg-[#FFEAE9]"
-                          : "text-[#686868] bg-[#EFEFEF]"
+                      order.type === "In Stock"
+                        ? "text-[#00A63E] bg-[#E0F4DE]"
+                        : order.type === "Low Stock"
+                          ? "text-[#F8A14A] bg-[#FFFBEB]"
+                          : order.type === "Out of Stock"
+                            ? "bg-[#FFEAE9] text-[#D53B35]"
+                            : ""
                     }`}
                   >
-                    {order.qualityCheckStatus || "Pending"}
+                    {order.type}
                   </span>
                 </td>
 
-                <td className="px-4 py-3">{order.returnedDate || "--"}</td>
-
-                {/* <div className="flex items-center justify-center "> */}
-                <td className="px-4 py-3 text-right">
-                  <button
-                   onClick={(e) => {
-                      e.stopPropagation();
+                <td className="px-4 py-3 gap-3">
+                  <span
+                    onClick={() => {
                       setSelectedOrderId(order.returnId);
                     }}
-                    className="p-2  text-[#2C87E2] hover:underline"
+                    className="hover:underline text-[#2C87E2]"
                   >
-                    View
-                  </button>
+                    view
+                  </span>
                 </td>
-                {/* </div> */}
               </tr>
             ))}
           </tbody>
@@ -441,4 +397,4 @@ const ReceivedReturns = () => {
   );
 };
 
-export default ReceivedReturns;
+export default LowStock;

@@ -15,7 +15,6 @@ const OrderDetails = ({
   onSaveTracking = () => {},
   setopenCancelModule = () => {},
 }) => {
-
   // //////////////////////////////////
   const items = data?.items || [];
 
@@ -39,13 +38,19 @@ const OrderDetails = ({
   const [trackingId, setTrackingId] = useState(data?.trackingId || "");
   const [trackingUrl, setTrackingUrl] = useState(data?.trackingUrl || "");
 
-  const isPending = data?.orderStatus === "Pending";
-  const isProcessing = data?.orderStatus === "Processing";
-  const isShipped = data?.orderStatus === "Shipped";
+  // ✅ FIX: normalize status to avoid "pending", "Pending ", etc.
+  const status = (data?.orderStatus || "").trim().toLowerCase();
 
-  const canAccept = isPending && !!selectedPartner;
+  const isPending = status === "pending";
+  const isProcessing = status === "processing";
+  const isShipped = status === "shipped";
+
+  const canAccept = isPending && selectedPartner.trim().length > 0;
+
   const showTrackingSection = isProcessing || isShipped;
   const trackingAlreadySaved = !!data?.trackingId;
+
+  console.log({ isPending, selectedPartner, canAccept });
 
   return (
     <div className="bg-[#FFFFFF] w-full">

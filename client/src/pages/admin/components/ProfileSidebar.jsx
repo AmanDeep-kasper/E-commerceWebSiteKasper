@@ -21,7 +21,7 @@ const Card = ({ children, className = "" }) => (
 const profileMenu = [
   { label: "Personal Information", path: "/customer-info", icon: User },
   { label: "Orders Information", path: "/order-insight", icon: BarChart2 },
-  { label: "Support & Ticket", path: "/support-feedback", icon: MessageSquare },
+  // { label: "Support & Ticket", path: "/support-feedback", icon: MessageSquare },
 ];
 
 function ProfileSidebar({ customer, isEditPage }) {

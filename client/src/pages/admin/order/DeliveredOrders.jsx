@@ -19,7 +19,7 @@ const DeliveredOrders = () => {
     "Order Value",
     // "Return Window",
     "Payment Status",
-    "Delivery Date",
+    "Delivered Date",
     "Action",
   ];
 
@@ -544,12 +544,12 @@ const DeliveredOrders = () => {
                     ${
                       order.paymentStatus === "Paid"
                         ? "bg-[#D5E5F5] text-[#1C3753]"
-                        : order.paymentStatus === "Refund Initiated"
+                        : order.paymentStatus === "COD Collected"
                           ? "bg-[#FBDBF7] text-[#E91DD1]"
-                          : order.paymentStatus === "No Refund"
-                            ? "bg-[#EFEFEF] text-[#686868]"
-                            : order.paymentStatus === "Refunded"
-                              ? "bg-[#E6D3FF] text-[#8A38F5]"
+                          // : order.paymentStatus === "No Refund"
+                          //   ? "bg-[#EFEFEF] text-[#686868]"
+                          //   : order.paymentStatus === "Refunded"
+                          //     ? "bg-[#E6D3FF] text-[#8A38F5]"
                               : ""
                     }
                   `}

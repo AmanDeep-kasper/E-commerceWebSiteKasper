@@ -25,6 +25,7 @@ import productData from "../../../data/products.json";
 const Transporter = () => {
   const [product, setProduct] = useState([]);
   const [loading, setLoading] = useState(true);
+  // const navigate = useNavigate();
 
   // useEffect(() => {
   //   const fetchProduct = async () => {
@@ -59,13 +60,8 @@ const Transporter = () => {
     const visibleIds = currentItems.map((item) => item.id || item.uuid);
 
     if (e.target.checked) {
-      // Add only visible product IDs
-      // const visibleIds = currentItems.map((item) => item.id);
       setSelectedItems((prev) => [...new Set([...prev, ...visibleIds])]);
     } else {
-      // Remove only visible product IDs
-      // const visibleIds = currentItems.map((item) => item.id);
-
       setSelectedItems((prev) => prev.filter((id) => !visibleIds.includes(id)));
     }
   };
@@ -468,8 +464,8 @@ const Transporter = () => {
                         Forward
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-[16px]  text-[#1F2937]">
-                      20
+                    <td className="px-4 py-3 text-[16px] text-[#1F2937]">
+                      (20)
                     </td>
                     <td className="px-4 py-3 text-[16px]  text-[#1F2937]">
                       {item.status === "Active" ? (
@@ -487,7 +483,7 @@ const Transporter = () => {
                       )}
                     </td>
                     <td className="px-4 py-3 text-[16px] ">
-                      <button className="text-[#2C87E2] hover:underline">
+                      <button  onClick={() => navigate(`/admin/transporter/detail`)}  className="text-[#2C87E2] hover:underline">
                         view
                       </button>
                     </td>
@@ -536,7 +532,7 @@ const Transporter = () => {
         </div>
       </div>
 
-      {/* ✅ Add Transporter Modal/pop */}
+      {/*  Add Transporter Modal/pop */}
       {isAddModalOpen && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-3"
@@ -560,7 +556,7 @@ const Transporter = () => {
               <button
                 onClick={() => {
                   setIsAddModalOpen(false);
-                  resetForm();
+                  // resetForm();
                 }}
                 className="text-gray-500 hover:text-gray-800"
               >
@@ -874,7 +870,7 @@ const Transporter = () => {
                 type="button"
                 onClick={() => {
                   setIsAddModalOpen(false);
-                  resetForm();
+                  // resetForm();
                 }}
                 className="px-4 py-2 rounded-lg border text-gray-700 hover:bg-gray-50"
               >

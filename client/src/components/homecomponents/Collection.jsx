@@ -2,13 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { motion, useAnimation } from "framer-motion";
 import Rating from "@mui/material/Rating";
 import Stack from "@mui/material/Stack";
-import icon from "../../assets/black-star-icon.svg";
-// import products from "../../data/products.json";
-// import newProducts from "../../data/products.json";
-import Tilt from "react-parallax-tilt";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import axiosInstance from "../../api/axiosInstance";
-import Title from "../Title";
 import { Link } from "react-router";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
@@ -123,24 +118,61 @@ function Collection() {
 
   const [newProducts, setnewProducts] = useState([]);
 
+  // useEffect(() => {
+  //   const fetchProducts = async () => {
+  //     try {
+  //       const res = await axiosInstance.get("/products/all");
+  //       //  console.log("PRODUCTS:", res.data);
+  //       setnewProducts(res.data);
+  //     } catch (error) {
+  //       console.log(error);
+  //     }
+  //   };
+
+  //   fetchProducts();
+  // }, []);
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         const res = await axiosInstance.get("/products/all");
-        //  console.log("PRODUCTS:", res.data);
-        setnewProducts(res.data);
+
+        const raw = res.data;
+        const products = Array.isArray(raw)
+          ? raw
+          : Array.isArray(raw?.data)
+            ? raw.data
+            : Array.isArray(raw?.products)
+              ? raw.products
+              : Array.isArray(raw?.data?.products)
+                ? raw.data.products
+                : [];
+
+        console.log("RAW:", raw);
+        console.log("PRODUCTS:", products);
+
+        setnewProducts(products);
       } catch (error) {
         console.log(error);
+        setnewProducts([]);
       }
     };
 
     fetchProducts();
   }, []);
 
-  const collections = newProducts.filter(
-    (item, index, self) =>
-      index === self.findIndex((obj) => obj.category === item.category),
-  );
+  // const collections = newProducts.filter(
+  //   (item, index, self) =>
+  //     index === self.findIndex((obj) => obj.category === item.category),
+  // );
+  const collections = (newProducts || []).filter((item, index, self) => {
+    const cat = item?.category?.name ?? item?.category; // supports object or string
+    if (!cat) return false;
+
+    return (
+      index ===
+      self.findIndex((obj) => (obj?.category?.name ?? obj?.category) === cat)
+    );
+  });
 
   return (
     <section className="relative pt-[22px] pb-6 group bg-gray-50">
@@ -160,84 +192,6 @@ function Collection() {
           </p>
         </div>
 
-        {/* <div className="relative">
-          <div
-            className="flex gap-4 max-sm:gap-2 pb-6 overflow-x-auto scroll-smooth invisible-scrollbar"
-            ref={ref}
-          >
-            {collections?.map((p) => {
-              const key = p.id || p.uuid || p.SKU;
-              const { base, effective, discountPercent, symbol } = getPrices(p);
-              const ratingAvg = p?.rating?.average;
-
-              return (
-                <Link
-                  key={key}
-                  className="bg-white p-4 group/image"
-                  to={getProductUrl(p)}
-                >
-                  <div className="w-[224px] max-sm:w-40 max-sm:h-40 relative overflow-hidden">
-                    <img
-                      className="w-56 h-56 group-hover/image:scale-110 max-sm:w-40 max-sm:h-40 object-contain rounded flex-shrink-0 transition-all ease-in-out duration-300"
-                      src={getCardImage(p)}
-                      alt={p.title || p.slug || p.category}
-                      loading="lazy"
-                    />
-
-                    {typeof ratingAvg === "number" && (
-                      <div className="absolute top-1 right-1 bg-yellow-400 shadow-lg text-gray-700 text-xs font-medium px-2 py-1 rounded-full flex gap-1 items-start">
-                        <span>{Number(ratingAvg).toFixed(1)} ★</span>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="md:w-56 w-40 py-1">
-                    <h3 className="text-sm font-serif font-normal text-gray-800 line-clamp-1 mb-2 tracking-wide">
-                      {p.title}
-                    </h3>
-
-                    <div className="flex items-center flex-wrap gap-2">
-                      <span className="text-gray-900 font-medium tracking-tight">
-                        {formatPrice(effective)}
-                      </span>
-
-                      {discountPercent > 0 && (
-                        <>
-                          <span className="text-gray-400 text-xs line-through font-light">
-                            {formatPrice(base)}
-                          </span>
-                          <span className="bg-green-700 text-white text-xs px-2 py-0.5 rounded">
-                            {discountPercent}% Off
-                          </span>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-
-          {leftArrow && (
-            <button
-              className="absolute -left-4 top-1/2 -translate-y-1/2 w-10 h-16 flex items-center justify-center bg-white shadow-sm hover:bg-gray-50 transition-all duration-200 group-hover:opacity-100 opacity-0 border border-gray-200"
-              onClick={slideToStart}
-              aria-label="Previous items"
-            >
-              <ChevronLeft size={20} className="text-gray-600" />
-            </button>
-          )}
-
-          {rightArrow && (
-            <button
-              className="absolute -right-4 top-1/2 -translate-y-1/2 w-10 h-16 flex items-center justify-center bg-white shadow-sm hover:bg-gray-50 transition-all duration-200 group-hover:opacity-100 opacity-0 border border-gray-200"
-              onClick={slideToEnd}
-              aria-label="Next items"
-            >
-              <ChevronRight size={20} className="text-gray-600" />
-            </button>
-          )}
-        </div> */}
         <div className="relative">
           <Swiper
             modules={[Navigation]}
@@ -261,13 +215,14 @@ function Collection() {
                 >
                   <Link
                     className=" border block group/image h-full rounded-md shadow-sm"
-                    to={getProductUrl(p)}
+                    // to={getProductUrl(p)}
+                    to={`/product/${p._id}`} 
                   >
                     <div className="relative w-full h-[224px] max-sm:h-40 overflow-hidden">
                       <img
                         className="w-full h-full object-contain group-hover/image:scale-110 transition-all duration-300"
                         src={getCardImage(p)}
-                        alt={p.title}
+                        alt={p.productTittle || "Product"}
                         loading="lazy"
                         onError={(e) => (e.target.src = "/placeholder.jpg")}
                       />
@@ -275,7 +230,7 @@ function Collection() {
 
                     <div className="w-full py-2 px-3">
                       <h3 className="text-[16px] font-serif text-gray-800 line-clamp-1 mb-2">
-                        {p.title}
+                        {p?.productTittle || "Untitled"}
                       </h3>
 
                       <div className="flex items-center flex-wrap ">

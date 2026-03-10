@@ -218,7 +218,7 @@ function Orders() {
                   <td className="px-4 py-3 ">₹{r.amazon_price}</td>
                   <td className="px-4 py-3 ">
                     <span
-                      className={`inline-flex text-sm font-medium  ${r.payment_status === "Paid" ? "text-[#00A63E]" : r.payment_status === "Pending" ? "text-[#F8A14A]" : r.payment_status === "Refund Initiated" ? "text-[#E91DD1]" : r.payment_status ? "text-[#8A38F5]" : ""}`}
+                      className={`inline-flex text-sm font-medium  ${r.payment_status === "Paid" ? "text-[#00A63E]" : r.payment_status === "Cod" ? "text-[#F8A14A]" : ""}`}
                     >
                       {r.payment_status}
                     </span>

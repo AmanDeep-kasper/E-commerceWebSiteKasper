@@ -112,6 +112,8 @@ const ProcessingOrders = () => {
   );
 
   /////////////////////////////////////////////////////////////
+const [openCancelModule, setopenCancelModule] = useState(null);
+
 
   return (
     <>
@@ -258,14 +260,15 @@ const ProcessingOrders = () => {
                 <td className="px-4 py-3 font-medium text-xs">
                   <span
                     className={`inline-flex items-center justify-center min-w-[110px] px-4 py-1.5 rounded-lg font-medium text-center ${
-                      order.labelGenerated === "Ready to Ship"
+                      order.labelGenerated || "Ready to Ship" === "Ready to Ship"
                         ? "bg-[#E0F4DE] text-[#00A63E]"
-                        : order.labelGenerated === "In Process"
+                        : order.labelGenerated || "  In Process" === "In Process"
                           ? "bg-[#DEDEDE] text-[#686868]"
                           : ""
                     }`}
                   >
-                    {order.labelGenerated}
+                    {/* {order.labelGenerated || "Ready to Ship"} */}
+                   Ready to Ship
                   </span>
                 </td>
                 {/* <td className="px-4 py-3">{order.dispatchDate}</td> */}

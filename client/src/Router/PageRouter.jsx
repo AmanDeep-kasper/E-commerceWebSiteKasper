@@ -35,7 +35,7 @@ import ReceivedReturns from "../pages/admin/Returns/ReceivedReturns";
 import ReturnClosed from "../pages/admin/Returns/ReturnClosed";
 // import PaymentSuccess from "../pages/PaymentSuccess";
 // Admin Pages
-import Dashboard from "../pages/admin/Dashboard";
+import Dashboard from "../pages/admin/Dashboard/Dashboard";
 import Customer from "../pages/admin/customer/Customer";
 import Products from "../pages/admin/product/Product";
 import Categories from "../pages/admin/Categories";
@@ -70,7 +70,7 @@ import GeneralSettings from "../pages/admin/setting/GeneralSettings";
 import NotificationSettings from "../pages/admin/setting/NotificationSettings";
 import PaymentSettings from "../pages/admin/setting/PaymentSettings";
 import SettingsLayout from "../pages/admin/setting/SettingsLayout";
-import TaxesSettings from "../pages/admin/setting/TaxesSettings";
+import TaxesSettings from "../pages/admin/setting/WarehouseDetails";
 import GeneralSettingsForm from "../pages/admin/setting/form/GeneralSettingsForm";
 import NotificationSettingsForm from "../pages/admin/setting/form/NotificationsSettingsForm";
 import PaymentSettingsForm from "../pages/admin/setting/form/PaymentSettingsForm";
@@ -80,7 +80,7 @@ import Register from "../pages/user/RegisterPage";
 import ForgotPassword from "../components/forms/ForgotPassword";
 import ResetPassword from "../components/forms/ResetPassword";
 import AllOrders from "../pages/admin/order/AllOrders";
-import PendingOrders from "../pages/admin/order/PendingOrders";
+import PendingOrders from "../pages/admin/order/NewOrders";
 import ProcessingOrders from "../pages/admin/order/ProcessingOrders";
 import ShippedOrders from "../pages/admin/order/ShippedOrders";
 import DeliveredOrders from "../pages/admin/order/DeliveredOrders";
@@ -92,6 +92,22 @@ import ReturnRefundPolicy from "../pages/ReturnRefundPolicy";
 import TermsConditions from "../pages/TermsConditions";
 import CancelItemsPage from "../components/CancelItemsPage";
 import UserReturnPage from "../components/UserReturnPage";
+import TransporterDetail from "../pages/admin/Transporter/TransporterDetail";
+import Support from "../pages/admin/Support&Ticket/Support";
+import TicketDetail from "../pages/admin/Support&Ticket/TicketDetail";
+import InventoryPage from "../pages/admin/Inventory/InventoryPage";
+import All from "../pages/admin/Inventory/All";
+import LowStock from "../pages/admin/Inventory/LowStock";
+import OutofStock from "../pages/admin/Inventory/OutofStock";
+import InventoryDetails from "../pages/admin/Inventory/InventoryDetails";
+import PaymentPage from "../pages/admin/PaymentDashboard/PaymentPage";
+import TransactionView from "../pages/admin/PaymentDashboard/TransactionView";
+import AllStatements from "../pages/admin/PaymentDashboard/AllStatements";
+import ProductSettings from "../pages/admin/setting/BannersSettings";
+import BannersSettings from "../pages/admin/setting/BannersSettings";
+import PoliciesSettings from "../pages/admin/setting/PoliciesSettings";
+import NotificationsSettings from "../pages/admin/setting/NotificationsSettings";
+import AccountSettings from "../pages/admin/setting/AccountSettings";
 
 const PageRouter = () => {
   return (
@@ -104,39 +120,39 @@ const PageRouter = () => {
         <Route path="/policy" element={<Policy />} />
         <Route path="/aboutUs" element={<AboutUs />} />
         <Route path="/shippingpolicy" element={<ShippingPolicy />} />
-         <Route path="/returnrefundpolicy" element={<ReturnRefundPolicy />} />
-         <Route path="/termsconditions" element={<TermsConditions />} />
-        {/* <Route path="/contactus" element={<ContactUs />} /> */} */
+        <Route path="/returnrefundpolicy" element={<ReturnRefundPolicy />} />
+        <Route path="/termsconditions" element={<TermsConditions />} />
 
         {/* Auth Route */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
-
         {/* App Pages */}
         <Route path="/bag" element={<Cart />} />
-
         {/* Accounts */}
         <Route path="/accounts" element={<AccountLayout />}>
           <Route path="details" element={<AccountDetails />} />
           <Route path="order-history" element={<OrderHistory />} />
           <Route path="order-detail/:orderId" element={<OrderDetail />} />
-           <Route path="order-detail/:orderId/cancel" element={<CancelItemsPage />} />
-          <Route path="order-detail/:orderId/return" element={<UserReturnPage />} />
+          <Route
+            path="order-detail/:orderId/cancel"
+            element={<CancelItemsPage />}
+          />
+          <Route
+            path="order-detail/:orderId/return"
+            element={<UserReturnPage />}
+          />
           <Route path="wishlist" element={<Wishlist />} />
           <Route path="addresses" element={<Address />} />
           <Route path="support" element={<Contact />} />
           <Route path="reviews" element={<MyReviews />} />
         </Route>
-
         <Route path="checkout/delivery" element={<Delivery />} />
         {/* <Route path="/recent" element={<RecentActivity />} /> */}
         <Route path="/order-history/:orderId" element={<OrderTracking />} />
         <Route path="/products/:categoryName" element={<Product />} />
-        {/* <Route path="/payment-success" element={<PaymentSuccess />} /> */}
         <Route path="/confirm-order" element={<ConfirmOrder />} />
-
         <Route path="/all-reviews/:uuid" element={<AllReviews />} />
         <Route path="/products" element={<NewProducts />} />
         <Route path="/products/top-products" element={<TopProducts />} />
@@ -147,7 +163,6 @@ const PageRouter = () => {
         <Route path="/product/:uuid" element={<ProductDetails />} />
         <Route path="/product-form" element={<AddProduct />} />
         <Route path="/checkout/payment" element={<Payment />} />
-
         <Route path="/policy" element={<Policy />} />
         {/* <Route path="/payment-success" element={<PaymentSuccess />} /> */}
         {/* <Route path="/confirm-order" element={<ConfirmOrder />} /> */}
@@ -173,6 +188,7 @@ const PageRouter = () => {
             <Route path="delivered" element={<DeliveredOrders />} />
             <Route path="cancelled" element={<CancelledOrders />} />
           </Route>
+
           {/* returns */}
           <Route path="returns" element={<ReturnPage />}>
             <Route index element={<Navigate to="ReturnRequested" replace />} />
@@ -186,8 +202,6 @@ const PageRouter = () => {
           <Route path="sales" element={<Sale />} />
           <Route path="stocks" element={<Stock />} />
 
-          <Route path="transporter" element={<Transporter />} />
-
           {/* Customer */}
           <Route path="customers/:id" element={<CustomerLayout />}>
             <Route path="customer-info" element={<Information />} />
@@ -197,32 +211,58 @@ const PageRouter = () => {
             <Route path="address-book" element={<Addresses />} />
             <Route path="support-feedback" element={<Feedback />} />
           </Route>
-          {/* Forms */}
-          {/* <Route path="" element={<CustomerForm />}>
-            <Route path="customer-form" element={<InformationForm />} />
-            <Route path="insight-form" element={<OrderInsightForm />} />
-            <Route path="wishlist-form" element={<WishlistCartForm />} />
-            <Route path="address-form" element={<AddressBookForm />} />
-            <Route path="support-form" element={<SupportFeedbackForm />} />
-          </Route> */}
+
+          {/* Add transporters */}
+          <Route path="transporter" element={<Transporter />} />
+          <Route path="transporter/detail" element={<TransporterDetail />} />
+
+          {/* payment */}
+          <Route path="payment" element={<PaymentPage />}>
+            <Route index element={<Navigate to="transaction-view" replace />} />
+            <Route path="transaction-view" element={<TransactionView />} />
+            <Route path="all-statements" element={<AllStatements />} />
+          </Route>
+
+          {/* Support & ticket */}
+          <Route path="support&ticket" element={<Support />} />
+          <Route
+            path="support&ticket/ticketdetail"
+            element={<TicketDetail />}
+          />
+
+          {/* Inventory */}
+          <Route path="Inventory" element={<InventoryPage />}>
+            <Route index element={<Navigate to="All" replace />} />
+            <Route path="All" element={<All />} />
+            <Route path="LowStock" element={<LowStock />} />
+            <Route path="OutofStock" element={<OutofStock />} />
+
+            {/* Inventory Details Page */}
+            <Route path="details/:id" element={<InventoryDetails />} />
+          </Route>
+
           {/* Details */}
           <Route path="product-info/:uuid" element={<ProductInformation />} />
           <Route path="order-info/:orderId" element={<OrderInformation />} />
           <Route path="stock-info/:uuid" element={<StockDetail />} />
           <Route path="stock-form" element={<StockEditForm />} />
+
           {/* Admin Profile */}
           <Route path="profile-setting" element={<AdminProfileSetting />} />
           <Route path="profile-form" element={<AdminProfileForm />} />
+
           {/* Settings */}
           <Route path="settings" element={<SettingsLayout />}>
             <Route path="general" element={<GeneralSettings />} />
             <Route path="notification" element={<NotificationSettings />} />
             <Route path="payment" element={<PaymentSettings />} />
             <Route path="taxes" element={<TaxesSettings />} />
-            {/* <Route path="product" element={<ProductSettings />} /> */}
-
-            {/* Settings form */}
+            <Route path="Banners" element={<BannersSettings/>} />
+            <Route path="Policies" element={<PoliciesSettings/>} />
+            <Route path="Notifications" element={<NotificationsSettings />} />
+            <Route path="AccountSettings" element={<AccountSettings />} />
           </Route>
+
           <Route
             path="settings/general-form"
             element={<GeneralSettingsForm />}
@@ -237,7 +277,6 @@ const PageRouter = () => {
           />
           <Route path="settings/tax-form" element={<TaxSettingsForm />} />
         </Route>
-
         {/* Catch-All */}
         <Route path="*" element={<SomethingWentWrong />} />
       </Routes>

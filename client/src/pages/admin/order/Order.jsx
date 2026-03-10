@@ -27,9 +27,17 @@ const profileMenu = [
 ];
 
 function Order() {
+  const [ordersList, setOrdersList] = useState(orders); // ✅ stateful orders
+
+  const updateOrder = (orderId, patch) => {
+    setOrdersList((prev) =>
+      prev.map((o) => (o.orderId === orderId ? { ...o, ...patch } : o)),
+    );
+  };
   const [page, setPage] = useState(1);
   const rowsPerPage = 10;
-  const allRows = [...orders];
+  // const allRows = [...orders]; // old
+  const allRows = [...ordersList];// edit by aman
   const totalPages = Math.ceil(allRows.length / rowsPerPage);
   const rows = allRows.slice((page - 1) * rowsPerPage, page * rowsPerPage);
 
@@ -66,13 +74,6 @@ function Order() {
       iconbg: "bg-[#F0FDF4]",
       iconColor: "text-[#00A63E]",
     },
-    // {
-    //   name: "Shipped",
-    //   data: "2",
-    //   // icon: <Truck  />,
-    //   iconbg: "bg-[#EFEFEF]",
-    //   iconColor: "text-[#686868]",
-    // },
     {
       name: "Delivered",
       data: "1",
@@ -97,7 +98,8 @@ function Order() {
               <div
                 key={index}
                 className="relative flex items-center justify-between gap-9
-  p-4 border rounded-2xl bg-white shadow-sm">
+  p-4 border rounded-2xl bg-white shadow-sm"
+              >
                 <span
                   className="absolute left-0 top-1/2 -translate-y-1/2
                     w-[4px] h-10 bg-blue-500 rounded-r"
@@ -109,7 +111,8 @@ function Order() {
                 </div>
 
                 <div
-                  className={`${item.iconbg} ${item.iconColor} p-[12px] rounded-lg`}>
+                  className={`${item.iconbg} ${item.iconColor} p-[12px] rounded-lg`}
+                >
                   {item.icon}
                 </div>
               </div>
@@ -120,7 +123,7 @@ function Order() {
         <div className="bg-white p-4 rounded-xl">
           <NavOrders profileMenu={profileMenu} />
           <div className="pt-4">
-            <Outlet context={{ orders }} />
+            <Outlet context={{ orders }} /> 
           </div>
         </div>
       </div>

@@ -19,15 +19,33 @@ import { BsLayoutSidebar } from "react-icons/bs";
 const dashboard = [
   { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
   { name: "All Products", path: "/products", icon: Package },
+  { name: "Inventory", path: "/Inventory/All", icon: SquareDashedKanban  },
   { name: "Orders", path: "/orders/all", icon: ShoppingBag },
   { name: "Returns", path: "/returns/ReturnRequested", icon: CalendarSync },
   { name: "Categories", path: "/categories", icon: Layers },
   { name: "Customers", path: "/customers", icon: Contact },
   { name: "Transporter", path: "/transporter", icon: ClipboardCheck },
-  { name: "Payments", path: "#", icon: Wallet },
-  { name: "Report & Analysis", path: "#", icon: SquareDashedKanban  },
-  { name: "Support & Ticket", path: "#", icon: Ticket },
+  // { name: "Payments", path: "/payment", icon: Wallet },
+ { name: "Payments", path: "/payment", icon: Wallet },
+  { name: "Support & Ticket", path: "/support&ticket", icon: Ticket },
 ];
+
+// const dashboard = [
+//   { name: "Dashboard", path: "/admin/dashboard", icon: LayoutDashboard },
+//   { name: "All Products", path: "/admin/products", icon: Package },
+//   { name: "Inventory", path: "/admin/Inventory/All", icon: SquareDashedKanban },
+//   { name: "Orders", path: "/admin/orders/all", icon: ShoppingBag },
+//   {
+//     name: "Returns",
+//     path: "/admin/returns/ReturnRequested",
+//     icon: CalendarSync,
+//   },
+//   { name: "Categories", path: "/admin/categories", icon: Layers },
+//   { name: "Customers", path: "/admin/customers", icon: Contact },
+//   { name: "Transporter", path: "/admin/transporter", icon: ClipboardCheck },
+//   { name: "Payments", path: "/admin/payment/transaction-view", icon: Wallet },
+//   { name: "Support & Ticket", path: "/admin/support&ticket", icon: Ticket },
+// ];
 
 function AdminSidebar({ isCollapsed, setIsCollapsed }) {
   const location = useLocation();
@@ -44,7 +62,8 @@ function AdminSidebar({ isCollapsed, setIsCollapsed }) {
         )} */}
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="p-2 absolute border -right-4 top-0 bg-[#FFFFFF]  rounded-full hover:bg-[#F5F8FA] text-[#686868] hover:text-[#1C3753] transition-colors">
+          className="p-2 absolute border -right-4 top-0 bg-[#FFFFFF]  rounded-full hover:bg-[#F5F8FA] text-[#686868] hover:text-[#1C3753] transition-colors"
+        >
           <BsLayoutSidebar
             className={`transform ${
               isCollapsed ? "rotate-180" : ""
@@ -66,7 +85,8 @@ function AdminSidebar({ isCollapsed, setIsCollapsed }) {
               isActive(path)
                 ? "bg-[#F5F8FA] text-[#1C3753]  border-l-4 border-l-[#1C3753]"
                 : "text-[#686868] hover:bg-[#F5F8FA] hover:text-[#1C3753]"
-            }`}>
+            }`}
+          >
             <Icon size={20} />
             {!isCollapsed && <span className="font-medium">{name}</span>}
           </Link>
@@ -77,7 +97,8 @@ function AdminSidebar({ isCollapsed, setIsCollapsed }) {
       <div className="mt-auto  px-4 pt-4">
         <Link
           to="/admin/settings/general"
-          className="flex items-center gap-3 p-2 mb-1 rounded-lg text-[#686868] hover:bg-[#FFFFFF]  hover:text-[#686868] transition-colors">
+          className="flex items-center gap-3 p-2 mb-1 rounded-lg text-[#686868] hover:bg-[#FFFFFF]  hover:text-[#686868] transition-colors"
+        >
           <Settings size={20} />
           {!isCollapsed && <span className="font-medium">Settings</span>}
         </Link>

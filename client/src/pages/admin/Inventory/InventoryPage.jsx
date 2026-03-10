@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 import { Outlet } from "react-router";
 import returns from "../../../data/Returns.json";
-import NavReturn from "./NavReturn";
+import NavReturn from "./InventoryNavbar";
 
 const Badge = ({ children, tone }) => {
   return (
@@ -18,13 +18,12 @@ const Badge = ({ children, tone }) => {
 };
 
 const profileMenu = [
-  { label: "New Returns", path: "ReturnRequested" },
-  { label: "Processing", path: "ReturnInitiated" },
-  { label: "Returned", path: "ReceivedReturns" },
-  // { label: "Rejected", path: "ReturnClosed" },
+  { label: "All", path: "All" },
+  { label: "LowStock", path: "LowStock" },
+  { label: "OutofStock", path: "OutofStock" },
 ];
 
-function ReturnPage() {
+function InventoryPage() {
   const [page, setPage] = useState(1);
   const rowsPerPage = 10;
   const allRows = [...returns];
@@ -48,7 +47,7 @@ function ReturnPage() {
       <div>
         <div className="flex items-center justify-between">
           <div className="flex items-center justify-between  16px px-2 rounded-md">
-            <h2 className="text-[20px] font-semibold text-gray-800">Returns</h2>
+            <h2 className="text-[20px] font-semibold text-gray-800">Inventory</h2>
           </div>
         </div>
 
@@ -56,7 +55,6 @@ function ReturnPage() {
           <NavReturn profileMenu={profileMenu} />
           <div className="pt-4">
             <Outlet context={{ returnsData, setReturnsData }} />
-            {/* <Outlet  /> */}
           </div>
         </div>
       </div>
@@ -64,4 +62,4 @@ function ReturnPage() {
   );
 }
 
-export default ReturnPage;
+export default InventoryPage;
