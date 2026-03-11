@@ -57,12 +57,7 @@ import Addresses from "../pages/admin/components/AddressBook";
 import Feedback from "../pages/admin/components/SupportFeedback";
 
 // Customer Forms
-import CustomerForm from "../pages/admin/customer/CustomerForm";
 import InformationForm from "../pages/admin/customer/form/InformationForm";
-import OrderInsightForm from "../pages/admin/customer/form/OrderInsightForm";
-import WishlistCartForm from "../pages/admin/customer/form/WishlistCartForm";
-import AddressBookForm from "../pages/admin/customer/form/AddressBookForm";
-import SupportFeedbackForm from "../pages/admin/customer/form/SupportFeedbackForm";
 import AdminLayout from "../pages/admin/AdminLayout";
 import AdminProfileSetting from "../pages/admin/profile/AdminProfileSetting";
 import AdminProfileForm from "../pages/admin/profile/AdminProfileForm";
@@ -108,6 +103,8 @@ import BannersSettings from "../pages/admin/setting/BannersSettings";
 import PoliciesSettings from "../pages/admin/setting/PoliciesSettings";
 import NotificationsSettings from "../pages/admin/setting/NotificationsSettings";
 import AccountSettings from "../pages/admin/setting/AccountSettings";
+import PoliciesSettingsEdit from "../pages/admin/setting/form/PoliciesSettingsEdit";
+import AccountSettingsEdit from "../pages/admin/setting/form/AccountSettingsEdit";
 
 const PageRouter = () => {
   return (
@@ -164,8 +161,6 @@ const PageRouter = () => {
         <Route path="/product-form" element={<AddProduct />} />
         <Route path="/checkout/payment" element={<Payment />} />
         <Route path="/policy" element={<Policy />} />
-        {/* <Route path="/payment-success" element={<PaymentSuccess />} /> */}
-        {/* <Route path="/confirm-order" element={<ConfirmOrder />} /> */}
 
         {/* Admin Route */}
         <Route path="/admin" element={<AdminLayout />}>
@@ -220,7 +215,7 @@ const PageRouter = () => {
           <Route path="payment" element={<PaymentPage />}>
             <Route index element={<Navigate to="transaction-view" replace />} />
             <Route path="transaction-view" element={<TransactionView />} />
-            <Route path="all-statements" element={<AllStatements />} />
+            {/* <Route path="all-statements" element={<AllStatements />} /> */}
           </Route>
 
           {/* Support & ticket */}
@@ -257,12 +252,12 @@ const PageRouter = () => {
             <Route path="notification" element={<NotificationSettings />} />
             <Route path="payment" element={<PaymentSettings />} />
             <Route path="taxes" element={<TaxesSettings />} />
-            <Route path="Banners" element={<BannersSettings/>} />
-            <Route path="Policies" element={<PoliciesSettings/>} />
+            <Route path="Banners" element={<BannersSettings />} />
+            <Route path="Policies" element={<PoliciesSettings />} />
             <Route path="Notifications" element={<NotificationsSettings />} />
             <Route path="AccountSettings" element={<AccountSettings />} />
           </Route>
-
+          {/* forms Edit */}
           <Route
             path="settings/general-form"
             element={<GeneralSettingsForm />}
@@ -275,7 +270,16 @@ const PageRouter = () => {
             path="settings/payment-form"
             element={<PaymentSettingsForm />}
           />
+
           <Route path="settings/tax-form" element={<TaxSettingsForm />} />
+          <Route
+            path="settings/PoliciesSettingsEdit-form"
+            element={<PoliciesSettingsEdit />}
+          />
+          <Route
+            path="settings/AccountSettingsEdit-form"
+            element={<AccountSettingsEdit />}
+          />
         </Route>
         {/* Catch-All */}
         <Route path="*" element={<SomethingWentWrong />} />

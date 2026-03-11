@@ -3,7 +3,7 @@ import ReactQuill from "react-quill-new";
 import "react-quill-new/dist/quill.snow.css";
 import { Link } from "react-router";
 
-const PoliciesSettings = () => {
+const PoliciesSettingsEdit = () => {
   const [value, setValue] = useState(`
     <p><strong>Example:</strong></p>
     <p>Returns are accepted within {{return_window}} days of delivery.</p>
@@ -22,11 +22,16 @@ const PoliciesSettings = () => {
           </p>
         </div>
 
-<Link to={"/admin/settings/PoliciesSettingsEdit-form"}>
-        <button className="bg-[#17324D] text-white px-5 py-2 rounded-md text-sm font-medium">
-          Edit
-        </button>
-        </Link>
+        <div className="flex items-center gap-2">
+            <Link to={"/admin/settings/Policies"}>
+          <button className="border border-[#1F3B5B] text-[#1F3B5B] bg-white text-[12px] font-medium px-3 py-1.5 rounded-[4px]">
+            Cancel
+          </button>
+          </Link>
+          <button className="bg-[#1F3B5B] text-white text-[12px] font-medium px-3 py-1.5 rounded-[4px]">
+            Save Changes
+          </button>
+        </div>
       </div>
 
       <div className="flex flex-col space-y-4">
@@ -173,4 +178,4 @@ const PoliciesSettings = () => {
   );
 };
 
-export default PoliciesSettings;
+export default PoliciesSettingsEdit;

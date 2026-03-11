@@ -71,23 +71,23 @@ const graphData = chartData.revenue.weekly;
 
 const statCards = [
   {
-    title: "Total Revenue",
+    title: "Successful transactions",
     value: "₹1,60,789",
     change: "▲ 12.2% from previous period",
     color: "text-green-600",
   },
   {
-    title: "Prepaid",
+    title: "Failed transactions",
     value: "₹1,20,343",
     change: "▲ 16% from previous period",
     color: "text-green-600",
   },
-  {
-    title: "Cash On Delivery",
-    value: "₹40,446",
-    change: "▼ 8.6% from previous period",
-    color: "text-red-500",
-  },
+  // {
+  //   title: "Cash On Delivery",
+  //   value: "₹40,446",
+  //   change: "▼ 8.6% from previous period",
+  //   color: "text-red-500",
+  // },
   {
     title: "Refunded",
     value: "₹10,284",
@@ -162,7 +162,7 @@ function TransactionView() {
       </div>
 
       <div className="grid grid-cols-12 gap-4">
-        <div className="col-span-4 space-y-3">
+        <div className="col-span-4 space-y-6">
           {statCards.map((card) => (
             <div
               key={card.title}
@@ -254,6 +254,9 @@ function TransactionView() {
               <thead className="bg-[#F8F8F8] h-[54px]">
                 <tr className="text-[#4B5563] text-sm text-center">
                   <th className="px-4 py-3 font-medium text-[#1C1C1C]">
+                   Payment ID
+                  </th>
+                  <th className="px-4 py-3 font-medium text-[#1C1C1C]">
                     Order ID
                   </th>
                   <th className="px-4 py-3 font-medium text-[#1C1C1C]">
@@ -264,6 +267,9 @@ function TransactionView() {
                   </th>
                   <th className="px-4 py-3 font-medium text-[#1C1C1C]">
                     Payment Status
+                  </th>
+                  <th className="px-4 py-3 font-medium text-[#1C1C1C]">
+                    Settlement Status
                   </th>
                   <th className="px-4 py-3 font-medium text-[#1C1C1C]">
                     Amount
@@ -277,11 +283,23 @@ function TransactionView() {
                     key={item.id}
                     className="border-t hover:bg-gray-50 transition text-center"
                   >
-                    <td className="px-4 py-4 text-[#2C87E2] underline cursor-pointer">
+                    <td className="px-4 py-4">
+                      {item.id}
+                    </td>
+                    <td className="px-4 py-4">
                       {item.id}
                     </td>
                     <td className="px-4 py-4">{item.date}</td>
                     <td className="px-4 py-4">{item.method}</td>
+                    <td className="px-4 py-4">
+                      <span
+                        className={`inline-flex items-center justify-center min-w-[90px] px-3 py-1 rounded-md text-xs font-medium ${getStatusClass(
+                          item.status,
+                        )}`}
+                      >
+                        {item.status}
+                      </span>
+                    </td>
                     <td className="px-4 py-4">
                       <span
                         className={`inline-flex items-center justify-center min-w-[90px] px-3 py-1 rounded-md text-xs font-medium ${getStatusClass(

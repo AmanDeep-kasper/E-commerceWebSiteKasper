@@ -126,8 +126,8 @@ const SalesChart = () => {
               {/* Gradient */}
               <defs>
                 <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="50%" stopColor="#E5E5E5" />
-                  <stop offset="100%" stopColor="#FFFFFF00" />
+                  <stop offset="20%" stopColor="#557AC0" />
+                  <stop offset="100%" stopColor="#FFFFFF" />
                 </linearGradient>
               </defs>
 
@@ -138,7 +138,7 @@ const SalesChart = () => {
                 // domain={[0, 50]}
                 // ticks={[0, 10, 20, 30, 40, 50]}
               />
-              <Tooltip />
+              <Tooltip cursor={false} />
 
               <Bar
                 dataKey="orders"

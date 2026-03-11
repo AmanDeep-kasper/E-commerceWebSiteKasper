@@ -3,7 +3,7 @@ import PaymentNavbar from "./PaymentNavbar";
 
 const profileMenu = [
   { label: "Transaction View", path: "transaction-view" },
-  { label: "All Statements", path: "all-statements" },
+  // { label: "All Statements", path: "all-statements" },
 ];
 
 function PaymentPage() {

@@ -1,7 +1,6 @@
 import React, { useState } from "react";
-import { Link } from "react-router";
 
-const NotificationSettingsForm = () => {
+const ShippingEdit = () => {
   const [weightCharges, setWeightCharges] = useState([
     { range: "0-1 kg", price: "₹20" },
     { range: "1-5 kg", price: "₹30" },
@@ -59,11 +58,9 @@ const NotificationSettingsForm = () => {
         </div>
 
         <div className="flex items-center gap-2">
-          <Link to={"/admin/settings/notification"}>
           <button className="border border-[#1F3B5B] text-[#1F3B5B] bg-white text-[12px] font-medium px-3 py-1.5 rounded-[4px]">
             Cancel
           </button>
-          </Link>
           <button className="bg-[#1F3B5B] text-white text-[12px] font-medium px-3 py-1.5 rounded-[4px]">
             Save Changes
           </button>
@@ -183,4 +180,4 @@ const NotificationSettingsForm = () => {
   );
 };
 
-export default NotificationSettingsForm;
+export default ShippingEdit;

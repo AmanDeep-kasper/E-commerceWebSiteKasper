@@ -64,7 +64,7 @@ const HalfPieChart = () => {
       </PieChart>
       <div className="flex flex-col">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2"> 
             <p className="rounded-full h-3 w-3 bg-[#1C3753]"></p>
             <span className="text-[#1C1C1C]">Metal Wall Art</span>
           </div>
