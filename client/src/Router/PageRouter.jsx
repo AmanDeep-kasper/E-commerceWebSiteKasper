@@ -32,7 +32,7 @@ import ReturnPage from "../pages/admin/Returns/ReturnPage";
 import ReturnRequested from "../pages/admin/Returns/ReturnRequested";
 import ReturnInitiated from "../pages/admin/Returns/ReturnInitiated";
 import ReceivedReturns from "../pages/admin/Returns/ReceivedReturns";
-import ReturnClosed from "../pages/admin/Returns/ReturnClosed";
+// import ReturnClosed from "../pages/admin/Returns/ReturnClosed";
 // import PaymentSuccess from "../pages/PaymentSuccess";
 // Admin Pages
 import Dashboard from "../pages/admin/Dashboard/Dashboard";
@@ -190,7 +190,7 @@ const PageRouter = () => {
             <Route path="ReturnRequested" element={<ReturnRequested />} />
             <Route path="ReturnInitiated" element={<ReturnInitiated />} />
             <Route path="ReceivedReturns" element={<ReceivedReturns />} />
-            <Route path="ReturnClosed" element={<ReturnClosed />} />
+            {/* <Route path="ReturnClosed" element={<ReturnClosed />} /> */}
           </Route>
 
           <Route path="users" element={<User />} />
@@ -209,6 +209,7 @@ const PageRouter = () => {
 
           {/* Add transporters */}
           <Route path="transporter" element={<Transporter />} />
+          
           <Route path="transporter/detail" element={<TransporterDetail />} />
 
           {/* payment */}

@@ -21,7 +21,6 @@ const profileMenu = [
   { label: "New Returns", path: "ReturnRequested" },
   { label: "Processing", path: "ReturnInitiated" },
   { label: "Returned", path: "ReceivedReturns" },
-  // { label: "Rejected", path: "ReturnClosed" },
 ];
 
 function ReturnPage() {

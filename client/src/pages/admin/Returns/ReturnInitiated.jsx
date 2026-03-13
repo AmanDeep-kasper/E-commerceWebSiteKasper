@@ -105,11 +105,11 @@ const ReturnInitiated = () => {
     }
 
     return result;
-  }, [returnsData, debouncedValue, , filterOne]);
+  }, [returnsData, debouncedValue, filterOne]);
 
   useEffect(() => {
     setPage(1);
-  }, [debouncedValue, , filterOne]);
+  }, [debouncedValue, filterOne]);
 
   /* ================= PAGINATION ================= */
   const total = filteredOrders.length;

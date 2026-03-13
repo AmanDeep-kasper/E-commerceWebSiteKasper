@@ -51,7 +51,6 @@ const ReceivedReturns = () => {
   const [filterOneOpen, setfilterOneOpen] = useState(false);
 
   const filterOneItems = ["Latest", "Latest Date", "Oldest Date"];
-  
 
   const filteredOrders = useMemo(() => {
     let result = [...returnsData].filter(
@@ -112,7 +111,7 @@ const ReceivedReturns = () => {
     }
 
     return result;
-  }, [ debouncedValue, returnType, paymentstatus, filterOne]);
+  }, [debouncedValue, returnType, paymentstatus, filterOne]);
 
   useEffect(() => {
     setPage(1);
@@ -130,7 +129,6 @@ const ReceivedReturns = () => {
 
   const [selectedOrderId, setSelectedOrderId] = useState(null);
 
-
   const selectOrder = returnsData.find(
     (item) => item.returnId === selectedOrderId,
   );
@@ -139,7 +137,6 @@ const ReceivedReturns = () => {
 
   // this is for timeline pop model
   const [openTimelineId, setOpenTimelineId] = useState(null);
-
 
   const selectTimeline = returnsData.find(
     (item) => item.returnId === openTimelineId,
@@ -353,12 +350,14 @@ const ReceivedReturns = () => {
 
                     <div className="flex items-center justify-center">
                       <span className="text-[#1F2937] text-[16px]  font-medium cursor-pointer">
-                        {order.item.productName.split(" ").length > 3
-                          ? order.item.productName
-                              .split(" ")
-                              .slice(0, 6)
-                              .join(" ") + "..."
-                          : order.item.productName}
+                        {order?.item?.productName
+                          ? order.item.productName.split(" ").length > 3
+                            ? order.item.productName
+                                .split(" ")
+                                .slice(0, 6)
+                                .join(" ") + "..."
+                            : order.item.productName
+                          : "-"}
                       </span>
                     </div>
                   </div>
@@ -390,7 +389,7 @@ const ReceivedReturns = () => {
                 {/* <div className="flex items-center justify-center "> */}
                 <td className="px-4 py-3 text-right">
                   <button
-                   onClick={(e) => {
+                    onClick={(e) => {
                       e.stopPropagation();
                       setSelectedOrderId(order.returnId);
                     }}
