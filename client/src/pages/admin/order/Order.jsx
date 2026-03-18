@@ -37,7 +37,7 @@ function Order() {
   const [page, setPage] = useState(1);
   const rowsPerPage = 10;
   // const allRows = [...orders]; // old
-  const allRows = [...ordersList];// edit by aman
+  const allRows = [...ordersList]; // edit by aman
   const totalPages = Math.ceil(allRows.length / rowsPerPage);
   const rows = allRows.slice((page - 1) * rowsPerPage, page * rowsPerPage);
 
@@ -121,9 +121,9 @@ function Order() {
         </div>
 
         <div className="bg-white p-4 rounded-xl">
-          <NavOrders profileMenu={profileMenu} />
+          <NavOrders profileMenu={profileMenu} data={ordersList}/>
           <div className="pt-4">
-            <Outlet context={{ orders }} /> 
+            <Outlet context={{ orders }} />
           </div>
         </div>
       </div>

@@ -147,8 +147,8 @@ function Collection() {
                 ? raw.data.products
                 : [];
 
-        console.log("RAW:", raw);
-        console.log("PRODUCTS:", products);
+        // console.log("RAW:", raw);
+        // console.log("PRODUCTS:", products);
 
         setnewProducts(products);
       } catch (error) {
