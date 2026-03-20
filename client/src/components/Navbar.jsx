@@ -139,7 +139,7 @@ function Navbar() {
                 setIsProfileOpen(false);
               }}
             >
-              {isMobileMenuOpen  ? (
+              {isMobileMenuOpen ? (
                 <X size={24} className="text-gray-700" />
               ) : (
                 <Menu size={24} className="text-gray-700" />
@@ -165,9 +165,6 @@ function Navbar() {
               {/* Animated underline/border */}
               <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-[#1C3753] transition-all duration-300 group-hover:w-full"></span>
             </Link>
-
-
-
 
             {/* Shop Dropdown */}
             <div className="relative">
@@ -215,7 +212,7 @@ function Navbar() {
                   {shopCategories.map((cat) => (
                     <div key={cat.name}>
                       <h3
-                      className="font-semibold"
+                        className="font-semibold"
                         onClick={() =>
                           navigate(`/products/${encodeURIComponent(cat.name)}`)
                         }
@@ -229,7 +226,7 @@ function Navbar() {
                           .map((sub) => (
                             <li key={sub}>
                               <button
-                              className="text-[#686868] hover:underline"
+                                className="text-[#686868] hover:underline"
                                 onClick={() =>
                                   navigate(
                                     `/products/${encodeURIComponent(cat.name)}/${encodeURIComponent(sub)}`,
@@ -246,10 +243,6 @@ function Navbar() {
                 </div>
               </div>
             </div>
-
-
-
-
 
             <Link
               to="/faqs"
@@ -528,7 +521,7 @@ function Navbar() {
 
       {/* Mobile Dropdown Nav */}
       <AnimatePresence>
-        {isMobileMenuOpen  && (
+        {isMobileMenuOpen && (
           <>
             {/* Backdrop */}
             <motion.div
@@ -582,60 +575,64 @@ function Navbar() {
                   Shop Categories
                 </h3>
 
-               {shopCategories.map((item, index) => (
-  <div key={item.name || index} className="py-2">
-    <div
-      className="flex items-center justify-between py-3 px-3 text-gray-700 font-medium rounded-lg hover:bg-amber-50 hover:text-amber-600 cursor-pointer"
-      onClick={() => setSubDropdown(subDropdown === index ? null : index)}
-    >
-      <span>{item.name}</span>
+                {shopCategories.map((item, index) => (
+                  <div key={item.name || index} className="py-2">
+                    <div
+                      className="flex items-center justify-between py-3 px-3 text-gray-700 font-medium rounded-lg hover:bg-amber-50 hover:text-amber-600 cursor-pointer"
+                      onClick={() =>
+                        setSubDropdown(subDropdown === index ? null : index)
+                      }
+                    >
+                      <span>{item.name}</span>
 
-      {(item.subcategories?.length > 0) && (
-        <ChevronDown
-          size={16}
-          className={`text-gray-400 transition-transform duration-300 ${
-            subDropdown === index ? "rotate-180" : ""
-          }`}
-        />
-      )}
-    </div>
+                      {item.subcategories?.length > 0 && (
+                        <ChevronDown
+                          size={16}
+                          className={`text-gray-400 transition-transform duration-300 ${
+                            subDropdown === index ? "rotate-180" : ""
+                          }`}
+                        />
+                      )}
+                    </div>
 
-    <div
-      className={`pl-6 flex flex-col gap-1 overflow-hidden transition-[max-height] duration-300 ease-in-out ${
-        subDropdown === index ? "max-h-96" : "max-h-0"
-      }`}
-    >
-      {/* All */}
-      <div
-        className="py-2 px-3 text-sm text-gray-600 hover:bg-amber-50 hover:text-amber-600 cursor-pointer"
-        onClick={() => {
-          navigate(`/products/${encodeURIComponent(item.name)}`);
-          setIsMobileMenuOpen(false);
-        }}
-      >
-        All
-      </div>
+                    <div
+                      className={`pl-6 flex flex-col gap-1 overflow-hidden transition-[max-height] duration-300 ease-in-out ${
+                        subDropdown === index ? "max-h-96" : "max-h-0"
+                      }`}
+                    >
+                      {/* All */}
+                      <div
+                        className="py-2 px-3 text-sm text-gray-600 hover:bg-amber-50 hover:text-amber-600 cursor-pointer"
+                        onClick={() => {
+                          navigate(
+                            `/products/${encodeURIComponent(item.name)}`,
+                          );
+                          setIsMobileMenuOpen(false);
+                        }}
+                      >
+                        All
+                      </div>
 
-      {/* Subcategories */}
-      {(item.subcategories || [])
-        .filter((s) => s && s.toLowerCase() !== "all")
-        .map((sub) => (
-          <div
-            key={sub}
-            className="py-2 px-3 text-sm text-gray-600 hover:bg-amber-50 hover:text-amber-600 cursor-pointer"
-            onClick={() => {
-              navigate(
-                `/products/${encodeURIComponent(item.name)}/${encodeURIComponent(sub)}`
-              );
-              setIsMobileMenuOpen(false);
-            }}
-          >
-            {sub}
-          </div>
-        ))}
-    </div>
-  </div>
-))}
+                      {/* Subcategories */}
+                      {(item.subcategories || [])
+                        .filter((s) => s && s.toLowerCase() !== "all")
+                        .map((sub) => (
+                          <div
+                            key={sub}
+                            className="py-2 px-3 text-sm text-gray-600 hover:bg-amber-50 hover:text-amber-600 cursor-pointer"
+                            onClick={() => {
+                              navigate(
+                                `/products/${encodeURIComponent(item.name)}/${encodeURIComponent(sub)}`,
+                              );
+                              setIsMobileMenuOpen(false);
+                            }}
+                          >
+                            {sub}
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                ))}
 
                 <div className="my-2 border-t border-gray-200"></div>
 

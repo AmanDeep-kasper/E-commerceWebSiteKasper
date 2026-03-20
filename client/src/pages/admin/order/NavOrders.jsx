@@ -21,7 +21,7 @@ const NavOrders = ({ profileMenu, data }) => {
           <Link
             key={path}
             to={path}
-            className={`relative pb-3 ml-5 mb-2 text-[16px] font-medium transition-colors
+            className={`relative pb-3 ml-5 mb-2 text-[16px] font-medium transition-colors flex gap-2
               ${
                 isActive
                   ? "text-[#1C3753]"
@@ -29,7 +29,7 @@ const NavOrders = ({ profileMenu, data }) => {
               }`}
           >
             {label}
-            <span
+            {/* <span
               className={`min-w-[22px] h-[22px] px-2 text-[12px] rounded-full flex items-center justify-center
                 ${
                   isActive
@@ -38,7 +38,7 @@ const NavOrders = ({ profileMenu, data }) => {
                 }`}
             >
               {count}
-            </span>
+            </span> */}
 
             {isActive && (
               <span

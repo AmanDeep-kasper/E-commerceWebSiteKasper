@@ -10,11 +10,11 @@ const GeneralSettings = () => {
   ];
 
   const distanceCharges = [
-    { range: "0-1 km", price: "₹20" },
-    { range: "1-10 km", price: "₹30" },
-    { range: "10-50 km", price: "₹40" },
-    { range: "50-100 km", price: "₹60" },
-    { range: ">100 km", price: "₹80" },
+    { range: "Delhi/NCR", price: "₹20" },
+    { range: "North", price: "₹30" },
+    { range: "Metro", price: "₹40" },
+    { range: "Rural", price: "₹60" },
+    { range: "North East", price: "₹80" },
   ];
 
   const deliveryCharges = [
@@ -64,7 +64,7 @@ const GeneralSettings = () => {
                   colSpan={2}
                   className="border border-[#4B5563] px-6 py-3 text-[14px] font-medium text-[#222222]"
                 >
-                  Distance
+                 Zone Based
                 </th>
                 <th
                   colSpan={2}
@@ -83,7 +83,7 @@ const GeneralSettings = () => {
                 </th>
 
                 <th className="border border-[#4B5563] px-8 py-2 text-[14px] font-medium text-[#333333]">
-                  Range
+                  Zone
                 </th>
                 <th className="border border-[#4B5563] px-8 py-2 text-[14px] font-medium text-[#333333]">
                   Price

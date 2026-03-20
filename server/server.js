@@ -25,9 +25,20 @@ app.use(cookieParser());
 
 // Middleware must be at top
 app.use(express.json());
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:5174",
+  "http://192.168.1.7:5174",
+];
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
   }),

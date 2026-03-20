@@ -10,11 +10,11 @@ const NotificationSettingsForm = () => {
   ]);
 
   const [distanceCharges, setDistanceCharges] = useState([
-    { range: "0-1 km", price: "₹20" },
-    { range: "1-10 km", price: "₹30" },
-    { range: "10-50 km", price: "₹40" },
-    { range: "50-100 km", price: "₹60" },
-    { range: ">100 km", price: "₹80" },
+    { range: "Delhi/NCR", price: "₹20" },
+    { range: "North", price: "₹30" },
+    { range: "Metro", price: "₹40" },
+    { range: "Rural", price: "₹60" },
+    { range: "North East", price: "₹80" },
     { range: "", price: "" },
   ]);
 

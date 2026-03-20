@@ -4,6 +4,7 @@ import {
   PackageSearch,
   Truck,
   PackageCheck,
+  Ban,
 } from "lucide-react";
 import { Outlet } from "react-router";
 import orders from "../../../data/orders.json";
@@ -81,6 +82,13 @@ function Order() {
       iconbg: "bg-[#FFFBEB]",
       iconColor: "text-[#F8A14A]",
     },
+    {
+      name: "Cancelled",
+      data: "10",
+      icon:   <Ban />,
+      iconbg: "bg-[#FFFBEB]",
+      iconColor: "text-[#F8A14A]",
+    },
   ];
 
   return (
@@ -92,7 +100,7 @@ function Order() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4  py-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4  py-6">
           {kpicardData.map((item, index) => {
             return (
               <div
