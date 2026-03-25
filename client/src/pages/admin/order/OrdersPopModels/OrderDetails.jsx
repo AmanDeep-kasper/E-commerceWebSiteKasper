@@ -11,9 +11,10 @@ import { useState } from "react";
 const OrderDetails = ({
   data,
   setSelectedOrderId,
-  onAcceptOrder = () => {},
-  onSaveTracking = () => {},
-  setopenCancelModule = () => {},
+  onAcceptOrder,
+  onSaveTracking,
+  onMarkDelivered,
+  setopenCancelModule,
 }) => {
   // //////////////////////////////////
   const items = data?.items || [];
@@ -45,7 +46,7 @@ const OrderDetails = ({
   const isProcessing = status === "processing";
   const isShipped = status === "shipped";
 
-  const canAccept = isPending && selectedPartner.trim().length > 0;
+  const canAccept = isPending;
 
   const showTrackingSection = isProcessing || isShipped;
   const trackingAlreadySaved = !!data?.trackingId;
@@ -172,35 +173,26 @@ const OrderDetails = ({
         </div>
       </div>
       {/* Delivery Partner */}
-      <div className="mt-2">
-        <span className="text-sm mt-3 mb-3 block">Delivery Partner</span>
+      {isProcessing && (
+        <div className="mt-2">
+          <span className="text-sm mt-3 mb-3 block">Delivery Partner</span>
 
-        <div className="w-full p-2 text-sm text-gray-600 border rounded-md">
-          <div className="flex items-center justify-between w-full flex-nowrap">
-            <div className="flex items-center gap-1 min-w-0">
-              {/* <Box size={15} /> */}
-              <span>Select a delivery partner</span>
-            </div>
-
-            <div className="shrink-0">
-              <select
-                value={selectedPartner}
-                disabled={!isPending}
-                onChange={(e) => setSelectedPartner(e.target.value)}
-                className={`w-full px-3 py-2 text-sm border rounded-md
-    ${isPending ? "bg-white text-black" : "bg-[#F8FAFB] text-gray-500 cursor-not-allowed"}`}
-              >
-                <option value="">Select</option>
-                {deliveryPartners.map((p) => (
-                  <option key={p} value={p}>
-                    {p}
-                  </option>
-                ))}
-              </select>
-            </div>
+          <div className="w-full p-2 text-sm text-gray-600 border rounded-md">
+            <select
+              value={selectedPartner}
+              onChange={(e) => setSelectedPartner(e.target.value)}
+              className="w-full px-3 py-2 text-sm border rounded-md bg-white text-black"
+            >
+              <option value="">Select</option>
+              {deliveryPartners.map((p) => (
+                <option key={p} value={p}>
+                  {p}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
-      </div>
+      )}
 
       {/* traking details */}
       {/* {data.trakingDeatils && (
@@ -436,11 +428,9 @@ const OrderDetails = ({
             <button
               type="button"
               disabled={!canAccept}
-              onClick={() =>
-                onAcceptOrder({ orderId, deliveryPartner: selectedPartner })
-              }
+              onClick={() => onAcceptOrder({ orderId })}
               className={`px-6 py-1.5 rounded-md text-white
-          ${canAccept ? "bg-[#1C3753]" : "bg-gray-300 cursor-not-allowed"}`}
+        ${canAccept ? "bg-[#1C3753]" : "bg-gray-300 cursor-not-allowed"}`}
             >
               Accept
             </button>
@@ -460,11 +450,14 @@ const OrderDetails = ({
             Accepted
           </span>
         )}
-
         {isShipped && (
-          <span className="px-6 py-1.5 rounded-md text-sm font-medium bg-[#D5E5F5] text-[#1C3753]">
-            Shipped
-          </span>
+          <button
+            type="button"
+            onClick={() => onMarkDelivered?.({ orderId: data.orderId })}
+            className="px-3 py-1.5 text-sm rounded-md text-white bg-[#1C3753]"
+          >
+            Mark as Delivered
+          </button>
         )}
       </div>
     </div>

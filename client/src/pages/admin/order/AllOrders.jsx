@@ -9,7 +9,7 @@ import OrdersTimelines from "./OrdersPopModels/OrdersTimelines";
 import OrderSectionInvoice from "./OrdersPopModels/OrderSectionInvoice";
 
 const AllOrders = () => {
-  const { orders } = useOutletContext();
+  const { ordersList = [], updateOrder } = useOutletContext();
 
   const columns = [
     "Order ID",
@@ -123,7 +123,7 @@ const AllOrders = () => {
   };
 
   const filteredOrders = useMemo(() => {
-    let result = [...orders];
+    let result = [...ordersList];
 
     /* 🔍 SEARCH */
     if (debouncedValue.trim()) {
@@ -191,7 +191,7 @@ const AllOrders = () => {
     }
 
     return result;
-  }, [orders, debouncedValue, paymentstatus, storeDate, range, filterOne]);
+  }, [ordersList, debouncedValue, paymentstatus, storeDate, range, filterOne]);
 
   useEffect(() => {
     setPage(1);
@@ -208,9 +208,10 @@ const AllOrders = () => {
   // ======================== Pops ==================
 
   const [selectedOrderId, setSelectedOrderId] = useState(null);
-  const selectOrder = orders.find(
-    (orders) => orders.orderId === selectedOrderId,
-  );
+
+const selectOrder = ordersList.find(
+  (order) => order.orderId === selectedOrderId,
+);
 
   /////////////////////////////////////////////////////////////
 
@@ -220,13 +221,13 @@ const AllOrders = () => {
 
   // this is for timeline pop model
   const [openTimelineId, setOpenTimelineId] = useState(null);
-  const selectTimeline = orders.find(
-    (orders) => orders.orderId === openTimelineId,
-  );
+const selectTimeline = ordersList.find(
+  (order) => order.orderId === openTimelineId,
+);
 
   //  this is for invoice pop model
   const [openInvoiceId, setOpenInvoiceId] = useState(null);
-  const selectInvoice = orders.find(
+  const selectInvoice = ordersList.find(
     (orders) => orders.orderId === openInvoiceId,
   );
 

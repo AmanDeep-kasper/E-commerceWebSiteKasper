@@ -990,13 +990,14 @@ function ProductDetails() {
     const foundTitleWords = normalize(found.title).split(" ");
 
     const sameCategoryList = all.filter(
-      (p) => p.uuid !== uuid && normalize(p.category) === normalize(found.category)
+      (p) =>
+        p.uuid !== uuid && normalize(p.category) === normalize(found.category),
     );
 
     const list = sameCategoryList;
 
     const sameSub = list.filter(
-      (p) => normalize(p.subcategory) === normalize(found.subcategory)
+      (p) => normalize(p.subcategory) === normalize(found.subcategory),
     );
     if (sameSub.length > 0) return sameSub.slice(0, 10);
 
@@ -1027,7 +1028,11 @@ function ProductDetails() {
         }
 
         if (found) {
-          const similar = getSimilarProducts(all, found, found.uuid || found._id);
+          const similar = getSimilarProducts(
+            all,
+            found,
+            found.uuid || found._id,
+          );
           setSimilarProducts(similar);
         }
       } catch (err) {
@@ -1064,7 +1069,9 @@ function ProductDetails() {
 
   const inCart = useMemo(() => {
     if (!selectedVariant || !product) return false;
-    return cartItems.some((i) => i.uuid === product.uuid && i.variantId === variantId);
+    return cartItems.some(
+      (i) => i.uuid === product.uuid && i.variantId === variantId,
+    );
   }, [cartItems, product?.uuid, selectedVariant, variantId]);
 
   const qtyInCart =
@@ -1072,16 +1079,18 @@ function ProductDetails() {
       ?.quantity || 0;
 
   const colorOptions = [
-    ...new Set((product?.variants || []).map((v) => v?.variantColor).filter(Boolean)),
+    ...new Set(
+      (product?.variants || []).map((v) => v?.variantColor).filter(Boolean),
+    ),
   ];
 
   const sizeOptions = [
     ...new Set(
       (product?.variants || [])
         .map((v) =>
-          `${v.variantLength}x${v.variantBreadth} ${v.variantDimensionunit || ""}`.trim()
+          `${v.variantLength}x${v.variantBreadth} ${v.variantDimensionunit || ""}`.trim(),
         )
-        .filter(Boolean)
+        .filter(Boolean),
     ),
   ];
 
@@ -1097,7 +1106,8 @@ function ProductDetails() {
 
   const onSelectSize = (sizeStr) => {
     setSelectedSize(sizeStr);
-    const match = findVariant(selectedColor, sizeStr) || findVariant(null, sizeStr);
+    const match =
+      findVariant(selectedColor, sizeStr) || findVariant(null, sizeStr);
     if (match) {
       setSelectedVariant(match);
       setMainImageIndex(0);
@@ -1117,7 +1127,9 @@ function ProductDetails() {
     setSelectedReview(null);
   };
 
-  const images = selectedVariant?.variantImage?.length ? selectedVariant.variantImage : [];
+  const images = selectedVariant?.variantImage?.length
+    ? selectedVariant.variantImage
+    : [];
 
   const mrp = Number(selectedVariant?.variantMrp || 0);
   const sp = Number(selectedVariant?.variantSellingPrice || 0);
@@ -1183,7 +1195,7 @@ function ProductDetails() {
   const handleBuyNow = (product) => {
     dispatch(buyNow(product));
     navigate("/checkout/payment");
-  }
+  };
   return (
     <>
       <Navbar />
@@ -1597,7 +1609,8 @@ hover:scale-105 border border-[#1C3753] rounded-md"
                 <p className="text-[14px] text-[#6C6B6B]">
                   Item Weight -{" "}
                   <span className="text-[#171515] capitalize">
-                    {product.weight || "-"}
+                    {selectedVariant?.variantWidth || "-"}
+                    {selectedVariant?.variantWidthUnit || "-"}
                   </span>
                 </p>
 

@@ -48,7 +48,7 @@ const ProductSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    
+
     // productcolor: { type: String, default: "" },
 
     // ProductWidthValue: { type: String, default: "" },
@@ -75,6 +75,8 @@ const ProductSchema = new mongoose.Schema(
     // variantlistings: { type: Boolean, default: false }, // frontend key
 
     // images: { type: [String], default: [] }, // cloudinary urls
+    productBadge: { type: String, default: "" },
+    productTags: { type: [String], default: [] },
     variants: { type: [VariantSchema], default: [] },
 
     // if you have reviews in your project keep this:

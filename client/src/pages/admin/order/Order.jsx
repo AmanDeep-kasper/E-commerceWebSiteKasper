@@ -28,13 +28,21 @@ const profileMenu = [
 ];
 
 function Order() {
-  const [ordersList, setOrdersList] = useState(orders); // ✅ stateful orders
+  const [ordersList, setOrdersList] = useState(orders);
 
   const updateOrder = (orderId, patch) => {
     setOrdersList((prev) =>
       prev.map((o) => (o.orderId === orderId ? { ...o, ...patch } : o)),
     );
   };
+
+  const getCount = (status) => {
+    if (status === "all") return ordersList.length;
+    return ordersList.filter(
+      (item) => item.orderStatus?.toLowerCase() === status.toLowerCase(),
+    ).length;
+  };
+
   const [page, setPage] = useState(1);
   const rowsPerPage = 10;
   // const allRows = [...orders]; // old
@@ -85,7 +93,7 @@ function Order() {
     {
       name: "Cancelled",
       data: "10",
-      icon:   <Ban />,
+      icon: <Ban />,
       iconbg: "bg-[#FFFBEB]",
       iconColor: "text-[#F8A14A]",
     },
@@ -129,9 +137,10 @@ function Order() {
         </div>
 
         <div className="bg-white p-4 rounded-xl">
-          <NavOrders profileMenu={profileMenu} data={ordersList}/>
+          <NavOrders profileMenu={profileMenu} data={ordersList} />
           <div className="pt-4">
-            <Outlet context={{ orders }} />
+            {/* <Outlet context={{ orders }} /> */}
+            <Outlet context={{ ordersList, updateOrder }} />
           </div>
         </div>
       </div>
