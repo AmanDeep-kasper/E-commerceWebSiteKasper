@@ -30,11 +30,35 @@
 
 // export default axiosInstance;
 
-// backend cookie add
+///////////////////////////////////////////////////////
+
+// backend cookie add local host
+// import axios from "axios";
+
+// const axiosInstance = axios.create({
+//   baseURL: "http://localhost:5000/api",
+//   withCredentials: true,
+// });
+
+// axiosInstance.interceptors.response.use(
+//   (response) => response,
+//   (error) => {
+//     if (error.response?.status === 401) {
+//       window.location.href = "/login";
+//     }
+//     return Promise.reject(error);
+//   },
+// );
+
+// export default axiosInstance;
+// ###############################################
+
+// render
+
 import axios from "axios";
 
 const axiosInstance = axios.create({
-  baseURL: "http://localhost:5000/api",
+  baseURL: "https://e-commerbackend-5.onrender.com",
   withCredentials: true,
 });
 

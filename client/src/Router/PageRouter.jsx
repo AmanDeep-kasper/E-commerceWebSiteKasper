@@ -97,8 +97,6 @@ import OutofStock from "../pages/admin/Inventory/OutofStock";
 import InventoryDetails from "../pages/admin/Inventory/InventoryDetails";
 import PaymentPage from "../pages/admin/PaymentDashboard/PaymentPage";
 import TransactionView from "../pages/admin/PaymentDashboard/TransactionView";
-import AllStatements from "../pages/admin/PaymentDashboard/AllStatements";
-import ProductSettings from "../pages/admin/setting/BannersSettings";
 import BannersSettings from "../pages/admin/setting/BannersSettings";
 import PoliciesSettings from "../pages/admin/setting/PoliciesSettings";
 import NotificationsSettings from "../pages/admin/setting/NotificationsSettings";
@@ -112,7 +110,8 @@ const PageRouter = () => {
       <ScrollToTop />
       <Routes>
         {/* Public Routes */}
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="/home" element={<Home />} />
         <Route path="/faqs" element={<Faqs />} />
         <Route path="/policy" element={<Policy />} />
         <Route path="/aboutUs" element={<AboutUs />} />
@@ -209,7 +208,7 @@ const PageRouter = () => {
 
           {/* Add transporters */}
           <Route path="transporter" element={<Transporter />} />
-          
+
           <Route path="transporter/detail" element={<TransporterDetail />} />
 
           {/* payment */}

@@ -32,7 +32,8 @@ function UserProfile({ setIsProfileOpen }) {
   //  Redux state
   const { user, isAuthenticated } = useSelector((state) => state.user);
 
-  // console.log(user);
+  console.log(user);
+  console.log(isAuthenticated);
   return (
     <div className="h-max md:w-[413px] sm:w-[350px] w-[280px] overflow-hidden mx-auto bg-white z-50">
       {/* Top section: user icon and welcome message */}

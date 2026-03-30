@@ -14,6 +14,9 @@ function Login() {
   );
   const navigate = useNavigate();
 
+  // after login success
+  // navigate("/home");
+
   const handleLogin = async (e) => {
     e.preventDefault();
     dispatch(loginUser(formData));
@@ -28,7 +31,7 @@ function Login() {
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate("/");
+      navigate("/home");
     }
   }, [isAuthenticated, navigate]);
 

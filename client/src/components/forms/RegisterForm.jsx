@@ -1,7 +1,7 @@
 // src/components/forms/RegisterForm.jsx
 import { useState } from "react";
 import { Link } from "react-router";
-import { Eye, EyeOff, User, Mail, Lock, Check, Star } from "lucide-react";
+import { Eye, EyeOff} from "lucide-react";
 import userService from "../../services/userService";
 
 function RegisterForm({ onOtpSent }) {

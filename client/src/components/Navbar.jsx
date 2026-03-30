@@ -336,7 +336,7 @@ function Navbar() {
                     <button
                       onClick={() => {
                         setIsOpen(false);
-                        setSearchParams({ q: "" }); // ✅ clear query
+                        setSearchParams({ q: "" }); 
                       }}
                       className="p-2 rounded-full hover:bg-gray-100"
                     >
@@ -416,7 +416,7 @@ function Navbar() {
               >
                 <LayoutDashboard
                   size={20}
-                  className="text-gray-600 group-hover:text-amber-600"
+                  className="text-gray-600 group-hover:text-[#1C3753]"
                 />
               </button>
             )}
@@ -543,7 +543,7 @@ function Navbar() {
                    w-3/4 md:w-1/2 lg:hidden"
             >
               {/* Header */}
-              <div className="p-5 border-b border-gray-200">
+              {/* <div className="p-5 border-b border-gray-200">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center">
                     <UserRound size={20} className="text-amber-600" />
@@ -556,14 +556,14 @@ function Navbar() {
                     <p className="text-sm text-gray-500">Welcome back!</p>
                   </div>
                 </div>
-              </div>
+              </div> */}
 
               {/* Links */}
               <div className="px-6 py-4 flex-1">
                 <Link
                   to="/"
                   onClick={() => setDropdown(false)}
-                  className="flex items-center gap-3 py-3 text-gray-800 font-medium hover:text-amber-600 transition-colors"
+                  className="flex items-center gap-3 py-3 text-gray-800 font-medium hover:text-[#1C3753] transition-colors"
                 >
                   Home
                 </Link>
@@ -578,7 +578,7 @@ function Navbar() {
                 {shopCategories.map((item, index) => (
                   <div key={item.name || index} className="py-2">
                     <div
-                      className="flex items-center justify-between py-3 px-3 text-gray-700 font-medium rounded-lg hover:bg-amber-50 hover:text-amber-600 cursor-pointer"
+                      className="flex items-center justify-between py-3 px-3 text-gray-700 font-medium rounded-lg hover:bg-[#D5E5F5] hover:text-[#1C3753] cursor-pointer"
                       onClick={() =>
                         setSubDropdown(subDropdown === index ? null : index)
                       }
@@ -602,7 +602,7 @@ function Navbar() {
                     >
                       {/* All */}
                       <div
-                        className="py-2 px-3 text-sm text-gray-600 hover:bg-amber-50 hover:text-amber-600 cursor-pointer"
+                        className="py-2 px-3 text-sm rounded-md text-gray-600 hover:bg-[#D5E5F5] hover:text-[#1C3753] cursor-pointer"
                         onClick={() => {
                           navigate(
                             `/products/${encodeURIComponent(item.name)}`,
@@ -619,7 +619,7 @@ function Navbar() {
                         .map((sub) => (
                           <div
                             key={sub}
-                            className="py-2 px-3 text-sm text-gray-600 hover:bg-amber-50 hover:text-amber-600 cursor-pointer"
+                            className="py-2 px-3 text-sm text-gray-600 rounded-md hover:bg-[#D5E5F5] hover:text-[#1C3753] cursor-pointer"
                             onClick={() => {
                               navigate(
                                 `/products/${encodeURIComponent(item.name)}/${encodeURIComponent(sub)}`,
@@ -639,7 +639,7 @@ function Navbar() {
                 <Link
                   to="/faqs"
                   onClick={() => setDropdown(false)}
-                  className="flex items-center gap-3 py-3 text-gray-800 font-medium hover:text-amber-600 transition-colors"
+                  className="flex items-center gap-3 py-3 text-gray-800 font-medium hover:text-[#1C3753] transition-colors"
                 >
                   FAQs
                 </Link>

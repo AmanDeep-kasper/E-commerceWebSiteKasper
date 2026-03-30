@@ -4,7 +4,7 @@ import {
   updateUserDetails,
   updateUserEmail,
   updateUserProfileImage
-} from "../controllers/UserController.js";
+} from "../controllers/userController.js";
 import { isAuthenticated } from "../middlewares/authMiddleware.js";
 
 // ✅ Named import

@@ -4,6 +4,7 @@ import crypto from "crypto";
 import nodemailer from "nodemailer";
 import User from "../models/User.js";
 import dotenv from "dotenv";
+import { sendMail } from "../nodemailer/test-email.js";
 // import cookieParser from "cookie-parser";
 dotenv.config();
 
@@ -68,22 +69,15 @@ export const registerUser = async (req, res) => {
     });
     await user.save();
 
-    // Send OTP via email
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-    });
-
     const mailOptions = {
       from: `"LazerCut" <${process.env.EMAIL_USER}>`,
       to: email,
       subject: "Your verification OTP",
-      html: `<p>Hi ${name},</p><p>Your signup OTP is <strong>${otp}</strong>. It expires in 10 minutes.</p> <p>So Just Now...</p>`,
+      html: `<p>Hi ${name},</p><p>Your signup OTP is <strong>${otp}</strong>. It expires in 10 minutes.</p>`,
     };
-    await transporter.sendMail(mailOptions);
+
+    await sendMail(mailOptions);
+
     return res.status(200).json({ message: "OTP sent to email", email });
   } catch (error) {
     console.error("registerUser error:", error);
