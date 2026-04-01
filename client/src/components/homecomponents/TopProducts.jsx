@@ -187,7 +187,7 @@ function TopProducts() {
     const fetchTopproduct = async () => {
       try {
         const res = await axiosInstance.get("/products/all");
-        console.log("API response:", res.data);
+        // console.log("API response:", res.data);
 
         // supports both array and object response
         if (Array.isArray(res.data)) {
@@ -245,7 +245,8 @@ function TopProducts() {
         <Title className="md:items-start px-2">Featured Collection</Title>
         <Link
           className="whitespace-nowrap text-[#2C87E2] hover:text-blue-950 px-2 text-sm underline cursor-pointer"
-          to="/products/top-products"
+          // to="/products/top-products"
+          to="/products"
         >
           explore more
         </Link>

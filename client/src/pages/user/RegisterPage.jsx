@@ -155,8 +155,8 @@ function RegisterPage() {
             {/* Mobile Header */}
             <div className="md:hidden text-center mb-8">
               <div className="flex items-center justify-center gap-2 mb-4">
-                <div className="bg-amber-600 p-2 rounded-full">
-                  <Star className="w-6 h-6 text-white" fill="currentColor" />
+                <div className="bg-[#D5E5F5] p-2 rounded-full">
+                  <Star className="w-6 h-6 text-[#1C3753]" fill="currentColor" />
                 </div>
                 <h1 className="text-2xl font-bold text-gray-900">LaserCut</h1>
               </div>
@@ -173,7 +173,7 @@ function RegisterPage() {
                 <div
                   className={`w-8 h-8 rounded-full flex items-center justify-center border-2 ${
                     step === "register"
-                      ? "bg-[#DDAC0E] border-[#DDAC0E] text-white"
+                      ? "bg-[#D5E5F5] border-[#D5E5F5 ] text-[#1C3753]"
                       : step === "otp" || step === "done"
                       ? "bg-green-500 border-green-500 text-white"
                       : "bg-white border-gray-300 text-gray-400"

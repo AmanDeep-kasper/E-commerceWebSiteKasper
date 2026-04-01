@@ -31,30 +31,30 @@ function Footer() {
             <ul className="font-[300] flex flex-col gap-2 lg:text-[16px] text-[11.5px]">
               <Link to="/aboutUs">
                 <li>
-                  <a href="">About Us</a>
+                  About Us
                 </li>
               </Link>
               <Link to="/shippingpolicy">
                 <li>
-                  <a href="">Shipping Policy</a>
+                  Shipping Policy
                 </li>
               </Link>
               <Link to="/returnrefundpolicy">
                 <li>
-                  <a href="">Return & Refund Policy</a>
+                  Return & Refund Policy
                 </li>
               </Link>
               <Link to="/policy">
                 <li>
-                  <a href="">Privacy Policy</a>
+                  Privacy Policy
                 </li>
               </Link>
               <li>
-                <a href="">Contact Us</a>
+                Contact Us
               </li>
               <Link to="/faqs">
                 <li>
-                  <a href="">FAQs</a>
+                  FAQs
                 </li>
               </Link>
             </ul>
@@ -66,20 +66,20 @@ function Footer() {
             <ul className="font-[300] flex flex-col gap-2 lg:text-[16px] text-[11.5px]">
               <li>
                 <Link to="/products">
-                  <a href="">Latest Products</a>
+                  Latest Products
                 </Link>
               </li>
               <li>
-                <a href="">Bestseller Collection</a>
+                Bestseller Collection
               </li>
               <li>
                 <Link to="/products/top-products">
-                  <a href="">Featured Collection</a>
+                  Featured Collection
                 </Link>
               </li>
               <li>
                 <Link to="/products/Festive">
-                  <a href="">Festive Occasions</a>
+                  Festive Occasions
                 </Link>
               </li>
             </ul>
@@ -91,25 +91,25 @@ function Footer() {
           <ul className="lg:text-[16px] text-[11.5px] font-[300] flex flex-col gap-2">
             <li>
               <Link to="/accounts/details">
-                <a href="">My Account</a>
+                My Account
               </Link>
             </li>
             <li>
-              <a href="">My Cart</a>
+              My Cart
             </li>
             <li>
               <Link to="/accounts/order-history">
-                <a href="">My Orders</a>
+                My Orders
               </Link>
             </li>
             <li>
               <Link to="/accounts/wishlist">
-                <a href="">Wishlist</a>
+                Wishlist
               </Link>
             </li>
             <li>
               <Link to="/accounts/addresses">
-                <a href="">Manage Addresses</a>
+                Manage Addresses
               </Link>
             </li>
           </ul>
@@ -139,18 +139,18 @@ function Footer() {
               Connect With Us
             </h1>
             <div className="flex gap-3 font-[200]">
-              <a href="">
+              
                 <Instagram size={27} strokeWidth={1.5} />
-              </a>
-              <a href="">
+              
+              
                 <Facebook size={27} strokeWidth={1.5} />
-              </a>
-              <a href="">
+              
+              
                 <Twitter size={27} strokeWidth={1.5} />
-              </a>
-              <a href="">
+              
+              
                 <Youtube size={27} strokeWidth={1.5} />
-              </a>
+              
             </div>
           </div>
         </div>
@@ -162,11 +162,11 @@ function Footer() {
         <ul className="flex md:gap-4 gap-1 font-[400] lg:text-[16px] text-[11.5px]">
           <li>
             <Link to="/termsconditions">
-            <a href="">Terms & Conditions</a>
+            Terms & Conditions
             </Link>
           </li>
-          {/* <li><a href="">Privacy</a></li>
-                    <li><a href="">Cookies</a></li> */}
+          {/* <li><a href="">Privacy</li>
+                    <li><a href="">Cookies</li> */}
         </ul>
       </div>
     </section>

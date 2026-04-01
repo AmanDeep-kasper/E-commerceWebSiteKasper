@@ -147,7 +147,7 @@ function Navbar() {
             </div>
 
             {/* Logo */}
-            <Link to="/" className="flex items-center">
+            <Link to="/home" className="flex items-center">
               {/* <h1 className="text-lg sm:text-xl font-semibold text-amber-600">
                 Logo
               </h1> */}
@@ -158,7 +158,7 @@ function Navbar() {
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex gap-8">
             <Link
-              to="/"
+              to="/home"
               className="relative group text-gray-700  hover:text-[#1C3753] transition-colors flex items-center gap-1 py-2"
             >
               Home
@@ -561,7 +561,7 @@ function Navbar() {
               {/* Links */}
               <div className="px-6 py-4 flex-1">
                 <Link
-                  to="/"
+                  to="/home"
                   onClick={() => setDropdown(false)}
                   className="flex items-center gap-3 py-3 text-gray-800 font-medium hover:text-[#1C3753] transition-colors"
                 >

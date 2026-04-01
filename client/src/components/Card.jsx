@@ -84,6 +84,7 @@ function Card({ cardData = [] }) {
           const defaultVariant = item.variants?.[0];
           const { base, effective, discountPercent, symbol } = getPrices(item);
           const variantStock = defaultVariant?.variantQuantity ?? 0;
+          console.log(variantStock)
 
           const outOfStock = variantStock <= 0;
 

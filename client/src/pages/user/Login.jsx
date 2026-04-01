@@ -90,10 +90,11 @@ function Login() {
             {/* Mobile Header */}
             <div className="md:hidden text-center mb-8">
               <div className="flex items-center justify-center gap-2 mb-4">
-                <div className="bg-amber-600 p-2 rounded-full">
-                  <Star className="w-6 h-6 text-white" fill="currentColor" />
+                <div className="bg-[#D5E5F5] p-2 rounded-full">
+                  <Star className="w-6 h-6 text-[#45709e]" fill="currentColor" />
                 </div>
                 <h1 className="text-2xl font-bold text-gray-900">LaserCut</h1>
+                {/* <img src={MainLog} alt="lazercut" /> */}
               </div>
               <p className="text-gray-600">Enter the World of Precision Art</p>
             </div>
