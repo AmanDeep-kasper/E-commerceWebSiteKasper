@@ -1,47 +1,23 @@
 import {
   BellIcon,
-  Box,
-  Camera,
-  ChartNoAxesColumn,
-  ChevronLeft,
   FileUser,
   HandCoins,
-  LayoutDashboard,
   MessageSquareIcon,
   MoonIcon,
   Package,
   PackageCheck,
-  PackageMinus,
-  PackageOpen,
   PackageOpenIcon,
-  PackagePlus,
-  Search,
   ShoppingCart,
   SquareX,
-  TrendingDown,
-  TrendingUp,
   Truck,
   Undo2,
   Users,
-  Wallet2,
 } from "lucide-react";
 import { PieChart, Pie, Cell, Legend } from "recharts";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
-import { useState } from "react";
-import Header from "../components/Header";
 import orders from "../../../data/orders.json";
 import { useNavigate } from "react-router";
 import SalesChart from "./SalesChart";
 import HalfPieChart from "./HalfPieChart";
-import { div } from "framer-motion/m";
 
 const links = [
   { icon: MoonIcon },
@@ -318,9 +294,9 @@ function Dashboard() {
               </div>
 
               <Icon
-                className="h-8 w-8 p-1 rounded"
+               className="h-8 w-8 p-2 border border-gray-400 rounded-full"
                 style={{
-                  backgroundColor: `${bgcolor}33`,
+                  backgroundColor: `${bgcolor}`,
                   color: bgcolor,
                 }}
               />
@@ -533,10 +509,8 @@ function Dashboard() {
             </div>
           </div>
 
-          
-
           <div className="flex gap-4 items-stretch">
-              <div className="w-1/2 p-4 bg-white  rounded-md flex flex-col gap-4 border border-gray-200">
+            <div className="w-1/2 p-4 bg-white  rounded-md flex flex-col gap-4 border border-gray-200">
               <h2 className="text-[18px]  text-[#222222]">Payments Overview</h2>
 
               <div className="flex flex-col">
@@ -632,8 +606,6 @@ function Dashboard() {
                 );
               })}
             </div>
-
-          
           </div>
         </div>
 

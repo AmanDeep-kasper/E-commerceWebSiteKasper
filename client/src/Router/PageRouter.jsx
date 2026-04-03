@@ -32,8 +32,6 @@ import ReturnPage from "../pages/admin/Returns/ReturnPage";
 import ReturnRequested from "../pages/admin/Returns/ReturnRequested";
 import ReturnInitiated from "../pages/admin/Returns/ReturnInitiated";
 import ReceivedReturns from "../pages/admin/Returns/ReceivedReturns";
-// import ReturnClosed from "../pages/admin/Returns/ReturnClosed";
-// import PaymentSuccess from "../pages/PaymentSuccess";
 // Admin Pages
 import Dashboard from "../pages/admin/Dashboard/Dashboard";
 import Customer from "../pages/admin/customer/Customer";
@@ -127,6 +125,9 @@ const PageRouter = () => {
         {/* App Pages */}
         <Route path="/bag" element={<Cart />} />
         {/* Accounts */}
+
+
+
         <Route path="/accounts" element={<AccountLayout />}>
           <Route path="details" element={<AccountDetails />} />
           <Route path="order-history" element={<OrderHistory />} />
@@ -144,7 +145,9 @@ const PageRouter = () => {
           <Route path="support" element={<Contact />} />
           <Route path="reviews" element={<MyReviews />} />
         </Route>
+
         <Route path="checkout/delivery" element={<Delivery />} />
+
         {/* <Route path="/recent" element={<RecentActivity />} /> */}
         <Route path="/order-history/:orderId" element={<OrderTracking />} />
         <Route path="/products/:categoryName" element={<Product />} />
@@ -281,6 +284,7 @@ const PageRouter = () => {
             element={<AccountSettingsEdit />}
           />
         </Route>
+        
         {/* Catch-All */}
         <Route path="*" element={<SomethingWentWrong />} />
       </Routes>

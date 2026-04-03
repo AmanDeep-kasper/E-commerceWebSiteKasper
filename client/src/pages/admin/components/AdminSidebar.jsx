@@ -25,27 +25,10 @@ const dashboard = [
   { name: "Categories", path: "/categories", icon: Layers },
   { name: "Customers", path: "/customers", icon: Contact },
   { name: "Transporter", path: "/transporter", icon: ClipboardCheck },
-  // { name: "Payments", path: "/payment", icon: Wallet },
  { name: "Payments", path: "/payment", icon: Wallet },
   { name: "Support & Ticket", path: "/support&ticket", icon: Ticket },
 ];
 
-// const dashboard = [
-//   { name: "Dashboard", path: "/admin/dashboard", icon: LayoutDashboard },
-//   { name: "All Products", path: "/admin/products", icon: Package },
-//   { name: "Inventory", path: "/admin/Inventory/All", icon: SquareDashedKanban },
-//   { name: "Orders", path: "/admin/orders/all", icon: ShoppingBag },
-//   {
-//     name: "Returns",
-//     path: "/admin/returns/ReturnRequested",
-//     icon: CalendarSync,
-//   },
-//   { name: "Categories", path: "/admin/categories", icon: Layers },
-//   { name: "Customers", path: "/admin/customers", icon: Contact },
-//   { name: "Transporter", path: "/admin/transporter", icon: ClipboardCheck },
-//   { name: "Payments", path: "/admin/payment/transaction-view", icon: Wallet },
-//   { name: "Support & Ticket", path: "/admin/support&ticket", icon: Ticket },
-// ];
 
 function AdminSidebar({ isCollapsed, setIsCollapsed }) {
   const location = useLocation();
