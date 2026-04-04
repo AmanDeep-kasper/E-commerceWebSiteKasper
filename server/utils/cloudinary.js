@@ -1,38 +1,60 @@
 import { v2 as cloudinary } from "cloudinary";
 import fs from "fs";
+import env from "../config/env.js";
 
 cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
+  cloud_name: env.CLOUDINARY_CLOUD_NAME,
+  api_key: env.CLOUDINARY_API_KEY,
+  api_secret: env.CLOUDINARY_API_SECRET,
 });
 
-export const uploadOnCloudinary = async (localFilePath) => {
-  try {
-    if (!localFilePath) return null;
+export { cloudinary };
 
-    // 1️⃣ Upload to Cloudinary
-    const response = await cloudinary.uploader.upload(localFilePath, {
-      resource_type: "auto",
+// Upload image to Cloudinary and return the result
+export const uploadImageToCloudinary = async (filePath, folder = "default") => {
+  try {
+    if (!filePath || !fs.existsSync(filePath)) {
+      throw new Error("File not found");
+    }
+
+    const result = await cloudinary.uploader.upload(filePath, {
+      folder,
+      use_filename: true,
+      unique_filename: false,
     });
 
-    console.log("File uploaded successfully:", response.secure_url);
-
-    // 2️⃣ SAFE DELETE (no ENOENT error)
-    if (fs.existsSync(localFilePath)) {
-      fs.unlinkSync(localFilePath);
+    // Delete local file after upload
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
     }
 
-    return response.secure_url;
-
+    return {
+      publicId: result.public_id,
+      url: result.secure_url,
+      format: result.format,
+      resourceType: result.resource_type,
+    };
   } catch (error) {
-    console.log("Cloudinary Upload Error:", error.message);
-
-    // 3️⃣ SAFE DELETE even if upload fails
-    if (fs.existsSync(localFilePath)) {
-      fs.unlinkSync(localFilePath);
+    if (filePath && fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
     }
+    throw error;
+  }
+};
 
-    return null;
+export const deleteImageFromCloudinary = async (
+  publicId,
+  resourceType = "image",
+) => {
+  try {
+    if (!publicId) {
+      throw new Error("Public ID is required for deletion");
+    }
+    const result = await cloudinary.uploader.destroy(publicId, {
+      resource_type: resourceType,
+    });
+    return result;
+  } catch (error) {
+    throw new Error(`Failed to delete image from Cloudinary: ${error.message}`);
   }
 };

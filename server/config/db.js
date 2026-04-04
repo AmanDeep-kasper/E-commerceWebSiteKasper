@@ -1,38 +1,28 @@
 import mongoose from "mongoose";
+import env from "./env.js";
 
-const connectDB = async () => {
+export const connectDB = async () => {
   try {
-    await mongoose.connect(process.env.MONGO_URI);
-    console.log("MongoDB connected");
-  } catch (err) {
-    console.error(err.message);
+    const conn = await mongoose.connect(env.MONGO_URI, {
+      autoIndex: false,
+      serverSelectionTimeoutMS: 5000,
+    });
+
+    console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
+  } catch (error) {
+    console.error("❌ MongoDB connection failed:", error.message);
     process.exit(1);
   }
 };
 
-export default connectDB;
+process.on("SIGINT", async () => {
+  try {
+    await mongoose.connection.close();
+    console.log("🛑 MongoDB connection closed");
+    process.exit(0);
+  } catch (err) {
+    console.error("Error while closing MongoDB connection", err);
+    process.exit(1);
+  }
+});
 
-
-
-//////////////
-// import mongoose from "mongoose";
-
-// const connectDB = async () => {
-//   try {
-//     await mongoose.connect(process.env.MONGO_URI, {
-//       serverSelectionTimeoutMS: 10000,
-//     });
-//     console.log("✅ MongoDB connected");
-//   } catch (err) {
-//     console.error("❌ MongoDB connect error:", err.message);
-//     // keep server alive (don’t crash)
-//     // OR if you want hard fail, use: process.exit(1)
-//   }
-// };
-
-// connectDB();
-
-// mongoose.connection.on("error", (e) => console.error("Mongo runtime error:", e.message));
-// mongoose.connection.on("disconnected", () => console.warn("Mongo disconnected"));
-
-// export default connectDB;
