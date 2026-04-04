@@ -176,6 +176,7 @@ function Collection() {
 
   return (
     <section className="relative pt-[22px] pb-6 group bg-gray-50">
+      <div>;k;dk;dk;dk;kd;d;</div>
       <div className="mx-auto bg-white px-4 py-10">
         <div className="max-w-4xl mx-auto text-center mb-12">
           <div className="flex justify-center mb-4">

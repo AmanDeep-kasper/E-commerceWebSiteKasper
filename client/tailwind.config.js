@@ -14,12 +14,8 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        // nova: ["Ibarra Real Nova", "serif"],
-        // inter: ["Inter"],
-        // playfair: ["Playfair Display"],
-        // poppins: ['Poppins', 'sans-serif'],
-        // montserrat: ['Montserrat', 'sans-serif'],
-        imprima: ['Imprima', 'sans-serif'],
+        montez: ["Montez", "cursive"],
+        inter: ["Inter", "sans-serif"],
       },
       screens: {
         xs: "393px",
