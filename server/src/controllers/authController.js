@@ -24,7 +24,10 @@ export const registerUser = asyncHandler(async (req, res) => {
 
   const existingUser = await User.findOne({ email });
   if (existingUser) {
-    throw AppError.conflict("User with this email already exists", "EMAIL_EXISTS");
+    throw AppError.conflict(
+      "User with this email already exists",
+      "EMAIL_EXISTS",
+    );
   }
 
   // Remove stale temp record if present
@@ -73,7 +76,10 @@ export const verifyOTP = asyncHandler(async (req, res) => {
 
   if (tempUser.otpExpires < new Date()) {
     await TempUser.deleteOne({ _id: tempUserId });
-    throw AppError.validation("OTP has expired. Please register again.", "OTP_EXPIRED");
+    throw AppError.validation(
+      "OTP has expired. Please register again.",
+      "OTP_EXPIRED",
+    );
   }
 
   const validOTP = await tempUser.compareOTP(otp);
@@ -84,7 +90,10 @@ export const verifyOTP = asyncHandler(async (req, res) => {
   const existingUser = await User.findOne({ email: tempUser.email });
   if (existingUser?.isVerified) {
     await TempUser.deleteOne({ _id: tempUserId });
-    throw AppError.conflict("User already exists and is verified", "USER_EXISTS");
+    throw AppError.conflict(
+      "User already exists and is verified",
+      "USER_EXISTS",
+    );
   }
 
   const user = new User({
@@ -116,7 +125,10 @@ export const loginUser = asyncHandler(async (req, res) => {
 
   if (!user) {
     await bcryptDummy(password);
-    throw AppError.authentication("Invalid email or password", "INVALID_CREDENTIALS");
+    throw AppError.authentication(
+      "Invalid email or password",
+      "INVALID_CREDENTIALS",
+    );
   }
 
   if (user.lockUntil && user.lockUntil > new Date()) {
@@ -125,7 +137,7 @@ export const loginUser = asyncHandler(async (req, res) => {
     );
     throw AppError.badRequest(
       `Account is temporarily locked. Please try again after ${lockTimeRemaining} minutes`,
-      "ACCOUNT_LOCKED"
+      "ACCOUNT_LOCKED",
     );
   }
 
@@ -148,7 +160,7 @@ export const loginUser = asyncHandler(async (req, res) => {
       remainingAttempts > 0
         ? `Invalid email or password. ${remainingAttempts} attempts remaining`
         : "Invalid email or password. Account locked for 30 minutes",
-      "INVALID_CREDENTIALS"
+      "INVALID_CREDENTIALS",
     );
   }
 
@@ -322,10 +334,7 @@ export const logoutUser = asyncHandler(async (req, res) => {
   }
 
   if (userId && sessionId) {
-    await User.updateOne(
-      { _id: userId },
-      { $unset: { currentSessionId: "" } },
-    );
+    await User.updateOne({ _id: userId }, { $unset: { currentSessionId: "" } });
     operations.push({ type: "current_session", status: "cleared" });
   }
 
@@ -353,19 +362,57 @@ export const logoutUser = asyncHandler(async (req, res) => {
 
 export const me = asyncHandler(async (req, res) => {
   const userId = req.user?.userId;
+  const currentSessionId = req.user?.sessionId;
 
+  // Validate session is still active (use only exclusion projection)
   const user = await User.findById(userId).select(
-    "-password -refreshTokens -resetPasswordToken -resetPasswordExpires -lastLogin -loginAttempts -lockUntil -lastLoginDevice -lastLoginIP -currentSessionId -resetPasswordAttempts",
+    "-password -refreshTokens -resetPasswordToken -resetPasswordExpires -lastLogin -loginAttempts -lockUntil -lastLoginDevice -lastLoginIP -resetPasswordAttempts",
   );
 
   if (!user) {
     throw AppError.notFound("User not found or inactive", "USER_NOT_FOUND");
   }
 
+  // Check if session is still valid
+  if (!user.currentSessionId) {
+    throw AppError.authentication(
+      "Your session has been invalidated. Please login again.",
+      "SESSION_INVALIDATED",
+    );
+  }
+
+  // Verify session ID matches (prevents using old tokens after password change)
+  if (user.currentSessionId.toString() !== currentSessionId) {
+    throw AppError.authentication(
+      "Invalid session. Please login again.",
+      "INVALID_SESSION",
+    );
+  }
+
+  if (!user.isActive) {
+    throw AppError.authentication(
+      "Your account has been deactivated.",
+      "ACCOUNT_DEACTIVATED",
+    );
+  }
+
+  // Return user data without sensitive fields
+  const userResponse = {
+    id: user._id,
+    name: user.name,
+    email: user.email,
+    role: user.role,
+    profileImage: user.profileImage,
+    isVerified: user.isVerified,
+    isActive: user.isActive,
+    createdAt: user.createdAt,
+    updatedAt: user.updatedAt,
+  };
+
   res.status(200).json({
     success: true,
     message: "User data fetched successfully",
-    user,
+    user: userResponse,
   });
 });
 
@@ -377,7 +424,7 @@ export const changePassword = asyncHandler(async (req, res) => {
   if (oldPassword === newPassword) {
     throw AppError.badRequest(
       "New password must be different from old password",
-      "SAME_PASSWORD"
+      "SAME_PASSWORD",
     );
   }
 
@@ -393,10 +440,17 @@ export const changePassword = asyncHandler(async (req, res) => {
 
   user.password = newPassword;
 
-  // Revoke all other sessions
+  // 🔐 Logout all OTHER sessions (keep current session active)
+  const revokedCount = user.refreshTokens?.length || 0;
+
   user.refreshTokens = user.refreshTokens.map((token) => {
     if (token.sessionId !== currentSessionId) {
-      return { ...token.toObject(), isRevoked: true, revokedAt: new Date() };
+      return {
+        ...token.toObject(),
+        isRevoked: true,
+        revokedAt: new Date(),
+        revokeReason: "PASSWORD_CHANGED", // Track reason for logout
+      };
     }
     return token;
   });
@@ -433,12 +487,17 @@ export const changePassword = asyncHandler(async (req, res) => {
     maxAge: 7 * 24 * 60 * 60 * 1000,
   });
 
-  console.log(`Password changed for user: ${userId}`);
+  console.log(
+    `🔐 Password changed for user: ${userId} | ${revokedCount - 1} other session(s) logged out`,
+  );
 
   res.status(200).json({
     success: true,
     message:
       "Password changed successfully. Other devices have been logged out.",
+    data: {
+      otherSessionsLoggedOut: Math.max(0, revokedCount - 1),
+    },
   });
 });
 
@@ -482,7 +541,7 @@ export const forgotPassword = asyncHandler(async (req, res) => {
     );
     throw AppError.badRequest(
       `Please wait ${waitTime} seconds before requesting another reset link.`,
-      "RATE_LIMIT_EXCEEDED"
+      "RATE_LIMIT_EXCEEDED",
     );
   }
 
@@ -492,7 +551,7 @@ export const forgotPassword = asyncHandler(async (req, res) => {
     );
     throw AppError.badRequest(
       `A reset link was already sent. Please wait ${timeRemaining} minutes or check your email.`,
-      "RESET_LINK_ALREADY_SENT"
+      "RESET_LINK_ALREADY_SENT",
     );
   }
 
@@ -537,7 +596,7 @@ export const resetPassword = asyncHandler(async (req, res) => {
   if (newPassword !== confirmPassword) {
     throw AppError.badRequest(
       "New password and confirm password do not match",
-      "PASSWORD_MISMATCH"
+      "PASSWORD_MISMATCH",
     );
   }
 
@@ -555,7 +614,7 @@ export const resetPassword = asyncHandler(async (req, res) => {
   if (!user) {
     throw AppError.badRequest(
       "Invalid or expired reset token. Please request a new password reset link.",
-      "INVALID_RESET_TOKEN"
+      "INVALID_RESET_TOKEN",
     );
   }
 
@@ -563,25 +622,28 @@ export const resetPassword = asyncHandler(async (req, res) => {
   if (isSamePassword) {
     throw AppError.badRequest(
       "New password must be different from your current password",
-      "SAME_PASSWORD"
+      "SAME_PASSWORD",
     );
   }
-
-  user.password = newPassword;
-  user.resetPasswordToken = undefined;
-  user.resetPasswordExpires = undefined;
-  user.resetPasswordAttempts = 0;
-  user.lastResetRequest = undefined;
 
   if (user.refreshTokens?.length > 0) {
     user.refreshTokens = user.refreshTokens.map((t) => ({
       ...t.toObject(),
       isRevoked: true,
       revokedAt: new Date(),
+      revokeReason: "PASSWORD_RESET", // Track reason for logout
     }));
   }
 
-  user.currentSessionId = undefined;
+  // Update password and clear all security-related fields
+  user.password = newPassword;
+  user.resetPasswordToken = undefined;
+  user.resetPasswordExpires = undefined;
+  user.resetPasswordAttempts = 0;
+  user.lastResetRequest = undefined;
+  user.currentSessionId = undefined; // Clear current session
+
+  // Track password change
   user.lastPasswordChange = new Date();
   user.lastPasswordChangeIP = req.ip || req.connection?.remoteAddress;
   user.lastPasswordChangeDevice = req.headers["user-agent"];
@@ -590,8 +652,7 @@ export const resetPassword = asyncHandler(async (req, res) => {
 
   res.status(200).json({
     success: true,
-    message:
-      "Password reset successful. Please login with your new password.",
+    message: "Password reset successful.",
   });
 });
 
@@ -612,10 +673,13 @@ export const refreshAccessToken = asyncHandler(async (req, res) => {
     if (error.name === "TokenExpiredError") {
       throw AppError.authentication(
         "Refresh token expired. Please login again.",
-        "REFRESH_TOKEN_EXPIRED"
+        "REFRESH_TOKEN_EXPIRED",
       );
     }
-    throw AppError.authentication("Invalid refresh token", "INVALID_REFRESH_TOKEN");
+    throw AppError.authentication(
+      "Invalid refresh token",
+      "INVALID_REFRESH_TOKEN",
+    );
   }
 
   const user = await User.findById(decoded.userId).select("role isActive");
