@@ -13,14 +13,12 @@ import {
   rotateTokens,
 } from "../utils/token.js";
 import env from "../config/env.js";
-import { uploadImageToCloudinary } from "../utils/cloudinary.js";
 import { TempUser } from "../models/tempUser.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import AppError from "../utils/AppError.js";
 
 export const registerUser = asyncHandler(async (req, res) => {
   const { name, email, password } = req.body;
-  const profileImage = req.file ? req.file.path : null;
 
   const existingUser = await User.findOne({ email });
   if (existingUser) {
@@ -36,11 +34,6 @@ export const registerUser = asyncHandler(async (req, res) => {
   const otp = generateOTP();
   const otpExpires = new Date(Date.now() + 10 * 60 * 1000);
 
-  let cloudinaryResult = null;
-  if (profileImage) {
-    cloudinaryResult = await uploadImageToCloudinary(profileImage);
-  }
-
   await sendRegistrationEmail(email, otp);
 
   const tempUser = new TempUser({
@@ -48,10 +41,6 @@ export const registerUser = asyncHandler(async (req, res) => {
     email,
     password,
     role: "user",
-    profileImage: {
-      url: cloudinaryResult?.url || null,
-      publicId: cloudinaryResult?.publicId || null,
-    },
     otp,
     otpExpires,
   });
@@ -101,7 +90,6 @@ export const verifyOTP = asyncHandler(async (req, res) => {
     email: tempUser.email,
     password: tempUser.password,
     role: tempUser.role,
-    profileImage: tempUser.profileImage,
     isVerified: true,
   });
 
@@ -212,7 +200,6 @@ export const loginUser = asyncHandler(async (req, res) => {
       name: user.name,
       email: user.email,
       role: user.role,
-      profileImage: user.profileImage,
       isVerified: user.isVerified,
       isActive: user.isActive,
       createdAt: user.createdAt,

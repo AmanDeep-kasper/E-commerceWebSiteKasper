@@ -39,7 +39,7 @@ const userSchema = new mongoose.Schema(
       sparse: true,
       unique: true,
       trim: true,
-      match: [/^\+?[1-9]\d{1,14}$/, "Please provide a valid phone number"],
+      match: [/^[6-9]\d{9}$/, "Please provide a valid phone number"],
     },
 
     resetPasswordToken: {

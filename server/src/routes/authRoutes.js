@@ -27,31 +27,31 @@ const router = express.Router();
 router.post(
   "/register",
   upload.single("profileImage"),
-  validateRequest,
   registerValidation,
+  validateRequest,
   registerUser,
 );
-router.post("/verify", validateRequest, otpValidation, verifyOTP);
-router.post("/login", validateRequest, loginValidation, loginUser);
+router.post("/verify", otpValidation, validateRequest, verifyOTP);
+router.post("/login", loginValidation, validateRequest, loginUser);
 router.post("/logout", authenticate, logoutUser);
 router.get("/me", authenticate, me);
 router.patch(
   "/change-password",
-  validateRequest,
-  changePasswordValidation,
   authenticate,
+  changePasswordValidation,
+  validateRequest,
   changePassword,
 );
 router.post(
   "/forgot-password",
-  validateRequest,
   forgotPasswordValidation,
+  validateRequest,
   forgotPassword,
 );
 router.post(
   "/reset-password/:token",
-  validateRequest,
   resetPasswordValidation,
+  validateRequest,
   resetPassword,
 );
 

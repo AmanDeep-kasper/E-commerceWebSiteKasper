@@ -1,27 +1,57 @@
 import express from "express";
+import { authenticate } from "../middlewares/authMiddleware.js";
 import {
   getUserDetails,
   updateUserDetails,
   updateUserEmail,
-  updateUserProfileImage
+  updateUserProfileImage,
+  verifyOTP,
 } from "../controllers/userController.js";
-import { isAuthenticated } from "../middlewares/authMiddleware.js";
-
-// ✅ Named import
-import { uploadProfileImage } from "../middlewares/multerConfig.js";
+import { validateRequest } from "../validation/validator.js";
+import {
+  otpValidation,
+  updateUserDetailsValidation,
+  updateUserEmailValidation,
+} from "../validation/userValidation.js";
+import { upload } from "../middlewares/multer.js";
 
 const router = express.Router();
 
-router.get("/me", isAuthenticated, getUserDetails);
-router.put("/me", isAuthenticated, updateUserDetails);
+router.get("/details", authenticate, getUserDetails);
 
 router.patch(
-  "/me/profile-image",
-  isAuthenticated,
-  uploadProfileImage,   
-  updateUserProfileImage  
+  "/update-details",
+  authenticate,
+  updateUserDetailsValidation,
+  validateRequest,
+  updateUserDetails,
 );
 
-router.patch("/me/update-email", isAuthenticated, updateUserEmail);
+router.patch(
+  "/update-profile-image",
+  authenticate,
+  (req, res, next) => {
+    req.uploadFolder = "profile";
+    next();
+  },
+  upload.single("profileImage"),
+  updateUserProfileImage,
+);
+
+router.post(
+  "/update-email",
+  authenticate,
+  updateUserEmailValidation,
+  validateRequest,
+  updateUserEmail,
+);
+
+router.post(
+  "/verify-otp",
+  authenticate,
+  otpValidation,
+  validateRequest,
+  verifyOTP,
+);
 
 export default router;
