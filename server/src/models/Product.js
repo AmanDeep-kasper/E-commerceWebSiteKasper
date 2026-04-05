@@ -1,88 +1,199 @@
-// models/Product.js
 import mongoose from "mongoose";
 
-const VariantSchema = new mongoose.Schema(
+const productVariantSchema = new mongoose.Schema(
   {
-    variantId: { type: String, required: true },
-    variantSkuId: { type: String, required: true },
-
-    variantColor: { type: String, default: "" },
-
-    variantLength: { type: String, default: "" },
-    variantBreadth: { type: String, default: "" },
-    variantDimensionunit: { type: String, default: "In" },
-
-    variantWidth: { type: String, default: "" }, // you are using this as WEIGHT value
-    variantWidthUnit: { type: String, default: "kg" },
-
-    variantMrp: { type: Number, default: 0 },
-    variantCostPrice: { type: Number, default: 0 },
-    variantSellingPrice: { type: Number, default: 0 },
-
-    variantDiscount: { type: Number, default: 0 },
-    variantDiscountUnit: { type: String, default: "%" },
-
-    variantAvailableStock: { type: Number, default: 0 },
-    variantLowStockAlertStock: { type: Number, default: 0 },
-
-    variantImage: { type: [String], default: [] },
-
-    isSelected: { type: Boolean, default: false },
+    sku: {
+      type: String,
+      required: true,
+      unique: true,
+      uppercase: true,
+      trim: true,
+    },
+    size: String, // "40X25 Inches"
+    color: String, // "Gold"
+    material: String, // "Metal"
+    weightKg: Number,
+    dimensions: String, // "40x25x0.2 inches"
+    mrpPrice: {
+      type: Number,
+      required: true,
+      min: 0,
+    },
+    sellingPrice: {
+      type: Number,
+      required: true,
+      min: 0,
+    },
+    discountPercent: {
+      type: Number,
+      default: function () {
+        if (this.mrpPrice && this.sellingPrice) {
+          return Number(
+            (
+              ((this.mrpPrice - this.sellingPrice) / this.mrpPrice) *
+              100
+            ).toFixed(2),
+          );
+        }
+        return 0;
+      },
+    },
+    stockQuantity: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    isDefault: {
+      type: Boolean,
+      default: false,
+    },
+    displayOrder: {
+      type: Number,
+      default: 0,
+    },
+    images: [
+      {
+        url: String,
+        altText: String,
+        isPrimary: Boolean,
+        displayOrder: Number,
+      },
+    ],
   },
-  { _id: false },
+  {
+    timestamps: true,
+  },
 );
 
-const ProductSchema = new mongoose.Schema(
+const productSchema = new mongoose.Schema(
   {
-    uuid: { type: String, required: true, unique: true },
-    route: { type: String, default: "" },
+    sku: {
+      type: String,
+      required: true,
+      unique: true,
+      uppercase: true,
+      trim: true,
+    },
+    name: {
+      type: String,
+      required: true,
+      trim: true,
+      index: true,
+    },
+    slug: {
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
+      trim: true,
+      index: true,
+    },
+    shortDescription: String,
+    fullDescription: String,
+    brand: String,
 
-    productTittle: { type: String, required: true }, // frontend key
-    description: { type: String, default: "" },
-    status: { type: String, default: "ACTIVE" },
+    // Relationships
+    categories: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Category",
+      },
+    ],
 
-    category: { type: String, required: true },
-    subcategory: { type: String, default: "" },
-    materialType: { type: String, default: "" },
-    isFestive: {
+    // Variants (embedded for performance)
+    variants: [productVariantSchema],
+
+    // Flexible attributes (EAV pattern)
+    attributes: [
+      {
+        name: String, // "Sub-Category", "Finish Type"
+        value: String, // "Abstract Decor", "Gold-toned frame"
+        displayOrder: Number,
+      },
+    ],
+
+    // Media (product-level images)
+    images: [
+      {
+        url: {
+          type: String,
+          required: true,
+        },
+        altText: String,
+        isPrimary: {
+          type: Boolean,
+          default: false,
+        },
+        displayOrder: {
+          type: Number,
+          default: 0,
+        },
+      },
+    ],
+
+    // SEO
+    metaTitle: String,
+    metaDescription: String,
+    metaKeywords: [String],
+
+    // Status flags
+    isActive: {
+      type: Boolean,
+      default: true,
+      index: true,
+    },
+    isFeatured: {
+      type: Boolean,
+      default: false,
+    },
+    isNew: {
       type: Boolean,
       default: false,
     },
 
-    // productcolor: { type: String, default: "" },
-
-    // ProductWidthValue: { type: String, default: "" },
-    // ProductWidthUnit: { type: String, default: "" },
-    // ProductHeightValue: { type: String, default: "" },
-    // ProductDimensionUnit: { type: String, default: "" },
-
-    SKU: { type: String, required: true },
-
-    // stockQuantity: { type: Number, default: 0 },
-    // ReorderLimit: { type: Number, default: 0 },
-
-    // mrp: { type: Number, default: 0 },
-    // costPrice: { type: Number, default: 0 },
-    // sellingPrice: { type: Number, default: 0 },
-
-    // discountname: { type: String, default: "" },
-    // extradiscountamount: { type: Number, default: 0 },
-    // discountPercent: { type: Number, default: 0 },
-    // discountAmount: { type: Number, default: 0 },
-
-    // taxPercent: { type: Number, default: 0 },
-
-    // variantlistings: { type: Boolean, default: false }, // frontend key
-
-    // images: { type: [String], default: [] }, // cloudinary urls
-    productBadge: { type: String, default: "" },
-    productTags: { type: [String], default: [] },
-    variants: { type: [VariantSchema], default: [] },
-
-    // if you have reviews in your project keep this:
-    reviews: [{ type: mongoose.Schema.Types.ObjectId, ref: "Review" }],
+    // Aggregated stats (denormalized for performance)
+    stats: {
+      averageRating: {
+        type: Number,
+        default: 0,
+        min: 0,
+        max: 5,
+      },
+      totalReviews: {
+        type: Number,
+        default: 0,
+      },
+      totalSold: {
+        type: Number,
+        default: 0,
+      },
+    },
   },
-  { timestamps: true },
+  {
+    timestamps: true,
+  },
 );
 
-export default mongoose.model("Product", ProductSchema);
+// Indexes for performance
+productSchema.index({ name: "text", shortDescription: "text" });
+productSchema.index({ "variants.sku": 1 });
+productSchema.index({ "variants.sellingPrice": 1 });
+productSchema.index({ createdAt: -1 });
+productSchema.index({ "stats.averageRating": -1 });
+
+// Pre-save middleware to generate slug
+productSchema.pre("save", function (next) {
+  if (!this.slug && this.name) {
+    this.slug = this.name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+  }
+  next();
+});
+
+// Method to get default variant
+productSchema.methods.getDefaultVariant = function () {
+  return this.variants.find((v) => v.isDefault) || this.variants[0];
+};
+
+const Product = mongoose.model("Product", productSchema);
+
+export default Product;
