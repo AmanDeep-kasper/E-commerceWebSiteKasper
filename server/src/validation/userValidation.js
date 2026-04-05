@@ -1,4 +1,4 @@
-import { body } from "express-validator";
+import { body, param } from "express-validator";
 
 export const updateUserDetailsValidation = [
   body("name")
@@ -40,7 +40,9 @@ export const updateUserEmailValidation = [
     .trim()
     .isEmail()
     .withMessage("Please provide a valid email address")
-    .normalizeEmail()
+    .normalizeEmail({
+      gmail_remove_dots: false,
+    })
     .matches(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/)
     .withMessage("Please provide a valid email address"),
 ];
@@ -61,4 +63,13 @@ export const otpValidation = [
     .withMessage("OTP must be 6 characters long")
     .matches(/^\d+$/)
     .withMessage("OTP must contain only digits"),
+];
+
+export const userIdQueryParamValidation = [
+  param("userId")
+    .notEmpty()
+    .withMessage("User ID is required")
+    .trim()
+    .isMongoId()
+    .withMessage("Please provide a valid user ID"),
 ];

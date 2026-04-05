@@ -108,7 +108,6 @@ export const loginUser = asyncHandler(async (req, res) => {
   const user = await User.findOne({
     email: email.trim().toLowerCase(),
     isVerified: true,
-    isActive: true,
   }).select("+password +loginAttempts +lockUntil");
 
   if (!user) {
@@ -116,6 +115,13 @@ export const loginUser = asyncHandler(async (req, res) => {
     throw AppError.authentication(
       "Invalid email or password",
       "INVALID_CREDENTIALS",
+    );
+  }
+
+  if (!user.isActive) {
+    throw AppError.authentication(
+      "Your account has been deactivated.",
+      "ACCOUNT_DEACTIVATED",
     );
   }
 

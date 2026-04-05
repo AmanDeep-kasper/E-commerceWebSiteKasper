@@ -255,3 +255,136 @@ export const verifyOTP = asyncHandler(async (req, res) => {
     message: "Email verified and user updated successfully",
   });
 });
+
+// Admin controllers
+export const getAllUsers = asyncHandler(async (req, res) => {
+  const {
+    page = 1,
+    limit = 20,
+    search = "",
+    role,
+    isVerified,
+    isActive,
+  } = req.query;
+
+  const query = {};
+
+  // 🔍 Search (name, email, phoneNumber)
+  if (search) {
+    query.$or = [
+      { name: { $regex: search, $options: "i" } },
+      { email: { $regex: search, $options: "i" } },
+      { phoneNumber: { $regex: search, $options: "i" } },
+    ];
+  }
+
+  // 🎯 Filters
+  if (role) {
+    query.role = role;
+  }
+
+  if (isVerified !== undefined) {
+    query.isVerified = isVerified === "true";
+  }
+
+  if (isActive !== undefined) {
+    query.isActive = isActive === "true";
+  }
+
+  // 📊 Pagination
+  const skip = (Number(page) - 1) * Number(limit);
+
+  const [users, totalUsers] = await Promise.all([
+    User.find(query)
+      .select(
+        "_id name email phoneNumber isVerified role profileImage dateOfBirth gender isActive lastLogin lastLoginDevice lastLoginIP loginAttempts",
+      )
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(Number(limit))
+      .lean(),
+
+    User.countDocuments(query),
+  ]);
+
+  // 📦 Response
+  res.status(200).json({
+    success: true,
+    message: "Users fetched successfully",
+    users,
+    pagination: {
+      totalUsers,
+      currentPage: Number(page),
+      totalPages: Math.ceil(totalUsers / limit),
+      limit: Number(limit),
+    },
+  });
+});
+
+export const getUserById = asyncHandler(async (req, res) => {
+  const { userId } = req.params;
+
+  // ✅ Fetch user (exclude sensitive fields)
+  const user = await User.findById(userId)
+    .select(
+      "-password -refreshTokens -currentSessionId -resetPasswordAttempts -lastResetRequest -lastResetRequestIP -lastResetRequestDevice -lastPasswordChange -lastPasswordChangeIP -lastPasswordChangeDevice -lockUntil",
+    )
+    .lean();
+
+  if (!user) {
+    throw AppError.notFound("User not found", "USER_NOT_FOUND");
+  }
+
+  res.status(200).json({
+    success: true,
+    message: "User details fetched successfully",
+    user,
+  });
+});
+
+export const deleteUser = asyncHandler(async (req, res) => {
+  const { userId } = req.params;
+
+  const user = await User.findById(userId);
+
+  if (!user) {
+    throw AppError.notFound("User not found", "USER_NOT_FOUND");
+  }
+
+  // 🚫 Prevent self delete
+  if (req.user?.userId.toString() === userId.toString()) {
+    throw AppError.badRequest("You cannot delete your own account");
+  }
+
+  await user.deleteOne();
+
+  return res.status(200).json({
+    success: true,
+    message: "User deleted successfully",
+  });
+});
+
+export const updateStatus = asyncHandler(async (req, res) => {
+  const { userId } = req.params;
+
+  const user = await User.findById(userId);
+
+  if (!user) {
+    throw AppError.notFound("User not found", "USER_NOT_FOUND");
+  }
+
+  // 🚫 Prevent self deactivation
+  if (req.user?.userId.toString() === userId.toString()) {
+    throw AppError.badRequest("You cannot deactivate your own account");
+  }
+
+  user.isActive = !user.isActive;
+  await user.save();
+
+  return res.status(200).json({
+    success: true,
+    message: `User ${
+      user.isActive ? "activated successfully" : "deactivated successfully"
+    }`,
+  });
+});

@@ -18,7 +18,9 @@ export const registerValidation = [
     .trim()
     .isEmail()
     .withMessage("Please provide a valid email address")
-    .normalizeEmail()
+    .normalizeEmail({
+      gmail_remove_dots: false,
+    })
     .matches(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/)
     .withMessage("Please provide a valid email address"),
 
@@ -61,7 +63,9 @@ export const loginValidation = [
     .trim()
     .isEmail()
     .withMessage("Please provide a valid email address")
-    .normalizeEmail()
+    .normalizeEmail({
+      gmail_remove_dots: false,
+    })
     .matches(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/)
     .withMessage("Please provide a valid email address"),
 
@@ -92,7 +96,9 @@ export const forgotPasswordValidation = [
     .trim()
     .isEmail()
     .withMessage("Please provide a valid email address")
-    .normalizeEmail()
+    .normalizeEmail({
+      gmail_remove_dots: false,
+    })
     .matches(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/)
     .withMessage("Please provide a valid email address"),
 ];
@@ -104,7 +110,9 @@ export const resetPasswordValidation = [
     .trim()
     .isEmail()
     .withMessage("Please provide a valid email address")
-    .normalizeEmail()
+    .normalizeEmail({
+      gmail_remove_dots: false,
+    })
     .matches(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/)
     .withMessage("Please provide a valid email address"),
 

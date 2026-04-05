@@ -1,7 +1,11 @@
 import express from "express";
-import { authenticate } from "../middlewares/authMiddleware.js";
+import { authenticate, authorize } from "../middlewares/authMiddleware.js";
 import {
+  deleteUser,
+  getAllUsers,
+  getUserById,
   getUserDetails,
+  updateStatus,
   updateUserDetails,
   updateUserEmail,
   updateUserProfileImage,
@@ -12,15 +16,16 @@ import {
   otpValidation,
   updateUserDetailsValidation,
   updateUserEmailValidation,
+  userIdQueryParamValidation,
 } from "../validation/userValidation.js";
 import { upload } from "../middlewares/multer.js";
 
 const router = express.Router();
 
-router.get("/details", authenticate, getUserDetails);
+router.get("/detail", authenticate, getUserDetails);
 
 router.patch(
-  "/update-details",
+  "/update-detail",
   authenticate,
   updateUserDetailsValidation,
   validateRequest,
@@ -52,6 +57,37 @@ router.post(
   otpValidation,
   validateRequest,
   verifyOTP,
+);
+
+// Admin routes
+
+router.get("/admin/all-users", authenticate, authorize("admin"), getAllUsers);
+
+router.get(
+  "/admin/detail/:userId",
+  authenticate,
+  authorize("admin"),
+  userIdQueryParamValidation,
+  validateRequest,
+  getUserById,
+);
+
+router.delete(
+  "/admin/delete/:userId",
+  authenticate,
+  authorize("admin"),
+  userIdQueryParamValidation,
+  validateRequest,
+  deleteUser,
+);
+
+router.patch(
+  "/admin/status/:userId",
+  authenticate,
+  authorize("admin"),
+  userIdQueryParamValidation,
+  validateRequest,
+  updateStatus,
 );
 
 export default router;

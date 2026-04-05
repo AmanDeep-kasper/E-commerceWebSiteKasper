@@ -148,11 +148,7 @@ export const authorize = (...allowedRoles) => {
     if (!allowedRoles.includes(userRole)) {
       return res.status(403).json({
         success: false,
-        message: `Access denied. ${allowedRoles.join(" or ")} role required.`,
-        data: {
-          yourRole: userRole,
-          requiredRoles: allowedRoles,
-        },
+        message: `Access denied. You are not authorized to access this resource.`,
       });
     }
 
