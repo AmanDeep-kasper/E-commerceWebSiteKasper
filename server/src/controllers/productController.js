@@ -1,371 +1,333 @@
 import Product from "../models/Product.js";
-import { uploadOnCloudinary } from "../utils/cloudinary.js";
-import { randomUUID } from "crypto";
-import { syncCategoryWithProduct } from "./categoryController.js";
+import Category from "../models/Category.js";
+import asyncHandler from "../utils/asyncHandler.js";
+import AppError from "../utils/AppError.js";
+import { uploadImageToCloudinary } from "../utils/cloudinary.js";
 
-/** ----------------------------------------
- * Helpers
- * ---------------------------------------- */
-const makeSlug = (str) =>
-  String(str || "")
+const createSlug = (value = "") =>
+  value
+    .toString()
+    .trim()
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)+/g, "");
+    .replace(/^-+|-+$/g, "");
 
-const toNumber = (v) => {
-  if (v === "" || v === undefined || v === null) return 0;
-  const n = Number(v);
-  return Number.isFinite(n) ? n : 0;
-};
+const parseJSONField = (value, fallback) => {
+  if (value === undefined || value === null || value === "") {
+    return fallback;
+  }
 
-const toBool = (v) => v === "true" || v === true || v === 1 || v === "1";
+  if (typeof value !== "string") {
+    return value;
+  }
 
-function safeJsonParse(str, fallback) {
   try {
-    return JSON.parse(str);
+    return JSON.parse(value);
   } catch {
     return fallback;
   }
-}
-
-/** OLD FORMAT SUPPORT:
- * variants[0][variantColor] etc.
- */
-function parseVariantsFromBracketBody(body) {
-  const variants = [];
-
-  for (const key of Object.keys(body || {})) {
-    const match = key.match(/^variants\[(\d+)\]\[(.+)\]$/);
-    if (!match) continue;
-
-    const idx = Number(match[1]);
-    const field = match[2];
-
-    variants[idx] = variants[idx] || {};
-    variants[idx][field] = body[key];
-  }
-
-  return variants.filter(Boolean);
-}
-
-/** normalize req.files from multer:
- * - multer.array => req.files is array
- * - multer.fields => req.files is object of arrays
- */
-function normalizeFiles(reqFiles) {
-  if (!reqFiles) return [];
-  if (Array.isArray(reqFiles)) return reqFiles;
-  return Object.values(reqFiles).flat();
-}
-
-/** ----------------------------------------
- * POST /products/add-product
- * ---------------------------------------- */
-export const addProduct = async (req, res) => {
-  try {
-    console.log("BODY:", req.body);
-    console.log("FILES:", req.files);
-
-    const {
-      uuid,
-      route,
-      productTittle,
-      description,
-      status,
-      category,
-      subcategory,
-      materialType,
-      isFestive,
-      productBadge,
-      productTags,
-      SKU,
-      variants,
-    } = req.body;
-
-    if (!productTittle || !category || !SKU) {
-      return res.status(400).json({
-        success: false,
-        message: "Missing required fields: productTittle, category, SKU",
-      });
-    }
-
-    await syncCategoryWithProduct(category, subcategory);
-
-    /** -------------------------------
-     * 1) Upload images from req.files
-     * ------------------------------- */
-    const filesArr = normalizeFiles(req.files);
-
-    const productImages = [];
-    const variantImageMap = {}; // { 0: [url], 1: [url, url] }
-
-    for (const file of filesArr) {
-      const cloudUrl = await uploadOnCloudinary(file.path);
-      if (!cloudUrl) continue;
-
-      // Optional product images
-      if (file.fieldname === "images") {
-        productImages.push(cloudUrl);
-        continue;
-      }
-
-      // New frontend: variantImages_0, variantImages_1 ...
-      if (file.fieldname.startsWith("variantImages_")) {
-        const idxStr = file.fieldname.replace("variantImages_", "");
-        const idx = Number(idxStr);
-
-        if (Number.isFinite(idx)) {
-          variantImageMap[idx] = variantImageMap[idx] || [];
-          variantImageMap[idx].push(cloudUrl);
-        }
-        continue;
-      }
-
-      // Old frontend support: variants[0][variantImage]
-      if (file.fieldname.startsWith("variants[")) {
-        const match = file.fieldname.match(/variants\[(\d+)\]\[variantImage\]/);
-        if (match) {
-          const idx = Number(match[1]);
-          variantImageMap[idx] = variantImageMap[idx] || [];
-          variantImageMap[idx].push(cloudUrl);
-        }
-      }
-    }
-
-    /** -------------------------------
-     * 2) Parse variants
-     * ------------------------------- */
-    let variantsRaw = [];
-
-    if (typeof variants === "string" && variants.trim()) {
-      variantsRaw = safeJsonParse(variants, []);
-    } else {
-      variantsRaw = parseVariantsFromBracketBody(req.body);
-    }
-
-    if (!Array.isArray(variantsRaw)) variantsRaw = [];
-
-    const parsedVariants = variantsRaw.map((v, idx) => ({
-      variantId: v.variantId || randomUUID(),
-      variantSkuId: v.variantSkuId || "",
-
-      variantColor: v.variantColor || "",
-
-      variantLength: v.variantLength || "",
-      variantBreadth: v.variantBreadth || "",
-      variantDimensionunit: v.variantDimensionunit || "In",
-
-      variantWidth: v.variantWidth || "",
-      variantWidthUnit: v.variantWidthUnit || "kg",
-
-      variantMrp: toNumber(v.variantMrp),
-      variantCostPrice: toNumber(v.variantCostPrice),
-      variantSellingPrice: toNumber(v.variantSellingPrice),
-
-      variantDiscount: toNumber(v.variantDiscount),
-      variantDiscountUnit: v.variantDiscountUnit || "%",
-
-      variantAvailableStock: toNumber(v.variantAvailableStock),
-      variantLowStockAlertStock: toNumber(v.variantLowStockAlertStock),
-
-      variantImage: variantImageMap[idx] || [],
-      isSelected: false,
-    }));
-
-    /** -------------------------------
-     * 3) Parse festive tags
-     * ------------------------------- */
-    let parsedProductTags = [];
-
-    if (Array.isArray(productTags)) {
-      parsedProductTags = productTags;
-    } else if (typeof productTags === "string" && productTags.trim()) {
-      parsedProductTags = safeJsonParse(productTags, [productTags]);
-    }
-
-    /** -------------------------------
-     * 4) Create product doc
-     * ------------------------------- */
-    const safeRoute =
-      route ||
-      `/product/${makeSlug(productTittle)}-${String(SKU || "").toLowerCase()}`;
-
-    const productDoc = new Product({
-      uuid: uuid || randomUUID(),
-      route: safeRoute,
-
-      productTittle,
-      description: description || "",
-      status: status || "ACTIVE",
-
-      category,
-      subcategory: subcategory || "",
-      materialType: materialType || "",
-
-      isFestive: toBool(isFestive),
-      productBadge: productBadge || "",
-      productTags: parsedProductTags,
-
-      SKU,
-      variants: parsedVariants,
-
-      // only keep this if your schema supports it
-      images: productImages,
-    });
-
-    await productDoc.save();
-
-    return res.status(201).json({
-      success: true,
-      message: "Product created successfully",
-      product: productDoc,
-    });
-  } catch (err) {
-    console.error("Add Product Error:", err);
-    return res.status(500).json({
-      success: false,
-      error: err.message,
-    });
-  }
 };
 
-/** ----------------------------------------
- * GET /products/all
- * ---------------------------------------- */
-export const getAllProducts = async (req, res) => {
-  try {
-    const products = await Product.find();
-    return res.status(200).json(products);
-  } catch (err) {
-    return res.status(500).json({ error: err.message });
+const toNumber = (value, fallback = undefined) => {
+  if (value === undefined || value === null || value === "") {
+    return fallback;
   }
+
+  const parsedValue = Number(value);
+  return Number.isNaN(parsedValue) ? fallback : parsedValue;
 };
 
-/** ----------------------------------------
- * GET /products/category/:categoryName
- * ---------------------------------------- */
-export const getProductByCategory = async (req, res) => {
-  try {
-    const category = decodeURIComponent(req.params.categoryName).trim();
-
-    const products = await Product.find({ category }).populate({
-      path: "reviews",
-      populate: { path: "user", select: "name email profileImage" },
-    });
-
-    if (!products.length) {
-      return res.status(404).json({ message: "No products found" });
-    }
-
-    return res.json(products);
-  } catch (err) {
-    return res.status(500).json({ error: err.message });
+const toBoolean = (value, fallback = false) => {
+  if (value === undefined || value === null || value === "") {
+    return fallback;
   }
+
+  if (typeof value === "boolean") {
+    return value;
+  }
+
+  if (typeof value === "string") {
+    return value.toLowerCase() === "true";
+  }
+
+  return Boolean(value);
 };
 
-/** ----------------------------------------
- * GET /products/category/:categoryName/:subcategoryName
- * ---------------------------------------- */
-export const getProductsByCategoryAndSubcategory = async (req, res) => {
-  try {
-    const categoryName = decodeURIComponent(
-      req.params.categoryName || ""
-    ).trim();
+const toStringArray = (value) => {
+  const parsedValue = parseJSONField(value, value);
 
-    const subcategoryName = decodeURIComponent(
-      req.params.subcategoryName || ""
-    ).trim();
+  if (Array.isArray(parsedValue)) {
+    return parsedValue
+      .map((item) => item?.toString().trim())
+      .filter(Boolean);
+  }
 
-    const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  if (typeof parsedValue === "string") {
+    return parsedValue
+      .split(",")
+      .map((item) => item.trim())
+      .filter(Boolean);
+  }
 
-    const query = {
-      category: { $regex: `^${escapeRegex(categoryName)}$`, $options: "i" },
-    };
+  return [];
+};
 
-    if (subcategoryName) {
-      query.subcategory = {
-        $regex: `^${escapeRegex(subcategoryName)}$`,
-        $options: "i",
+const getVariantImageFiles = (files, index) => {
+  if (!files) {
+    return [];
+  }
+
+  if (Array.isArray(files)) {
+    return files.filter(
+      (file) => file.fieldname === `variantImages_${index}`,
+    );
+  }
+
+  return files[`variantImages_${index}`] || [];
+};
+
+const uploadImages = async (files, folder, fallbackAltText) => {
+  if (!files?.length) {
+    return [];
+  }
+
+  const uploadedImages = await Promise.all(
+    files.map(async (file, index) => {
+      const uploadedFile = await uploadImageToCloudinary(file.path, folder);
+
+      return {
+        url: uploadedFile.url,
+        publicId: uploadedFile.publicId,
+        altText: fallbackAltText,
+        isPrimary: index === 0,
+        displayOrder: index,
       };
-    }
+    }),
+  );
 
-    const products = await Product.find(query).populate({
-      path: "reviews",
-      populate: { path: "user", select: "name email profileImage" },
-    });
-
-    if (!products.length) {
-      return res.status(404).json({ message: "No products found" });
-    }
-
-    return res.status(200).json({ products });
-  } catch (err) {
-    return res.status(500).json({ error: err.message });
-  }
+  return uploadedImages;
 };
 
-/** ----------------------------------------
- * GET /products/product/:id
- * ---------------------------------------- */
-export const getProductDetails = async (req, res) => {
-  try {
-    const { id } = req.params;
+const resolveCategoryIds = async ({ categories, category, subcategory }) => {
+  const requestedCategories = [
+    ...toStringArray(categories),
+    ...(category ? [category] : []),
+    ...(subcategory ? [subcategory] : []),
+  ]
+    .map((item) => item.trim())
+    .filter(Boolean);
 
-    const product = await Product.findById(id).populate({
-      path: "reviews",
-      populate: { path: "user", select: "name email profileImage" },
-    });
-
-    if (!product) {
-      return res.status(404).json({ message: "Product not found" });
-    }
-
-    return res.json(product);
-  } catch (err) {
-    return res.status(500).json({ error: err.message });
+  if (!requestedCategories.length) {
+    return [];
   }
+
+  const uniqueRequestedCategories = [...new Set(requestedCategories)];
+
+  const categoryDocs = await Category.find({
+    $or: [
+      { _id: { $in: uniqueRequestedCategories.filter((item) => item.match(/^[0-9a-fA-F]{24}$/)) } },
+      { name: { $in: uniqueRequestedCategories.map((item) => item.toLowerCase()) } },
+      { slug: { $in: uniqueRequestedCategories.map(createSlug) } },
+    ],
+  }).select("_id");
+
+  return [...new Set(categoryDocs.map((doc) => doc._id.toString()))];
 };
 
-/** ----------------------------------------
- * GET /products/product/slug/:route
- * ---------------------------------------- */
-export const getProductByRoute = async (req, res) => {
-  try {
-    const { route } = req.params;
+export const addProduct = asyncHandler(async (req, res) => {
+  const {
+    name,
+    productTittle,
+    sku,
+    SKU,
+    slug,
+    shortDescription,
+    fullDescription,
+    description,
+    brand,
+    categories,
+    category,
+    subcategory,
+    attributes,
+    metaTitle,
+    metaDescription,
+    metaKeywords,
+    isActive,
+    isFeatured,
+    isNew,
+    variants,
+  } = req.body;
 
-    const product = await Product.findOne({ route }).populate({
-      path: "reviews",
-      populate: { path: "user", select: "name email profileImage" },
-    });
+  const productName = (name || productTittle || "").trim();
+  const productSku = (sku || SKU || "").trim().toUpperCase();
+  const productSlug = createSlug(slug || productName);
 
-    if (!product) {
-      return res.status(404).json({ message: "Product not found" });
-    }
-
-    return res.json(product);
-  } catch (err) {
-    return res.status(500).json({ error: err.message });
+  if (!productName) {
+    throw AppError.badRequest("Product name is required", "PRODUCT_NAME_REQUIRED");
   }
-};
 
-/** ----------------------------------------
- * GET /products/categories
- * ---------------------------------------- */
-export const getAllCategories = async (req, res) => {
-  try {
-    const categories = await Product.aggregate([
-      {
-        $group: {
-          _id: "$category",
-          subcategories: { $addToSet: "$subcategory" },
-        },
-      },
-      { $project: { name: "$_id", _id: 0, subcategories: 1 } },
-    ]);
-
-    return res.status(200).json({ categories });
-  } catch (err) {
-    console.error("Get Categories Error:", err);
-    return res.status(500).json({ error: err.message });
+  if (!productSku) {
+    throw AppError.badRequest("Product SKU is required", "PRODUCT_SKU_REQUIRED");
   }
-};
+
+  const parsedVariants = parseJSONField(variants, []);
+  if (!Array.isArray(parsedVariants) || !parsedVariants.length) {
+    throw AppError.badRequest(
+      "At least one product variant is required",
+      "PRODUCT_VARIANTS_REQUIRED",
+    );
+  }
+
+  const [existingSkuProduct, existingSlugProduct] = await Promise.all([
+    Product.findOne({ sku: productSku }).select("_id"),
+    Product.findOne({ slug: productSlug }).select("_id"),
+  ]);
+
+  if (existingSkuProduct) {
+    throw AppError.conflict("Product SKU already exists", "PRODUCT_SKU_EXISTS");
+  }
+
+  if (existingSlugProduct) {
+    throw AppError.conflict("Product slug already exists", "PRODUCT_SLUG_EXISTS");
+  }
+
+  const categoryIds = await resolveCategoryIds({ categories, category, subcategory });
+
+  const normalizedVariants = await Promise.all(
+    parsedVariants.map(async (variant, index) => {
+      const variantSku = (
+        variant?.sku ||
+        variant?.variantSkuId ||
+        variant?.SKU ||
+        ""
+      )
+        .toString()
+        .trim()
+        .toUpperCase();
+
+      if (!variantSku) {
+        throw AppError.badRequest(
+          `Variant SKU is required for variant ${index + 1}`,
+          "VARIANT_SKU_REQUIRED",
+        );
+      }
+
+      const mrpPrice = toNumber(variant?.mrpPrice ?? variant?.variantMrp);
+      const sellingPrice = toNumber(
+        variant?.sellingPrice ?? variant?.variantSellingPrice,
+      );
+
+      if (mrpPrice === undefined || sellingPrice === undefined) {
+        throw AppError.badRequest(
+          `MRP price and selling price are required for variant ${index + 1}`,
+          "VARIANT_PRICE_REQUIRED",
+        );
+      }
+
+      const variantImages = await uploadImages(
+        getVariantImageFiles(req.files, index),
+        "products/variants",
+        `${productName} variant ${index + 1}`,
+      );
+
+      return {
+        sku: variantSku,
+        size:
+          variant?.size ||
+          [variant?.variantLength, variant?.variantBreadth]
+            .filter(Boolean)
+            .join(" x ") ||
+          undefined,
+        color: variant?.color || variant?.variantColor || undefined,
+        material: variant?.material || variant?.variantType || brand || undefined,
+        weightKg: toNumber(variant?.weightKg ?? variant?.variantWidth),
+        dimensions:
+          variant?.dimensions ||
+          [
+            variant?.variantLength,
+            variant?.variantBreadth,
+            variant?.variantDimensionunit,
+          ]
+            .filter(Boolean)
+            .join(" x ") ||
+          undefined,
+        mrpPrice,
+        sellingPrice,
+        discountPercent: toNumber(
+          variant?.discountPercent ?? variant?.variantDiscount,
+        ),
+        stockQuantity: toNumber(
+          variant?.stockQuantity ?? variant?.variantAvailableStock,
+          0,
+        ),
+        isDefault: index === 0 || toBoolean(variant?.isDefault, false),
+        displayOrder: toNumber(variant?.displayOrder, index),
+        images: variantImages,
+      };
+    }),
+  );
+
+  const variantSkus = normalizedVariants.map((variant) => variant.sku);
+  const duplicateVariantSkus = variantSkus.filter(
+    (skuValue, index) => variantSkus.indexOf(skuValue) !== index,
+  );
+
+  if (duplicateVariantSkus.length) {
+    throw AppError.conflict(
+      "Variant SKUs must be unique within the product",
+      "DUPLICATE_VARIANT_SKU",
+    );
+  }
+
+  const existingVariantProduct = await Product.findOne({
+    "variants.sku": { $in: variantSkus },
+  }).select("_id");
+
+  if (existingVariantProduct) {
+    throw AppError.conflict(
+      "One or more variant SKUs already exist",
+      "VARIANT_SKU_EXISTS",
+    );
+  }
+
+  const parsedAttributes = parseJSONField(attributes, []);
+  const normalizedAttributes = Array.isArray(parsedAttributes)
+    ? parsedAttributes
+        .map((attribute, index) => ({
+          name: attribute?.name || attribute?.label || undefined,
+          value: attribute?.value || undefined,
+          displayOrder: toNumber(attribute?.displayOrder, index),
+        }))
+        .filter((attribute) => attribute.name && attribute.value)
+    : [];
+
+  const productPayload = {
+    sku: productSku,
+    name: productName,
+    slug: productSlug,
+    shortDescription: shortDescription || description || "",
+    fullDescription: fullDescription || description || "",
+    brand: brand || undefined,
+    categories: categoryIds,
+    variants: normalizedVariants,
+    attributes: normalizedAttributes,
+    metaTitle: metaTitle || productName,
+    metaDescription:
+      metaDescription ||
+      shortDescription ||
+      description ||
+      undefined,
+    metaKeywords: toStringArray(metaKeywords),
+    isActive: toBoolean(isActive, true),
+    isFeatured: toBoolean(isFeatured, false),
+    isNew: toBoolean(isNew, false),
+  };
+
+  const product = await Product.create(productPayload);
+
+  res.status(201).json({
+    success: true,
+    message: "Product created successfully",
+    data: product,
+  });
+});

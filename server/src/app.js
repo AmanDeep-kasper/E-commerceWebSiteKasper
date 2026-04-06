@@ -11,6 +11,7 @@ import authRouter from "./routes/authRoutes.js";
 import userRouter from "./routes/userRoutes.js";
 import categoryRouter from "./routes/categoryRoutes.js";
 import addressRouter from "./routes/addressRoutes.js";
+import productRouter from "./routes/productRoutes.js";
 
 // Middlewares
 import { errorHandler, notFoundHandler } from "./middlewares/errorHandler.js";
@@ -65,6 +66,7 @@ app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/category", categoryRouter);
 app.use("/api/v1/address", addressRouter);
+app.use("/api/v1/product", productRouter);
 
 // 404 Not Found Handler (must be after all routes)
 app.use(notFoundHandler);

@@ -54,6 +54,7 @@ const productVariantSchema = new mongoose.Schema(
     images: [
       {
         url: String,
+        publicId: String,
         altText: String,
         isPrimary: Boolean,
         displayOrder: Number,
@@ -62,6 +63,7 @@ const productVariantSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
+    versionKey: false,
   },
 );
 
@@ -119,6 +121,10 @@ const productSchema = new mongoose.Schema(
           type: String,
           required: true,
         },
+        publicId: {
+          type: String,
+          required: true,
+        },
         altText: String,
         isPrimary: {
           type: Boolean,
@@ -151,7 +157,7 @@ const productSchema = new mongoose.Schema(
       default: false,
     },
 
-    // Aggregated stats (denormalized for performance)
+    // Aggregated stats
     stats: {
       averageRating: {
         type: Number,
@@ -171,6 +177,7 @@ const productSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
+    versionKey: false,
   },
 );
 
