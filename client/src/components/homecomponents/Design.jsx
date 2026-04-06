@@ -7,6 +7,7 @@ import { ChevronRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useAnimation, motion, easeInOut } from "framer-motion";
 import { useNavigate } from "react-router";
+import BannerVideo from "../../assets/TopBannerImg/BannerVideo.mp4";
 
 function Design() {
   const [isHovered, setIsHovered] = useState(false);
@@ -79,114 +80,8 @@ function Design() {
   //   return () => clearInterval(interval);
   // }, [product1.image.length, controls]);
   return (
-    // <section
-    //   className=" relative lg:h-[478px] md:h-[320px] h-[200px] w-full overflow-hidden"
-    //   style={{
-    //     background:
-    //       "linear-gradient(to right, #D0A724, #E1CC44, #D8AF30, #F6D759, #E2BE35, #D1A816)",
-    //   }}
-    // >
-    //   {/* First Fade in then out */}
-    //   <div className="md:animate-[fadeIn_8s_ease-in-out_infinite] z-20 absolute  right-[5px] pl-[30px] pr-[75px] top-[5px] bottom-[5px] left-[5px] mr-[15px] flex md:flex-row flex-row-reverse justify-between items-center bg-[#F2EFEB] ">
-    //     <div>
-    //       <img className="md:static absolute md:w-auto md:h-auto w-[224px] h-[158px] right-0 top-6 md:z-0 z-10 md:rotate-0 -rotate-[30deg]" src={design} alt="" />
-    //     </div>
-    //     <div className="w-[598px] lg:h-[308px] md:h-[217px] flex flex-col justify-between z-20">
-    //       <Title
-    //         heading="text-[#3D3D3D] font-[700] font-playfair leading-[1.1] md:text-[35px]"
-    //         subHeading="lg:text-[20px] md:text-[15px] text-[#616161]"
-    //         subtitle="From butterflies to blessings — upload your idea or choose
-    //           elements you love, and we'll craft it into stunning laser-cut
-    //           art."
-    //         className="md:w-auto w-[283px] hero-title"
-    //       >
-    //         Design Your Own Metal Masterpiece
-    //       </Title>
-
-    //       {/* <div>
-    //         <button className="bg-[#1F1A18] text-white md:px-[30px] md:py-[10px] md:rounded-[10px] rounded-[5px] p-[5px] lg:text-[22px] md:text-[15px] text-[10px]">
-    //           Start customizing Now{" "}
-    //         </button>
-    //       </div> */}
-    //     </div>
-    //   </div>
-
-    //   {/* Fade out then in  */}
-    //   <div className="animate-[fadeIn_8s_ease-in-out_infinite] card-delay z-20 absolute  right-[5px] pl-[30px] pr-[75px] top-[5px] bottom-[5px] left-[5px] mr-[15px] hidden md:flex md:flex-row-reverse flex-row justify-evenly gap-8 items-center bg-[#F2EFEB]">
-    //     <div>
-    //       <img className="md:static absolute left-0 top-0 md:w-auto md:h-auto w-[200px] min-h-[158px]" src={design2} alt="" />
-    //     </div>
-    //     <div className="w-[598px] lg:h-[308px] md:h-[217px] flex flex-col justify-between">
-    //       <Title
-    //         heading="text-[#3D3D3D] font-[700] md:w-auto w-[283px] font-playfair leading-[1.1] md:text-[35px]"
-    //         subHeading="lg:text-[20px] md:text-[15px] text-[#616161]"
-    //         subtitle="Celebrate love, life, and the beauty of togetherness with
-    //           handcrafted wall art that speaks your story."
-    //           className="hero-title font-normal"
-    //       >
-    //         This Is Us — A Story Etched in Metal
-    //       </Title>
-    //       {/* <div>
-    //         <button className="bg-[#1F1A18] text-white md:px-[30px] md:py-[10px] p-[5px] md:rounded-[10px] rounded-[5px] lg:text-[22px] md:text-[15px] text-[10px]">
-    //           Start customizing Now{" "}
-    //         </button>
-    //       </div> */}
-    //     </div>
-    //   </div>
-    //   <div className="absolute  right-[-10px] pl-[30px] pr-[75px] top-[5px] bottom-[5px] left-[5px] mr-[15px] flex flex-row-reverse justify-evenly gap-8 items-center bg-[#F2EFEB]">
-    //     <div>
-    //       <img className="opacity-0" src={design2} alt="" />
-    //     </div>
-    //     <div className="opacity-0 w-[598px] h-[308px] md:h-[217px] flex flex-col justify-between">
-    //       <div>
-    //         <h1 className="text-[#3D3D3D] text-[40px] font-[500] hero-title">
-    //           This Is Us — A Story Etched in Metal
-    //         </h1>
-    //         <p className="text-[20px] text-[#616161]">
-    //           Celebrate love, life, and the beauty of togetherness with
-    //           handcrafted wall art that speaks your story.
-    //         </p>
-    //       </div>
-    //       {/* <div>
-    //         <button className="bg-[#1F1A18] text-white px-[30px] py-[10px] rounded-[10px]">
-    //           Start customizing Now{" "}
-    //         </button>
-    //       </div> */}
-    //     </div>
-    //   </div>
-    // </section>
-
-    <section className="lg:px-20 md:px-16 px-4 py-10">
-      {/* <div className="flex"> */}
-      {/* <div className="w-2/3">
-          <h1 className="text-[24px] sm:text-3xl md:text-[2.5rem] lg:text-[3rem] font-sans hero-title tracking-tight font-medium lg:w-[400px] !leading-[0.9]">
-            Design Your Own Metal Masterpiece
-          </h1>
-          <p className="text-[14px] sm:text-[18px] text-gray-800 lg:w-[400px]">
-            From butterflies to blessings — upload your idea or choose elements
-            you love, and we'll craft it into stunning laser-cut art.
-          </p>
-        </div> */}
-
-      <div className="flex flex-col lg:flex-row gap-2.5 lg:h-[600px]">
-        {/* Left big image */}
-        {/* <div className="relative overflow-hidden w-full lg:w-1/2">
-          <img
-            className="w-full h-[300px] lg:h-full object-cover rounded-md object-top"
-            src="/name1.jpg"
-            alt="Main"
-          /> */}
-        {/* <div className="absolute bottom-0 bg-white m-3 p-3 rounded-md shadow-md max-w-[90%]">
-            <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-sans font-medium tracking-tight !leading-tight">
-              Craft Metal Elegance
-            </h1>
-            <p className="text-sm sm:text-base md:text-lg text-gray-800">
-              Choose elements you love, and we’ll craft them into timeless metal
-              art.
-            </p>
-          </div> */}
-        {/* </div> */}
-
+    <section className="lg:px-0 md:px-0 px-0 py-0">
+      {/* <div className="flex flex-col lg:flex-row gap-2.5 lg:h-[600px]">
         <div className="relative group overflow-hidden w-full lg:w-1/2 rounded-md">
           <motion.div
             animate={controls3}
@@ -212,18 +107,8 @@ function Design() {
               {product3.description}
             </p>
           </div>
-          {/* <div
-            className="bg-[#D5E5F5] md:w-14 md:h-14 w-10 h-10 absolute md:top-4 md:right-4 top-2 right-2 border-2 border-[#1C3753] rounded-lg text-[#1C3753] flex items-center justify-center lg:opacity-0 group-hover:opacity-100 transition-all ease-in-out duration-300 cursor-pointer"
-            onClick={() => navigate(`/products/${product3.category}`)}
-          >
-            <ChevronRight
-              className="group-hover:-rotate-45 transition-all delay-150 duration-300"
-              size={34}
-            />
-          </div> */}
         </div>
 
-        {/* Right column images */}
         <div className="flex flex-col w-full lg:w-1/2 gap-2.5 lg:mt-0">
           <div className="grid grid-cols-2 h-[50%]  sm:min-h-max gap-2.5 overflow-hidden rounded-md">
             <div className="relative group overflow-hidden w-full h-full  object-cover rounded-md">
@@ -247,15 +132,7 @@ function Design() {
                   {product1.description}
                 </p>
               </div>
-              {/* <div
-                className="bg-[#D5E5F5] md:w-10 md:h-10 w-8 h-8 absolute md:top-4 md:right-4 top-2 right-2 rounded-lg border-2 border-[#1C3753]  text-[#1C3753] flex items-center justify-center lg:opacity-0 group-hover:opacity-100 transition-all ease-in-out duration-300 cursor-pointer"
-                onClick={() => navigate(`/products/${product1.category}`)}
-              >
-                <ChevronRight
-                  className="group-hover:-rotate-45 transition-all delay-150 duration-300"
-                  size={24}
-                />
-              </div> */}
+             
             </div>
             <div className="group relative overflow-hidden w-full h-max object-cover rounded-md">
               <motion.div
@@ -278,41 +155,19 @@ function Design() {
                   {product2.description}
                 </p>
               </div>
-              {/* <div
-                className="bg-[#D5E5F5] md:w-10 md:h-10 w-8 h-8 absolute md:top-4 md:right-4 top-2 right-2 border-2 border-[#1C3753]  rounded-lg text-[#1C3753] flex items-center justify-center lg:opacity-0 group-hover:opacity-100 transition-all ease-in-out duration-300 cursor-pointer"
-                onClick={() => navigate(`/products/${product2.category}`)}
-              >
-                <ChevronRight
-                  className="group-hover:-rotate-45 transition-all delay-150 duration-300"
-                  size={24}
-                />
-              </div> */}
+             
             </div>
           </div>
-          {/* <div className="grid grid-cols-3 gap-2.5">
-            <img
-              className="w-full h-[120px] sm:h-[150px] object-cover rounded-md"
-              src="/polygonAnimal4.jpg"
-              alt="Middle"
-            />
-            <img
-              className="w-full h-[120px] sm:h-[150px] object-cover rounded-md"
-              src="/polygonAnimal2.jpg"
-              alt="Middle"
-            />
-            <img
-              className="w-full h-[120px] sm:h-[150px] object-cover rounded-md"
-              src="/polygonAnimal3.jpg"
-              alt="Middle"
-            />
-          </div> */}
+          
 
           <div className="relative h-full bg-[#1C3753] border border-[#FFECD9] text-[#FFFFFF] rounded-lg px-4 py-4 max-lg:py-10 flex flex-col gap-4 justify-center group max-sm:items-center max-sm:text-center">
             <h2 className="w-[90%] text-[24px] sm:text-3xl md:text-[2.5rem] lg:text-[3rem] font-imprima  tracking-tight font-medium md:leading-[0.9] leading-[1]">
-             Elevate Your Walls with Precision
+              Elevate Your Walls with Precision
             </h2>
             <p className="text-[14px] text-[#FFFFFF] sm:text-[18px] w-[90%]">
-            Precision laser-cut metal designs crafted with sharp detail and refined finishes, built to elevate living rooms, bedrooms, and statement walls.
+              Precision laser-cut metal designs crafted with sharp detail and
+              refined finishes, built to elevate living rooms, bedrooms, and
+              statement walls.
             </p>
 
             {/* <div className="bg-black w-16 h-16 absolute top-4 right-4 rounded-lg text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all ease-in-out duration-300">
@@ -321,11 +176,47 @@ function Design() {
                 size={34}
               />
             </div> */}
-          </div>
+      {/* </div>
         </div>
-      </div>
+      </div> */}
+      <div className="relative w-full min-h-[300px] sm:min-h-[400px] md:min-h-[800px] overflow-hidden  ">
+        {/* Video */}
+        <video
+          className="w-full h-full absolute inset-0 object-cover"
+          src={BannerVideo}
+          autoPlay
+          loop
+          muted
+          playsInline
+        />
 
-      {/* </div> */}
+        {/* Optional dark overlay */}
+        {/* <div className="absolute inset-0 bg-black/35" /> */}
+
+        {/* <div className="absolute inset-0 z-10 flex items-center">
+          <div className="px-4 sm:px-6 md:px-10 lg:px-12 w-full max-w-[100%]">
+            <h1
+              className="font-montez w-full 
+          text-[28px] sm:text-[40px] md:text-[64px] lg:text-[96px]
+          leading-[1.1] tracking-wide
+          bg-gradient-to-r from-[#FD0019] via-[#0900FF] to-[#FD0019]
+          bg-clip-text text-transparent
+        "
+            >
+              Craft Your Own Masterpieces <br />
+              with Premium Resin
+            </h1>
+
+            <p className="mt-4 text-[14px] sm:text-[20px] text-white/90 max-w-[800px] leading-6 font-light">
+              Welcome to Happy Art Supplies, your trusted destination for
+              premium resin art materials in Bangalore and across India. We are
+              passionate about empowering artists, hobbyists, and small business
+              owners with high-quality resin supplies that inspire creativity
+              and bring artistic visions to life.
+            </p>
+          </div>
+        </div> */}
+      </div>
     </section>
   );
 }

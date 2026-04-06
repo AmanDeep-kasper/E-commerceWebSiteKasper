@@ -240,7 +240,7 @@ function TopProducts() {
   }, []);
 
   return (
-    <div className="px-2 bg-white shadow-sm rounded-lg">
+    <div className="lg:px-20 md:px-[60px] px-4 py-[23px]  bg-white shadow-sm rounded-lg">
       <div className="flex items-center">
         <Title className="md:items-start px-2">Featured Collection</Title>
         <Link

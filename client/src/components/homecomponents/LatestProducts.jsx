@@ -80,7 +80,7 @@ function LatestProducts() {
     );
   }
   return (
-    <div className="relative bg-white px-2 py-4 shadow-sm rounded-lg">
+    <div className="lg:px-20 md:px-[60px] px-4 py-[23px] relative bg-white  shadow-sm rounded-lg">
       <div className="flex items-center">
         <Title className="md:items-start px-2">Latest Products</Title>
         <Link

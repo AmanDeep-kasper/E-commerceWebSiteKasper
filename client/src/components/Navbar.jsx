@@ -15,6 +15,7 @@ import {
   LayoutDashboard,
   LogOut,
   LogIn,
+  MapPin,
 } from "lucide-react";
 import { Link, useNavigate, useSearchParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
@@ -196,6 +197,14 @@ function Navbar() {
                 Logo
               </h1> */}
               <img src={MainLog} alt="logo" />
+            </Link>
+            <Link to="/accounts/addresses">
+              <button className="flex items-center gap-1">
+                <MapPin size={16} />
+                <span className="text-sm lg:text-xs md:text-sm text-[#4C5562]">
+                  Add Delivery Location
+                </span>
+              </button>
             </Link>
           </div>
 
