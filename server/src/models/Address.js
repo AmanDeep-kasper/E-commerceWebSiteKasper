@@ -3,23 +3,94 @@ import mongoose from "mongoose";
 const addressSchema = new mongoose.Schema(
   {
     userId: {
-      type: mongoose.Schema.ObjectId,
-      ref: "users",
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
       required: true,
+      index: true,
     },
-    name: { type: String, required: true },
-    email: { type: String },
-    tag: { type: String, default: "Home" },
-    street: { type: String },
-    city: { type: String },
-    state: { type: String },
-    phone: { type: String },
-    zip: { type: String },
-    isDefault: { type: Boolean, default: false }, // ✅ New field
+
+    fullName: {
+      type: String,
+      required: [true, "Full name is required"],
+      trim: true,
+    },
+
+    phone: {
+      type: String,
+      required: [true, "Phone number is required"],
+      match: [/^[6-9]\d{9}$/, "Please provide a valid phone number"],
+    },
+
+    email: {
+      type: String,
+      lowercase: true,
+      trim: true,
+      match: [/^\S+@\S+\.\S+$/, "Please enter a valid email address"],
+    },
+
+    address: {
+      type: String,
+      required: [true, "Address is required"],
+      trim: true,
+    },
+
+    city: {
+      type: String,
+      required: [true, "City is required"],
+      trim: true,
+    },
+
+    state: {
+      type: String,
+      required: [true, "State is required"],
+      trim: true,
+    },
+
+    pinCode: {
+      type: String,
+      required: [true, "PIN code is required"],
+      match: [/^[0-9]{6}$/, "Please enter a valid 6-digit PIN code"],
+    },
+
+    addressType: {
+      type: String,
+      enum: ["home", "work", "other"],
+      default: "other",
+      index: true,
+    },
+
+    country: {
+      type: String,
+      default: "INDIA",
+      uppercase: true,
+      trim: true,
+    },
+
+    isDefault: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+
+    isActive: {
+      type: Boolean,
+      default: true,
+      index: true,
+    },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+    versionKey: false,
+  },
 );
 
-const Address = mongoose.model("address", addressSchema);
+// Compound Indexes
+addressSchema.index({ userId: 1, isDefault: 1 });
+addressSchema.index({ userId: 1, isActive: 1 });
+addressSchema.index({ userId: 1, addressType: 1 });
+addressSchema.index({ pinCode: 1, city: 1 });
+addressSchema.index({ userId: 1, createdAt: -1 });
+
+const Address = mongoose.model("Address", addressSchema);
 
 export default Address;

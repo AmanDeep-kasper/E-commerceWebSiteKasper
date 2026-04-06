@@ -20,7 +20,7 @@ import {
 } from "../validation/authValidation.js";
 import { validateRequest } from "../validation/validator.js";
 import { upload } from "../middlewares/multer.js";
-import { authenticate } from "../middlewares/authMiddleware.js";
+import { authenticate, authorize } from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
 
@@ -38,6 +38,7 @@ router.get("/me", authenticate, me);
 router.patch(
   "/change-password",
   authenticate,
+  authorize("user"),
   changePasswordValidation,
   validateRequest,
   changePassword,

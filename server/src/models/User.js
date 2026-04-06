@@ -42,6 +42,11 @@ const userSchema = new mongoose.Schema(
       match: [/^[6-9]\d{9}$/, "Please provide a valid phone number"],
     },
 
+    defaultAddress: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Address",
+    },
+
     resetPasswordToken: {
       type: String,
       index: true,

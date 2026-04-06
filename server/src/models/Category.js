@@ -46,7 +46,6 @@ const categorySchema = new mongoose.Schema(
 
     path: {
       type: String, // e.g., "home-decor/wall-art/metal-wall-art"
-      index: true,
     },
 
     metaTitle: String,
@@ -61,7 +60,6 @@ const categorySchema = new mongoose.Schema(
 // Indexes
 categorySchema.index({ name: 1 });
 categorySchema.index({ parentId: 1, displayOrder: 1 });
-categorySchema.index({ slug: 1 }, { unique: true });
 categorySchema.index({ path: 1 });
 categorySchema.index({ level: 1 });
 categorySchema.index({ isActive: 1, displayOrder: 1 });
