@@ -200,7 +200,10 @@ export const loginUser = asyncHandler(async (req, res) => {
 
   res.status(200).json({
     success: true,
-    message: "User logged in successfully",
+    message:
+      user.role === "admin"
+        ? "Admin logged in successfully"
+        : "User logged in successfully",
     user: {
       id: user._id,
       name: user.name,

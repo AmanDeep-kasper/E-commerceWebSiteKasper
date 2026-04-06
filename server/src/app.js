@@ -9,6 +9,7 @@ import env from "./config/env.js";
 // Routes
 import authRouter from "./routes/authRoutes.js";
 import userRouter from "./routes/userRoutes.js";
+import categoryRouter from "./routes/categoryRoutes.js";
 
 // Middlewares
 import { errorHandler, notFoundHandler } from "./middlewares/errorHandler.js";
@@ -61,6 +62,7 @@ app.get("/", (req, res) => {
 // Routes
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/user", userRouter);
+app.use("/api/v1/category", categoryRouter);
 
 // 404 Not Found Handler (must be after all routes)
 app.use(notFoundHandler);
