@@ -317,3 +317,49 @@ export const getAllCategories = asyncHandler(async (req, res) => {
     },
   });
 });
+
+//users controllers
+export const getAllCategoriesController = asyncHandler(async (req, res) => {
+  const { page = 1, limit = 10, parentId } = req.query;
+
+  const filter = {
+    isActive: true,
+  };
+  if (parentId !== undefined)
+    filter.parentId = parentId === "null" ? null : parentId;
+
+  // Pagination
+  const pageNum = parseInt(page);
+  const limitNum = parseInt(limit);
+  const skip = (pageNum - 1) * limitNum;
+
+  // Execute queries
+  const [categories, total] = await Promise.all([
+    Category.find(filter)
+      .populate(
+        "parentId",
+        "name slug path categoryImage description displayOrder",
+      )
+      .skip(skip)
+      .limit(limitNum)
+      .lean(),
+    Category.countDocuments(filter),
+  ]);
+
+  // Build hierarchical tree if no parent filter
+  let hierarchicalCategories = categories;
+  if (!parentId && parentId !== "null") {
+    hierarchicalCategories = buildCategoryTree(categories);
+  }
+
+  res.status(200).json({
+    success: true,
+    data: hierarchicalCategories,
+    pagination: {
+      page: pageNum,
+      limit: limitNum,
+      total,
+      pages: Math.ceil(total / limitNum),
+    },
+  });
+});

@@ -4,6 +4,7 @@ import {
   addCategory,
   deleteCategory,
   getAllCategories,
+  getAllCategoriesController,
   getCategoryDetails,
   updateCategory,
   updateCategoryStatus,
@@ -17,6 +18,7 @@ import { upload } from "../middlewares/multer.js";
 
 const router = express.Router();
 
+// admin routes
 router.post(
   "/admin/add-category",
   authenticate,
@@ -63,6 +65,12 @@ router.get(
   authenticate,
   authorize("admin"),
   getCategoryDetails,
+);
+
+// /users routes
+router.get(
+  "/all-categories",
+  getAllCategoriesController,
 );
 
 export default router;
