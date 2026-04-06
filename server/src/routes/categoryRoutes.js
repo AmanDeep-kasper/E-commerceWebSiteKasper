@@ -6,6 +6,7 @@ import {
   getAllCategories,
   getAllCategoriesController,
   getCategoryDetails,
+  getCategoryDetailsController,
   updateCategory,
   updateCategoryStatus,
 } from "../controllers/categoryController.js";
@@ -68,9 +69,8 @@ router.get(
 );
 
 // /users routes
-router.get(
-  "/all-categories",
-  getAllCategoriesController,
-);
+router.get("/all-categories", getAllCategoriesController);
+
+router.get("/detail/:categoryIdOrSlug", getCategoryDetailsController);
 
 export default router;
