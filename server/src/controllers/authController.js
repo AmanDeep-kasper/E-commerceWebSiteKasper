@@ -18,7 +18,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import AppError from "../utils/AppError.js";
 
 export const registerUser = asyncHandler(async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, phoneNumber } = req.body;
 
   const existingUser = await User.findOne({ email });
   if (existingUser) {
@@ -40,6 +40,7 @@ export const registerUser = asyncHandler(async (req, res) => {
     name,
     email,
     password,
+    phoneNumber,
     role: "user",
     otp,
     otpExpires,
@@ -103,11 +104,11 @@ export const verifyOTP = asyncHandler(async (req, res) => {
 });
 
 export const loginUser = asyncHandler(async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password, phoneNumber } = req.body;
 
   const user = await User.findOne({
-    email: email.trim().toLowerCase(),
-    isVerified: true,
+    $or: [{ email }, { phoneNumber }],
+    isActive: true,
   }).select("+password +loginAttempts +lockUntil");
 
   if (!user) {

@@ -36,6 +36,12 @@ export const registerValidation = [
     .withMessage(
       "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character",
     ),
+
+  body("phoneNumber")
+    .trim()
+    .matches(/^[6-9]\d{9}$/)
+    .withMessage("Phone number must be a valid 10-digit Indian number")
+    .customSanitizer((value) => value?.replace(/\s+/g, "")),
 ];
 
 export const otpValidation = [
@@ -58,6 +64,7 @@ export const otpValidation = [
 
 export const loginValidation = [
   body("email")
+    .optional()
     .notEmpty()
     .withMessage("Email is required")
     .trim()
@@ -70,6 +77,13 @@ export const loginValidation = [
     .withMessage("Please provide a valid email address"),
 
   body("password").notEmpty().withMessage("Password is required").trim(),
+
+  body("phoneNumber")
+    .optional()
+    .trim()
+    .matches(/^[6-9]\d{9}$/)
+    .withMessage("Phone number must be a valid 10-digit Indian number")
+    .customSanitizer((value) => value?.replace(/\s+/g, "")),
 ];
 
 export const changePasswordValidation = [
