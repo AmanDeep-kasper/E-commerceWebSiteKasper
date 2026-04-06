@@ -1,116 +1,112 @@
-import { Instagram, Twitter, Youtube, Facebook } from "lucide-react";
+// import { Instagram, Twitter, Youtube, Facebook } from "lucide-react";
 import { Link } from "react-router";
+import facebook from "../assets/img/facebook.png";
+import instagram from "../assets/img/instagram.png";
+import map from "../assets/img/googleMap.png";
+import footerImg from "../assets/img/FooterImg.png";
 
 function Footer() {
   return (
-    <section className="lg:px-20 md:px-[60px] px-4 py-[40px] bg-[#1C3753] text-white">
-      <div className="flex justify-between lg:flex-nowrap flex-wrap gap-4">
-        <div className="lg:w-[327px] w-[232px] flex flex-col gap-2">
-          <Link to="/">
-            <h1 className="font-[500] lg:text-[20px] text-[14.5px]">
-              Laser Cut Metal Art
+    <section className="relative  lg:px-20 md:px-[60px] px-4 py-[40px] bg-[#FAFAF8] text-[#2D2F31]">
+      <img
+        className="absolute inset-0 w-full h-full object-cover z-0 opacity-100"
+        src={footerImg}
+        alt=""
+      />
+      <div className="relative z-10 flex justify-between lg:flex-nowrap flex-wrap gap-4">
+        <div className="lg:w-[550px] w-[300px] flex flex-col gap-2">
+          <Link to="/home">
+            <h1 className="font-[500] font-marcellus lg:text-[20px] text-[14.5px] text-[#44546C]">
+              Happy Art Supplies
             </h1>
           </Link>
-          <p className="lg:text-[16px] text-[11.5px] font-[300]">
-            Premium laser cutting tools and accessories built for creators,
-            fabricators, and manufacturers who demand accuracy and durability.
+          <p className="lg:text-[14px] text-[11.5px] font-[300] text-[#7D8694] font-">
+            Happy Art Supplies offers premium resin art materials across India.
+            Since 2021, we’ve helped creators with quality supplies, reliable
+            service, and everything needed to bring ideas to life. ✨
           </p>
           <div>
-            <p className="font-[500] lg:text-[20px] text-[14.5px]">
-              Contact us on
+            <p className="text-[#44546C] text-[16px]">Contact us on</p>
+            <p className="font-[400] lg:text-sm text-sm">Sangeetha Banerjee</p>
+            <span className="text-sm">(+91) 98868 94723</span>
+            <br />
+            <span className="text-sm">happyartsupplies@gmail.com</span>
+            <p className="text-sm">
+              B402, Unites Crossandra, Hormavu Agara Lake Road
             </p>
-            <span>(+91) 3523623254</span>
-            <p>Monday - Sunday: 10:00 AM - 6:00 PM</p>
+            {/* <br /> */}
+            <p className="text-sm">
+              Horamavu, Bengaluru 560043, Karnataka, India
+            </p>
+            <div className="flex gap-3 font-[200] mt-2">
+              <img src={instagram} alt="" />
+              <img src={facebook} alt="" />
+              <img src={map} alt="" />
+            </div>
           </div>
         </div>
         <div className="flex flex-col gap-8">
           <div className="lg:w-[180px] w-[120px] flex flex-col gap-2">
-            <h1 className="font-[500] lg:text-[20px] text-[14.5px]">
+            <h1 className="font-[300] lg:text-[20px] text-[14.5px] text-[#44546C]">
               About Us
             </h1>
-            <ul className="font-[300] flex flex-col gap-2 lg:text-[16px] text-[11.5px]">
+            <ul className="font-[300] flex flex-col gap-2 lg:text-[16px] text-[11.5px] text-[#7D8694]">
               <Link to="/aboutUs">
-                <li>
-                  About Us
-                </li>
+                <li>About Us</li>
               </Link>
               <Link to="/shippingpolicy">
-                <li>
-                  Shipping Policy
-                </li>
+                <li>Shipping Policy</li>
               </Link>
               <Link to="/returnrefundpolicy">
-                <li>
-                  Return & Refund Policy
-                </li>
+                <li>Return & Refund Policy</li>
               </Link>
               <Link to="/policy">
-                <li>
-                  Privacy Policy
-                </li>
+                <li>Privacy Policy</li>
               </Link>
-              <li>
-                Contact Us
-              </li>
+              <li>Contact Us</li>
               <Link to="/faqs">
-                <li>
-                  FAQs
-                </li>
+                <li>FAQs</li>
               </Link>
             </ul>
           </div>
         </div>
         <div className="flex flex-col gap-8">
           <div className="lg:w-[180px] w-[120px] flex flex-col gap-2">
-            <h1 className="font-[500] lg:text-[20px] text-[14.5px]">Shop</h1>
-            <ul className="font-[300] flex flex-col gap-2 lg:text-[16px] text-[11.5px]">
+            <h1 className="font-[300]  lg:text-[20px] text-[14.5px] text-[#44546C]">
+              Shop
+            </h1>
+            <ul className="font-[300] flex flex-col gap-2 lg:text-[16px] text-[11.5px] text-[#7D8694]">
               <li>
-                <Link to="/products">
-                  Latest Products
-                </Link>
+                <Link to="/products">Latest Products</Link>
+              </li>
+              <li>Bestseller Collection</li>
+              <li>
+                <Link to="/products/top-products">Featured Collection</Link>
               </li>
               <li>
-                Bestseller Collection
-              </li>
-              <li>
-                <Link to="/products/top-products">
-                  Featured Collection
-                </Link>
-              </li>
-              <li>
-                <Link to="/products/Festive">
-                  Festive Occasions
-                </Link>
+                <Link to="/products/Festive">Festive Occasions</Link>
               </li>
             </ul>
           </div>
         </div>
 
         <div className="lg:w-[180px] w-[120px] flex flex-col gap-2">
-          <h1 className="font-[500] lg:text-[20px] text-[14.5px]">Account</h1>
-          <ul className="lg:text-[16px] text-[11.5px] font-[300] flex flex-col gap-2">
+          <h1 className="font-[300] lg:text-[20px] text-[14.5px] text-[#44546C]">
+            Account
+          </h1>
+          <ul className="lg:text-[16px] text-[11.5px] font-[300] flex flex-col gap-2 text-[#7D8694]">
             <li>
-              <Link to="/accounts/details">
-                My Account
-              </Link>
+              <Link to="/accounts/details">My Account</Link>
+            </li>
+            <li>My Cart</li>
+            <li>
+              <Link to="/accounts/order-history">My Orders</Link>
             </li>
             <li>
-              My Cart
+              <Link to="/accounts/wishlist">Wishlist</Link>
             </li>
             <li>
-              <Link to="/accounts/order-history">
-                My Orders
-              </Link>
-            </li>
-            <li>
-              <Link to="/accounts/wishlist">
-                Wishlist
-              </Link>
-            </li>
-            <li>
-              <Link to="/accounts/addresses">
-                Manage Addresses
-              </Link>
+              <Link to="/accounts/addresses">Manage Addresses</Link>
             </li>
           </ul>
         </div>
@@ -134,7 +130,7 @@ function Footer() {
             </div>
           </div> */}
 
-          <div className="flex flex-col gap-4">
+          {/* <div className="flex flex-col gap-4">
             <h1 className="font-[500] lg:text-[25px] text-[17.5px]">
               Connect With Us
             </h1>
@@ -152,21 +148,17 @@ function Footer() {
                 <Youtube size={27} strokeWidth={1.5} />
               
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
-      <div className="flex justify-between py-[20px] border-t-[1px] border-[#495F75] mt-4">
-        <p className="lg:text-[16px] text-[11.5px]">
+      <div className="flex justify-between py-[20px] border-t-[1px] border-[#ACACAC] mt-4">
+        <p className="lg:text-sm text-xs text-[#2D2F31]">
           © 2026 Kasper Infotech. All rights reserved.
         </p>
         <ul className="flex md:gap-4 gap-1 font-[400] lg:text-[16px] text-[11.5px]">
-          <li>
-            <Link to="/termsconditions">
-            Terms & Conditions
-            </Link>
+          <li className="lg:text-sm text-xs text-[#2D2F31]">
+            <Link to="/termsconditions">Terms & Conditions</Link>
           </li>
-          {/* <li><a href="">Privacy</li>
-                    <li><a href="">Cookies</li> */}
         </ul>
       </div>
     </section>

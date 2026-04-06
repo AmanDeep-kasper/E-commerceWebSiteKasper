@@ -243,7 +243,7 @@ function CategoryProducts() {
         className="grid 
         xl:grid-cols-4 lg:grid-cols-3 md:grid-cols-3 sm:grid-cols-2 grid-cols-1 
         gap-2 md:gap-5 lg:gap-4 grid-flow-row
-        place-items-center"
+        place-items-center lg:px-20 md:px-[60px] px-4 py-[23px]"
       >
         {Object.entries(groupedProducts)
           .slice(0, visibleCount)
