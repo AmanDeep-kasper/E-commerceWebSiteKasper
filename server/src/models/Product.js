@@ -152,10 +152,6 @@ const productSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    isNew: {
-      type: Boolean,
-      default: false,
-    },
 
     // Aggregated stats
     stats: {
@@ -183,7 +179,6 @@ const productSchema = new mongoose.Schema(
 
 // Indexes for performance
 productSchema.index({ name: "text", shortDescription: "text" });
-productSchema.index({ "variants.sku": 1 });
 productSchema.index({ "variants.sellingPrice": 1 });
 productSchema.index({ createdAt: -1 });
 productSchema.index({ "stats.averageRating": -1 });

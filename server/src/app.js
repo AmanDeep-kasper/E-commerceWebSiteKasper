@@ -2,7 +2,6 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import helmet from "helmet";
-import rateLimit from "express-rate-limit";
 import hpp from "hpp";
 import env from "./config/env.js";
 
@@ -15,6 +14,9 @@ import productRouter from "./routes/productRoutes.js";
 
 // Middlewares
 import { errorHandler, notFoundHandler } from "./middlewares/errorHandler.js";
+
+// Rate limiting
+import { authLimiter, globalLimiter } from "./utils/rateLimit.js";
 
 const app = express();
 
@@ -39,15 +41,8 @@ app.use(
 );
 
 // Rate limiting
-const globalLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: "Too many requests from this IP, please try again later.",
-});
-
 app.use(globalLimiter);
+app.use("/api/v1/auth/login", authLimiter);
 
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
