@@ -16,6 +16,7 @@ export default {
       fontFamily: {
         montez: ["Montez", "cursive"],
         inter: ["Inter", "sans-serif"],
+        marcellus: ["'Marcellus SC'", "cursive"],
       },
       screens: {
         xs: "393px",

@@ -16,8 +16,23 @@ import {
   formatPrice,
 } from "../../utils/homePageUtils";
 
+{/* <================--------- icons ----------=====================> */ }
+import { IoDiamond } from "react-icons/io5";
+import { GoStarFill } from "react-icons/go";
+import { IoEarthSharp } from "react-icons/io5";
+import { MdOutlineKeyboardArrowLeft, MdOutlineKeyboardArrowRight } from "react-icons/md";
+
+{/* <================--------- Images ----------=====================> */ }
+import resin from "../../assets/img/1.png";
+import mold from "../../assets/img/2.jpg";
+import pigment from "../../assets/img/3.jpg";
+import tool from "../../assets/img/4.png";
+import brush from "../../assets/img/5.png";
+import glitter from "../../assets/img/6.jpg";
+
 function Collection() {
   const ref = useRef(null);
+  const sliderRef = useRef(null);
   const [leftArrow, setLeftArrow] = useState(false);
   const [rightArrow, setRightArrow] = useState(true);
   const [temp, setTemp] = useState(270);
@@ -174,26 +189,73 @@ function Collection() {
     );
   });
 
+  const categories = [
+    { id: 1, name: "Resin", img: resin },
+    { id: 2, name: "Molds", img: mold },
+    { id: 3, name: "Pigments", img: pigment },
+    { id: 4, name: "Tools", img: tool },
+    { id: 5, name: "Brushes", img: brush },
+    { id: 6, name: "Glitters", img: glitter },
+    { id: 7, name: "Resin", img: resin },
+    { id: 8, name: "Brushes", img: brush },
+    { id: 9, name: "Glitters", img: glitter },
+    { id: 10, name: "Resin", img: resin },
+    { id: 11, name: "Resin", img: resin },
+  ];
+
+  const [startIndex, setStartIndex] = useState(0);
+  const visibleCount = 7;
+  const step = 1;
+
+  const scrollRight = () => {
+    setStartIndex((prev) => {
+      const maxIndex = categories.length - visibleCount;
+      return prev + step > maxIndex ? maxIndex : prev + step;
+    });
+  };
+
+  const scrollLeft = () => {
+    setStartIndex((prev) => {
+      return prev - step < 0 ? 0 : prev - step;
+    });
+  };
+
   return (
-    <section className="relative pt-[22px] pb-6 group bg-gray-50">
-      <div>;k;dk;dk;dk;kd;d;</div>
+    <section className="relative pb-6 group bg-gray-50">
+      <div className="flex flex-wrap justify-center sm:justify-between items-center gap-4 mt-8 px-4 sm:px-6 lg:px-48 py-3 bg-[#E6FFD9] rounded-lg">
+        <div className="flex items-center gap-2 text-[12px] sm:text-[14px] text-[#1B4C00]">
+          <IoDiamond />
+          <span>Premium Quality Resin</span>
+        </div>
+
+        <div className="flex items-center gap-2 text-[12px] sm:text-[14px] text-[#1B4C00]">
+          <GoStarFill />
+          <span>Bubble Free Finish</span>
+        </div>
+
+        <div className="flex items-center gap-2 text-[12px] sm:text-[14px] text-[#1B4C00]">
+          <IoEarthSharp />
+          <span>Pan India Delivery</span>
+        </div>
+      </div>
+      {/* <========------ slider -------=========> */}
       <div className="mx-auto bg-white px-4 py-10">
         <div className="max-w-4xl mx-auto text-center mb-12">
           <div className="flex justify-center mb-4">
-            <div className="w-12 h-1 bg-[#1C3753]"></div>
+            {/* <div className="w-12 h-1 bg-[#1C3753]"></div> */}
           </div>
-          <h1 className="text-2xl md:text-3xl lg:text-4xl font-light text-gray-800 mb-3">
-            Explore Our{" "}
-            <span className="font-serif italic text-[#1C3753]">
+          <span className="lg:text-[24px] md:text-[20px] text-[16px] font-marcellus text-[#1800AC] mb-3">
+            Shop By Category
+            {/* <span className="font-serif italic text-[#1C3753]"> 
               Masterpieces
-            </span>
-          </h1>
-          <p className="text-gray-600 md:text-lg text-sm">
+             </span> */}
+          </span>
+          {/* <p className="text-gray-600 md:text-lg text-sm">
             Customer Picks This Week
-          </p>
+          </p> */}
         </div>
 
-        <div className="relative">
+        {/* <div className="relative">
           <Swiper
             modules={[Navigation]}
             spaceBetween={16}
@@ -203,7 +265,7 @@ function Collection() {
               prevEl: ".collections-prev",
             }}
             loop={false}
-            className="pb-6"
+            className="pb-6 "
           >
             {collections.map((p, index) => {
               const key = p.uuid || p.id || p.SKU || `collection-${index}`;
@@ -217,7 +279,7 @@ function Collection() {
                   <Link
                     className=" border block group/image h-full rounded-md shadow-sm"
                     // to={getProductUrl(p)}
-                    to={`/product/${p._id}`} 
+                    to={`/product/${p._id}`}
                   >
                     <div className="relative w-full h-[224px] max-sm:h-40 overflow-hidden">
                       <img
@@ -272,7 +334,6 @@ function Collection() {
             })}
           </Swiper>
 
-          {/* ✅ Navigation Buttons */}
           <button className="collections-prev absolute -left-4 top-1/2 -translate-y-1/2 w-10 h-16 flex items-center justify-center bg-[#D5E5F5] shadow-sm hover:bg-gray-50 transition-all duration-200 z-10 border border-gray-200">
             <ChevronLeft size={20} className="text-gray-600" />
           </button>
@@ -280,6 +341,41 @@ function Collection() {
           <button className="collections-next absolute -right-4 top-1/2 -translate-y-1/2 w-10 h-16 flex items-center justify-center bg-[#D5E5F5] shadow-sm hover:bg-gray-50 transition-all duration-200 z-10 border border-gray-200">
             <ChevronRight size={20} className="text-gray-600" />
           </button>
+        </div> */}
+        {/* <========-------- Category --------=========> */}
+        <div className="flex justify-center items-center mt-6">
+          <span onClick={scrollLeft} className="cursor-pointer p-2">
+            <MdOutlineKeyboardArrowLeft size={28} />
+          </span>
+          <div
+            ref={sliderRef}
+            className="flex gap-6 overflow-hidden"
+          >
+            {categories.slice(startIndex, startIndex + visibleCount).map((item) => (
+              <div
+                key={item.id}
+                className=""
+              >
+                <div className="flex flex-col items-center gap-3">
+                  <div className="w-[150px] h-[150px] rounded overflow-hidden transition-all duration-1000">
+                    <img
+                      src={item.img}
+                      alt={item.name}
+                      className="w-full h-full object-cover hover:scale-110 transition duration-300 cursor-pointer"
+                    />
+                  </div>
+                  <span className="text-[14px] sm:text-[16px] text-center">
+                    {item.name}
+                  </span>
+
+                </div>
+              </div>
+            ))}
+          </div>
+          <span onClick={scrollRight} className="cursor-pointer p-2">
+            <MdOutlineKeyboardArrowRight size={28} />
+          </span>
+
         </div>
       </div>
     </section>
