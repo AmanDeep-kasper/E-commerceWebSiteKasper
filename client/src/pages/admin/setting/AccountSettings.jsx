@@ -175,7 +175,7 @@ const AccountSettings = () => {
                   </span>
                 )}
 
-                {device.current && (
+                {/* {device.current && (
                   <button
                     onClick={handleLogoutClick}
                     className="flex items-center gap-2 border border-[#1F3B5B] text-[#1F3B5B] text-[14px] font-medium px-4 py-1 rounded-[6px]"
@@ -183,7 +183,7 @@ const AccountSettings = () => {
                     <LogOut size={16} />
                     Log Out
                   </button>
-                )}
+                )} */}
               </div>
             </div>
           ))}
