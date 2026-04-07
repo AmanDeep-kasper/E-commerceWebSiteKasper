@@ -155,22 +155,32 @@ export const addProductToCollection = asyncHandler(async (req, res) => {
   const { collectionId } = req.params;
   const { products } = req.body;
 
-  const collection = await Collection.findById(collectionId);
+  // Validate products exist
+  const validProducts = await Product.find({
+    _id: { $in: products },
+  }).select("_id");
 
-  if (!collection) {
+  if (validProducts.length !== products.length) {
+    throw AppError.badRequest("Some products are invalid", "INVALID_PRODUCTS");
+  }
+
+  const updatedCollection = await Collection.findByIdAndUpdate(
+    collectionId,
+    {
+      $addToSet: { products: { $each: products } },
+    },
+    { new: true },
+  );
+
+  if (!updatedCollection) {
     throw AppError.notFound("Collection not found", "NOT_FOUND");
   }
 
-  const product = await Product.findById(products);
-
-  if (!product) {
-    throw AppError.notFound("Product not found", "NOT_FOUND");
-  }
-
-  if (!collection.products.includes(products)) {
-    collection.products.push(products);
-    await collection.save();
-  }
+  res.status(200).json({
+    success: true,
+    message: "Products added to collection successfully",
+    data: updatedCollection,
+  });
 });
 
 export const removeProductFromCollection = asyncHandler(async (req, res) => {
