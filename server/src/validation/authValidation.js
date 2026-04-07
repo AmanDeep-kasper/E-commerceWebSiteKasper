@@ -63,27 +63,22 @@ export const otpValidation = [
 ];
 
 export const loginValidation = [
-  body("email")
-    .optional()
+  body("identifier")
     .notEmpty()
-    .withMessage("Email is required")
+    .withMessage("Email or phone number is required")
     .trim()
-    .isEmail()
-    .withMessage("Please provide a valid email address")
-    .normalizeEmail({
-      gmail_remove_dots: false,
-    })
-    .matches(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/)
-    .withMessage("Please provide a valid email address"),
+    .custom((value) => {
+      const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+      const isPhone = /^[6-9]\d{9}$/.test(value);
+
+      if (!isEmail && !isPhone) {
+        throw new Error("Please provide a valid email or phone number");
+      }
+
+      return true;
+    }),
 
   body("password").notEmpty().withMessage("Password is required").trim(),
-
-  body("phoneNumber")
-    .optional()
-    .trim()
-    .matches(/^[6-9]\d{9}$/)
-    .withMessage("Phone number must be a valid 10-digit Indian number")
-    .customSanitizer((value) => value?.replace(/\s+/g, "")),
 ];
 
 export const changePasswordValidation = [

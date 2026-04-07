@@ -37,6 +37,9 @@ export const getUserDetails = asyncHandler(async (req, res) => {
       phoneNumber: user.phoneNumber,
       dateOfBirth: user.dateOfBirth,
       gender: user.gender,
+      defaultAddress: user.defaultAddress,
+      lastLogin: user.lastLogin,
+      lastLoginDevice: user.lastLoginDevice,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     },
@@ -297,7 +300,7 @@ export const getAllUsers = asyncHandler(async (req, res) => {
   const [users, totalUsers] = await Promise.all([
     User.find(query)
       .select(
-        "_id name email phoneNumber isVerified role profileImage dateOfBirth gender isActive lastLogin lastLoginDevice lastLoginIP loginAttempts",
+        "_id name email phoneNumber isVerified role profileImage dateOfBirth gender defaultAddress isActive lastLogin lastLoginDevice lastLoginIP loginAttempts",
       )
       .sort({ createdAt: -1 })
       .skip(skip)

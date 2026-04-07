@@ -54,14 +54,14 @@ const productVariantSchema = new mongoose.Schema(
   {
     timestamps: true,
     versionKey: false,
-  }
+  },
 );
 
 // Pre-save middleware for variant discount calculation
 productVariantSchema.pre("save", function (next) {
   if (this.mrpPrice && this.sellingPrice) {
     this.discountPercent = Number(
-      (((this.mrpPrice - this.sellingPrice) / this.mrpPrice) * 100).toFixed(2)
+      (((this.mrpPrice - this.sellingPrice) / this.mrpPrice) * 100).toFixed(2),
     );
   }
   next();
@@ -157,6 +157,11 @@ const productSchema = new mongoose.Schema(
       default: false,
       index: true,
     },
+    isLatest: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
 
     // Aggregated stats
     stats: {
@@ -217,7 +222,7 @@ const productSchema = new mongoose.Schema(
   {
     timestamps: true,
     versionKey: false,
-  }
+  },
 );
 
 // ==================== INDEXES ====================
@@ -242,35 +247,35 @@ productSchema.index({ "priceRange.min": 1, "priceRange.max": 1 });
 productSchema.pre("save", async function (next) {
   if (!this.slug && this.name) {
     this.slug = this.name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
-    
+
     // Check for duplicate slug
-    const existingProduct = await mongoose.model("Product").findOne({ 
-      slug: this.slug, 
-      _id: { $ne: this._id } 
+    const existingProduct = await mongoose.model("Product").findOne({
+      slug: this.slug,
+      _id: { $ne: this._id },
     });
-    
+
     if (existingProduct) {
       this.slug = `${this.slug}-${Date.now()}`;
     }
   }
-  
+
   // Update price range before saving
   if (this.variants && this.variants.length > 0) {
-    const prices = this.variants.map(v => v.sellingPrice);
+    const prices = this.variants.map((v) => v.sellingPrice);
     this.priceRange = {
       min: Math.min(...prices),
       max: Math.max(...prices),
     };
     this.avgSellingPrice = prices.reduce((a, b) => a + b, 0) / prices.length;
   }
-  
+
   next();
 });
 
 // Post-save middleware to ensure only one default variant
 productSchema.post("save", async function (doc) {
-  const defaultVariants = doc.variants.filter(v => v.isDefault);
-  
+  const defaultVariants = doc.variants.filter((v) => v.isDefault);
+
   if (defaultVariants.length > 1) {
     // Keep only the first default variant
     let firstDefault = true;
@@ -295,23 +300,26 @@ productSchema.post("save", async function (doc) {
 
 // Get default variant
 productSchema.methods.getDefaultVariant = function () {
-  return this.variants.find(v => v.isDefault) || this.variants[0];
+  return this.variants.find((v) => v.isDefault) || this.variants[0];
 };
 
 // Get in-stock variants
 productSchema.methods.getInStockVariants = function () {
-  return this.variants.filter(v => v.stockQuantity > 0);
+  return this.variants.filter((v) => v.stockQuantity > 0);
 };
 
 // Check if product is in stock
 productSchema.methods.isInStock = function () {
-  return this.variants.some(v => v.stockQuantity > 0);
+  return this.variants.some((v) => v.stockQuantity > 0);
 };
 
 // Update average rating
 productSchema.methods.updateRating = async function () {
   if (this.reviews && this.reviews.length > 0) {
-    const totalRating = this.reviews.reduce((sum, review) => sum + review.rating, 0);
+    const totalRating = this.reviews.reduce(
+      (sum, review) => sum + review.rating,
+      0,
+    );
     this.stats.averageRating = totalRating / this.reviews.length;
     this.stats.totalReviews = this.reviews.length;
     await this.save();
@@ -321,12 +329,12 @@ productSchema.methods.updateRating = async function () {
 
 // Get lowest price
 productSchema.methods.getLowestPrice = function () {
-  return Math.min(...this.variants.map(v => v.sellingPrice));
+  return Math.min(...this.variants.map((v) => v.sellingPrice));
 };
 
 // Get highest price
 productSchema.methods.getHighestPrice = function () {
-  return Math.max(...this.variants.map(v => v.sellingPrice));
+  return Math.max(...this.variants.map((v) => v.sellingPrice));
 };
 
 // ==================== STATIC METHODS ====================
@@ -336,7 +344,7 @@ productSchema.statics.getFeatured = async function (limit = 10) {
   return this.find({ isActive: true, isFeatured: true })
     .sort({ createdAt: -1 })
     .limit(limit)
-    .populate('categories', 'name slug');
+    .populate("categories", "name slug");
 };
 
 // Get products by category
@@ -347,43 +355,48 @@ productSchema.statics.getByCategory = async function (categoryId, limit = 20) {
 };
 
 // Search products
-productSchema.statics.searchProducts = async function (searchTerm, filters = {}) {
+productSchema.statics.searchProducts = async function (
+  searchTerm,
+  filters = {},
+) {
   const query = {
     $text: { $search: searchTerm },
     isActive: true,
     ...filters,
   };
-  
+
   return this.find(query)
     .sort({ score: { $meta: "textScore" } })
-    .populate('categories', 'name slug');
+    .populate("categories", "name slug");
 };
 
 // ==================== VIRTUAL FIELDS ====================
 
-productSchema.virtual('hasVariants').get(function () {
+productSchema.virtual("hasVariants").get(function () {
   return this.variants.length > 1;
 });
 
-productSchema.virtual('totalStock').get(function () {
+productSchema.virtual("totalStock").get(function () {
   return this.variants.reduce((sum, v) => sum + (v.stockQuantity || 0), 0);
 });
 
-productSchema.virtual('isLowStock').get(function () {
+productSchema.virtual("isLowStock").get(function () {
   return this.totalStock > 0 && this.totalStock <= 10;
 });
 
-productSchema.virtual('availableFilters').get(function () {
+productSchema.virtual("availableFilters").get(function () {
   return {
-    sizes: [...new Set(this.variants.map(v => v.size).filter(Boolean))],
-    colors: [...new Set(this.variants.map(v => v.color).filter(Boolean))],
-    materials: [...new Set(this.variants.map(v => v.material).filter(Boolean))],
+    sizes: [...new Set(this.variants.map((v) => v.size).filter(Boolean))],
+    colors: [...new Set(this.variants.map((v) => v.color).filter(Boolean))],
+    materials: [
+      ...new Set(this.variants.map((v) => v.material).filter(Boolean)),
+    ],
   };
 });
 
 // Ensure virtuals are included in JSON output
-productSchema.set('toJSON', { virtuals: true });
-productSchema.set('toObject', { virtuals: true });
+productSchema.set("toJSON", { virtuals: true });
+productSchema.set("toObject", { virtuals: true });
 
 const Product = mongoose.model("Product", productSchema);
 

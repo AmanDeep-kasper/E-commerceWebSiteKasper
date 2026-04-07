@@ -11,12 +11,13 @@ import userRouter from "./routes/userRoutes.js";
 import categoryRouter from "./routes/categoryRoutes.js";
 import addressRouter from "./routes/addressRoutes.js";
 import productRouter from "./routes/productRoutes.js";
+import collectionRouter from "./routes/collectionRoutes.js";
 
 // Middlewares
 import { errorHandler, notFoundHandler } from "./middlewares/errorHandler.js";
 
 // Rate limiting
-import { authLimiter, globalLimiter } from "./utils/rateLimit.js";
+import { /**authLimiter,**/ globalLimiter } from "./utils/rateLimit.js";
 
 const app = express();
 
@@ -42,10 +43,13 @@ app.use(
 
 // Rate limiting
 app.use(globalLimiter);
-app.use("/api/v1/auth/login", authLimiter);
+// app.use("/api/v1/auth/login", authLimiter);
 
+// json parser
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+
+// cookie parser
 app.use(cookieParser());
 app.use(express.static("public"));
 
@@ -62,11 +66,12 @@ app.use("/api/v1/user", userRouter);
 app.use("/api/v1/category", categoryRouter);
 app.use("/api/v1/address", addressRouter);
 app.use("/api/v1/product", productRouter);
+app.use("/api/v1/collection", collectionRouter);
 
-// 404 Not Found Handler (must be after all routes)
+// 404 Not Found Handler
 app.use(notFoundHandler);
 
-// Global Error Handler (must be last, after all other middleware)
+// Global Error Handler
 app.use(errorHandler);
 
 export default app;

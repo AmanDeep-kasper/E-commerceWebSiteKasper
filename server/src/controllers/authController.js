@@ -104,12 +104,21 @@ export const verifyOTP = asyncHandler(async (req, res) => {
 });
 
 export const loginUser = asyncHandler(async (req, res) => {
-  const { email, password, phoneNumber } = req.body;
+  const { identifier, password } = req.body;
+  console.log(identifier);
+  
 
-  const user = await User.findOne({
-    $or: [{ email }, { phoneNumber }],
-    isActive: true,
-  }).select("+password +loginAttempts +lockUntil");
+  let query = { isActive: true };
+
+  if (identifier.includes("@")) {
+    query.email = identifier;
+  } else {
+    query.phoneNumber = identifier;
+  }
+
+  const user = await User.findOne(query).select(
+    "+password +loginAttempts +lockUntil",
+  );
 
   if (!user) {
     await bcryptDummy(password);
