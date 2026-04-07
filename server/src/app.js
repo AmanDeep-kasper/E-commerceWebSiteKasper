@@ -12,6 +12,7 @@ import categoryRouter from "./routes/categoryRoutes.js";
 import addressRouter from "./routes/addressRoutes.js";
 import productRouter from "./routes/productRoutes.js";
 import collectionRouter from "./routes/collectionRoutes.js";
+import reviewRouter from "./routes/reviewRoutes.js";
 
 // Middlewares
 import { errorHandler, notFoundHandler } from "./middlewares/errorHandler.js";
@@ -67,6 +68,7 @@ app.use("/api/v1/category", categoryRouter);
 app.use("/api/v1/address", addressRouter);
 app.use("/api/v1/product", productRouter);
 app.use("/api/v1/collection", collectionRouter);
+app.use("/api/v1/review", reviewRouter);
 
 // 404 Not Found Handler
 app.use(notFoundHandler);

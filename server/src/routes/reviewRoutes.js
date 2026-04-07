@@ -1,28 +1,32 @@
 import express from "express";
+import { authenticate, authorize } from "../middlewares/authMiddleware.js";
+import { upload } from "../middlewares/multer.js";
 import {
   addReview,
-  getProductReviews,
-  getReview,
-  updateReview,
   deleteReview,
-  likeReview,
-  dislikeReview,
+  getAllProductReviews,
+  getReview,
 } from "../controllers/reviewController.js";
-import { isAuthenticated, isAdmin } from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
 
-// ✅ Public routes
-router.get("/product/:productId", getProductReviews);
-router.get("/:id", getReview);
+router.post(
+  "/add-review/:productId",
+  authenticate,
+  authorize("user"),
+  upload.array("reviewImages", 5),
+  addReview,
+);
 
-// ✅ isAuthenticateded routes
-router.post("/", isAuthenticated, addReview);
-router.put("/:id", isAuthenticated, updateReview);
-router.delete("/:id", isAuthenticated, deleteReview);
+router.get("/get-review/:reviewId", authenticate, authorize("user"), getReview);
 
-// ✅ Like/Dislike
-router.put("/:id/like", isAuthenticated, likeReview);
-router.put("/:id/dislike", isAuthenticated, dislikeReview);
+router.delete(
+  "/delete-review/:reviewId",
+  authenticate,
+  authorize("user"),
+  deleteReview,
+);
+
+router.get("/all-product-reviews/:productId", getAllProductReviews);
 
 export default router;
