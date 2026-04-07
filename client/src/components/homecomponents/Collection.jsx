@@ -221,7 +221,7 @@ function Collection() {
   };
 
   return (
-    <section className="relative pb-6 group bg-gray-50">
+    <section className="relative group bg-[#F6F8F9]">
       <div className="flex flex-wrap justify-center sm:justify-between items-center gap-4 mt-8 px-4 sm:px-6 lg:px-48 py-3 bg-[#E6FFD9] rounded-lg">
         <div className="flex items-center gap-2 text-[12px] sm:text-[14px] text-[#1B4C00]">
           <IoDiamond />

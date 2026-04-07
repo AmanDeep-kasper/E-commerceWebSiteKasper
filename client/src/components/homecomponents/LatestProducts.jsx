@@ -18,7 +18,9 @@ import Rating from "@mui/material/Rating";
 import Stack from "@mui/material/Stack";
 import { getAverageRating } from "../../utils/homePageUtils";
 
-{/* <=========------- icons ------==========> */ }
+{
+  /* <=========------- icons ------==========> */
+}
 import { FaBagShopping } from "react-icons/fa6";
 import { LuMinus } from "react-icons/lu";
 import { LuPlus } from "react-icons/lu";
@@ -90,7 +92,9 @@ function LatestProducts() {
     );
   }
 
-  {/* <===========----------- Add to Cart ------------==========>*/ }
+  {
+    /* <===========----------- Add to Cart ------------==========>*/
+  }
   const addToCart = (product) => {
     setAddedItems((prev) => ({
       ...prev,
@@ -123,11 +127,12 @@ function LatestProducts() {
     });
   };
 
-
   return (
-    <div className="lg:px-20 md:px-[60px] px-4 py-[23px] relative bg-white  shadow-sm rounded-lg">
+    <div className="lg:px-20 md:px-[60px] px-4 py-[23px] relative bg-[#EEFDFF]  shadow-sm rounded-lg">
       <div className="flex items-center">
-        <Title className="md:items-start px-2">Latest Products</Title>
+        <Title className="md:items-start px-2 font-marcellus text-[#1800AC]">
+          Best Selling Products
+        </Title>
         <Link
           className="whitespace-nowrap text-[#2C87E2] hover:text-blue-950 px-2 text-sm underline cursor-pointer"
           to={`/products`}
@@ -136,10 +141,10 @@ function LatestProducts() {
         </Link>
       </div>
 
-      {/* Latest Products */}
+      {/* Best Selling Products */}
       <div
         className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4 relative"
-      // ref={ref} //grid-flow-col auto-cols-max
+        // ref={ref} //grid-flow-col auto-cols-max
       >
         {latestProducts.slice(0, visibleCount)?.map((p) => {
           const key = p.id || p.uuid || p.SKU;
@@ -158,7 +163,7 @@ function LatestProducts() {
           return (
             <Link
               key={key}
-              className="bg-white p-2 rounded-lg border group/image block transition-shadow duration-300"
+              className="bg-white p-2 rounded-lg group/image block transition-shadow duration-300"
               // to={`/product/${p.uuid}`}
               to={`/product/${p._id}`} //mongo id
             >
@@ -178,11 +183,12 @@ function LatestProducts() {
                 <button
                   className="absolute bg-white shadow-md md:shadow-lg md:bg-white group-hover:block active:scale-110 transition-all ease-in-out duration-300 md:p-1 p-1 rounded-full text-xs top-1 right-1 z-30 cursor-default"
                   onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
+                    e.preventDefault();
+                    e.stopPropagation();
 
                     const isInWishlist = wishlistItems.some(
-                      (i) => i.uuid === product.uuid && i.variantId === variantId,
+                      (i) =>
+                        i.uuid === product.uuid && i.variantId === variantId,
                     );
 
                     if (isInWishlist) {
@@ -249,21 +255,21 @@ function LatestProducts() {
                     {/* {formatPrice(effective)} */}₹{sell || mrp || "--"}
                   </span>
 
+                  {mrp > 0 && discountPercent > 0 && (
+                    <span className="text-gray-400 text-xs line-through font-light">
+                      ₹{mrp}
+                    </span>
+                  )}
+                  <div className="border-l border-[#DBDBDB] h-3"></div>
                   {discountPercent > 0 && (
                     <>
-                      <span className="text-[#168408] text-xs">
+                      <span className="text-[#35C772] text-xs">
                         {discountPercent}% Off
                       </span>
                     </>
                   )}
                 </div>
                 <div className="flex flex-col items-start">
-                  {mrp > 0 && discountPercent > 0 && (
-                    <span className="text-gray-400 text-xs line-through font-light">
-                      ₹{mrp}
-                    </span>
-                  )}
-
                   {/* <div className="flex gap-1 ">
                     <Stack spacing={1}>
                       <Rating name="size-small" defaultValue={2} size="small" />
@@ -271,14 +277,13 @@ function LatestProducts() {
                     <span className="text-[12px] text-[#686868]">(345)</span>
                   </div> */}
 
-
-
                   {/* <===========----------- Add to Cart ------------==========>*/}
                   <div
-                    className={`w-full rounded-md flex justify-center items-center gap-4 p-2 mt-2 transition-all duration-300 ${addedItems[p._id]
-                      ? "bg-white border border-[#252525]"
-                      : "bg-[#252525] border border-[#252525]"
-                      }`}
+                    className={`w-full rounded-md flex justify-center items-center gap-4 p-2 mt-2 transition-all duration-300 ${
+                      addedItems[p._id]
+                        ? "bg-white border border-[#252525]"
+                        : "bg-[#252525] border border-[#252525]"
+                    }`}
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
@@ -290,7 +295,6 @@ function LatestProducts() {
                   >
                     {addedItems[p._id] > 0 ? (
                       <div className="w-full flex items-center justify-between text-black">
-
                         {/* MINUS */}
                         <span
                           className="cursor-pointer"
@@ -304,9 +308,7 @@ function LatestProducts() {
                         </span>
 
                         {/* COUNT */}
-                        <span>
-                          {addedItems[p._id]}
-                        </span>
+                        <span>{addedItems[p._id]}</span>
 
                         {/* PLUS */}
                         <span
@@ -319,7 +321,6 @@ function LatestProducts() {
                         >
                           <LuPlus />
                         </span>
-
                       </div>
                     ) : (
                       <>
@@ -332,7 +333,6 @@ function LatestProducts() {
                       </>
                     )}
                   </div>
-
                 </div>
               </div>
             </Link>

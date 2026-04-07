@@ -150,7 +150,7 @@ function Navbar() {
     // <div className="w-full">
     <div className="w-full top-0 left-0 z-50 relative">
       {/* Top Announcement Bar */}
-      {/* <div className="w-full bg-[#1800AC] text-white text-center text-sm py-2">
+      <div className="w-full bg-[#1800AC] text-white text-center text-sm py-2">
         <Swiper
           modules={[Autoplay]}
           autoplay={{
@@ -167,7 +167,7 @@ function Navbar() {
             );
           })}
         </Swiper>
-      </div> */}
+      </div>
 
       {/* Fixed Navbar */}
       {/* <div className="fixed top-0 left-0 w-full h-16 bg-white shadow-sm z-50 border-b border-gray-200"> */}

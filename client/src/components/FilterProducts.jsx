@@ -12,7 +12,7 @@ const options = [
   { label: "Alphabetical (Z to A)", value: "ztoa" },
 ];
 
-function FilterProducts({ text = "Latest Products", sort }) {
+function FilterProducts({ text = "Best Selling Products", sort }) {
   const [isOpen, setIsOpen] = useState(false);
   const [selected, setSelected] = useState(options[0]); // object
   const dropdownRef = useRef(null);
@@ -31,19 +31,19 @@ function FilterProducts({ text = "Latest Products", sort }) {
   return (
     <div className="flex justify-between items-center w-full mb-5 p-2">
       <div className="flex md:gap-[160px] max-md:hidden">
-        <p className="text-xl font-medium">{text}</p>
+        <p className="text-xl font-marcellus font-medium text-[#1800AC]">{text}</p>
       </div>
 
       {/* Make this relative so absolute dropdown positions correctly */}
       <div
         ref={dropdownRef}
-        className="relative flex max-md:justify-between gap-2 drop-shadow-md items-center z-30 max-sm:text-xs max-md:w-full"
+        className="relative flex max-md:justify-between gap-2  items-center z-30 max-sm:text-xs max-md:w-full border border-[#DEDEDE] rounded-[5px] bg-[#FFFFFF] px-2"
       >
-        <span>Sort by:</span>
+        <span className="text-[#686868]">Sort by:</span>
 
         <button
           type="button"
-          className="md:w-[200px] max-sm:text-xs h-10 border border-[#7C7C7C] rounded-[5px] flex justify-between items-center px-2 bg-white"
+          className="md:w-[200px] max-sm:text-xs h-10  flex justify-between items-center px-2"
           onClick={() => setIsOpen((prev) => !prev)}
         >
           <span className="text-[#3A3A3A]">{selected.label}</span>
@@ -55,12 +55,12 @@ function FilterProducts({ text = "Latest Products", sort }) {
         </button>
 
         {isOpen && (
-          <div className="absolute top-12 right-0 bg-white w-[200px] border border-[#7C7C7C] rounded-[5px] overflow-hidden">
+          <div className="absolute top-12 right-0 bg-white w-[280px] border border-[#DEDEDE] rounded-[5px] overflow-hidden">
             {options.map((opt) => (
               <button
                 type="button"
                 key={opt.value}
-                className="w-full text-left hover:bg-[#fff2cc] border-b border-[#7C7C7C] last:border-b-0 px-[15px] py-2"
+                className="w-full text-left hover:bg-[#D5E5F5]  border-[#7C7C7C] last:border-b-0 px-[15px] py-2"
                 onClick={() => {
                   setSelected(opt);
                   sort?.(opt.value); // safe call

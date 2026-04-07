@@ -77,7 +77,7 @@ function Footer() {
             </h1>
             <ul className="font-[300] flex flex-col gap-2 lg:text-[16px] text-[11.5px] text-[#7D8694]">
               <li>
-                <Link to="/products">Latest Products</Link>
+                <Link to="/products">Best Selling Products</Link>
               </li>
               <li>Bestseller Collection</li>
               <li>
