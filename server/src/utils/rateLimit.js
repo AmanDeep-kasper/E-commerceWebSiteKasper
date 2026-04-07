@@ -1,6 +1,7 @@
-import rateLimit from "express-rate-limit";
+import rateLimit, { ipKeyGenerator } from "express-rate-limit";
 import slowDown from "express-slow-down";
-import { ipKeyGenerator } from "express-rate-limit";
+import RedisStore from "rate-limit-redis";
+import { redis } from "../config/redis.js";
 
 export const globalLimiter = rateLimit({
   windowMs: 60 * 1000,
@@ -10,21 +11,28 @@ export const globalLimiter = rateLimit({
   legacyHeaders: false,
 
   keyGenerator: (req) => {
-    const ip = ipKeyGenerator(req); // 🔥 FIX
+    const ip = ipKeyGenerator(req);
     const ua = req.headers["user-agent"] || "unknown";
 
     return `${ip}:${ua}`;
   },
 
+  store: new RedisStore({
+    sendCommand: (...args) => redis.call(...args),
+  }),
+
   message: {
     success: false,
-    message: "Too many requests",
+    message: "Too many requests, please try again later",
   },
 });
 
 export const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 5,
+  windowMs: 5 * 60 * 1000,
+  max: 10,
+
+  standardHeaders: true,
+  legacyHeaders: false,
 
   keyGenerator: (req) => {
     const identifier = (req.body?.identifier || "").toLowerCase().trim();
@@ -33,12 +41,16 @@ export const authLimiter = rateLimit({
       return `auth:${identifier}`;
     }
 
-    return ipKeyGenerator(req); // 🔥 FIX
+    return ipKeyGenerator(req);
   },
+
+  store: new RedisStore({
+    sendCommand: (...args) => redis.call(...args),
+  }),
 
   message: {
     success: false,
-    message: "Too many login attempts",
+    message: "Too many login attempts, please try again later",
   },
 });
 
