@@ -558,14 +558,13 @@ export const forgotPassword = asyncHandler(async (req, res) => {
     );
   }
 
+  // 🔥 Allow new reset after cooldown (invalidate old token)
   if (user.resetPasswordExpires && user.resetPasswordExpires > now) {
-    const timeRemaining = Math.ceil(
-      (user.resetPasswordExpires - now) / 1000 / 60,
-    );
-    throw AppError.badRequest(
-      `A reset link was already sent. Please wait ${timeRemaining} minutes or check your email.`,
-      "RESET_LINK_ALREADY_SENT",
-    );
+    console.warn(`Invalidating old reset token for: ${email}`);
+
+    // Invalidate old token
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
   }
 
   const { resetToken, hashedToken } = generateResetToken();
