@@ -9,6 +9,8 @@ const tempUserSchema = new mongoose.Schema(
     phoneNumber: { type: String },
     role: { type: String, default: "user" },
     otp: { type: String, required: true, select: false },
+    otpAttempts: { type: Number, default: 0 },
+    lastOtpRequest: { type: Date, default: Date.now },
     otpExpires: { type: Date, required: true },
     createdAt: { type: Date, default: Date.now, expires: 600 },
   },
@@ -24,8 +26,6 @@ tempUserSchema.pre("save", async function (next) {
 });
 
 tempUserSchema.methods.compareOTP = async function (candidateOTP) {
-  // `this.otp` may be undefined if the doc was fetched without selecting it.
-  // Callers must use TempUser.findOne(...).select('+otp') before calling compareOTP.
   if (!this.otp) {
     throw new Error(
       "OTP field not selected. Use .select('+otp') in your query.",

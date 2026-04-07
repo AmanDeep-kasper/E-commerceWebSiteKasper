@@ -9,6 +9,7 @@ import {
   me,
   changePassword,
   refreshAccessToken,
+  resendOTP,
 } from "../controllers/authController.js";
 import {
   registerValidation,
@@ -31,6 +32,8 @@ router.post(
   validateRequest,
   registerUser,
 );
+
+router.post("/resend-otp", resendOTP);
 router.post("/verify", otpValidation, validateRequest, verifyOTP);
 router.post("/login", loginValidation, validateRequest, loginUser);
 router.post("/logout", authenticate, logoutUser);

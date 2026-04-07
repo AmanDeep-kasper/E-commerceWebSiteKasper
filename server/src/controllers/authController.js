@@ -43,6 +43,8 @@ export const registerUser = asyncHandler(async (req, res) => {
     phoneNumber,
     role: "user",
     otp,
+    lastOtpRequest: new Date(),
+    otpAttempts: 1,
     otpExpires,
   });
 
@@ -52,6 +54,53 @@ export const registerUser = asyncHandler(async (req, res) => {
     success: true,
     message: "OTP sent to email. Please verify within 10 minutes.",
     tempUserId: tempUser._id,
+  });
+});
+
+export const resendOTP = asyncHandler(async (req, res) => {
+  const { tempUserId } = req.body;
+
+  const tempUser = await TempUser.findById(tempUserId);
+
+  if (!tempUser) {
+    throw AppError.notFound(
+      "Session expired. Please register again.",
+      "NOT_FOUND",
+    );
+  }
+
+  const now = new Date();
+  const MIN_TIME = 60 * 1000; // 1 min cooldown
+
+  const timeSinceLast = now - (tempUser.lastOtpRequest || new Date(0));
+
+  // Cooldown check
+  if (timeSinceLast < MIN_TIME) {
+    const waitTime = Math.ceil((MIN_TIME - timeSinceLast) / 1000);
+
+    throw AppError.badRequest(
+      `Please wait ${waitTime} seconds before requesting OTP again.`,
+      "OTP_RATE_LIMIT",
+    );
+  }
+
+  // Generate new OTP
+  const otp = generateOTP();
+  const otpExpires = new Date(Date.now() + 10 * 60 * 1000);
+
+  await sendRegistrationEmail(tempUser.email, otp);
+
+  // Replace old OTP
+  tempUser.otp = otp;
+  tempUser.otpExpires = otpExpires;
+  tempUser.lastOtpRequest = now;
+  tempUser.otpAttempts = (tempUser.otpAttempts || 0) + 1;
+
+  await tempUser.save();
+
+  res.status(200).json({
+    success: true,
+    message: "OTP resent successfully",
   });
 });
 
