@@ -69,6 +69,8 @@ export default {
   PRIVATE_KEY: process.env.PRIVATE_KEY,
   PUBLIC_KEY: process.env.PUBLIC_KEY,
 
+  REDIS_URL: process.env.REDIS_URL,
+
   ADMIN_EMAIL: process.env.ADMIN_EMAIL,
   ADMIN_PASSWORD: process.env.ADMIN_PASSWORD,
   ADMIN_NAME: process.env.ADMIN_NAME,

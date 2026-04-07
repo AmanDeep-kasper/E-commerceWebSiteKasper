@@ -105,34 +105,28 @@ export const verifyOTP = asyncHandler(async (req, res) => {
 
 export const loginUser = asyncHandler(async (req, res) => {
   const { identifier, password } = req.body;
-  console.log(identifier);
-  
+
+  const GENERIC_ERROR = "Invalid email or password";
+
+  // Normalize identifier
+  const cleanIdentifier = identifier?.trim().toLowerCase();
 
   let query = { isActive: true };
 
-  if (identifier.includes("@")) {
-    query.email = identifier;
+  if (cleanIdentifier.includes("@")) {
+    query.email = cleanIdentifier;
   } else {
-    query.phoneNumber = identifier;
+    query.phoneNumber = cleanIdentifier;
   }
 
   const user = await User.findOne(query).select(
     "+password +loginAttempts +lockUntil",
   );
 
+  // Prevent timing attack
   if (!user) {
     await bcryptDummy(password);
-    throw AppError.authentication(
-      "Invalid email or password",
-      "INVALID_CREDENTIALS",
-    );
-  }
-
-  if (!user.isActive) {
-    throw AppError.authentication(
-      "Your account has been deactivated.",
-      "ACCOUNT_DEACTIVATED",
-    );
+    throw AppError.authentication(GENERIC_ERROR, "INVALID_CREDENTIALS");
   }
 
   if (user.lockUntil && user.lockUntil > new Date()) {
@@ -147,25 +141,38 @@ export const loginUser = asyncHandler(async (req, res) => {
 
   const isPasswordValid = await user.comparePassword(password);
 
+  // Wrong password
   if (!isPasswordValid) {
-    const newAttempts = (user.loginAttempts || 0) + 1;
-    const updates = { loginAttempts: newAttempts };
+    // Small delay
+    await new Promise((r) => setTimeout(r, 300));
 
-    if (newAttempts >= 5) {
-      updates.lockUntil = new Date(Date.now() + 30 * 60 * 1000);
-      console.warn(`Account locked for user: ${user._id}`);
+    const attempts = (user.loginAttempts || 0) + 1;
+    const update = {
+      $inc: { loginAttempts: 1 },
+    };
+
+    // Lock after 5 attempts
+    if (attempts >= 5) {
+      update.$set = {
+        lockUntil: new Date(Date.now() + 30 * 60 * 1000),
+      };
+
+      console.warn({
+        event: "ACCOUNT_LOCKED",
+        userId: user._id,
+        ip: req.ip,
+      });
     }
 
-    await User.updateOne({ _id: user._id }, { $set: updates });
+    await User.updateOne({ _id: user._id }, update);
 
-    const remainingAttempts = Math.max(0, 5 - newAttempts);
-
-    throw AppError.authentication(
-      remainingAttempts > 0
-        ? `Invalid email or password. ${remainingAttempts} attempts remaining`
-        : "Invalid email or password. Account locked for 30 minutes",
-      "INVALID_CREDENTIALS",
-    );
+    console.warn({
+      event: "LOGIN_FAILED",
+      userId: user._id,
+      ip: req.ip,
+      attempts,
+    });
+    throw AppError.authentication(GENERIC_ERROR, "INVALID_CREDENTIALS");
   }
 
   const { accessToken, refreshToken, sessionId, expiresIn, tokenType } =

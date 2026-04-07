@@ -93,8 +93,6 @@ export const generateDeviceFingerprint = (req) => {
   const fingerprint = {
     userAgent: req.headers["user-agent"],
     acceptLanguage: req.headers["accept-language"],
-    acceptEncoding: req.headers["accept-encoding"],
-    ipAddress: req.ip || req.connection?.remoteAddress,
     platform: req.headers["sec-ch-ua-platform"],
   };
 
