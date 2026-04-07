@@ -7,54 +7,44 @@ import faqsImage from "../assets/Faqs.png";
 
 const faqs = [
   {
-    question: "1. What material is the wall art made of?",
+    question: "1.What products does Happy Art Supplies offer?",
     answer:
-      "Our art is made from high-quality, rust-resistant metal with a durable finish that’s built to last.",
+      "We provide a wide range of resin art materials, including epoxy resin, hardeners, pigments, molds, mica powders, dried flowers, tools, and accessories. Everything you need to create beautiful resin art.",
   },
   {
-    question: "2. Can I customize a design?",
+    question: "2. Do you ship across India?",
     answer:
-      "Yes! We offer custom design services. You can share your idea, name, or reference, and we’ll bring it to life in metal.",
+      "Yes, we offer Pan India shipping. Orders are delivered through reliable courier partners to ensure safe and timely delivery.",
   },
   {
-    question: "3. Is it easy to hang on the wall?",
+    question: "3. How long does delivery take?",
     answer:
-      "Absolutely. All our pieces come with mounting instructions and necessary hardware (hooks, screws, or double-sided tape — based on size).",
+      "Orders are usually processed within 1–2 business days. Delivery typically takes 3–7 working days, depending on your location.",
   },
   {
-    question: "4. Will the artwork rust over time?",
+    question: "4.  How can I track my order?",
     answer:
-      "No. Our wall art is crafted using powder-coated or weather-resistant metal, so it stays beautiful indoors and out.",
+      "Once your order is shipped, you will receive a tracking link via email or SMS to monitor your delivery status.",
   },
   {
-    question: "5. Do you offer cash on delivery (COD)?",
+    question: "5.Can I cancel my order?",
     answer:
-      "Yes, we provide COD in most pin codes across India. You’ll see the option at checkout.",
+      "Yes, you can cancel your order before it is shipped. Once dispatched, cancellation is not possible.",
   },
   {
-    question: "6. How long will it take to receive my order?",
+    question: "6. What is your return policy?",
     answer:
-      "Orders are usually shipped within 2–4 business days. Delivery time depends on your location but typically ranges from 5–8 working days.",
+      "We accept returns only for damaged, defective, or incorrect products, reported within 48 hours of delivery. Items must be unused and in original packaging.",
   },
   {
-    question: "7. Is this suitable for outdoor walls or balconies?",
+    question: "7.Do you offer refunds?",
     answer:
-      "Yes! Our metal art is coated to withstand moderate weather conditions — perfect for outdoor decor too.",
+      "Yes. Once the returned product is verified, refunds are processed within 5–7 business days to your original payment method or via bank transfer (for COD).",
   },
   {
-    question: "8. What if I receive a damaged product?",
+    question: "8. Are your materials safe to use?",
     answer:
-      "No worries! Just contact us within 48 hours of delivery with photos, and we’ll replace it or issue a refund.",
-  },
-  {
-    question: "9. Can I return or exchange my order?",
-    answer:
-      "Yes, we accept returns for damaged or incorrect items. Custom orders, however, are not returnable unless there’s a quality issue.",
-  },
-  {
-    question: "10. Do you ship internationally?",
-    answer:
-      "Currently, we ship only within India. But international delivery is coming soon — stay tuned!",
+      "Our materials are artist-approved, but we recommend using proper safety measures like gloves, masks, and working in a ventilated area.",
   },
 ];
 
