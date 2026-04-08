@@ -3,7 +3,7 @@ import { useParams, useNavigate, Link } from "react-router";
 import { toast } from "react-toastify";
 import { Eye, EyeOff, Lock, CheckCircle, Star, ArrowLeft } from "lucide-react";
 import userService from "../../services/userService";
-import MainLog from "../../assets/IconsUsed/MainLogo.png";
+import MainLog from "../../assets/IconsUsed/HomeMainLogo.png";
 
 const ResetPassword = () => {
   const { token } = useParams();

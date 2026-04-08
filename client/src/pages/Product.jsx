@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useLocation, useParams } from "react-router";
 
 import Breadcrumbs from "../components/Breadcrumbs";
@@ -7,21 +7,13 @@ import Card from "../components/Card";
 import Navbar from "../components/Navbar";
 import Footer from "../sections/Footer";
 
-import productsData from "../data/products.json";
 import EmptyState from "../components/EmptyState";
 import { PackageOpen } from "lucide-react";
-
-// colors
-const colors = [
-  { colorName: "golden" },
-  { colorName: "black" },
-  { colorName: "white" },
-  { colorName: "silver" },
-];
+import axiosInstance from "../api/axiosInstance";
 
 function Product() {
   const [param, setParam] = useState("");
-  const [color, setColor] = useState("");
+  const [color, setColor] = useState([]);
   const [items, setItems] = useState([]);
   const [originalItems, setOriginalItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -32,41 +24,58 @@ function Product() {
   const val = state;
 
   useEffect(() => {
-    try {
-      setLoading(true);
-      setError("");
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
+        setError("");
 
-      let filteredProducts = [...productsData];
+        const res = await axiosInstance.get("/products/all");
+        let fetchedProducts = res.data?.products || res.data || [];
 
-      // Filter by category
-      if (categoryName) {
-        filteredProducts = filteredProducts.filter(
-          (p) =>
-            p.category &&
-            p.category.toLowerCase() ===
-              decodeURIComponent(categoryName).toLowerCase(),
-        );
+        if (categoryName) {
+          fetchedProducts = fetchedProducts.filter(
+            (p) =>
+              p.category &&
+              p.category.toLowerCase() ===
+                decodeURIComponent(categoryName).toLowerCase()
+          );
+        }
+
+        if (subcategoryName) {
+          fetchedProducts = fetchedProducts.filter(
+            (p) =>
+              p.subcategory &&
+              p.subcategory.toLowerCase() ===
+                decodeURIComponent(subcategoryName).toLowerCase()
+          );
+        }
+
+        setItems(fetchedProducts);
+        setOriginalItems(fetchedProducts);
+      } catch (err) {
+        console.error("API Error:", err);
+        setError("Failed to load products");
+      } finally {
+        setLoading(false);
       }
+    };
 
-      // Filter by subcategory
-      if (subcategoryName) {
-        filteredProducts = filteredProducts.filter(
-          (p) =>
-            p.subcategory &&
-            p.subcategory.toLowerCase() ===
-              decodeURIComponent(subcategoryName).toLowerCase(),
-        );
-      }
-
-      setItems(filteredProducts);
-      setOriginalItems(filteredProducts);
-    } catch (err) {
-      console.error(err);
-      setError("Failed to load products.");
-    } finally {
-      setLoading(false);
-    }
+    fetchProducts();
   }, [categoryName, subcategoryName]);
+
+  const colors = useMemo(() => {
+    const uniqueColors = new Set();
+
+    originalItems.forEach((item) => {
+      item.variants?.forEach((variant) => {
+        if (variant.variantColor) {
+          uniqueColors.add(variant.variantColor.toLowerCase());
+        }
+      });
+    });
+
+    return [...uniqueColors].map((colorName) => ({ colorName }));
+  }, [originalItems]);
 
   const sort = (val) => {
     let sortedItems = [...items];
@@ -83,8 +92,8 @@ function Product() {
       case "atoz":
         sortedItems.sort((a, b) =>
           (a.productTittle || a.title || "").localeCompare(
-            b.productTittle || b.title || "",
-          ),
+            b.productTittle || b.title || ""
+          )
         );
         break;
 
@@ -118,7 +127,6 @@ function Product() {
     setItems(sortedItems);
   };
 
-  // Search filter
   const filterArts = items.filter((p) => {
     if (!param.trim()) return true;
 
@@ -132,14 +140,12 @@ function Product() {
     );
   });
 
-  // console.log(val)
-  
-
-  // Color filter
   const filteredArts = filterArts.filter(
     (p) =>
       !color.length ||
-      p.variants?.some((v) => color.includes(v.color?.toLowerCase())),
+      p.variants?.some((v) =>
+        color.includes(v.variantColor?.toLowerCase())
+      )
   );
 
   return (
@@ -169,7 +175,7 @@ function Product() {
               ctaLabel="Reset Filters"
               onClick={() => {
                 setParam("");
-                setColor("");
+                setColor([]);
                 setItems(originalItems);
               }}
             />

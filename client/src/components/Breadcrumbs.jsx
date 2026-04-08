@@ -4,13 +4,13 @@ import { Link } from "react-router";
 function Breadcrumbs({ category, subcategory, title }) {
   return (
     <nav
-      className="flex lg:px-20 md:px-[60px] px-3 py-3 bg-gray-50"
+      className="flex lg:px-20 md:px-[60px] px-3 py-3 bg-[#F6F8F9]"
       aria-label="Breadcrumb"
     >
       <ol className="inline-flex items-center text-sm sm:text-[16px] space-x-1 sm:space-x-2 rtl:space-x-reverse overflow-x-auto max-w-full scrollbar-hide">
         {/* Home */}
         <li className="inline-flex items-center flex-shrink-0">
-          <Link to="/" className="inline-flex items-center text-gray-600">
+          <Link to="/home" className="inline-flex items-center text-gray-600">
             Home
           </Link>
         </li>
