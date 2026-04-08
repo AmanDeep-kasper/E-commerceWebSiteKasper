@@ -138,6 +138,8 @@ export const updateReview = asyncHandler(async (req, res) => {
     throw AppError.notFound("Review not found", "NOT_FOUND");
   }
 
+  const product = await Product.findById(review.productId);
+
   // Ownership check
   if (review.userId.toString() !== userId.toString()) {
     throw AppError.unauthorized("Not allowed");
@@ -146,6 +148,14 @@ export const updateReview = asyncHandler(async (req, res) => {
   // Update fields
   if (rating !== undefined) review.rating = rating;
   if (reviewText !== undefined) review.reviewText = reviewText;
+
+  // update product stats
+  product.stats.averageRating = Number(
+    (product.stats.averageRating * (product.stats.totalReviews - 1) +
+      review.rating) /
+      product.stats.totalReviews,
+  ).toFixed(1);
+  await product.save();
 
   // DELETE MULTIPLE IMAGES
   if (removeImages && Array.isArray(removeImages)) {
