@@ -12,37 +12,30 @@ function ShippingPolicy() {
             Current as of 20 Sep 2024
           </p> */}
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-semibold">
-            Shipping Policy
+            Shipping Coverage
           </h1>
           <p className="text-[#828282] text-sm sm:text-base max-w-4xl">
-            At LAZERCUT, we understand that timely delivery is just as important
-            as product quality. Every order is processed with precision and
-            dispatched with care to ensure it reaches you safely and on
-            schedule.
+            We offer Pan India shipping, delivering to most locations through
+            trusted courier partners.
           </p>
         </div>
 
         {/* Generic Section */}
         <div className="text-[#828282] flex flex-col  gap-6 my-12 text-sm sm:text-base leading-relaxed max-w-4xl mx-auto">
-            <h1 className="text-xl sm:text-2xl md:text-3xl text-[#3D3D3D] font-medium">
-           Order Processing
+          <h1 className="text-xl sm:text-2xl md:text-3xl text-[#3D3D3D] font-medium">
+            Order Processing Time
           </h1>
           <p>
-            Mi tincidunt elit, id quisque ligula ac diam, amet. Vel etiam
-            suspendisse morbi eleifend faucibus eget vestibulum felis. Dictum
-            quis montes, sit sit. Tellus aliquam enim urna, etiam. Mauris
-            posuere vulputate arcu amet, vitae nisi, tellus tincidunt. At
-            feugiat sapien varius id.
+            Orders are processed within 1–2 business days after confirmation
+            Orders placed on weekends or public holidays are processed on the
+            next working day
           </p>
-            <h1 className="text-xl sm:text-2xl md:text-3xl text-[#3D3D3D] font-medium">
-          Shipping Timeline
+          <h1 className="text-xl sm:text-2xl md:text-3xl text-[#3D3D3D] font-medium">
+            Delivery Time
           </h1>
           <p>
-            Eget quis mi enim, leo lacinia pharetra, semper. Eget in volutpat
-            mollis at volutpat lectus velit, sed auctor. Porttitor fames arcu
-            quis fusce augue enim. Quis at habitant diam at. Suscipit tristique
-            risus, at donec. In turpis vel et quam imperdiet. Ipsum molestie
-            aliquet sodales id est ac volutpat.
+            Standard delivery time: 3–7 business days Delivery timelines may
+            vary based on location, courier availability, and external factors
           </p>
         </div>
 

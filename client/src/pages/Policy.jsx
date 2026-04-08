@@ -15,15 +15,15 @@ function Policy() {
             Privacy Policy
           </h1>
           <p className="text-[#828282] text-sm sm:text-base max-w-4xl">
-            Your privacy is important to us at{" "}
-            <span className="text-[#1C1C1C]">Laser Cut metal wall Art</span>. We
-            respect your privacy regarding any information we may collect from
-            you across our website.
+            At Happy Art Supplies, we value your privacy and are committed to
+            protecting your personal information. This Privacy Policy explains
+            how we collect, use, and safeguard your data when you visit or make
+            a purchase from our website.
           </p>
         </div>
 
         {/* Generic Section */}
-        <div className="text-[#828282] flex flex-col  gap-6 my-12 text-sm sm:text-base leading-relaxed max-w-4xl mx-auto">
+        {/* <div className="text-[#828282] flex flex-col  gap-6 my-12 text-sm sm:text-base leading-relaxed max-w-4xl mx-auto">
           <p>
             Mi tincidunt elit, id quisque ligula ac diam, amet. Vel etiam
             suspendisse morbi eleifend faucibus eget vestibulum felis. Dictum
@@ -38,30 +38,33 @@ function Policy() {
             risus, at donec. In turpis vel et quam imperdiet. Ipsum molestie
             aliquet sodales id est ac volutpat.
           </p>
-        </div>
+        </div> */}
 
         {/* Reusable Section Pattern */}
         {[
-          "What information do we collect?",
-          "How do we use your information?",
-          "Do we use cookies and other tracking technologies?",
-          "How long do we keep your information?",
-          "How do we keep your information safe?",
-          "What are your privacy rights?",
-          "How can you contact us about this policy?",
+          "Information We Collect",
+          "How We Use Your Information",
+          "Cookies & Tracking",
+          "Data Protection",
+          "Third-Party Services",
+          "Your Rights",
+          "Changes to This Policy",
         ].map((title, idx) => (
           <div
             key={idx}
-            className="text-[#828282] flex flex-col gap-6 my-12 text-sm sm:text-base leading-relaxed max-w-4xl mx-auto"
+            className="text-[#1C1C1C] flex flex-col gap-6 my-12 text-sm sm:text-base leading-relaxed max-w-4xl mx-auto"
           >
             <h2 className="text-xl sm:text-2xl md:text-3xl text-[#3D3D3D] font-medium">
               {title}
             </h2>
             <p>
-              Dolor enim eu tortor urna sed duis nulla. Aliquam vestibulum,
-              nulla odio nisl vitae. In aliquet pellentesque aenean hac
-              vestibulum turpis mi bibendum diam. Tempor integer aliquam in
-              vitae malesuada fringilla.
+              We may collect the following types of information:
+              <br /> Personal
+              Information: <br /> Full name<br /> Email address <br />Phone number <br />Shipping and
+              billing address<br /> Payment details (processed securely via payment
+              gateways)<br /> Technical Information:<br /> Browser type and device
+              information<br /> IP address<br /> Website usage data (through cookies and
+              analytics tools)
             </p>
             <p>
               Elit nisi in eleifend sed nisi. Pulvinar at orci, proin imperdiet

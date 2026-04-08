@@ -396,6 +396,7 @@ function Filter({
 
   const navigate = useNavigate();
   const { categoryName, subcategoryName } = useParams();
+  console.log(categoryName)
 
   useEffect(() => {
     const fetchSubcategories = async () => {
