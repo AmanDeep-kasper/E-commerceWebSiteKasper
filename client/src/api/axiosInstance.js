@@ -1,7 +1,7 @@
 import axios from "axios";
 
 // const baseURL = "https://e-commerbackend-5.onrender.com/api";
-const baseURL = "http://localhost:5000/api";
+const baseURL = "http://localhost:5000/api/v1";
 
 const axiosInstance = axios.create({
   baseURL,
