@@ -1,0 +1,80 @@
+import express from "express";
+import cors from "cors";
+import cookieParser from "cookie-parser";
+import helmet from "helmet";
+import hpp from "hpp";
+import env from "./config/env.js";
+
+// Routes
+import authRouter from "./routes/authRoutes.js";
+import userRouter from "./routes/userRoutes.js";
+import categoryRouter from "./routes/categoryRoutes.js";
+import addressRouter from "./routes/addressRoutes.js";
+import productRouter from "./routes/productRoutes.js";
+import collectionRouter from "./routes/collectionRoutes.js";
+import reviewRouter from "./routes/reviewRoutes.js";
+
+// Middlewares
+import { errorHandler, notFoundHandler } from "./middlewares/errorHandler.js";
+
+// Rate limiting
+import { globalLimiter, authLimiter, speedLimiter } from "./utils/rateLimit.js";
+
+const app = express();
+
+// Secure HTTP headers
+app.use(helmet());
+app.use(hpp());
+
+// cors origin
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin || env.CORS_ORIGIN.split(",").includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("CORS policy: Origin not allowed"));
+      }
+    },
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  }),
+);
+
+// Rate limiting
+app.set("trust proxy", 1);
+app.use(globalLimiter);
+app.use(speedLimiter);
+
+// json parser
+app.use(express.json({ limit: "16kb" }));
+app.use(express.urlencoded({ extended: true, limit: "16kb" }));
+
+// cookie parser
+app.use(cookieParser());
+app.use(express.static("public"));
+
+app.get("/", (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "🚀 Server is running...",
+  });
+});
+
+// Routes
+app.use("/api/v1/auth", authLimiter, authRouter);
+app.use("/api/v1/user", userRouter);
+app.use("/api/v1/category", categoryRouter);
+app.use("/api/v1/address", addressRouter);
+app.use("/api/v1/product", productRouter);
+app.use("/api/v1/collection", collectionRouter);
+app.use("/api/v1/review", reviewRouter);
+
+// 404 Not Found Handler
+app.use(notFoundHandler);
+
+// Global Error Handler
+app.use(errorHandler);
+
+export default app;
