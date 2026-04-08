@@ -111,18 +111,17 @@ function Hero() {
               {/* Gradient Handwritten Heading */}
               <h1
                 className="font-montez w-full 
-    text-[28px] sm:text-[40px] md:text-[64px] lg:text-[96px]
-    leading-[1.1] tracking-wide
-    bg-gradient-to-r from-[#FD0019] via-[#0900FF] to-[#FD0019]
-    bg-clip-text text-transparent
-  "
+  text-[28px] sm:text-[40px] md:text-[64px] lg:text-[96px]
+  leading-[1.1] tracking-wide
+  bg-gradient-to-r from-[#FF5667] via-[#E8E8E8] to-[#8494FB]
+  bg-clip-text text-transparent"
               >
                 Craft Your Own Masterpieces <br />
                 with Premium Resin
               </h1>
 
               {/* Description */}
-              <p className="mt-4 text-[14px] sm:text-[20px] text-white/90 max-w-[800px] leading-6 font-light">
+              <p className="mt-4 text-[14px] sm:text-[20px] text-white/90 max-w-[800px]  leading-6 font-light">
                 Welcome to Happy Art Supplies, your trusted destination for
                 premium resin art materials in Bangalore and across India. We
                 are passionate about empowering artists, hobbyists, and small

@@ -1,7 +1,7 @@
 // src/components/forms/RegisterForm.jsx
 import { useState } from "react";
 import { Link } from "react-router";
-import { Eye, EyeOff} from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 import userService from "../../services/userService";
 
 function RegisterForm({ onOtpSent }) {
@@ -9,7 +9,9 @@ function RegisterForm({ onOtpSent }) {
     name: "",
     email: "",
     password: "",
+    phoneNumber: "",
   });
+  console.log(formData);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
@@ -31,15 +33,22 @@ function RegisterForm({ onOtpSent }) {
       payload.append("name", formData.name);
       payload.append("email", formData.email);
       payload.append("password", formData.password);
+      payload.append("phoneNumber", formData.phoneNumber);
 
       const res = await userService.register(payload);
       onOtpSent(formData.email);
     } catch (err) {
       setError(
-        err.response?.data?.message || "Registration failed. Please try again."
+        err.response?.data?.message || "Registration failed. Please try again.",
       );
     } finally {
       setLoading(false);
+    }
+
+    if (formData.phoneNumber.length !== 10) {
+      setError("Phone number must be exactly 10 digits");
+      setLoading(false);
+      return;
     }
   };
 
@@ -66,6 +75,21 @@ function RegisterForm({ onOtpSent }) {
     "bg-lime-500",
     "bg-green-500",
   ];
+
+  const handlePhoneChange = (e) => {
+    let value = e.target.value;
+
+    // Remove all non-numeric characters
+    value = value.replace(/\D/g, "");
+
+    // Limit to 10 digits
+    if (value.length <= 10) {
+      setFormData({
+        ...formData,
+        phoneNumber: value,
+      });
+    }
+  };
 
   return (
     <div className="w-full mx-auto">
@@ -109,6 +133,26 @@ function RegisterForm({ onOtpSent }) {
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
                 required
                 disabled={loading}
+              />
+              {/* <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" /> */}
+            </div>
+          </div>
+          {/* phoen Field */}
+          <div className="space-y-2">
+            <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+              {/* <Mail className="w-4 h-4" /> */}
+              Phone Number
+            </label>
+            <div className="relative">
+              <input
+                type="text"
+                name="phoneNumber"
+                placeholder="Enter 10 digit number"
+                value={formData.phoneNumber}
+                onChange={handlePhoneChange}
+                maxLength={10}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-amber-500"
+                required
               />
               {/* <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" /> */}
             </div>

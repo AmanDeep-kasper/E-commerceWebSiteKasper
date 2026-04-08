@@ -11,7 +11,8 @@ import {
   Mail,
   LogIn,
 } from "lucide-react";
-import MainLog from "../../assets/IconsUsed/MainLogo.png";
+import MainLog from "../../assets/IconsUsed/HomeMainLogo.png";
+import MainVideo from "../../assets/FirstPageVideo/Register.mp4";
 
 function RegisterPage() {
   const [step, setStep] = useState("register");
@@ -25,126 +26,56 @@ function RegisterPage() {
     <div className="flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
       <div className="w-full h-screen flex bg-white shadow-2xl overflow-y-auto">
         {/* Left Side - Welcome Section */}
-        <div className="hidden md:flex flex-1 bg-gradient-to-br from-[#1C3753] to-[#1C3753] p-8 text-white">
-          <div className="flex flex-col justify-between h-full w-full">
-            {/* Logo */}
-            <div className="flex items-center gap-3 mb-8">
-              {/* <div className="bg-white p-2 rounded-full">
-                <Star className="w-6 h-6 text-amber-600" fill="currentColor" />
-              </div>
-              <h1 className="text-2xl font-bold">LaserCut</h1> */}
-               <img src={MainLog} alt="lazercut" />
-            </div>
+        <div className="hidden md:flex flex-1 text-white">
+          <div className="hidden md:flex flex-1 relative overflow-hidden text-white">
+            <video
+              autoPlay
+              loop
+              muted
+              playsInline
+              preload="auto"
+              className="absolute inset-0 w-full h-full object-cover"
+            >
+              <source src={MainVideo} type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
 
-            {/* Content */}
-            <div className="space-y-8">
-              <div>
-                <h2 className="text-4xl font-medium mb-4">
-                  Welcome to Lazercut
-                </h2>
-                <p className="text-white text-lg">
-                 Precision products. Seamless experience.
+            {/* <div className="absolute inset-0 bg-black/50 z-0"></div> */}
+
+            <div className="relative z-10 flex flex-col justify-between h-full p-8">
+              <div className="flex items-center gap-3 mb-8">
+                <img src={MainLog} alt="lazercut" />
+              </div>
+
+              {/* <div className="space-y-6">
+                <div>
+                  <h2 className="text-4xl font-medium mb-4">Welcome Back!</h2>
+                  <p className="text-white text-lg">Ready to continue?</p>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 bg-white rounded-full"></div>
+                    <span>Designed for a seamless shopping experience</span>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 bg-white rounded-full"></div>
+                    <span>Fast checkout. Smooth experience</span>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 bg-white rounded-full"></div>
+                    <span>Everything you need, right here</span>
+                  </div>
+                </div>
+              </div> */}
+
+              {/* <div className="mt-8">
+                <p className="text-white text-sm">
+                  *Precision cutting for perfect creations every time*
                 </p>
-              </div>
-
-              {/* Benefits List */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-2 h-2 bg-white rounded-full"></div>
-                  <span className="text-white">
-                   Discover quality products
-                  </span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-2 h-2 bg-white rounded-full"></div>
-                  <span className="text-white">
-                    Shop without limits
-                  </span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-2 h-2 bg-white rounded-full"></div>
-                  <span className="text-white">
-                    Smooth shopping every time
-                  </span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-2 h-2 bg-white rounded-full"></div>
-                  <span className="text-white">
-                    Revisit and reorder easily
-                  </span>
-                </div>
-              </div>
-
-              {/* Progress Steps - Sidebar Version */}
-              <div className="bg-[#F6F8F9] text-[#1C3753] rounded-lg p-6 mt-8">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    <div
-                      className={`w-8 h-8 rounded-full flex items-center justify-center border-2 ${
-                        step === "register"
-                          ? "bg-[#1C3753] border-[#FFFFFF] text-[#FFFFFF]"
-                          : step === "otp" || step === "done"
-                          ? "bg-green-400 border-green-400 text-white"
-                          : "bg-white bg-opacity-20 border-white border-opacity-30 text-white"
-                      }`}
-                    >
-                      {step === "register" ? (
-                        "1"
-                      ) : (
-                        <CheckCircle className="w-4 h-4" />
-                      )}
-                    </div>
-                    <span className="font-medium">Create Account</span>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    <div
-                      className={`w-8 h-8 rounded-full flex items-center justify-center border-2 ${
-                        step === "otp"
-                          ? "bg-[#1C3753] border-[#FFFFFF] text-[#FFFFFF]"
-                          : step === "done"
-                          ? "bg-green-400 border-green-400 text-white"
-                          : "bg-[#DEDEDE]  border-white border-opacity-30 text-[#686868]"
-                      }`}
-                    >
-                      {step === "done" ? (
-                        <CheckCircle className="w-4 h-4" />
-                      ) : (
-                        "2"
-                      )}
-                    </div>
-                    <span className="font-medium text-[#686868]">Verify Email</span>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div
-                      className={`w-8 h-8 rounded-full flex items-center justify-center border-2 ${
-                        step === "done"
-                          ? "bg-green-400 border-green-400 text-white"
-                          : "bg-[#DEDEDE] border-white border-opacity-30 text-[#686868]"
-                      }`}
-                    >
-                      {step === "done" ? (
-                        <CheckCircle className="w-4 h-4" />
-                      ) : (
-                        "3"
-                      )}
-                    </div>
-                    <span className="font-medium text-[#686868]">Complete</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Testimonial */}
-            <div className="  mt-8">
-              <p className="text-white text-sm ">
-                *Precision cutting for perfect creations every time*
-              </p>
+              </div> */}
             </div>
           </div>
         </div>
@@ -155,10 +86,14 @@ function RegisterPage() {
             {/* Mobile Header */}
             <div className="md:hidden text-center mb-8">
               <div className="flex items-center justify-center gap-2 mb-4">
-                <div className="bg-[#D5E5F5] p-2 rounded-full">
-                  <Star className="w-6 h-6 text-[#1C3753]" fill="currentColor" />
-                </div>
-                <h1 className="text-2xl font-bold text-gray-900">LaserCut</h1>
+                {/* <div className="bg-[#D5E5F5] p-2 rounded-full">
+                  <Star
+                    className="w-6 h-6 text-[#1C3753]"
+                    fill="currentColor"
+                  />
+                </div> */}
+                {/* <h1 className="text-2xl font-bold text-gray-900">LaserCut</h1> */}
+                 <img src={MainLog} alt="lazercut" />
               </div>
               <p className="text-gray-600">
                 Join thousands of creative professionals
@@ -175,8 +110,8 @@ function RegisterPage() {
                     step === "register"
                       ? "bg-[#D5E5F5] border-[#D5E5F5 ] text-[#1C3753]"
                       : step === "otp" || step === "done"
-                      ? "bg-green-500 border-green-500 text-white"
-                      : "bg-white border-gray-300 text-gray-400"
+                        ? "bg-green-500 border-green-500 text-white"
+                        : "bg-white border-gray-300 text-gray-400"
                   }`}
                 >
                   {step === "register" ? (
@@ -194,8 +129,8 @@ function RegisterPage() {
                     step === "otp"
                       ? "bg-[#DDAC0E] border-[#DDAC0E] text-white"
                       : step === "done"
-                      ? "bg-green-500 border-green-500 text-white"
-                      : "bg-white border-gray-300 text-gray-400"
+                        ? "bg-green-500 border-green-500 text-white"
+                        : "bg-white border-gray-300 text-gray-400"
                   }`}
                 >
                   {step === "done" ? <CheckCircle className="w-4 h-4" /> : "2"}
@@ -248,8 +183,81 @@ function RegisterPage() {
                     Create Account
                   </h2>
                   <p className="text-gray-600 mt-2">
-                   Sign up to get started with LAZERCUT
+                    Sign up to get started with LAZERCUT
                   </p>
+                </div>
+                <div className="flex items-center justify-between mt-8 px-4 mb-4">
+                  {/* STEP 1 */}
+                  <div className="flex items-center flex-1">
+                    <div className="flex flex-col items-center text-center">
+                      <div
+                        className={`w-7 h-7 rounded-full flex items-center justify-center border-2 ${
+                          step === "register"
+                            ? "bg-[#1C3753] border-[#1C3753] text-white"
+                            : step === "otp" || step === "done"
+                              ? "bg-green-400 border-green-400 text-white"
+                              : "bg-[#DEDEDE] text-[#686868]"
+                        }`}
+                      >
+                        {step === "register" ? (
+                          "1"
+                        ) : (
+                          <CheckCircle className="w-4 h-4" />
+                        )}
+                      </div>
+                      <span className="text-xs mt-2">Create Account</span>
+                    </div>
+
+                    {/* Line */}
+                    <div className="flex-1 h-[1px] bg-gray-300 mb-4"></div>
+                  </div>
+
+                  {/* STEP 2 */}
+                  <div className="flex items-center flex-1">
+                    <div className="flex flex-col items-center text-center">
+                      <div
+                        className={`w-7 h-7 rounded-full flex items-center justify-center border-2 ${
+                          step === "otp"
+                            ? "bg-[#1C3753] border-[#1C3753] text-white"
+                            : step === "done"
+                              ? "bg-green-400 border-green-400 text-white"
+                              : "bg-[#DEDEDE] text-[#686868]"
+                        }`}
+                      >
+                        {step === "done" ? (
+                          <CheckCircle className="w-4 h-4" />
+                        ) : (
+                          "2"
+                        )}
+                      </div>
+                      <span className="text-xs mt-2 text-[#686868]">
+                        Verify Email
+                      </span>
+                    </div>
+
+                    {/* Line */}
+                    <div className="flex-1 h-[1px] bg-gray-300 mb-4"></div>
+                  </div>
+
+                  {/* STEP 3 */}
+                  <div className="flex flex-col items-center text-center">
+                    <div
+                      className={`w-7 h-7 rounded-full flex items-center justify-center border-2 ${
+                        step === "done"
+                          ? "bg-green-400 border-green-400 text-white"
+                          : "bg-[#DEDEDE] text-[#686868]"
+                      }`}
+                    >
+                      {step === "done" ? (
+                        <CheckCircle className="w-4 h-4" />
+                      ) : (
+                        "3"
+                      )}
+                    </div>
+                    <span className="text-xs mt-2 text-[#686868]">
+                      Complete
+                    </span>
+                  </div>
                 </div>
                 <RegisterForm
                   onOtpSent={(email) => {
@@ -308,7 +316,7 @@ function RegisterPage() {
 
                 <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
                   <p className="text-green-800 text-sm">
-                   You can now login to your account and start using LAZERCUT.
+                    You can now login to your account and start using LAZERCUT.
                   </p>
                 </div>
 
