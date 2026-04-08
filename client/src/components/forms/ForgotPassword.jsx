@@ -3,7 +3,8 @@ import { Link } from "react-router";
 import { toast } from "react-toastify";
 import { Mail, ArrowLeft, Star, Shield, Send } from "lucide-react";
 import userService from "../../services/userService";
-import MainLog from "../../assets/IconsUsed/MainLogo.png";
+import MainLog from "../../assets/IconsUsed/HomeMainLogo.png";
+import SideImg from "../../assets/FirstPageVideo/RestImg.png";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
@@ -30,68 +31,72 @@ const ForgotPassword = () => {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#1C3753] to-[#1C3753]">
       <div className="w-full h-screen flex bg-white">
         {/* Left Side - Welcome Section */}
-        <div className="hidden md:flex flex-1 bg-gradient-to-br from-[#1C3753] to-[#1C3753] p-8 text-white">
-          <div className="flex flex-col justify-between h-full">
+        <div className="hidden md:flex flex-1 relative overflow-hidden text-white">
+          {/* Background Image */}
+          <img
+            src={SideImg} // 🔁 change your image path
+            alt="background"
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+
+          {/* Overlay (important for readability) */}
+          {/* <div className="absolute inset-0 bg-[#1C3753]/70"></div> */}
+
+          {/* Content */}
+          <div className="relative z-10 flex flex-col justify-between h-full p-8">
             {/* Logo */}
             <div className="flex items-center gap-3 mb-8">
-              {/* <div className="bg-white p-2 rounded-full">
-                <Star className="w-6 h-6 text-amber-600" fill="currentColor" />
-              </div>
-              <h1 className="text-2xl font-bold">LaserCut</h1> */}
               <img src={MainLog} alt="lazercut" />
             </div>
 
             {/* Content */}
-            <div className="space-y-8">
-              <div>
+            {/* <div className="space-y-8"> */}
+              {/* <div>
                 <h2 className="text-4xl font-bold mb-4">Reset Your Password</h2>
                 <p className="text-white text-lg">
                   No worries! We'll help you get back into your account.
                 </p>
-              </div>
+              </div> */}
 
-              {/* Process Steps */}
-              <div className="space-y-4">
+              
+              {/* <div className="space-y-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-[#DEDEDE] rounded-full flex items-center justify-center">
-                    <span className="font-bold text-[#686868]">1</span>
+                  <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+                    <span className="font-bold">1</span>
                   </div>
-                  <span className="text-white">
-                    Enter your registered email
-                  </span>
+                  <span>Enter your registered email</span>
                 </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-[#DEDEDE] rounded-full flex items-center justify-center">
-                    <span className="font-bold text-[#686868]">2</span>
-                  </div>
-                  <span className="text-white">
-                    Check your email for reset link
-                  </span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-[#DEDEDE]  rounded-full flex items-center justify-center">
-                    <span className="font-bold text-[#686868]">3</span>
-                  </div>
-                  <span className="text-white">Create a new password</span>
-                </div>
-              </div>
 
-              {/* Security Info */}
-              <div className="bg-black bg-opacity-20 rounded-lg p-4 mt-8">
-                <p className="text-white text-sm">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+                    <span className="font-bold">2</span>
+                  </div>
+                  <span>Check your email for reset link</span>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+                    <span className="font-bold">3</span>
+                  </div>
+                  <span>Create a new password</span>
+                </div>
+              </div> */}
+
+             
+              {/* <div className="bg-black/30 rounded-lg p-4 mt-8">
+                <p className="text-sm">
                   🔒 Your security is our priority. Reset links expire after 1
-                  hour for your protection.
+                  hour.
                 </p>
-              </div>
-            </div>
+              </div> */}
+            {/* </div> */}
 
-            {/* Testimonial */}
-            <div className="bg-black bg-opacity-20 rounded-lg p-4 mt-8">
-              <p className="text-white text-sm italic">
-                "The password reset process was quick and secure. Back to
-                creating in minutes!"
+            {/* Bottom */}
+            {/* <div className="bg-black/30 rounded-lg p-4 mt-8">
+              <p className="text-sm italic">
+                "The password reset process was quick and secure."
               </p>
-            </div>
+            </div> */}
           </div>
         </div>
 
@@ -102,7 +107,10 @@ const ForgotPassword = () => {
             <div className="md:hidden text-center mb-8">
               <div className="flex items-center justify-center gap-2 mb-4">
                 <div className="bg-[#D5E5F5]  p-2 rounded-full">
-                  <Star className="w-6 h-6 text-[#1C3753]" fill="currentColor" />
+                  <Star
+                    className="w-6 h-6 text-[#1C3753]"
+                    fill="currentColor"
+                  />
                 </div>
                 <h1 className="text-2xl font-bold text-gray-900">LaserCut</h1>
               </div>
@@ -173,18 +181,18 @@ const ForgotPassword = () => {
                 )}
               </button>
 
-               {/* Support Info */}
-            <div className="text-center mt-8 pt-6 border-t border-gray-200">
-              <p className="text-gray-600 text-sm">
-                Need help?{" "}
-                <Link
-                  to="/contact"
-                  className="text-amber-600 hover:text-amber-700 font-medium"
-                >
-                  Contact support
-                </Link>
-              </p>
-            </div>
+              {/* Support Info */}
+              <div className="text-center mt-8 pt-6 border-t border-gray-200">
+                <p className="text-gray-600 text-sm">
+                  Need help?{" "}
+                  <Link
+                    to="/contact"
+                    className="text-amber-600 hover:text-amber-700 font-medium"
+                  >
+                    Contact support
+                  </Link>
+                </p>
+              </div>
 
               {/* Help Text */}
               <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
@@ -194,7 +202,6 @@ const ForgotPassword = () => {
                 </p>
               </div>
             </form>
-
           </div>
         </div>
       </div>

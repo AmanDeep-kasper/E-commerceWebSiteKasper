@@ -81,7 +81,7 @@ const DiwaliProducts = () => {
   const formatINR = (n) => (n ? `₹${Number(n).toLocaleString("en-IN")}` : "--");
 
   return (
-    <div className=" bg-white shadow-sm rounded-lg py-10 px-4">
+    <div className="lg:px-20 md:px-[60px] px-4 py-[23px] bg-white shadow-sm rounded-lg">
       {/*Header */}
       <div className=" mx-auto text-start mb-12">
         <div className="flex justify-center mb-4">

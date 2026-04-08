@@ -43,6 +43,8 @@ export const registerUser = asyncHandler(async (req, res) => {
     phoneNumber,
     role: "user",
     otp,
+    lastOtpRequest: new Date(),
+    otpAttempts: 1,
     otpExpires,
   });
 
@@ -52,6 +54,53 @@ export const registerUser = asyncHandler(async (req, res) => {
     success: true,
     message: "OTP sent to email. Please verify within 10 minutes.",
     tempUserId: tempUser._id,
+  });
+});
+
+export const resendOTP = asyncHandler(async (req, res) => {
+  const { tempUserId } = req.body;
+
+  const tempUser = await TempUser.findById(tempUserId);
+
+  if (!tempUser) {
+    throw AppError.notFound(
+      "Session expired. Please register again.",
+      "NOT_FOUND",
+    );
+  }
+
+  const now = new Date();
+  const MIN_TIME = 60 * 1000; // 1 min cooldown
+
+  const timeSinceLast = now - (tempUser.lastOtpRequest || new Date(0));
+
+  // Cooldown check
+  if (timeSinceLast < MIN_TIME) {
+    const waitTime = Math.ceil((MIN_TIME - timeSinceLast) / 1000);
+
+    throw AppError.badRequest(
+      `Please wait ${waitTime} seconds before requesting OTP again.`,
+      "OTP_RATE_LIMIT",
+    );
+  }
+
+  // Generate new OTP
+  const otp = generateOTP();
+  const otpExpires = new Date(Date.now() + 10 * 60 * 1000);
+
+  await sendRegistrationEmail(tempUser.email, otp);
+
+  // Replace old OTP
+  tempUser.otp = otp;
+  tempUser.otpExpires = otpExpires;
+  tempUser.lastOtpRequest = now;
+  tempUser.otpAttempts = (tempUser.otpAttempts || 0) + 1;
+
+  await tempUser.save();
+
+  res.status(200).json({
+    success: true,
+    message: "OTP resent successfully",
   });
 });
 
@@ -105,34 +154,28 @@ export const verifyOTP = asyncHandler(async (req, res) => {
 
 export const loginUser = asyncHandler(async (req, res) => {
   const { identifier, password } = req.body;
-  console.log(identifier);
-  
+
+  const GENERIC_ERROR = "Invalid email or password";
+
+  // Normalize identifier
+  const cleanIdentifier = identifier?.trim().toLowerCase();
 
   let query = { isActive: true };
 
-  if (identifier.includes("@")) {
-    query.email = identifier;
+  if (cleanIdentifier.includes("@")) {
+    query.email = cleanIdentifier;
   } else {
-    query.phoneNumber = identifier;
+    query.phoneNumber = cleanIdentifier;
   }
 
   const user = await User.findOne(query).select(
     "+password +loginAttempts +lockUntil",
   );
 
+  // Prevent timing attack
   if (!user) {
     await bcryptDummy(password);
-    throw AppError.authentication(
-      "Invalid email or password",
-      "INVALID_CREDENTIALS",
-    );
-  }
-
-  if (!user.isActive) {
-    throw AppError.authentication(
-      "Your account has been deactivated.",
-      "ACCOUNT_DEACTIVATED",
-    );
+    throw AppError.authentication(GENERIC_ERROR, "INVALID_CREDENTIALS");
   }
 
   if (user.lockUntil && user.lockUntil > new Date()) {
@@ -147,25 +190,38 @@ export const loginUser = asyncHandler(async (req, res) => {
 
   const isPasswordValid = await user.comparePassword(password);
 
+  // Wrong password
   if (!isPasswordValid) {
-    const newAttempts = (user.loginAttempts || 0) + 1;
-    const updates = { loginAttempts: newAttempts };
+    // Small delay
+    await new Promise((r) => setTimeout(r, 300));
 
-    if (newAttempts >= 5) {
-      updates.lockUntil = new Date(Date.now() + 30 * 60 * 1000);
-      console.warn(`Account locked for user: ${user._id}`);
+    const attempts = (user.loginAttempts || 0) + 1;
+    const update = {
+      $inc: { loginAttempts: 1 },
+    };
+
+    // Lock after 5 attempts
+    if (attempts >= 5) {
+      update.$set = {
+        lockUntil: new Date(Date.now() + 30 * 60 * 1000),
+      };
+
+      console.warn({
+        event: "ACCOUNT_LOCKED",
+        userId: user._id,
+        ip: req.ip,
+      });
     }
 
-    await User.updateOne({ _id: user._id }, { $set: updates });
+    await User.updateOne({ _id: user._id }, update);
 
-    const remainingAttempts = Math.max(0, 5 - newAttempts);
-
-    throw AppError.authentication(
-      remainingAttempts > 0
-        ? `Invalid email or password. ${remainingAttempts} attempts remaining`
-        : "Invalid email or password. Account locked for 30 minutes",
-      "INVALID_CREDENTIALS",
-    );
+    console.warn({
+      event: "LOGIN_FAILED",
+      userId: user._id,
+      ip: req.ip,
+      attempts,
+    });
+    throw AppError.authentication(GENERIC_ERROR, "INVALID_CREDENTIALS");
   }
 
   const { accessToken, refreshToken, sessionId, expiresIn, tokenType } =
@@ -551,14 +607,13 @@ export const forgotPassword = asyncHandler(async (req, res) => {
     );
   }
 
+  // 🔥 Allow new reset after cooldown (invalidate old token)
   if (user.resetPasswordExpires && user.resetPasswordExpires > now) {
-    const timeRemaining = Math.ceil(
-      (user.resetPasswordExpires - now) / 1000 / 60,
-    );
-    throw AppError.badRequest(
-      `A reset link was already sent. Please wait ${timeRemaining} minutes or check your email.`,
-      "RESET_LINK_ALREADY_SENT",
-    );
+    console.warn(`Invalidating old reset token for: ${email}`);
+
+    // Invalidate old token
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
   }
 
   const { resetToken, hashedToken } = generateResetToken();

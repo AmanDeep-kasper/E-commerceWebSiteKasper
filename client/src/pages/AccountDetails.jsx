@@ -11,12 +11,14 @@ import {
 } from "lucide-react";
 import { useSelector, useDispatch } from "react-redux";
 import { updateUserDetails } from "../redux/cart/userSlice";
+import ChangePassword from "./ChangePassword";
 
 function AccountDetails() {
   const dispatch = useDispatch();
   const { user, isAuthenticated, loading } = useSelector((state) => state.user);
   const [isEditing, setIsEditing] = useState(false);
   const [tempData, setTempData] = useState(null);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -27,6 +29,7 @@ function AccountDetails() {
         gender: user.gender || "",
         alternateMobile: user.alternateMobile || "",
         profileImage: user.profileImage || "",
+        password: "",
       });
     }
   }, [user]);
@@ -53,17 +56,31 @@ function AccountDetails() {
       gender: user?.gender || "",
       alternateMobile: user?.alternateMobile || "",
       profileImage: user?.profileImage || "",
+      password: user?.password || "",
     });
     setIsEditing(false);
   };
 
+  const handleSearch = (e) => {
+    e.preventDefault(); // ❌ STOP URL like ?q=
+    const query = e.target.q.value;
+
+    console.log("Search:", query);
+
+    // 👉 if you want navigation use this instead
+    // navigate(`/search?q=${query}`)
+  };
+
   return (
     <div className="w-full font-inter">
-      <div className="bg-white md:rounded-md shadow-sm  overflow-hidden">
+      <ChangePassword
+        showPasswordModal={showPasswordModal}
+        setShowPasswordModal={setShowPasswordModal}
+      />
+
+      <div className="bg-white md:rounded-md shadow-sm overflow-hidden">
         <div className="flex flex-col-reverse lg:grid lg:grid-cols-3">
-          {/* ===== Left: Form ===== */}
           <div className="lg:col-span-2 max-sm:pb-4">
-            {/* Header */}
             <div className="p-4 sm:p-6 border-b border-gray-200 bg-gray-50">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div>
@@ -74,16 +91,20 @@ function AccountDetails() {
                     Manage your personal information
                   </p>
                 </div>
+
                 <div className="flex flex-wrap gap-2">
                   {isEditing ? (
                     <>
                       <button
+                        type="button"
                         onClick={handleCancel}
-                        className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium border-[#1C3753] text-[#1C3753] border  rounded-lg hover:bg-gray-50 transition"
+                        className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium border-[#1C3753] text-[#1C3753] border rounded-lg hover:bg-gray-50 transition"
                       >
                         Cancel
                       </button>
+
                       <button
+                        type="button"
                         onClick={handleSave}
                         disabled={loading}
                         className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium bg-[#1C3753] text-white rounded-lg shadow-sm hover:bg-[#1C3753] transition flex items-center"
@@ -94,6 +115,7 @@ function AccountDetails() {
                     </>
                   ) : (
                     <button
+                      type="button"
                       onClick={() => setIsEditing(true)}
                       className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-[#1C3753] border border-[#1C3753] rounded-lg hover:bg-gray-50 transition flex items-center"
                     >
@@ -105,9 +127,7 @@ function AccountDetails() {
               </div>
             </div>
 
-            {/* Form Section */}
             <div className="p-4 sm:p-6 space-y-5 sm:space-y-6">
-              {/* Email */}
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 bg-blue-50 rounded-lg border border-blue-100">
                 <div className="flex items-start gap-3">
                   <div className="p-2 bg-[#FFFFFF] rounded-full">
@@ -127,7 +147,6 @@ function AccountDetails() {
                 </div>
               </div>
 
-              {/* Full Name */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Full Name
@@ -149,7 +168,6 @@ function AccountDetails() {
                 )}
               </div>
 
-              {/* Date of Birth */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Date of Birth
@@ -172,7 +190,6 @@ function AccountDetails() {
                 )}
               </div>
 
-              {/* Gender */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Gender
@@ -206,7 +223,6 @@ function AccountDetails() {
                 )}
               </div>
 
-              {/* Mobile Number */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Mobile Number
@@ -216,7 +232,7 @@ function AccountDetails() {
                     type="tel"
                     value={tempData?.alternateMobile || ""}
                     onChange={(e) => {
-                      const onlyNums = e.target.value.replace(/\D/g, ""); // remove non-digits
+                      const onlyNums = e.target.value.replace(/\D/g, "");
                       if (onlyNums.length <= 10) {
                         handleInputChange("alternateMobile", onlyNums);
                       }
@@ -235,10 +251,47 @@ function AccountDetails() {
                   </div>
                 )}
               </div>
+
+              <div>
+                <div className="flex items-center justify-between">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Password
+                  </label>
+
+                  <button
+                    type="button"
+                    className="text-[#006EE1] text-sm mb-2"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setShowPasswordModal(true);
+                    }}
+                  >
+                    Change Password
+                  </button>
+                </div>
+
+                {isEditing ? (
+                  <input
+                    type="password"
+                    value={tempData?.password || ""}
+                    onChange={(e) =>
+                      handleInputChange("password", e.target.value)
+                    }
+                    className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1C3753] focus:border-[#1C3753] outline-none transition"
+                    placeholder="Enter your password"
+                  />
+                ) : (
+                  <div className="px-3 sm:px-4 py-2 sm:py-3 bg-gray-50 rounded-lg border border-gray-200">
+                    <p className="text-gray-800 text-sm sm:text-base">
+                      ***********
+                    </p>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
-          {/* ===== Right: Profile Summary ===== */}
           <div className="p-6 sm:p-8 flex flex-col items-center rounded-md bg-gradient-to-b from-[#D5E5F5] to-[#FFFFFF] space-y-5 sm:space-y-6">
             <div className="w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center bg-[#F6F8F9] rounded-full shadow-inner">
               {user?.profileImage ? (
@@ -251,6 +304,7 @@ function AccountDetails() {
                 <User className="w-10 h-10 sm:w-12 sm:h-12 text-yellow-600" />
               )}
             </div>
+
             <div className="text-center">
               <p className="text-gray-800 font-semibold text-base sm:text-lg">
                 {user?.name || "Not provided"}

@@ -109,9 +109,9 @@ function NewProducts() {
   return (
     <>
       <Navbar />
-      <Breadcrumbs title={"Latest Products"}></Breadcrumbs>
+      <Breadcrumbs title={"Best Selling Products"}></Breadcrumbs>
       <section className="lg:px-20 md:px-[60px] px-4 pb-[23px] bg-gray-50">
-        <FilterProducts text={"Latest Products"} sort={sort} />
+        <FilterProducts text={"Best Selling Products"} sort={sort} />
 
         <div className="flex lg:gap-6 items-start">
           {/* <div className="sticky top-4">

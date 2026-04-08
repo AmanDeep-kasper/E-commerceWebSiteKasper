@@ -8,6 +8,7 @@ import { useNavigate } from "react-router";
 import { Heart, Minus, Plus, ShoppingCart, Trash2 } from "lucide-react";
 import { addToWishlist, removeFromWishlist } from "../redux/cart/wishlistSlice";
 import { formatPrice, getPrices } from "../utils/homePageUtils";
+import { FaBagShopping } from "react-icons/fa6";
 
 function Card({ cardData = [] }) {
   const dispatch = useDispatch();
@@ -82,9 +83,11 @@ function Card({ cardData = [] }) {
       {cardData && cardData.length > 0 ? (
         cardData.map((item, index) => {
           const defaultVariant = item.variants?.[0];
+          // console.log(defaultVariant)
           const { base, effective, discountPercent, symbol } = getPrices(item);
-          const variantStock = defaultVariant?.variantQuantity ?? 0;
-          console.log(variantStock)
+          // console.log(item)
+          const variantStock = defaultVariant?.variantAvailableStock ?? 0;
+          // console.log(variantStock)
 
           const outOfStock = variantStock <= 0;
 
@@ -114,7 +117,7 @@ function Card({ cardData = [] }) {
               onClick={() =>
                 navigate(`/product/${encodeURIComponent(item.uuid)}`)
               }
-              className="relative group flex flex-col lg:justify-between items-center bg-white rounded-lg sm:h-[333px] max-sm:h-max overflow-hidden group lg:hover:drop-shadow-md aspect-4/3 object-top cursor-pointer border border-gray-200"
+              className="relative group flex flex-col lg:justify-between items-center bg-white rounded-lg sm:h-[333px] lg:h-[333px] max-sm:h-max overflow-hidden group lg:hover:drop-shadow-md aspect-4/3 object-top cursor-pointer border border-gray-200"
             >
               {/* {cartItems.some(i => i.uuid === item.uuid && i.variantId === item.variantId) && <div className="absolute bg-white/70 px-2 py-1 rounded-full text-xs top-1 left-1 z-20 backdrop-blur-xl h-8 w-8 flex items-center"><ShoppingCart size={16}/></div>} */}
 
@@ -189,107 +192,30 @@ function Card({ cardData = [] }) {
                 alt={item?.title || "Product"}
               />
 
-              <div className="p-2 flex flex-col md:gap-[1.5px] w-[100%] gap-[3px] lg:justify-between bg-white min-h-[150px] md:min-h-[178px]  lg:group-hover:-translate-y-12 transition duration-300">
-                <p className="text-[14px] w-full line-clamp-1">
-                  {item.title || "Untitled Product"}
+              {/* <div className="p-2 flex flex-col gap-1.5 w-full bg-white min-h-[150px] md:min-h-[173px] lg:justify-between lg:group-hover:-translate-y-12 transition-transform duration-300"> */}
+              <div className="p-2 flex flex-col gap-1.5 w-full bg-white min-h-[150px] md:min-h-[113px] lg:justify-between transition-transform duration-300">
+
+                <div className="flex items-center flex-wrap gap-2">
+                <p className="text-sm w-full line-clamp-1 overflow-hidden text-ellipsis">
+                  {item.productTittle || "Untitled Product"}
                 </p>
+                  <span className="text-gray-900 font-medium text-lg tracking-tight">
+                    {formatPrice(effective)}
+                  </span>
 
-                {/* {item.tags && (
-                  <p className="absolute top-2 text-[10px] lg:hidden text-white py-0.5 px-1 bg-[#1C3753] rounded-sm w-max">
-                    {item.tags[0]}
-                  </p>
-                )} */}
-
-                {/* {item.reviews && (
-                  <div className="lg:hidden flex gap-2 items-center">
-                    <Ratings avgRating={item.reviews?.length || 0} />
-                    <p className="text-[10px] text-[#383838]">
-                      ({item.reviews?.length || "0"})
-                    </p>
-                  </div>
-                )} */}
-                <div>
-                  {/* {item.amazonPrice && (
-                    <p className="text-[#aa2f1f] text-sm">
-                      Amazon Price: {formatPrice(item.amazonPrice)}
-                    </p>
-                  )} */}
-                  <div className="flex items-center flex-wrap gap-2">
-                    <span className="text-gray-900 font-medium text-lg tracking-tight">
-                      {formatPrice(effective)}
-                    </span>
-
-                    {discountPercent > 0 && (
-                      <>
-                        {/* <span className="text-gray-400 text-xs line-through font-light">
-                          {formatPrice(base)}
-                        </span> */}
-                        <span className="text-[#168408] text-sm">
-                          {discountPercent}% Off
-                        </span>
-                      </>
-                    )}
-                  </div>
                   <span className="text-gray-400 text-xs line-through font-light">
                     {formatPrice(base)}
                   </span>
-                </div>
-                {Array.isArray(item?.reviews) && item.reviews.length > 0 && (
-                  <div className="lg:hidden flex gap-2 items-center">
-                    <Ratings avgRating={calcAvgRating(item.reviews)} />
-                    <p className="text-[10px] text-[#383838]">
-                      ({item.reviews.length})
-                    </p>
-                  </div>
-                )}
+                  <div className="border-l border-[#DBDBDB] h-3"></div>
 
-                {/* <p className="text-[10px] lg:hidden ">
-                  Delivery in {item.deliverBy || "3-5"} days
-                </p> */}
-
-                {/* {item.color?.[0] && (
-                  <div
-                    className={twMerge(
-                      "w-4 h-4 ring-2 lg:block hidden ring-[#BEBEBE] ring-offset-2 ml-1 rounded-full",
-                      firstColorClass
-                    )}
-                  />
-                )} */}
-
-                {/* {item.color?.[0] && (
-                  <div className="flex gap-2">
-                    {item?.color.map((color) => (
-                      <div
-                        key={color}
-                        className={twMerge(
-                          "w-4 h-4 ring-2 lg:block hidden ring-[#BEBEBE] ring-offset-2 ml-1 rounded-full",
-                          colorMap[color]
-                        )}
-                      />
-                    ))}
-                  </div>
-                )} */}
-                {/* <div
-                  className={twMerge(
-                    "w-4 h-4 ring-2 max-xl:hidden ring-[#BEBEBE] ring-offset-2 ml-1 mb-2 rounded-full",
-                    colorMap[defaultVariant?.color] || "bg-gray-300",
+                  {discountPercent > 0 && (
+                    <div>
+                      <span className="text-[#168408] text-sm">
+                        {discountPercent}% Off
+                      </span>
+                    </div>
                   )}
-                /> */}
-
-                {/* <div
-                  onClick={(e) => {
-                    e.stopPropagation(); // prevent navigating to details
-                    dispatch(addToCart(item));
-                  }}
-                  className="pt-1 flex w-full justify-center lg:text-[15px] md:text-[12px] text-[10px] text-center whitespace-nowrap"
-                >
-                  <Button
-                    btnClass="flex-1"
-                    className="flex-1 py-2 w-full justify-center lg:text-[15px] md:text-[12px] text-[10px] text-center whitespace-nowrap"
-                  >
-                    Add to Cart
-                  </Button>
-                </div> */}
+                </div>
 
                 <div className="flex gap-3 justify-center">
                   {outOfStock ? (
@@ -300,7 +226,7 @@ function Card({ cardData = [] }) {
                       Out of Stock
                     </button>
                   ) : inCart ? (
-                    <div className="flex items-center w-full text-xs justify-between gap-2 px-2 ring-2 ring-[#1C3753]/50 p-1 rounded-full">
+                    <div className="flex items-center w-full text-xs justify-between gap-2 px-2 ring-2 ring-[#1C3753]/50 p-1 rounded-md">
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
@@ -363,14 +289,19 @@ function Card({ cardData = [] }) {
                         handleAddToCart(item, defaultVariant);
                       }}
                       disabled={isLoading}
-                      className="px-4 py-2 bg-[#1C3753] text-xs w-full text-center rounded-lg text-white"
+                      className="px-4 py-2 bg-[#252525] text-xs w-full text-center rounded text-white"
                     >
                       {isLoading ? (
                         <div className="flex items-center gap-2">
-                          <div className="w-4 h-4 border-2 border-white border-opacity-30 rounded-full animate-spin"></div>
+                          <div className="w-4 h-4 border-2 border-white border-opacity-30 rounded-md animate-spin"></div>
                         </div>
                       ) : (
-                        "Add to Cart"
+                        <div className="flex items-center justify-center gap-4">
+                          <p>Add to Cart</p>
+                          <span className="text-white">
+                            <FaBagShopping />
+                          </span>
+                        </div>
                       )}
                     </button>
                   )}

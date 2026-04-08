@@ -1,111 +1,151 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useLocation, useParams } from "react-router";
-import axiosInstance from "../api/axiosInstance";
 
 import Breadcrumbs from "../components/Breadcrumbs";
-import Categories from "../components/Categories";
 import Filter from "../components/Filter";
 import Card from "../components/Card";
 import Navbar from "../components/Navbar";
 import Footer from "../sections/Footer";
 
-import productsData from "../data/products.json";
 import EmptyState from "../components/EmptyState";
 import { PackageOpen } from "lucide-react";
-
-// colors
-const colors = [
-  { colorName: "golden" },
-  { colorName: "black" },
-  { colorName: "white" },
-  { colorName: "silver" },
-];
+import axiosInstance from "../api/axiosInstance";
 
 function Product() {
   const [param, setParam] = useState("");
-  const [color, setColor] = useState("");
+  const [color, setColor] = useState([]);
   const [items, setItems] = useState([]);
+  const [originalItems, setOriginalItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
   const { categoryName, subcategoryName } = useParams();
   const { state } = useLocation();
   const val = state;
 
-  // Fetch / Filter products
   useEffect(() => {
-    try {
-      setLoading(true);
-      setError("");
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
+        setError("");
 
-      let filteredProducts = productsData;
+        const res = await axiosInstance.get("/products/all");
+        let fetchedProducts = res.data?.products || res.data || [];
 
-      // Filter by category
-      if (categoryName) {
-        filteredProducts = filteredProducts.filter(
-          (p) => p.category.toLowerCase() === categoryName.toLowerCase(),
-        );
+        if (categoryName) {
+          fetchedProducts = fetchedProducts.filter(
+            (p) =>
+              p.category &&
+              p.category.toLowerCase() ===
+                decodeURIComponent(categoryName).toLowerCase()
+          );
+        }
+
+        if (subcategoryName) {
+          fetchedProducts = fetchedProducts.filter(
+            (p) =>
+              p.subcategory &&
+              p.subcategory.toLowerCase() ===
+                decodeURIComponent(subcategoryName).toLowerCase()
+          );
+        }
+
+        setItems(fetchedProducts);
+        setOriginalItems(fetchedProducts);
+      } catch (err) {
+        console.error("API Error:", err);
+        setError("Failed to load products");
+      } finally {
+        setLoading(false);
       }
+    };
 
-      // Filter by subcategory
-      if (subcategoryName) {
-        filteredProducts = filteredProducts.filter(
-          (p) =>
-            p.subcategory &&
-            p.subcategory.toLowerCase() === subcategoryName.toLowerCase(),
-        );
-      }
-
-      setItems(filteredProducts);
-    } catch (err) {
-      console.error(err);
-      setError("Failed to load products.");
-    } finally {
-      setLoading(false);
-    }
+    fetchProducts();
   }, [categoryName, subcategoryName]);
 
-  // Sorting logic
+  const colors = useMemo(() => {
+    const uniqueColors = new Set();
+
+    originalItems.forEach((item) => {
+      item.variants?.forEach((variant) => {
+        if (variant.variantColor) {
+          uniqueColors.add(variant.variantColor.toLowerCase());
+        }
+      });
+    });
+
+    return [...uniqueColors].map((colorName) => ({ colorName }));
+  }, [originalItems]);
+
   const sort = (val) => {
+    let sortedItems = [...items];
+
     switch (val) {
       case "high":
-        setItems((prev) => [...prev].sort((a, b) => b.basePrice - a.basePrice));
+        sortedItems.sort((a, b) => (b.basePrice || 0) - (a.basePrice || 0));
         break;
+
       case "low":
-        setItems((prev) => [...prev].sort((a, b) => a.basePrice - b.basePrice));
+        sortedItems.sort((a, b) => (a.basePrice || 0) - (b.basePrice || 0));
         break;
+
       case "atoz":
-        setItems((prev) =>
-          [...prev].sort((a, b) => a.title.localeCompare(b.title)),
+        sortedItems.sort((a, b) =>
+          (a.productTittle || a.title || "").localeCompare(
+            b.productTittle || b.title || ""
+          )
         );
         break;
+
       case "rating":
-        return setItems((prev) =>
-          [...prev].sort((a, b) => {
-            const avgA =
-              a.reviews.reduce((sum, r) => sum + r.rating, 0) /
-              a.reviews.length;
-            console.log(avgA);
-            const avgB =
-              b.reviews.reduce((sum, r) => sum + r.rating, 0) /
-              b.reviews.length;
-            return avgB - avgA;
-          }),
-        );
-      case "latest":
-        setItems([...items].reverse());
+        sortedItems.sort((a, b) => {
+          const avgA =
+            Array.isArray(a.reviews) && a.reviews.length > 0
+              ? a.reviews.reduce((sum, r) => sum + (r.rating || 0), 0) /
+                a.reviews.length
+              : 0;
+
+          const avgB =
+            Array.isArray(b.reviews) && b.reviews.length > 0
+              ? b.reviews.reduce((sum, r) => sum + (r.rating || 0), 0) /
+                b.reviews.length
+              : 0;
+
+          return avgB - avgA;
+        });
         break;
+
+      case "latest":
+        sortedItems.reverse();
+        break;
+
       default:
+        sortedItems = [...originalItems];
         break;
     }
+
+    setItems(sortedItems);
   };
 
-  // Filter by search param (param) and color
-  const filterArts = items.filter((p) =>
-    p.category.toLowerCase().includes(param),
-  );
+  const filterArts = items.filter((p) => {
+    if (!param.trim()) return true;
+
+    const search = param.toLowerCase();
+
+    return (
+      p.productTittle?.toLowerCase().includes(search) ||
+      p.title?.toLowerCase().includes(search) ||
+      p.subcategory?.toLowerCase().includes(search) ||
+      p.category?.toLowerCase().includes(search)
+    );
+  });
 
   const filteredArts = filterArts.filter(
-    (p) => !color.length || p.variants.some((v) => color.includes(v.color)),
+    (p) =>
+      !color.length ||
+      p.variants?.some((v) =>
+        color.includes(v.variantColor?.toLowerCase())
+      )
   );
 
   return (
@@ -114,7 +154,6 @@ function Product() {
       <Breadcrumbs category={categoryName} subcategory={subcategoryName} />
 
       <div className="lg:px-20 md:px-[60px] px-4 pb-[23px] lg:flex gap-4 bg-gray-50">
-        {/* Sidebar Filter */}
         <Filter
           setParam={setParam}
           val={val}
@@ -123,7 +162,6 @@ function Product() {
           sort={sort}
         />
 
-        {/* Product Grid */}
         <div className="flex-1 lg:gap-6 items-start">
           {loading ? (
             <p>Loading products...</p>
@@ -132,13 +170,13 @@ function Product() {
           ) : filteredArts.length === 0 ? (
             <EmptyState
               heading="No Products Found"
-              description="We couldn’t find any products matching your filters. Try
-                adjusting your search or explore all products."
+              description="We couldn’t find any products matching your filters. Try adjusting your search or explore all products."
               icon={PackageOpen}
               ctaLabel="Reset Filters"
               onClick={() => {
                 setParam("");
-                setColor("");
+                setColor([]);
+                setItems(originalItems);
               }}
             />
           ) : (
