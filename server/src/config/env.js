@@ -27,7 +27,7 @@ export default {
   JWT_ACCESS_SECRET: process.env.JWT_ACCESS_SECRET,
   JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET,
 
-  JWT_ACCESS_EXPIRATION: process.env.JWT_ACCESS_EXPIRATION || "15m",
+  JWT_ACCESS_EXPIRATION: process.env.JWT_ACCESS_EXPIRATION || "3m",
   JWT_REFRESH_EXPIRATION: process.env.JWT_REFRESH_EXPIRATION || "7d",
 
   JWT_ISSUER: process.env.JWT_ISSUER,
@@ -41,8 +41,6 @@ export default {
   NODE_ENV: process.env.NODE_ENV || "development",
 
   SMTP_HOST: process.env.SMTP_HOST,
-  SMTP_PORT: process.env.SMTP_PORT || "587",
-  SMTP_SECURE: process.env.SMTP_SECURE === "true",
   SMTP_USER: process.env.SMTP_USER,
   SMTP_PASSWORD: process.env.SMTP_PASSWORD,
   SMTP_FROM_EMAIL: process.env.SMTP_FROM_EMAIL,
