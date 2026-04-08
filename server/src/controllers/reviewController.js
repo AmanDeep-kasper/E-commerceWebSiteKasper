@@ -58,7 +58,26 @@ export const addReview = asyncHandler(async (req, res) => {
 });
 
 export const getAllUserReviews = asyncHandler(async (req, res) => {
- 
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 20;
+  const userId = req.user?.userId;
+
+  const skip = (page - 1) * limit;
+
+  const reviews = await Review.find({ userId }).skip(skip).limit(limit).lean();
+  const total = await Review.countDocuments({ userId });
+
+  res.status(200).json({
+    success: true,
+    message: "Reviews fetched successfully",
+    data: reviews,
+    pagination: {
+      page,
+      limit,
+      total: reviews.length,
+      totalPages: Math.ceil(total / limit),
+    },
+  });
 });
 
 export const getAllProductReviews = asyncHandler(async (req, res) => {
@@ -108,7 +127,61 @@ export const getReview = asyncHandler(async (req, res) => {
   });
 });
 
-export const updateReview = asyncHandler(async (req, res) => {});
+export const updateReview = asyncHandler(async (req, res) => {
+  const { reviewId } = req.params;
+  const { rating, reviewText, removeImages } = req.body;
+  const userId = req.user?.userId;
+
+  const review = await Review.findById(reviewId);
+
+  if (!review) {
+    throw AppError.notFound("Review not found", "NOT_FOUND");
+  }
+
+  // Ownership check
+  if (review.userId.toString() !== userId.toString()) {
+    throw AppError.unauthorized("Not allowed");
+  }
+
+  // Update fields
+  if (rating !== undefined) review.rating = rating;
+  if (reviewText !== undefined) review.reviewText = reviewText;
+
+  // DELETE MULTIPLE IMAGES
+  if (removeImages && Array.isArray(removeImages)) {
+    // delete from cloudinary (parallel for speed)
+    await Promise.all(
+      removeImages.map((publicId) => deleteImageFromCloudinary(publicId)),
+    );
+
+    // remove from DB
+    review.reviewImages = review.reviewImages.filter(
+      (img) => !removeImages.includes(img.publicId),
+    );
+  }
+
+  // ADD MULTIPLE IMAGES
+  if (req.files && req.files.length > 0) {
+    const uploadedImages = await Promise.all(
+      req.files.map((file) => uploadImageToCloudinary(file.path, "reviews")),
+    );
+
+    const formattedImages = uploadedImages.map((img) => ({
+      url: img.url,
+      publicId: img.publicId,
+    }));
+
+    review.reviewImages.push(...formattedImages);
+  }
+
+  await review.save();
+
+  res.status(200).json({
+    success: true,
+    message: "Review updated successfully",
+    data: review,
+  });
+});
 
 export const deleteReview = asyncHandler(async (req, res) => {
   const { reviewId } = req.params;

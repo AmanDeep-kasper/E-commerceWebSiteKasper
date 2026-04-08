@@ -5,7 +5,9 @@ import {
   addReview,
   deleteReview,
   getAllProductReviews,
+  getAllUserReviews,
   getReview,
+  updateReview,
 } from "../controllers/reviewController.js";
 
 const router = express.Router();
@@ -28,5 +30,20 @@ router.delete(
 );
 
 router.get("/all-product-reviews/:productId", getAllProductReviews);
+
+router.get(
+  "/get-user-reviews",
+  authenticate,
+  authorize("user"),
+  getAllUserReviews,
+);
+
+router.patch(
+  "/update-review/:reviewId",
+  authenticate,
+  authorize("user"),
+  upload.array("reviewImages", 5),
+  updateReview,
+);
 
 export default router;
