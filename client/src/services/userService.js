@@ -8,7 +8,7 @@ const register = async (formData) => {
 };
 
 const verifyEmail = async (data) => {
-  const res = await axiosInstance.post("/auth/verify-email", data);
+  const res = await axiosInstance.post("/auth/verify", data);
   return res.data;
 };
 

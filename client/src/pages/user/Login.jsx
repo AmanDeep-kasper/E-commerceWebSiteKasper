@@ -6,7 +6,7 @@ import { loginUser } from "../../redux/cart/userSlice";
 import MainLog from "../../assets/IconsUsed/MainLogo.png";
 
 function Login() {
-  const [formData, setFormData] = useState({ email: "", password: "" });
+  const [formData, setFormData] = useState({ identifier: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
   const dispatch = useDispatch();
   const { loading, error, isAuthenticated } = useSelector(
@@ -120,7 +120,7 @@ function Login() {
                     type="email"
                     name="email"
                     placeholder="your@email.com"
-                    value={formData.email}
+                    value={formData.identifier}
                     onChange={handleChange}
                     className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent transition-all"
                     required
