@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { Eye, EyeOff, Mail, Lock, Star, LogIn, ArrowRight } from "lucide-react";
-import { loginUser } from "../../redux/cart/userSlice";
+import { getUserDetails, loginUser } from "../../redux/cart/userSlice";
 import MainLog from "../../assets/IconsUsed/HomeMainLogo.png";
 import MainVideo from "../../assets/FirstPageVideo/login.mp4";
 
@@ -10,18 +10,28 @@ function Login() {
   const [formData, setFormData] = useState({ identifier: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
   const dispatch = useDispatch();
-  const { loading, error, isAuthenticated } = useSelector(
+  const { authLoading, error, isAuthenticated } = useSelector(
     (state) => state.user,
   );
   const navigate = useNavigate();
 
-  // after login success
-  // navigate("/home");
-
   const handleLogin = async (e) => {
     e.preventDefault();
-    dispatch(loginUser(formData));
+    if (authLoading) return;
+
+    try {
+      await dispatch(loginUser(formData)).unwrap();
+      await dispatch(getUserDetails()); // 🔥 VERY IMPORTANT
+    } catch (err) {
+      console.log(err);
+    }
   };
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/home", { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleChange = (e) => {
     setFormData({
@@ -29,12 +39,6 @@ function Login() {
       [e.target.name]: e.target.value,
     });
   };
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      navigate("/home");
-    }
-  }, [isAuthenticated, navigate]);
 
   return (
     <div className="flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
@@ -137,7 +141,7 @@ function Login() {
                     onChange={handleChange}
                     className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent transition-all"
                     required
-                    disabled={loading}
+                    disabled={authLoading}
                   />
                   <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                 </div>
@@ -166,7 +170,7 @@ function Login() {
                     onChange={handleChange}
                     className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent transition-all"
                     required
-                    disabled={loading}
+                    disabled={authLoading}
                   />
                   <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <button
@@ -201,10 +205,10 @@ function Login() {
               {/* Login Button */}
               <button
                 type="submit"
-                disabled={loading}
+                disabled={authLoading}
                 className="w-full bg-[#1800AC]  hover:bg-[#FFFFF] hover:text-white disabled:bg-gray-400 text-[#FFFFFF] py-3 px-4 rounded-lg font-medium transition-all duration-200 transform hover:scale-[1.02] disabled:scale-100 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
-                {loading ? (
+                {authLoading ? (
                   <>
                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                     Signing In...
