@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { Eye, EyeOff, Mail, Lock, Star, LogIn, ArrowRight } from "lucide-react";
 import { loginUser } from "../../redux/cart/userSlice";
-import MainLog from "../../assets/IconsUsed/MainLogo.png";
+import MainLog from "../../assets/FirstPageVideo/login.mp4";
 
 function Login() {
   const [formData, setFormData] = useState({ identifier: "", password: "" });
