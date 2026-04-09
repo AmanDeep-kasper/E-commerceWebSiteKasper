@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import { Eye, EyeOff, Lock, CheckCircle, Star, ArrowLeft } from "lucide-react";
 import userService from "../../services/userService";
 import MainLog from "../../assets/IconsUsed/HomeMainLogo.png";
+import SideImg from "../../assets/FirstPageVideo/RestImg.png";
 
 const ResetPassword = () => {
   const { token } = useParams();
@@ -78,68 +79,25 @@ const ResetPassword = () => {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
       <div className="w-full h-screen flex bg-white rounded-2xl">
         {/* Left Side - Welcome Section */}
-        <div className="hidden md:flex flex-1 bg-gradient-to-br from-[#1C3753] to-[#1C3753] p-8 text-white">
-          <div className="flex flex-col justify-between h-full">
-            {/* Logo */}
-            <div className="flex items-center gap-3 mb-8">
-              {/* <div className="bg-white p-2 rounded-full">
-                <Star className="w-6 h-6 text-[#FFFFFF]" fill="currentColor" />
-              </div>
-              <h1 className="text-2xl font-bold">LaserCut</h1> */}
-              <img src={MainLog} alt="lazercut" />
-            </div>
-
-            {/* Content */}
-            <div className="space-y-8">
-              <div>
-                <h2 className="text-4xl font-bold mb-4">Create New Password</h2>
-                <p className="text-[#FFFFFF] text-lg">
-                  Choose a strong password to secure your account.
-                </p>
-              </div>
-
-              {/* Password Tips */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <CheckCircle className="w-5 h-5 text-[#FFFFFF]" />
-                  <span className="text-[#FFFFFF]">
-                    Use at least 8 characters
-                  </span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <CheckCircle className="w-5 h-5 text-[#FFFFFF]" />
-                  <span className="text-[#FFFFFF]">
-                    Mix letters, numbers & symbols
-                  </span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <CheckCircle className="w-5 h-5 text-[#FFFFFF]" />
-                  <span className="text-[#FFFFFF]">Avoid common passwords</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <CheckCircle className="w-5 h-5 text-[#FFFFFF]" />
-                  <span className="text-[#FFFFFF]">
-                    Don't reuse old passwords
-                  </span>
-                </div>
-              </div>
-
-              {/* Security Info */}
-              {/* <div className="bg-black bg-opacity-20 rounded-lg p-4 mt-8">
-                <p className="text-green-100 text-sm">
-                  🔒 Your new password will be securely encrypted and protected.
-                </p>
-              </div> */}
-            </div>
-
-            {/* Testimonial */}
-            <div className="">
-              <p className="text-white text-sm ">
-                *Your new password will be securely encrypted and protected.*
-              </p>
-            </div>
-          </div>
-        </div>
+        <div className="hidden md:flex flex-1 relative overflow-hidden text-white">
+                 {/* Background Image */}
+                 <img
+                   src={SideImg} // 🔁 change your image path
+                   alt="background"
+                   className="absolute inset-0 w-full h-full object-cover"
+                 />
+       
+                 {/* Overlay (important for readability) */}
+                 {/* <div className="absolute inset-0 bg-[#1C3753]/70"></div> */}
+       
+                 {/* Content */}
+                 <div className="relative z-10 flex flex-col justify-between h-full p-8">
+                   {/* Logo */}
+                   <div className="flex items-center gap-3 mb-8">
+                     <img src={MainLog} alt="lazercut" />
+                   </div>
+                 </div>
+               </div>
 
         {/* Right Side - Reset Password Form */}
         <div className="flex-1 p-8 md:p-12 md:flex justify-center items-center">

@@ -86,13 +86,6 @@ function RegisterPage() {
             {/* Mobile Header */}
             <div className="md:hidden text-center mb-8">
               <div className="flex items-center justify-center gap-2 mb-4">
-                {/* <div className="bg-[#D5E5F5] p-2 rounded-full">
-                  <Star
-                    className="w-6 h-6 text-[#1C3753]"
-                    fill="currentColor"
-                  />
-                </div> */}
-                {/* <h1 className="text-2xl font-bold text-gray-900">LaserCut</h1> */}
                  <img src={MainLog} alt="lazercut" />
               </div>
               <p className="text-gray-600">
@@ -151,26 +144,6 @@ function RegisterPage() {
                 <span className="text-xs mt-2 text-gray-600">Complete</span>
               </div>
             </div>
-
-            {/* Header Card */}
-            {/* <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl p-6 mb-6 border border-amber-200">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h1 className="text-2xl font-bold text-gray-900 mb-2">
-                    First Time Here?
-                  </h1>
-                  <div className="bg-black text-white px-4 py-2 rounded-lg text-lg font-semibold inline-block">
-                    Sign Up & Save Big!
-                  </div>
-                </div>
-                <div className="hidden md:flex items-center justify-center w-16 h-16 bg-amber-100 rounded-full">
-                  <Star
-                    className="w-8 h-8 text-amber-600"
-                    fill="currentColor"
-                  />
-                </div>
-              </div>
-            </div> */}
 
             {/* Content Sections */}
             {step === "register" && (
@@ -270,7 +243,7 @@ function RegisterPage() {
 
             {step === "otp" && (
               <div>
-                <button
+                {/* <button
                   onClick={handleBackToRegister}
                   className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6 transition-colors p-2 rounded-lg hover:bg-gray-100"
                 >
@@ -278,7 +251,7 @@ function RegisterPage() {
                   <span className="text-sm font-medium">
                     Back to registration
                   </span>
-                </button>
+                </button> */}
 
                 <div className="text-center mb-6">
                   <div className="bg-green-50 p-3 rounded-full w-12 h-12 mx-auto mb-4 flex items-center justify-center">
