@@ -1,7 +1,10 @@
 import axios from "axios";
 
 // const baseURL = "https://e-commerbackend-5.onrender.com/api";
+// moid api 
 const baseURL = "http://localhost:5000/api/v1";
+// aman 
+// const baseURL = "http://localhost:5000/api/";
 
 const axiosInstance = axios.create({
   baseURL,

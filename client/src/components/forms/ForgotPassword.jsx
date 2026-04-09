@@ -166,7 +166,7 @@ const ForgotPassword = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-[#DEDEDE] text-[#686868] hover:bg-[#1C3753] hover:text-white disabled:bg-gray-400 py-3 px-4 rounded-lg font-semibold transition-all duration-200 transform hover:scale-[1.02] disabled:scale-100 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full bg-[#1800AC] text-[#FFFFFF] hover:bg-[#1C3753] hover:text-white disabled:bg-gray-400 py-3 px-4 rounded-lg font-semibold transition-all duration-200 transform hover:scale-[1.02] disabled:scale-100 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {loading ? (
                   <>
@@ -195,7 +195,7 @@ const ForgotPassword = () => {
               </div>
 
               {/* Help Text */}
-              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+              <div className="">
                 <p className="text-sm text-gray-600 text-center">
                   💡 Check your spam folder if you don't see the email within a
                   few minutes

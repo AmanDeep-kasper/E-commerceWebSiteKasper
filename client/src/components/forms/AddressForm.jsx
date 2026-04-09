@@ -105,7 +105,7 @@ const AddressForm = ({ initialData = null, onClose, inline = false }) => {
         {/* Header */}
         {!inline && (
           <div className="flex justify-between items-center p-6 border-b border-gray-200 sticky top-0 bg-white rounded-t-xl">
-            <h1 className="text-lg sm:text-xl font-semibold text-gray-800">
+            <h1 className="text-lg sm:text-xl font-semibold font-marcellus text-[#1800AC]">
               {initialData ? "Edit Address" : "Add New Address"}
             </h1>
             <button
@@ -246,7 +246,7 @@ const AddressForm = ({ initialData = null, onClose, inline = false }) => {
                   }
                   className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-all ${
                     formData.tag === type.value
-                      ? "border-blue-500 bg-blue-50 text-blue-700"
+                      ? "border-[#1800AC] bg-white text-[#1800AC]"
                       : "border-gray-300 hover:border-gray-400 text-gray-700"
                   }`}
                 >
@@ -276,14 +276,14 @@ const AddressForm = ({ initialData = null, onClose, inline = false }) => {
               <button
                 type="button"
                 onClick={onClose}
-                className="flex-1 px-6 py-3 border border-[#1C3753] rounded-lg text-[#1C3753] font-medium hover:bg-gray-50"
+                className="flex-1 px-6 py-3 border border-[#0C0057] rounded-lg text-[#1C3753] font-medium hover:bg-gray-50"
               >
                 Cancel
               </button>
             )}
             <button
               type="submit"
-              className="flex-1 px-6 py-3 bg-[#1C3753] text-white font-medium rounded-lg hover:bg-[#101f30]"
+              className="flex-1 px-6 py-3 bg-[#0C0057] text-white font-medium rounded-lg hover:bg-[#101f30]"
             >
               {initialData ? "Update Address" : "Save"}
             </button>

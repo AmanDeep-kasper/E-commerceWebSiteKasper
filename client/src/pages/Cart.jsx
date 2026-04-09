@@ -17,6 +17,7 @@ import { formatPrice, getPrices } from "../utils/homePageUtils";
 import Modal from "../components/Modal";
 import EmptyState from "../components/EmptyState";
 import { twMerge } from "tailwind-merge";
+import Ratings from "../components/Ratings";
 
 function Cart() {
   const [open, setOpen] = useState(false);
@@ -25,6 +26,8 @@ function Cart() {
   const { cartItems, totalPrice, totalItems, totalDiscount } = useSelector(
     (s) => s.cart,
   );
+
+  console.log(cartItems);
   const dispatch = useDispatch();
   const closeDialog = () => setOpen(false);
 
@@ -38,13 +41,6 @@ function Cart() {
     (item) => !item.stockQuantity || item.quantity > item.stockQuantity,
   );
 
-  // const hasOutOfStock = cartItems.some(
-  //   (item) =>
-  //     !item.variantQuantity ||
-  //     item.variantQuantity <= 0 ||
-  //     item.quantity > item.variantQuantity
-  // );
-
   return (
     <>
       <Navbar />
@@ -56,11 +52,13 @@ function Cart() {
             <div className=" bg-white md:rounded-lg shadow-sm">
               <div className="p-4 md:p-6 flex items-center justify-between border-b border-gray-200">
                 <div className="text-xl font-medium flex items-center gap-2 text-gray-800">
-                  <Link to="/">
+                  <Link to="/home">
                     {" "}
                     <ChevronLeft className="w-7 h-7" />
                   </Link>{" "}
-                  Shopping Cart ({totalItems})
+                  <span className="font-marcellus text-[#1800AC]">
+                    Shopping Cart ({totalItems})
+                  </span>
                 </div>
                 {cartItems.length > 1 && (
                   <button
@@ -74,32 +72,6 @@ function Cart() {
               </div>
 
               {cartItems.length === 0 ? (
-                //   <div className="h-[70vh] flex flex-col justify-center items-center text-center px-4">
-                //     {/* Icon Circle */}
-                //     <div className="mx-auto md:w-28 md:h-28 w-16 h-16 bg-amber-50 rounded-full flex items-center justify-center mb-6 shadow-inner">
-                //       <ShoppingCart className="md:w-14 md:h-14 w-8 h-8 text-amber-400" />
-                //     </div>
-
-                //     {/* Heading */}
-                //     <h3 className="text-lg md:text-2xl font-semibold text-gray-900 mb-3">
-                //       Your Cart is Empty
-                //     </h3>
-
-                //     {/* Subtext */}
-                //     <p className="text-sm md:text-base text-gray-500 max-w-sm mb-4 md:mb-8">
-                //       Looks like you haven’t added anything yet. Browse our
-                //       collection and find something you love.
-                //     </p>
-
-                //     {/* CTA Button */}
-                //     <Link
-                //       to="/products"
-                //       className="inline-block bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600
-                //  text-gray-900 rounded-full md:px-8 md:py-3 px-4 py-2 text-sm md:text-base font-medium transition-all shadow-md hover:shadow-lg"
-                //     >
-                //       Continue Shopping
-                //     </Link>
-                //   </div>
                 <EmptyState
                   heading="Your Cart is Empty"
                   description="Looks like you haven’t added anything yet. Browse our
@@ -115,15 +87,7 @@ function Cart() {
                       // const { base, effective } = getPrices(item);
                       const base = Number(item.basePrice);
                       const effective = Number(item.effectivePrice);
-
                       const isOutOfStock = item.stockQuantity <= 0;
-
-                      const colorMap = {
-                        black: "bg-black",
-                        gold: "bg-[#D49A06]",
-                        white: "bg-white",
-                        silver: "bg-[#C0C0C0]",
-                      };
 
                       return (
                         <div
@@ -149,24 +113,50 @@ function Cart() {
                             <div className="flex-grow">
                               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                                 <div>
-                                  <h3 className="md:text-lg text-sm font-medium text-gray-800 line-clamp-2">
-                                    {item.title}
+                                  <h3 className="md:text-lg text-sm font-medium text-[#1C1C1C] line-clamp-2">
+                                    {item.productTittle} soon
                                   </h3>
 
-                                  <div className="flex flex-col text-sm">
+                                  {/* <div className="flex flex-col text-sm">
                                     <div className="text-[#686868]">
                                       Color:{" "}
                                       <span className="text-black">
-                                        {"gold"}
+                                        {item?.selectedOptions?.color || "N/A"}
                                       </span>
                                     </div>
                                     <div className="text-[#686868]">
                                       Size:{" "}
                                       <span className="text-black">
-                                        {"40X25 Inches"}
+                                        {item?.selectedOptions?.dimension ||
+                                          "N/A"}
+                                      </span>
+                                    </div>
+                                  </div> */}
+
+                                  <div className=" border-gray-200 pb-2 flex items-center gap-4">
+                                    <div className="flex items-center gap-1">
+                                      <span className="text-2xl font-semibold text-gray-900">
+                                        {/* {avgRating ?? "—"} */}
+                                      </span>
+                                      <span className="text-gray-500 text-sm">
+                                        /5
+                                      </span>
+                                    </div>
+                                    <div className="flex flex-col gap-1">
+                                      <Ratings
+                                        size={20}
+                                        // avgRating={avgRating}
+                                      />
+                                      <span className="text-sm text-gray-500">
+                                        <span>Based on </span>
+                                        {/* {product?.reviews?.length ?? 0}{" "}
+                                        {product?.reviews?.length === 1
+                                          ? "review"
+                                          : "reviews"} */}
                                       </span>
                                     </div>
                                   </div>
+
                                   {isOutOfStock && (
                                     <p className="text-red-600 text-sm mt-1">
                                       Currently Out of Stock
@@ -213,34 +203,44 @@ function Cart() {
                                 inclusive of all taxes
                               </div>
 
-                              <div className="flex gap-4 items-center">
-                                {/* Qty Controls */}
-                                <div className="flex w-[106px] items-center justify-between px-2 border-[#D49A06] ring-2 ring-[#686868]/50 shadow-md p-1 rounded-lg transition-all ease-in">
-                                  <button
-                                    onClick={() => dispatch(decreaseQty(item))}
-                                    className="w-4 h-4 flex items-center justify-center rounded-lg transition-colors"
-                                  >
-                                    {item.quantity === 1 ? (
-                                      <Trash2 />
-                                    ) : (
-                                      <Minus />
-                                    )}
-                                  </button>
-                                  <span className="w-6 text-center">
-                                    {item.quantity}
-                                  </span>
-                                  <button
-                                    onClick={() => dispatch(increaseQty(item))}
-                                    className="w-4 h-4 flex items-center justify-center rounded-lg"
-                                  >
-                                    <Plus></Plus>
-                                  </button>
+                              <div className="flex flex-wrap items-center justify-between gap-4">
+                                <div className="flex flex-wrap items-center gap-4">
+                                  {/* Qty Controls */}
+
+                                  <div className="flex w-[106px] items-center justify-center px-2 border border-[#B6AAFF]  py-1 rounded-lg">
+                                    <span className="text-[#1800AC]">300g</span>
+                                  </div>
+                                  <div className="flex w-[106px] items-center justify-between px-2 border-[#E8E8E8] ring-1 ring-[#E8E8E8] p-1 rounded-md transition-all ease-in">
+                                    <button
+                                      onClick={() =>
+                                        dispatch(decreaseQty(item))
+                                      }
+                                      className="w-4 h-4 flex items-center justify-center rounded-lg transition-colors"
+                                    >
+                                      {item.quantity === 1 ? (
+                                        <Trash2 />
+                                      ) : (
+                                        <Minus />
+                                      )}
+                                    </button>
+                                    <span className="w-6 text-center">
+                                      {item.quantity}
+                                    </span>
+                                    <button
+                                      onClick={() =>
+                                        dispatch(increaseQty(item))
+                                      }
+                                      className="w-4 h-4 flex items-center justify-center rounded-lg"
+                                    >
+                                      <Plus></Plus>
+                                    </button>
+                                  </div>
                                 </div>
 
                                 {/* Actions */}
                                 <div className="flex md:gap-4 gap-2 font-medium">
                                   <button
-                                    className="text-sm text-[#1C3753] cursor-pointer md:px-1 px-1.5 md:py-1 py-0.5"
+                                    className="text-sm text-[#0C0057] cursor-pointer md:px-1 px-1.5 md:py-1 py-0.5"
                                     onClick={() =>
                                       dispatch(removeFromCart(item))
                                     }
@@ -250,7 +250,7 @@ function Cart() {
                                   <div>|</div>
 
                                   <div
-                                    className="text-sm cursor-pointer rounded-full  text-[#1C3753]  md:px-1 px-1 md:py-1 py-0.5"
+                                    className="text-sm cursor-pointer rounded-full  text-[#0C0057]  md:px-1 px-1 md:py-1 py-0.5"
                                     onClick={() => moveToWishlist(item)}
                                   >
                                     Save for later

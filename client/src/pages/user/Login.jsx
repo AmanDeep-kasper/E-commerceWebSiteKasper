@@ -6,7 +6,7 @@ import { loginUser } from "../../redux/cart/userSlice";
 import MainLog from "../../assets/IconsUsed/MainLogo.png";
 
 function Login() {
-  const [formData, setFormData] = useState({ email: "", password: "" });
+  const [formData, setFormData] = useState({ identifier: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
   const dispatch = useDispatch();
   const { loading, error, isAuthenticated } = useSelector(
@@ -76,11 +76,12 @@ function Login() {
                 </div>
               </div>
             </div>
-            <div className=" mt-8">
+
+            {/* <div className="mt-8">
               <p className="text-white text-sm">
                 *Precision cutting for perfect creations every time*
               </p>
-            </div>
+            </div> */}
           </div>
         </div>
 
@@ -113,14 +114,14 @@ function Login() {
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
                   <Mail className="w-4 h-4" />
-                  Email Address
+                  Email/Phone
                 </label>
                 <div className="relative">
                   <input
                     type="email"
-                    name="email"
+                    name="identifier"
                     placeholder="your@email.com"
-                    value={formData.email}
+                    value={formData.identifier}
                     onChange={handleChange}
                     className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent transition-all"
                     required
@@ -189,7 +190,7 @@ function Login() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-[#DEDEDE]  hover:bg-[#1C3753] hover:text-white disabled:bg-gray-400 text-[#686868] py-3 px-4 rounded-lg font-medium transition-all duration-200 transform hover:scale-[1.02] disabled:scale-100 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full bg-[#1800AC]  hover:bg-[#FFFFF] hover:text-white disabled:bg-gray-400 text-[#FFFFFF] py-3 px-4 rounded-lg font-medium transition-all duration-200 transform hover:scale-[1.02] disabled:scale-100 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {loading ? (
                   <>
@@ -209,7 +210,7 @@ function Login() {
             {/* Sign Up Link */}
             <div className="text-center mt-8 pt-6 border-t border-gray-200">
               <p className="text-gray-600">
-                New to LaserCut?{" "}
+               New to Happy Art Supplies?{" "}
                 <Link
                   to="/register"
                   className="text-[#F8A14A] hover:text-amber-700 font-semibold underline transition-colors"

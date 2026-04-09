@@ -72,12 +72,12 @@ function Delivery() {
           {/* Address Section */}
           <div className="w-full lg:w-2/3 p-4 md:p-6 md:shadow-sm bg-white md:rounded-md">
             <div className="flex justify-between items-center mb-6">
-              <div className="text-lg sm:text-xl flex gap-2 items-center font-semibold text-gray-800">
-              <Link to="/bag"><ChevronLeft className="w-8 h-8"/></Link>  Delivery Address
+              <div className="text-lg sm:text-xl flex gap-2 items-center font-light text-gray-800">
+              <Link to="/bag"><ChevronLeft className="w-8 h-8"/></Link> <span className="font-marcellus text-[#1800AC]"> Delivery Address</span>
               </div>
               <button
                 onClick={() => setOpen(true)}
-                className="bg-[#1C3753] hover:bg-black text-white rounded-lg px-6 py-2 text-sm font-medium transition-colors"
+                className="bg-[#0C0057] hover:bg-black text-white rounded-lg px-6 py-2 text-sm font-medium transition-colors"
               >
                 + Add New Address
               </button>

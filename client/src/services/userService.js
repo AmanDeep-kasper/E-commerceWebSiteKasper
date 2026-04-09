@@ -36,8 +36,8 @@ const resetPassword = async ({ token, newPassword }) => {
 
 // User axiosInstances
 const getUser = async () => {
-  const res = await axiosInstance.get("/users/me");
-  console.log(res.data);
+  const res = await axiosInstance.get("/auth/me");
+  // console.log(res.data);
   return res.data;
 };
 
