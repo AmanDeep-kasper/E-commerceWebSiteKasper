@@ -1,15 +1,11 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import userService from "../../services/userService";
 
-// Initial state with token persistence
-const storedUser = JSON.parse(localStorage.getItem("user"));
-const token = localStorage.getItem("token");
-
 const initialState = {
-  user: storedUser || null,
-  token: token || null,
-  isAuthenticated: !!token,
-  loading: false,
+  user: null,
+  isAuthenticated: false,
+  loading: false, // general loading
+  authLoading: false, // 🔥 for login only
   error: null,
 };
 
@@ -19,18 +15,13 @@ export const loginUser = createAsyncThunk(
   async (credentials, thunkAPI) => {
     try {
       const res = await userService.login(credentials);
-
-      // Fetch full user immediately after login
-      const fullUser = await userService.getUser();
-      localStorage.setItem("user", JSON.stringify(fullUser));
-
-      return { user: fullUser, token: res.token };
+      return res.data; // only login response
     } catch (error) {
       return thunkAPI.rejectWithValue(
-        error.response?.data?.message || "Login failed"
+        error.response?.data?.message || "Login failed",
       );
     }
-  }
+  },
 );
 
 export const getUserDetails = createAsyncThunk(
@@ -38,14 +29,13 @@ export const getUserDetails = createAsyncThunk(
   async (_, thunkAPI) => {
     try {
       const user = await userService.getUser();
-      localStorage.setItem("user", JSON.stringify(user));
       return user;
     } catch (error) {
       return thunkAPI.rejectWithValue(
-        error.response?.data?.message || "Failed to fetch user"
+        error.response?.data?.message || "Failed to fetch user",
       );
     }
-  }
+  },
 );
 
 export const updateUserDetails = createAsyncThunk(
@@ -53,17 +43,14 @@ export const updateUserDetails = createAsyncThunk(
   async (data, thunkAPI) => {
     try {
       await userService.updateUser(data);
-
-      // Always fetch latest full user after update
       const refreshedUser = await userService.getUser();
-      localStorage.setItem("user", JSON.stringify(refreshedUser));
       return refreshedUser;
     } catch (error) {
       return thunkAPI.rejectWithValue(
-        error.response?.data?.message || "Update failed"
+        error.response?.data?.message || "Update failed",
       );
     }
-  }
+  },
 );
 
 // 🔹 Slice
@@ -74,7 +61,6 @@ const userSlice = createSlice({
     logout: (state) => {
       userService.logout();
       state.user = null;
-      state.token = null;
       state.isAuthenticated = false;
     },
     clearError: (state) => {
@@ -83,44 +69,41 @@ const userSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // login
+      // LOGIN
       .addCase(loginUser.pending, (state) => {
-        state.loading = true;
+        state.authLoading = true;
         state.error = null;
       })
-      .addCase(loginUser.fulfilled, (state, action) => {
-        state.loading = false;
-        state.user = action.payload.user;
-        state.token = action.payload.token;
-        state.isAuthenticated = true;
+      .addCase(loginUser.fulfilled, (state) => {
+        state.authLoading = false;
       })
       .addCase(loginUser.rejected, (state, action) => {
-        state.loading = false;
+        state.authLoading = false;
         state.error = action.payload;
       })
 
-      // get user details
+      // GET USER
       .addCase(getUserDetails.pending, (state) => {
         state.loading = true;
-        state.error = null;
       })
       .addCase(getUserDetails.fulfilled, (state, action) => {
         state.loading = false;
         state.user = action.payload;
+        state.isAuthenticated = true;
       })
-      .addCase(getUserDetails.rejected, (state, action) => {
+      .addCase(getUserDetails.rejected, (state) => {
         state.loading = false;
-        state.error = action.payload;
+        state.user = null;
+        state.isAuthenticated = false;
       })
 
-      // update user
+      // UPDATE USER
       .addCase(updateUserDetails.pending, (state) => {
         state.loading = true;
-        state.error = null;
       })
       .addCase(updateUserDetails.fulfilled, (state, action) => {
         state.loading = false;
-        state.user = action.payload; // ✅ always full user
+        state.user = action.payload;
       })
       .addCase(updateUserDetails.rejected, (state, action) => {
         state.loading = false;

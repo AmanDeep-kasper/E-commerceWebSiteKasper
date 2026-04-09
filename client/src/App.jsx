@@ -14,18 +14,29 @@ import { fetchAllProducts } from "./redux/cart/productSlice";
 
 function App() {
   const dispatch = useDispatch();
-  const { token, user, isAuthenticated } = useSelector((state) => state.user);
+  const { isAuthenticated } = useSelector((state) => state.user);
 
-  // 🔄 Auto-refresh token every 14 minutes
   useAutoRefreshToken();
 
   useEffect(() => {
-    if (isAuthenticated && !user) {
-      dispatch(getUserDetails());
+    const initializeUser = async () => {
+      try {
+        await dispatch(getUserDetails()).unwrap();
+        await dispatch(fetchAllProducts());
+      } catch (err) {
+        // Cookie expired ya user not logged in
+        console.log("User not authenticated");
+      }
+    };
+
+    initializeUser();
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (isAuthenticated) {
       dispatch(fetchAddresses());
-      dispatch(fetchAllProducts());
     }
-  }, [dispatch, isAuthenticated, user]);
+  }, [dispatch, isAuthenticated]);
 
   useEffect(() => {
     dispatch(syncCart());
@@ -40,10 +51,8 @@ function App() {
         closeButton={false}
         pauseOnHover
       />
-
-      <PageRouter></PageRouter>
+      <PageRouter />
     </>
   );
 }
-
 export default App;

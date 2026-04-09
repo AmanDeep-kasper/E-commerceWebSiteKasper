@@ -1,4 +1,3 @@
-
 import axiosInstance from "../api/axiosInstance";
 
 // Auth APIs
@@ -14,10 +13,6 @@ const verifyEmail = async (data) => {
 
 const login = async (credentials) => {
   const res = await axiosInstance.post("/auth/login", credentials);
-  if (res.data.token) {
-    localStorage.setItem("token", res.data.token);
-    localStorage.setItem("user", JSON.stringify(res.data.user));
-  }
   return res.data;
 };
 
@@ -56,10 +51,7 @@ const updateEmail = async (data) => {
   return res.data;
 };
 
-const logout = () => {
-  localStorage.removeItem("token");
-  localStorage.removeItem("user");
-};
+const logout = () => {};
 
 export default {
   register,
