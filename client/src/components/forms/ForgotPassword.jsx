@@ -48,55 +48,6 @@ const ForgotPassword = () => {
             <div className="flex items-center gap-3 mb-8">
               <img src={MainLog} alt="lazercut" />
             </div>
-
-            {/* Content */}
-            {/* <div className="space-y-8"> */}
-              {/* <div>
-                <h2 className="text-4xl font-bold mb-4">Reset Your Password</h2>
-                <p className="text-white text-lg">
-                  No worries! We'll help you get back into your account.
-                </p>
-              </div> */}
-
-              
-              {/* <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
-                    <span className="font-bold">1</span>
-                  </div>
-                  <span>Enter your registered email</span>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
-                    <span className="font-bold">2</span>
-                  </div>
-                  <span>Check your email for reset link</span>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
-                    <span className="font-bold">3</span>
-                  </div>
-                  <span>Create a new password</span>
-                </div>
-              </div> */}
-
-             
-              {/* <div className="bg-black/30 rounded-lg p-4 mt-8">
-                <p className="text-sm">
-                  🔒 Your security is our priority. Reset links expire after 1
-                  hour.
-                </p>
-              </div> */}
-            {/* </div> */}
-
-            {/* Bottom */}
-            {/* <div className="bg-black/30 rounded-lg p-4 mt-8">
-              <p className="text-sm italic">
-                "The password reset process was quick and secure."
-              </p>
-            </div> */}
           </div>
         </div>
 

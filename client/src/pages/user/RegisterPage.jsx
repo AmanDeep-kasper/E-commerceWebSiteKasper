@@ -293,7 +293,8 @@ function RegisterPage() {
                   <p className="text-gray-900 font-semibold mt-1">{email}</p>
                 </div>
                 <OtpVerifyForm
-                  email={email}
+                  // email={email}
+                  
                   onSuccess={() => {
                     setStep("done");
                   }}

@@ -1,8 +1,6 @@
 import React from "react";
 import Button from "../components/Button";
 import { CirclePower, LogOut } from "lucide-react";
-import Navbar from "../components/Navbar";
-import Footer from "../sections/Footer";
 
 function Logout({ onCancel, onConfirm }) {
   return (

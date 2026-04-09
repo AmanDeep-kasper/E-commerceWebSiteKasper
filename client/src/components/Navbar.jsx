@@ -68,7 +68,7 @@ function Navbar() {
   }, []);
 
   const handleLogout = () => {
-    dispatch(logoutUser); // updates Redux + clears localStorage
+    dispatch(logoutUser()); // updates Redux + clears localStorage
     navigate("/home", { replace: true }); // redirect to home
   };
 

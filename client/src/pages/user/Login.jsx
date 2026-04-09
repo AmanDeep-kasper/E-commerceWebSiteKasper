@@ -10,7 +10,7 @@ function Login() {
   const [formData, setFormData] = useState({ identifier: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
   const dispatch = useDispatch();
-  const { authLoading, error, isAuthenticated } = useSelector(
+  const { authLoading, error, isAuthenticated, user } = useSelector(
     (state) => state.user,
   );
   const navigate = useNavigate();
@@ -22,16 +22,21 @@ function Login() {
     try {
       await dispatch(loginUser(formData)).unwrap();
       await dispatch(getUserDetails()); // 🔥 VERY IMPORTANT
+      console.log(res);
     } catch (err) {
       console.log(err);
     }
   };
 
   useEffect(() => {
-    if (isAuthenticated) {
-      navigate("/home", { replace: true });
+    if (isAuthenticated && user) {
+      if (user?.user?.role === "user") {
+        navigate("/home", { replace: true });
+      } else {
+        navigate("/admin/dashboard", { replace: true });
+      }
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, user, navigate]);
 
   const handleChange = (e) => {
     setFormData({
