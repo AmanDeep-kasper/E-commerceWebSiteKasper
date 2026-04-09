@@ -98,7 +98,7 @@ function PriceDetails({
                       formatPrice(deliveryCharge)
                     )}
                   </span>
-                </div> */}
+                </div> 
               </div>
             </motion.div>
 
@@ -125,7 +125,7 @@ function PriceDetails({
                 </p>
               )}
             </div>
-          </div> */}
+          </div>
 
           {/* <=============------------ Apply Coupon ------------=============> */}
           <div className="flex justify-between items-center mt-5">
