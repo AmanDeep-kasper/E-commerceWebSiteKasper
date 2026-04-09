@@ -3,10 +3,11 @@ import { Link, useNavigate } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { Eye, EyeOff, Mail, Lock, Star, LogIn, ArrowRight } from "lucide-react";
 import { loginUser } from "../../redux/cart/userSlice";
-import MainLog from "../../assets/IconsUsed/MainLogo.png";
+import MainLog from "../../assets/IconsUsed/HomeMainLogo.png";
+import MainVideo from "../../assets/FirstPageVideo/login.mp4";
 
 function Login() {
-  const [formData, setFormData] = useState({ email: "", password: "" });
+  const [formData, setFormData] = useState({ identifier: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
   const dispatch = useDispatch();
   const { loading, error, isAuthenticated } = useSelector(
@@ -39,47 +40,56 @@ function Login() {
     <div className="flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
       <div className="w-full h-screen flex bg-white shadow-2xl overflow-y-auto ">
         {/* Left Side - Welcome Section */}
-        <div className="hidden md:flex flex-1 bg-gradient-to-br from-[#1C3753] to-[#1C3753] p-8 text-white">
-          <div className="flex flex-col justify-between h-full">
-            <div className="flex items-center gap-3 mb-8">
-              {/* <div className="bg-white p-2 rounded-full">
-                <Star className="w-6 h-6 text-amber-600" fill="currentColor" />
-              </div>
-              <h1 className="text-2xl font-bold">LaserCut</h1> */}
-              <img src={MainLog} alt="lazercut" />
-            </div>
+        <div className="hidden md:flex flex-1 text-white">
+          <div className="hidden md:flex flex-1 relative overflow-hidden text-white">
+            <video
+              autoPlay
+              loop
+              muted
+              playsInline
+              preload="auto"
+              className="absolute inset-0 w-full h-full object-cover"
+            >
+              <source src={MainVideo} type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
 
-            <div className="space-y-6">
-              <div>
-                <h2 className="text-4xl font-medium mb-4">Welcome Back!</h2>
-                <p className="text-white text-lg">Ready to continue?</p>
+            {/* <div className="absolute inset-0 bg-black/50 z-0"></div> */}
+
+            <div className="relative z-10 flex flex-col justify-between h-full p-8">
+              <div className="flex items-center gap-3 mb-8">
+                <img src={MainLog} alt="lazercut" />
               </div>
 
-              <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-2 h-2 bg-white rounded-full"></div>
-                  <span className="text-white">
-                    Designed for a seamless shopping experience
-                  </span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-2 h-2 bg-white rounded-full"></div>
-                  <span className="text-white">
-                    Fast checkout. Smooth experience
-                  </span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-2 h-2 bg-white rounded-full"></div>
-                  <span className="text-white">
-                    Everything you need, right here
-                  </span>
-                </div>
-              </div>
-            </div>
-            <div className=" mt-8">
-              <p className="text-white text-sm">
-                *Precision cutting for perfect creations every time*
-              </p>
+              {/* <div className="space-y-6">
+                        <div>
+                          <h2 className="text-4xl font-medium mb-4">Welcome Back!</h2>
+                          <p className="text-white text-lg">Ready to continue?</p>
+                        </div>
+        
+                        <div className="space-y-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-2 h-2 bg-white rounded-full"></div>
+                            <span>Designed for a seamless shopping experience</span>
+                          </div>
+        
+                          <div className="flex items-center gap-3">
+                            <div className="w-2 h-2 bg-white rounded-full"></div>
+                            <span>Fast checkout. Smooth experience</span>
+                          </div>
+        
+                          <div className="flex items-center gap-3">
+                            <div className="w-2 h-2 bg-white rounded-full"></div>
+                            <span>Everything you need, right here</span>
+                          </div>
+                        </div>
+                      </div> */}
+
+              {/* <div className="mt-8">
+                        <p className="text-white text-sm">
+                          *Precision cutting for perfect creations every time*
+                        </p>
+                      </div> */}
             </div>
           </div>
         </div>
@@ -91,7 +101,10 @@ function Login() {
             <div className="md:hidden text-center mb-8">
               <div className="flex items-center justify-center gap-2 mb-4">
                 <div className="bg-[#D5E5F5] p-2 rounded-full">
-                  <Star className="w-6 h-6 text-[#45709e]" fill="currentColor" />
+                  <Star
+                    className="w-6 h-6 text-[#45709e]"
+                    fill="currentColor"
+                  />
                 </div>
                 <h1 className="text-2xl font-bold text-gray-900">LaserCut</h1>
                 {/* <img src={MainLog} alt="lazercut" /> */}
@@ -113,14 +126,14 @@ function Login() {
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
                   <Mail className="w-4 h-4" />
-                  Email Address
+                  Email/Phone
                 </label>
                 <div className="relative">
                   <input
                     type="email"
-                    name="email"
+                    name="identifier"
                     placeholder="your@email.com"
-                    value={formData.email}
+                    value={formData.identifier}
                     onChange={handleChange}
                     className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent transition-all"
                     required
@@ -189,7 +202,7 @@ function Login() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-[#DEDEDE]  hover:bg-[#1C3753] hover:text-white disabled:bg-gray-400 text-[#686868] py-3 px-4 rounded-lg font-medium transition-all duration-200 transform hover:scale-[1.02] disabled:scale-100 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full bg-[#1800AC]  hover:bg-[#FFFFF] hover:text-white disabled:bg-gray-400 text-[#FFFFFF] py-3 px-4 rounded-lg font-medium transition-all duration-200 transform hover:scale-[1.02] disabled:scale-100 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {loading ? (
                   <>
@@ -209,7 +222,7 @@ function Login() {
             {/* Sign Up Link */}
             <div className="text-center mt-8 pt-6 border-t border-gray-200">
               <p className="text-gray-600">
-                New to LaserCut?{" "}
+                New to Happy Art Supplies?{" "}
                 <Link
                   to="/register"
                   className="text-[#F8A14A] hover:text-amber-700 font-semibold underline transition-colors"

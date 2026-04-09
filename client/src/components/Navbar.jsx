@@ -133,16 +133,10 @@ function Navbar() {
       name: "Welcome to the beautiful world of Art Search",
     },
     {
-      name: "Welcome to the  world of Art Searchfljfjfl",
+      name: "Free Shipping on orders above ₹1,999",
     },
     {
-      name: "Welcome to the beautiful world of Art Searchffklhkfhkf",
-    },
-    {
-      name: " to the beautiful world of Art Searchfkhkfhkf",
-    },
-    {
-      name: "Welcome to the beautiful  of Art Searchfljfljlfj",
+      name: "COD Available",
     },
   ];
 
@@ -171,7 +165,7 @@ function Navbar() {
 
       {/* Fixed Navbar */}
       {/* <div className="fixed top-0 left-0 w-full h-16 bg-white shadow-sm z-50 border-b border-gray-200"> */}
-      <div className="w-full h-16 bg-white shadow-sm border-b border-gray-200">
+      <div className="w-full h-16 bg-white shadow-sm border-b border-gray-200 fixed top-0 left-0">
         <div className="h-full  flex justify-between items-center px-4 md:px-16 lg:px-20">
           {/* Left Section */}
           <div className="flex items-center gap-4 md:gap-8">

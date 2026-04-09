@@ -32,24 +32,38 @@ function Card({ cardData = [] }) {
     const payload = {
       uuid: item.uuid,
       variantId: defaultVariant.variantId,
-      title: item.title,
-      basePrice: defaultVariant.price,
-      discountPercent: item.discountPercent,
-      stockQuantity: defaultVariant?.variantQuantity ?? 0,
 
-      // SAFE IMAGE HANDLING
+      // ✅ FIX TITLE
+      title: item.productTittle || item.title || "Untitled Product",
+
+      basePrice: defaultVariant.variantMrp || defaultVariant.price,
+      effectivePrice:
+        defaultVariant.variantSellingPrice || defaultVariant.price,
+
+      discountPercent:
+        defaultVariant.variantDiscount || item.discountPercent || 0,
+
+      stockQuantity:
+        defaultVariant.variantAvailableStock ||
+        defaultVariant.variantQuantity ||
+        0,
+
       image:
-        defaultVariant?.images?.[0] ||
         defaultVariant?.variantImage?.[0] ||
+        defaultVariant?.images?.[0] ||
         item?.images?.[0] ||
         "/placeholder.png",
 
       deliverBy: item.deliverBy,
 
+      // ✅ FIX SELECTED OPTIONS
       selectedOptions: {
-        color: defaultVariant.color,
-        type: defaultVariant.type,
-        dimension: defaultVariant.dimension,
+        color: defaultVariant.variantColor || defaultVariant.color || "N/A",
+
+        dimension:
+          `${defaultVariant.variantLength || ""}X${
+            defaultVariant.variantBreadth || ""
+          } ${defaultVariant.variantDimensionunit || ""}`.trim() || "N/A",
       },
     };
 
@@ -194,11 +208,10 @@ function Card({ cardData = [] }) {
 
               {/* <div className="p-2 flex flex-col gap-1.5 w-full bg-white min-h-[150px] md:min-h-[173px] lg:justify-between lg:group-hover:-translate-y-12 transition-transform duration-300"> */}
               <div className="p-2 flex flex-col gap-1.5 w-full bg-white min-h-[150px] md:min-h-[113px] lg:justify-between transition-transform duration-300">
-
                 <div className="flex items-center flex-wrap gap-2">
-                <p className="text-sm w-full line-clamp-1 overflow-hidden text-ellipsis">
-                  {item.productTittle || "Untitled Product"}
-                </p>
+                  <p className="text-sm w-full line-clamp-1 overflow-hidden text-ellipsis">
+                    {item.productTittle || "Untitled Product"}
+                  </p>
                   <span className="text-gray-900 font-medium text-lg tracking-tight">
                     {formatPrice(effective)}
                   </span>

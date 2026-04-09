@@ -101,6 +101,8 @@ import NotificationsSettings from "../pages/admin/setting/NotificationsSettings"
 import AccountSettings from "../pages/admin/setting/AccountSettings";
 import PoliciesSettingsEdit from "../pages/admin/setting/form/PoliciesSettingsEdit";
 import AccountSettingsEdit from "../pages/admin/setting/form/AccountSettingsEdit";
+import RewardPoints from "../pages/admin/Reward/RewardPoints";
+import Rating from "../pages/user/Rating";
 
 const PageRouter = () => {
   return (
@@ -116,6 +118,8 @@ const PageRouter = () => {
         <Route path="/shippingpolicy" element={<ShippingPolicy />} />
         <Route path="/returnrefundpolicy" element={<ReturnRefundPolicy />} />
         <Route path="/termsconditions" element={<TermsConditions />} />
+        {/* Rating */}
+          <Route path="rating" element={<Rating />} />
 
         {/* Auth Route */}
         <Route path="/login" element={<Login />} />
@@ -163,6 +167,7 @@ const PageRouter = () => {
         <Route path="/product-form" element={<AddProduct />} />
         <Route path="/checkout/payment" element={<Payment />} />
         <Route path="/policy" element={<Policy />} />
+          
 
         {/* Admin Route */}
         <Route path="/admin" element={<AdminLayout />}>
@@ -283,7 +288,13 @@ const PageRouter = () => {
             path="settings/AccountSettingsEdit-form"
             element={<AccountSettingsEdit />}
           />
+
+
+           {/* Reward */}
+        <Route path="reward&points" element={<RewardPoints />} />
+
         </Route>
+       
         
         {/* Catch-All */}
         <Route path="*" element={<SomethingWentWrong />} />

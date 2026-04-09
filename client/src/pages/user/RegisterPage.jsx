@@ -183,7 +183,7 @@ function RegisterPage() {
                     Create Account
                   </h2>
                   <p className="text-gray-600 mt-2">
-                    Sign up to get started with LAZERCUT
+                   Sign up to get started with Happy Art Supplies
                   </p>
                 </div>
                 <div className="flex items-center justify-between mt-8 px-4 mb-4">
