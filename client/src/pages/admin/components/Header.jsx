@@ -10,7 +10,7 @@ import {
   User,
 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
 import axiosInstance from "../../../api/axiosInstance";
 import mainLogo from "../../../assets/IconsUsed/HomeMainLogo.png";
 

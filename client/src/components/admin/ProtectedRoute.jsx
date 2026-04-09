@@ -1,5 +1,5 @@
 // import React from "react";
-// import { Navigate, Outlet } from "react-router";
+// import { Navigate, Outlet } from "react-router-dom";
 
 // const ProtectedRoute = ({ allowedRoles }) => {
 //   const token = localStorage.getItem("token");
@@ -14,7 +14,7 @@
 // components/ProtectedRoute.js
 // components/admin/ProtectedRoute.js
 // src/components/admin/ProtectedRoute.js
-import { Navigate, Outlet, useLocation } from "react-router";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
 
 const ProtectedRoute = ({ allowedRoles }) => {
   const location = useLocation(); // ⬅️ triggers re-render on URL change

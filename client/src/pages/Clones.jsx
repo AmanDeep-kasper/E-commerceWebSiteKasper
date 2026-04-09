@@ -10,7 +10,7 @@ import Filter from "../components/Filter";
 import FilterCard from "../components/FilterCard";
 import Footer from "../sections/Footer";
 import { useState } from "react";
-import { useLocation } from "react-router";
+import { useLocation } from "react-router-dom";
 
 const clones = [
   {title: "Crescent Moon Shape & Mosque Metal TabCouple..   ",

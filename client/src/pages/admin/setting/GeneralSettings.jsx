@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
 
 const Toggle = ({ checked, onChange }) => (
   <label className="inline-flex items-center cursor-pointer">

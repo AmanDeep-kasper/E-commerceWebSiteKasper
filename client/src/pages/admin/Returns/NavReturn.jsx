@@ -1,4 +1,4 @@
-import { Link, useLocation, useParams } from "react-router";
+import { Link, useLocation, useParams } from "react-router-dom";
 
 const NavReturn = ({ profileMenu }) => {
   const location = useLocation();

@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { ChevronLeft } from "lucide-react";
 import customers from "../data/customer.json"; // json data
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 // import { div } from "framer-motion/m";
 
 const classNames = (...c) => c.filter(Boolean).join(" ");

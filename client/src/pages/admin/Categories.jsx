@@ -360,7 +360,7 @@
 //   X,
 // } from "lucide-react";
 // import { ChevronLeft, MoreVertical, Upload, Filter, Plus } from "lucide-react";
-// import { useNavigate } from "react-router";
+// import { useNavigate } from "react-router-dom";
 // import products from "../../../data/products.json";
 // import AddProduct from "../../../components/admin/AddProduct";
 
@@ -590,7 +590,7 @@ import {
   Circle,
   PencilLine,
 } from "lucide-react";
-import { Link, useNavigate, useParams } from "react-router";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import productData from "../../data/products.json";
 import CategoriesPopOnClick from "./CategoriesPopOnClick";
 import SubCategoriesPopOnClick from "./SubCategoriesPopOnClick";

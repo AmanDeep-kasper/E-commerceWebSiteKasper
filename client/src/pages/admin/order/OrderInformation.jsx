@@ -1,5 +1,5 @@
 import React, { use, useMemo } from "react";
-import { useParams } from "react-router";
+import { useParams } from "react-router-dom";
 import orders from "../../../data/orders.json";
 import AdminSidebar from "../components/AdminSidebar";
 import Header from "../components/Header";

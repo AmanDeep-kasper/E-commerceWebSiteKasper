@@ -91,7 +91,7 @@
 // }
 
 // export default Orders;
-import { Link, useOutletContext } from "react-router";
+import { Link, useOutletContext } from "react-router-dom";
 import customers from "../data/orders.json";
 import { useState } from "react";
 import OrderViewModal from "../components/OrderViewModal";

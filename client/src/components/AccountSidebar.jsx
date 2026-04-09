@@ -1,7 +1,7 @@
 import { Wallet, Camera, LogOut } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import axiosInstance from "../api/axiosInstance";
-import { Link, NavLink } from "react-router";
+import { Link, NavLink } from "react-router-dom";
 const dispatch = useDispatch;
 import users from "../data/user";
 import { User, Package, Heart, MapPin, HelpCircle, Star } from "lucide-react";

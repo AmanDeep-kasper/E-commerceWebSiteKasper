@@ -1,5 +1,5 @@
 // import Title from "../Title";
-// import { Link, useNavigate } from "react-router";
+// import { Link, useNavigate } from "react-router-dom";
 // import { ArrowRight } from "lucide-react";
 // import Rating from "@mui/material/Rating";
 // import Stack from "@mui/material/Stack";
@@ -171,7 +171,7 @@
 
 //////////////////////////
 import Title from "../Title";
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
 import Rating from "@mui/material/Rating";
 import Stack from "@mui/material/Stack";
 import { useEffect, useMemo, useState } from "react";

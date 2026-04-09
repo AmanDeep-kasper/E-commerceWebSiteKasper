@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { Eye, EyeOff, Mail, Lock, Star, LogIn, ArrowRight } from "lucide-react";
 import { getUserDetails, loginUser } from "../../redux/cart/userSlice";
@@ -22,7 +22,6 @@ function Login() {
     try {
       await dispatch(loginUser(formData)).unwrap();
       await dispatch(getUserDetails()); // 🔥 VERY IMPORTANT
-      console.log(res);
     } catch (err) {
       console.log(err);
     }

@@ -8,7 +8,7 @@ import {
   Edit3,
   Trash2,
 } from "lucide-react";
-import { Link, useParams } from "react-router";
+import { Link, useParams } from "react-router-dom";
 import products from "../../../data/products.json"
 
 function StockDetail() {

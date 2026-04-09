@@ -1,7 +1,7 @@
 import { Wallet, Camera } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import axiosInstance from "../api/axiosInstance";
-import { Link, NavLink } from "react-router";
+import { Link, NavLink } from "react-router-dom";
 import users from "../data/user";
 import { User, Package, Heart, MapPin, HelpCircle, Star } from "lucide-react";
 import { useSelector } from "react-redux";

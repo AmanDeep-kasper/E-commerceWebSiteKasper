@@ -115,7 +115,7 @@ import {
   AlertCircle,
   ChevronRight,
 } from "lucide-react";
-import { Link, useOutletContext } from "react-router";
+import { Link, useOutletContext } from "react-router-dom";
 
 const Card = ({ children, className = "" }) => (
   <div

@@ -17,7 +17,7 @@ import {
   FunnelX,
   Ticket,
 } from "lucide-react";
-import { Link, useNavigate, useParams } from "react-router";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import productData from "../../../data/products.json";
 
 const Support = () => {

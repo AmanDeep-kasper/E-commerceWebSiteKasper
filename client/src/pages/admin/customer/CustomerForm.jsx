@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import InformationForm from "./form/InformationForm";
 import Header from "../components/Header";
 import AdminSidebar from "../components/AdminSidebar";
-import { Link, Outlet, useLocation } from "react-router";
+import { Link, Outlet, useLocation } from "react-router-dom";
 import { useMemo } from "react";
 
 function CustomerForm() {

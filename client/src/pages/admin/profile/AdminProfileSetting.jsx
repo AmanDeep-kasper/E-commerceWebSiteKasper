@@ -1,6 +1,6 @@
 import { Clock, Globe, Key, Mail, Phone, User } from "lucide-react";
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
 import axiosInstance from "../../../api/axiosInstance";
 
 const InfoRow = ({ label, value, icon: Icon, verified }) => (

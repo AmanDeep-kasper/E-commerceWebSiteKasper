@@ -2,7 +2,7 @@ import { ArrowRight, BadgeCheck, ChevronDown, Info, ShieldCheck } from "lucide-r
 import { IoCloseCircleOutline } from "react-icons/io5";
 import React, { useState } from "react";
 import { formatPrice } from "../utils/homePageUtils";
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 
 function PriceDetails({

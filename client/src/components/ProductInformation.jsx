@@ -1,5 +1,5 @@
 import React, { use, useMemo, useState } from "react";
-import { Link, useParams } from "react-router";
+import { Link, useParams } from "react-router-dom";
 import products from "../data/products.json";
 
 import { Package, ArrowLeft } from "lucide-react";
@@ -412,7 +412,7 @@ function ProductInformation() {
 
 export default ProductInformation;
 
-// import { Link } from "react-router"; // ✅ use react-router-dom
+// import { Link } from "react-router-dom"; // ✅ use react-router-dom
 
 // const EmptyState = ({
 //   heading = "No Items Found",

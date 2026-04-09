@@ -6,7 +6,7 @@ import {
   PackageCheck,
   Ban,
 } from "lucide-react";
-import { Outlet } from "react-router";
+import { Outlet } from "react-router-dom";
 import orders from "../../../data/orders.json";
 import NavOrders from "./NavOrders";
 

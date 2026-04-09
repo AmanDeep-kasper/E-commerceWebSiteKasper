@@ -14,7 +14,7 @@ import {
 import AdminSidebar from "../components/AdminSidebar";
 import Header from "../components/Header";
 import products from "../../../data/products.json";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 
 const cx = (...c) => c.filter(Boolean).join(" ");
 

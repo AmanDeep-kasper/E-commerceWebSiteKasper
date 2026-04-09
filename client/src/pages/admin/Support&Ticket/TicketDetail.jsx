@@ -1,6 +1,6 @@
 import { BookmarkX, ChevronLeft } from "lucide-react";
 import React, { useState } from "react";
-import { Navigate, useNavigate } from "react-router";
+import { Navigate, useNavigate } from "react-router-dom";
 
 const TicketDetail = () => {
   const [closeTicket, setCloseTicket] = useState(false);

@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { PieChart, Pie, Cell, Legend } from "recharts";
 import orders from "../../../data/orders.json";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 import SalesChart from "./SalesChart";
 import HalfPieChart from "./HalfPieChart";
 

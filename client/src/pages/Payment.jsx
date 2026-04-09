@@ -7,7 +7,7 @@ import googlePay from "../assets/googlePay.svg";
 import phonePe from "../assets/phonepe.svg";
 import paytm from "../assets/paytm.svg";
 import { useSelector, useDispatch } from "react-redux";
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import EmptyState from "../components/EmptyState";
 import axios from "axios";

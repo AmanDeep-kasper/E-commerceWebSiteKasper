@@ -1,5 +1,5 @@
 // import React, { useEffect, useState } from "react";
-// import { Link, useNavigate } from "react-router";
+// import { Link, useNavigate } from "react-router-dom";
 // import { ArrowRight } from "lucide-react";
 // import { getCardImage } from "../../utils/homePageUtils";
 // import axiosInstance from "../../api/axiosInstance";
@@ -198,7 +198,7 @@
 // //         ))}
 
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
 import axiosInstance from "../../api/axiosInstance";
 
 function CategoryProducts() {

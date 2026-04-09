@@ -10,7 +10,7 @@ import Offer from "../components/Offer";
 import { motion, useAnimation } from "framer-motion";
 import products from "../data/products.json";
 import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Autoplay } from "swiper/modules";
 

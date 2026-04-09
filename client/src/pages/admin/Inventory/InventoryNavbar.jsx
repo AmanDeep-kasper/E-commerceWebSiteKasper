@@ -1,4 +1,4 @@
-import { Link, useLocation, useParams } from "react-router";
+import { Link, useLocation, useParams } from "react-router-dom";
 
 const InventoryNavbar = ({ profileMenu }) => {
   const location = useLocation();

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
 
 const TaxSettingsForm = () => {
   const [warehouseData, setWarehouseData] = useState({

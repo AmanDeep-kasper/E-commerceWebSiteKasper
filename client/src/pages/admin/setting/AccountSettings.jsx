@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { AlertTriangle, LogOut } from "lucide-react";
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
 
 const AccountSettings = () => {
   const [showLogoutPopup, setShowLogoutPopup] = useState(false);

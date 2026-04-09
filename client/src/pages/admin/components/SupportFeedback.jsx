@@ -104,7 +104,7 @@
 
 import React, { useState } from "react";
 
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
 import customers from "../../../data/Support.json";
 
 const Card = ({ children, className = "" }) => (

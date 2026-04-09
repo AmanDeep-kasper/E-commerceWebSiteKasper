@@ -1,5 +1,5 @@
 // PageRouter.js
-import { BrowserRouter, Routes, Route, Navigate } from "react-router";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 // Public Pages
 import Home from "../pages/Home";
@@ -125,7 +125,7 @@ const PageRouter = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/reset-password/:token" element={<ResetPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
         {/* App Pages */}
         <Route path="/bag" element={<Cart />} />
         {/* Accounts */}

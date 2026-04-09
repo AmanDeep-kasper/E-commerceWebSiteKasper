@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import { Mail, ArrowLeft, Star, Shield, Send } from "lucide-react";
 import userService from "../../services/userService";

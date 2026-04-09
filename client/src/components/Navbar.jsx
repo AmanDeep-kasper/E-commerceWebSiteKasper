@@ -17,7 +17,7 @@ import {
   LogIn,
   MapPin,
 } from "lucide-react";
-import { Link, useNavigate, useSearchParams } from "react-router";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import UserProfile from "./UserProfile";
 import users from "../data/user";

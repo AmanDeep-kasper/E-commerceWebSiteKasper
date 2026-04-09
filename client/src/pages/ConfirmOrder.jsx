@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { CheckCircle, Truck, Clock, ShoppingBag } from "lucide-react";
-import { useLocation, useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { placeOrder } from "../redux/cart/orderSlice";
 import { clearCart } from "../redux/cart/cartSlice";

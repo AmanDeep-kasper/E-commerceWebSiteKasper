@@ -5,7 +5,7 @@ import {
   Truck,
   PackageCheck,
 } from "lucide-react";
-import { Outlet } from "react-router";
+import { Outlet } from "react-router-dom";
 import returns from "../../../data/Returns.json";
 import NavReturn from "./InventoryNavbar";
 

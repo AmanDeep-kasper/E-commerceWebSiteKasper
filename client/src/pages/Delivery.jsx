@@ -4,7 +4,7 @@ import { Trash2, MapPin, ChevronLeft } from "lucide-react";
 import { useSelector, useDispatch } from "react-redux";
 import Navbar from "../components/Navbar";
 import Footer from "../sections/Footer";
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { selectAddress, removeAddress } from "../redux/cart/addressSlice";
 import AddressForm from "../components/forms/AddressForm";

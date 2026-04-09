@@ -21,9 +21,17 @@ const forgotPassword = async (email) => {
   return res.data;
 };
 
-const resetPassword = async ({ token, newPassword }) => {
+const resetPassword = async ({
+  token,
+  email,
+  newPassword,
+  confirmPassword,
+}) => {
   const res = await axiosInstance.post(`/auth/reset-password/${token}`, {
-    password: newPassword,
+    newPassword,
+    confirmPassword,
+    email,
+    token,
   });
 
   return res.data;

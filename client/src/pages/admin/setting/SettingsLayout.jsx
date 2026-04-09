@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { Link, Outlet, useLocation } from "react-router";
+import { Link, Outlet, useLocation } from "react-router-dom";
 
 function SettingsLayout() {
   const location = useLocation();
