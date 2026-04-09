@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { useParams, Outlet, Link, useLocation, useNavigate } from "react-router";
+import { useParams, Outlet, Link, useLocation, useNavigate } from "react-router-dom";
 import customers from "../data/customer.json";
 import ProfileCard from "../components/ProfileCard";
 import ProfileSidebar from "../components/ProfileSidebar";

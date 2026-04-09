@@ -1,6 +1,6 @@
 import Title from "../Title";
 // import products from "../../data/products.json";
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
 import {
   getProductUrl,
   getCardImage,

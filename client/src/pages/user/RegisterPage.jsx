@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import RegisterForm from "../../components/forms/RegisterForm";
 import OtpVerifyForm from "../../components/forms/OtpVerifyForm";
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
 import {
   CheckCircle,
   ArrowLeft,

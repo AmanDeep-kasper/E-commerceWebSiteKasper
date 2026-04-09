@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { useLocation, useParams } from "react-router";
+import { useLocation, useParams } from "react-router-dom";
 
 import Breadcrumbs from "../components/Breadcrumbs";
 import Filter from "../components/Filter";

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import axiosInstance from "../../api/axiosInstance";
-import { Navigate, useNavigate, useParams } from "react-router";
+import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useDispatch, useSelector } from "react-redux";
 import { addProduct, updateProduct } from "../../redux/cart/productSlice";
@@ -11,7 +11,7 @@ import { IoIosArrowForward } from "react-icons/io";
 import { FiUpload } from "react-icons/fi";
 
 import { ChevronDown, ChevronLeft, Trash } from "lucide-react";
-import { data, Link } from "react-router";
+import { data, Link } from "react-router-dom";
 // import AddCategoryPopUp from "./AddCategoryPopUp";
 // import AddSubCategoryPopup from "./AddSubCategoryPopup";
 // import DisplayVariantImg from "./DisplayVariantImg";

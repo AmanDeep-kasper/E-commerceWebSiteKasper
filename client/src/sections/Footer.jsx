@@ -1,5 +1,5 @@
 // import { Instagram, Twitter, Youtube, Facebook } from "lucide-react";
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
 import facebook from "../assets/img/facebook.png";
 import instagram from "../assets/img/instagram.png";
 import map from "../assets/img/googleMap.png";

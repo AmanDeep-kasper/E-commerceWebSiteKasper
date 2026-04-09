@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { LogOut } from "lucide-react";
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
 
 const AccountSettingsEdit = () => {
   const [accountData, setAccountData] = useState({

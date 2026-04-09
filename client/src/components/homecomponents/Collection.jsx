@@ -4,7 +4,7 @@ import Rating from "@mui/material/Rating";
 import Stack from "@mui/material/Stack";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import axiosInstance from "../../api/axiosInstance";
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
 import "swiper/css";

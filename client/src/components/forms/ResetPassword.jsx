@@ -1,13 +1,14 @@
 import { useState } from "react";
-import { useParams, useNavigate, Link } from "react-router";
+import { useNavigate, Link } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { Eye, EyeOff, Lock, CheckCircle, Star, ArrowLeft } from "lucide-react";
 import userService from "../../services/userService";
 import MainLog from "../../assets/IconsUsed/HomeMainLogo.png";
 
 const ResetPassword = () => {
-  const { token } = useParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [formData, setFormData] = useState({
     password: "",
     confirmPassword: "",
@@ -15,6 +16,9 @@ const ResetPassword = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const token = searchParams.get("token");
+  const email = searchParams.get("email");
 
   const handleReset = async (e) => {
     e.preventDefault();
@@ -29,7 +33,9 @@ const ResetPassword = () => {
       // ✅ call service layer
       const res = await userService.resetPassword({
         token,
+        email,
         newPassword: formData.password,
+        confirmPassword: formData.confirmPassword,
       });
 
       toast.success(res?.message || "Password reset successfully");
@@ -148,27 +154,30 @@ const ResetPassword = () => {
             <div className="md:hidden text-center mb-8">
               <div className="flex items-center justify-center gap-2 mb-4">
                 <div className="bg-[#1C3753]  p-2 rounded-full">
-                  <Star className="w-6 h-6 text-[#1C3753]" fill="currentColor" />
+                  <Star
+                    className="w-6 h-6 text-[#1C3753]"
+                    fill="currentColor"
+                  />
                 </div>
                 <h1 className="text-2xl font-bold text-gray-900">LaserCut</h1>
               </div>
               <p className="text-gray-600">Create your new password</p>
             </div>
 
-           
-
             {/* Form Header */}
             <div className="text-center mb-8">
               <div className="bg-[#E0F4DE] p-3 rounded-full w-12 h-12 mx-auto mb-4 flex items-center justify-center">
                 <CheckCircle className="w-6 h-6 text-[#00A63E]" />
               </div>
-              <h2 className="text-3xl font-semibold text-gray-900">New Password</h2>
+              <h2 className="text-3xl font-semibold text-gray-900">
+                New Password
+              </h2>
               <p className="text-gray-600 mt-2">
                 Create a strong, secure password
               </p>
             </div>
 
-             {/* Back to Login */}
+            {/* Back to Login */}
             <Link
               to="/login"
               className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6 transition-colors"

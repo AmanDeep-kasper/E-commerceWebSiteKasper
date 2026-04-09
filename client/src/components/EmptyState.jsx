@@ -1,4 +1,4 @@
-import { Link } from "react-router"; // ✅ use react-router-dom
+import { Link } from "react-router-dom"; // ✅ use react-router-dom
 
 const EmptyState = ({
   heading = "No Items Found",

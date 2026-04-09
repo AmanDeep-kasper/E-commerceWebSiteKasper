@@ -3,7 +3,7 @@ import AccountDetails from "../AccountDetails";
 import Navbar from "../../components/Navbar";
 import AccountSidebar from "../../components/AccountSidebar";
 import Footer from "../../sections/Footer";
-import { Outlet } from "react-router";
+import { Outlet } from "react-router-dom";
 
 function AccountLayout() {
   // const [formData, setFormData] = useState({

@@ -1,6 +1,6 @@
 // /pages/VerifyEmail.jsx
 import { useState } from "react";
-import { useNavigate, useLocation } from "react-router";
+import { useNavigate, useLocation } from "react-router-dom";
 import axiosInstance from "../api/axiosInstance";
 import { toast } from "react-toastify";
 

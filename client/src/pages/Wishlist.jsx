@@ -6,7 +6,7 @@ import Footer from "../sections/Footer";
 import { useDispatch, useSelector } from "react-redux";
 import { clearWishlist, removeFromWishlist } from "../redux/cart/wishlistSlice";
 import { addToCart } from "../redux/cart/cartSlice";
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
 import { formatPrice } from "../utils/homePageUtils";
 import Modal from "../components/Modal";
 import EmptyState from "../components/EmptyState";

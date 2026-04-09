@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import product from "../assets/ProductDetails1.jpg";
 import Ratings from "./Ratings";
 import { ThumbsUp, ThumbsDown, Link } from "lucide-react";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 
 const customers = [
   {

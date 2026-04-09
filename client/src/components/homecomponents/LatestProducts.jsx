@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import products from "../../data/products.json";
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router-dom";
 import { useRef } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Title from "../Title";

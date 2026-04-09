@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import products from "../../../data/products.json";
 import { ChevronLeft, Search, Eye, Pin } from "lucide-react";
 import ReviewIcon from "../../../assets/review.svg";

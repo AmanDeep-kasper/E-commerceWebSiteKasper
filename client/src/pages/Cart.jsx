@@ -9,7 +9,7 @@ import {
   decreaseQty,
   clearCart,
 } from "../redux/cart/cartSlice";
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
 import Footer from "../sections/Footer";
 import Navbar from "../components/Navbar";
 import { addToWishlist } from "../redux/cart/wishlistSlice";

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import products from "../data/products.json";
 import Reviews from "../components/Reviews";
 import CustomerReview from "../components/CustomerReview";
-import { useParams } from "react-router";
+import { useParams } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../sections/Footer";
 

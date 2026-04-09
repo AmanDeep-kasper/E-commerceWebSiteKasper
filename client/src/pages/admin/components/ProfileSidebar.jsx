@@ -10,7 +10,7 @@ import {
   User,
 } from "lucide-react";
 import { use } from "react";
-import { Link, useNavigate, useLocation, useParams } from "react-router";
+import { Link, useNavigate, useLocation, useParams } from "react-router-dom";
 
 const Card = ({ children, className = "" }) => (
   <div className={`bg-white border rounded-xl shadow-sm ${className}`}>
@@ -65,7 +65,7 @@ export default ProfileSidebar;
 //  Add his code (AD)
 
 // import React from "react";
-// import { Link, useLocation, useParams } from "react-router";
+// import { Link, useLocation, useParams } from "react-router-dom";
 
 // const tabs = [
 //   { label: "Personal Information", path: "/customer-info" },
@@ -116,8 +116,8 @@ export default ProfileSidebar;
 //   ChevronRight,
 //   ChevronDown,
 // } from "lucide-react";
-// import { useLocation } from "react-router";
-// import { Link } from "react-router";
+// import { useLocation } from "react-router-dom";
+// import { Link } from "react-router-dom";
 
 // const Card = ({ children, className = "" }) => (
 //   <div className={`bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden ${className}`}>

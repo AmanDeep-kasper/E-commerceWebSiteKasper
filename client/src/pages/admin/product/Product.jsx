@@ -6,7 +6,7 @@
 //   X,
 // } from "lucide-react";
 // import { ChevronLeft, MoreVertical, Upload, Filter, Plus } from "lucide-react";
-// import { useNavigate } from "react-router";
+// import { useNavigate } from "react-router-dom";
 // import products from "../../../data/products.json";
 // import AddProduct from "../../../components/admin/AddProduct";
 
@@ -244,7 +244,7 @@ import {
   CopyCheck,
   FunnelX,
 } from "lucide-react";
-import { Link, useNavigate, useParams } from "react-router";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import productData from "../../../data/products.json";
 // import axiosInstance from "../../../api/axiosInstance";
 // import kpiCards from "./KpiCardProductlist";

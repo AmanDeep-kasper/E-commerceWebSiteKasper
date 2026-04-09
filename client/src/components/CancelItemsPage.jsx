@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate, useParams } from "react-router";
+import { useNavigate, useParams } from "react-router-dom";
 import { cancelOrderItems } from "../redux/cart/orderSlice"; // create this action
 
 const CancelItemsPage = () => {

@@ -15,7 +15,7 @@ import {
 import { useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { MapPin } from "lucide-react";
-import { Link, useParams } from "react-router";
+import { Link, useParams } from "react-router-dom";
 // import orders from "../data/orders.json";
 import Navbar from "../components/Navbar";
 import Footer from "../sections/Footer";

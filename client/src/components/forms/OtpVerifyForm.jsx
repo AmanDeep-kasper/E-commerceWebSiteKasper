@@ -3,7 +3,7 @@ import { useDispatch } from "react-redux";
 import { Shield, Clock, RotateCcw, CheckCircle, ArrowLeft } from "lucide-react";
 import userService from "../../services/userService";
 import { loginUser } from "../../redux/cart/userSlice";
-import { Navigate, useNavigate } from "react-router";
+import { Navigate, useNavigate } from "react-router-dom";
 
 function OtpVerifyForm({ onSuccess, onBack }) {
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);

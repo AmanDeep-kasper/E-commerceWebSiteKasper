@@ -4,7 +4,7 @@ import Ratings from "./Ratings";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart, decreaseQty, increaseQty } from "../redux/cart/cartSlice";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 import { Heart, Minus, Plus, ShoppingCart, Trash2 } from "lucide-react";
 import { addToWishlist, removeFromWishlist } from "../redux/cart/wishlistSlice";
 import { formatPrice, getPrices } from "../utils/homePageUtils";

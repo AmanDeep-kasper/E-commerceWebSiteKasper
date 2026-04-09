@@ -1,5 +1,5 @@
 // import React, { useEffect } from "react";
-// import { useNavigate } from "react-router";
+// import { useNavigate } from "react-router-dom";
 
 // const PaymentSuccess = () => {
 //   const navigate = useNavigate();
@@ -24,7 +24,7 @@
 
 
 // import React, { useEffect } from "react";
-// import { useNavigate, useLocation } from "react-router";
+// import { useNavigate, useLocation } from "react-router-dom";
 
 // function PaymentSuccess() {
 //   const navigate = useNavigate();
@@ -56,7 +56,7 @@
 // export default PaymentSuccess;
 
 // import React, { useEffect } from "react";
-// import { useNavigate, useLocation } from "react-router";
+// import { useNavigate, useLocation } from "react-router-dom";
 
 // function PaymentSuccess() {
 //   const navigate = useNavigate();

@@ -1,5 +1,5 @@
 // src/components/SomethingWentWrong.jsx
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
 
 const SomethingWentWrong = ({
   errorCode = 500,

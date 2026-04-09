@@ -6,7 +6,7 @@ import banner from "../../data/banner.json";
 import { ChevronRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useAnimation, motion, easeInOut } from "framer-motion";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 import BannerVideo from "../../assets/TopBannerImg/BannerVideo.mp4";
 
 function Design() {

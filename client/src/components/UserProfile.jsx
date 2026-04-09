@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 
 import { useEffect, useState } from "react";
-import { Link, useNavigate, useLocation, NavLink } from "react-router";
+import { Link, useNavigate, useLocation, NavLink } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import Modal from "./Modal";
 

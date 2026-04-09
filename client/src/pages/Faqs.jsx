@@ -2,7 +2,7 @@ import React from "react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import Navbar from "../components/Navbar";
 import Footer from "../sections/Footer";
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
 import faqsImage from "../assets/Faqs.png";
 
 const faqs = [

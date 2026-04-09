@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from "react";
-import { useParams } from "react-router";
+import { useParams } from "react-router-dom";
 // import customers from "../../data/customer.json";
-import { useOutletContext } from "react-router";
+import { useOutletContext } from "react-router-dom";
 
 function InformationForm() {
   const { id } = useParams();
