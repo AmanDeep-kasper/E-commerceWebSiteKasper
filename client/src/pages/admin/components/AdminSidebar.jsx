@@ -27,6 +27,7 @@ const dashboard = [
   { name: "Transporter", path: "/transporter", icon: ClipboardCheck },
  { name: "Payments", path: "/payment", icon: Wallet },
   { name: "Support & Ticket", path: "/support&ticket", icon: Ticket },
+  { name: "Reward", path: "/reward&points", icon: Wallet },
 ];
 
 
