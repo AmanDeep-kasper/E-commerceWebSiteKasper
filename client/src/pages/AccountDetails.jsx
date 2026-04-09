@@ -138,8 +138,8 @@ function AccountDetails() {
                       Email Address
                     </label>
                     <div className="flex items-center gap-2 text-gray-800 font-medium text-sm sm:text-base">
-                      {user?.email || "Not provided"}
-                      {user?.email && (
+                      {user?.user?.email || "Not provided"}
+                      {user?.user?.email && (
                         <BadgeCheck className="w-4 h-4 text-green-600" />
                       )}
                     </div>
@@ -162,7 +162,7 @@ function AccountDetails() {
                 ) : (
                   <div className="px-3 sm:px-4 py-2 sm:py-3 bg-gray-50 rounded-lg border border-gray-200">
                     <p className="text-gray-800 text-sm sm:text-base">
-                      {user?.name || "Not provided"}
+                      { user?.user?.name || "Not provided"}
                     </p>
                   </div>
                 )}
@@ -184,7 +184,7 @@ function AccountDetails() {
                 ) : (
                   <div className="px-3 sm:px-4 py-2 sm:py-3 bg-gray-50 rounded-lg border border-gray-200">
                     <p className="text-gray-800 text-sm sm:text-base">
-                      {user?.dateOfBirth || "Not provided"}
+                      {user?.user?.dateOfBirth || "Not provided"}
                     </p>
                   </div>
                 )}
@@ -217,7 +217,7 @@ function AccountDetails() {
                 ) : (
                   <div className="px-3 sm:px-4 py-2 sm:py-3 bg-[#DEDEDE] rounded-lg border border-gray-200">
                     <p className="text-gray-800 capitalize text-sm sm:text-base">
-                      {user?.gender || "Not provided"}
+                      {user?.user?.gender || "Not provided"}
                     </p>
                   </div>
                 )}
@@ -246,7 +246,7 @@ function AccountDetails() {
                 ) : (
                   <div className="px-3 sm:px-4 py-2 sm:py-3 bg-gray-50 rounded-lg border border-gray-200">
                     <p className="text-gray-800 text-sm sm:text-base">
-                      {user?.alternateMobile || "Not provided"}
+                      {user?.user?.phoneNumber || "Not provided"}
                     </p>
                   </div>
                 )}
