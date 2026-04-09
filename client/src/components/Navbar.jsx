@@ -142,7 +142,7 @@ function Navbar() {
 
   return (
     // <div className="w-full">
-    <div className="w-full top-0 left-0 z-50 relative">
+    <div className="fixed top-0 left-0 w-full z-50">
       {/* Top Announcement Bar */}
       <div className="w-full bg-[#1800AC] text-white text-center text-sm py-2">
         <Swiper
@@ -164,9 +164,8 @@ function Navbar() {
       </div>
 
       {/* Fixed Navbar */}
-      {/* <div className="fixed top-0 left-0 w-full h-16 bg-white shadow-sm z-50 border-b border-gray-200"> */}
-      <div className="w-full h-16 bg-white shadow-sm border-b border-gray-200 fixed top-0 left-0">
-        <div className="h-full  flex justify-between items-center px-4 md:px-16 lg:px-20">
+      <div className="w-full h-16 bg-white shadow-sm border-b border-gray-200 sticky top-0 left-0">
+        <div className="h-full flex justify-between items-center px-4 md:px-16 lg:px-20">
           {/* Left Section */}
           <div className="flex items-center gap-4 md:gap-8">
             {/* Mobile menu button */}
@@ -201,97 +200,6 @@ function Navbar() {
               </button>
             </Link>
           </div>
-
-          {/* Add  */}
-
-          {/* Desktop Navigation */}
-          {/* <nav className="hidden lg:flex gap-8">
-            <Link
-              to="/home"
-              className="relative group text-gray-700  hover:text-[#1C3753] transition-colors flex items-center gap-1 py-2"
-            >
-              Home
-              <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-[#1C3753] transition-all duration-300 group-hover:w-full"></span>
-            </Link>
-
-            <div className="relative">
-              <button
-                className="flex items-center gap-1 text-gray-700  hover:text-[#1C3753] transition-colors py-2 h-16"
-                onMouseEnter={() => setDropdown(true)}
-                onMouseLeave={() => setDropdown(false)}
-              >
-                Shop
-                <ChevronDown
-                  size={18}
-                  className={`transition-transform duration-200 ${
-                    dropdown ? "rotate-180 text-[#1C3753]" : ""
-                  }`}
-                />
-                <span
-                  className={`absolute bottom-0 left-0 h-[2px] bg-[#1C3753] transition-all duration-300 ${
-                    dropdown ? "w-full" : "w-0"
-                  }`}
-                ></span>
-              </button>
-
-              <div
-                onMouseEnter={() => setDropdown(false)}
-                className={`fixed top-16 left-0 right-0 bottom-0 bg-black/10 backdrop-blur-sm transition-all duration-300 z-40 ${
-                  dropdown ? "visible opacity-100" : "invisible opacity-0"
-                }`}
-              ></div>
-
-              <div
-                onMouseEnter={() => setDropdown(true)}
-                onMouseLeave={() => setDropdown(false)}
-                className={`fixed top-16 left-0 w-full bg-white backdrop-blur-md shadow-xl border-t border-gray-200 transition-all duration-300 z-50 ${
-                  dropdown ? "visible opacity-100" : "invisible opacity-0"
-                }`}
-              >
-                <div className="max-w-7xl mx-auto px-10 py-10 grid xl:grid-cols-6 grid-cols-5 gap-8">
-                  {shopCategories.map((cat) => (
-                    <div key={cat.name}>
-                      <h3
-                        className="font-semibold"
-                        onClick={() =>
-                          navigate(`/products/${encodeURIComponent(cat.name)}`)
-                        }
-                      >
-                        {cat.name}
-                      </h3>
-
-                      <ul>
-                        {(cat.subcategories || [])
-                          .filter((s) => s && s.toLowerCase() !== "all")
-                          .map((sub) => (
-                            <li key={sub}>
-                              <button
-                                className="text-[#686868] hover:underline"
-                                onClick={() =>
-                                  navigate(
-                                    `/products/${encodeURIComponent(cat.name)}/${encodeURIComponent(sub)}`,
-                                  )
-                                }
-                              >
-                                {sub}
-                              </button>
-                            </li>
-                          ))}
-                      </ul>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <Link
-              to="/faqs"
-              className="relative group text-gray-700  hover:text-[#1C3753] transition-colors flex items-center gap-1 py-2"
-            >
-              FAQs
-              <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-[#1C3753] transition-all duration-300 group-hover:w-full"></span>
-            </Link>
-          </nav> */}
 
           {/* Right Section */}
           <div className="flex items-center gap-4 md:gap-6">
@@ -556,8 +464,7 @@ function Navbar() {
         </div>
       </div>
 
-      {/* Spacer so page content doesn't overlap navbar */}
-      {/* <div className="h-16"></div> */}
+
 
       {/* Mobile Dropdown Nav */}
       <AnimatePresence>
