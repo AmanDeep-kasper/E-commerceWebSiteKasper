@@ -39,24 +39,11 @@ function Hero() {
     fetchProducts();
   }, []);
 
-  const selectedProducts = sideslider.filter(
-    (item, index, self) =>
-      index === self.findIndex((obj) => obj.category === item.category),
-  );
+  // const selectedProducts = sideslider.filter(
+  //   (item, index, self) =>
+  //     index === self.findIndex((obj) => obj.category === item.category),
+  // );
 
-  // console.log(selectedProducts)
-  // useEffect(() => {
-  //   let index = 0;
-  //   const slideInterval = setInterval(() => {
-  //     controls.start({
-  //       x: `-${index * 100}%`,
-  //       transition: { duration: 0.3, ease: "easeInOut" },
-  //     });
-
-  //     index = (index + 1) % heros.length;
-  //   }, 2000);
-  //   return () => clearInterval(slideInterval);
-  // }, [controls, heros.length]);
 
   // Animate on imageIndex change
   useEffect(() => {
@@ -67,15 +54,15 @@ function Hero() {
   }, [imageIndex, controls]);
 
   // Auto-slide
-  useEffect(() => {
-    if (isHovered || selectedProducts.length === 0) return;
+  // useEffect(() => {
+  //   if (isHovered || selectedProducts.length === 0) return;
 
-    const interval = setInterval(() => {
-      setImageIndex((prevIndex) => (prevIndex + 1) % selectedProducts.length);
-    }, 2500);
+  //   const interval = setInterval(() => {
+  //     setImageIndex((prevIndex) => (prevIndex + 1) % selectedProducts.length);
+  //   }, 2500);
 
-    return () => clearInterval(interval);
-  }, [isHovered, selectedProducts.length, imageIndex]);
+  //   return () => clearInterval(interval);
+  // }, [isHovered, selectedProducts.length, imageIndex]);
 
   // Manual navigation
   const handlePrev = () => {
@@ -89,9 +76,9 @@ function Hero() {
   };
 
   return (
-    <section className="w-full mx-auto sm:py-0 bg-gray-50 ">
-      <div className="mx-auto w-full px-0 sm:px-4 md:px-16 lg:px-0">
-        <div className="relative w-full min-h-[300px] sm:min-h-[400px] md:min-h-[800px] overflow-hidden  ">
+    <section className="w-full mx-auto sm:py-0 bg-gray-50 mt-24">
+      <div className="mx-auto w-full px-0 sm:px-0 md:px-0 lg:px-0">
+        <div className="relative w-full min-h-[300px] sm:min-h-[400px] md:min-h-[800px] overflow-hidden">
           {/* Video */}
           <video
             className="w-full h-full absolute inset-0 object-cover"
