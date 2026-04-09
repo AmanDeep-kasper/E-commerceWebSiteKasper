@@ -6,74 +6,121 @@ import {
   uploadImageToCloudinary,
   deleteImageFromCloudinary,
 } from "../utils/cloudinary.js";
-
-// Helper function to build category tree
-const buildCategoryTree = (categories, parentId = null) => {
-  const tree = [];
-
-  for (const category of categories) {
-    if (
-      category.parentId?._id?.toString() === parentId?.toString() ||
-      category.parentId?.toString() === parentId?.toString() ||
-      (!category.parentId && !parentId)
-    ) {
-      const children = buildCategoryTree(categories, category._id);
-      if (children.length) {
-        category.children = children;
-      }
-      tree.push(category);
-    }
-  }
-
-  return tree;
-};
+import SubCategory from "../models/SubCategory.js";
 
 // Admin controller
 export const addCategory = asyncHandler(async (req, res) => {
-  const {
+  let {
     name,
     description,
-    parentId,
+    subCategories = [],
     metaTitle,
     metaDescription,
-    displayOrder,
   } = req.body;
 
-  // Check if category already exists
-  const existingCategory = await Category.findOne({ name: name.toLowerCase() });
-  if (existingCategory) {
-    throw AppError.conflict(
-      "Category with this name already exists",
-      "CATEGORY_EXISTS",
+  // parse subCategory string in array
+  if (subCategories && typeof subCategories === "string") {
+    subCategories = JSON.parse(subCategories);
+  }
+
+  if (
+    !subCategories ||
+    !Array.isArray(subCategories) ||
+    subCategories.length === 0
+  ) {
+    throw AppError.badRequest(
+      "At least one subcategory is required",
+      "SUBCATEGORIES_REQUIRED",
     );
   }
 
-  // Handle image upload if provided
-  let categoryImage = null;
-  if (req.file) {
-    const result = await uploadImageToCloudinary(req.file.path, "categories");
-    categoryImage = {
-      url: result.url,
-      publicId: result.publicId,
-    };
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    // Check if category already exists
+    const existingCategory = await Category.findOne({
+      name: name.toLowerCase(),
+    }).session(session);
+    if (existingCategory) {
+      throw AppError.conflict(
+        "Category with this name already exists",
+        "CATEGORY_EXISTS",
+      );
+    }
+
+    // check duplicate subcategory names
+    const names = subCategories.map((sc) => sc.name.toLowerCase());
+    if (new Set(names).size !== names.length) {
+      throw AppError.badRequest(
+        "Duplicate subcategory names are not allowed",
+        "DUPLICATE_SUBCATEGORY_NAMES",
+      );
+    }
+
+    // Handle image upload if provided
+    let categoryImage = null;
+    if (req.file) {
+      const result = await uploadImageToCloudinary(req.file.path, "categories");
+      categoryImage = {
+        url: result.url,
+        publicId: result.publicId,
+      };
+    }
+
+    // CREATE CATEGORY
+    const category = await Category.create(
+      [
+        {
+          name: name.toLowerCase(),
+          description,
+          metaTitle: metaTitle || name,
+          categoryImage,
+          metaDescription: metaDescription || description?.slice(0, 160),
+        },
+      ],
+      { session },
+    );
+
+    // BULK CHECK existing subcategories
+    const existingSubs = await SubCategory.find({
+      name: { $in: names },
+      category: category[0]._id,
+    }).session(session);
+
+    if (existingSubs.length) {
+      throw AppError.conflict(
+        "Subcategory already exists",
+        "SUBCATEGORY_EXISTS",
+      );
+    }
+
+    // subCategory data
+    const subDocs = subCategories.map((sc) => ({
+      name: sc.name.toLowerCase(),
+      description: sc.description || "",
+      category: category[0]._id,
+      metaTitle: metaTitle || "",
+      metaDescription: metaDescription || "",
+      isActive: sc.isActive !== undefined ? sc.isActive : true,
+    }));
+
+    const createdSubs = await SubCategory.insertMany(subDocs, { session });
+
+    await session.commitTransaction();
+
+    res.status(201).json({
+      success: true,
+      message: `Category ${name} created successfully with ${createdSubs.length} subcategories`,
+      category: category[0],
+      subCategories: createdSubs,
+    });
+  } catch (error) {
+    await session.abortTransaction();
+    throw error;
+  } finally {
+    session.endSession();
   }
-
-  // Create category
-  const category = await Category.create({
-    name,
-    description,
-    parentId: parentId || null,
-    displayOrder: displayOrder || 0,
-    categoryImage,
-    metaTitle: metaTitle || name,
-    metaDescription: metaDescription || description?.substring(0, 160),
-  });
-
-  res.status(201).json({
-    success: true,
-    message: "Category created successfully",
-    data: category,
-  });
 });
 
 export const updateCategory = asyncHandler(async (req, res) => {
