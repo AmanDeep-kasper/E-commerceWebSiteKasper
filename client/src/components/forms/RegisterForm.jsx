@@ -11,7 +11,7 @@ function RegisterForm({ onOtpSent }) {
     password: "",
     phoneNumber: "",
   });
-  console.log(formData);
+ 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
@@ -36,7 +36,8 @@ function RegisterForm({ onOtpSent }) {
       payload.append("phoneNumber", formData.phoneNumber);
 
       const res = await userService.register(payload);
-      console.log("regsiter",res.data);
+      // console.log("regsiter",res.tempUserId);
+      localStorage.setItem("tempUserId", res.tempUserId);
       
       onOtpSent(formData.email);
     } catch (err) {
