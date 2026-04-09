@@ -18,7 +18,7 @@ export const generateAccessToken = (userId, role, sessionId, fingerprint) => {
   const isRS256 = env.NODE_ENV !== "development";
 
   return jwt.sign(payload, isRS256 ? env.PRIVATE_KEY : env.JWT_ACCESS_SECRET, {
-    expiresIn: env.JWT_ACCESS_EXPIRATION || "15m",
+    expiresIn: env.JWT_ACCESS_EXPIRATION || "3m",
     issuer: env.JWT_ISSUER,
     audience: env.JWT_AUDIENCE,
     algorithm: isRS256 ? "RS256" : "HS256",
@@ -84,7 +84,7 @@ export const generateAuthTokens = async (userId, role, req = null) => {
     accessToken,
     refreshToken,
     sessionId,
-    expiresIn: env.JWT_ACCESS_EXPIRATION || "15m",
+    expiresIn: env.JWT_ACCESS_EXPIRATION || "3m",
     tokenType: "Bearer",
   };
 };

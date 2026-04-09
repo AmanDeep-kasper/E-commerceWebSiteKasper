@@ -28,11 +28,12 @@ export const globalLimiter = rateLimit({
 });
 
 export const authLimiter = rateLimit({
-  windowMs: 5 * 60 * 1000,
-  max: 10,
+  windowMs: 1 * 60 * 1000,
+  max: 100,
 
   standardHeaders: true,
   legacyHeaders: false,
+  skipSuccessfulRequests: true,
 
   keyGenerator: (req) => {
     const identifier = (req.body?.identifier || "").toLowerCase().trim();

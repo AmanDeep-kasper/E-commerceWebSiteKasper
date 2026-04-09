@@ -3,7 +3,7 @@ import env from "../config/env.js";
 
 const emailConfig = {
   host: env.SMTP_HOST,
-  port: env.NODE_ENV === "development" ? parseInt(env.SMTP_PORT || "587") : 465,
+  port: env.NODE_ENV === "development" ? 587 : 465,
   secure: env.NODE_ENV !== "development", // true for 465, false for other ports
   auth: {
     user: env.SMTP_USER,
