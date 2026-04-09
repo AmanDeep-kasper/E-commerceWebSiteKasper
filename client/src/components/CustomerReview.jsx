@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import product from "../assets/ProductDetails1.jpg";
 import Ratings from "./Ratings";
-import { ThumbsUp, ThumbsDown } from "lucide-react";
+import { ThumbsUp, ThumbsDown, Link } from "lucide-react";
 import { useNavigate } from "react-router";
 
 const customers = [
@@ -174,6 +174,7 @@ function CustomerReview({ reviews = false, id, allReviews = false }) {
         )}
       </div>
       {reviews.length > moreReview && !allReviews && (
+        <Link to={"/rating"}>
         <button
           className=" py-2 rounded-lg my-2 font-semibold"
           // onClick={() => moreReview < 4 ? setMoreReview(moreReview + 2) : navigate(`/all-reviews/${id}`)}
@@ -181,6 +182,7 @@ function CustomerReview({ reviews = false, id, allReviews = false }) {
         >
           See more reviews &#8250;
         </button>
+        </Link>
       )}
     </div>
   );
