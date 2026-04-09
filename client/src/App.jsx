@@ -7,6 +7,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import PageRouter from "./Router/PageRouter";
 import { getUserDetails } from "./redux/cart/userSlice";
+import { useAutoRefreshToken } from "./hooks/useAutoRefreshToken";
 // import About from "./sections/About";
 import { fetchAddresses } from "./redux/cart/addressSlice";
 import { fetchAllProducts } from "./redux/cart/productSlice";
@@ -14,6 +15,9 @@ import { fetchAllProducts } from "./redux/cart/productSlice";
 function App() {
   const dispatch = useDispatch();
   const { token, user, isAuthenticated } = useSelector((state) => state.user);
+
+  // 🔄 Auto-refresh token every 14 minutes
+  useAutoRefreshToken();
 
   useEffect(() => {
     if (isAuthenticated && !user) {

@@ -73,18 +73,18 @@ const customers = [
   },
 ];
 
-function CustomerReview({ reviews = false, id, allReviews = false }) {
+function CustomerReview({ reviews = [], id, allReviews = false }) {
   const [moreReview, setMoreReview] = useState(2);
-  const navigate = useNavigate(null);
+  const navigate = useNavigate();
 
   const productReview = useMemo(() => {
     if (!reviews) return [];
     return allReviews ? reviews : reviews.slice(0, moreReview);
-  });
+  }, [reviews, allReviews, moreReview]);
 
   if (!reviews || reviews.length === 0) {
     return (
-      <div className="py-8 flex flex-col items-center justify-center text-center">
+      <div className="py-8 flex flex-col items-center justify-center text-center border rounded-lg bg-white">
         <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mb-4">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -112,72 +112,74 @@ function CustomerReview({ reviews = false, id, allReviews = false }) {
   }
 
   return (
-    <div className="mt-4">
-      <div className="max-h-[420px] overflow-y-auto pr-2">
+    <div className="w-full">
+      <div className="flex flex-col gap-3">
         {productReview.map(
-          (
-            { user, userImage, comment, rating, likes, dislike, images, date },
-            index,
-          ) => (
+          ({ user, userImage, comment, rating, images, date }, index) => (
             <div
               key={index}
-              className="py-4 flex gap-3 flex-col border border-t-[#C7C7C7] border-b-0 border-l-0 border-r-0 "
+              className="border border-[#DADADA] rounded-lg bg-[#FCFCFC] p-4"
             >
-              <div className="border p-2 rounded-lg space-y-2">
-                <div className="flex justify-between ">
-                  <div className="flex gap-4 ">
-                    {userImage ? (
-                      <img
-                        className="w-11 h-11 rounded-full"
-                        src={userImage}
-                        alt={`${user}'s avatar`}
-                      />
-                    ) : (
-                      <div className="w-11 h-11 rounded-full bg-gray-400 flex items-center justify-center text-white font-bold">
-                        <h1 className="text-white">
-                          {user?.charAt(0).toUpperCase()}
-                        </h1>
-                      </div>
-                    )}
+              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                <div className="flex gap-3">
+                  {userImage ? (
+                    <img
+                      className="w-10 h-10 rounded-full object-cover"
+                      src={userImage}
+                      alt={`${user}'s avatar`}
+                    />
+                  ) : (
+                    <div className="w-10 h-10 rounded-full bg-[#D9A7A0] flex items-center justify-center text-white font-medium text-sm shrink-0">
+                      {user?.charAt(0)?.toUpperCase()}
+                    </div>
+                  )}
 
-                    <div className="flex flex-col">
-                      <h1 className="text-[14px]">{user}</h1>
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h1 className="text-[15px] font-medium text-[#222]">
+                        {user}
+                      </h1>
                       <Ratings avgRating={Number(rating)} />
+                      <span className="text-[#6C6B6B] text-[12px]">
+                        (
+                        {new Date(date).toLocaleDateString("en-GB", {
+                          day: "numeric",
+                          month: "short",
+                          year: "numeric",
+                        })}
+                        )
+                      </span>
                     </div>
                   </div>
-                  <span className="text-[#6C6B6B] text-[12px]">
-                    {new Date(date).toLocaleDateString("en-GB", {
-                      day: "2-digit",
-                      month: "short",
-                      year: "numeric",
-                    })}
-                  </span>
                 </div>
-                {images && (
-                  <div className="flex gap-3 mt-2">
-                    {(Array.isArray(images) ? images : [images]).map(
-                      (img, idx) => (
-                        <img
-                          key={idx}
-                          className="w-20 h-20 object-cover rounded"
-                          src={img}
-                          alt="product"
-                        />
-                      ),
-                    )}
-                  </div>
-                )}
-                <p className="text-sm">{comment}</p>
               </div>
+
+              {images && (
+                <div className="flex flex-wrap gap-2 mt-3">
+                  {(Array.isArray(images) ? images : [images]).map(
+                    (img, idx) => (
+                      <img
+                        key={idx}
+                        className="w-14 h-14 object-cover rounded border"
+                        src={img}
+                        alt="review"
+                      />
+                    ),
+                  )}
+                </div>
+              )}
+
+              <p className="text-sm text-[#3A3A3A] mt-3 leading-6">{comment}</p>
             </div>
           ),
         )}
       </div>
+
       {reviews.length > moreReview && !allReviews && (
         <Link to={"/rating"}>
         <button
-          className=" py-2 rounded-lg my-2 font-semibold"
-          // onClick={() => moreReview < 4 ? setMoreReview(moreReview + 2) : navigate(`/all-reviews/${id}`)}
+          type="button"
+          className="py-2 mt-3 font-medium text-[#1C3753]"
           onClick={() => navigate(`/all-reviews/${id}`)}
         >
           See more reviews &#8250;

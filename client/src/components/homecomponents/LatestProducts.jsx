@@ -270,12 +270,6 @@ function LatestProducts() {
                   )}
                 </div>
                 <div className="flex flex-col items-start">
-                  {/* <div className="flex gap-1 ">
-                    <Stack spacing={1}>
-                      <Rating name="size-small" defaultValue={2} size="small" />
-                    </Stack>
-                    <span className="text-[12px] text-[#686868]">(345)</span>
-                  </div> */}
 
                   {/* <===========----------- Add to Cart ------------==========>*/}
                   <div
@@ -333,6 +327,7 @@ function LatestProducts() {
                       </>
                     )}
                   </div>
+                  
                 </div>
               </div>
             </Link>

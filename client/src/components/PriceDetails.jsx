@@ -16,10 +16,15 @@ function PriceDetails({
   handlePlaceOrder,
   buyNowMode,
   goToPayment,
+
+  // ✅ admin side values
+  deliveryCharge = 60,
+  deliveryLimit = 2000,
 }) {
-  const [deliveryCharge, setDeliveryCharge] = useState(60);
   const [showPrice, setShowPrice] = useState(false);
-  const deliveryLimit = 1000;
+
+  const finalAmount = totalPrice - totalDiscount;
+  const isFreeDelivery = finalAmount >= deliveryLimit;
 
   const [showCoupon, setShowCoupon] = useState(false);
 
@@ -27,7 +32,6 @@ function PriceDetails({
     <div className="w-full lg:w-1/3">
       <div className="bg-white md:rounded-lg shadow-sm p-4 md:p-6 sticky top-20 font-inter">
         <>
-          {/* Header */}
           <div className="flex justify-between items-center">
             <h2 className="text-base md:text-lg lg:text-xl font-medium text-gray-800">
               Price Summary
@@ -45,7 +49,6 @@ function PriceDetails({
           </div>
 
           <div className="text-sm sm:text-base">
-            {/* Price Breakdown */}
             <motion.div
               initial={false}
               animate={{
@@ -56,7 +59,6 @@ function PriceDetails({
               className="overflow-hidden"
             >
               <div className="space-y-4 bg-[#F8F8F8] rounded-lg px-2 py-1">
-                {/* Items */}
                 <div className="flex justify-between border-t border-gray-200 pt-4 mt-4">
                   <span className="text-gray-600 font-medium">
                     Price ({totalItems} {totalItems > 1 ? "items" : "item"})
@@ -64,16 +66,13 @@ function PriceDetails({
                   <span className="font-medium">{formatPrice(totalPrice)}</span>
                 </div>
 
-                {/* Discount */}
                 <div className="flex justify-between">
                   <span className="text-[#00A63E] font-medium">Discount</span>
                   <span className="text-green-600 font-medium">
                     - {formatPrice(totalDiscount)}
-                    {/* {console.log(totalDiscount)} */}
                   </span>
                 </div>
 
-                {/* Platform Fee */}
                 <div className="flex justify-between">
                   <span className="text-gray-600 font-medium">
                     Platform Fee
@@ -81,56 +80,48 @@ function PriceDetails({
                   <span className="font-medium">₹6</span>
                 </div>
 
-                {/* Delivery */}
-                {/* <div className="flex justify-between">
+                <div className="flex justify-between">
                   <span className="text-gray-600 font-medium">
                     Delivery Charges
                   </span>
+
                   <span
-                    className={`font-medium ${totalPrice - totalDiscount < deliveryLimit
-                      ? "text-gray-800"
-                      : "text-green-600"
-                      }`}
+                    className={`font-medium ${
+                      isFreeDelivery ? "text-green-600" : "text-gray-800"
+                    }`}
                   >
-                    {totalPrice - totalDiscount < deliveryLimit ? (
-                      `₹${deliveryCharge.toFixed(2)}`
-                    ) : (
+                    {isFreeDelivery ? (
                       <span className="flex items-center gap-1">
                         <BadgeCheck className="w-4 h-4" /> FREE
                       </span>
+                    ) : (
+                      formatPrice(deliveryCharge)
                     )}
                   </span>
                 </div> */}
               </div>
             </motion.div>
 
-            {/* Total Amount */}
             <div className="border-t border-gray-200 pt-4 mt-4 flex justify-between text-base sm:text-lg font-semibold text-gray-900">
               <span>Total Amount</span>
               <span>
                 {formatPrice(
-                  totalPrice -
-                  totalDiscount +
-                  (totalPrice - totalDiscount < deliveryLimit
-                    ? deliveryCharge
-                    : 0) +
-                  6
+                  finalAmount + (isFreeDelivery ? 0 : deliveryCharge) + 6
                 )}
               </span>
             </div>
           </div>
 
-          {/* Savings Info */}
-          {/* <div className="mt-6 p-3 bg-[#F8F8F8] rounded-lg flex items-start gap-2">
+          <div className="mt-6 p-3 bg-[#F8F8F8] rounded-lg flex items-start gap-2">
             <Info className="text-[#1C3753] mt-0.5 flex-shrink-0" size={16} />
             <div>
               <p className="text-[#1C3753] font-medium text-sm sm:text-base">
                 You're saving ₹{totalDiscount.toLocaleString("en-IN")} on this
                 order!
               </p>
-              {totalPrice <= 1000 && (
+              {!isFreeDelivery && (
                 <p className="text-green-600 text-xs sm:text-sm mt-1">
-                  Free delivery on orders above ₹1000
+                  Free delivery on orders above ₹{deliveryLimit}
                 </p>
               )}
             </div>
@@ -143,6 +134,7 @@ function PriceDetails({
               Apply
             </span>
           </div>
+
 
           {/* Payment Security */}
           <div className="mt-2 pt-4 border-t border-gray-200 flex items-center justify-between gap-2 text-xs sm:text-sm text-gray-500">
@@ -159,7 +151,7 @@ function PriceDetails({
                 ) : (
                   <Link
                     to="/checkout/delivery"
-                    className="bg-[#1C3753] rounded-lg hover:bg-black text-white md:px-8 md:py-3 px-4 py-2 text-base font-medium transition-colors flex items-center gap-2"
+                    className="bg-[#0C0057] rounded-lg hover:bg-black text-white md:px-8 md:py-3 px-4 py-2 text-base font-medium transition-colors flex items-center gap-2"
                   >
                     Proceed to Checkout
                   </Link>
@@ -168,7 +160,7 @@ function PriceDetails({
               {step === "delivery" && canProceed && (
                 <button
                   onClick={goToPayment}
-                  className="bg-[#1C3753] rounded-lg hover:bg-black text-white md:px-8 md:py-3 px-4 py-2 text-base font-medium transition-colors flex items-center gap-2"
+                  className="bg-[#0C0057] rounded-lg hover:bg-black text-white md:px-8 md:py-3 px-4 py-2 text-base font-medium transition-colors flex items-center gap-2"
                 >
                   Proceed to Checkout
                 </button>
@@ -177,7 +169,7 @@ function PriceDetails({
               {step === "payment" && (
                 <button
                   onClick={handlePlaceOrder}
-                  className="bg-[#1C3753] rounded-lg hover:bg-black text-white md:px-8 md:py-3 px-4 py-2 text-base font-medium transition-colors flex items-center gap-2 whitespace-nowrap"
+                  className="bg-[#0C0057] rounded-lg hover:bg-black text-white md:px-8 md:py-3 px-4 py-2 text-base font-medium transition-colors flex items-center gap-2 whitespace-nowrap"
                 >
                   {buyNowMode ? "Buy Now & Pay" : "Place Order"} <ArrowRight size={16}></ArrowRight>
                 </button>

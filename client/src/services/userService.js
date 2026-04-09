@@ -8,7 +8,7 @@ const register = async (formData) => {
 };
 
 const verifyEmail = async (data) => {
-  const res = await axiosInstance.post("/auth/verify-email", data);
+  const res = await axiosInstance.post("/auth/verify", data);
   return res.data;
 };
 
@@ -36,8 +36,8 @@ const resetPassword = async ({ token, newPassword }) => {
 
 // User axiosInstances
 const getUser = async () => {
-  const res = await axiosInstance.get("/users/me");
-  console.log(res.data);
+  const res = await axiosInstance.get("/auth/me");
+  // console.log(res.data);
   return res.data;
 };
 

@@ -1204,7 +1204,7 @@ function ProductDetails() {
         subcategory={product.subcategory}
         title={product.title}
       />
-      <section className="lg:px-20 md:px-[60px] px-4 py-6 ">
+      <section className="lg:px-40 md:px-[60px] px-4 py-6 bg-[#F6F8F9]">
         <AddReviewsModel
           open={openAddReviewModal}
           review={selectedReview}
@@ -1369,7 +1369,7 @@ function ProductDetails() {
 
           {/* Details */}
           <div className="w-full">
-            <h1 className="lg:text-4xl md:text-3xl text-2xl font-medium md:font-semibold text-gray-900 py-2 leading-7">
+            <h1 className="lg:text-2xl md:text-xl text-lg font-medium md:font-semibold text-gray-900 py-2 leading-7">
               {product.productTittle}
             </h1>
 
@@ -1389,7 +1389,7 @@ function ProductDetails() {
                     {product?.reviews?.length === 1 ? "review" : "reviews"}
                   </span>
                 </div>
-                <div className="h-6 w-px bg-gray-300"></div>x
+                {/* <div className="h-6 w-px bg-gray-300"></div>x
                 <button
                   className="text-sm font-medium text-[#1C3753] hover:text-[#1C3753] transition-colors underline"
                   onClick={() =>
@@ -1399,7 +1399,7 @@ function ProductDetails() {
                   }
                 >
                   See all reviews
-                </button>
+                </button> */}
               </div>
             )}
 
@@ -1427,7 +1427,7 @@ function ProductDetails() {
             {colorOptions.length > 0 && (
               <div className="mt-2">
                 <h3 className="font-medium">
-                  Color:{" "}
+                  Weight:{" "}
                   <span className="text-[#1C1C1C] font-medium">
                     {selectedVariant?.variantColor || "-"}
                   </span>
@@ -1437,10 +1437,10 @@ function ProductDetails() {
                   {colorOptions.map((c) => (
                     <button
                       key={c}
-                      className={`px-3 py-1 rounded-md border border-[#1C3753] text-sm
+                      className={`px-3 py-1 rounded-md border border-[#B6AAFF] text-sm
             ${
               selectedVariant?.variantColor === c
-                ? "border-2 border-[#1C3753] bg-[#D5E5F5] text-[#1C3753]"
+                ? "border-2 border-[#1C3753] bg-[#F7F5FF] text-[#1800AC]"
                 : "bg-white hover:bg-gray-200"
             }`}
                       onClick={() => onSelectColor(c)}
@@ -1453,7 +1453,7 @@ function ProductDetails() {
             )}
 
             {/* size Options */}
-            {sizeOptions.length > 0 && (
+            {/* {sizeOptions.length > 0 && (
               <div className="mt-3 border-b pb-3">
                 <h3 className="font-medium">
                   Size:{" "}
@@ -1481,7 +1481,7 @@ function ProductDetails() {
                   ))}
                 </div>
               </div>
-            )}
+            )} */}
 
             <div className="flex gap-3 py-4 border-b">
               {outOfStock ? (
@@ -1576,9 +1576,9 @@ function ProductDetails() {
                     }, 200);
                   }}
                   disabled={isLoading}
-                  className="px-6 py-2 bg-white hover:bg-[#1C3753] hover:text-white 
+                  className="px-6 py-2 bg-[#F6F8F9] hover:bg-[#0C0057] hover:text-white 
 transform transition-all duration-200 ease-in-out 
-hover:scale-105 text-black border border-[#1C3753] rounded-md"
+hover:scale-105 text-[#0C0057] border border-[#0C0057] rounded-md"
                 >
                   {isLoading ? "Adding..." : "Add to Cart"}
                 </button>
@@ -1586,7 +1586,7 @@ hover:scale-105 text-black border border-[#1C3753] rounded-md"
 
               {/* 🛒 Buy Now */}
               <button
-                className="px-6 py-2 bg-[#1C3753] text-white hover:bg-[#1C3753] hover:text-white 
+                className="px-6 py-2 bg-[#0C0057] text-white hover:bg-[white] hover:text-[#0C0057] 
 transform transition-all duration-200 ease-in-out 
 hover:scale-105 border border-[#1C3753] rounded-md"
                 onClick={() => handleBuyNow(product, selectedVariant)}
@@ -1600,50 +1600,55 @@ hover:scale-105 border border-[#1C3753] rounded-md"
             <div className="py-4 border-b">
               <h3 className="font-medium">Product Specifications</h3>
               <div className="text-[14px] mt-2">
-                <p className="text-[14px] text-[#6C6B6B] mt-2">
+                {/* <p className="text-[14px] text-[#6C6B6B] mt-2">
                   Product Size: -{" "}
                   <span className="text-[#171515]">
                     {normalizeSize(selectedVariant) || "-"}
                   </span>
-                </p>
-                <p className="text-[14px] text-[#6C6B6B]">
+                </p> */}
+                <p className="text-[14px] text-[#1C1C1C]">
                   Item Weight -{" "}
-                  <span className="text-[#171515] capitalize">
+                  <span className="text-[#686868] capitalize">
                     {selectedVariant?.variantWidth || "-"}
                     {selectedVariant?.variantWidthUnit || "-"}
                   </span>
                 </p>
 
-                <p className="text-[14px] text-[#6C6B6B]">
+                {/* <p className="text-[14px] text-[#6C6B6B]">
                   Color:{" "}
                   <span className="text-[#171515] capitalize">
                     {selectedVariant?.variantColor || "-"}
                   </span>
-                </p>
-                <p className="capitalize">
+                </p> */}
+                {/* <p className="capitalize">
                   <span className="text-[#6C6B6B]">Material</span> -{" "}
                   {product.materialType}
+                </p> */}
+                <p className="capitalize">
+                  <span className="text-[#1C1C1C]">Category:</span> -{" "}
+                  <span className="text-[#686868]">
+                    {" "}
+                    {product.category || "-"}
+                  </span>
                 </p>
                 <p className="capitalize">
-                  <span className="text-[#6C6B6B]">Category:</span> -{" "}
-                  {product.category || "-"}
+                  <span className="text-[#1C1C1C]">Sub-Category:</span> -{" "}
+                  <span className="text-[#686868]">
+                    {product.subcategory || "-"}
+                  </span>
                 </p>
-                <p className="capitalize">
-                  <span className="text-[#6C6B6B]">Sub-Category:</span> -{" "}
-                  {product.subcategory || "-"}
-                </p>
-                <p className="capitalize">
+                {/* <p className="capitalize">
                   <span className="text-[#6C6B6B]">Return Policy</span> -{" "}
                   {product && true ? "Easy 7 days return available" : "-"}
-                </p>
-                <p
+                </p> */}
+                {/* <p
                   className={`font-medium ${
                     stock > 0 ? "text-green-600" : "text-red-600"
                   }`}
                 >
                   <span className="text-[#6C6B6B]">Stock - </span>
                   {stock > 0 ? `${stock} available` : "Out of Stock"}
-                </p>
+                </p> */}
               </div>
             </div>
 
@@ -1658,23 +1663,27 @@ hover:scale-105 border border-[#1C3753] rounded-md"
                   ))}
                 </ul>
               ) : (
-                <p className="text-[#6C6B6B] mt-2">{product.description}</p>
+                <p className="text-[#1C1C1C] mt-2">{product.description}</p>
               )}
             </div>
+          </div>
+        </div>
+        {/* Reviews */}
+        <div className="p-4 bg-[#fcfbfb] rounded-lg mt-4" id="reviews-section">
+          <h3 className="text-[24px] font-medium text-[#1C3753] uppercase font-marcellus">
+            Rating & Reviews
+          </h3>
 
-            {/* Reviews */}
-            <div className="py-4" id="reviews-section">
-              <h3 className="text-lg">Rating & Reviews</h3>
-              <div className="mt-2">
-                <div className="mt-4">
-                  <Reviews
-                    onAddReview={handleOpenAddReview}
-                    reviews={product?.reviews}
-                    avgRating={avgRating}
-                  />
-                </div>
-                <CustomerReview reviews={product?.reviews} />
-              </div>
+          <div className="mt-4 grid grid-cols-1 lg:grid-cols-[580px_minmax(0,1fr)] gap-6 items-start">
+            <div className="w-full">
+              <Reviews
+                onAddReview={handleOpenAddReview}
+                reviews={product?.reviews}
+              />
+            </div>
+
+            <div className="w-full">
+              <CustomerReview reviews={product?.reviews} id={product?._id} />
             </div>
           </div>
         </div>

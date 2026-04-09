@@ -133,16 +133,10 @@ function Navbar() {
       name: "Welcome to the beautiful world of Art Search",
     },
     {
-      name: "Welcome to the  world of Art Searchfljfjfl",
+      name: "Free Shipping on orders above ₹1,999",
     },
     {
-      name: "Welcome to the beautiful world of Art Searchffklhkfhkf",
-    },
-    {
-      name: " to the beautiful world of Art Searchfkhkfhkf",
-    },
-    {
-      name: "Welcome to the beautiful  of Art Searchfljfljlfj",
+      name: "COD Available",
     },
   ];
 

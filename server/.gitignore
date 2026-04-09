@@ -30,3 +30,5 @@ out/
 
 # Compiled binary addons
 build/Release
+
+.vscode/
