@@ -51,7 +51,10 @@ const updateEmail = async (data) => {
   return res.data;
 };
 
-const logout = () => {};
+const logout = async () => {
+  const res = await axiosInstance.post("/auth/logout");
+  return res.data;
+};
 
 export default {
   register,

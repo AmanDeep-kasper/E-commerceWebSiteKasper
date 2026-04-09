@@ -22,7 +22,7 @@ import { useDispatch, useSelector } from "react-redux";
 import UserProfile from "./UserProfile";
 import users from "../data/user";
 import Modal from "./Modal";
-import { logout } from "../redux/cart/userSlice";
+import { logoutUser } from "../redux/cart/userSlice";
 import MainLog from "../assets/IconsUsed/HomeMainLogo.png";
 import axiosInstance from "../api/axiosInstance";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -68,8 +68,8 @@ function Navbar() {
   }, []);
 
   const handleLogout = () => {
-    dispatch(logout()); // updates Redux + clears localStorage
-    navigate("/"); // redirect to home
+    dispatch(logoutUser); // updates Redux + clears localStorage
+    navigate("/home", { replace: true }); // redirect to home
   };
 
   // Mock shop categories data
