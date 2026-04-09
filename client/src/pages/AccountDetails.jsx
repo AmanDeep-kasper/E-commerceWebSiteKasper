@@ -72,7 +72,7 @@ function AccountDetails() {
   };
 
   return (
-    <div className="w-full font-inter">
+    <div className="w-full font-inter mt-20">
       <ChangePassword
         showPasswordModal={showPasswordModal}
         setShowPasswordModal={setShowPasswordModal}
