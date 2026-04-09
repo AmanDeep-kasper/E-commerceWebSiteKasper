@@ -25,7 +25,7 @@ import reviewRouter from "./routes/reviewRoutes.js";
 import { errorHandler, notFoundHandler } from "./middlewares/errorHandler.js";
 
 // Rate limiting
-import { globalLimiter, authLimiter, speedLimiter } from "./utils/rateLimit.js";
+import { globalLimiter, speedLimiter } from "./middlewares/rateLimit.js";
 
 const app = express();
 
@@ -70,7 +70,7 @@ app.get("/", (req, res) => {
 });
 
 // Routes
-app.use("/api/v1/auth", authLimiter, authRouter);
+app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/category", categoryRouter);
 app.use("/api/v1/address", addressRouter);
