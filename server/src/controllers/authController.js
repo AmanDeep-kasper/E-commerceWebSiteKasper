@@ -628,7 +628,7 @@ export const forgotPassword = asyncHandler(async (req, res) => {
 
   await user.save({ validateBeforeSave: false });
 
-  const resetLink = `${env.FRONTEND_URL}/reset-password?token=${resetToken}&email=${encodeURIComponent(email)}`;
+  const resetLink = `${env.FRONTEND_URL}/reset-password/token=${resetToken}&email=${encodeURIComponent(email)}`;
 
   // Non-blocking email send — failures logged but don't affect response
   sendPasswordResetEmail(user.email, user.name, resetLink, tokenExpiry).catch(

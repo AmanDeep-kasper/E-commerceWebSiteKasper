@@ -3,8 +3,9 @@ import { useDispatch } from "react-redux";
 import { Shield, Clock, RotateCcw, CheckCircle, ArrowLeft } from "lucide-react";
 import userService from "../../services/userService";
 import { loginUser } from "../../redux/cart/userSlice";
+import { Navigate, useNavigate } from "react-router";
 
-function OtpVerifyForm({ email, onSuccess, onBack }) {
+function OtpVerifyForm({ onSuccess, onBack }) {
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -13,6 +14,7 @@ function OtpVerifyForm({ email, onSuccess, onBack }) {
   const [verificationSuccess, setVerificationSuccess] = useState(false);
   const inputRefs = useRef([]);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   // Countdown timer for resend OTP
   useEffect(() => {
@@ -77,15 +79,20 @@ function OtpVerifyForm({ email, onSuccess, onBack }) {
     setError(null);
 
     try {
-      const res = await userService.verifyEmail({ email, otp: otpValue });
+      const tempUserId = localStorage.getItem("tempUserId");
+      // const tempUesrId = localStorage.getItem("tempUserEmail");
+      const res = await userService.verifyEmail({ tempUserId, otp: otpValue });
+      setTimeout(() => {
+        navigate("/login");
+      }, 2000); 
 
       // Show success animation before proceeding
       setVerificationSuccess(true);
-      setTimeout(() => {
-        // Auto-login after verification
-        dispatch(loginUser({ email, password: res.passwordUsed }));
-        onSuccess();
-      }, 1500);
+      // setTimeout(() => {
+      //   // Auto-login after verification
+      //   dispatch(loginUser({ email, password: res.passwordUsed }));
+      //   onSuccess();
+      // }, 1500);
     } catch (err) {
       setError(err.response?.data?.message || "OTP verification failed");
       // Clear OTP on error for better UX
