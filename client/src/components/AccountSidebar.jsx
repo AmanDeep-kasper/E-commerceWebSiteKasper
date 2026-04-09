@@ -7,7 +7,7 @@ import users from "../data/user";
 import { User, Package, Heart, MapPin, HelpCircle, Star } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
-import { logout } from "../redux/cart/userSlice";
+import { logoutUser } from "../redux/cart/userSlice";
 
 const accountMenu = [
   { label: "Account Details", path: "/details", icon: User },
@@ -60,7 +60,7 @@ function AccountSidebar() {
             "Content-Type": "multipart/form-data",
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
       setImage(res.data.profileImage);
       toast.success("Profile image updated");
@@ -71,8 +71,8 @@ function AccountSidebar() {
   const dispatch = useDispatch();
 
   const handleLogout = () => {
-    dispatch(logout()); // clear token + reset user state
-    localStorage.removeItem("token"); // optional: if not done in slice
+    dispatch(logoutUser()); // clear token + reset user state
+    // optional: if not done in slice
     toast.success("Logged out successfully");
     navigate("/"); // redirect to homepage
   };
@@ -117,7 +117,7 @@ function AccountSidebar() {
           </h3>
           <ul className="space-y-1">
             {accountMenu.map(({ label, path, icon: Icon }) => (
-              <li key={label} >
+              <li key={label}>
                 <NavLink
                   to={`/accounts${path}`}
                   className={({ isActive }) =>

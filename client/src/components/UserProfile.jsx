@@ -16,7 +16,6 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate, useLocation, NavLink } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import Modal from "./Modal";
-import { getUserDetails, logout } from "../redux/cart/userSlice"; // ✅ import logout from slice
 
 // Account Menu Items
 const accountDetails = [
@@ -31,18 +30,20 @@ const accountDetails = [
 function UserProfile({ setIsProfileOpen }) {
   //  Redux state
   const { user, isAuthenticated } = useSelector((state) => state.user);
+  console.log("user", user);
 
   // console.log(user);
   // console.log(isAuthenticated);
+
   return (
     <div className="h-max md:w-[413px] sm:w-[350px] w-[280px] overflow-hidden mx-auto bg-white z-50">
       {/* Top section: user icon and welcome message */}
       <div className="flex gap-4 items-center px-4 py-5 border-b border-gray-200 cursor-default">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-[#D5E5F5] flex items-center justify-center">
-            {user?.profileImage ? (
+            {user ? (
               <img
-                src={user?.profileImage}
+                src={user?.user?.profileImage?.url}
                 alt="UserImage"
                 className=" rounded-full"
               />
@@ -51,7 +52,9 @@ function UserProfile({ setIsProfileOpen }) {
             )}
           </div>
           <div>
-            <p className="font-medium text-gray-900">{user?.name || "Guest"}</p>
+            <p className="font-medium text-gray-900">
+              {user?.user?.name || "Guest"}
+            </p>
             <p className="text-sm text-gray-500">
               {isAuthenticated ? "Welcome back!" : "Please log in"}
             </p>

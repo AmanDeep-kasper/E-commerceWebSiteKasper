@@ -36,6 +36,8 @@ function RegisterForm({ onOtpSent }) {
       payload.append("phoneNumber", formData.phoneNumber);
 
       const res = await userService.register(payload);
+      console.log("regsiter",res.data);
+      
       onOtpSent(formData.email);
     } catch (err) {
       setError(
