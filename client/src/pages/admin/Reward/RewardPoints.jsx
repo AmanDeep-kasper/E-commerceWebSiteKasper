@@ -2,29 +2,28 @@ import { div } from "framer-motion/m";
 import React, { useState } from "react";
 
 /* <=========--------- icons --------=========> */
-import { LiaTelegram } from "react-icons/lia";
 import { MdOutlineAdd } from "react-icons/md";
 import { MdEdit } from "react-icons/md";
-import { AiFillThunderbolt } from "react-icons/ai";
+import Surprisebox from "../../../assets/gift.gif"
+import { Link } from "lucide-react";
 
 function RewardPoints() {
     const [showReward, setShowReward] = useState(false);
     const [activeTab, setActiveTab] = useState("reward");
     const [showCard, setShowCard] = useState(false);
     const [rewardCard, setRewardCard] = useState([]);
+    const [showConfirm, setShowConfirm] = useState(false);
 
     const rewardCardData = [
         {
             title: "First Reward Points",
             description: "Get Points for every ₹500+ purchase.",
             badge: "Inactive",
-            icon: LiaTelegram,
         },
         {
             title: "Second Reward ",
             description: "Get Points for every ₹1000+ purchase.",
             badge: "Active",
-            icon: LiaTelegram,
         },
     ]
 
@@ -105,10 +104,6 @@ function RewardPoints() {
                                 <span className="text-[#727681] font-medium whitespace-nowrap">
                                     Valid Till 31st Dec, 2026
                                 </span>
-                            </div>
-
-                            <div className="text-[#1F7FFF] shrink-0 cursor-pointer hover:scale-110 transition">
-                                <LiaTelegram size={20} />
                             </div>
                         </div>
                     </div>
@@ -322,14 +317,23 @@ function RewardPoints() {
                             </div>
 
                         )}
-
                         <div className="flex gap-4 mt-4">
-                            <button className="px-2 py-2 border border-[#1C3753] text-[#1C3753] text-center rounded-md"
+                            <button
+                                className="px-2 py-2 border border-[#1C3753] text-[#1C3753] text-center rounded-md"
                                 onClick={() => setShowReward(false)}
-                            >Cancel</button>
+                            >
+                                Cancel
+                            </button>
 
-                            <div className="flex gap-4 mt-4">
-
+                            {/* CONDITIONAL BUTTON */}
+                            {activeTab === "reward" ? (
+                                <button
+                                    className="px-2.5 py-2 bg-[#1C3753] text-[#FFFFFF] rounded-md"
+                                    onClick={() => setActiveTab("redeem")}
+                                >
+                                    Next
+                                </button>
+                            ) : (
                                 <button
                                     className="px-2.5 py-2 bg-[#1C3753] text-[#FFFFFF] rounded-md"
                                     onClick={() => {
@@ -339,7 +343,8 @@ function RewardPoints() {
                                         today.setHours(0, 0, 0, 0);
                                         selectedDate.setHours(0, 0, 0, 0);
 
-                                        const status = selectedDate < today ? "Inactive" : "Active";
+                                        const status =
+                                            selectedDate < today ? "Inactive" : "Active";
 
                                         const newCard = {
                                             title: formData.title,
@@ -350,6 +355,7 @@ function RewardPoints() {
                                         setRewardCard((prev) => [...prev, newCard]);
 
                                         setShowReward(false);
+                                        setShowConfirm(true);
 
                                         setFormData({
                                             title: "",
@@ -358,11 +364,13 @@ function RewardPoints() {
                                             date: "",
                                             status: "Active",
                                         });
+
+                                        setActiveTab("reward"); // reset flow
                                     }}
                                 >
                                     Save
                                 </button>
-                            </div>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -428,6 +436,140 @@ function RewardPoints() {
                                 </span>
 
                             </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* success popup */}
+            {showConfirm && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-3 sm:p-6">
+                    <div style={{ width: '100%', display: 'flex', justifyContent: 'center', height: '100vh', overflow: 'auto', alignItems: 'center' }}>
+                        <div
+                            style={{
+                                width: "532px",
+                                height: "auto",
+                                boxShadow: "0px 0px 23px rgba(0,110,255,0.25)",
+                                overflow: "hidden",
+                                borderRadius: 16,
+                                outline: "1px solid #EAEAEA",
+                                background: "#fff",
+                                zIndex: 2,
+                                position: 'relative',
+                                paddingBottom: '30px',
+                            }}
+                        >
+                            {/* Close Button */}
+                            <div
+                                onClick={() => setShowConfirm(false)}
+                                style={{
+                                    display: 'flex',
+                                    justifyContent: 'end',
+                                    padding: '15px',
+                                    textDecoration: 'none',
+                                }}>
+                                <div
+                                    style={{
+                                        width: "32px",
+                                        height: "32px",
+                                        right: "16px",
+                                        top: "16px",
+                                        border: "2px solid #D00003",
+                                        borderRadius: "50%",
+                                        cursor: "pointer",
+                                        display: "flex",
+                                        justifyContent: "center",
+                                        alignItems: "center",
+                                        fontWeight: "600",
+                                        color: "#D00003",
+                                        fontSize: "18px",
+                                    }}
+                                >
+                                    X
+                                </div>
+                            </div>
+
+                            {/* Image */}
+                            <div style={{
+                                display: 'flex',
+                                justifyContent: 'center',
+                            }}>
+                                <img
+                                    src={Surprisebox}
+                                    style={{
+                                        width: "450px",
+                                        borderRadius: "12px",
+                                        objectFit: "cover",
+                                    }}
+                                />
+                            </div>
+
+                            {/* Gradient Circle */}
+                            <div
+                                style={{
+                                    height: "auto",
+                                    width: '532px',
+                                    borderTopLeftRadius: "50%",
+                                    borderTopRightRadius: "50%",
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                    gap: '30px',
+                                    overflow: 'hidden',
+                                }}
+                            >
+
+                                <div style={{
+                                    borderRadius: '50%',
+                                    background: "linear-gradient(318deg, #091A45 0%, #436AEB 100%)",
+                                    position: 'absolute',
+                                    width: '1750px',
+                                    height: '1600px',
+                                    zIndex: 1,
+                                }}>
+                                </div>
+
+                                <div style={{
+                                    zIndex: 1,
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                    gap: '40px',
+                                }}>
+                                    {/* Heading */}
+                                    <div>
+                                        <div
+                                            style={{
+                                                width: "100%",
+                                                marginTop: "60px",
+                                                textAlign: "center",
+                                                fontSize: "32px",
+                                                fontWeight: 700,
+                                                color: "#fff",
+                                                fontFamily: "Inter",
+                                            }}
+                                        >
+                                            Congratulations !!!
+                                        </div>
+
+                                        {/* Subtext */}
+                                        <div
+                                            style={{
+                                                width: "100%",
+                                                textAlign: "center",
+                                                fontSize: "16px",
+                                                fontWeight: 400,
+                                                color: "#F5F5F5",
+                                                fontFamily: "Inter",
+                                            }}
+                                        >
+                                            You have successfully created your Reward System.
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+
                         </div>
                     </div>
                 </div>
