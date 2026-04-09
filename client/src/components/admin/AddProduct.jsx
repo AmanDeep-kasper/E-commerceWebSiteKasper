@@ -32,10 +32,6 @@ const AddProduct = () => {
     status: "ACTIVE",
     category: "",
     subcategory: "",
-    collection: "",
-    isFestive: false,
-    productBadge: "",
-    productTags: [],
     productcolor: "",
     ProductWidthValue: "",
     ProductWidthUnit: "",
@@ -59,8 +55,7 @@ const AddProduct = () => {
       {
         variantId: uuidv4(),
         variantColor: "",
-        variantLength: "",
-        variantBreadth: "",
+        variantName: "",
         variantDimensionunit: "In",
         variantWidth: "",
         variantWidthUnit: "kg",
@@ -88,15 +83,6 @@ const AddProduct = () => {
     "Premium",
   ];
 
-  const tagOptions = [
-    "Gift Item",
-    "Home Decor",
-    "Festival Special",
-    "Best Value",
-    "Hot Selling",
-    "Exclusive",
-  ];
-
   const handleTagChange = (e) => {
     const value = e.target.value;
 
@@ -121,8 +107,7 @@ const AddProduct = () => {
   const emptyVariant = () => ({
     variantId: uuidv4(),
     variantColor: "",
-    variantLength: "",
-    variantBreadth: "",
+    variantName: "",
     variantDimensionunit: "In", // default
     variantWidth: "",
     variantWidthUnit: "kg", // default
@@ -274,47 +259,6 @@ const AddProduct = () => {
       return file;
     }
   };
-
-  // handle image files
-  // const handleFileChange = async (e) => {
-  //   let files = Array.from(e.target.files);
-
-  //   const allowedTypes = [
-  //     "image/png",
-  //     "image/jpeg",
-  //     "image/jpg",
-  //     "image/webp",
-  //     "image/svg+xml",
-  //   ];
-
-  //   files = files.filter((file) => allowedTypes.includes(file.type));
-
-  //   if (formData.images.length + files.length > 7) {
-  //     alert("Max 7 images allowed");
-  //     return;
-  //   }
-
-  //   const compressedFiles = [];
-  //   for (let file of files) {
-  //     let compressedBlob = await imageCompression(file, {
-  //       maxSizeMB: 2,
-  //       maxWidthOrHeight: 2000,
-  //       useWebWorker: true,
-  //     });
-
-  //     const compressed = blobToFile(compressedBlob, file.name);
-
-  //     compressed.preview = URL.createObjectURL(compressed);
-  //     compressedFiles.push(compressed);
-  //   }
-
-  //   setFormData((prev) => ({
-  //     ...prev,
-  //     images: [...prev.images, ...compressedFiles],
-  //   }));
-
-  //   e.target.value = "";
-  // };
 
   //  Handle field change for a specific variant
   const handleVariantChange = (index, field, value) => {
@@ -906,6 +850,24 @@ const AddProduct = () => {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const descriptionRef = useRef(null);
+
+  const handleDescriptionChange = (e) => {
+    handleChange(e);
+
+    if (descriptionRef.current) {
+      descriptionRef.current.style.height = "auto";
+      descriptionRef.current.style.height = `${descriptionRef.current.scrollHeight}px`;
+    }
+  };
+
+  useEffect(() => {
+    if (descriptionRef.current) {
+      descriptionRef.current.style.height = "auto";
+      descriptionRef.current.style.height = `${descriptionRef.current.scrollHeight}px`;
+    }
+  }, [formData.description]);
+
   return (
     <>
       {isSubmitting && (
@@ -1011,7 +973,7 @@ const AddProduct = () => {
 
           <>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div className="bg-white rounded-2xl border p-4  flex flex-col">
+              <div className="bg-white rounded-2xl border p-4 flex flex-col">
                 <h2 className="text-[18px] font-medium font-['Inter'] mb-4">
                   Basic Details
                 </h2>
@@ -1019,12 +981,12 @@ const AddProduct = () => {
                 <div className="flex flex-col gap-5 flex-1">
                   <div>
                     <div className="flex items-start gap-1">
-                      {" "}
                       <label className="block text-black text-[14px] mb-2">
                         Product Name
                       </label>
-                      <span className="">*</span>
+                      <span className="text-[#D53B35]">*</span>
                     </div>
+
                     <input
                       type="text"
                       name="productTittle"
@@ -1032,8 +994,8 @@ const AddProduct = () => {
                       onChange={handleChange}
                       placeholder="Enter product name"
                       className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-3
-          text-[#686868] text-sm bg-[#F8FAFB] placeholder-[#686868]
-          focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-[#686868] "
+            text-[#686868] text-sm bg-[#F8FAFB] placeholder-[#686868]
+            focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-[#686868]"
                     />
                   </div>
 
@@ -1042,13 +1004,16 @@ const AddProduct = () => {
                       Description
                     </label>
                     <textarea
+                      ref={descriptionRef}
                       placeholder="Write a description of the product"
                       name="description"
                       value={formData.description}
-                      onChange={handleChange}
-                      className="w-full flex-1 min-h-[120px] border border-[#D0D0D0] rounded-lg px-3 py-2
-          text-[#686868] text-sm bg-[#F8FAFB] placeholder-[#686868]
-          focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 resize-none "
+                      onChange={handleDescriptionChange}
+                      rows={3}
+                      className="w-full min-h-[100px] max-h-[300px] border border-[#D0D0D0] rounded-lg px-3 py-2
+  text-[#686868] text-sm bg-[#F8FAFB] placeholder-[#686868]
+  focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400
+  resize-none overflow-hidden transition-all duration-200"
                     />
                   </div>
                 </div>
@@ -1160,28 +1125,6 @@ const AddProduct = () => {
                         </option>
                       </select>
                     </div>
-                    {/* material */}
-
-                    <div>
-                      <label className="block text-black text-[14px] mb-2">
-                        Collection
-                      </label>
-                      <select
-                        name="productBadge"
-                        value={formData.collection}
-                        onChange={handleChange}
-                        className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-3
-      text-sm bg-[#F8FAFB]
-      focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400"
-                      >
-                        <option value="">Select badge</option>
-                        {badgeOptions.map((badge) => (
-                          <option key={badge} value={badge}>
-                            {badge}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -1227,18 +1170,37 @@ const AddProduct = () => {
                             }
                           />
                         </th>
-
-                        <th className="px-3 py-2 text-left">Color</th>
-                        <th className="px-3 py-2 text-left">Dimension</th>
-                        <th className="px-3 py-2 text-left">Weight</th>
-                        <th className="px-3 py-2 text-left">Variant SKU ID</th>
-                        <th className="px-3 py-2 text-left">Images</th>
-                        <th className="px-3 py-2 text-left">MRP</th>
-                        <th className="px-3 py-2 text-left">Cost Price</th>
-                        <th className="px-3 py-2 text-left">Selling Price</th>
-                        <th className="px-3 py-2 text-left">Discount</th>
-                        <th className="px-3 py-2 text-left">Available Stock</th>
-                        <th className="px-3 py-2 text-left">Low Stock Alert</th>
+                        <th className="px-3 py-2 text-left font-medium">
+                          Color
+                        </th>
+                        <th className="px-3 py-2 text-left font-medium">
+                          Variant Name
+                        </th>
+                        <th className="px-3 py-2 text-left font-medium">
+                          Weight
+                        </th>
+                        <th className="px-3 py-2 text-left font-medium">
+                          Variant SKU ID
+                        </th>
+                        <th className="px-3 py-2 text-left font-medium">
+                          Images
+                        </th>{" "}
+                        <th className="px-3 py-2 text-left font-medium">MRP</th>
+                        <th className="px-3 py-2 text-left font-medium">
+                          Cost Price
+                        </th>
+                        <th className="px-3 py-2 text-left font-medium">
+                          Selling Price
+                        </th>
+                        <th className="px-3 py-2 text-left font-medium">
+                          Discount
+                        </th>
+                        <th className="px-3 py-2 text-left font-medium">
+                          Available Stock
+                        </th>
+                        <th className="px-3 py-2 text-left font-medium">
+                          Low Stock Alert
+                        </th>
                       </tr>
                     </thead>
 
@@ -1257,7 +1219,7 @@ const AddProduct = () => {
                             />
                           </td>
 
-                          <td className=" px-3 py-1">
+                          <td className="px-3 py-1">
                             <div className="flex flex-wrap items-center gap-2 rounded-lg p-2 w-[140px]">
                               <select
                                 value={variant.variantColor || ""}
@@ -1283,55 +1245,26 @@ const AddProduct = () => {
                             </div>
                           </td>
 
-                          <td className="">
-                            <div className="flex gap-2 border px-3 py-1 rounded-lg ">
+                          <td  className="px-3 py-1">
+                            <div className="flex gap-2 border px-3 py-2 rounded">
                               <input
-                                type="number"
-                                value={variant.variantLength || ""}
+                                type="text"
+                                value={variant.variantName || ""}
                                 onChange={(e) =>
                                   handleVariantChange(
                                     index,
-                                    "variantLength",
+                                    "variantName",
                                     e.target.value,
                                   )
                                 }
-                                placeholder="Enter Length"
-                                className="w-32 outline-none placeholder:text-[#6B6B6B]"
+                                placeholder="Enter Variant"
+                                className="outline-none placeholder:text-[#6B6B6B]"
                               />
-                              <input
-                                type="number"
-                                value={variant.variantBreadth || ""}
-                                onChange={(e) =>
-                                  handleVariantChange(
-                                    index,
-                                    "variantBreadth",
-                                    e.target.value,
-                                  )
-                                }
-                                placeholder="Enter Breadth"
-                                className="w-32 border-l placeholder:text-[#6B6B6B] outline-none"
-                              />
-                              <select
-                                value={variant.variantDimensionunit || "In"}
-                                onChange={(e) =>
-                                  handleVariantChange(
-                                    index,
-                                    "variantDimensionunit",
-                                    e.target.value,
-                                  )
-                                }
-                                className="border rounded-lg px-3 bg-[#264464] text-white text-sm"
-                              >
-                                <option value="In">In</option>
-                                <option value="cm">cm</option>
-                                <option value="ft">ft</option>
-                                <option value="m">m</option>
-                              </select>
                             </div>
                           </td>
 
-                          <td>
-                            <div className="flex items-center justify-center gap-2 border rounded-lg px-3 py-1">
+                          <td  className="px-3 py-1">
+                            <div className="flex items-center justify-center gap-2 border rounded px-3 py-1">
                               {" "}
                               <input
                                 type="number"
@@ -1343,8 +1276,8 @@ const AddProduct = () => {
                                     e.target.value,
                                   )
                                 }
-                                placeholder="Enter Weight "
-                                className="w-32 px-2 py-1 placeholder:text-[#6B6B6B] outline-none"
+                                placeholder="Enter Weight"
+                                className="px-2 py-1 placeholder:text-[#6B6B6B] outline-none"
                               />
                               <select
                                 value={variant.variantWidthUnit || "kg"}
@@ -1378,10 +1311,10 @@ const AddProduct = () => {
                                       e.target.value,
                                     )
                                   }
-                                  placeholder="Product SKU ID"
-                                  className="w-[274px] h-[35px] border border-[#D0D0D0] rounded-lg px-3 pr-28
-              bg-[#F8FAFB] text-sm text-[#6B6B6B] placeholder-[#686868]
-              focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400"
+                                  placeholder="Generate Variant SKU ID"
+                                  className="w-[274px] h-[28px] border border-[#D0D0D0] rounded px-3 pr-28
+              bg-[#F8FAFB] text-sm text-[#6B6B6B] placeholder-[#494848]
+              "
                                 />
                                 {index !== 0 && (
                                   <button
@@ -1398,7 +1331,7 @@ const AddProduct = () => {
                             </div>
                           </td>
 
-                          <td className=" px-3 py-2">
+                          <td className="px-3 py-2">
                             {(() => {
                               const imgs =
                                 formData.variants[index].variantImage || [];
@@ -1480,8 +1413,8 @@ const AddProduct = () => {
                                   e.target.value,
                                 )
                               }
-                              className="w-24 rounded border px-2 py-1 placeholder:text-[#6B6B6B]"
-                              placeholder="₹1600"
+                              className=" rounded border px-2 py-1 placeholder:text-[#6B6B6B]"
+                              placeholder="Enter MRP"
                             />
                           </td>
 
@@ -1496,8 +1429,8 @@ const AddProduct = () => {
                                   e.target.value,
                                 )
                               }
-                              className="w-24 rounded border px-2 py-1 placeholder:text-[#6B6B6B]"
-                              placeholder="₹800"
+                              className=" rounded border px-2 py-1 placeholder:text-[#6B6B6B]"
+                              placeholder="Enter Cost Price"
                             />
                           </td>
 
@@ -1512,8 +1445,8 @@ const AddProduct = () => {
                                   e.target.value,
                                 )
                               }
-                              className="w-24 rounded border px-2 py-1 placeholder:text-[#6B6B6B]"
-                              placeholder="₹1500"
+                              className=" rounded border px-2 py-1 placeholder:text-[#6B6B6B]"
+                              placeholder="Enter Selling Price"
                             />
                           </td>
 
@@ -1530,7 +1463,7 @@ const AddProduct = () => {
                                   )
                                 }
                                 placeholder="Discount"
-                                className="w-24 placeholder:text-[#6B6B6B]"
+                                className=" placeholder:text-[#6B6B6B]"
                               />
 
                               <select
@@ -1561,8 +1494,8 @@ const AddProduct = () => {
                                   e.target.value,
                                 )
                               }
-                              className="w-28 rounded border px-2 py-1 placeholder:text-[#6B6B6B]"
-                              placeholder="10"
+                              className="rounded border px-2 py-1 placeholder:text-[#6B6B6B]"
+                              placeholder="Enter Available Stock"
                             />
                           </td>
                           <td className="px-3 py-2">
@@ -1576,8 +1509,8 @@ const AddProduct = () => {
                                   e.target.value,
                                 )
                               }
-                              placeholder="Enter Total Stock Quantity"
-                              className="w-36 rounded border px-2 py-1 placeholder:text-[#6B6B6B]"
+                              placeholder="Enter Low Stock Alert"
+                              className=" rounded border px-2 py-1 placeholder:text-[#6B6B6B]"
                             />
                           </td>
                         </tr>
