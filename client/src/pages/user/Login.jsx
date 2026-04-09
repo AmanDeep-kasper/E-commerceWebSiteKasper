@@ -14,6 +14,7 @@ function Login() {
     (state) => state.user,
   );
   const navigate = useNavigate();
+  let res;
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -21,7 +22,8 @@ function Login() {
 
     try {
       await dispatch(loginUser(formData)).unwrap();
-      await dispatch(getUserDetails()); // 🔥 VERY IMPORTANT
+      res = await dispatch(getUserDetails()); // 🔥 VERY IMPORTANT
+      console.log(res);
     } catch (err) {
       console.log(err);
     }
@@ -29,7 +31,8 @@ function Login() {
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate("/home", { replace: true });
+      if (res?.user?.role === "user") navigate("/home", { replace: true });
+      else navigate("/admin", { replace: true });
     }
   }, [isAuthenticated, navigate]);
 
