@@ -80,19 +80,14 @@ function OtpVerifyForm({ onSuccess, onBack }) {
 
     try {
       const tempUserId = localStorage.getItem("tempUserId");
-      // const tempUesrId = localStorage.getItem("tempUserEmail");
-      const res = await userService.verifyEmail({ tempUserId, otp: otpValue });
+      await userService.verifyEmail({ tempUserId, otp: otpValue });
       setTimeout(() => {
+        localStorage.removeItem("tempUserId");
         navigate("/login");
-      }, 2000); 
+      }, 2000);
 
       // Show success animation before proceeding
       setVerificationSuccess(true);
-      // setTimeout(() => {
-      //   // Auto-login after verification
-      //   dispatch(loginUser({ email, password: res.passwordUsed }));
-      //   onSuccess();
-      // }, 1500);
     } catch (err) {
       setError(err.response?.data?.message || "OTP verification failed");
       // Clear OTP on error for better UX
