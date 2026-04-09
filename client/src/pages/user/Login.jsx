@@ -65,35 +65,7 @@ function Login() {
                 <img src={MainLog} alt="lazercut" />
               </div>
 
-              {/* <div className="space-y-6">
-                        <div>
-                          <h2 className="text-4xl font-medium mb-4">Welcome Back!</h2>
-                          <p className="text-white text-lg">Ready to continue?</p>
-                        </div>
-        
-                        <div className="space-y-4">
-                          <div className="flex items-center gap-3">
-                            <div className="w-2 h-2 bg-white rounded-full"></div>
-                            <span>Designed for a seamless shopping experience</span>
-                          </div>
-        
-                          <div className="flex items-center gap-3">
-                            <div className="w-2 h-2 bg-white rounded-full"></div>
-                            <span>Fast checkout. Smooth experience</span>
-                          </div>
-        
-                          <div className="flex items-center gap-3">
-                            <div className="w-2 h-2 bg-white rounded-full"></div>
-                            <span>Everything you need, right here</span>
-                          </div>
-                        </div>
-                      </div> */}
-
-              {/* <div className="mt-8">
-                        <p className="text-white text-sm">
-                          *Precision cutting for perfect creations every time*
-                        </p>
-                      </div> */}
+              {/*  */}
             </div>
           </div>
         </div>

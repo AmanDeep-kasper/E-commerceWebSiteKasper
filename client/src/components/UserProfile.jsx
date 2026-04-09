@@ -30,7 +30,7 @@ const accountDetails = [
 function UserProfile({ setIsProfileOpen }) {
   //  Redux state
   const { user, isAuthenticated } = useSelector((state) => state.user);
-  console.log("user", user);
+  // console.log("user", user);
 
   // console.log(user);
   // console.log(isAuthenticated);

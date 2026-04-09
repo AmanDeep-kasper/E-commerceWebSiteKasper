@@ -48,7 +48,7 @@ const DiwaliProducts = () => {
   }, []);
 
   // Sample product data
-  const diwaliProducts = diwaliProduct.filter((p) => p.isFestive === true);
+  // const diwaliProducts = diwaliProduct.filter((p) => p.isFestive === true);
 
   const getProductHref = (p) => `/product/${p._id}`; // your route uses mongo id
 
@@ -98,7 +98,7 @@ const DiwaliProducts = () => {
 
       {/* Products Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4 relative">
-        {diwaliProducts?.slice(0, visibleCount).map((p) => {
+        {/* {diwaliProducts?.slice(0, visibleCount).map((p) => {
           const key = p._id || p.uuid || p.SKU;
 
           const mrp = getMrp(p);
@@ -149,7 +149,7 @@ const DiwaliProducts = () => {
                 {/* <div className="bg-[#eaa600] shadow-[0_4px_10px_rgba(0,0,0,0.4)] text-xs lg:text-sm text-gray-100 md:font-bold font-medium py-0.5 px-8 absolute top-4 -left-8 md:top-4 md:-left-8 -rotate-[44deg] w-max text-center transition-all ease-in-out">
                   {discountPercent}% Off
                 </div> */}
-              </div>
+              {/* </div>
 
               <div className="mt-3">
                 <h3 className="lg:text-xl md:text-base text-sm text-center font-serif text-gray-800 font-normal line-clamp-1 mb-2">
@@ -191,7 +191,7 @@ const DiwaliProducts = () => {
               </div>
             </Link>
           );
-        })}
+        })} */} 
       </div>
     </div>
   );
