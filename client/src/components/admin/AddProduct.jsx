@@ -32,7 +32,7 @@ const AddProduct = () => {
     status: "ACTIVE",
     category: "",
     subcategory: "",
-    materialType: "",
+    collection: "",
     isFestive: false,
     productBadge: "",
     productTags: [],
@@ -1162,101 +1162,25 @@ const AddProduct = () => {
                     </div>
                     {/* material */}
 
-                    <div className="">
-                      <div>
-                        <label className="block text-black text-[14px] mb-2">
-                          Material
-                        </label>
-                        <input
-                          type="text"
-                          name="materialType"
-                          value={formData.materialType}
-                          onChange={handleChange}
-                          placeholder="Enter material"
-                          className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-3
-          text-[#6B6B6B] text-sm bg-[#F8FAFB] placeholder-[#686868]
-          focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400"
-                        />
-                      </div>
-                      <div className="mt-4 space-y-4">
-                        <div className="flex items-center gap-3">
-                          <input
-                            type="checkbox"
-                            id="isFestive"
-                            name="isFestive"
-                            checked={!!formData.isFestive}
-                            onChange={handleChange}
-                            className="h-4 w-4"
-                          />
-                          <label
-                            htmlFor="isFestive"
-                            className="text-sm text-gray-800"
-                          >
-                            Mark as Festive Product
-                          </label>
-                        </div>
-
-                        <div>
-                          <label className="block text-black text-[14px] mb-2">
-                            Product Badge / Highlight
-                          </label>
-                          <select
-                            name="productBadge"
-                            value={formData.productBadge}
-                            onChange={handleChange}
-                            className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-3
+                    <div>
+                      <label className="block text-black text-[14px] mb-2">
+                        Collection
+                      </label>
+                      <select
+                        name="productBadge"
+                        value={formData.collection}
+                        onChange={handleChange}
+                        className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-3
       text-sm bg-[#F8FAFB]
       focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400"
-                          >
-                            <option value="">Select badge</option>
-                            {badgeOptions.map((badge) => (
-                              <option key={badge} value={badge}>
-                                {badge}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-
-                        <div>
-                          <label className="block text-black text-[14px] mb-2">
-                            Product Tags
-                          </label>
-                          <select
-                            onChange={handleTagChange}
-                            className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-3
-      text-sm bg-[#F8FAFB]
-      focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400"
-                            defaultValue=""
-                          >
-                            <option value="">Select tag</option>
-                            {tagOptions.map((tag) => (
-                              <option key={tag} value={tag}>
-                                {tag}
-                              </option>
-                            ))}
-                          </select>
-
-                          {formData.productTags.length > 0 && (
-                            <div className="flex flex-wrap gap-2 mt-3">
-                              {formData.productTags.map((tag) => (
-                                <div
-                                  key={tag}
-                                  className="flex items-center gap-2 bg-[#EAF2FF] text-[#1C3753] px-3 py-1 rounded-full text-sm"
-                                >
-                                  <span>{tag}</span>
-                                  <button
-                                    type="button"
-                                    onClick={() => removeTag(tag)}
-                                    className="text-red-500 font-bold"
-                                  >
-                                    ×
-                                  </button>
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      </div>
+                      >
+                        <option value="">Select badge</option>
+                        {badgeOptions.map((badge) => (
+                          <option key={badge} value={badge}>
+                            {badge}
+                          </option>
+                        ))}
+                      </select>
                     </div>
                   </div>
                 </div>
