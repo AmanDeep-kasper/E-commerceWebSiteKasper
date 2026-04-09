@@ -1,0 +1,248 @@
+import React, { useState } from "react";
+import { Pencil, Search, ChevronDown } from "lucide-react";
+import { MdOutlineAdd } from "react-icons/md";
+import { useNavigate } from "react-router";
+
+const data = [
+    { id: 1, name: "Wall Art", productCount: 12, status: "Active" },
+    { id: 2, name: "Nature", productCount: 8, status: "Inactive" },
+    { id: 3, name: "Abstract", productCount: 15, status: "Active" },
+    { id: 4, name: "Modern", productCount: 20, status: "Active" },
+    { id: 5, name: "Classic", productCount: 5, status: "Inactive" },
+    { id: 6, name: "Minimal", productCount: 9, status: "Active" },
+];
+
+function Collection() {
+    const navigate = useNavigate();
+
+    const [search, setSearch] = useState("");
+
+    // ✅ FILTER STATES
+    const [activeFilter, setActiveFilter] = useState(null);
+    const [selectedStatus, setSelectedStatus] = useState("All");
+    const [selectedSort, setSelectedSort] = useState("Latest");
+    const [addCollection, setAddCollection] = useState(false);
+
+    // ✅ FILTER LOGIC
+    let filteredData = data.filter((item) => {
+        const searchMatch = item.name
+            .toLowerCase()
+            .includes(search.toLowerCase());
+
+        const statusMatch =
+            selectedStatus === "All" || item.status === selectedStatus;
+
+        return searchMatch && statusMatch;
+    });
+
+    // ✅ SORT LOGIC
+    if (selectedSort === "A-Z") {
+        filteredData.sort((a, b) => a.name.localeCompare(b.name));
+    }
+
+    if (selectedSort === "Z-A") {
+        filteredData.sort((a, b) => b.name.localeCompare(a.name));
+    }
+
+    if (selectedSort === "Latest") {
+        filteredData = [...filteredData].reverse();
+    }
+
+    // ✅ PAGINATION
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
+
+    const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const currentItems = filteredData.slice(
+        startIndex,
+        startIndex + itemsPerPage
+    );
+
+    return (
+        <div className="p-6 bg-[#F6F8F9] min-h-screen">
+
+            {/* HEADER */}
+            <div className="flex justify-between items-center mb-6">
+                <h2 className="text-[20px] font-semibold">Collection</h2>
+
+                <button className="flex items-center gap-2 px-4 py-2 bg-[#0B3142] text-white rounded-lg" 
+                onClick={() => setAddCollection(true)}>
+                    <MdOutlineAdd size={20} />
+                    Add Collection
+                </button>
+            </div>
+
+            <div className="bg-white p-4 rounded-xl">
+
+                {/* SEARCH */}
+                <div className="flex justify-between items-center">
+                    <div className="flex items-center border rounded-xl px-4 py-2 w-[50%]">
+                        <Search className="w-4 h-4 mr-2" />
+                        <input
+                            type="text"
+                            placeholder="Search collection..."
+                            value={search}
+                            onChange={(e) => {
+                                setSearch(e.target.value);
+                                setCurrentPage(1);
+                            }}
+                            className="outline-none flex-1"
+                        />
+                    </div>
+
+                    {/* FILTER UI */}
+                    <div className="flex gap-3 items-center">
+                        {/* SORT */}
+                        <div className="relative">
+                            <button
+                                onClick={() =>
+                                    setActiveFilter(activeFilter === "sort" ? null : "sort")
+                                }
+                                className="border px-4 py-2 rounded-lg flex items-center gap-2 bg-[#F8F8F8]"
+                            >
+                                {selectedSort} <ChevronDown size={16} />
+                            </button>
+
+                            {activeFilter === "sort" && (
+                                <div className="absolute mt-2 bg-white border rounded shadow w-40 z-20">
+                                    {["Latest", "A-Z", "Z-A"].map((s) => (
+                                        <div
+                                            key={s}
+                                            onClick={() => {
+                                                setSelectedSort(s);
+                                                setActiveFilter(null);
+                                            }}
+                                            className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                        >
+                                            {s}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* CLEAR */}
+                        <button
+                            onClick={() => {
+                                setSelectedSort("Latest");
+                            }}
+                            className="text-[#1C3753]"
+                        >
+                            Clear
+                        </button>
+
+                    </div>
+                </div>
+
+
+                {/* TABLE */}
+                <table className="w-full text-sm mt-5">
+                    <thead className="bg-[#F8F8F8]">
+                        <tr>
+                            <th className="px-6 py-3 text-left">Collection Name</th>
+                            <th className="px-6 py-3 text-center">Product Count</th>
+                            <th className="px-6 py-3 text-center">Status</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {currentItems.map((item) => (
+                            <tr key={item.id} className="border-t hover:bg-gray-50">
+
+                                <td className="px-6 py-4 font-medium">
+                                    {item.name}
+                                </td>
+
+                                <td className="px-6 py-4 text-center">
+                                    {item.productCount}
+                                </td>
+
+                                {/* CLICK */}
+                                <td
+                                    className="px-6 py-4 text-center text-blue-600 cursor-pointer hover:underline"
+                                    onClick={() =>
+                                        navigate("/admin/best-selling", {
+                                            state: { collectionName: item.name },
+                                        })
+                                    }
+                                >
+                                    View All
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+
+                {/* PAGINATION */}
+                {/* <div className="flex justify-end items-center gap-2 mt-4">
+                    <button
+                        onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                    >
+                        ‹
+                    </button>
+
+                    <span>
+                        Page {currentPage} of {totalPages}
+                    </span>
+
+                    <button
+                        onClick={() =>
+                            setCurrentPage((p) => Math.min(p + 1, totalPages))
+                        }
+                    >
+                        ›
+                    </button>
+                </div> */}
+            </div>
+            
+            {addCollection && (
+                <div
+                    className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+                    onClick={(e) => {
+                        if (e.target === e.currentTarget) {
+                            setAddCollection(false);
+                        }
+                    }}
+                >
+                    <div
+                        className="bg-white rounded-xl p-6 w-[400px]"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <h2 className="text-lg font-semibold mb-4">
+                            Add Collection
+                        </h2>
+
+                        <input
+                            type="text"
+                            placeholder="Collection Name"
+                            className="w-full border p-2 rounded-lg mb-4 bg-[#F8FBFC] outline-none border border-[#DEDEDE] text-[#686868] text-[14px] font-normal"
+                        />
+
+                        <div className="flex justify-end gap-3">
+                            <button
+                                onClick={() => setAddCollection(false)}
+                                className="px-4 py-2 border rounded"
+                            >
+                                Cancel
+                            </button>
+
+                            {/* ✅ SAVE BUTTON */}
+                            <button
+                                onClick={() => {
+                                    // your save logic here
+                                    setAddCollection(false);
+                                }}
+                                className="px-4 py-2 bg-[#1C3753] text-white rounded"
+                            >
+                                Save
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+}
+
+export default Collection;

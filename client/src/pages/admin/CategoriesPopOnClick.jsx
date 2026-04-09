@@ -108,10 +108,11 @@
 // export default CategoriesPopOnClick;
 
 import React, { useState } from "react";
-
+import { CgSoftwareUpload } from "react-icons/cg";
 const CategoriesPopOnClick = ({ open, onclose }) => {
   const [category, setCategory] = useState("");
   const [status, setStatus] = useState("Active");
+  const [image, setImage] = useState(null);
 
   // one input for typing + array to store many subcategories
   const [subInput, setSubInput] = useState("");
@@ -162,6 +163,18 @@ const CategoriesPopOnClick = ({ open, onclose }) => {
     onclose();
   };
 
+  const handleUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImage(URL.createObjectURL(file));
+    }
+  };
+
+  const removeImage = (e) => {
+    e.stopPropagation(); // prevent opening file input
+    setImage(null);
+  };
+
   return (
     <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center">
       <div className="bg-white w-[380px] rounded-xl p-4">
@@ -187,6 +200,34 @@ const CategoriesPopOnClick = ({ open, onclose }) => {
                 onChange={() => setStatus("Inactive")}
               />
               <span className="text-[#1C3753] font-medium">Inactive</span>
+            </label>
+          </div>
+          <div className="flex flex-col gap-1 mt-3">
+            <span>Category Image</span>
+            <label className="border border-[#DEDEDE] bg-[#efefef] w-[50px] h-[50px] rounded-lg flex justify-center items-center cursor-pointer overflow-hidden">
+
+              {/* Show icon if no image */}
+              {!image && (
+                <CgSoftwareUpload className="text-[24px] text-[#1C3753]" />
+              )}
+
+              {/* Show image after upload */}
+              {image && (
+                <img
+                  src={image}
+                  alt="preview"
+                  className="w-full h-full object-cover"
+                />
+              )}
+              
+
+              {/* Hidden file input */}
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleUpload}
+                className="hidden"
+              />
             </label>
           </div>
         </div>
@@ -226,7 +267,7 @@ const CategoriesPopOnClick = ({ open, onclose }) => {
                 + Add more sub-category
               </button>
             </div>
-            
+
             {/* Show added subcategories */}
             {subcategories.length > 0 && (
               <div className="mt-3 flex flex-col gap-2">

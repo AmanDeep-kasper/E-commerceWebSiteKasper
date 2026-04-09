@@ -23,6 +23,7 @@ const dashboard = [
   { name: "Orders", path: "/orders/all", icon: ShoppingBag },
   { name: "Returns", path: "/returns/ReturnRequested", icon: CalendarSync },
   { name: "Categories", path: "/categories", icon: Layers },
+  { name: "Collection", path: "/collection", icon: Ticket },
   { name: "Customers", path: "/customers", icon: Contact },
   { name: "Transporter", path: "/transporter", icon: ClipboardCheck },
  { name: "Payments", path: "/payment", icon: Wallet },
