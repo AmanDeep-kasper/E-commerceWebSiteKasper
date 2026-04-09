@@ -253,7 +253,7 @@ function CategoryProducts() {
               className="bg-gradient-to-b shadow-sm rounded-lg bg-white py-2 px-3 w-full"
             >
               <div className="flex items-center justify-between">
-                <h2 className="md:text-2xl text-[20px] py-[9px] font-semibold">
+                <h2 className="md:text-2xl text-[20px] py-[9px] font-light font-marcellus text-[#1800AC]">
                   {category}
                 </h2>
 

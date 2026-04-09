@@ -5,8 +5,18 @@ import {
   addReview,
   deleteReview,
   getAllProductReviews,
+  getAllUserReviews,
   getReview,
+  updateReview,
 } from "../controllers/reviewController.js";
+import { validateRequest } from "../validation/validator.js";
+import {
+  addReviewValidation,
+  updateReviewValidation,
+  reviewIdValidation,
+  getAllUserReviewsValidation,
+  getAllProductReviewsValidation,
+} from "../validation/reviewValidation.js";
 
 const router = express.Router();
 
@@ -15,18 +25,53 @@ router.post(
   authenticate,
   authorize("user"),
   upload.array("reviewImages", 5),
+  addReviewValidation,
+  validateRequest,
   addReview,
 );
 
-router.get("/get-review/:reviewId", authenticate, authorize("user"), getReview);
+router.get(
+  "/get-review/:reviewId",
+  authenticate,
+  authorize("user"),
+  reviewIdValidation,
+  validateRequest,
+  getReview,
+);
 
 router.delete(
   "/delete-review/:reviewId",
   authenticate,
   authorize("user"),
+  reviewIdValidation,
+  validateRequest,
   deleteReview,
 );
 
-router.get("/all-product-reviews/:productId", getAllProductReviews);
+router.get(
+  "/all-product-reviews/:productId",
+  getAllProductReviewsValidation,
+  validateRequest,
+  getAllProductReviews,
+);
+
+router.get(
+  "/get-user-reviews",
+  authenticate,
+  authorize("user"),
+  getAllUserReviewsValidation,
+  validateRequest,
+  getAllUserReviews,
+);
+
+router.patch(
+  "/update-review/:reviewId",
+  authenticate,
+  authorize("user"),
+  upload.array("reviewImages", 5),
+  updateReviewValidation,
+  validateRequest,
+  updateReview,
+);
 
 export default router;

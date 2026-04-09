@@ -241,26 +241,26 @@ export const loginUser = asyncHandler(async (req, res) => {
     },
   );
 
-  const isProduction = env.NODE_ENV === "production";
+  const isProduction = env.NODE_ENV === "development";
 
   res.cookie("accessToken", accessToken, {
     httpOnly: true,
     secure: isProduction,
-    sameSite: isProduction ? "strict" : "lax",
-    maxAge: 15 * 60 * 1000,
+    sameSite: isProduction ? "lax" : "none",
+    maxAge: 3 * 60 * 1000,
   });
 
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
     secure: isProduction,
-    sameSite: isProduction ? "strict" : "lax",
+    sameSite: isProduction ? "lax" : "none",
     maxAge: 7 * 24 * 60 * 60 * 1000,
   });
 
   res.cookie("sessionId", sessionId, {
     httpOnly: false,
     secure: isProduction,
-    sameSite: isProduction ? "strict" : "lax",
+    sameSite: isProduction ? "lax" : "none",
     maxAge: 7 * 24 * 60 * 60 * 1000,
   });
 
@@ -400,11 +400,11 @@ export const logoutUser = asyncHandler(async (req, res) => {
     operations.push({ type: "current_session", status: "cleared" });
   }
 
-  const isProduction = env.NODE_ENV === "production";
+  const isProduction = env.NODE_ENV === "development";
   const cookieOptions = {
     httpOnly: true,
     secure: isProduction,
-    sameSite: isProduction ? "strict" : "lax",
+    sameSite: isProduction ? "lax" : "none",
     path: "/",
   };
 
@@ -532,16 +532,16 @@ export const changePassword = asyncHandler(async (req, res) => {
     { $set: { currentSessionId: sessionId } },
   );
 
-  const isProduction = env.NODE_ENV === "production";
+  const isProduction = env.NODE_ENV === "development";
   const cookieOptions = {
     httpOnly: true,
     secure: isProduction,
-    sameSite: isProduction ? "strict" : "lax",
+    sameSite: isProduction ? "lax" : "none",
   };
 
   res.cookie("accessToken", accessToken, {
     ...cookieOptions,
-    maxAge: 15 * 60 * 1000,
+    maxAge: 3 * 60 * 1000,
   });
 
   res.cookie("refreshToken", refreshToken, {
@@ -761,26 +761,26 @@ export const refreshAccessToken = asyncHandler(async (req, res) => {
     { $set: { currentSessionId: newTokens.sessionId } },
   );
 
-  const isProduction = env.NODE_ENV === "production";
+  const isProduction = env.NODE_ENV === "development";
 
   res.cookie("accessToken", newTokens.accessToken, {
     httpOnly: true,
     secure: isProduction,
-    sameSite: isProduction ? "strict" : "lax",
-    maxAge: 15 * 60 * 1000,
+    sameSite: isProduction ? "lax" : "none",
+    maxAge: 3 * 60 * 1000,
   });
 
   res.cookie("refreshToken", newTokens.refreshToken, {
     httpOnly: true,
     secure: isProduction,
-    sameSite: isProduction ? "strict" : "lax",
+    sameSite: isProduction ? "lax" : "none",
     maxAge: 7 * 24 * 60 * 60 * 1000,
   });
 
   res.cookie("sessionId", newTokens.sessionId, {
     httpOnly: false,
     secure: isProduction,
-    sameSite: isProduction ? "strict" : "lax",
+    sameSite: isProduction ? "lax" : "none",
     maxAge: 7 * 24 * 60 * 60 * 1000,
   });
 

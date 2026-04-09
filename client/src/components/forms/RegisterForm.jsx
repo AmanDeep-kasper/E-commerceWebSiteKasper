@@ -191,7 +191,7 @@ function RegisterForm({ onOtpSent }) {
           </div>
 
           {/* Terms and Conditions */}
-          <div className="flex items-start gap-3 bg-gray-50 rounded-lg">
+          <div className="flex items-start gap-3  rounded-lg">
             <div className="flex items-start gap-2 mt-0.5">
               <input
                 type="checkbox"
