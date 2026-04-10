@@ -9,6 +9,7 @@ import MainVideo from "../../assets/FirstPageVideo/login.mp4";
 function Login() {
   const [formData, setFormData] = useState({ identifier: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
+  const [errors, setErrors] = useState({});
   const dispatch = useDispatch();
   const { authLoading, error, isAuthenticated, user } = useSelector(
     (state) => state.user,
@@ -17,11 +18,16 @@ function Login() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+
     if (authLoading) return;
 
+    if (!validate()) return; 
+
     try {
+      console.log("form", formData);
       await dispatch(loginUser(formData)).unwrap();
-      await dispatch(getUserDetails()); // 🔥 VERY IMPORTANT
+
+      await dispatch(getUserDetails());
     } catch (err) {
       console.log(err);
     }
@@ -38,11 +44,55 @@ function Login() {
   }, [isAuthenticated, user, navigate]);
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
+  const { name, value } = e.target;
+
+  let newValue = value;
+
+  if (name === "identifier") {
+    // If starts with number → treat as phone
+    if (/^\d/.test(value)) {
+      newValue = value.replace(/\D/g, "");
+
+      if (newValue.length > 10) return; // 🚫
+    }
+  }
+
+  setFormData({
+    ...formData,
+    [name]: newValue,
+  });
+};
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const phoneRegex = /^[0-9]{10}$/;
+
+  const validate = () => {
+  let newErrors = {};
+
+  const { identifier, password } = formData;
+
+  const cleanPhone = identifier.replace(/\D/g, "");
+
+  const isEmail = emailRegex.test(identifier);
+  const isPhone = /^[6-9]\d{9}$/.test(cleanPhone);
+
+  // 🔴 Identifier validation
+  if (!identifier) {
+    newErrors.identifier = "Identifier is required";
+  } else if (!isEmail && !isPhone) {
+    newErrors.identifier = "Enter a valid email or phone number";
+  }
+
+  // 🔴 Password validation
+  if (!password) {
+    newErrors.password = "Password is required";
+  } else if (password.length < 6) {
+    newErrors.password = "Password must be at least 6 characters";
+  }
+
+  setErrors(newErrors);
+  return Object.keys(newErrors).length === 0;
+};
 
   return (
     <div className="flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
@@ -110,15 +160,19 @@ function Login() {
                 </label>
                 <div className="relative">
                   <input
-                    type="email"
+                    type="text"
                     name="identifier"
-                    placeholder="your@email.com"
+                    placeholder="Enter Phone Number or Email"
                     value={formData.identifier}
                     onChange={handleChange}
                     className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent transition-all"
-                    required
                     disabled={authLoading}
                   />
+                  {errors.identifier && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.identifier}
+                    </p>
+                  )}
                   <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                 </div>
               </div>
@@ -148,6 +202,11 @@ function Login() {
                     required
                     disabled={authLoading}
                   />
+                  {errors.password && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.password}
+                    </p>
+                  )}
                   <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <button
                     type="button"

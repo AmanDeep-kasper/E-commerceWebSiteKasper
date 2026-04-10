@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import axiosInstance from "../../api/axiosInstance";
-import { Navigate, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useDispatch, useSelector } from "react-redux";
-import { addProduct, updateProduct } from "../../redux/cart/productSlice";
+// import { addProduct, updateProduct } from "../../redux/cart/productSlice";
 import { v4 as uuidv4 } from "uuid";
 import product from "../../data/products.json";
 import imageCompression from "browser-image-compression";
@@ -12,11 +12,10 @@ import { FiUpload } from "react-icons/fi";
 
 import { ChevronLeft } from "lucide-react";
 import { Link } from "react-router-dom";
-import AddCategoryPopUp from "./AddCategoryPopUp";
-import AddSubCategoryPopup from "./AddSubCategoryPopup";
+// import AddCategoryPopUp from "./AddCategoryPopUp";
+// import AddSubCategoryPopup from "./AddSubCategoryPopup";
 import DisplayVariantImg from "./DisplayVariantImg";
-// import { RiDeleteBin6Line } from "react-icons/ri";
-//  metariol ui
+import CategoriesPopOnClick from "../../pages/admin/CategoriesPopOnClick";
 
 const AddProduct = () => {
   const fileInputRef = useRef(null);
@@ -25,38 +24,17 @@ const AddProduct = () => {
   const { loading, error } = useSelector((state) => state.product);
   const { uuid } = useParams();
 
-  const [formData, setFormData] = useState({
-    uuid: uuidv4(),
+  const createInitialState = () => ({
     productTittle: "",
     description: "",
     status: "ACTIVE",
     category: "",
     subcategory: "",
-    productcolor: "",
-    ProductWidthValue: "",
-    ProductWidthUnit: "",
-    ProductHeightValue: "",
-    ProductDimensionUnit: "",
-    SKU: "",
-    stockQuantity: "",
-    profitAmount: "",
-    profitMargin: "",
-    ReorderLimit: "",
-    mrp: "",
-    costPrice: "",
-    sellingPrice: "",
-    discountname: "",
-    extradiscountamount: "",
-    discountPercent: "",
-    discountAmount: "",
-    taxPercent: "",
     variantlistings: false,
     variants: [
       {
-        variantId: uuidv4(),
         variantColor: "",
         variantName: "",
-        variantDimensionunit: "In",
         variantWidth: "",
         variantWidthUnit: "kg",
         variantSkuId: "",
@@ -64,8 +42,8 @@ const AddProduct = () => {
         variantMrp: "",
         variantCostPrice: "",
         variantSellingPrice: "",
-        variantDiscount: "",
-        variantDiscountUnit: "",
+        // variantDiscount: "",
+        // variantDiscountUnit: "",
         variantAvailableStock: "",
         variantLowStockAlertStock: "",
         isSelected: false,
@@ -73,35 +51,7 @@ const AddProduct = () => {
     ],
   });
 
-  const badgeOptions = [
-    "Festive",
-    "Bestseller",
-    "New Arrival",
-    "Trending",
-    "Featured",
-    "Limited Edition",
-    "Premium",
-  ];
-
-  const handleTagChange = (e) => {
-    const value = e.target.value;
-
-    if (!value) return;
-
-    if (!formData.productTags.includes(value)) {
-      setFormData((prev) => ({
-        ...prev,
-        productTags: [...prev.productTags, value],
-      }));
-    }
-  };
-
-  const removeTag = (tagToRemove) => {
-    setFormData((prev) => ({
-      ...prev,
-      productTags: prev.productTags.filter((tag) => tag !== tagToRemove),
-    }));
-  };
+  const [formData, setFormData] = useState(createInitialState);
 
   // variants
   const emptyVariant = () => ({
@@ -137,7 +87,7 @@ const AddProduct = () => {
     const randomNum = Math.floor(100 + Math.random() * 900);
     const newVariant = {
       ...emptyVariant(),
-      variantSkuId: `${productSKU}-V-${randomNum}`, // ✅ auto
+      variantSkuId: `${productSKU}-V-${randomNum}`, // auto
     };
 
     setFormData((prev) => ({
@@ -178,10 +128,15 @@ const AddProduct = () => {
     };
 
     // -----------------------------------
-    // ✅ Auto-generate SKU when title changes
+    // Auto-generate SKU when title changes
     // -----------------------------------
     if (name === "productTittle") {
       const words = value.trim().split(" ");
+      // Remove extra spaces
+      const cleanValue = value.replace(/\s+/g, " ").trimStart();
+
+      // Allow only letters + numbers + space
+      if (!/^[a-zA-Z0-9 ]*$/.test(cleanValue)) return;
 
       // Take first letters of first 3 words
       const initials = words
@@ -198,7 +153,7 @@ const AddProduct = () => {
       updated.SKU = sku;
       updated.route = `/product/${sku.toLowerCase()}`;
 
-      // ✅ First variant SKU = Product SKU
+      // First variant SKU = Product SKU
       updated.variants = updated.variants.map((v, i) =>
         i === 0 ? { ...v, variantSkuId: sku } : v,
       );
@@ -210,7 +165,7 @@ const AddProduct = () => {
     const costPrice = parseFloat(updated.costPrice) || 0;
 
     // -----------------------------------
-    // ✅ Discount calculation
+    // Discount calculation
     // -----------------------------------
     if (mrp > 0 && sellingPrice > 0 && sellingPrice <= mrp) {
       const discountAmount = mrp - sellingPrice;
@@ -223,12 +178,12 @@ const AddProduct = () => {
       updated.discountPercent = "";
     }
 
-    // ✅ Profit Amount
+    // Profit Amount
     if (sellingPrice > 0 && costPrice > 0) {
       const profitAmount = sellingPrice - costPrice;
       updated.profitAmount = profitAmount.toFixed(2);
 
-      // ✅ Profit Margin %
+      // Profit Margin %
       const profitMargin = (profitAmount / sellingPrice) * 100;
       updated.profitMargin = profitMargin.toFixed(2);
     } else {
@@ -323,7 +278,7 @@ const AddProduct = () => {
       const updatedVariants = [...prev.variants];
       const existingImages = updatedVariants[index].variantImage || [];
 
-      // ✅ REMOVE DUPLICATES (name + size)
+      // REMOVE DUPLICATES (name + size)
       const uniqueFiles = compressedFiles.filter(
         (file) =>
           !existingImages.some(
@@ -339,7 +294,7 @@ const AddProduct = () => {
       return { ...prev, variants: updatedVariants };
     });
 
-    // ✅ VERY IMPORTANT: reset input
+    // VERY IMPORTANT: reset input
     e.target.value = "";
   };
 
@@ -358,7 +313,7 @@ const AddProduct = () => {
       return { ...prev, variants: updatedVariants };
     });
 
-    // ✅ Update modal state
+    // Update modal state
     setSelectedImages((prev) => {
       const newImages = prev.filter((_, i) => i !== imgIndex);
 
@@ -408,28 +363,72 @@ const AddProduct = () => {
     "Modern",
   ]);
 
-  const [subCategories, setSubCategories] = useState({
-    "Wall Art": ["Metal Tree", "Abstract Line"],
-    Religious: ["Krishna", "Shiva"],
-    Modern: ["Minimal", "Geometric"],
-  });
+  const [subCategories, setSubCategories] = useState([
+    "Wall Art",
+    "Religious",
+    "Modern",
+  ]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // ✅ Proper validation block
-    if (!formData.productTittle.trim() || !formData.category) {
-      toast.error("Please fill in all required fields!", {
-        position: "top-right",
-        autoClose: 2000,
-        className: "bg-red-700 text-white rounded-lg",
-      });
+    // Main product validation
+    if (!formData.productTittle.trim()) {
+      toast.error("Product name is required");
       return;
+    }
+
+    if (!formData.category.trim()) {
+      toast.error("Category is required");
+      return;
+    }
+
+    // Variant validation
+    for (let i = 0; i < formData.variants.length; i++) {
+      const variant = formData.variants[i];
+
+      const hasAnyVariantInput =
+        variant.variantColor?.trim() ||
+        variant.variantName?.trim() ||
+        String(variant.variantWidth || "").trim() ||
+        variant.variantSkuId?.trim() ||
+        String(variant.variantMrp || "").trim() ||
+        String(variant.variantSellingPrice || "").trim() ||
+        String(variant.variantLowStockAlertStock || "").trim() ||
+        (variant.variantImage && variant.variantImage.length > 0);
+
+      // only validate if this row has any data
+      if (hasAnyVariantInput) {
+        if (!variant.variantSkuId?.trim()) {
+          toast.error(`Variant ${i + 1}: Variant SKU ID is required`);
+          return;
+        }
+
+        if (!variant.variantImage || variant.variantImage.length === 0) {
+          toast.error(`Variant ${i + 1}: At least one image is required`);
+          return;
+        }
+
+        if (!String(variant.variantMrp || "").trim()) {
+          toast.error(`Variant ${i + 1}: MRP is required`);
+          return;
+        }
+
+        if (!String(variant.variantSellingPrice || "").trim()) {
+          toast.error(`Variant ${i + 1}: Selling Price is required`);
+          return;
+        }
+
+        if (!String(variant.variantLowStockAlertStock || "").trim()) {
+          toast.error(`Variant ${i + 1}: Low Stock Alert is required`);
+          return;
+        }
+      }
     }
 
     setIsSubmitting(true);
 
-    // ✅ Add UUID to product + variants
+    //  Add UUID to product + variants
     const formDataWithUUID = {
       ...formData,
       uuid: formData.uuid || uuidv4(),
@@ -448,10 +447,10 @@ const AddProduct = () => {
       formDataObj.append(key, value);
     });
 
-    // ✅ send variants as JSON string
+    // send variants as JSON string
     formDataObj.append("variants", JSON.stringify(formDataWithUUID.variants));
 
-    // ✅ send images separately per variant index
+    // send images separately per variant index
     formDataWithUUID.variants.forEach((v, i) => {
       (v.variantImage || []).forEach((file) => {
         formDataObj.append(`variantImages_${i}`, file);
@@ -470,39 +469,42 @@ const AddProduct = () => {
           : "Product added successfully!",
       );
       // console.log(response)
+      setIsDraftEnabled(false); // STOP auto save
 
-      localStorage.setItem("addProductForm", JSON.stringify(formDataWithUUID));
+      localStorage.removeItem("addProductDraft"); // clear draft
+
+      setFormData(createInitialState()); // reset form (IMPORTANT)
 
       setTimeout(() => {
         navigate("/admin/products");
       }, 800);
     } catch (err) {
       toast.error("Error uploading product!");
-      console.log(err);
+      // console.log(err);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // sku id generated in random by product title
-  const generatedSKU = () => {
-    const title = formData.productTittle?.trim() || "";
+  // // sku id generated in random by product title
+  // const generatedSKU = () => {
+  //   const title = formData.productTittle?.trim() || "";
 
-    if (title.length < 3) {
-      toast.error("Enter product title first!", {
-        position: "top-right",
-        autoClose: 2000,
-      });
-      return;
-    }
+  //   if (title.length < 3) {
+  //     toast.error("Enter product title first!", {
+  //       position: "top-right",
+  //       autoClose: 2000,
+  //     });
+  //     return;
+  //   }
 
-    const prefix = title.substring(0, 3).toUpperCase();
-    const randomNum = String(Math.floor(Math.random() * 999)).padStart(3, "0"); // 000–999
+  //   const prefix = title.substring(0, 3).toUpperCase();
+  //   const randomNum = String(Math.floor(Math.random() * 999)).padStart(3, "0"); // 000–999
 
-    const newSKU = `${prefix}-ART-${randomNum}`;
+  //   const newSKU = `${prefix}-ART-${randomNum}`;
 
-    setFormData((prev) => ({ ...prev, SKU: newSKU }));
-  };
+  //   setFormData((prev) => ({ ...prev, SKU: newSKU }));
+  // };
 
   // generate variant sku
   const generateVariantSKU = (variantIndex) => {
@@ -548,10 +550,6 @@ const AddProduct = () => {
   const [tagsbtn, setTagsBtn] = useState(false);
   const [tags, setTagsDown] = useState("Select Tags");
 
-  //Material Type drop down
-
-  const material = ["Metal"];
-
   const [materialbtn, setmaterialbtn] = useState(false);
   const [materialdata, setMaterialData] = useState("Select Material Type");
 
@@ -562,27 +560,10 @@ const AddProduct = () => {
     setIsChecked((prev) => !prev);
   };
 
-  // the hidden items in bottom
-
-  const [itemsopen, setItemsOpen] = useState(false);
-
-  // The dropdown in gst
-
-  const [opengstbosx, setOpenGstBox] = useState(false);
-  const [gastrate, setGstRate] = useState("5%");
-
-  const gstRateList = ["GST 0%", "GST 5%", "GST 12%", "GST 18%"];
-
   // Modal for adding new category
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [showsubCategoryModal, setShowSubCategoryModal] = useState(false);
   const [newCategory, setNewCategory] = useState("");
-
-  // the new variants framed dropdown box
-
-  const [variantTypeOpen, setVariantTypeOpen] = useState(null);
-
-  const variantsType = ["Framed", "Unframed"];
 
   // auto close in sub category
   const dropdownRefSubCategory = useRef(null);
@@ -656,7 +637,6 @@ const AddProduct = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [setmaterialbtn]);
 
-  // variants image pop up display all images
 
   // const handleOpenVariantPopup =()=>{
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -690,17 +670,64 @@ const AddProduct = () => {
     );
   };
 
-  // save draft
+  // draft
+
+  const [isDraftEnabled, setIsDraftEnabled] = useState(true);
+
   const handleSaveDraft = () => {
-    setFormData((prev) => ({ ...prev, status: "DRAFT" }));
-    handleSubmit({ preventDefault: () => {} });
+    try {
+      const draftData = {
+        ...formData,
+        variants: formData.variants.map((v) => ({
+          ...v,
+          variantImage: [], // remove images
+        })),
+      };
+
+      localStorage.setItem("addProductDraft", JSON.stringify(draftData));
+      setHasDraft(true);
+
+      toast.success("Draft saved successfully!");
+    } catch (err) {
+      toast.error("Failed to save draft");
+    }
   };
 
-  //  step 4 in process
+  useEffect(() => {
+    const savedDraft = localStorage.getItem("addProductDraft");
+    if (savedDraft) {
+      try {
+        const parsedData = JSON.parse(savedDraft);
+        setFormData(parsedData);
+        // setTimeout(() => {
+        //   toast.success("Draft restored!");
+        // }, 500);
+      } catch (err) {
+        console.log(err);
+      }
+    }
+  }, []);
 
-  const [isOn, setIsOn] = useState(false);
+  const [hasDraft, setHasDraft] = useState(false);
 
-  //  in this code we are going to handle the toggle btn in variants listing
+  useEffect(() => {
+    const savedDraft = localStorage.getItem("addProductDraft");
+
+    if (savedDraft) {
+      setHasDraft(true); // only mark, don't restore
+    }
+  }, []);
+
+  const handleRestoreDraft = () => {
+    const savedDraft = localStorage.getItem("addProductDraft");
+
+    if (savedDraft) {
+      setFormData(JSON.parse(savedDraft));
+      toast.success("Draft restored!");
+    }
+  };
+
+  // ////////////////////
 
   const colors = [
     "Black",
@@ -813,7 +840,7 @@ const AddProduct = () => {
     setIsModalOpen(true);
   };
 
-  // ✅ single row select/unselect
+  // single row select/unselect
   const toggleVariantSelect = (index) => {
     setFormData((prev) => {
       const variants = [...prev.variants];
@@ -825,7 +852,7 @@ const AddProduct = () => {
     });
   };
 
-  // ✅ select all
+  // select all
   const toggleSelectAllVariants = (checked) => {
     setFormData((prev) => ({
       ...prev,
@@ -833,7 +860,7 @@ const AddProduct = () => {
     }));
   };
 
-  // ✅ remove selected (at least 1 row keep)
+  // remove selected (at least 1 row keep)
   const removeSelectedVariants = () => {
     setFormData((prev) => {
       const remaining = prev.variants.filter((v) => !v.isSelected);
@@ -880,32 +907,15 @@ const AddProduct = () => {
           </div>
         </div>
       )}
-      {showCategoryModal && (
-        <AddCategoryPopUp
-          setNewCategory={setNewCategory}
-          newCategory={newCategory}
-          setShowCategoryModal={setShowCategoryModal}
-          categories={categories}
-          setCategories={setCategories}
-          subcategories={subCategories}
-          setSubcategories={setSubCategories}
-          setFormData={setFormData}
-        />
-      )}
 
-      {showsubCategoryModal && (
-        <AddSubCategoryPopup
-          setShowSubCategoryModal={setShowSubCategoryModal}
-          setNewCategory={setNewCategory}
-          newCategory={newCategory}
-          setShowCategoryModal={setShowCategoryModal}
-          categories={categories}
-          setCategories={setCategories}
-          subcategories={subCategories}
-          setSubcategories={setSubCategories}
-          setFormData={setFormData}
-        />
-      )}
+      <CategoriesPopOnClick
+        open={showCategoryModal}
+        onclose={() => setShowCategoryModal(false)}
+        setNewCategory={setNewCategory}
+        newCategory={newCategory}
+        subcategories={subCategories}
+        setSubcategories={setSubCategories}
+      />
 
       <DisplayVariantImg
         isModalOpen={isModalOpen}
@@ -937,6 +947,12 @@ const AddProduct = () => {
           <div className="flex items-center gap-4 px-2">
             <button
               type="button"
+              onClick={() => {
+                localStorage.removeItem("addProductDraft");
+                setFormData(createInitialState());
+                toast.info("Draft cleared");
+                navigate("/admin/products");
+              }}
               className="py-1 px-3 rounded border border-[#737373] text-[#737373] hover:bg-[#706f6f] hover:text-white bg-[#F6F8F9] font-medium"
             >
               Discard
@@ -1037,7 +1053,7 @@ const AddProduct = () => {
                         onChange={(e) => {
                           const val = e.target.value;
 
-                          // ✅ if user clicked add option
+                          // if user clicked add option
                           if (val === "__add_category__") {
                             setShowCategoryModal(true);
 
@@ -1050,7 +1066,7 @@ const AddProduct = () => {
                             return;
                           }
 
-                          // ✅ normal category select
+                          // normal category select
                           setFormData((prev) => ({
                             ...prev,
                             category: val,
@@ -1069,8 +1085,8 @@ const AddProduct = () => {
                           </option>
                         ))}
 
-                        {/* ✅ Add option inside dropdown */}
-                        <option value="__add_category__">+ Add Category</option>
+                        {/* Add option inside dropdown */}
+                        {/* <option value="__add_category__">+ Add Category</option> */}
                       </select>
                     </div>
                     <div>
@@ -1113,17 +1129,29 @@ const AddProduct = () => {
                       >
                         <option value="">Select sub-category</option>
 
-                        {(subCategories[formData.category] || []).map((sub) => (
+                        {subCategories.map((sub) => (
                           <option key={sub} value={sub}>
                             {sub}
                           </option>
                         ))}
 
-                        {/* ✅ Add option inside dropdown */}
-                        <option value="__add_subcategory__">
+                        {/* Add option inside dropdown */}
+                        {/* <option value="__add_subcategory__">
                           + Add Subcategory
-                        </option>
+                        </option> */}
                       </select>
+                    </div>
+                    <div className="flex flex-col items-start gap-1">
+                      <button
+                        type="button"
+                        onClick={() => setShowCategoryModal(true)}
+                        className="text-[#1C3753] font-medium text-sm"
+                      >
+                        + Add Category
+                      </button>
+                      <span className="text-[#686868] text-xs">
+                        Can’t find a category? Create one here
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -1192,6 +1220,7 @@ const AddProduct = () => {
                         <th className="px-3 py-2 text-left font-medium">
                           Selling Price
                         </th>
+                        <th className="px-3 py-2 text-left font-medium">GST</th>
                         <th className="px-3 py-2 text-left font-medium">
                           Discount
                         </th>
@@ -1245,7 +1274,7 @@ const AddProduct = () => {
                             </div>
                           </td>
 
-                          <td  className="px-3 py-1">
+                          <td className="px-3 py-1">
                             <div className="flex gap-2 border px-3 py-2 rounded">
                               <input
                                 type="text"
@@ -1263,11 +1292,13 @@ const AddProduct = () => {
                             </div>
                           </td>
 
-                          <td  className="px-3 py-1">
+                          <td className="px-3 py-1">
                             <div className="flex items-center justify-center gap-2 border rounded px-3 py-1">
                               {" "}
                               <input
                                 type="number"
+                                min="0"
+                                step="0.01"
                                 value={variant.variantWidth || ""}
                                 onChange={(e) =>
                                   handleVariantChange(
@@ -1434,7 +1465,7 @@ const AddProduct = () => {
                             />
                           </td>
 
-                          <td className=" px-3 py-2">
+                          <td className="px-3 py-2">
                             <input
                               type="number"
                               value={variant.variantSellingPrice || ""}
@@ -1449,11 +1480,27 @@ const AddProduct = () => {
                               placeholder="Enter Selling Price"
                             />
                           </td>
+                          <td className="px-3 py-2">
+                            <input
+                              type="number"
+                              value={variant.variantGST || ""}
+                              onChange={(e) =>
+                                handleVariantChange(
+                                  index,
+                                  "variantGST",
+                                  e.target.value,
+                                )
+                              }
+                              placeholder="GST @ (%)"
+                              className=" rounded border px-2 py-1 placeholder:text-[#6B6B6B]"
+                            />
+                          </td>
 
                           <td className="">
                             <div className="flex items-center justify-center rounded-md gap-2 border px-3 py-1">
                               <input
                                 type="number"
+                                disabled
                                 value={variant.variantDiscount || ""}
                                 onChange={(e) =>
                                   handleVariantChange(
@@ -1463,11 +1510,11 @@ const AddProduct = () => {
                                   )
                                 }
                                 placeholder="Discount"
-                                className=" placeholder:text-[#6B6B6B]"
+                                className=" placeholder:text-[#6B6B6B] bg-white"
                               />
 
                               <select
-                                value={variant.variantDiscountUnit || "%"}
+                                value={variant.variantDimensionunit || "%"}
                                 onChange={(e) =>
                                   handleVariantChange(
                                     index,

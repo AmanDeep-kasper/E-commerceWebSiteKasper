@@ -20,6 +20,7 @@ import addressRouter from "./routes/addressRoutes.js";
 import productRouter from "./routes/productRoutes.js";
 import collectionRouter from "./routes/collectionRoutes.js";
 import reviewRouter from "./routes/reviewRoutes.js";
+import rewardRouter from "./routes/rewardRoutes.js";
 
 // Middlewares
 import { errorHandler, notFoundHandler } from "./middlewares/errorHandler.js";
@@ -77,6 +78,7 @@ app.use("/api/v1/address", addressRouter);
 app.use("/api/v1/product", productRouter);
 app.use("/api/v1/collection", collectionRouter);
 app.use("/api/v1/review", reviewRouter);
+app.use("/api/v1/reward", rewardRouter);
 
 // 404 Not Found Handler
 app.use(notFoundHandler);

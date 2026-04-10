@@ -138,6 +138,7 @@ export const verifyOTP = asyncHandler(async (req, res) => {
   const user = new User({
     name: tempUser.name,
     email: tempUser.email,
+    phoneNumber: tempUser.phoneNumber,
     password: tempUser.password,
     role: tempUser.role,
     isVerified: true,

@@ -5,7 +5,6 @@ import React, { useState } from "react";
 import { MdOutlineAdd } from "react-icons/md";
 import { MdEdit } from "react-icons/md";
 import Surprisebox from "../../../assets/gift.gif"
-import { Link } from "lucide-react";
 
 function RewardPoints() {
     const [showReward, setShowReward] = useState(false);
@@ -13,6 +12,7 @@ function RewardPoints() {
     const [showCard, setShowCard] = useState(false);
     const [rewardCard, setRewardCard] = useState([]);
     const [showConfirm, setShowConfirm] = useState(false);
+    const [selectedCard, setSelectedCard] = useState(null);
 
     const rewardCardData = [
         {
@@ -38,14 +38,11 @@ function RewardPoints() {
 
     return (
         <div className="p-4 sm:p-6 bg-[#F6F8F9] min-h-screen">
-
             {/* HEADER */}
             <div className="flex justify-between items-center">
-
                 <span className="text-[#1C1C1C] font-medium text-[16px] sm:text-[18px] lg:text-[20px]">
                     Reward Points
                 </span>
-
                 <button
                     className="flex items-center gap-2 px-4 py-2 bg-[#0B3142] text-white font-semibold text-[16px] border border-[#0B3142] rounded-lg"
                     onClick={() => setShowReward(true)}
@@ -63,7 +60,10 @@ function RewardPoints() {
                 {rewardCard.map((item, index) => (
 
                     <div key={index} className="rounded-lg p-4 shadow-sm bg-gradient-to-r from-[#FFFFFF] to-[#B2FF00]/10 cursor-pointer"
-                        onClick={() => setShowCard(true)}>
+                        onClick={() => {
+                            setSelectedCard(item);
+                            setShowCard(true);
+                        }}>
 
                         {/* TOP SECTION */}
                         <div className="flex justify-between items-start gap-2">
@@ -203,17 +203,13 @@ function RewardPoints() {
                                     <div className="flex flex-col gap-1 mt-3">
                                         <div className="flex gap-1">
                                             <label className="text-[#1C1C1C] font-normal text-[14px] ">
-                                                Minimum Purchase Amountto Earn Points
+                                                Minimum Purchase Amount Earn Points
                                             </label>
                                             {/* <span className="text-[#DC2626] text-[14px]">*</span> */}
                                         </div>
                                         <input
                                             type="number"
                                             placeholder="₹ 0"
-                                            value={formData.minPurchase}
-                                            onChange={(e) =>
-                                                setFormData({ ...formData, minPurchase: e.target.value })
-                                            }
                                             className="w-full border border-[#DEDEDE] bg-[#F8FBFC] rounded-md px-2 py-2 sm:px-3 sm:py-2 md:px-4 md:py-2.5 outline-none placeholder:text-[#686868] text-[#1C1C1C]"
                                         />
                                         <span className="text-[#686868] text-[12px] font-normal">How much do they need to spend to be eligible ?</span>
@@ -300,9 +296,8 @@ function RewardPoints() {
                                 <div className="flex flex-col gap-1 mt-3">
                                     <div className="flex gap-1">
                                         <label className="text-[#1C1C1C] font-normal text-[14px] ">
-                                            Offer Name
+                                            Set Minimum invoice value for redemption eligibility
                                         </label>
-                                        {/* <span className="text-[#DC2626] text-[14px]">*</span> */}
                                     </div>
                                     <input
                                         type="text"
@@ -365,7 +360,7 @@ function RewardPoints() {
                                             status: "Active",
                                         });
 
-                                        setActiveTab("reward"); // reset flow
+                                        setActiveTab("reward");
                                     }}
                                 >
                                     Save
@@ -393,8 +388,13 @@ function RewardPoints() {
                             <div className="flex items-center justify-between gap-10">
                                 <span>First Order</span>
                                 <div className="flex items-center gap-2">
-                                    <span className="px-2 py-1 text-[12px] sm:text-[13px] rounded-full whitespace-nowrap text-[#A80205] bg-[#F7C7C9]">
-                                        Inactive
+                                    <span
+                                        className={`px-2 py-1 text-[12px] sm:text-[13px] rounded-full whitespace-nowrap ${selectedCard?.badge === "Active"
+                                                ? "text-[#01774B] bg-[#D4F7C7]"
+                                                : "text-[#A80205] bg-[#F7C7C9]"
+                                            }`}
+                                    >
+                                        {selectedCard?.badge}
                                     </span>
                                     <span><MdEdit /></span>
                                 </div>
@@ -423,7 +423,7 @@ function RewardPoints() {
                             <span className="text-[#0E101A] text-[14px] font-normal">💰 Customers can redeem up to 10% of the total invoice value</span>
                             <span className="text-[#0E101A] text-[14px] font-normal">🧾 Minimum invoice value required for redemption: ₹0</span>
                         </div><div className="mt-4">
-                            <div className="border border-[#FFFFFF] shadow-[0_0_4px_rgba(0,0,0,0.23)] px-3 py-4 rounded-lg flex items-center justify-between gap-2">
+                            {/* <div className="border border-[#FFFFFF] shadow-[0_0_4px_rgba(0,0,0,0.23)] px-3 py-4 rounded-lg flex items-center justify-between gap-2">
 
                                 <input
                                     type="text"
@@ -435,7 +435,7 @@ function RewardPoints() {
                                     Copy Link
                                 </span>
 
-                            </div>
+                            </div> */}
                         </div>
                     </div>
                 </div>
