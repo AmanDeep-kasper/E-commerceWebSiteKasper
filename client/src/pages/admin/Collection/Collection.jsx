@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Pencil, Search, ChevronDown } from "lucide-react";
 import { MdOutlineAdd } from "react-icons/md";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 
 const data = [
     { id: 1, name: "Wall Art", productCount: 12, status: "Active" },
