@@ -36,26 +36,24 @@ app.use(hpp());
 // cors origin
 const allowedOrigins = env.CORS_ORIGIN.split(",").map((o) => o.trim());
 
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      // allow requests without origin (mobile apps, curl)
-      if (!origin) return callback(null, true);
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true);
 
-      if (allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      }
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
 
-      // ❗ IMPORTANT: error mat throw karo
-      return callback(null, false);
-    },
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-  }),
-);
+    return callback(null, false);
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+};
 
-app.options(/.*/, cors());
+app.use(cors(corsOptions));
+// 🔥 IMPORTANT (same config use karo)
+app.options(/.*/, cors(corsOptions));
 
 // Rate limiting
 app.set("trust proxy", 1);

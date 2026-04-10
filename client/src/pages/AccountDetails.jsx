@@ -14,16 +14,6 @@ import { useSelector, useDispatch } from "react-redux";
 import { updateUserDetails } from "../redux/cart/userSlice";
 import ChangePassword from "./ChangePassword";
 
-// Loader Component
-const LoadingSpinner = () => (
-  <div className="fixed inset-0 bg-black/20 backdrop-blur-sm z-50 flex items-center justify-center">
-    <div className="bg-white rounded-lg p-6 flex flex-col items-center gap-4 shadow-xl">
-      <Loader2 className="w-12 h-12 text-[#1C3753] animate-spin" />
-      <p className="text-gray-700 font-medium">Loading...</p>
-    </div>
-  </div>
-);
-
 // Skeleton Loader for Account Details
 const AccountDetailsSkeleton = () => (
   <div className="w-full font-inter mt-20">
@@ -155,7 +145,6 @@ function AccountDetails() {
   if (isAuthenticated === null || loading) {
     return (
       <>
-        <LoadingSpinner />
         <AccountDetailsSkeleton />
       </>
     );
@@ -417,7 +406,7 @@ function AccountDetails() {
             </div>
           </div>
 
-          <div className="p-6 sm:p-8 flex flex-col items-center rounded-md bg-gradient-to-b from-[#D5E5F5] to-[#FFFFFF] space-y-5 sm:space-y-6">
+          <div className="p-6 sm:p-8 mt-5 flex flex-col items-center rounded-md bg-gradient-to-b from-[#D5E5F5] to-[#FFFFFF] space-y-5 sm:space-y-6">
             <div className="w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center bg-[#F6F8F9] rounded-full shadow-inner overflow-hidden">
               {user?.user?.profileImage?.url ? (
                 <img
