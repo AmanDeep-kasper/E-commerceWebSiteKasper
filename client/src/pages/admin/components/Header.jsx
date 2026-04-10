@@ -10,9 +10,12 @@ import {
   User,
 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axiosInstance from "../../../api/axiosInstance";
 import mainLogo from "../../../assets/IconsUsed/HomeMainLogo.png";
+import { useDispatch, useSelector } from "react-redux";
+import { logoutUser } from "../../../redux/cart/userSlice";
+import { toast } from "react-toastify";
 
 // const links = [
 //   { icon: MoonIcon, name: "Theme" },
@@ -26,7 +29,11 @@ function Header({ isCollapsed }) {
   const inputRef = useRef(null);
   const dropdownRef = useRef(null);
 
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   const toggleDarkMode = () => setIsDarkMode(!isDarkMode);
+  const { user, isAuthenticated } = useSelector((s) => s.user);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -38,22 +45,25 @@ function Header({ isCollapsed }) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const [adminDetails, setAdminDetails] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const handleLogout = async () => {
+    dispatch(logoutUser()).then(() => {
+      navigate("/login", { replace: true });
+    });
+  };
 
-  useEffect(() => {
-    const fetchAdmin = async () => {
-      try {
-        const res = await axiosInstance.get("/auth/me");
-        setAdminDetails(res.data);
-      } catch (error) {
-        console.error("Failed to fetch admin details", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchAdmin();
-  }, []);
+  // useEffect(() => {
+  //   const fetchAdmin = async () => {
+  //     try {
+  //       const res = await axiosInstance.get("/auth/me");
+  //       setAdminDetails(res.data);
+  //     } catch (error) {
+  //       console.error("Failed to fetch admin details", error);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+  //   fetchAdmin();
+  // }, []);
 
   // console.log(adminDetails);
   return (
@@ -105,7 +115,7 @@ function Header({ isCollapsed }) {
           >
             <div className="relative w-9 h-9 rounded-full overflow-hidden group">
               <img
-                src={adminDetails?.profileImage || "profileimg"}
+                src={user?.user?.profileImage?.url || "profileimg"}
                 alt="img"
                 className="w-full h-full object-cover rounded-full group-hover:scale-110 transition-transform duration-300"
               />
@@ -128,10 +138,10 @@ function Header({ isCollapsed }) {
 
             <div className="hidden md:block">
               <p className="text-sm font-medium">
-                {adminDetails?.name || "Admin"}{" "}
+                {user?.user?.name || "Admin"}{" "}
               </p>
               <p className="text-xs text-gray-500">
-                {adminDetails?.role || "role"}
+                {user?.user?.role || "role"}
               </p>
             </div>
 
@@ -145,8 +155,12 @@ function Header({ isCollapsed }) {
           {isProfileOpen && (
             <div className="absolute right-0 top-full mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
               <div className="px-4 py-2 border-b border-gray-200">
-                <p className="text-sm font-medium">{adminDetails?.name|| "Admin name"}</p>
-                <p className="text-xs text-gray-500">{adminDetails?.email||"admin@example.com"}</p>
+                <p className="text-sm font-medium">
+                  {user?.user?.name || "Admin name"}
+                </p>
+                <p className="text-xs text-gray-500">
+                  {user?.user?.email || "admin@example.com"}
+                </p>
               </div>
 
               <Link
@@ -155,13 +169,13 @@ function Header({ isCollapsed }) {
                 onClick={() => setIsProfileOpen(false)}
               >
                 <User
-                  alternateMobile={adminDetails?.alternateMobile}
-                  dateOfjoin={adminDetails?.dateOfBirth}
-                  email={adminDetails?.email}
-                  gender={adminDetails?.gender}
-                  name={adminDetails?.name}
-                  profileImage={adminDetails?.profileImage}
-                  role={adminDetails?.role}
+                  alternateMobile={user?.user?.phoneNumber}
+                  dateOfjoin={user?.user?.dateOfBirth}
+                  email={user?.user?.email}
+                  gender={user?.user?.gender}
+                  name={user?.user?.name}
+                  profileImage={user?.user?.profileImage?.url}
+                  role={user?.user?.role}
                   className="w-4 h-4"
                 />
                 Profile
@@ -175,7 +189,10 @@ function Header({ isCollapsed }) {
                 Settings
               </Link>
 
-              <button className="flex items-center gap-2 w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 border-t border-gray-200 mt-1">
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-2 w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 border-t border-gray-200 mt-1"
+              >
                 <LogOut className="w-4 h-4" />
                 Sign Out
               </button>
