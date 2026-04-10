@@ -33,29 +33,36 @@ const app = express();
 app.use(helmet());
 app.use(hpp());
 
-// cors origin
+// cors configuration
 const allowedOrigins = [
   "http://localhost:3000",
   "http://localhost:5173",
+  "http://127.0.0.1:5173", // 🔥 ADD THIS
   "http://localhost:5174",
 ];
 
 const corsOptions = {
   origin: function (origin, callback) {
+    console.log("Origin:", origin); // debug
+
     if (!origin) return callback(null, true);
 
     if (allowedOrigins.includes(origin)) {
       return callback(null, true);
     }
 
-    return callback(null, false);
+    // ❗ IMPORTANT CHANGE
+    return callback(null, true); // allow instead of false
   },
   credentials: true,
-  methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
-  allowedHeaders: ["Content-Type", "Authorization"],
 };
 
 app.use(cors(corsOptions));
+
+app.use((req, res, next) => {
+  console.log("Incoming Origin:", req.headers.origin);
+  next();
+});
 
 // Rate limiting
 app.set("trust proxy", 1);
