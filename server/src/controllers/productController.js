@@ -79,7 +79,7 @@ export const addProduct = asyncHandler(async (req, res) => {
       variantImage: uploadedImages,
       variantMrp,
       variantCostPrice,
-      variantSellingPrice: finalSellingPrice,
+      variantSellingPrice,
       varintGST,
       variantDiscount: variantPercent,
       variantAvailableStock,
