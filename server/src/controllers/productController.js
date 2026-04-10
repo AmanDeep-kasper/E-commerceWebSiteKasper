@@ -8,80 +8,18 @@ import {
 } from "../utils/cloudinary.js";
 import mongoose from "mongoose";
 
-// ==================== HELPER FUNCTIONS ====================
-
-const generateUniqueSKU = async (baseSKU = null) => {
-  if (baseSKU) {
-    const exists = await Product.findOne({ sku: baseSKU });
-    if (!exists) return baseSKU;
-  }
-
-  const prefix = baseSKU ? baseSKU.split("-")[0] : "PRD";
-  const timestamp = Date.now();
-  const random = Math.floor(Math.random() * 1000);
-  return `${prefix}-${timestamp}-${random}`;
-};
-
-const calculateVariantDiscount = (mrpPrice, sellingPrice) => {
-  if (mrpPrice && sellingPrice && mrpPrice > 0) {
-    return Number((((mrpPrice - sellingPrice) / mrpPrice) * 100).toFixed(2));
-  }
-  return 0;
-};
-
-const validateCategoryHierarchy = async (categoryIds) => {
-  const categories = await Category.find({
-    _id: { $in: categoryIds },
-    isActive: true,
-  });
-  if (categories.length !== categoryIds.length) {
-    throw new AppError.badRequest(
-      "One or more categories are invalid or inactive",
-      "INVALID CATEGORY",
-    );
-  }
-  return categories;
-};
-
-const updateProductStats = async (productId) => {
-  const product = await Product.findById(productId);
-  if (!product) return;
-
-  // Calculate average selling price across variants
-  const variants = product.variants;
-  if (variants.length > 0) {
-    const avgSellingPrice =
-      variants.reduce((sum, v) => sum + v.sellingPrice, 0) / variants.length;
-    const minPrice = Math.min(...variants.map((v) => v.sellingPrice));
-    const maxPrice = Math.max(...variants.map((v) => v.sellingPrice));
-
-    product.priceRange = { min: minPrice, max: maxPrice };
-    product.avgSellingPrice = avgSellingPrice;
-  }
-
-  await product.save();
-};
-
 //  Admin controllers
 export const addProduct = asyncHandler(async (req, res) => {
   const {
-    name,
-    sku,
-    brand,
-    shortDescription,
-    fullDescription,
-    categories,
+    productTittle,
+    description,
     variants,
-    attributes,
-    metaTitle,
-    metaDescription,
-    metaKeywords,
-    isActive,
-    isFeatured,
-    isLatest,
+    category,
+    subcategory,
+    action,
   } = req.body;
 
-  // Validate required fields
+  // ✅ Validate variants
   if (!variants || !Array.isArray(variants) || variants.length === 0) {
     throw AppError.badRequest(
       "At least one product variant is required",
@@ -89,144 +27,81 @@ export const addProduct = asyncHandler(async (req, res) => {
     );
   }
 
-  // Validate categories
-  let validatedCategories = [];
-  if (categories && categories.length > 0) {
-    validatedCategories = await validateCategoryHierarchy(categories);
-  }
+  const processedVariants = [];
 
-  // Generate unique SKU if not provided
-  let finalSKU = sku;
-  if (!finalSKU) {
-    finalSKU = await generateUniqueSKU();
-  } else {
-    finalSKU = await generateUniqueSKU(finalSKU.toUpperCase());
-  }
+  // ✅ Loop each variant
+  for (const variant of variants) {
+    const {
+      variantColor,
+      variantName,
+      varintWeight,
+      varintWeightUnit,
+      variantSkuId,
+      variantImage,
+      variantMrp,
+      variantCostPrice,
+      variantSellingPrice,
+      varintGST,
+      variantDiscount,
+      variantAvailableStock,
+      variantLowStockAlertStock,
+      isSelected,
+    } = variant;
 
-  // Process variants
-  const processedVariants = variants.map((variant, index) => {
-    // Validate variant pricing
-    if (variant.mrpPrice < variant.sellingPrice) {
-      throw AppError.badRequest(
-        `MRP must be greater than selling price for variant ${index + 1}`,
-        "INVALID_VARIANT_PRICING",
-      );
+    // ✅ Upload images per variant
+    const uploadedImages = [];
+
+    if (variantImage && Array.isArray(variantImage)) {
+      for (const img of variantImage) {
+        const result = await uploadImageToCloudinary(img, "products");
+
+        uploadedImages.push({
+          url: result.url,
+          publicId: result.publicId,
+          altText: img.altText || "",
+        });
+      }
     }
 
-    const discountPercent = calculateVariantDiscount(
-      variant.mrpPrice,
-      variant.sellingPrice,
-    );
+    // ✅ Calculate Discount
+    let finalDiscount = variantMrp - variantSellingPrice;
 
-    return {
-      ...variant,
-      sku: variant.sku || `${finalSKU}-${String.fromCharCode(65 + index)}`,
-      discountPercent,
-      isDefault:
-        index === 0 && !variants.some((v) => v.isDefault)
-          ? true
-          : variant.isDefault || false,
-    };
-  });
+    // calculate varint percentage
+    const variantPercent = (finalDiscount / variantMrp) * 100;
 
-  // Ensure only one default variant
-  const defaultVariantCount = processedVariants.filter(
-    (v) => v.isDefault,
-  ).length;
-  if (defaultVariantCount > 1) {
-    throw AppError.badRequest(
-      "Only one variant can be set as default",
-      "INVALID_DEFAULT_VARIANT",
-    );
-  }
-  if (defaultVariantCount === 0 && processedVariants.length > 0) {
-    processedVariants[0].isDefault = true;
+    // ✅ Push cleaned variant
+    processedVariants.push({
+      variantColor,
+      variantName,
+      varintWeight,
+      varintWeightUnit,
+      variantSkuId,
+      variantImage: uploadedImages,
+      variantMrp,
+      variantCostPrice,
+      variantSellingPrice: finalSellingPrice,
+      varintGST,
+      variantDiscount,
+      variantDiscountUnit,
+      variantAvailableStock,
+      variantLowStockAlertStock,
+      isSelected,
+    });
   }
 
-  // Generate slug
-  let slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
-  let slugExists = await Product.findOne({ slug });
-  if (slugExists) {
-    slug = `${slug}-${Date.now()}`;
-  }
-
-  // Create product
+  // ✅ Create product
   const product = await Product.create({
-    sku: finalSKU,
-    name,
-    slug,
-    brand,
-    shortDescription,
-    fullDescription,
-    categories: validatedCategories.map((c) => c._id),
+    productTittle,
+    description,
+    category,
+    subcategory,
     variants: processedVariants,
-    attributes: attributes || [],
-    metaTitle: metaTitle || name,
-    metaDescription: metaDescription || shortDescription?.substring(0, 160),
-    metaKeywords: metaKeywords || [],
-    isActive: isActive !== undefined ? isActive : true,
-    isFeatured: isFeatured || false,
-    isLatest: isLatest || false,
   });
 
   res.status(201).json({
     success: true,
     message: "Product created successfully",
     data: product,
-  });
-});
-
-/**
- * Upload product images (Admin)
- */
-export const adminUploadProductImages = asyncHandler(async (req, res) => {
-  const { productId } = req.params;
-  const { variantId = null } = req.body;
-
-  const product = await Product.findById(productId);
-  if (!product) {
-    throw AppError.notFound("Product not found", "NOT_FOUND");
-  }
-
-  if (!req.files || req.files.length === 0) {
-    throw AppError.notFound("No images uploaded", "NO_IMAGES");
-  }
-
-  const uploadedImages = [];
-  for (let i = 0; i < req.files.length; i++) {
-    const file = req.files[i];
-    const result = await uploadImageToCloudinary(
-      file.path,
-      `products/${product._id}`,
-    );
-
-    uploadedImages.push({
-      url: result.url,
-      publicId: result.publicId,
-      altText: `${product.name} image ${i + 1}`,
-      isPrimary: i === 0 && !variantId, // First image is primary for product level
-      displayOrder: i,
-    });
-  }
-
-  if (variantId) {
-    // Add images to specific variant
-    const variant = product.variants.id(variantId);
-    if (!variant) {
-      throw AppError.notFound("Variant not found", "NOT_FOUND");
-    }
-    variant.images = [...(variant.images || []), ...uploadedImages];
-  } else {
-    // Add images to product level
-    product.images = [...(product.images || []), ...uploadedImages];
-  }
-
-  await product.save();
-
-  res.status(200).json({
-    success: true,
-    message: "Images uploaded successfully",
-    data: uploadedImages,
   });
 });
 

@@ -12,16 +12,27 @@ export const updateUserDetailsValidation = [
     ),
 
   body("dob")
-    .isISO8601()
-    .withMessage("DOB must be a valid date (YYYY-MM-DD)")
+    .matches(/^\d{2}-\d{2}-\d{4}$/)
+    .withMessage("DOB must be in DD-MM-YYYY format")
     .custom((value) => {
-      const date = new Date(value);
+      const [day, month, year] = value.split("-").map(Number);
+
+      const date = new Date(year, month - 1, day);
+
+      if (
+        date.getFullYear() !== year ||
+        date.getMonth() !== month - 1 ||
+        date.getDate() !== day
+      ) {
+        throw new Error("Invalid date");
+      }
+
       if (date >= new Date()) {
         throw new Error("DOB must be in the past");
       }
+
       return true;
     }),
-
   body("gender")
     .isIn(["male", "female", "other"])
     .withMessage("Gender must be male, female, or other"),

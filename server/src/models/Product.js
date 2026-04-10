@@ -24,16 +24,11 @@ const VariantSchema = new mongoose.Schema({
 
   variantMrp: { type: Number, default: 0, required: true, index: true },
   variantCostPrice: { type: Number, default: 0 },
-  variantSellingPrice: { type: Number, default: 0, required: true, index: true },
+  variantSellingPrice: { type: Number, default: 0, required: true },
 
   varintGST: { type: Number, default: 0, required: true },
 
   variantDiscount: { type: Number, default: 0 },
-  variantDiscountUnit: {
-    type: String,
-    enum: ["percentage", "rupees"],
-    default: "percentage",
-  },
 
   variantAvailableStock: { type: Number, default: 0, index: true },
   variantLowStockAlertStock: { type: Number, default: 0, required: true },
@@ -64,24 +59,24 @@ const ProductSchema = new mongoose.Schema(
       index: true,
     },
 
-    subcategory: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "SubCategory",
-        required: true,
-        index: true,
-      },
-    ],
+    subcategory: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "SubCategory",
+      required: true,
+      index: true,
+    },
 
-    status: {
+    isActive: {
       type: Boolean,
       default: true,
       index: true,
     },
 
-    metaTitle: { type: String, index: true },
-    metaDescription: String,
-    metaKeywords: [{ type: String, index: true }],
+    isDraft: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
 
     stats: {
       averageRating: {
@@ -108,13 +103,11 @@ const ProductSchema = new mongoose.Schema(
   { timestamps: true, versionKey: false },
 );
 
-
 // ✅ COMPOUND INDEXES (VERY IMPORTANT)
 ProductSchema.index({ category: 1, subcategory: 1 });
 ProductSchema.index({ status: 1, "stats.averageRating": -1 });
 ProductSchema.index({ "variants.variantSellingPrice": 1 });
 ProductSchema.index({ createdAt: -1 });
-
 
 // ✅ AUTO SLUG GENERATION (CREATE + UPDATE)
 ProductSchema.pre("save", function (next) {
@@ -127,7 +120,6 @@ ProductSchema.pre("save", function (next) {
   }
   next();
 });
-
 
 // ✅ HANDLE findOneAndUpdate (IMPORTANT)
 ProductSchema.pre("findOneAndUpdate", function (next) {
@@ -143,7 +135,6 @@ ProductSchema.pre("findOneAndUpdate", function (next) {
 
   next();
 });
-
 
 const Product = mongoose.model("Product", ProductSchema);
 export default Product;
