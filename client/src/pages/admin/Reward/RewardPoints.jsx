@@ -203,17 +203,13 @@ function RewardPoints() {
                                     <div className="flex flex-col gap-1 mt-3">
                                         <div className="flex gap-1">
                                             <label className="text-[#1C1C1C] font-normal text-[14px] ">
-                                                Minimum Purchase Amountto Earn Points
+                                                Minimum Purchase Amount Earn Points
                                             </label>
                                             {/* <span className="text-[#DC2626] text-[14px]">*</span> */}
                                         </div>
                                         <input
                                             type="number"
                                             placeholder="₹ 0"
-                                            value={formData.minPurchase}
-                                            onChange={(e) =>
-                                                setFormData({ ...formData, minPurchase: e.target.value })
-                                            }
                                             className="w-full border border-[#DEDEDE] bg-[#F8FBFC] rounded-md px-2 py-2 sm:px-3 sm:py-2 md:px-4 md:py-2.5 outline-none placeholder:text-[#686868] text-[#1C1C1C]"
                                         />
                                         <span className="text-[#686868] text-[12px] font-normal">How much do they need to spend to be eligible ?</span>
@@ -300,9 +296,8 @@ function RewardPoints() {
                                 <div className="flex flex-col gap-1 mt-3">
                                     <div className="flex gap-1">
                                         <label className="text-[#1C1C1C] font-normal text-[14px] ">
-                                            Offer Name
+                                            Set Minimum invoice value for redemption eligibility
                                         </label>
-                                        {/* <span className="text-[#DC2626] text-[14px]">*</span> */}
                                     </div>
                                     <input
                                         type="text"
