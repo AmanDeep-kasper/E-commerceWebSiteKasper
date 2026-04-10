@@ -10,66 +10,75 @@ import mongoose from "mongoose";
 
 //  Admin controllers
 export const addProduct = asyncHandler(async (req, res) => {
-  const {
-    productTittle,
-    description,
-    variants,
-    category,
-    subcategory,
-    action,
-  } = req.body;
+  const { productTittle, description, category, subcategory, action } =
+    req.body;
 
-  // ✅ Validate variants
-  if (!variants || !Array.isArray(variants) || variants.length === 0) {
-    throw AppError.badRequest(
-      "At least one product variant is required",
-      "MISSING_VARIANT",
-    );
+  let variants = req.body.variants;
+
+  // ✅ handle string (if comes from JSON)
+  if (typeof variants === "string") {
+    try {
+      variants = JSON.parse(variants);
+    } catch (err) {
+      throw AppError.badRequest(
+        "Invalid variants format",
+        "INVALID_VARIANT_FORMAT",
+      );
+    }
+  }
+
+  // ✅ ensure array
+  if (!Array.isArray(variants)) {
+    variants = [variants]; // single object → array
+  }
+
+  // ✅ final validation
+  if (variants.length === 0) {
+    throw AppError.badRequest("At least one variant required", "NO_VARIANTS");
   }
 
   const processedVariants = [];
 
-  // ✅ Loop each variant
-  for (const variant of variants) {
+  // ✅ Loop variants
+  for (let i = 0; i < variants.length; i++) {
+    const variant = variants[i];
+
     const {
       variantColor,
       variantName,
       varintWeight,
       varintWeightUnit,
       variantSkuId,
-      variantImage,
       variantMrp,
       variantCostPrice,
       variantSellingPrice,
       varintGST,
-      variantDiscount,
       variantAvailableStock,
       variantLowStockAlertStock,
       isSelected,
     } = variant;
 
-    // ✅ Upload images per variant
+    // ✅ Find files for this variant
+    const variantFiles = req.files.filter((file) =>
+      file.fieldname.startsWith(`variants[${i}][variantImage]`),
+    );
+
     const uploadedImages = [];
 
-    if (variantImage && Array.isArray(variantImage)) {
-      for (const img of variantImage) {
-        const result = await uploadImageToCloudinary(img, "products");
+    for (const file of variantFiles) {
+      const result = await uploadImageToCloudinary(file.path, "products");
 
-        uploadedImages.push({
-          url: result.url,
-          publicId: result.publicId,
-          altText: img.altText || "",
-        });
-      }
+      uploadedImages.push({
+        url: result.url,
+        publicId: result.publicId,
+        altText: "",
+      });
     }
 
-    // ✅ Calculate Discount
-    let finalDiscount = variantMrp - variantSellingPrice;
+    // ✅ Discount calculation
+    const discountAmount = variantMrp - variantSellingPrice;
+    const discountPercent = (discountAmount / variantMrp) * 100;
 
-    // calculate varint percentage
-    const variantPercent = (finalDiscount / variantMrp) * 100;
-
-    // ✅ Push cleaned variant
     processedVariants.push({
       variantColor,
       variantName,
@@ -79,10 +88,9 @@ export const addProduct = asyncHandler(async (req, res) => {
       variantImage: uploadedImages,
       variantMrp,
       variantCostPrice,
-      variantSellingPrice: finalSellingPrice,
+      variantSellingPrice,
       varintGST,
-      variantDiscount,
-      variantDiscountUnit,
+      variantDiscount: discountPercent,
       variantAvailableStock,
       variantLowStockAlertStock,
       isSelected,
@@ -96,6 +104,8 @@ export const addProduct = asyncHandler(async (req, res) => {
     category,
     subcategory,
     variants: processedVariants,
+    isDraft: action === "draft",
+    isActive: action === "publish",
   });
 
   res.status(201).json({
@@ -311,108 +321,25 @@ export const adminDeleteProduct = asyncHandler(async (req, res) => {
 export const adminGetAllProducts = asyncHandler(async (req, res) => {
   const {
     page = 1,
-    limit = 20,
+    limit = 10,
     search,
     category,
-    brand,
-    isActive,
-    isFeatured,
-    minPrice,
-    maxPrice,
+    status,
     sortBy = "createdAt",
-    sortOrder = "desc",
   } = req.query;
 
   // Build filter
   const filter = {};
-  if (isActive !== undefined) filter.isActive = isActive === "true";
-  if (isFeatured !== undefined) filter.isFeatured = isFeatured === "true";
-  if (category) filter.categories = category;
-  if (brand) filter.brand = { $regex: brand, $options: "i" };
 
-  // Price filter (based on variants)
-  if (minPrice || maxPrice) {
-    filter["variants.sellingPrice"] = {};
-    if (minPrice) filter["variants.sellingPrice"].$gte = parseFloat(minPrice);
-    if (maxPrice) filter["variants.sellingPrice"].$lte = parseFloat(maxPrice);
-  }
-
-  // Search filter
-  if (search) {
-    filter.$or = [
-      { name: { $regex: search, $options: "i" } },
-      { sku: { $regex: search, $options: "i" } },
-      { brand: { $regex: search, $options: "i" } },
-    ];
-  }
+  // search by - name, sku, category name
+  // filter by category name
+  // by status filter - active, draft , inative
+  // sort by - latest, oldest, alphabet-a-z / z-a , price -low to high/high to low
 
   // Pagination
   const pageNum = parseInt(page);
   const limitNum = parseInt(limit);
   const skip = (pageNum - 1) * limitNum;
-
-  // Sort
-  const sort = {};
-  sort[sortBy] = sortOrder === "desc" ? -1 : 1;
-
-  // Execute queries
-  const [products, total] = await Promise.all([
-    Product.find(filter)
-      .populate("categories", "name slug")
-      .sort(sort)
-      .skip(skip)
-      .limit(limitNum)
-      .lean(),
-    Product.countDocuments(filter),
-  ]);
-
-  // Calculate stock status for each product
-  const productsWithStock = products.map((product) => {
-    const totalStock = product.variants.reduce(
-      (sum, v) => sum + (v.stockQuantity || 0),
-      0,
-    );
-    const inStock = totalStock > 0;
-    const lowestPrice = Math.min(
-      ...product.variants.map((v) => v.sellingPrice),
-    );
-    const highestPrice = Math.max(
-      ...product.variants.map((v) => v.sellingPrice),
-    );
-
-    return {
-      ...product,
-      stockStatus: {
-        totalStock,
-        inStock,
-        isLowStock: totalStock > 0 && totalStock <= 10,
-      },
-      priceRange: {
-        min: lowestPrice,
-        max: highestPrice,
-      },
-    };
-  });
-
-  res.status(200).json({
-    success: true,
-    data: productsWithStock,
-    pagination: {
-      page: pageNum,
-      limit: limitNum,
-      total,
-      pages: Math.ceil(total / limitNum),
-    },
-    filters: {
-      search,
-      category,
-      brand,
-      minPrice,
-      maxPrice,
-      isActive,
-      isFeatured,
-    },
-  });
 });
 
 /**

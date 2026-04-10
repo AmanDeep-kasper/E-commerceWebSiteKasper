@@ -21,7 +21,7 @@ function Login() {
 
     if (authLoading) return;
 
-    if (!validate()) return; 
+    if (!validate()) return;
 
     try {
       console.log("form", formData);
@@ -44,55 +44,55 @@ function Login() {
   }, [isAuthenticated, user, navigate]);
 
   const handleChange = (e) => {
-  const { name, value } = e.target;
+    const { name, value } = e.target;
 
-  let newValue = value;
+    let newValue = value;
 
-  if (name === "identifier") {
-    // If starts with number → treat as phone
-    if (/^\d/.test(value)) {
-      newValue = value.replace(/\D/g, "");
+    if (name === "identifier") {
+      // If starts with number → treat as phone
+      if (/^\d/.test(value)) {
+        newValue = value.replace(/\D/g, "");
 
-      if (newValue.length > 10) return; // 🚫
+        if (newValue.length > 10) return; // 🚫
+      }
     }
-  }
 
-  setFormData({
-    ...formData,
-    [name]: newValue,
-  });
-};
+    setFormData({
+      ...formData,
+      [name]: newValue,
+    });
+  };
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const phoneRegex = /^[0-9]{10}$/;
 
   const validate = () => {
-  let newErrors = {};
+    let newErrors = {};
 
-  const { identifier, password } = formData;
+    const { identifier, password } = formData;
 
-  const cleanPhone = identifier.replace(/\D/g, "");
+    const cleanPhone = identifier.replace(/\D/g, "");
 
-  const isEmail = emailRegex.test(identifier);
-  const isPhone = /^[6-9]\d{9}$/.test(cleanPhone);
+    const isEmail = emailRegex.test(identifier);
+    const isPhone = /^[6-9]\d{9}$/.test(cleanPhone);
 
-  // 🔴 Identifier validation
-  if (!identifier) {
-    newErrors.identifier = "Identifier is required";
-  } else if (!isEmail && !isPhone) {
-    newErrors.identifier = "Enter a valid email or phone number";
-  }
+    // 🔴 Identifier validation
+    if (!identifier) {
+      newErrors.identifier = "Identifier is required";
+    } else if (!isEmail && !isPhone) {
+      newErrors.identifier = "Enter a valid email or phone number";
+    }
 
-  // 🔴 Password validation
-  if (!password) {
-    newErrors.password = "Password is required";
-  } else if (password.length < 6) {
-    newErrors.password = "Password must be at least 6 characters";
-  }
+    // 🔴 Password validation
+    if (!password) {
+      newErrors.password = "Password is required";
+    } else if (password.length < 6) {
+      newErrors.password = "Password must be at least 6 characters";
+    }
 
-  setErrors(newErrors);
-  return Object.keys(newErrors).length === 0;
-};
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   return (
     <div className="flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">

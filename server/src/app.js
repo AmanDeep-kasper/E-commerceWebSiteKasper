@@ -4,7 +4,6 @@ dotenv.config();
 import dns from "node:dns";
 dns.setServers(["1.1.1.1", "1.0.0.1", "8.8.8.8", "8.8.4.4"]);
 
-
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
@@ -30,25 +29,47 @@ import { globalLimiter, speedLimiter } from "./middlewares/rateLimit.js";
 
 const app = express();
 
+app.use((req, res, next) => {
+  console.log("Request Origin:", req.headers.origin);
+  next();
+});
+
 // Secure HTTP headers
 app.use(helmet());
 app.use(hpp());
 
 // cors origin
+const allowedOrigins = env.CORS_ORIGIN.split(",").map((o) => o.trim());
+
 app.use(
   cors({
     origin: function (origin, callback) {
-      if (!origin || env.CORS_ORIGIN.split(",").includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("CORS policy: Origin not allowed"));
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
       }
+
+      return callback(new Error(`CORS blocked: ${origin}`));
     },
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
   }),
 );
+// app.use(
+//   cors({
+//     origin: function (origin, callback) {
+//       if (!origin || env.CORS_ORIGIN.split(",").includes(origin)) {
+//         callback(null, true);
+//       } else {
+//         callback(new Error("CORS policy: Origin not allowed"));
+//       }
+//     },
+//     credentials: true,
+
+//   }),
+// );
 
 // Rate limiting
 app.set("trust proxy", 1);
