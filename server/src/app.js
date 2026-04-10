@@ -55,7 +55,7 @@ app.use(
   }),
 );
 
-app.options("*", cors());
+app.options(/.*/, cors());
 
 // Rate limiting
 app.set("trust proxy", 1);
