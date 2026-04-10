@@ -1,8 +1,7 @@
-import { Wallet, Camera, LogOut } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { Camera, LogOut } from "lucide-react";
+import { useRef, useState } from "react";
 import axiosInstance from "../api/axiosInstance";
-import { Link, NavLink } from "react-router-dom";
-const dispatch = useDispatch;
+import { NavLink, useNavigate } from "react-router-dom";
 import users from "../data/user";
 import { User, Package, Heart, MapPin, HelpCircle, Star } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
@@ -24,25 +23,7 @@ function AccountSidebar() {
   const inputRef = useRef(null);
   const token = localStorage.getItem("token");
   const { user, isAuthenticated } = useSelector((s) => s.user);
-
-  // 🟡 Fetch user data including image on mount
-  useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const res = await axiosInstance.get("/auth/me", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        setImage(res.data.profileImage);
-        setName(res.data.name);
-      } catch (err) {
-        console.error("Failed to load user data", err);
-      }
-    };
-
-    fetchUserData();
-  }, [token]);
+  const navigate = useNavigate();
 
   const handleImageChange = async (e) => {
     const file = e.target.files[0];
@@ -71,7 +52,8 @@ function AccountSidebar() {
   const dispatch = useDispatch();
 
   const handleLogout = () => {
-    dispatch(logoutUser()); // clear token + reset user state
+    // clear token + reset user state
+    dispatch(logoutUser());
     // optional: if not done in slice
     toast.success("Logged out successfully");
     navigate("/"); // redirect to homepage
@@ -83,7 +65,7 @@ function AccountSidebar() {
       <div className="px-6 py-4 flex gap-4 items-center text-white bg-[#D5E5F5] border-l-black rounded-b-3xl rounded-t-lg m-1">
         <div className="relative group w-14 h-14 rounded-full overflow-hidden border-2 border-white/90 hover:border-white/50 transition-all duration-300">
           <img
-            src={image || "/name1.jpg"}
+            src={user.user?.profileImage?.url || "/name1.jpg"}
             alt="Profile"
             className="w-full h-full object-cover rounded-full group-hover:scale-110 transition-transform duration-300"
           />
@@ -104,7 +86,7 @@ function AccountSidebar() {
         </div>
         <div className="text-black">
           <p className="text-sm font-light">Welcome back</p>
-          <p className="font-medium">{name}</p>
+          <p className="font-medium">{user.user?.name}</p>
         </div>
       </div>
 
