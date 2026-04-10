@@ -20,15 +20,17 @@ function AccountDetails() {
   const [tempData, setTempData] = useState(null);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
 
+  console.log(user)
+
   useEffect(() => {
     if (user) {
       setTempData({
-        name: user.name || "",
-        email: user.email || "",
-        dateOfBirth: user.dateOfBirth || "",
-        gender: user.gender || "",
-        alternateMobile: user.alternateMobile || "",
-        profileImage: user.profileImage || "",
+        name: user?.user.name || "",
+        email: user?.user.email || "",
+        dateOfBirth: user?.user.dateOfBirth || "",
+        gender: user?.user.gender || "",
+        phoneNumber: user?.user.phoneNumber || "",
+        profileImage: user?.user.profileImage || "",
         password: "",
       });
     }
@@ -50,13 +52,13 @@ function AccountDetails() {
   const handleCancel = () => {
     // reset changes by re-syncing with Redux user
     setTempData({
-      name: user?.name || "",
-      email: user?.email || "",
-      dateOfBirth: user?.dateOfBirth || "",
-      gender: user?.gender || "",
-      alternateMobile: user?.alternateMobile || "",
-      profileImage: user?.profileImage || "",
-      password: user?.password || "",
+      name: user?.user.name || "",
+      email: user?.user.email || "",
+      dateOfBirth: user?.user.dateOfBirth || "",
+      gender: user?.user.gender || "",
+     phoneNumber: user?.user.phoneNumber || "",
+      profileImage: user?.user.profileImage || "",
+      password: user?.user.password || "",
     });
     setIsEditing(false);
   };
@@ -67,8 +69,6 @@ function AccountDetails() {
 
     console.log("Search:", query);
 
-    // 👉 if you want navigation use this instead
-    // navigate(`/search?q=${query}`)
   };
 
   return (
@@ -230,11 +230,11 @@ function AccountDetails() {
                 {isEditing ? (
                   <input
                     type="tel"
-                    value={tempData?.alternateMobile || ""}
+                    value={tempData?.phoneNumber || ""}
                     onChange={(e) => {
                       const onlyNums = e.target.value.replace(/\D/g, "");
                       if (onlyNums.length <= 10) {
-                        handleInputChange("alternateMobile", onlyNums);
+                        handleInputChange("phoneNumber", onlyNums);
                       }
                     }}
                     inputMode="numeric"
