@@ -34,7 +34,11 @@ app.use(helmet());
 app.use(hpp());
 
 // cors origin
-const allowedOrigins = env.CORS_ORIGIN.split(",").map((o) => o.trim());
+const allowedOrigins = [
+  "http://localhost:3000",
+  "http://localhost:5173",
+  "http://localhost:5174",
+];
 
 const corsOptions = {
   origin: function (origin, callback) {
@@ -47,13 +51,11 @@ const corsOptions = {
     return callback(null, false);
   },
   credentials: true,
-  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"],
 };
 
 app.use(cors(corsOptions));
-// 🔥 IMPORTANT (same config use karo)
-app.options(/.*/, cors(corsOptions));
 
 // Rate limiting
 app.set("trust proxy", 1);
