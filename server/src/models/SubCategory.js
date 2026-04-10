@@ -1,14 +1,27 @@
 import mongoose from "mongoose";
 import slugify from "slugify";
 
-const categorySchema = new mongoose.Schema(
+const subCategorySchema = new mongoose.Schema(
   {
     name: {
       type: String,
       required: true,
       trim: true,
       lowercase: true,
-      unique: true,
+    },
+
+    category: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Category",
+      required: true,
+      index: true,
+    },
+
+    description: String,
+
+    isActive: {
+      type: Boolean,
+      default: true,
     },
 
     slug: {
@@ -18,18 +31,6 @@ const categorySchema = new mongoose.Schema(
       trim: true,
     },
 
-    description: String,
-
-    categoryImage: {
-      url: String,
-      publicId: String,
-    },
-
-    isActive: {
-      type: Boolean,
-      default: true,
-    },
-
     metaTitle: String,
     metaDescription: String,
   },
@@ -37,15 +38,15 @@ const categorySchema = new mongoose.Schema(
 );
 
 // INDEXES
-categorySchema.index({ isActive: 1 });
-categorySchema.index({ createdAt: -1 });
+subCategorySchema.index({ category: 1, name: 1 }, { unique: true });
+subCategorySchema.index({ isActive: 1 });
 
 // SLUG
-categorySchema.pre("validate", function (next) {
+subCategorySchema.pre("validate", function (next) {
   if (this.isModified("name")) {
     this.slug = slugify(this.name, { lower: true, strict: true });
   }
   next();
 });
 
-export default mongoose.model("Category", categorySchema);
+export default mongoose.model("SubCategory", subCategorySchema);
