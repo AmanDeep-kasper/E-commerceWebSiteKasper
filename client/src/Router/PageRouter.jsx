@@ -103,6 +103,8 @@ import PoliciesSettingsEdit from "../pages/admin/setting/form/PoliciesSettingsEd
 import AccountSettingsEdit from "../pages/admin/setting/form/AccountSettingsEdit";
 import RewardPoints from "../pages/admin/Reward/RewardPoints";
 import Rating from "../pages/user/Rating";
+import Collection from "../pages/admin/Collection/Collection";
+import BestSelling from "../pages/admin/Collection/BestSelling";
 
 const PageRouter = () => {
   return (
@@ -119,7 +121,7 @@ const PageRouter = () => {
         <Route path="/returnrefundpolicy" element={<ReturnRefundPolicy />} />
         <Route path="/termsconditions" element={<TermsConditions />} />
         {/* Rating */}
-          <Route path="rating" element={<Rating />} />
+        <Route path="rating" element={<Rating />} />
 
         {/* Auth Route */}
         <Route path="/login" element={<Login />} />
@@ -167,7 +169,7 @@ const PageRouter = () => {
         <Route path="/product-form" element={<AddProduct />} />
         <Route path="/checkout/payment" element={<Payment />} />
         <Route path="/policy" element={<Policy />} />
-          
+
 
         {/* Admin Route */}
         <Route path="/admin" element={<AdminLayout />}>
@@ -290,12 +292,15 @@ const PageRouter = () => {
           />
 
 
-           {/* Reward */}
-        <Route path="reward&points" element={<RewardPoints />} />
+          {/* Reward */}
+          <Route path="reward&points" element={<RewardPoints />} />
+          {/* Collection */}
+          <Route path="collection" element={<Collection />} />
+          <Route path="best-selling" element={<BestSelling />} />
 
         </Route>
-       
-        
+
+
         {/* Catch-All */}
         <Route path="*" element={<SomethingWentWrong />} />
       </Routes>

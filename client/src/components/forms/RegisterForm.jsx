@@ -36,7 +36,7 @@ function RegisterForm({ onOtpSent }) {
       payload.append("phoneNumber", formData.phoneNumber);
 
       const res = await userService.register(payload);
-      // console.log("regsiter",res.tempUserId);
+      console.log("regsiter",res);
       localStorage.setItem("tempUserId", res.tempUserId);
       
       onOtpSent(formData.email);

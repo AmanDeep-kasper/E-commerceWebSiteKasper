@@ -9,13 +9,32 @@ import SideImg from "../../assets/FirstPageVideo/RestImg.png";
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({});
+
+  const validate = () => {
+    let newErrors = {};
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!email) {
+      newErrors.email = "Email is required";
+    } else if (!emailRegex.test(email)) {
+      newErrors.email = "Enter a valid email address";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!validate()) return; // 🔥 ADD THIS
+
     setLoading(true);
 
     try {
-      const res = await userService.forgotPassword(email); // ✅ use service
+      const res = await userService.forgotPassword(email);
       toast.success(res?.message || "Reset link sent to your email");
       setEmail("");
     } catch (err) {
@@ -26,6 +45,7 @@ const ForgotPassword = () => {
       setLoading(false);
     }
   };
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#1C3753] to-[#1C3753]">
@@ -98,17 +118,21 @@ const ForgotPassword = () => {
                 </label>
                 <div className="relative">
                   <input
-                    type="email"
+                    type="text"
                     placeholder="your@email.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1C3753] focus:border-transparent transition-all"
-                    required
                     disabled={loading}
                   />
                   <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  {errors.email && (
+                    <p className="text-xs text-red-500 absolute right-50 top-full mt-1">
+                      {errors.email}
+                    </p>
+                  )}
                 </div>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-gray-500 mt-2">
                   Enter the email address associated with your account
                 </p>
               </div>

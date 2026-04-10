@@ -45,7 +45,7 @@ const getUser = async () => {
 };
 
 const updateUser = async (data) => {
-  const res = await axiosInstance.put("/users/me", data);
+  const res = await axiosInstance.patch("/user/update-detail", data);
   return res.data;
 };
 

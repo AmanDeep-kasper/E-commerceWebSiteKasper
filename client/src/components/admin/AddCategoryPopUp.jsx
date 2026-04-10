@@ -5,6 +5,9 @@ const AddCategoryPopUp = ({
   setShowCategoryModal,
   categories,
   setCategories,
+  setSubcategories,
+  subcategories
+
 }) => {
   const [categoryInput, setCategoryInput] = useState("");
 
@@ -51,6 +54,18 @@ const AddCategoryPopUp = ({
           placeholder="Category Name"
           value={categoryInput}
           onChange={(e) => setCategoryInput(e.target.value)}
+          className="w-full border p-2 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-blue-200"
+        />
+
+        {/* Subcategory Input */}
+        <label className="block text-black text-[14px] font-medium mb-2">
+          Sub Category
+        </label>
+        <input
+          type="text"
+          placeholder="Sub Category Name"
+          value={subcategories}
+          onChange={(e) => setSubcategories(e.target.value)}
           className="w-full border p-2 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-blue-200"
         />
 

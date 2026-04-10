@@ -96,26 +96,6 @@ function ContactSection() {
                   maxLength="10"
                 />
               </div>
-
-              {/* Subject */}
-              {/* <div>
-                <label
-                  htmlFor="subject"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  Subject <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  id="subject"
-                  value={formData.subject}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1C3753] focus:border-[#1C3753] outline-none transition"
-                  placeholder="Your query subject"
-                  required
-                />
-              </div> */}
-              {/* Subject */}
               <div>
                 <label
                   htmlFor="subject"
