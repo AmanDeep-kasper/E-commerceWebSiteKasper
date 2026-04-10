@@ -81,8 +81,7 @@ export const addProduct = asyncHandler(async (req, res) => {
       variantCostPrice,
       variantSellingPrice: finalSellingPrice,
       varintGST,
-      variantDiscount,
-      variantDiscountUnit,
+      variantDiscount: variantPercent,
       variantAvailableStock,
       variantLowStockAlertStock,
       isSelected,
@@ -96,6 +95,8 @@ export const addProduct = asyncHandler(async (req, res) => {
     category,
     subcategory,
     variants: processedVariants,
+    isDraft: action === "draft" ? true : false,
+    isActive: action === "publish" ? true : false,
   });
 
   res.status(201).json({
