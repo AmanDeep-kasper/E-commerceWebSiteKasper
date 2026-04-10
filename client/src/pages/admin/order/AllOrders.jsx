@@ -15,7 +15,7 @@ const AllOrders = () => {
     "Order ID",
     "Quantity",
     "Order Value",
-    "Payment Status",
+    // "Payment Status",
     "Order Date",
     "Status",
     "Action",
@@ -40,7 +40,7 @@ const AllOrders = () => {
   /* ================= PAYMENT FILTER ================= */
   const [paymentstatusOpen, setPaymentStatusOpen] = useState(false);
   const [paymentstatus, setPaymentStatus] = useState("Payment Type");
-  const Paymentstatuses = ["Payment Type", "Prepaid", "COD"];
+  // const Paymentstatuses = ["Payment Type", "Prepaid", "COD"];
 
   /* ================= SORT FILTER (MOVE UP) ================= */
   const [filterOne, setfilterOne] = useState("Latest Order Date");
@@ -132,10 +132,10 @@ const AllOrders = () => {
       );
     }
 
-    /* 💳 PAYMENT */
-    if (paymentstatus !== "Payment Type") {
-      result = result.filter((item) => item.paymentType === paymentstatus);
-    }
+    // /* 💳 PAYMENT */
+    // if (paymentstatus !== "Payment Type") {
+    //   result = result.filter((item) => item.paymentType === paymentstatus);
+    // }
 
     /* 📅 DATE */
     const today = new Date();
@@ -503,7 +503,7 @@ const selectTimeline = ordersList.find(
             )}
           </div>
 
-          <div className="relative">
+          {/* <div className="relative">
             <button
               onClick={() => setPaymentStatusOpen((p) => !p)}
               className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 bg-[#F8FBFC] rounded-lg hover:bg-gray-100 border"
@@ -512,25 +512,26 @@ const selectTimeline = ordersList.find(
               <ChevronDown className="w-4 h-4 text-gray-500" />
             </button>
             {paymentstatusOpen && (
-              <div className="absolute mt-2 w-36 right-0 top-8  bg-white border rounded-lg shadow-md z-50">
-                {Paymentstatuses.map((s) => (
-                  <div
-                    key={s}
-                    onClick={() => {
-                      setPaymentStatus(s);
-                      // setStatusOpen(false);
-                      setPaymentStatusOpen(false);
-                    }}
-                    className={`px-4 py-2 text-sm cursor-pointer text-[#686868] hover:bg-gray-100
-            ${paymentstatus === s ? "bg-gray-100 font-medium" : ""}
-          `}
-                  >
-                    {s}
-                  </div>
-                ))}
-              </div>
+              <></>
+          //     <div className="absolute mt-2 w-36 right-0 top-8  bg-white border rounded-lg shadow-md z-50">
+          //       {Paymentstatuses.map((s) => (
+          //         <div
+          //           key={s}
+          //           onClick={() => {
+          //             setPaymentStatus(s);
+          //             // setStatusOpen(false);
+          //             setPaymentStatusOpen(false);
+          //           }}
+          //           className={`px-4 py-2 text-sm cursor-pointer text-[#686868] hover:bg-gray-100
+          //   ${paymentstatus === s ? "bg-gray-100 font-medium" : ""}
+          // `}
+          //         >
+          //           {s}
+          //         </div>
+          //       ))}
+          //     </div>
             )}
-          </div>
+          </div> */}
 
           <div className="relative">
             <button
@@ -597,7 +598,7 @@ const selectTimeline = ordersList.find(
                 </td>
                 <td className="px-4 py-3">{order.quantity}</td>
                 <td className="px-4 py-3">₹{order.orderValue}</td>
-                <td
+                {/* <td
                   className={`px-4 py-3 font-medium text-xs ${
                     order.paymentType === "Prepaid"
                       ? "text-[#00A63E]"
@@ -607,7 +608,7 @@ const selectTimeline = ordersList.find(
                   }`}
                 >
                   {order.paymentType}
-                </td>
+                </td> */}
                 <td className="px-4 py-3 ">{order.orderDate}</td>
 
                 <td className=" py-4 ">

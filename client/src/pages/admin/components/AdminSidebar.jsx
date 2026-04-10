@@ -21,13 +21,13 @@ const dashboard = [
   { name: "All Products", path: "/products", icon: Package },
   { name: "Inventory", path: "/Inventory/All", icon: SquareDashedKanban  },
   { name: "Orders", path: "/orders/all", icon: ShoppingBag },
-  { name: "Returns", path: "/returns/ReturnRequested", icon: CalendarSync },
+  // { name: "Returns", path: "/returns/ReturnRequested", icon: CalendarSync },
   { name: "Categories", path: "/categories", icon: Layers },
   { name: "Collection", path: "/collection", icon: Ticket },
   { name: "Customers", path: "/customers", icon: Contact },
   { name: "Transporter", path: "/transporter", icon: ClipboardCheck },
  { name: "Payments", path: "/payment", icon: Wallet },
-  { name: "Support & Ticket", path: "/support&ticket", icon: Ticket },
+  // { name: "Support & Ticket", path: "/support&ticket", icon: Ticket },
   { name: "Reward", path: "/reward&points", icon: Wallet },
 ];
 
