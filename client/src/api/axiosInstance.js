@@ -40,7 +40,6 @@ axiosInstance.interceptors.response.use(
         return axiosInstance(originalRequest); // retry original request
       } catch (error) {
         processQueue(error, null);
-        window.location.href = "/login"; // logout fallback
         return Promise.reject(error);
       } finally {
         isRefreshing = false;

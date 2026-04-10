@@ -29,11 +29,6 @@ import { globalLimiter, speedLimiter } from "./middlewares/rateLimit.js";
 
 const app = express();
 
-app.use((req, res, next) => {
-  console.log("Request Origin:", req.headers.origin);
-  next();
-});
-
 // Secure HTTP headers
 app.use(helmet());
 app.use(hpp());
