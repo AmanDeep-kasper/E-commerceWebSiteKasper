@@ -29,7 +29,7 @@ function AccountSidebar() {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const res = await axiosInstance.get("/users/me", {
+        const res = await axiosInstance.get("/auth/me", {
           headers: {
             Authorization: `Bearer ${token}`,
           },

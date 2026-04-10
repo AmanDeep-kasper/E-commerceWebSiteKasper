@@ -32,7 +32,7 @@ function AdminProfileSetting() {
   useEffect(() => {
     const fetchAdmin = async () => {
       try {
-        const res = await axiosInstance.get("/users/me");
+        const res = await axiosInstance.get("/auth/me");
         setAdminDetails(res.data);
       } catch (error) {
         console.error("Failed to fetch admin details", error);

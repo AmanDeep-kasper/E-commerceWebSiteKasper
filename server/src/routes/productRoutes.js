@@ -8,7 +8,13 @@ import { upload } from "../middlewares/multer.js";
 
 const router = express.Router();
 
-router.post("/admin/add-product", authenticate, authorize("admin"), addProduct);
+router.post(
+  "/admin/add-product",
+  authenticate,
+  authorize("admin"),
+  upload.any(),
+  addProduct,
+);
 
 // router.post(
 //   "/admin/add-product-images/:productId",
