@@ -51,21 +51,6 @@ function Header({ isCollapsed }) {
     });
   };
 
-  // useEffect(() => {
-  //   const fetchAdmin = async () => {
-  //     try {
-  //       const res = await axiosInstance.get("/auth/me");
-  //       setAdminDetails(res.data);
-  //     } catch (error) {
-  //       console.error("Failed to fetch admin details", error);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-  //   fetchAdmin();
-  // }, []);
-
-  // console.log(adminDetails);
   return (
     <header
       className={`fixed top-0 left-0 right-0 h-16 bg-white border-b border-gray-200 shadow-sm flex items-center justify-between px-6 z-50`}

@@ -207,6 +207,51 @@ async function checkBlacklist(token) {
   }
 }
 
+// export const rotateTokens = async (userId, role, oldRefreshToken, req) => {
+//   const decoded = jwt.verify(oldRefreshToken, env.JWT_REFRESH_SECRET, {
+//     issuer: env.JWT_ISSUER,
+//     audience: env.JWT_AUDIENCE,
+//     algorithms: ["HS256"],
+//   });
+
+//   if (decoded.fingerprint) {
+//     const currentFingerprint = generateDeviceFingerprint(req);
+//     if (decoded.fingerprint !== currentFingerprint) {
+//       console.warn("Refresh token fingerprint mismatch");
+//       throw new Error("Refresh token fingerprint mismatch");
+//     }
+//   }
+
+//   const hashedToken = crypto
+//     .createHash("sha256")
+//     .update(oldRefreshToken)
+//     .digest("hex");
+
+//   const tokenDoc = await User.findOne({
+//     _id: userId,
+//     "refreshTokens.token": hashedToken,
+//   });
+
+//   if (!tokenDoc) {
+//     throw new Error("Invalid refresh token");
+//   }
+
+//   const tokenData = tokenDoc.refreshTokens.find((t) => t.token === hashedToken);
+
+//   if (tokenData.isRevoked) {
+//     // Token reuse detected — revoke ALL sessions for this user
+//     await User.updateOne(
+//       { _id: userId },
+//       { $set: { "refreshTokens.$[].isRevoked": true } },
+//     );
+//     throw new Error("Refresh token reuse detected. All sessions revoked.");
+//   }
+
+//   await invalidateRefreshToken(userId, decoded.sessionId);
+
+//   const newTokens = await generateAuthTokens(userId, role, req);
+//   return newTokens;
+// };
 export const rotateTokens = async (userId, role, oldRefreshToken, req) => {
   const decoded = jwt.verify(oldRefreshToken, env.JWT_REFRESH_SECRET, {
     issuer: env.JWT_ISSUER,
@@ -214,12 +259,25 @@ export const rotateTokens = async (userId, role, oldRefreshToken, req) => {
     algorithms: ["HS256"],
   });
 
-  if (decoded.fingerprint) {
-    const currentFingerprint = generateDeviceFingerprint(req);
-    if (decoded.fingerprint !== currentFingerprint) {
-      console.warn("Refresh token fingerprint mismatch");
-      throw new Error("Refresh token fingerprint mismatch");
-    }
+  const getIP = (req) =>
+    req.headers["x-forwarded-for"]?.split(",")[0] ||
+    req.ip ||
+    req.connection?.remoteAddress;
+
+  const currentIP = getIP(req);
+  const currentFingerprint = generateDeviceFingerprint(req);
+
+  // 🔐 Fingerprint check (early attack detection)
+  if (decoded.fingerprint && decoded.fingerprint !== currentFingerprint) {
+    console.warn("🚨 Refresh token fingerprint mismatch");
+
+    // revoke ALL sessions (possible theft)
+    await User.updateOne(
+      { _id: userId },
+      { $set: { "refreshTokens.$[].isRevoked": true } },
+    );
+
+    throw new Error("Security alert: Device mismatch. Please login again.");
   }
 
   const hashedToken = crypto
@@ -238,15 +296,46 @@ export const rotateTokens = async (userId, role, oldRefreshToken, req) => {
 
   const tokenData = tokenDoc.refreshTokens.find((t) => t.token === hashedToken);
 
+  if (!tokenData) {
+    throw new Error("Invalid refresh token");
+  }
+
+  // 🔥 TOKEN REUSE LOGIC (FIXED)
   if (tokenData.isRevoked) {
-    // Token reuse detected — revoke ALL sessions for this user
+    console.warn("⚠️ Token reuse detected");
+
+    const storedFingerprint = tokenData.deviceInfo?.fingerprint;
+    const storedIP = tokenData.deviceInfo?.ipAddress;
+
+    const isSameDevice =
+      storedFingerprint && storedFingerprint === currentFingerprint;
+
+    const isSameIP = storedIP === currentIP;
+
+    // 🟢 CASE 1: Same device (race condition / multi-tab)
+    if (isSameDevice && isSameIP) {
+      console.warn("🟢 Same device reuse → revoke only this session");
+
+      await User.updateOne(
+        { _id: userId, "refreshTokens.sessionId": tokenData.sessionId },
+        { $set: { "refreshTokens.$.isRevoked": true } },
+      );
+
+      throw new Error("Session expired. Please login again.");
+    }
+
+    // 🔴 CASE 2: Suspicious reuse (possible token theft)
+    console.warn("🔴 Suspicious reuse → revoke ALL sessions");
+
     await User.updateOne(
       { _id: userId },
       { $set: { "refreshTokens.$[].isRevoked": true } },
     );
-    throw new Error("Refresh token reuse detected. All sessions revoked.");
+
+    throw new Error("Security alert: All sessions revoked.");
   }
 
+  // ✅ Normal rotation
   await invalidateRefreshToken(userId, decoded.sessionId);
 
   const newTokens = await generateAuthTokens(userId, role, req);
