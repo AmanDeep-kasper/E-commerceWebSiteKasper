@@ -60,12 +60,12 @@ function AccountSidebar() {
   };
 
   return (
-    <div className="sticky top-20 h-max min-w-[310px] !w-[310px] bg-white rounded-lg shadow-sm overflow-hidden ">
+    <div className="sticky top-28 h-max min-w-[310px] !w-[310px] bg-white rounded-lg shadow-sm overflow-hidden ">
       {/* Account holder */}
       <div className="px-6 py-4 flex gap-4 items-center text-white bg-[#D5E5F5] border-l-black rounded-b-3xl rounded-t-lg m-1">
         <div className="relative group w-14 h-14 rounded-full overflow-hidden border-2 border-white/90 hover:border-white/50 transition-all duration-300">
           <img
-            src={user.user?.profileImage?.url || "/name1.jpg"}
+            src={user?.user?.profileImage?.url || "/name1.jpg"}
             alt="Profile"
             className="w-full h-full object-cover rounded-full group-hover:scale-110 transition-transform duration-300"
           />
@@ -86,7 +86,7 @@ function AccountSidebar() {
         </div>
         <div className="text-black">
           <p className="text-sm font-light">Welcome back</p>
-          <p className="font-medium">{user.user?.name}</p>
+          <p className="font-medium">{user?.user?.name}</p>
         </div>
       </div>
 
