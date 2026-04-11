@@ -20,7 +20,7 @@ function App() {
     const initializeUser = async () => {
       try {
         await dispatch(getUserDetails()).unwrap();
-        await dispatch(fetchAllProducts());
+        // await dispatch(fetchAllProducts());
       } catch (err) {
         // Cookie expired ya user not logged in
         console.log("User not authenticated");
