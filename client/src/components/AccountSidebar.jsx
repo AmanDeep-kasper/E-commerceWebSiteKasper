@@ -1,13 +1,11 @@
-import { Camera, LogOut } from "lucide-react";
 import { useRef, useState } from "react";
 import axiosInstance from "../api/axiosInstance";
 import { NavLink, useNavigate } from "react-router-dom";
-import users from "../data/user";
+// import users from "../data/user";
 import { User, Package, Heart, MapPin, HelpCircle, Star,Camera, LogOut } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { logoutUser } from "../redux/cart/userSlice";
-import { useNavigate } from "react-router-dom";
 
 const accountMenu = [
   { label: "Account Details", path: "/details", icon: User },

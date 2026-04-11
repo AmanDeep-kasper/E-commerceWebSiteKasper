@@ -68,7 +68,11 @@ function UserProfile({ setIsProfileOpen }) {
           <NavLink
             key={listName}
             to={`/accounts${path}`}
-            onClick={() => setIsProfileOpen(false)}
+            onClick={() => {
+              setTimeout(() => {
+                setIsProfileOpen(false);
+              }, 0);
+            }}
             className={({ isActive }) =>
               `flex items-center gap-4 p-3 my-1 rounded-lg transition-colors duration-200 group ${
                 isActive ? "bg-[#e8eff7]" : "hover:bg-gray-50"
