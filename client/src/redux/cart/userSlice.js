@@ -68,6 +68,20 @@ export const updateUserDetails = createAsyncThunk(
   },
 );
 
+export const updateProfileImage = createAsyncThunk(
+  "user/updateProfileImage",
+  async (formData, thunkAPI) => {
+    try {
+      await userService.updateProfileImage(formData);
+      return await userService.getUser(); // 🔥 return fresh user
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message || "Profile image update failed",
+      );
+    }
+  },
+);
+
 // 🔹 Slice
 const userSlice = createSlice({
   name: "user",
@@ -129,10 +143,13 @@ const userSlice = createSlice({
       .addCase(updateUserDetails.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+      })
+      // UPDATE PROFILE IMAGE
+      .addCase(updateProfileImage.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload;
       });
   },
 });
 
-// ✅ Export actions & reducer
-// export const { clearError } = userSlice.actions;
 export default userSlice.reducer;

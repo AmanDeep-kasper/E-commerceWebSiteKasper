@@ -4,6 +4,7 @@ import {
   fetchAddresses,
   editAddress,
   removeAddress,
+  setDefaultAddress,
 } from "../redux/cart/addressSlice";
 import AddressForm from "../components/forms/AddressForm";
 import { toast } from "react-toastify";
@@ -60,15 +61,33 @@ function Address() {
     dispatch(fetchAddresses());
   }, [dispatch]);
 
-  const handleMakeDefault = async (address) => {
-    if (address.isDefault || updatingDefaultId) return;
+  // const handleMakeDefault = async (addressId) => {
+  //   await dispatch(setDefaultAddress(addressId));
+  //   await dispatch(fetchAddresses());
+  // if (addressId.isDefault || updatingDefaultId) return;
 
-    setUpdatingDefaultId(address._id);
+  // setUpdatingDefaultId(addressId._id);
+  // try {
+  //   const updatedAddress = { ...addressId, isDefault: true };
+  //   const result = dispatch(
+  //     editAddress({ id: addressId._id, data: updatedAddress })
+  //   );
+  //   if (!result.error) {
+  //     toast.success("Default address updated");
+  //   }
+  // } finally {
+  //   setUpdatingDefaultId(null);
+  // }
+  // };
+  
+  const handleMakeDefault = async (addressId) => {
+    if (updatingDefaultId) return;
+
+    setUpdatingDefaultId(addressId);
+
     try {
-      const updatedAddress = { ...address, isDefault: true };
-      const result = await dispatch(
-        editAddress({ id: address._id, data: updatedAddress }),
-      );
+      const result = await dispatch(setDefaultAddress(addressId));
+
       if (!result.error) {
         toast.success("Default address updated");
       }
@@ -118,7 +137,7 @@ function Address() {
   }
 
   return (
-    <div className="flex-1 font-inter mt-24">
+    <div className="flex-1 font-inter">
       {/* Header */}
       <div className="md:mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-4 bg-white rounded-lg shadow-sm">
         <div>
@@ -204,7 +223,7 @@ function Address() {
                   {!add.isDefault && (
                     <button
                       type="button"
-                      onClick={() => handleMakeDefault(add)}
+                      onClick={() => handleMakeDefault(add._id)}
                       disabled={updatingDefaultId === add._id}
                       className="flex items-center gap-1.5 text-xs font-medium text-gray-600 hover:text-[#1C3753] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >

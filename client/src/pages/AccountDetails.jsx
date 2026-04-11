@@ -156,7 +156,7 @@ function AccountDetails() {
   }
 
   return (
-    <div className="w-full font-inter mt-20">
+    <div className="w-full font-inter">
       {/* Saving Overlay */}
       {isSaving && (
         <div className="fixed inset-0 bg-black/20 backdrop-blur-sm z-50 flex items-center justify-center">
@@ -280,7 +280,7 @@ function AccountDetails() {
                 {isEditing ? (
                   <input
                     type="date"
-                    value={tempData?.dateOfBirth || ""}
+                    value={tempData?.dateOfBirth ? new Date(tempData.dateOfBirth).toISOString().split("T")[0] : ""}
                     onChange={(e) =>
                       handleInputChange("dateOfBirth", e.target.value)
                     }
@@ -406,7 +406,7 @@ function AccountDetails() {
             </div>
           </div>
 
-          <div className="p-6 sm:p-8 mt-5 flex flex-col items-center rounded-md bg-gradient-to-b from-[#D5E5F5] to-[#FFFFFF] space-y-5 sm:space-y-6">
+          <div className="p-6 sm:p-8  flex flex-col items-center rounded-md bg-gradient-to-b from-[#D5E5F5] to-[#FFFFFF] space-y-5 sm:space-y-6">
             <div className="w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center bg-[#F6F8F9] rounded-full shadow-inner overflow-hidden">
               {user?.user?.profileImage?.url ? (
                 <img
