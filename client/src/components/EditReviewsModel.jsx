@@ -4,14 +4,15 @@ import { useEffect, useMemo, useState } from "react";
 function EditReviewModal({ open, review, onClose, onSave }) {
   const [rating, setRating] = useState(0);
   const [text, setText] = useState("");
-  const [images, setImages] = useState([]); 
+  const [images, setImages] = useState([]);
 
   useEffect(() => {
     if (!open || !review) return;
+
     setRating(review.rating || 0);
-    setText(review.review || "");
+    setText(review.reviewText || "");
     // If later backend gives images array, use it. For now fallback:
-    setImages(review.images || (review.image ? [review.image] : []));
+    setImages(review.reviewImages?.map((img) => img.url) || []);
   }, [open, review]);
 
   if (!open || !review) return null;
@@ -22,10 +23,11 @@ function EditReviewModal({ open, review, onClose, onSave }) {
 
   const handleSave = () => {
     onSave({
-      ...review,
+      _id: review._id,
+      productId: review.productId, 
       rating,
-      review: text,
-      images, // keep for future backend
+      reviewText: text,
+      reviewImages: images.map((url) => ({ url })),
     });
   };
 
@@ -44,7 +46,7 @@ function EditReviewModal({ open, review, onClose, onSave }) {
           <div className="flex gap-4">
             <div className="w-16 h-16 rounded-lg overflow-hidden border bg-gray-50 flex-shrink-0">
               <img
-                src={review.image}
+                src={review.productImage}
                 alt={review.name}
                 className="w-full h-full object-cover"
               />
@@ -117,10 +119,12 @@ function EditReviewModal({ open, review, onClose, onSave }) {
               ))}
 
               {/* Optional: add upload later */}
-              <button type="button "  className="w-20 h-20 rounded-lg border bg-white text-sm text-gray-500">
+              <button
+                type="button "
+                className="w-20 h-20 rounded-lg border bg-white text-sm text-gray-500"
+              >
                 + Add
               </button>
-              
             </div>
           </div>
 

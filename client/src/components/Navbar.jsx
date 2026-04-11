@@ -32,7 +32,7 @@ import "swiper/css";
 
 function Navbar() {
   const { user, isAuthenticated } = useSelector((state) => state.user);
-  console.log(user);
+  // console.log(user);
   const [showChoice, setShowChoice] = useState(false);
 
   useEffect(() => {
@@ -44,8 +44,6 @@ function Navbar() {
   }, [user]);
 
   
-  // console.log(showChoice)
-  // const [showChoice, setShowChoice] = useState(true);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [dropdown, setDropdown] = useState(false);
   const [subDropdown, setSubDropdown] = useState(null);
