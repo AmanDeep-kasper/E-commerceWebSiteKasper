@@ -47,7 +47,7 @@ export const getUserDetails = asyncHandler(async (req, res) => {
 });
 
 export const updateUserDetails = asyncHandler(async (req, res) => {
-  const { name, dob, gender, phoneNumber } = req.body;
+  const { name, dateOfBirth, gender, phoneNumber } = req.body;
   const userId = req.user?.userId;
 
   if (!userId) {
@@ -57,7 +57,7 @@ export const updateUserDetails = asyncHandler(async (req, res) => {
   const updateData = {};
 
   if (name !== undefined) updateData.name = name;
-  if (dob !== undefined) updateData.dateOfBirth = dob;
+  if (dateOfBirth !== undefined) updateData.dateOfBirth = dateOfBirth;
   if (gender !== undefined) updateData.gender = gender;
   if (phoneNumber !== undefined) updateData.phoneNumber = phoneNumber;
 

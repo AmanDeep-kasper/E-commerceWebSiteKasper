@@ -11,7 +11,7 @@ export const updateUserDetailsValidation = [
       "Name can only contain letters, spaces, hyphens, and apostrophes",
     ),
 
- body("dob")
+ body("dateOfBirth")
   .custom((value) => {
     const date = new Date(value);
     if (isNaN(date.getTime())) {
@@ -23,7 +23,7 @@ export const updateUserDetailsValidation = [
 
     return true;
   }),
-  
+
   body("gender")
     .isIn(["male", "female", "other"])
     .withMessage("Gender must be male, female, or other"),
