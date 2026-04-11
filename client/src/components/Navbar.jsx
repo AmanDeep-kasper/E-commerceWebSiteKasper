@@ -61,18 +61,18 @@ function Navbar() {
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [shopCategories, setShopCategories] = useState([]);
 
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const res = await axiosInstance.get("/products/categories");
-        setShopCategories(res.data.categories || []);
-        // console.log("CATEGORIES:", res.data);
-      } catch (err) {
-        console.error("Failed to fetch categories", err);
-      }
-    };
-    fetchCategories();
-  }, []);
+  // useEffect(() => {
+  //   const fetchCategories = async () => {
+  //     try {
+  //       const res = await axiosInstance.get("/products/categories");
+  //       setShopCategories(res.data.categories || []);
+  //       // console.log("CATEGORIES:", res.data);
+  //     } catch (err) {
+  //       console.error("Failed to fetch categories", err);
+  //     }
+  //   };
+  //   fetchCategories();
+  // }, []);
 
   const handleLogout = () => {
     dispatch(logoutUser()); // updates Redux + clears localStorage

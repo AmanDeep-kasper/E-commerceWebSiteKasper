@@ -25,19 +25,19 @@ function Hero() {
   const [imageIndex, setImageIndex] = useState(0);
   const [sideslider, setselectedProducts] = useState([]);
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const res = await axiosInstance.get("/products/all");
-        // console.log("PRODUCTS:", res.data);
-        setselectedProducts(res.data);
-      } catch (error) {
-        console.log(error);
-      }
-    };
+  // useEffect(() => {
+  //   const fetchProducts = async () => {
+  //     try {
+  //       const res = await axiosInstance.get("/products/all");
+  //       // console.log("PRODUCTS:", res.data);
+  //       setselectedProducts(res.data);
+  //     } catch (error) {
+  //       console.log(error);
+  //     }
+  //   };
 
-    fetchProducts();
-  }, []);
+  //   fetchProducts();
+  // }, []);
 
   // const selectedProducts = sideslider.filter(
   //   (item, index, self) =>

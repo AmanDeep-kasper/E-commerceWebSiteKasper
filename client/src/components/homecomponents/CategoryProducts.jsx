@@ -205,18 +205,18 @@ function CategoryProducts() {
   const [allcategory, setAllCategory] = useState([]);
   const [visibleCount, setVisibleCount] = useState(4);
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const res = await axiosInstance.get("/products/all");
-        setAllCategory(Array.isArray(res.data) ? res.data : []);
-      } catch (error) {
-        console.log("Fetch error:", error);
-      }
-    };
+  // useEffect(() => {
+  //   const fetchProducts = async () => {
+  //     try {
+  //       const res = await axiosInstance.get("/products/all");
+  //       setAllCategory(Array.isArray(res.data) ? res.data : []);
+  //     } catch (error) {
+  //       console.log("Fetch error:", error);
+  //     }
+  //   };
 
-    fetchProducts();
-  }, []);
+  //   fetchProducts();
+  // }, []);
 
   useEffect(() => {
     const updateCount = () => {

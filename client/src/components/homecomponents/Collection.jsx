@@ -146,34 +146,34 @@ function Collection() {
 
   //   fetchProducts();
   // }, []);
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const res = await axiosInstance.get("/products/all");
+  // useEffect(() => {
+  //   const fetchProducts = async () => {
+  //     try {
+  //       const res = await axiosInstance.get("/products/all");
 
-        const raw = res.data;
-        const products = Array.isArray(raw)
-          ? raw
-          : Array.isArray(raw?.data)
-            ? raw.data
-            : Array.isArray(raw?.products)
-              ? raw.products
-              : Array.isArray(raw?.data?.products)
-                ? raw.data.products
-                : [];
+  //       const raw = res.data;
+  //       const products = Array.isArray(raw)
+  //         ? raw
+  //         : Array.isArray(raw?.data)
+  //           ? raw.data
+  //           : Array.isArray(raw?.products)
+  //             ? raw.products
+  //             : Array.isArray(raw?.data?.products)
+  //               ? raw.data.products
+  //               : [];
 
-        // console.log("RAW:", raw);
-        // console.log("PRODUCTS:", products);
+  //       // console.log("RAW:", raw);
+  //       // console.log("PRODUCTS:", products);
 
-        setnewProducts(products);
-      } catch (error) {
-        console.log(error);
-        setnewProducts([]);
-      }
-    };
+  //       setnewProducts(products);
+  //     } catch (error) {
+  //       console.log(error);
+  //       setnewProducts([]);
+  //     }
+  //   };
 
-    fetchProducts();
-  }, []);
+  //   fetchProducts();
+  // }, []);
 
   // const collections = newProducts.filter(
   //   (item, index, self) =>

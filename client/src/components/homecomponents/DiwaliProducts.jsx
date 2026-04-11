@@ -34,18 +34,18 @@ const DiwaliProducts = () => {
     return () => window.removeEventListener("resize", updateCount);
   }, []);
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const res = await axiosInstance.get("/products/all");
-        // console.log("PRODUCTS", res.data);
-        setdiwaliProducts(res.data);
-      } catch (error) {
-        console.log("ERROR IN FETCH THE DATA", error);
-      }
-    };
-    fetchProducts();
-  }, []);
+  // useEffect(() => {
+  //   const fetchProducts = async () => {
+  //     try {
+  //       const res = await axiosInstance.get("/products/all");
+  //       // console.log("PRODUCTS", res.data);
+  //       setdiwaliProducts(res.data);
+  //     } catch (error) {
+  //       console.log("ERROR IN FETCH THE DATA", error);
+  //     }
+  //   };
+  //   fetchProducts();
+  // }, []);
 
   // Sample product data
   // const diwaliProducts = diwaliProduct.filter((p) => p.isFestive === true);

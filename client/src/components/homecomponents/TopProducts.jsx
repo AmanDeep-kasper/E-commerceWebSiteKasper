@@ -184,28 +184,28 @@ function TopProducts() {
   const [topproduct, setTopProduct] = useState([]);
   const [addedItems, setAddedItems] = useState({});
 
-  useEffect(() => {
-    const fetchTopproduct = async () => {
-      try {
-        const res = await axiosInstance.get("/products/all");
-        // console.log("API response:", res.data);
+  // useEffect(() => {
+  //   const fetchTopproduct = async () => {
+  //     try {
+  //       const res = await axiosInstance.get("/products/all");
+  //       // console.log("API response:", res.data);
 
-        // supports both array and object response
-        if (Array.isArray(res.data)) {
-          setTopProduct(res.data);
-        } else if (Array.isArray(res.data?.products)) {
-          setTopProduct(res.data.products);
-        } else {
-          setTopProduct([]);
-        }
-      } catch (error) {
-        console.log("ERROR:", error);
-        setTopProduct([]);
-      }
-    };
+  //       // supports both array and object response
+  //       if (Array.isArray(res.data)) {
+  //         setTopProduct(res.data);
+  //       } else if (Array.isArray(res.data?.products)) {
+  //         setTopProduct(res.data.products);
+  //       } else {
+  //         setTopProduct([]);
+  //       }
+  //     } catch (error) {
+  //       console.log("ERROR:", error);
+  //       setTopProduct([]);
+  //     }
+  //   };
 
-    fetchTopproduct();
-  }, []);
+  //   fetchTopproduct();
+  // }, []);
 
   const topProducts = useMemo(() => {
     return (

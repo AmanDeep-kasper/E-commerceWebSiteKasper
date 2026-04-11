@@ -17,6 +17,16 @@ const processQueue = (error) => {
   failedQueue = [];
 };
 
+// Dynamically import store to avoid circular dependencies
+let storeRef = null;
+const getStore = async () => {
+  if (!storeRef) {
+    const { store } = await import("../redux/store.js");
+    storeRef = store;
+  }
+  return storeRef;
+};
+
 // Response Interceptor with Auto-Refresh
 axiosInstance.interceptors.response.use(
   (response) => response,
@@ -40,12 +50,32 @@ axiosInstance.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        await axiosInstance.post("/auth/refresh-token"); // 🔥 refresh token axiosInstance
+        await axiosInstance.post("/auth/refresh-token");
         processQueue(null);
         return axiosInstance(originalRequest); // retry original request
-      } catch (error) {
-        processQueue(error);
-        return Promise.reject(error);
+      } catch (refreshError) {
+        processQueue(refreshError);
+
+        // Refresh failed — force logout and redirect to login
+        try {
+          const store = await getStore();
+          const { forceLogout } = await import(
+            "../redux/cart/userSlice.js"
+          );
+          store.dispatch(forceLogout());
+        } catch (importError) {
+          console.error("Failed to force logout:", importError);
+        }
+
+        // Redirect to login page
+        if (
+          typeof window !== "undefined" &&
+          !window.location.pathname.includes("/login")
+        ) {
+          window.location.href = "/login";
+        }
+
+        return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;
       }

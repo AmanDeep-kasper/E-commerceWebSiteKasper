@@ -8,7 +8,7 @@ import PageRouter from "./Router/PageRouter";
 import { getUserDetails } from "./redux/cart/userSlice";
 // import { useAutoRefreshToken } from "./hooks/useAutoRefreshToken";
 // import { fetchAddresses } from "./redux/cart/addressSlice";
-import { fetchAllProducts } from "./redux/cart/productSlice";
+// import { fetchAllProducts } from "./redux/cart/productSlice";
 
 function App() {
   const dispatch = useDispatch();
