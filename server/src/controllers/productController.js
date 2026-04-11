@@ -8,94 +8,118 @@ import {
 } from "../utils/cloudinary.js";
 import mongoose from "mongoose";
 
+// Upload images of variants first
+export const uploadVariantsImages = asyncHandler(async (req, res) => {
+  if (!req.files || req.files.length === 0) {
+    throw AppError.badRequest("No files uploaded", "NO_FILES");
+  }
+
+  const data = await Promise.all(
+    req.files.map((file, i) =>
+      uploadImageToCloudinary(file.path, "products").then((r) => ({
+        url: r.url,
+        publicId: r.publicId,
+        altText: req.body[`altText_${i}`] || "",
+      })),
+    ),
+  );
+
+  res.status(200).json({
+    success: true,
+    message: `${data.length} images uploaded`,
+    data,
+  });
+});
+
+// delete images of variants
+export const deleteVariantImages = asyncHandler(async (req, res) => {
+  const publicId = decodeURIComponent(req.params.publicId);
+  if (!publicId) {
+    throw AppError.badRequest("publicId required", "MISSING_PUBLIC_ID");
+  }
+
+  await deleteImageFromCloudinary(publicId);
+
+  res.status(200).json({
+    success: true,
+    message: "Image deleted",
+  });
+});
+
+const cloudDelete = (images = []) =>
+  Promise.allSettled(
+    images
+      .filter((img) => img?.publicId)
+      .map((img) => deleteImageFromCloudinary(img.publicId)),
+  );
+
 //  Admin controllers
 export const addProduct = asyncHandler(async (req, res) => {
-  const { productTittle, description, category, subcategory, action } =
+  const { productTittle, description, category, subcategory, variants } =
     req.body;
 
-  let variants = req.body.variants;
-
-  // ✅ handle string (if comes from JSON)
-  if (typeof variants === "string") {
-    try {
-      variants = JSON.parse(variants);
-    } catch (err) {
-      throw AppError.badRequest(
-        "Invalid variants format",
-        "INVALID_VARIANT_FORMAT",
-      );
-    }
-  }
-
-  // ✅ ensure array
-  if (!Array.isArray(variants)) {
-    variants = [variants]; // single object → array
-  }
-
-  // ✅ final validation
-  if (variants.length === 0) {
-    throw AppError.badRequest("At least one variant required", "NO_VARIANTS");
-  }
-
-  const processedVariants = [];
-
-  // ✅ Loop variants
-  for (let i = 0; i < variants.length; i++) {
-    const variant = variants[i];
-
-    const {
-      variantColor,
-      variantName,
-      varintWeight,
-      varintWeightUnit,
-      variantSkuId,
-      variantMrp,
-      variantCostPrice,
-      variantSellingPrice,
-      varintGST,
-      variantAvailableStock,
-      variantLowStockAlertStock,
-      isSelected,
-    } = variant;
-
-    // ✅ Find files for this variant
-    const variantFiles = req.files.filter((file) =>
-      file.fieldname.startsWith(`variants[${i}][variantImage]`),
+  if (!variants || variants.length === 0) {
+    throw AppError.badRequest(
+      "At least one variant is required",
+      "NO_VARIANTS",
     );
+  }
 
-    const uploadedImages = [];
+  const skuIds = variants.map((v) => v.variantSkuId);
+  if (new Set(skuIds).size !== skuIds.length) {
+    throw AppError.badRequest(
+      "Duplicate variantSkuId found in request",
+      "DUPLICATE_SKU",
+    );
+  }
 
-    for (const file of variantFiles) {
-      const result = await uploadImageToCloudinary(file.path, "products");
+  const existingSku = await Product.aggregate([
+    { $unwind: "$variants" },
+    { $match: { "variants.variantSkuId": { $in: skuIds } } },
+    { $project: { sku: "$variants.variantSkuId", _id: 0 } },
+  ]);
 
-      uploadedImages.push({
-        url: result.url,
-        publicId: result.publicId,
-        altText: "",
-      });
-    }
+  if (existingSku.length > 0) {
+    throw AppError.conflict(
+      `SKU(s) already exist: ${existingSku.map((s) => s.sku).join(", ")}`,
+      "SKU_ALREADY_EXISTS",
+    );
+  }
+
+  const cleanVariants = variants.map((v, index) => {
+    const mrp = Number(v.variantMrp);
+    const selling = Number(v.variantSellingPrice);
 
     // ✅ Discount calculation
-    const discountAmount = variantMrp - variantSellingPrice;
-    const discountPercent = (discountAmount / variantMrp) * 100;
+    let discountPercent = 0;
 
-    processedVariants.push({
-      variantColor,
-      variantName,
-      varintWeight,
-      varintWeightUnit,
-      variantSkuId,
-      variantImage: uploadedImages,
-      variantMrp,
-      variantCostPrice,
-      variantSellingPrice,
-      varintGST,
+    if (mrp > 0 && selling <= mrp) {
+      discountPercent = ((mrp - selling) / mrp) * 100;
+    }
+
+    // ✅ Round to 2 decimal (optional but recommended)
+    discountPercent = Number(discountPercent.toFixed(2));
+
+    return {
+      ...v,
+      variantMrp: mrp,
+      variantSellingPrice: selling,
       variantDiscount: discountPercent,
-      variantAvailableStock,
-      variantLowStockAlertStock,
-      isSelected,
-    });
-  }
+    };
+  });
+
+  // Ensure only one isSelected variant
+  let selectedSet = false;
+
+  const finalVariants = cleanVariants.map((v) => {
+    if (v.isSelected && !selectedSet) {
+      selectedSet = true;
+      return { ...v, isSelected: true };
+    }
+    return { ...v, isSelected: false };
+  });
+
+  if (!selectedSet) finalVariants[0].isSelected = true;
 
   // ✅ Create product
   const product = await Product.create({
@@ -103,9 +127,7 @@ export const addProduct = asyncHandler(async (req, res) => {
     description,
     category,
     subcategory,
-    variants: processedVariants,
-    isDraft: action === "draft",
-    isActive: action === "publish",
+    variants: finalVariants,
   });
 
   res.status(201).json({
@@ -113,6 +135,263 @@ export const addProduct = asyncHandler(async (req, res) => {
     message: "Product created successfully",
     data: product,
   });
+});
+
+export const adminGetAllProducts = asyncHandler(async (req, res) => {
+  const {
+    page = 1,
+    limit = 10,
+    search,
+    category,
+    status,
+    sortBy = "latest",
+  } = req.query;
+
+  const pageNum = parseInt(page);
+  const limitNum = parseInt(limit);
+  const skip = (pageNum - 1) * limitNum;
+
+  // 🔍 MATCH STAGE
+  const matchStage = {};
+
+  // ✅ STATUS FILTER
+  if (status === "active") matchStage.isActive = true;
+  if (status === "inactive") matchStage.isActive = false;
+  if (status === "draft") matchStage.isActive = false;
+
+  // 🔍 SEARCH (name, slug, sku)
+  if (search) {
+    matchStage.$or = [
+      { productTittle: { $regex: search, $options: "i" } },
+      { slug: { $regex: search, $options: "i" } },
+      { "variants.variantSkuId": { $regex: search, $options: "i" } },
+    ];
+  }
+
+  // 🧠 SORT LOGIC
+  let sortStage = {};
+
+  switch (sortBy) {
+    case "latest":
+      sortStage = { createdAt: -1 };
+      break;
+
+    case "oldest":
+      sortStage = { createdAt: 1 };
+      break;
+
+    case "atoz":
+      sortStage = { productTittle: 1 };
+      break;
+
+    case "ztoa":
+      sortStage = { productTittle: -1 };
+      break;
+
+    case "lowtohigh":
+      sortStage = { "variants.variantSellingPrice": 1 };
+      break;
+
+    case "hightolow":
+      sortStage = { "variants.variantSellingPrice": -1 };
+      break;
+
+    default:
+      sortStage = { createdAt: -1 };
+  }
+
+  // 🚀 AGGREGATION
+  const pipeline = [
+    { $match: matchStage },
+
+    // 🔗 Join category (for name search/filter)
+    {
+      $lookup: {
+        from: "categories",
+        localField: "category",
+        foreignField: "_id",
+        as: "categoryData",
+      },
+    },
+    {
+      $unwind: {
+        path: "$categoryData",
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+  ];
+
+  // ✅ CATEGORY NAME FILTER
+  if (category) {
+    pipeline.push({
+      $match: {
+        "categoryData.name": { $regex: category, $options: "i" },
+      },
+    });
+  }
+
+  // ✅ SEARCH ALSO IN CATEGORY NAME
+  if (search) {
+    pipeline.push({
+      $match: {
+        $or: [
+          { productTittle: { $regex: search, $options: "i" } },
+          { slug: { $regex: search, $options: "i" } },
+          { "variants.variantSkuId": { $regex: search, $options: "i" } },
+          { "categoryData.name": { $regex: search, $options: "i" } },
+        ],
+      },
+    });
+  }
+
+  // 📊 SORT
+  pipeline.push({ $sort: sortStage });
+
+  // 📄 PAGINATION
+  pipeline.push({ $skip: skip });
+  pipeline.push({ $limit: limitNum });
+
+  // 🎯 CLEAN RESPONSE
+  pipeline.push({
+    $project: {
+      productTittle: 1,
+      slug: 1,
+      isActive: 1,
+      createdAt: 1,
+      category: "$categoryData.name",
+      firstImage: {
+        $arrayElemAt: [{ $arrayElemAt: ["$variants.variantImage.url", 0] }, 0],
+      },
+      price: {
+        $arrayElemAt: ["$variants.variantSellingPrice", 0],
+      },
+    },
+  });
+
+  // 🚀 EXECUTE
+  const products = await Product.aggregate(pipeline);
+
+  // ⚠️ TOTAL COUNT (important)
+  const totalPipeline = [
+    ...pipeline.filter(
+      (stage) => !stage.$skip && !stage.$limit && !stage.$sort,
+    ),
+    { $count: "total" },
+  ];
+  const totalResult = await Product.aggregate(totalPipeline);
+  const total = totalResult[0]?.total || 0;
+
+  res.status(200).json({
+    success: true,
+    message: "Products fetched successfully",
+    data: products,
+    pagination: {
+      total,
+      page: pageNum,
+      limit: limitNum,
+      totalPages: Math.ceil(total / limitNum),
+    },
+  });
+});
+
+export const adminGetProductDetails = asyncHandler(async (req, res) => {
+  const { idOrSlug } = req.params;
+
+  const filter = mongoose.Types.ObjectId.isValid(idOrSlug)
+    ? { _id: idOrSlug }
+    : { slug: idOrSlug };
+
+  const product = await Product.findOne(filter)
+    .populate("category", "name")
+    .populate("subcategory", "name")
+    .populate("reviews")
+    .lean();
+
+  if (!product) {
+    throw AppError.notFound("Product not found", "NOT_FOUND");
+  }
+
+  res.status(200).json({
+    success: true,
+    message: "Product detail fetched successfully",
+    data: product,
+  });
+});
+
+export const adminUpdateProduct = asyncHandler(async (req, res) => {
+  const { productId } = req.params;
+  const allowed = [
+    "productTittle",
+    "description",
+    "category",
+    "subcategory",
+    "isActive",
+  ];
+
+  const updateData = {};
+  for (const field of allowed) {
+    if (req.body[field] !== undefined) updateData[field] = req.body[field];
+  }
+
+  if (Object.keys(updateData).length === 0) {
+    throw AppError.badRequest("No fields to update", "NO_UPDATES");
+  }
+
+  // Find existing product
+  const product = await Product.findOneAndUpdate(
+    { _id: productId },
+    { $set: updateData },
+    { new: true, runValidators: true },
+  )
+    .populate("category", "name")
+    .populate("subcategory", "name");
+
+  if (!product) {
+    throw AppError.notFound("Product not found", "NOT_FOUND");
+  }
+
+  res.status(200).json({
+    success: true,
+    message: "Product updated successfully",
+    data: product,
+  });
+});
+
+export const adminDeleteProduct = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const { permanent = false } = req.query;
+
+  const product = await Product.findById(id);
+  if (!product) {
+    throw new AppError("Product not found", 404);
+  }
+
+  if (permanent === "true") {
+    // Delete all images from Cloudinary
+    const allImages = [
+      ...(product.images || []),
+      ...product.variants.flatMap((v) => v.images || []),
+    ];
+
+    const publicIds = allImages.map((img) => img.publicId).filter(Boolean);
+    if (publicIds.length > 0) {
+      await deleteMultipleImagesFromCloudinary(publicIds);
+    }
+
+    await Product.findByIdAndDelete(id);
+    res.status(200).json({
+      success: true,
+      message: "Product permanently deleted successfully",
+    });
+  } else {
+    // Soft delete - just mark as inactive
+    product.isActive = false;
+    await product.save();
+    res.status(200).json({
+      success: true,
+      message: "Product deactivated successfully",
+    });
+  }
 });
 
 /**
@@ -165,220 +444,10 @@ export const adminDeleteProductImage = asyncHandler(async (req, res) => {
 /**
  * Update product (Admin)
  */
-export const adminUpdateProduct = asyncHandler(async (req, res) => {
-  const { id } = req.params;
-  const {
-    name,
-    brand,
-    shortDescription,
-    fullDescription,
-    categories,
-    variants,
-    attributes,
-    metaTitle,
-    metaDescription,
-    metaKeywords,
-    isActive,
-    isFeatured,
-  } = req.body;
-
-  // Find existing product
-  const product = await Product.findById(id);
-  if (!product) {
-    throw AppError.badRequest("Product not found", "NOT_FOUND");
-  }
-
-  // Update basic info
-  if (name && name !== product.name) {
-    let slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
-    const slugExists = await Product.findOne({ slug, _id: { $ne: id } });
-    if (slugExists) {
-      slug = `${slug}-${Date.now()}`;
-    }
-    product.slug = slug;
-    product.name = name;
-  }
-
-  if (brand !== undefined) product.brand = brand;
-  if (shortDescription !== undefined)
-    product.shortDescription = shortDescription;
-  if (fullDescription !== undefined) product.fullDescription = fullDescription;
-  if (attributes !== undefined) product.attributes = attributes;
-  if (metaTitle !== undefined) product.metaTitle = metaTitle;
-  if (metaDescription !== undefined) product.metaDescription = metaDescription;
-  if (metaKeywords !== undefined) product.metaKeywords = metaKeywords;
-  if (isActive !== undefined) product.isActive = isActive;
-  if (isFeatured !== undefined) product.isFeatured = isFeatured;
-
-  // Update categories
-  if (categories !== undefined) {
-    const validatedCategories = await validateCategoryHierarchy(categories);
-    product.categories = validatedCategories.map((c) => c._id);
-  }
-
-  // Update variants
-  if (variants !== undefined && Array.isArray(variants)) {
-    if (variants.length === 0) {
-      throw AppError.badRequest(
-        "Product must have at least one variant",
-        "NO_VARIANTS",
-      );
-    }
-
-    const processedVariants = variants.map((variant, index) => {
-      if (
-        variant.mrpPrice &&
-        variant.sellingPrice &&
-        variant.mrpPrice < variant.sellingPrice
-      ) {
-        throw AppError.badRequest(
-          `MRP must be greater than selling price for variant ${index + 1}`,
-          "INVALID_VARIANT_PRICING",
-        );
-      }
-
-      const discountPercent =
-        variant.mrpPrice && variant.sellingPrice
-          ? calculateVariantDiscount(variant.mrpPrice, variant.sellingPrice)
-          : variant.discountPercent || 0;
-
-      return {
-        ...variant,
-        discountPercent,
-      };
-    });
-
-    // Validate default variant
-    const defaultVariantCount = processedVariants.filter(
-      (v) => v.isDefault,
-    ).length;
-    if (defaultVariantCount > 1) {
-      throw AppError.badRequest(
-        "Only one variant can be set as default",
-        "INVALID_DEFAULT_VARIANT",
-      );
-    }
-    if (defaultVariantCount === 0 && processedVariants.length > 0) {
-      processedVariants[0].isDefault = true;
-    }
-
-    product.variants = processedVariants;
-  }
-
-  await product.save();
-  await updateProductStats(product._id);
-
-  res.status(200).json({
-    success: true,
-    message: "Product updated successfully",
-    data: product,
-  });
-});
 
 /**
  * Delete product (Admin - Soft delete)
  */
-export const adminDeleteProduct = asyncHandler(async (req, res) => {
-  const { id } = req.params;
-  const { permanent = false } = req.query;
-
-  const product = await Product.findById(id);
-  if (!product) {
-    throw new AppError("Product not found", 404);
-  }
-
-  if (permanent === "true") {
-    // Delete all images from Cloudinary
-    const allImages = [
-      ...(product.images || []),
-      ...product.variants.flatMap((v) => v.images || []),
-    ];
-
-    const publicIds = allImages.map((img) => img.publicId).filter(Boolean);
-    if (publicIds.length > 0) {
-      await deleteMultipleImagesFromCloudinary(publicIds);
-    }
-
-    await Product.findByIdAndDelete(id);
-    res.status(200).json({
-      success: true,
-      message: "Product permanently deleted successfully",
-    });
-  } else {
-    // Soft delete - just mark as inactive
-    product.isActive = false;
-    await product.save();
-    res.status(200).json({
-      success: true,
-      message: "Product deactivated successfully",
-    });
-  }
-});
-
-/**
- * Get all products with filters (Admin)
- */
-export const adminGetAllProducts = asyncHandler(async (req, res) => {
-  const {
-    page = 1,
-    limit = 10,
-    search,
-    category,
-    status,
-    sortBy = "createdAt",
-  } = req.query;
-
-  // Build filter
-  const filter = {};
-
-  // search by - name, sku, category name
-  // filter by category name
-  // by status filter - active, draft , inative
-  // sort by - latest, oldest, alphabet-a-z / z-a , price -low to high/high to low
-
-  // Pagination
-  const pageNum = parseInt(page);
-  const limitNum = parseInt(limit);
-  const skip = (pageNum - 1) * limitNum;
-});
-
-/**
- * Get single product details (Admin)
- */
-export const adminGetProductDetails = asyncHandler(async (req, res) => {
-  const { id } = req.params;
-
-  const product = await Product.findById(id)
-    .populate("categories", "name slug path")
-    .lean();
-
-  if (!product) {
-    throw new AppError("Product not found", 404);
-  }
-
-  // Calculate additional stats
-  const totalStock = product.variants.reduce(
-    (sum, v) => sum + (v.stockQuantity || 0),
-    0,
-  );
-  const variantCount = product.variants.length;
-  const defaultVariant =
-    product.variants.find((v) => v.isDefault) || product.variants[0];
-
-  res.status(200).json({
-    success: true,
-    data: {
-      ...product,
-      analytics: {
-        totalStock,
-        variantCount,
-        defaultVariant,
-        hasVariants: variantCount > 1,
-        isInStock: totalStock > 0,
-      },
-    },
-  });
-});
 
 // ==================== USER CONTROLLERS ====================
 
