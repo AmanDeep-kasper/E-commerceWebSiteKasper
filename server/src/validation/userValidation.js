@@ -11,28 +11,19 @@ export const updateUserDetailsValidation = [
       "Name can only contain letters, spaces, hyphens, and apostrophes",
     ),
 
-  body("dob")
-    .matches(/^\d{2}-\d{2}-\d{4}$/)
-    .withMessage("DOB must be in DD-MM-YYYY format")
-    .custom((value) => {
-      const [day, month, year] = value.split("-").map(Number);
+ body("dob")
+  .custom((value) => {
+    const date = new Date(value);
+    if (isNaN(date.getTime())) {
+      throw new Error("Invalid date format");
+    }
+    if (date >= new Date()) {
+      throw new Error("DOB must be in the past");
+    }
 
-      const date = new Date(year, month - 1, day);
-
-      if (
-        date.getFullYear() !== year ||
-        date.getMonth() !== month - 1 ||
-        date.getDate() !== day
-      ) {
-        throw new Error("Invalid date");
-      }
-
-      if (date >= new Date()) {
-        throw new Error("DOB must be in the past");
-      }
-
-      return true;
-    }),
+    return true;
+  }),
+  
   body("gender")
     .isIn(["male", "female", "other"])
     .withMessage("Gender must be male, female, or other"),
