@@ -49,16 +49,16 @@ function AccountSidebar() {
     formData.append("profileImage", file);
 
     try {
-      const res = await axiosInstance.patch(
-        "/users/me/profile-image",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      // const res = await axiosInstance.patch(
+      //   "/users/me/profile-image",
+      //   formData,
+      //   {
+      //     headers: {
+      //       "Content-Type": "multipart/form-data",
+      //       Authorization: `Bearer ${token}`,
+      //     },
+      //   }
+      // );
       setImage(res.data.profileImage);
       toast.success("Profile image updated");
     } catch (err) {

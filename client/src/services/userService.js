@@ -55,7 +55,7 @@ const updateProfileImage = async (formData) => {
 };
 
 const updateEmail = async (data) => {
-  const res = await axiosInstance.patch("/users/me/update-email", data);
+  const res = await axiosInstance.patch("/user/update-email", data);
   return res.data;
 };
 

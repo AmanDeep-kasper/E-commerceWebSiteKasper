@@ -7,6 +7,7 @@ const initialState = {
   loading: false, // general loading
   authLoading: false, // 🔥 for login only
   error: null,
+  authChecked: false,
 };
 
 // 🔹 Thunks
@@ -110,11 +111,11 @@ const userSlice = createSlice({
         state.loading = false;
         state.user = action.payload;
         state.isAuthenticated = true;
+        state.authChecked = true;
       })
       .addCase(getUserDetails.rejected, (state) => {
         state.loading = false;
-        state.user = null;
-        state.isAuthenticated = false;
+        state.authChecked = true;
       })
 
       // UPDATE USER

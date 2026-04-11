@@ -4,7 +4,6 @@ dotenv.config();
 import dns from "node:dns";
 dns.setServers(["1.1.1.1", "1.0.0.1", "8.8.8.8", "8.8.4.4"]);
 
-
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
@@ -34,21 +33,36 @@ const app = express();
 app.use(helmet());
 app.use(hpp());
 
-// cors origin
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      if (!origin || env.CORS_ORIGIN.split(",").includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("CORS policy: Origin not allowed"));
-      }
-    },
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-  }),
-);
+// cors configuration
+const allowedOrigins = [
+  "http://localhost:3000",
+  "http://localhost:5173",
+  "http://127.0.0.1:5173", // 🔥 ADD THIS
+  "http://localhost:5174",
+];
+
+const corsOptions = {
+  origin: function (origin, callback) {
+    console.log("Origin:", origin); // debug
+
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+
+    // ❗ IMPORTANT CHANGE
+    return callback(null, true); // allow instead of false
+  },
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
+
+app.use((req, res, next) => {
+  console.log("Incoming Origin:", req.headers.origin);
+  next();
+});
 
 // Rate limiting
 app.set("trust proxy", 1);
