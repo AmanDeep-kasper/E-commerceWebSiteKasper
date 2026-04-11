@@ -38,7 +38,7 @@ function Login() {
       if (user?.user?.role === "user") {
         navigate("/home", { replace: true });
       } else {
-        navigate("/admin/dashboard", { replace: true });
+        navigate("/home", { replace: true });
       }
     }
   }, [isAuthenticated, user, navigate]);

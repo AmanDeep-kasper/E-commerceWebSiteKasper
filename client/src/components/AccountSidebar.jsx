@@ -3,10 +3,11 @@ import { useRef, useState } from "react";
 import axiosInstance from "../api/axiosInstance";
 import { NavLink, useNavigate } from "react-router-dom";
 import users from "../data/user";
-import { User, Package, Heart, MapPin, HelpCircle, Star } from "lucide-react";
+import { User, Package, Heart, MapPin, HelpCircle, Star,Camera, LogOut } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { logoutUser } from "../redux/cart/userSlice";
+import { useNavigate } from "react-router-dom";
 
 const accountMenu = [
   { label: "Account Details", path: "/details", icon: User },
@@ -18,8 +19,8 @@ const accountMenu = [
 ];
 
 function AccountSidebar() {
-  const [image, setImage] = useState(users[0].profileImage);
-  const [name, setName] = useState(users[0].name);
+ const [image, setImage] = useState("");
+const [name, setName] = useState("");
   const inputRef = useRef(null);
   const token = localStorage.getItem("token");
   const { user, isAuthenticated } = useSelector((s) => s.user);
