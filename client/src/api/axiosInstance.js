@@ -9,10 +9,10 @@ const axiosInstance = axios.create({
 let isRefreshing = false;
 let failedQueue = [];
 
-const processQueue = (error, token = null) => {
+const processQueue = (error) => {
   failedQueue.forEach((prom) => {
     if (error) prom.reject(error);
-    else prom.resolve(token);
+    else prom.resolve();
   });
   failedQueue = [];
 };
@@ -23,7 +23,12 @@ axiosInstance.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      !originalRequest.url.includes("/auth/login") &&
+      !originalRequest.url.includes("/auth/refresh-token")
+    ) {
       originalRequest._retry = true;
 
       if (isRefreshing) {
@@ -39,8 +44,7 @@ axiosInstance.interceptors.response.use(
         processQueue(null);
         return axiosInstance(originalRequest); // retry original request
       } catch (error) {
-        processQueue(error, null);
-        window.location.href = "/login"; // logout fallback
+        processQueue(error);
         return Promise.reject(error);
       } finally {
         isRefreshing = false;
