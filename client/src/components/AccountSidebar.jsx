@@ -1,13 +1,12 @@
-import { Wallet, Camera, LogOut } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import axiosInstance from "../api/axiosInstance";
 import { Link, NavLink } from "react-router-dom";
-const dispatch = useDispatch;
 import users from "../data/user";
-import { User, Package, Heart, MapPin, HelpCircle, Star } from "lucide-react";
+import { User, Package, Heart, MapPin, HelpCircle, Star,Camera, LogOut } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { logoutUser } from "../redux/cart/userSlice";
+import { useNavigate } from "react-router-dom";
 
 const accountMenu = [
   { label: "Account Details", path: "/details", icon: User },
@@ -19,11 +18,12 @@ const accountMenu = [
 ];
 
 function AccountSidebar() {
-  const [image, setImage] = useState(users[0].profileImage);
-  const [name, setName] = useState(users[0].name);
+ const [image, setImage] = useState("");
+const [name, setName] = useState("");
   const inputRef = useRef(null);
   const token = localStorage.getItem("token");
   const { user, isAuthenticated } = useSelector((s) => s.user);
+  const navigate = useNavigate();
 
   // 🟡 Fetch user data including image on mount
   useEffect(() => {
@@ -70,12 +70,12 @@ function AccountSidebar() {
   };
   const dispatch = useDispatch();
 
-  const handleLogout = () => {
-    dispatch(logoutUser()); // clear token + reset user state
-    // optional: if not done in slice
-    toast.success("Logged out successfully");
-    navigate("/"); // redirect to homepage
-  };
+ const handleLogout = () => {
+  dispatch(logoutUser());
+  localStorage.removeItem("token");
+  toast.success("Logged out successfully");
+  navigate("/login");
+};
 
   return (
     <div className="sticky top-20 h-max min-w-[310px] !w-[310px] bg-white rounded-lg shadow-sm overflow-hidden ">
