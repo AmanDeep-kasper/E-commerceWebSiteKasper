@@ -8,6 +8,7 @@ import {
   formatPrice,
 } from "../../utils/homePageUtils";
 import { useEffect, useState } from "react";
+import { useSelector } from 'react-redux';
 import { Anvil } from "lucide-react";
 import axiosInstance from "../../api/axiosInstance";
 import Rating from "@mui/material/Rating";

@@ -8,7 +8,8 @@ import {
   adminUpdateProduct,
   deleteVariantImages,
   uploadVariantsImages,
-  // adminUploadProductImages,
+  userGetAllProducts,
+  userGetProductDetails
 } from "../controllers/productController.js";
 import { upload } from "../middlewares/multer.js";
 
@@ -59,5 +60,9 @@ router.delete(
   authorize("admin"),
   adminDeleteProduct,
 );
+
+// Public User Routes
+router.get("/all", userGetAllProducts);
+router.get("/slug/:slugOrId", userGetProductDetails);
 
 export default router;

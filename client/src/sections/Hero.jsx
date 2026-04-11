@@ -1,5 +1,6 @@
 // import { twMerge } from "tailwind-merge";
 import { useEffect, useState } from "react";
+import { useSelector } from 'react-redux';
 // import TopbannerImg from "../assets/TopBannerImg/TopBanner.png";
 import TopbannerVideo from "../assets/TopBannerImg/TopBannerVideo.mp4";
 
@@ -23,7 +24,7 @@ function Hero() {
   const [isHovered, setIsHovered] = useState(false);
   const controls = useAnimation();
   const [imageIndex, setImageIndex] = useState(0);
-  const [sideslider, setselectedProducts] = useState([]);
+  // const sideslider = useSelector((state) => state.products.products);
 
   // useEffect(() => {
   //   const fetchProducts = async () => {

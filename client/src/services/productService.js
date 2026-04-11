@@ -11,7 +11,13 @@ const addProduct = async (formData) => {
 // Get all products
 const getAllProducts = async () => {
   const res = await axiosInstance.get("/products/all");
-  return res.data;
+  return res.data?.data || res.data;
+};
+
+// Get all categories
+const getAllCategories = async () => {
+  const res = await axiosInstance.get("/category/all-categories");
+  return res.data?.data || res.data?.categories || res.data;
 };
 
 // Get product by category
@@ -57,6 +63,7 @@ const updateProduct = async (id, formData) => {
 
 const productService = {
   getAllProducts,
+  getAllCategories,
   getProductsByCategory,
   getProductsByCategoryAndSubcategory,
   getProductById,

@@ -10,12 +10,13 @@
 //   formatPrice,
 // } from "../../utils/homePageUtils";
 // import { useEffect, useState } from "react";
+import { useSelector } from 'react-redux';
 // import axiosInstance from "../../api/axiosInstance";
 
 // function TopProducts() {
 //   const navigate = useNavigate();
 //   const [visibleCount, setVisibleCount] = useState(4); // default = phone
-//   const [topproduct, setTopProduct] = useState([]);
+//   const topproduct = useSelector((state) => state.products.products);
 
 //   useEffect(() => {
 //     const fetchTopproduct = async () => {

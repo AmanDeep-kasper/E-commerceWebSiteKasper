@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 // import products from "../data/products.json";
 import Card from "../components/Card";
 import Navbar from "../components/Navbar";
@@ -18,22 +19,14 @@ function NewProducts() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const res = await axiosInstance.get("/products/all");
-        //  console.log("PRODUCTS:", res.data);
-        setItems(res.data);
-        setLoading(false);
-      } catch (error) {
-        console.log(error);
-        setError("Failed to load products.");
-        setLoading(false);
-      }
-    };
+  const allProducts = useSelector((state) => state.products.products);
 
-    fetchProducts();
-  }, []);
+  useEffect(() => {
+    if (allProducts && allProducts.length > 0) {
+      setItems(allProducts);
+      setLoading(false);
+    }
+  }, [allProducts]);
 
   const sort = (val) => {
     setItems((prev) => {

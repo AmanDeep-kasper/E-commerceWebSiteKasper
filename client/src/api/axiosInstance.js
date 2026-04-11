@@ -37,7 +37,8 @@ axiosInstance.interceptors.response.use(
       error.response?.status === 401 &&
       !originalRequest._retry &&
       !originalRequest.url.includes("/auth/login") &&
-      !originalRequest.url.includes("/auth/refresh-token")
+      !originalRequest.url.includes("/auth/refresh-token") &&
+      !originalRequest.url.includes("/auth/me")
     ) {
       originalRequest._retry = true;
 
@@ -67,10 +68,11 @@ axiosInstance.interceptors.response.use(
           console.error("Failed to force logout:", importError);
         }
 
-        // Redirect to login page
+        // Redirect to login page ONLY if not on login AND this wasn't just a /auth/me check
         if (
           typeof window !== "undefined" &&
-          !window.location.pathname.includes("/login")
+          !window.location.pathname.includes("/login") &&
+          !originalRequest.url.includes("/auth/me")
         ) {
           window.location.href = "/login";
         }

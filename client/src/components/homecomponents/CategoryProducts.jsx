@@ -1,4 +1,5 @@
 // import React, { useEffect, useState } from "react";
+import { useSelector } from 'react-redux';
 // import { Link, useNavigate } from "react-router-dom";
 // import { ArrowRight } from "lucide-react";
 // import { getCardImage } from "../../utils/homePageUtils";
@@ -7,7 +8,7 @@
 // function CategoryProducts() {
 //   const navigate = useNavigate();
 
-//   const [allcategory, setAllCategory] = useState([]);
+//   const allcategory = useSelector((state) => state.products.products);
 //   const [visibleCount, setVisibleCount] = useState(4);
 
 //   // Fetch categories/products

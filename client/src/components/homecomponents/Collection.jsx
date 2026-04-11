@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useSelector } from 'react-redux';
 import { motion, useAnimation } from "framer-motion";
 import Rating from "@mui/material/Rating";
 import Stack from "@mui/material/Stack";
@@ -131,7 +132,7 @@ function Collection() {
 
   // this is axios is used to data fetch in backend
 
-  const [newProducts, setnewProducts] = useState([]);
+  // const newProducts = useSelector((state) => state.products.products);
 
   // useEffect(() => {
   //   const fetchProducts = async () => {
@@ -179,15 +180,15 @@ function Collection() {
   //   (item, index, self) =>
   //     index === self.findIndex((obj) => obj.category === item.category),
   // );
-  const collections = (newProducts || []).filter((item, index, self) => {
-    const cat = item?.category?.name ?? item?.category; // supports object or string
-    if (!cat) return false;
+  // const collections = (newProducts || []).filter((item, index, self) => {
+  //   const cat = item?.category?.name ?? item?.category; // supports object or string
+  //   if (!cat) return false;
 
-    return (
-      index ===
-      self.findIndex((obj) => (obj?.category?.name ?? obj?.category) === cat)
-    );
-  });
+  //   return (
+  //     index ===
+  //     self.findIndex((obj) => (obj?.category?.name ?? obj?.category) === cat)
+  //   );
+  // });
 
   const categories = [
     { id: 1, name: "Resin", img: resin },
