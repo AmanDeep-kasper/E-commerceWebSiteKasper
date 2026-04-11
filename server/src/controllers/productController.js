@@ -358,96 +358,44 @@ export const adminUpdateProduct = asyncHandler(async (req, res) => {
 });
 
 export const adminDeleteProduct = asyncHandler(async (req, res) => {
-  const { id } = req.params;
-  const { permanent = false } = req.query;
+  const { productId } = req.params;
 
-  const product = await Product.findById(id);
+  const product = await Product.findById(productId);
   if (!product) {
-    throw new AppError("Product not found", 404);
+    throw AppError("Product not found", "NOT_FOUND");
   }
 
-  if (permanent === "true") {
-    // Delete all images from Cloudinary
-    const allImages = [
-      ...(product.images || []),
-      ...product.variants.flatMap((v) => v.images || []),
-    ];
-
-    const publicIds = allImages.map((img) => img.publicId).filter(Boolean);
-    if (publicIds.length > 0) {
-      await deleteMultipleImagesFromCloudinary(publicIds);
-    }
-
-    await Product.findByIdAndDelete(id);
-    res.status(200).json({
-      success: true,
-      message: "Product permanently deleted successfully",
-    });
-  } else {
-    // Soft delete - just mark as inactive
-    product.isActive = false;
-    await product.save();
-    res.status(200).json({
-      success: true,
-      message: "Product deactivated successfully",
-    });
-  }
-});
-
-/**
- * Delete product image (Admin)
- */
-export const adminDeleteProductImage = asyncHandler(async (req, res) => {
-  const { id, imageId } = req.params;
-  const { variantId = null } = req.body;
-
-  const product = await Product.findById(id);
-  if (!product) {
-    throw AppError.notFound("Product not found", "NOT_FOUND");
-  }
-
-  let imageToDelete = null;
-
-  if (variantId) {
-    const variant = product.variants.id(variantId);
-    if (!variant) {
-      throw AppError.notFound("Variant not found", "NOT_FOUND");
-    }
-    imageToDelete = variant.images.id(imageId);
-    if (imageToDelete) {
-      variant.images.pull({ _id: imageId });
-    }
-  } else {
-    imageToDelete = product.images.id(imageId);
-    if (imageToDelete) {
-      product.images.pull({ _id: imageId });
-    }
-  }
-
-  if (!imageToDelete) {
-    throw new AppError("Image not found", 404);
-  }
-
-  // Delete from Cloudinary
-  if (imageToDelete.publicId) {
-    await deleteImageFromCloudinary(imageToDelete.publicId);
-  }
-
+  product.isActive = false;
   await product.save();
 
   res.status(200).json({
     success: true,
-    message: "Image deleted successfully",
+    message: "Product deleted successfully",
   });
 });
 
-/**
- * Update product (Admin)
- */
+// export const deleteProduct = async (req, res) => {
+//   try {
+//     const product = await Product.findByIdAndDelete(req.params.id);
 
-/**
- * Delete product (Admin - Soft delete)
- */
+//     if (!product) {
+//       return res
+//         .status(404)
+//         .json({ success: false, message: "Product not found" });
+//     }
+
+//     // Delete all variant images from Cloudinary (best-effort)
+//     for (const variant of product.variants) {
+//       await cloudDelete(variant.variantImage);
+//     }
+
+//     return res
+//       .status(200)
+//       .json({ success: true, message: "Product deleted successfully" });
+//   } catch (error) {
+//     return res.status(500).json({ success: false, message: error.message });
+//   }
+// };
 
 // ==================== USER CONTROLLERS ====================
 
@@ -596,9 +544,7 @@ export const userGetAllProducts = asyncHandler(async (req, res) => {
   });
 });
 
-/**
- * Get single product details for users
- */
+// user controller
 export const userGetProductDetails = asyncHandler(async (req, res) => {
   const { slugOrId } = req.params;
 
@@ -681,197 +627,6 @@ export const userGetProductDetails = asyncHandler(async (req, res) => {
       relatedProducts: processedRelated,
       inStock: variants.some((v) => v.inStock),
       hasVariants: variants.length > 1,
-    },
-  });
-});
-
-/**
- * Get products by category for users
- */
-export const userGetProductsByCategory = asyncHandler(async (req, res) => {
-  const { categorySlug } = req.params;
-  const {
-    page = 1,
-    limit = 20,
-    sortBy = "createdAt",
-    sortOrder = "desc",
-  } = req.query;
-
-  // Find category
-  const category = await Category.findOne({
-    slug: categorySlug,
-    isActive: true,
-  });
-  if (!category) {
-    throw new AppError("Category not found", 404);
-  }
-
-  // Get all subcategory IDs
-  const subcategories = await Category.find({
-    parentId: category._id,
-    isActive: true,
-  });
-  const categoryIds = [category._id, ...subcategories.map((c) => c._id)];
-
-  // Build filter
-  const filter = {
-    isActive: true,
-    categories: { $in: categoryIds },
-  };
-
-  // Pagination
-  const pageNum = parseInt(page);
-  const limitNum = parseInt(limit);
-  const skip = (pageNum - 1) * limitNum;
-
-  // Sort
-  const sort = {};
-  sort[sortBy] = sortOrder === "desc" ? -1 : 1;
-
-  const [products, total] = await Promise.all([
-    Product.find(filter)
-      .populate("categories", "name slug")
-      .select("name slug brand shortDescription variants images stats")
-      .sort(sort)
-      .skip(skip)
-      .limit(limitNum)
-      .lean(),
-    Product.countDocuments(filter),
-  ]);
-
-  const processedProducts = products.map((product) => {
-    const defaultVariant =
-      product.variants.find((v) => v.isDefault) || product.variants[0];
-    const primaryImage =
-      product.images?.find((img) => img.isPrimary) || product.images?.[0];
-    const lowestPrice = Math.min(
-      ...product.variants.map((v) => v.sellingPrice),
-    );
-
-    return {
-      _id: product._id,
-      name: product.name,
-      slug: product.slug,
-      brand: product.brand,
-      price: lowestPrice,
-      discountPercent: defaultVariant?.discountPercent,
-      image: primaryImage?.url,
-      averageRating: product.stats?.averageRating,
-      totalReviews: product.stats?.totalReviews,
-    };
-  });
-
-  res.status(200).json({
-    success: true,
-    data: {
-      category: {
-        _id: category._id,
-        name: category.name,
-        slug: category.slug,
-        description: category.description,
-      },
-      products: processedProducts,
-      pagination: {
-        page: pageNum,
-        limit: limitNum,
-        total,
-        pages: Math.ceil(total / limitNum),
-      },
-    },
-  });
-});
-
-// ==================== PRODUCT REVIEW CONTROLLERS ====================
-
-/**
- * Add product review (User)
- */
-export const userAddProductReview = asyncHandler(async (req, res) => {
-  const { id } = req.params;
-  const { rating, comment, title } = req.body;
-  const userId = req.user._id;
-
-  if (!rating || rating < 1 || rating > 5) {
-    throw new AppError("Rating must be between 1 and 5", 400);
-  }
-
-  const product = await Product.findById(id);
-  if (!product || !product.isActive) {
-    throw new AppError("Product not found", 404);
-  }
-
-  // Check if user already reviewed
-  const existingReview = product.reviews?.find(
-    (review) => review.userId.toString() === userId.toString(),
-  );
-
-  if (existingReview) {
-    throw new AppError("You have already reviewed this product", 400);
-  }
-
-  // Add review (you'll need to add reviews array to schema)
-  if (!product.reviews) product.reviews = [];
-
-  product.reviews.push({
-    userId,
-    rating,
-    title,
-    comment,
-    isVerified: true, // You can implement purchase verification
-    createdAt: new Date(),
-  });
-
-  // Update average rating
-  const totalRating = product.reviews.reduce(
-    (sum, review) => sum + review.rating,
-    0,
-  );
-  product.stats.averageRating = totalRating / product.reviews.length;
-  product.stats.totalReviews = product.reviews.length;
-
-  await product.save();
-
-  res.status(201).json({
-    success: true,
-    message: "Review added successfully",
-    data: {
-      averageRating: product.stats.averageRating,
-      totalReviews: product.stats.totalReviews,
-    },
-  });
-});
-
-/**
- * Get product reviews (User)
- */
-export const userGetProductReviews = asyncHandler(async (req, res) => {
-  const { id } = req.params;
-  const { page = 1, limit = 10 } = req.query;
-
-  const product = await Product.findById(id).select("reviews stats");
-  if (!product || !product.isActive) {
-    throw new AppError("Product not found", 404);
-  }
-
-  const reviews = product.reviews || [];
-  const pageNum = parseInt(page);
-  const limitNum = parseInt(limit);
-  const start = (pageNum - 1) * limitNum;
-  const end = start + limitNum;
-
-  const paginatedReviews = reviews.slice(start, end);
-
-  res.status(200).json({
-    success: true,
-    data: {
-      reviews: paginatedReviews,
-      stats: product.stats,
-      pagination: {
-        page: pageNum,
-        limit: limitNum,
-        total: reviews.length,
-        pages: Math.ceil(reviews.length / limitNum),
-      },
     },
   });
 });
