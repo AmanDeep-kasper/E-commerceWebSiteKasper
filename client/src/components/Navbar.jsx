@@ -32,9 +32,18 @@ import "swiper/css";
 
 function Navbar() {
   const { user, isAuthenticated } = useSelector((state) => state.user);
-  const [showChoice, setShowChoice] = useState(
-    user?.role === "admin" ? true : false,
-  );
+  console.log(user);
+  const [showChoice, setShowChoice] = useState(false);
+
+  useEffect(() => {
+    if (user?.user?.role === "admin") {
+      setShowChoice(true);
+    } else {
+      setShowChoice(false);
+    }
+  }, [user]);
+
+  
   // console.log(showChoice)
   // const [showChoice, setShowChoice] = useState(true);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -463,8 +472,6 @@ function Navbar() {
           </div>
         </div>
       </div>
-
-
 
       {/* Mobile Dropdown Nav */}
       <AnimatePresence>
