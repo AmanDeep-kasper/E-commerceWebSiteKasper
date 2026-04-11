@@ -2,6 +2,7 @@ import express from "express";
 import { authenticate, authorize } from "../middlewares/authMiddleware.js";
 import {
   addProduct,
+  adminDeleteProduct,
   adminGetAllProducts,
   adminGetProductDetails,
   adminUpdateProduct,
@@ -50,6 +51,13 @@ router.patch(
   authenticate,
   authorize("admin"),
   adminUpdateProduct,
+);
+
+router.delete(
+  "/admin/delete-product/:productId",
+  authenticate,
+  authorize("admin"),
+  adminDeleteProduct,
 );
 
 export default router;
