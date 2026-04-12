@@ -20,6 +20,7 @@ import productRouter from "./routes/productRoutes.js";
 import collectionRouter from "./routes/collectionRoutes.js";
 import reviewRouter from "./routes/reviewRoutes.js";
 import rewardRouter from "./routes/rewardRoutes.js";
+import wishlistRouter from "./routes/wishlistRouter.js";
 
 // Middlewares
 import { errorHandler, notFoundHandler } from "./middlewares/errorHandler.js";
@@ -59,7 +60,7 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-app.use((req, res, next) => {
+app.use((req, _res, next) => {
   console.log("Incoming Origin:", req.headers.origin);
   next();
 });
@@ -95,6 +96,7 @@ app.use("/api/v1/product", productRouter);
 app.use("/api/v1/collection", collectionRouter);
 app.use("/api/v1/review", reviewRouter);
 app.use("/api/v1/reward", rewardRouter);
+app.use("/api/v1/wishlist", wishlistRouter);
 
 // 404 Not Found Handler
 app.use(notFoundHandler);
