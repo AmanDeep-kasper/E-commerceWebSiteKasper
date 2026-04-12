@@ -1,14 +1,17 @@
 import express from "express";
 import { authenticate, authorize } from "../middlewares/authMiddleware.js";
 import {
-  addCategory,
+  createOrUpdateCategory,
   deleteCategory,
+  deleteSubCategory,
   getAllCategories,
   getAllCategoriesController,
+  getAllSubCategories,
   getCategoryDetails,
   getCategoryDetailsController,
   updateCategory,
   updateCategoryStatus,
+  updateSubCategory,
 } from "../controllers/categoryController.js";
 import { validateRequest } from "../validation/validator.js";
 import {
@@ -21,13 +24,17 @@ const router = express.Router();
 
 // admin routes
 router.post(
-  "/admin/add-category",
+  "/admin/createOrUpdate-category",
   authenticate,
   authorize("admin"),
+  (req, _res, next) => {
+    req.uploadFolder = "category";
+    next();
+  },
   upload.single("categoryImage"),
   addCategoryValidation,
   validateRequest,
-  addCategory,
+  createOrUpdateCategory,
 );
 
 router.get(
@@ -37,7 +44,14 @@ router.get(
   getAllCategories,
 );
 
-router.put(
+router.get(
+  "/admin/category-detail/:categoryIdOrSlug",
+  authenticate,
+  authorize("admin"),
+  getCategoryDetails,
+);
+
+router.patch(
   "/admin/update-category/:categoryId",
   authenticate,
   authorize("admin"),
@@ -61,16 +75,25 @@ router.patch(
   updateCategoryStatus,
 );
 
-router.get(
-  "/admin/detail/:categoryIdOrSlug",
+router.patch(
+  "/admin/update-subcategory/:subCategoryId",
   authenticate,
   authorize("admin"),
-  getCategoryDetails,
+  updateSubCategory,
+);
+
+router.delete(
+  "/admin/delete-subcategory/:subCategoryId",
+  authenticate,
+  authorize("admin"),
+  deleteSubCategory,
 );
 
 // /users routes
 router.get("/all-categories", getAllCategoriesController);
 
 router.get("/detail/:categoryIdOrSlug", getCategoryDetailsController);
+
+router.get("/all-subcategory", getAllSubCategories);
 
 export default router;

@@ -1,8 +1,8 @@
-import dotenv from "dotenv";
-dotenv.config();
+// import dotenv from "dotenv";
+// dotenv.config();
 
-import dns from "node:dns";
-dns.setServers(["1.1.1.1", "1.0.0.1", "8.8.8.8", "8.8.4.4"]);
+// import dns from "node:dns";
+// dns.setServers(["1.1.1.1", "1.0.0.1", "8.8.8.8", "8.8.4.4"]);
 
 import express from "express";
 import cors from "cors";
@@ -65,7 +65,9 @@ app.use((req, res, next) => {
 });
 
 // Rate limiting
-app.set("trust proxy", 1);
+if (env.NODE_ENV === "production") {
+  app.set("trust proxy", 1);
+}
 app.use(globalLimiter);
 app.use(speedLimiter);
 

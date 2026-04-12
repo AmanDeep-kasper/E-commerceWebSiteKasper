@@ -17,7 +17,6 @@ const subCategorySchema = new mongoose.Schema(
       index: true,
     },
 
-    description: String,
 
     isActive: {
       type: Boolean,
@@ -30,9 +29,6 @@ const subCategorySchema = new mongoose.Schema(
       lowercase: true,
       trim: true,
     },
-
-    metaTitle: String,
-    metaDescription: String,
   },
   { timestamps: true, versionKey: false }
 );

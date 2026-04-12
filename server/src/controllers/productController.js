@@ -1,5 +1,4 @@
 import Product from "../models/Product.js";
-import Category from "../models/Category.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import AppError from "../utils/AppError.js";
 import {
@@ -32,19 +31,19 @@ export const uploadVariantsImages = asyncHandler(async (req, res) => {
 });
 
 // delete images of variants
-export const deleteVariantImages = asyncHandler(async (req, res) => {
-  const publicId = decodeURIComponent(req.params.publicId);
-  if (!publicId) {
-    throw AppError.badRequest("publicId required", "MISSING_PUBLIC_ID");
-  }
+// export const deleteVariantImages = asyncHandler(async (req, res) => {
+//   const publicId = decodeURIComponent(req.params.publicId);
+//   if (!publicId) {
+//     throw AppError.badRequest("publicId required", "MISSING_PUBLIC_ID");
+//   }
 
-  await deleteImageFromCloudinary(publicId);
+//   await deleteImageFromCloudinary(publicId);
 
-  res.status(200).json({
-    success: true,
-    message: "Image deleted",
-  });
-});
+//   res.status(200).json({
+//     success: true,
+//     message: "Image deleted",
+//   });
+// });
 
 const cloudDelete = (images = []) =>
   Promise.allSettled(
@@ -376,34 +375,55 @@ export const adminDeleteProduct = asyncHandler(async (req, res) => {
 
 export const adminAddVariant = asyncHandler(async (req, res) => {
   const { productId } = req.params;
-  const product = await Product.findById(productId)
+  const product = await Product.findById(productId);
 
   if (!product) {
-    throw AppError.notFound("Product not found", "NOT_FOUND")
+    throw AppError.notFound("Product not found", "NOT_FOUND");
   }
 
-  const newVariant = req.body;
+  const newVariant = req.body; // make sure payload is flat
 
   if (!newVariant.variantSkuId) {
-    throw AppError.badRequest("variantSkuId is required", "VARIANT_SKU_REQUIRED")
+    throw AppError.badRequest("variantSkuId is required", "MISSING_SKU");
   }
 
-  // SKU uniqueness check
+  // ✅ SKU uniqueness check
   const skuExists = await Product.findOne({
     "variants.variantSkuId": newVariant.variantSkuId,
   });
+
   if (skuExists) {
-    throw AppError.conflict("SKU already exists", "SKU_EXISTS")
+    throw AppError.conflict("SKU already exists", "SKU_ALREADY_EXISTS");
   }
 
-  // If new variant is isSelected, deselect others
+  // ✅ Convert numbers
+  newVariant.variantMrp = Number(newVariant.variantMrp);
+  newVariant.variantSellingPrice = Number(newVariant.variantSellingPrice);
+
+  // ✅ Validate price
+  if (newVariant.variantSellingPrice > newVariant.variantMrp) {
+    throw AppError.badRequest(
+      "Selling price cannot exceed MRP",
+      "INVALID_PRICE",
+    );
+  }
+
+  // ✅ Calculate discount
+  newVariant.variantDiscount = Number(
+    (
+      ((newVariant.variantMrp - newVariant.variantSellingPrice) /
+        newVariant.variantMrp) *
+      100
+    ).toFixed(2),
+  );
+
+  // ✅ Handle selected variant
   if (newVariant.isSelected) {
-    product.variants.forEach((v) => {
-      v.isSelected = false;
-    });
+    product.variants.forEach((v) => (v.isSelected = false));
   }
 
   product.variants.push(newVariant);
+
   await product.save();
 
   const added = product.variants[product.variants.length - 1];
@@ -413,32 +433,29 @@ export const adminAddVariant = asyncHandler(async (req, res) => {
     message: "Variant added successfully",
     data: added,
   });
-})
+});
 
-export const adminUpdateVariant = async (req, res) => {
-
+export const adminUpdateVariant = asyncHandler(async (req, res) => {
   const { productId, variantId } = req.params;
   const updates = req.body;
 
   const product = await Product.findById(productId);
   if (!product) {
-    throw AppError.notFound("Product not found", "NOT_FOUND")
+    throw AppError.notFound("Product not found", "NOT_FOUND");
   }
 
   const variant = product.variants.id(variantId);
   if (!variant) {
-    throw AppError.notFound("Variant not found", "NOT_FOUND")
+    throw AppError.notFound("Variant not found", "NOT_FOUND");
   }
 
-  // If setting isSelected, deselect all others first
+  // ✅ Handle isSelected
   if (updates.isSelected === true) {
-    product.variants.forEach((v) => {
-      v.isSelected = false;
-    });
+    product.variants.forEach((v) => (v.isSelected = false));
     variant.isSelected = true;
-    delete updates.isSelected;
   }
 
+  // ✅ Allowed fields
   const allowedVariantFields = [
     "variantName",
     "variantColor",
@@ -448,14 +465,42 @@ export const adminUpdateVariant = async (req, res) => {
     "variantCostPrice",
     "variantSellingPrice",
     "variantGST",
-    "variantDiscount",
     "variantAvailableStock",
     "variantLowStockAlertStock",
   ];
 
+  // ✅ Update fields + convert numbers
   for (const field of allowedVariantFields) {
-    if (updates[field] !== undefined) variant[field] = updates[field];
+    if (updates[field] !== undefined) {
+      if (
+        [
+          "variantMrp",
+          "variantCostPrice",
+          "variantSellingPrice",
+          "variantGST",
+          "variantAvailableStock",
+          "variantLowStockAlertStock",
+        ].includes(field)
+      ) {
+        variant[field] = Number(updates[field]);
+      } else {
+        variant[field] = updates[field];
+      }
+    }
   }
+
+  // ✅ Recalculate Discount (IMPORTANT)
+  const mrp = variant.variantMrp;
+  const selling = variant.variantSellingPrice;
+
+  if (selling > mrp) {
+    throw AppError.badRequest(
+      "Selling price cannot exceed MRP",
+      "INVALID_PRICE",
+    );
+  }
+
+  variant.variantDiscount = Number((((mrp - selling) / mrp) * 100).toFixed(2));
 
   await product.save();
 
@@ -464,56 +509,94 @@ export const adminUpdateVariant = async (req, res) => {
     message: "Variant updated successfully",
     data: variant,
   });
-}
+});
 
-export const adminUpdateVariantImages = async (req, res) => {
-
+export const adminUpdateVariantImages = asyncHandler(async (req, res) => {
   const { productId, variantId } = req.params;
   const { variantImage = [] } = req.body;
 
+  // ✅ Validate input
+  if (!Array.isArray(variantImage)) {
+    throw AppError.badRequest(
+      "variantImage must be an array",
+      "INVALID_FORMAT",
+    );
+  }
+
+  // optional: at least 1 image required
+  if (variantImage.length === 0) {
+    throw AppError.badRequest(
+      "At least one image is required",
+      "MIN_ONE_IMAGE",
+    );
+  }
+
+  // Validate each image object
+  for (const img of variantImage) {
+    if (!img.url || !img.publicId) {
+      throw AppError.badRequest(
+        "Each image must have url and publicId",
+        "INVALID_IMAGE_OBJECT",
+      );
+    }
+  }
+
   const product = await Product.findById(productId);
   if (!product) {
-    throw AppError.notFound("Product not found", "NOT_FOUND")
+    throw AppError.notFound("Product not found", "NOT_FOUND");
   }
 
   const variant = product.variants.id(variantId);
   if (!variant) {
-    throw AppError.notFound("Variant not found", "NOT_FOUND")
+    throw AppError.notFound("Variant not found", "NOT_FOUND");
   }
 
-  // Find images removed by frontend and delete from Cloudinary
+  // Find removed images
   const newPublicIds = new Set(variantImage.map((img) => img.publicId));
-  const removed = variant.variantImage.filter(
+
+  const removedImages = variant.variantImage.filter(
     (img) => img.publicId && !newPublicIds.has(img.publicId),
   );
-  await cloudDelete(removed);
 
+  // ✅ Delete removed images from Cloudinary
+  if (removedImages.length > 0) {
+    const publicIdsToDelete = removedImages.map((img) => img.publicId);
+
+    await Promise.allSettled(
+      publicIdsToDelete.map((id) => deleteImageFromCloudinary(id)),
+    );
+  }
+
+  // Assign new images (final state)
   variant.variantImage = variantImage;
+
   await product.save();
 
   return res.status(200).json({
     success: true,
-    message: "Variant images updated",
+    message: "Variant images updated successfully",
     data: variant.variantImage,
   });
-}
+});
 
-export const adminDeleteVariant = async (req, res) => {
-
+export const adminDeleteVariant = asyncHandler(async (req, res) => {
   const { productId, variantId } = req.params;
 
   const product = await Product.findById(productId);
   if (!product) {
-    throw AppError.notFound("Product not found", "NOT_FOUND")
+    throw AppError.notFound("Product not found", "NOT_FOUND");
   }
 
   if (product.variants.length === 1) {
-    throw AppError.badRequest("Cannot delete the only variant. Delete the product instead.", "ONLY_VARIANT")
+    throw AppError.badRequest(
+      "Cannot delete the only variant. Delete the product instead.",
+      "ONLY_VARIANT",
+    );
   }
 
   const variant = product.variants.id(variantId);
   if (!variant) {
-    throw AppError.notFound("Variant not found", "NOT_FOUND")
+    throw AppError.notFound("Variant not found", "NOT_FOUND");
   }
 
   const wasSelected = variant.isSelected;
@@ -534,7 +617,7 @@ export const adminDeleteVariant = async (req, res) => {
   return res
     .status(200)
     .json({ success: true, message: "Variant deleted successfully" });
-}
+});
 
 // export const deleteProduct = async (req, res) => {
 //   try {
@@ -655,20 +738,16 @@ export const userGetAllProducts = asyncHandler(async (req, res) => {
   const processedProducts = products.map((product) => {
     const variants = product.variants || [];
 
-    const inStockVariants = variants.filter(
-      (v) => v.variantAvailableStock > 0
-    );
+    const inStockVariants = variants.filter((v) => v.variantAvailableStock > 0);
 
-    const defaultVariant =
-      variants.find((v) => v.isSelected) || variants[0];
+    const defaultVariant = variants.find((v) => v.isSelected) || variants[0];
 
     const prices = variants.map((v) => v.variantSellingPrice);
 
     const lowestPrice = prices.length ? Math.min(...prices) : 0;
     const highestPrice = prices.length ? Math.max(...prices) : 0;
 
-    const image =
-      defaultVariant?.variantImage?.[0]?.url || null;
+    const image = defaultVariant?.variantImage?.[0]?.url || null;
 
     return {
       _id: product._id,
@@ -716,7 +795,7 @@ export const userGetProductDetails = asyncHandler(async (req, res) => {
     : { slug: slugOrId, isActive: true };
 
   const product = await Product.findOne(query)
-    .populate("categories", "name slug path")
+    .populate("category", "name slug")
     .lean();
 
   if (!product) {

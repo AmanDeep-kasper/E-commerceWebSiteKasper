@@ -8,132 +8,208 @@ import {
 } from "../utils/cloudinary.js";
 import SubCategory from "../models/SubCategory.js";
 
-// Admin controller
-export const addCategory = asyncHandler(async (req, res) => {
-  let {
-    name,
-    description,
-    subCategories = [],
-    metaTitle,
-    metaDescription,
-  } = req.body;
+// Helper function
+async function uploadCategoryImage(file) {
+  if (!file) return null;
+  const result = await uploadImageToCloudinary(file.path, "category");
+  return { url: result.url, publicId: result.publicId };
+}
 
-  // parse subCategory string in array
-  if (subCategories && typeof subCategories === "string") {
-    subCategories = JSON.parse(subCategories);
-  }
+const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
 
-  if (
-    !subCategories ||
-    !Array.isArray(subCategories) ||
-    subCategories.length === 0
-  ) {
-    throw AppError.badRequest(
-      "At least one subcategory is required",
-      "SUBCATEGORIES_REQUIRED",
-    );
-  }
+async function findOrCreateCategory(name, imageData) {
+  const normalized = name.trim().toLowerCase();
+  let category = await Category.findOne({ name: normalized });
 
-  const session = await mongoose.startSession();
-  session.startTransaction();
-
-  try {
-    // Check if category already exists
-    const existingCategory = await Category.findOne({
-      name: name.toLowerCase(),
-    }).session(session);
-    if (existingCategory) {
-      throw AppError.conflict(
-        "Category with this name already exists",
-        "CATEGORY_EXISTS",
-      );
-    }
-
-    // check duplicate subcategory names
-    const names = subCategories.map((sc) => sc.name.toLowerCase());
-    if (new Set(names).size !== names.length) {
-      throw AppError.badRequest(
-        "Duplicate subcategory names are not allowed",
-        "DUPLICATE_SUBCATEGORY_NAMES",
-      );
-    }
-
-    // Handle image upload if provided
-    let categoryImage = null;
-    if (req.file) {
-      const result = await uploadImageToCloudinary(req.file.path, "categories");
-      categoryImage = {
-        url: result.url,
-        publicId: result.publicId,
-      };
-    }
-
-    // CREATE CATEGORY
-    const category = await Category.create(
-      [
-        {
-          name: name.toLowerCase(),
-          description,
-          metaTitle: metaTitle || name,
-          categoryImage,
-          metaDescription: metaDescription || description?.slice(0, 160),
-        },
-      ],
-      { session },
-    );
-
-    // BULK CHECK existing subcategories
-    const existingSubs = await SubCategory.find({
-      name: { $in: names },
-      category: category[0]._id,
-    }).session(session);
-
-    if (existingSubs.length) {
-      throw AppError.conflict(
-        "Subcategory already exists",
-        "SUBCATEGORY_EXISTS",
-      );
-    }
-
-    // subCategory data
-    const subDocs = subCategories.map((sc) => ({
-      name: sc.name.toLowerCase(),
-      description: sc.description || "",
-      category: category[0]._id,
-      metaTitle: metaTitle || "",
-      metaDescription: metaDescription || "",
-      isActive: sc.isActive !== undefined ? sc.isActive : true,
-    }));
-
-    const createdSubs = await SubCategory.insertMany(subDocs, { session });
-
-    await session.commitTransaction();
-
-    res.status(201).json({
-      success: true,
-      message: `Category ${name} created successfully with ${createdSubs.length} subcategories`,
-      category: category[0],
-      subCategories: createdSubs,
+  if (!category) {
+    category = await Category.create({
+      name: normalized,
+      ...(imageData && { categoryImage: imageData }),
     });
-  } catch (error) {
-    await session.abortTransaction();
-    throw error;
-  } finally {
-    session.endSession();
   }
+
+  return category;
+}
+
+async function findOrCreateSubCategory(name, categoryId) {
+  const normalized = name.trim().toLowerCase();
+  let sub = await SubCategory.findOne({
+    name: normalized,
+    category: categoryId,
+  });
+  if (!sub)
+    sub = await SubCategory.create({ name: normalized, category: categoryId });
+  return sub;
+}
+
+// Admin controller
+export const createOrUpdateCategory = asyncHandler(async (req, res) => {
+  let { name, categoryId, subCategoryName } = req.body;
+
+  let subCategories = req.body.subCategories;
+  if (typeof subCategories === "string") {
+    try {
+      subCategories = JSON.parse(subCategories);
+    } catch {
+      subCategories = [subCategories];
+    }
+  }
+
+  const imageData = await uploadCategoryImage(req.file);
+
+  let category;
+
+  if (categoryId) {
+    if (!isValidObjectId(categoryId))
+      throw AppError.badRequest("Invalid categoryId", "INVALID_CATEGORY_ID");
+
+    category = await Category.findById(categoryId);
+    if (!category) throw AppError.notFound("Category not found", "NOT_FOUND");
+
+    // If caller also sent a new image while referencing by ID → replace it
+    if (imageData) {
+      if (category.categoryImage?.publicId) {
+        await deleteImageFromCloudinary(category.categoryImage.publicId);
+      }
+      category.categoryImage = imageData;
+      await category.save();
+    }
+  } else if (name) {
+    category = await findOrCreateCategory(name, imageData);
+  } else {
+    throw AppError.badRequest(
+      "Provide either 'name' or 'categoryId'",
+      "BAD_REQUEST",
+    );
+  }
+
+  // CASE 1: subCategories array
+  if (Array.isArray(subCategories) && subCategories.length > 0) {
+    const results = await Promise.all(
+      subCategories.map((subName) =>
+        findOrCreateSubCategory(subName, category._id),
+      ),
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Category and subcategories processed",
+      data: { category, subCategories: results },
+    });
+  }
+
+  // CASE 2 / 3: single subCategoryName
+  if (subCategoryName) {
+    const subCategory = await findOrCreateSubCategory(
+      subCategoryName,
+      category._id,
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Category and subcategory processed",
+      data: { category, subCategory },
+    });
+  }
+
+  return res.status(200).json({
+    success: true,
+    message: "Category processed",
+    data: { category },
+  });
+});
+
+export const getAllCategories = asyncHandler(async (req, res) => {
+  const {
+    page = 1,
+    limit = 10,
+    search,
+    withSubCategories = "true",
+  } = req.query;
+
+  // Build filter
+  const filter = {};
+
+  if (search) {
+    filter.$or = [
+      { name: { $regex: search, $options: "i" } },
+      { slug: { $regex: search, $options: "i" } },
+    ];
+  }
+
+  // Pagination
+  const skip = (Number(page) - 1) * Number(limit);
+
+  // Execute queries
+  const [categories, total] = await Promise.all([
+    Category.find(filter)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(Number(limit)),
+    Category.countDocuments(filter),
+  ]);
+
+  let data = categories;
+
+  if (withSubCategories === "true") {
+    data = await Promise.all(
+      categories.map(async (cat) => {
+        const subs = await SubCategory.find({
+          category: cat._id,
+        });
+        return { ...cat.toObject(), subCategories: subs };
+      }),
+    );
+  }
+
+  return res.status(200).json({
+    success: true,
+    message: "Categories fetched successfully",
+    category: data,
+    pagination: {
+      total,
+      page: Number(page),
+      limit: Number(limit),
+      pages: Math.ceil(total / Number(limit)),
+    },
+  });
+});
+
+export const getCategoryDetails = asyncHandler(async (req, res) => {
+  const { categoryIdOrSlug } = req.params;
+  const { withSubCategories = "true" } = req.query;
+
+  let query = {};
+
+  // Check if identifier is ObjectId
+  if (mongoose.Types.ObjectId.isValid(categoryIdOrSlug)) {
+    query.$or = [{ _id: categoryIdOrSlug }, { slug: categoryIdOrSlug }];
+  } else {
+    query.slug = categoryIdOrSlug;
+  }
+
+  const category = await Category.findOne(query);
+
+  if (!category) {
+    throw AppError.notFound("Category not found", "NOT_FOUND");
+  }
+
+  let data = category.toObject();
+
+  if (withSubCategories === "true") {
+    data.subCategories = await SubCategory.find({ category: category._id });
+  }
+
+  res.status(200).json({
+    success: true,
+    message: "Category details fetched successfully",
+    data,
+  });
 });
 
 export const updateCategory = asyncHandler(async (req, res) => {
   const { categoryId } = req.params;
-  const {
-    name,
-    description,
-    parentId,
-    isActive,
-    displayOrder,
-    metaTitle,
-    metaDescription,
-  } = req.body;
+  const { name, isActive } = req.body;
 
   // Find existing category
   const category = await Category.findById(categoryId);
@@ -163,46 +239,22 @@ export const updateCategory = asyncHandler(async (req, res) => {
       await deleteImageFromCloudinary(category.categoryImage.publicId);
     }
     // Upload new image
-    const result = await uploadImageToCloudinary(req.file.path, "categories");
+    const result = await uploadImageToCloudinary(req.file.path, "category");
     categoryImage = {
       url: result.url,
       publicId: result.publicId,
     };
   }
 
-  // Check for circular parent reference
-  if (parentId === categoryId) {
-    throw AppError.badRequest(
-      "Category cannot be its own parent",
-      "CIRCULAR_PARENT_REFERENCE",
-    );
-  }
-
-  const oldParentId = category.parentId?.toString();
-
   // Apply updates
   if (name !== undefined) category.name = name;
-  if (description !== undefined) category.description = description;
-  if (parentId !== undefined) category.parentId = parentId;
   if (isActive !== undefined) category.isActive = isActive;
-  if (displayOrder !== undefined) category.displayOrder = displayOrder;
-  if (metaTitle !== undefined) category.metaTitle = metaTitle;
-  if (metaDescription !== undefined) category.metaDescription = metaDescription;
 
   if (categoryImage !== undefined) {
     category.categoryImage = categoryImage;
   }
 
-  // Save (this regenerates slug + path)
   await category.save();
-
-  // 🔥 IMPORTANT: check AFTER save
-  if (
-    name !== undefined ||
-    (parentId !== undefined && parentId !== oldParentId)
-  ) {
-    await category.updateChildrenPaths();
-  }
 
   res.status(200).json({
     success: true,
@@ -221,26 +273,27 @@ export const deleteCategory = asyncHandler(async (req, res) => {
     throw AppError.notFound("Category not found", "NOT_FOUND");
   }
 
-  // Check if category has children
-  const hasChildren = await Category.exists({ parentId: categoryId });
-  if (hasChildren) {
-    throw AppError.badRequest(
-      "Cannot delete category with subcategories. Delete or reassign subcategories first.",
-      "HAS_CHILDREN",
-    );
+  if (req.query.hard === "true") {
+    if (category.categoryImage?.publicId) {
+      await deleteImageFromCloudinary(category.categoryImage.publicId);
+    }
+    await category.deleteOne();
+    await SubCategory.deleteMany({ category: categoryId });
+
+    return res
+      .status(200)
+      .json({ success: true, message: "Category permanently deleted" });
   }
 
-  // Delete image from cloudinary if exists
-  if (category.categoryImage?.publicId) {
-    await deleteImageFromCloudinary(category.categoryImage.publicId);
-  }
+  // Soft delete
+  category.isActive = false;
+  await category.save();
+  await SubCategory.updateMany({ category: categoryId }, { isActive: false });
 
-  // Delete category
-  await Category.findByIdAndDelete(categoryId);
-
-  res.status(200).json({
+  return res.status(200).json({
     success: true,
-    message: "Category deleted successfully",
+    message: "Category deactivated",
+    data: category,
   });
 });
 
@@ -264,111 +317,55 @@ export const updateCategoryStatus = asyncHandler(async (req, res) => {
   });
 });
 
-export const getCategoryDetails = asyncHandler(async (req, res) => {
-  const { categoryIdOrSlug } = req.params;
+export const updateSubCategory = asyncHandler(async (req, res) => {
+  const { subCategoryId } = req.params;
 
-  let query = {};
+  const subCategory = await SubCategory.findById(subCategoryId);
+  if (!subCategory)
+    throw AppError.notFound("SubCategory not found", "NOT_FOUND");
 
-  // Check if identifier is ObjectId
-  if (mongoose.Types.ObjectId.isValid(categoryIdOrSlug)) {
-    query.$or = [{ _id: categoryIdOrSlug }, { slug: categoryIdOrSlug }];
-  } else {
-    query.slug = categoryIdOrSlug;
+  const { name, isActive, category } = req.body;
+
+  if (name) subCategory.name = name;
+  if (isActive !== undefined)
+    subCategory.isActive = isActive === "true" || isActive === true;
+
+  if (category) {
+    const exists = await Category.findById(category);
+    if (!exists) throw AppError.notFound("Category not found", "NOT_FOUND");
+    subCategory.category = category;
   }
 
-  const category = await Category.findOne(query)
-    .populate("parentId", "name slug path categoryImage description")
-    .lean();
+  await subCategory.save();
 
-  if (!category) {
-    throw AppError.notFound("Category not found", "NOT_FOUND");
-  }
-
-  // fetch subcategories
-  const subCategories = await Category.find({
-    parentId: category._id,
-    isActive: true,
-  });
-
-  const subCategoriesCount = await Category.countDocuments({
-    parentId: category._id,
-    isActive: true,
-  });
-
-  res.status(200).json({
+  return res.status(200).json({
     success: true,
-    data: {
-      ...category,
-      subCategories,
-      subCategoriesCount,
-    },
+    message: "SubCategory updated successfully",
+    data: subCategory,
   });
 });
 
-export const getAllCategories = asyncHandler(async (req, res) => {
-  const {
-    page = 1,
-    limit = 10,
-    isActive,
-    level,
-    parentId,
-    search,
-    sortBy = "displayOrder",
-    sortOrder = "asc",
-  } = req.query;
+export const deleteSubCategory = asyncHandler(async (req, res) => {
+  const { subCategoryId } = req.params;
 
-  // Build filter
-  const filter = {};
-  if (isActive !== undefined) filter.isActive = isActive === "true";
-  if (level !== undefined) filter.level = parseInt(level);
-  if (parentId !== undefined)
-    filter.parentId = parentId === "null" ? null : parentId;
+  const subCategory = await SubCategory.findById(subCategoryId);
+  if (!subCategory)
+    throw AppError.notFound("SubCategory not found", "NOT_FOUND");
 
-  if (search) {
-    filter.$or = [
-      { name: { $regex: search, $options: "i" } },
-      { slug: { $regex: search, $options: "i" } },
-    ];
+  if (req.query.hard === "true") {
+    await subCategory.deleteOne();
+    return res
+      .status(200)
+      .json({ success: true, message: "SubCategory permanently deleted" });
   }
 
-  // Build sort
-  const sort = {};
-  sort[sortBy] = sortOrder === "asc" ? 1 : -1;
+  subCategory.isActive = false;
+  await subCategory.save();
 
-  // Pagination
-  const pageNum = parseInt(page);
-  const limitNum = parseInt(limit);
-  const skip = (pageNum - 1) * limitNum;
-
-  // Execute queries
-  const [categories, total] = await Promise.all([
-    Category.find(filter)
-      .populate(
-        "parentId",
-        "name slug path categoryImage description displayOrder",
-      )
-      .sort(sort)
-      .skip(skip)
-      .limit(limitNum)
-      .lean(),
-    Category.countDocuments(filter),
-  ]);
-
-  // Build hierarchical tree if no parent filter
-  let hierarchicalCategories = categories;
-  if (!parentId && parentId !== "null") {
-    hierarchicalCategories = buildCategoryTree(categories);
-  }
-
-  res.status(200).json({
+  return res.status(200).json({
     success: true,
-    data: hierarchicalCategories,
-    pagination: {
-      page: pageNum,
-      limit: limitNum,
-      total,
-      pages: Math.ceil(total / limitNum),
-    },
+    message: "SubCategory deactivated",
+    data: subCategory,
   });
 });
 
@@ -455,6 +452,41 @@ export const getCategoryDetailsController = asyncHandler(async (req, res) => {
       ...category,
       subCategories,
       subCategoriesCount,
+    },
+  });
+});
+
+export const getAllSubCategories = asyncHandler(async (req, res) => {
+  const { category, page = 1, limit = 10 } = req.query;
+
+  const filter = {
+    isActive: true,
+  };
+  if (category) {
+    filter.category = category;
+  }
+
+  const skip = (Number(page) - 1) * Number(limit);
+
+  const [subCategories, total] = await Promise.all([
+    SubCategory.find(filter)
+      .populate("category", "name slug categoryImage")
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(Number(limit))
+      .lean(),
+    SubCategory.countDocuments(filter),
+  ]);
+
+  return res.status(200).json({
+    success: true,
+    message: "Subcategories fetched successfully",
+    data: subCategories,
+    pagination: {
+      total,
+      page: Number(page),
+      limit: Number(limit),
+      pages: Math.ceil(total / Number(limit)),
     },
   });
 });
