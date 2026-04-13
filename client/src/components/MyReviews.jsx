@@ -122,9 +122,15 @@ function MyReviews({ totalItems = 0 }) {
             console.log("Sending update:", updated);
             const updatedReview = res.data || res.review;
 
+            // Preserve the existing productId data from the old review
             setReviews((prev) =>
               prev.map((r) =>
-                r._id === updatedReview._id ? updatedReview : r,
+                r._id === updatedReview._id 
+                  ? { 
+                      ...updatedReview, 
+                      productId: r.productId // Keep the original product data
+                    } 
+                  : r,
               ),
             );
             setOpenEditModal(false);
@@ -157,7 +163,7 @@ function MyReviews({ totalItems = 0 }) {
       ) : reviews.length === 0 ? (
         <EmptyState
           heading="No Reviews Yet"
-          description="You haven’t reviewed any products yet. Share your thoughts to help
+          description="You haven't reviewed any products yet. Share your thoughts to help
             others shop better."
           icon={Star}
           ctaLabel="Browse Products"

@@ -165,16 +165,16 @@ export const updateReview = asyncHandler(async (req, res) => {
   const { reviewId } = req.params;
   const { rating, reviewText, removeImages } = req.body;
 
-  const review = await Review.findById(reviewId);
+  const review = await Review.findById(reviewId).populate(
+    "productId",
+    "productTittle variants.variantImage",
+  );
 
   if (!review) {
     throw AppError.notFound("Review not found", "NOT_FOUND");
   }
 
-  const product = await Product.findById(review.productId).populate(
-    "productId",
-    "productTittle variants.variantImage",
-  );
+  const product = await Product.findById(review.productId);
 
   // Ownership check
   if (!req.user?.userId) {
