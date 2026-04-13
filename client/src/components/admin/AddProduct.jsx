@@ -30,7 +30,6 @@ const AddProduct = () => {
     status: "ACTIVE",
     category: "",
     subcategory: "",
-    // variantlistings: false,
     variants: [
       {
         variantColor: "",
@@ -42,12 +41,12 @@ const AddProduct = () => {
         variantMrp: "",
         variantCostPrice: "",
         varintGST: "",
+        variantDiscount: "",
+        variantDiscountUnit: "",
         variantSellingPrice: "",
         variantAvailableStock: "",
         variantLowStockAlertStock: "",
         isSelected: false,
-        // variantDiscount: "",
-        // variantDiscountUnit: "",
       },
     ],
   });
@@ -261,41 +260,46 @@ const AddProduct = () => {
   //  Handle image upload per variant
   const handleVariantImageChange = async (e, index) => {
     let files = Array.from(e.target.files);
-    const compressedFiles = [];
 
-    for (let file of files) {
-      const compressedBlob = await imageCompression(file, {
-        maxSizeMB: 2,
-        maxWidthOrHeight: 2000,
-        useWebWorker: true,
-      });
+    try {
+      const formData = new FormData();
 
-      const compressed = blobToFile(compressedBlob, file.name);
-      compressed.preview = URL.createObjectURL(compressed);
-      compressedFiles.push(compressed);
-    }
+      for (let file of files) {
+        const compressedBlob = await imageCompression(file, {
+          maxSizeMB: 2,
+          maxWidthOrHeight: 2000,
+          useWebWorker: true,
+        });
 
-    setFormData((prev) => {
-      const updatedVariants = [...prev.variants];
-      const existingImages = updatedVariants[index].variantImage || [];
+        const compressed = blobToFile(compressedBlob, file.name);
 
-      // REMOVE DUPLICATES (name + size)
-      const uniqueFiles = compressedFiles.filter(
-        (file) =>
-          !existingImages.some(
-            (img) => img.name === file.name && img.size === file.size,
-          ),
+        formData.append("productImages", compressed);
+      }
+
+      const res = await axiosInstance.post(
+        "/product/admin/add-product-images",
+        formData,
       );
 
-      updatedVariants[index].variantImage = [
-        ...existingImages,
-        ...uniqueFiles,
-      ].slice(0, 10);
+      // ✅ FIXED HERE
+      const uploadedImages = res.data.data;
 
-      return { ...prev, variants: updatedVariants };
-    });
+      setFormData((prev) => {
+        const updatedVariants = [...prev.variants];
+        const existingImages = updatedVariants[index].variantImage || [];
 
-    // VERY IMPORTANT: reset input
+        updatedVariants[index].variantImage = [
+          ...existingImages,
+          ...uploadedImages,
+        ].slice(0, 10);
+
+        return { ...prev, variants: updatedVariants };
+      });
+    } catch (err) {
+      console.error(err);
+      toast.error("Image upload failed");
+    }
+
     e.target.value = "";
   };
 
@@ -307,31 +311,33 @@ const AddProduct = () => {
       if (!updatedVariants[variantIndex]) return prev;
 
       const updatedImages = [...updatedVariants[variantIndex].variantImage];
-      updatedImages.splice(imgIndex, 1); // remove that image
+      updatedImages.splice(imgIndex, 1);
 
       updatedVariants[variantIndex].variantImage = updatedImages;
 
       return { ...prev, variants: updatedVariants };
     });
 
-    // Update modal state
     setSelectedImages((prev) => {
       const newImages = prev.filter((_, i) => i !== imgIndex);
 
-      // if the deleted image was the current one, show next (or previous)
       if (newImages.length > 0) {
         const nextIndex =
           imgIndex < newImages.length ? imgIndex : newImages.length - 1;
 
+        const img = newImages[nextIndex];
+
         const nextImage =
-          typeof newImages[nextIndex] === "string"
-            ? newImages[nextIndex]
-            : newImages[nextIndex].preview ||
-              URL.createObjectURL(newImages[nextIndex]);
+          typeof img === "string"
+            ? img
+            : img.url
+              ? img.url
+              : img.preview
+                ? img.preview
+                : "";
 
         setCurrentImage(nextImage);
       } else {
-        // No images left → close modal
         setIsModalOpen(false);
       }
 
@@ -435,7 +441,7 @@ const AddProduct = () => {
       uuid: formData.uuid || uuidv4(),
       variants: formData.variants.map((v) => ({
         ...v,
-        variantId: v.variantId || uuidv4(),
+        variantId: v.variantSkuId || uuidv4(),
       })),
     };
 
@@ -449,16 +455,19 @@ const AddProduct = () => {
     });
 
     // send variants as JSON string
-    formDataObj.append("variants", JSON.stringify(formDataWithUUID.variants));
+    // formDataObj.append("variants", JSON.stringify(formDataWithUUID.variants));
 
     // send images separately per variant index
     formDataWithUUID.variants.forEach((v, i) => {
       (v.variantImage || []).forEach((file) => {
-        formDataObj.append(`variantImages_${i}`, file);
+        formDataObj.append(
+          "variants",
+          JSON.stringify(formDataWithUUID.variants),
+        );
       });
     });
     try {
-      await axiosInstance.post("/products/add-product", formDataObj, {
+      await axiosInstance.post("/product/admin/add-product", formDataObj, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -487,25 +496,6 @@ const AddProduct = () => {
     }
   };
 
-  // // sku id generated in random by product title
-  // const generatedSKU = () => {
-  //   const title = formData.productTittle?.trim() || "";
-
-  //   if (title.length < 3) {
-  //     toast.error("Enter product title first!", {
-  //       position: "top-right",
-  //       autoClose: 2000,
-  //     });
-  //     return;
-  //   }
-
-  //   const prefix = title.substring(0, 3).toUpperCase();
-  //   const randomNum = String(Math.floor(Math.random() * 999)).padStart(3, "0"); // 000–999
-
-  //   const newSKU = `${prefix}-ART-${randomNum}`;
-
-  //   setFormData((prev) => ({ ...prev, SKU: newSKU }));
-  // };
 
   // generate variant sku
   const generateVariantSKU = (variantIndex) => {
@@ -637,7 +627,6 @@ const AddProduct = () => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [setmaterialbtn]);
-
 
   // const handleOpenVariantPopup =()=>{
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -834,7 +823,7 @@ const AddProduct = () => {
       imgs.length > 0
         ? typeof imgs[0] === "string"
           ? imgs[0]
-          : imgs[0].preview || URL.createObjectURL(imgs[0])
+          : imgs[0].url || imgs[0].preview || ""
         : "";
 
     setCurrentImage(first);
@@ -895,6 +884,15 @@ const AddProduct = () => {
       descriptionRef.current.style.height = `${descriptionRef.current.scrollHeight}px`;
     }
   }, [formData.description]);
+
+  //
+  const getImageSrc = (img) => {
+    if (!img) return "";
+    if (typeof img === "string") return img;
+    if (img.url) return img.url;
+    if (img.preview) return img.preview;
+    return "";
+  };
 
   return (
     <>
@@ -1237,7 +1235,7 @@ const AddProduct = () => {
                     <tbody>
                       {formData.variants.map((variant, index) => (
                         <tr
-                          key={variant.variantId}
+                          key={variant.variantSkuId}
                           className="hover:bg-gray-50 border-b"
                         >
                           {/* Checkbox */}
@@ -1300,11 +1298,11 @@ const AddProduct = () => {
                                 type="number"
                                 min="0"
                                 step="0.01"
-                                value={variant.variantWidth || ""}
+                                value={variant.varintWeight || ""}
                                 onChange={(e) =>
                                   handleVariantChange(
                                     index,
-                                    "variantWidth",
+                                    "varintWeight",
                                     e.target.value,
                                   )
                                 }
@@ -1312,11 +1310,11 @@ const AddProduct = () => {
                                 className="px-2 py-1 placeholder:text-[#6B6B6B] outline-none"
                               />
                               <select
-                                value={variant.variantWidthUnit || "kg"}
+                                value={variant.varintWeightUnit || "kg"}
                                 onChange={(e) => {
                                   handleVariantChange(
                                     index,
-                                    "variantWidthUnit",
+                                    "varintWeightUnit",
                                     e.target.value,
                                   );
                                 }}
@@ -1374,8 +1372,7 @@ const AddProduct = () => {
                               const thumbSrc = firstImg
                                 ? typeof firstImg === "string"
                                   ? firstImg
-                                  : firstImg.preview ||
-                                    URL.createObjectURL(firstImg)
+                                  : firstImg.url || firstImg.preview || ""
                                 : "";
 
                               return (
@@ -1484,7 +1481,7 @@ const AddProduct = () => {
                           <td className="px-3 py-2">
                             <input
                               type="number"
-                              value={variant.variantGST || ""}
+                              value={variant.varintGST || ""}
                               onChange={(e) =>
                                 handleVariantChange(
                                   index,
@@ -1514,8 +1511,8 @@ const AddProduct = () => {
                                 className=" placeholder:text-[#6B6B6B] bg-white"
                               />
 
-                              <select
-                                value={variant.variantDimensionunit || "%"}
+                              <div
+                                value={variant.variantDiscountUnit || "%"}
                                 onChange={(e) =>
                                   handleVariantChange(
                                     index,
@@ -1525,9 +1522,9 @@ const AddProduct = () => {
                                 }
                                 className="border rounded-lg px-3 bg-[#264464] text-white text-sm"
                               >
-                                <option value="%">%</option>
-                                <option value="₹">₹</option>
-                              </select>
+                                <div value="%">%</div>
+                                {/* <option value="₹">₹</option> */}
+                              </div>
                             </div>
                           </td>
 

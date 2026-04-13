@@ -193,7 +193,7 @@ function Orders() {
                   "Order ID",
                   "Order Date",
                   "Amount",
-                  "Payment",
+                  // "Payment",
                   "Order Status",
                   "Action",
                 ].map((h) => (
@@ -216,13 +216,13 @@ function Orders() {
                   <td className="px-4 py-3">{r.order_id}</td>
                   <td className="px-4 py-3  ">{r.order_date}</td>
                   <td className="px-4 py-3 ">₹{r.amazon_price}</td>
-                  <td className="px-4 py-3 ">
+                  {/* <td className="px-4 py-3 ">
                     <span
                       className={`inline-flex text-sm font-medium  ${r.payment_status === "Paid" ? "text-[#00A63E]" : r.payment_status === "Cod" ? "text-[#F8A14A]" : ""}`}
                     >
                       {r.payment_status}
                     </span>
-                  </td>
+                  </td> */}
                   <td className="px-1 py-3 ">
                     <span
                       className={`inline-flex items-center gap-2 px-3 py-1 rounded-md text-xs font-medium ${
@@ -231,8 +231,6 @@ function Orders() {
                           : r.delivery_status === "Processing"
                             ? "bg-[#E6D3FF] text-[#8A38F5]"
                             : r.delivery_status === "Shipped"
-                              ? "bg-[#D5E5F5] text-[#1C3753]"
-                              : r.delivery_status === "Return Initiated"
                                 ? "bg-[#FBDBF7] text-[#E91DD1]"
                                 : r.delivery_status === "Cancelled"
                                   ? "bg-[#EFEFEF] text-[#686868]"

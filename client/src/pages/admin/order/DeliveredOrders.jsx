@@ -680,7 +680,7 @@ const DeliveredOrders = () => {
     "Order ID",
     "Quantity",
     "Order Value",
-    "Payment Status",
+    // "Payment Status",
     "Delivered Date",
     "Action",
   ];
@@ -701,14 +701,14 @@ const DeliveredOrders = () => {
 
   const [paymentstatusOpen, setPaymentStatusOpen] = useState(false);
   const [paymentstatus, setPaymentStatus] = useState("Payment Status");
-  const Paymentstatuses = [
-    "Payment Status",
-    "Paid",
-    "Refund Initiated",
-    "Refunded",
-    "No Refund",
-    "COD Collected",
-  ];
+  // const Paymentstatuses = [
+  //   "Payment Status",
+  //   "Paid",
+  //   "Refund Initiated",
+  //   "Refunded",
+  //   "No Refund",
+  //   "COD Collected",
+  // ];
 
   const [filterOne, setfilterOne] = useState("Latest");
   const [filterOneOpen, setfilterOneOpen] = useState(false);
@@ -1030,7 +1030,7 @@ const DeliveredOrders = () => {
             )}
           </div>
 
-          <div className="relative">
+          {/* <div className="relative">
             <button
               onClick={() => setPaymentStatusOpen((p) => !p)}
               className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 bg-[#F8FBFC] rounded-lg hover:bg-gray-100 border"
@@ -1057,7 +1057,7 @@ const DeliveredOrders = () => {
                 ))}
               </div>
             )}
-          </div>
+          </div> */}
 
           <div className="relative">
             <button
@@ -1117,7 +1117,7 @@ const DeliveredOrders = () => {
                 <td className="px-4 py-3">{order.quantity}</td>
                 <td className="px-4 py-3">₹{order.orderValue}</td>
 
-                <td className="px-4 py-3 font-medium text-xs">
+                {/* <td className="px-4 py-3 font-medium text-xs">
                   <span
                     className={`inline-flex items-center justify-center min-w-[110px] px-3 py-1.5 rounded-lg font-medium text-center ${
                       order.paymentStatus === "Paid"
@@ -1129,7 +1129,7 @@ const DeliveredOrders = () => {
                   >
                     {order.paymentStatus}
                   </span>
-                </td>
+                </td> */}
 
                 <td className="px-4 py-3">{order.deliveryDate || order.orderDate}</td>
 

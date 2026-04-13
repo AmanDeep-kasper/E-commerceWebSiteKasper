@@ -44,7 +44,11 @@ const DisplayVariantImg = ({
             const imgSrc =
               typeof img === "string"
                 ? img
-                : img.preview || URL.createObjectURL(img);
+                : img.url
+                  ? img.url
+                  : img.preview
+                    ? img.preview
+                    : "";
 
             return (
               <div key={i} className="relative">
