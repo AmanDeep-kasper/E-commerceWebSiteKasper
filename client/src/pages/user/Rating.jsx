@@ -9,7 +9,7 @@ import { IoStarOutline } from "react-icons/io5";
 
 
 {/* <=================== icons ===================> */ }
-import art from "../../assets/art2.png"
+// import art from "../../assets/art2.png"
 
 const Rating = () => {
     return (
