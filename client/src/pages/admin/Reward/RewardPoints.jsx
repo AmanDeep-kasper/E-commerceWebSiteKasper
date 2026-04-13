@@ -38,7 +38,7 @@ function RewardPoints() {
 
     return (
         <div className="p-4 sm:p-6 bg-[#F6F8F9] min-h-screen">
-            {/* HEADER */}
+            {/* <--------------------------------------- HEADER -----------------------------------> */}
             <div className="flex justify-between items-center">
                 <span className="text-[#1C1C1C] font-medium text-[16px] sm:text-[18px] lg:text-[20px]">
                     Reward Points
@@ -110,6 +110,7 @@ function RewardPoints() {
 
                 ))}
             </div>
+
             {/* <--------------------------------------- CREATE REWARD & POINTS -----------------------------------> */}
             {showReward && (
                 <div
@@ -370,6 +371,7 @@ function RewardPoints() {
                     </div>
                 </div>
             )}
+
             {/* <--------------------------------------- CARD GRID Popup -----------------------------------> */}
             {showCard && (
                 <div
@@ -441,7 +443,7 @@ function RewardPoints() {
                 </div>
             )}
 
-            {/* success popup */}
+            {/* <====================------------------------- success popup -------------------======================> */}
             {showConfirm && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-3 sm:p-6">
                     <div style={{ width: '100%', display: 'flex', justifyContent: 'center', height: '100vh', overflow: 'auto', alignItems: 'center' }}>

@@ -21,7 +21,7 @@ const AddProduct = () => {
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { loading, error } = useSelector((state) => state.product);
+  // const { loading, error } = useSelector((state) => state.product);
   const { uuid } = useParams();
 
   const createInitialState = () => ({
@@ -42,7 +42,7 @@ const AddProduct = () => {
         variantCostPrice: "",
         varintGST: "",
         variantDiscount: "",
-        variantDiscountUnit: "",
+        variantDiscountUnit: "%",
         variantSellingPrice: "",
         variantAvailableStock: "",
         variantLowStockAlertStock: "",
@@ -52,6 +52,7 @@ const AddProduct = () => {
   });
 
   const [formData, setFormData] = useState(createInitialState);
+  const [uploadingVariantIndex, setUploadingVariantIndex] = useState(null);
 
   // variants
   const emptyVariant = () => ({
@@ -179,17 +180,17 @@ const AddProduct = () => {
     }
 
     // Profit Amount
-    if (sellingPrice > 0 && costPrice > 0) {
-      const profitAmount = sellingPrice - costPrice;
-      updated.profitAmount = profitAmount.toFixed(2);
+    // if (sellingPrice > 0 && costPrice > 0) {
+    //   const profitAmount = sellingPrice - costPrice;
+    //   updated.profitAmount = profitAmount.toFixed(2);
 
-      // Profit Margin %
-      const profitMargin = (profitAmount / sellingPrice) * 100;
-      updated.profitMargin = profitMargin.toFixed(2);
-    } else {
-      updated.profitAmount = "";
-      updated.profitMargin = "";
-    }
+    //   // Profit Margin %
+    //   const profitMargin = (profitAmount / sellingPrice) * 100;
+    //   updated.profitMargin = profitMargin.toFixed(2);
+    // } else {
+    //   updated.profitAmount = "";
+    //   updated.profitMargin = "";
+    // }
 
     setFormData(updated);
   };
@@ -261,6 +262,10 @@ const AddProduct = () => {
   const handleVariantImageChange = async (e, index) => {
     let files = Array.from(e.target.files);
 
+    if (!files.length) return;
+
+    setUploadingVariantIndex(index);
+
     try {
       const formData = new FormData();
 
@@ -272,7 +277,6 @@ const AddProduct = () => {
         });
 
         const compressed = blobToFile(compressedBlob, file.name);
-
         formData.append("productImages", compressed);
       }
 
@@ -281,7 +285,6 @@ const AddProduct = () => {
         formData,
       );
 
-      // ✅ FIXED HERE
       const uploadedImages = res.data.data;
 
       setFormData((prev) => {
@@ -295,12 +298,15 @@ const AddProduct = () => {
 
         return { ...prev, variants: updatedVariants };
       });
+
+      toast.success("Images uploaded successfully!");
     } catch (err) {
       console.error(err);
       toast.error("Image upload failed");
+    } finally {
+      setUploadingVariantIndex(null);
+      e.target.value = "";
     }
-
-    e.target.value = "";
   };
 
   //  Remove a specific image from a specific variant
@@ -364,22 +370,9 @@ const AddProduct = () => {
     setItemsOpenVar(true);
   };
 
-  const [categories, setCategories] = useState([
-    "Wall Art",
-    "Religious",
-    "Modern",
-  ]);
-
-  const [subCategories, setSubCategories] = useState([
-    "Wall Art",
-    "Religious",
-    "Modern",
-  ]);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Main product validation
     if (!formData.productTittle.trim()) {
       toast.error("Product name is required");
       return;
@@ -390,7 +383,6 @@ const AddProduct = () => {
       return;
     }
 
-    // Variant validation
     for (let i = 0; i < formData.variants.length; i++) {
       const variant = formData.variants[i];
 
@@ -404,7 +396,6 @@ const AddProduct = () => {
         String(variant.variantLowStockAlertStock || "").trim() ||
         (variant.variantImage && variant.variantImage.length > 0);
 
-      // only validate if this row has any data
       if (hasAnyVariantInput) {
         if (!variant.variantSkuId?.trim()) {
           toast.error(`Variant ${i + 1}: Variant SKU ID is required`);
@@ -435,67 +426,38 @@ const AddProduct = () => {
 
     setIsSubmitting(true);
 
-    //  Add UUID to product + variants
-    const formDataWithUUID = {
+    const payload = {
       ...formData,
       uuid: formData.uuid || uuidv4(),
       variants: formData.variants.map((v) => ({
         ...v,
-        variantId: v.variantSkuId || uuidv4(),
+        variantId: v.variantSkuId,
       })),
     };
 
-    const formDataObj = new FormData();
-
-    // append all normal fields except variants
-    Object.entries(formDataWithUUID).forEach(([key, value]) => {
-      if (key === "variants") return;
-      if (value === undefined || value === null) return;
-      formDataObj.append(key, value);
-    });
-
-    // send variants as JSON string
-    // formDataObj.append("variants", JSON.stringify(formDataWithUUID.variants));
-
-    // send images separately per variant index
-    formDataWithUUID.variants.forEach((v, i) => {
-      (v.variantImage || []).forEach((file) => {
-        formDataObj.append(
-          "variants",
-          JSON.stringify(formDataWithUUID.variants),
-        );
-      });
-    });
     try {
-      await axiosInstance.post("/product/admin/add-product", formDataObj, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      await axiosInstance.post("/product/admin/add-product", payload);
 
       toast.success(
         isEditing
           ? "Product updated successfully!"
           : "Product added successfully!",
       );
-      // console.log(response)
-      setIsDraftEnabled(false); // STOP auto save
 
-      localStorage.removeItem("addProductDraft"); // clear draft
-
-      setFormData(createInitialState()); // reset form (IMPORTANT)
+      setIsDraftEnabled(false);
+      localStorage.removeItem("addProductDraft");
+      setFormData(createInitialState());
 
       setTimeout(() => {
         navigate("/admin/products");
       }, 800);
     } catch (err) {
-      toast.error("Error uploading product!");
-      // console.log(err);
+      console.log(err);
+      toast.error(err?.response?.data?.message || "Error uploading product!");
     } finally {
       setIsSubmitting(false);
     }
   };
-
 
   // generate variant sku
   const generateVariantSKU = (variantIndex) => {
@@ -894,6 +856,29 @@ const AddProduct = () => {
     return "";
   };
 
+  // fetch the categories from backend
+  const [categories, setCategories] = useState([]);
+  const [subCategories, setSubCategories] = useState([]);
+
+  const fetchCategories = async () => {
+    try {
+      const res = await axiosInstance.get("/category/admin/all-categories");
+
+      const categoryData = res?.data?.category || [];
+      console.log("API RESPONSE:", res.data);
+
+      setCategories(categoryData);
+      setSubCategories([]);
+    } catch (error) {
+      console.error("Failed to fetch categories:", error);
+      toast.error("Failed to load categories");
+    }
+  };
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
   return (
     <>
       {isSubmitting && (
@@ -1046,62 +1031,80 @@ const AddProduct = () => {
                         Category <span className="text-[#D53B35]">*</span>
                       </label>
 
-                      <select
-                        name="category"
-                        value={formData.category}
-                        onChange={(e) => {
-                          const val = e.target.value;
+                      <div className="relative w-full">
+                        <select
+                          name="category"
+                          value={formData.category}
+                          onChange={(e) => {
+                            const selectedCategoryId = e.target.value;
 
-                          // if user clicked add option
-                          if (val === "__add_category__") {
-                            setShowCategoryModal(true);
+                            const selectedCategory = categories.find(
+                              (cat) => cat._id === selectedCategoryId,
+                            );
 
-                            // reset category selection (so dropdown doesn't stay on add option)
                             setFormData((prev) => ({
                               ...prev,
-                              category: "",
+                              category: selectedCategoryId, // save _id
                               subcategory: "",
                             }));
-                            return;
-                          }
 
-                          // normal category select
-                          setFormData((prev) => ({
-                            ...prev,
-                            category: val,
-                            subcategory: "", // reset subcategory when category changes
-                          }));
-                        }}
-                        className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-3
-    text-sm bg-[#F8FAFB]
-    focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400"
-                      >
-                        <option value="">Select category</option>
+                            setSubCategories(
+                              selectedCategory?.subCategories || [],
+                            );
+                          }}
+                          className="w-full h-[48px] px-4 pr-10 rounded-xl 
+    bg-[#F2F4F5] text-[#6B7280] text-sm 
+    border border-transparent 
+    appearance-none outline-none 
+    focus:ring-2 focus:ring-[#1C3753]"
+                        >
+                          <option value="">Select category</option>
 
-                        {categories.map((cat) => (
-                          <option key={cat} value={cat}>
-                            {cat}
-                          </option>
-                        ))}
+                          {categories.map((cat) => (
+                            <option key={cat._id} value={cat._id}>
+                              {cat.name}
+                            </option>
+                          ))}
+                        </select>
 
-                        {/* Add option inside dropdown */}
-                        {/* <option value="__add_category__">+ Add Category</option> */}
-                      </select>
+                        <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center">
+                          <svg
+                            className="w-4 h-4 text-gray-500"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            viewBox="0 0 24 24"
+                          >
+                            <path d="M6 9l6 6 6-6" />
+                          </svg>
+                        </div>
+                      </div>
                     </div>
                     <div>
                       <label className="block text-black text-[14px] mb-2">
                         Sub-Category
                       </label>
 
-                      <select
-                        name="subcategory"
-                        value={formData.subcategory}
-                        onChange={(e) => {
-                          const val = e.target.value;
+                      <div className="relative w-full">
+                        <select
+                          name="subcategory"
+                          value={formData.subcategory}
+                          onChange={(e) => {
+                            const selectedSubCategoryId = e.target.value;
 
-                          if (val === "__add_subcategory__") {
-                            if (!formData.category) {
-                              toast.error("Select category first!");
+                            if (
+                              selectedSubCategoryId === "__add_subcategory__"
+                            ) {
+                              if (!formData.category) {
+                                toast.error("Select category first!");
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  subcategory: "",
+                                }));
+                                return;
+                              }
+
+                              setShowSubCategoryModal(true);
                               setFormData((prev) => ({
                                 ...prev,
                                 subcategory: "",
@@ -1109,36 +1112,39 @@ const AddProduct = () => {
                               return;
                             }
 
-                            setShowSubCategoryModal(true);
                             setFormData((prev) => ({
                               ...prev,
-                              subcategory: "",
+                              subcategory: selectedSubCategoryId, // save _id
                             }));
-                            return;
-                          }
+                          }}
+                          className="w-full h-[48px] px-4 pr-10 rounded-xl 
+    bg-[#F2F4F5] text-[#6B7280] text-sm 
+    border border-transparent 
+    appearance-none outline-none 
+    hover:bg-[#EAEDEE]
+    focus:ring-2 focus:ring-[#1C3753]"
+                        >
+                          <option value="">Select sub-category</option>
 
-                          setFormData((prev) => ({
-                            ...prev,
-                            subcategory: val,
-                          }));
-                        }}
-                        className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-3
-    text-sm bg-[#F8FAFB]
-    focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400"
-                      >
-                        <option value="">Select sub-category</option>
+                          {subCategories.map((sub) => (
+                            <option key={sub._id} value={sub._id}>
+                              {sub.name}
+                            </option>
+                          ))}
+                        </select>
 
-                        {subCategories.map((sub) => (
-                          <option key={sub} value={sub}>
-                            {sub}
-                          </option>
-                        ))}
-
-                        {/* Add option inside dropdown */}
-                        {/* <option value="__add_subcategory__">
-                          + Add Subcategory
-                        </option> */}
-                      </select>
+                        <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center">
+                          <svg
+                            className="w-4 h-4 text-gray-500"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            viewBox="0 0 24 24"
+                          >
+                            <path d="M6 9l6 6 6-6" />
+                          </svg>
+                        </div>
+                      </div>
                     </div>
                     <div className="flex flex-col items-start gap-1">
                       <button
@@ -1360,7 +1366,7 @@ const AddProduct = () => {
                               </div>
                             </div>
                           </td>
-
+                          {/* images */}
                           <td className="px-3 py-2">
                             {(() => {
                               const imgs =
@@ -1383,35 +1389,51 @@ const AddProduct = () => {
                                       onClick={() =>
                                         triggerVariantUpload(index)
                                       }
-                                      className="flex items-center gap-2"
+                                      disabled={uploadingVariantIndex === index}
+                                      className="flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
                                     >
                                       <div className="h-9 w-9 rounded-md border bg-[#EFEFEF] flex items-center justify-center">
-                                        <FiUpload className="h-5 w-5 text-[#1C3753]" />
+                                        {uploadingVariantIndex === index ? (
+                                          <div className="h-5 w-5 rounded-full border-2 border-gray-300 border-t-[#1C3753] animate-spin" />
+                                        ) : (
+                                          <FiUpload className="h-5 w-5 text-[#1C3753]" />
+                                        )}
                                       </div>
                                       <span className="text-sm text-[#1C3753]">
-                                        Add Images
+                                        {uploadingVariantIndex === index
+                                          ? "Uploading..."
+                                          : "Add Images"}
                                       </span>
                                     </button>
                                   )}
 
                                   {count > 0 && (
-                                    <button
-                                      type="button"
-                                      onClick={() => openVariantImages(index)}
-                                      className="flex items-center gap-2"
-                                    >
-                                      <div className="h-9 w-9 rounded-md overflow-hidden border bg-gray-100">
-                                        <img
-                                          src={thumbSrc}
-                                          alt=""
-                                          className="h-full w-full object-cover"
-                                        />
-                                      </div>
+                                    <div className="flex items-center gap-3">
+                                      <button
+                                        type="button"
+                                        onClick={() => openVariantImages(index)}
+                                        className="flex items-center gap-2"
+                                      >
+                                        <div className="h-9 w-9 rounded-md overflow-hidden border bg-gray-100">
+                                          <img
+                                            src={thumbSrc}
+                                            alt=""
+                                            className="h-full w-full object-cover"
+                                          />
+                                        </div>
 
-                                      <span className="text-sm text-[#1C3753]">
-                                        +{count} Images
-                                      </span>
-                                    </button>
+                                        <span className="text-sm text-[#1C3753]">
+                                          +{count} Images
+                                        </span>
+                                      </button>
+
+                                      {uploadingVariantIndex === index && (
+                                        <div className="flex items-center gap-2 text-sm text-[#1C3753]">
+                                          <div className="h-4 w-4 rounded-full border-2 border-gray-300 border-t-[#1C3753] animate-spin" />
+                                          Uploading...
+                                        </div>
+                                      )}
+                                    </div>
                                   )}
 
                                   <input
@@ -1485,7 +1507,7 @@ const AddProduct = () => {
                               onChange={(e) =>
                                 handleVariantChange(
                                   index,
-                                  "variantGST",
+                                  "varintGST",
                                   e.target.value,
                                 )
                               }
