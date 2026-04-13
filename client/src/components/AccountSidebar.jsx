@@ -23,6 +23,7 @@ const accountMenu = [
   { label: "Manage Addresses", path: "/addresses", icon: MapPin },
   { label: "Support & Help", path: "/support", icon: HelpCircle },
   { label: "Reviews & Ratings", path: "/reviews", icon: Star },
+  { label: "Reward Points", path: "/reward-points", icon: Star },
 ];
 
 function AccountSidebar() {
