@@ -9,7 +9,7 @@ import {
 import {
   blacklistToken,
   generateAuthTokens,
-  generateResetTokes,
+  generateResetToken,
   rotateTokens,
 } from "../utils/token.js";
 import env from "../config/env.js";

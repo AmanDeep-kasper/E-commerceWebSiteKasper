@@ -75,8 +75,6 @@ export const sendPasswordResetEmail = async (
     ? new Date(tokenExpiry).toLocaleTimeString()
     : "10 minutes";
 
-  const transporter = getTransporter();
-
   const mailOptions = {
     from: `"${env.SMTP_FROM_NAME}" <${env.SMTP_FROM_EMAIL}>`,
     to: email,
@@ -137,12 +135,12 @@ export const sendPasswordResetEmail = async (
     `,
   };
 
+  const transporter = getTransporter();
   await transporter.sendMail(mailOptions);
 };
 
 // EMAIL CHANGE OTP
 export const sendEmailChangeOTP = async (email, otp, name = "User") => {
-  const transporter = getTransporter();
   const mailOptions = {
     from: `"${env.SMTP_FROM_NAME}" <${env.SMTP_FROM_EMAIL}>`,
     to: email,
@@ -207,13 +205,12 @@ export const sendEmailChangeOTP = async (email, otp, name = "User") => {
     `,
   };
 
+  const transporter = getTransporter();
   await transporter.sendMail(mailOptions);
 };
 
 // SUPPORT EMAIL (Professional & Minimal)
 export const sendSupportEmail = async (email, name, message, requestId) => {
-  const transporter = getTransporter();
-
   const mailOptions = {
     from: `"${name}" <${email}>`,
     to: env.SMTP_FROM_EMAIL,
@@ -263,5 +260,6 @@ ${name}
     `,
   };
 
+  const transporter = getTransporter();
   await transporter.sendMail(mailOptions);
 };
