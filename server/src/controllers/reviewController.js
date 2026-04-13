@@ -218,15 +218,14 @@ export const deleteReview = asyncHandler(async (req, res) => {
   const { reviewId } = req.params;
   const review = await Review.findById(reviewId);
 
-  // check user eligibility
-  if (review.userId.toString() !== req.user?.userId.toString()) {
-    throw AppError.unauthorized("You are not authorized to delete this review");
-  }
-
   if (!review) {
     throw AppError.notFound("Review not found", "NOT_FOUND");
   }
 
+  // check user eligibility
+  if (!req.user?.userId) {
+    throw AppError.unauthorized("User not authenticated");
+  }
   const product = await Product.findById(review.productId);
 
   if (!product) {
@@ -234,11 +233,20 @@ export const deleteReview = asyncHandler(async (req, res) => {
   }
 
   // recalculate totalReview count and avgRating of product
-  product.stats.averageRating = Number(
-    (product.stats.averageRating * product.stats.totalReviews - review.rating) /
-      (product.stats.totalReviews - 1),
-  ).toFixed(1);
-  product.stats.totalReviews -= 1;
+  if (product.stats.totalReviews === 1) {
+    product.stats.averageRating = 0;
+    product.stats.totalReviews = 0;
+  } else {
+    product.stats.averageRating = Number(
+      (
+        (product.stats.averageRating * product.stats.totalReviews -
+          review.rating) /
+        (product.stats.totalReviews - 1)
+      ).toFixed(1),
+    );
+
+    product.stats.totalReviews -= 1;
+  }
 
   await product.save();
 

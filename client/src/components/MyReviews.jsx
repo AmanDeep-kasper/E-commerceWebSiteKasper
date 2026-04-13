@@ -115,7 +115,7 @@ function MyReviews({ totalItems = 0 }) {
       // deleteReviewLocal(selectedReviewId);
       await reviewService.deleteReview(selectedReviewId);
       setReviews((prev) => prev.filter((r) => r._id !== selectedReviewId));
-      
+
       setOpenCancelModal(false);
       setSelectedReviewId(null);
     } catch (error) {
@@ -124,9 +124,8 @@ function MyReviews({ totalItems = 0 }) {
       setDeleting(false);
     }
   };
-  
+
   console.log("Deleting ID:", selectedReviewId);
-  
 
   return (
     <div className="w-full font-inter rounded-md overflow-hidden">
@@ -224,7 +223,7 @@ function MyReviews({ totalItems = 0 }) {
         <div className="md:mt-4 md:space-y-4 max-h-[750px] overflow-y-auto pr-2">
           {reviews.map((item, index) => (
             <div
-              key={`${item.name}-${index}`}
+              key={`${item.productId.productTittle}-${index}`}
               className="bg-white p-2 sm:p-3 md:rounded-md md:shadow-sm md:hover:shadow-md transition-shadow duration-200 border border-gray-200"
             >
               <div className="flex flex-col md:flex-row gap-6">
@@ -234,6 +233,7 @@ function MyReviews({ totalItems = 0 }) {
                     className="w-full h-full md:h-32 object-contain rounded-lg "
                     src={item.productId.image || img}
                     alt={item.productId.image ? item.productId.productTittle : "Product Image"}
+                    alt={item.productId.productTittle}
                   />
                 </div>
 
@@ -245,6 +245,7 @@ function MyReviews({ totalItems = 0 }) {
                       {item.productId.productTittle.length > 50
                         ? item.productId.productTittle.slice(0, 50) + "..."
                         : item.productId.productTittle}
+                      {item.productId.productTittle}
                     </h2>
 
                     {/* Reviewer Info */}
