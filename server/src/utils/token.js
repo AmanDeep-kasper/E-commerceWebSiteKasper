@@ -19,16 +19,12 @@ export const generateAccessToken = (userId, role, sessionId) => {
 
   const isRS256 = env.NODE_ENV !== "development";
 
-  return jwt.sign(
-    payload,
-    isRS256 ? env.PRIVATE_KEY : env.JWT_ACCESS_SECRET,
-    {
-      expiresIn: env.JWT_ACCESS_EXPIRATION || "15m",
-      issuer: env.JWT_ISSUER,
-      audience: env.JWT_AUDIENCE,
-      algorithm: isRS256 ? "RS256" : "HS256",
-    }
-  );
+  return jwt.sign(payload, isRS256 ? env.PRIVATE_KEY : env.JWT_ACCESS_SECRET, {
+    expiresIn: env.JWT_ACCESS_EXPIRATION || "15m",
+    issuer: env.JWT_ISSUER,
+    audience: env.JWT_AUDIENCE,
+    algorithm: isRS256 ? "RS256" : "HS256",
+  });
 };
 
 /* ================================
@@ -54,13 +50,7 @@ export const generateRefreshToken = async (userId, sessionId, req) => {
     .update(refreshToken)
     .digest("hex");
 
-  await storeRefreshToken(
-    userId,
-    refreshTokenId,
-    sessionId,
-    hashedToken,
-    req
-  );
+  await storeRefreshToken(userId, refreshTokenId, sessionId, hashedToken, req);
 
   return refreshToken;
 };
@@ -72,11 +62,7 @@ export const generateAuthTokens = async (userId, role, req = null) => {
   const sessionId = crypto.randomBytes(32).toString("hex");
 
   const accessToken = generateAccessToken(userId, role, sessionId);
-  const refreshToken = await generateRefreshToken(
-    userId,
-    sessionId,
-    req
-  );
+  const refreshToken = await generateRefreshToken(userId, sessionId, req);
 
   return {
     accessToken,
@@ -95,7 +81,7 @@ async function storeRefreshToken(
   refreshTokenId,
   sessionId,
   refreshToken,
-  req
+  req,
 ) {
   await User.updateOne(
     { _id: userId },
@@ -122,7 +108,7 @@ async function storeRefreshToken(
           $slice: -5,
         },
       },
-    }
+    },
   );
 }
 
@@ -140,7 +126,7 @@ export const verifyAccessToken = async (token) => {
         algorithms: isRS256 ? ["RS256"] : ["HS256"],
         issuer: env.JWT_ISSUER,
         audience: env.JWT_AUDIENCE,
-      }
+      },
     );
 
     const isBlacklisted = await checkBlacklist(token);
@@ -169,9 +155,7 @@ export const rotateTokens = async (userId, role, oldRefreshToken, req) => {
   const user = await User.findById(userId);
   if (!user) throw new Error("User not found");
 
-  const tokenData = user.refreshTokens.find(
-    (t) => t.token === hashedToken
-  );
+  const tokenData = user.refreshTokens.find((t) => t.token === hashedToken);
 
   if (!tokenData) throw new Error("Invalid refresh token");
 
@@ -201,7 +185,7 @@ export const rotateTokens = async (userId, role, oldRefreshToken, req) => {
           "refreshTokens.$[].isRevoked": true,
           activeSessions: [],
         },
-      }
+      },
     );
 
     throw new Error("Security alert: All sessions revoked.");
@@ -214,7 +198,7 @@ export const rotateTokens = async (userId, role, oldRefreshToken, req) => {
     { _id: userId, "refreshTokens.sessionId": decoded.sessionId },
     {
       $set: { "refreshTokens.$.isRevoked": true },
-    }
+    },
   );
 
   return await generateAuthTokens(userId, role, req);
@@ -250,3 +234,13 @@ async function checkBlacklist(token) {
     return false;
   }
 }
+
+export const generateResetTokes = () => {
+  const resetToken = crypto.randomBytes(32).toString("hex");
+  const hashedToken = crypto
+    .createHash("sha256")
+    .update(resetToken)
+    .digest("hex");
+
+  return { resetToken, hashedToken };
+};
