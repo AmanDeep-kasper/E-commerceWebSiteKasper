@@ -268,7 +268,8 @@ const PageRouter = () => {
           }
         >
           {/* dashboard */}
-          <Route path="dashboard" element={<Dashboard />} />
+          {/* <Route path="" element={<Dashboard />} /> */}
+          <Route index element={<Dashboard />} />
           {/* add product */}
           <Route path="add-product" element={<AddProduct />} />
           <Route path="add-product/:uuid" element={<AddProduct />} />

@@ -17,7 +17,8 @@ import { Link, useLocation } from "react-router-dom";
 import { BsLayoutSidebar } from "react-icons/bs";
 
 const dashboard = [
-  { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
+  // { name: "Dashboard", path: "/admin", icon: LayoutDashboard },
+  { name: "Dashboard", path: "", icon: LayoutDashboard },
   { name: "All Products", path: "/products", icon: Package },
   { name: "Inventory", path: "/Inventory/All", icon: SquareDashedKanban  },
   { name: "Orders", path: "/orders/all", icon: ShoppingBag },
