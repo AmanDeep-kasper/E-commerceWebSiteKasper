@@ -65,7 +65,7 @@ function Header({ isCollapsed }) {
       {/* Right: Icons + Profile + Search */}
       <div className="flex items-center gap-2">
         {/* Center: Search */}
-        <div className="hidden md:block flex-1 max-w-full mx-4">
+        {/* <div className="hidden md:block flex-1 max-w-full mx-4">
           <div className="flex items-center border border-gray-200 rounded-lg px-4 py-2 bg-gray-50 hover:bg-white transition-colors duration-200 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100">
             <Search className="w-4 h-4 text-gray-500 mr-2" />
             <input
@@ -74,7 +74,7 @@ function Header({ isCollapsed }) {
               className="outline-none flex-1 text-sm text-gray-700 bg-transparent placeholder-gray-400"
             />
           </div>
-        </div>
+        </div> */}
 
         {/* Icons */}
         {/* {links.map(({ icon: Icon, name, badge }, i) => (

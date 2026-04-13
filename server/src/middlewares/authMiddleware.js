@@ -65,7 +65,7 @@ export const authenticate = async (req, res, next) => {
     }
 
     const user = await User.findById(decoded.userId).select(
-      "_id name email role isActive isVerified currentSessionId lastLogin",
+      "_id name email role isActive isVerified +activeSessions lastLogin",
     );
 
     if (!user) {
@@ -89,10 +89,16 @@ export const authenticate = async (req, res, next) => {
       });
     }
 
-    if (user.currentSessionId && user.currentSessionId !== decoded.sessionId) {
+    // Multi-device session validation: check if session exists in activeSessions array
+    if (
+      user.activeSessions &&
+      user.activeSessions.length > 0 &&
+      !user.activeSessions.includes(decoded.sessionId)
+    ) {
       return res.status(401).json({
         success: false,
         message: "Session expired. Please login again.",
+        code: "SESSION_EXPIRED",
       });
     }
 

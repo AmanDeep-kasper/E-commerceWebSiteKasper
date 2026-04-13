@@ -599,7 +599,7 @@ const NewOrders = () => {
     "Order ID",
     "Quantity",
     "Order Value",
-    "Payment Status",
+    // "Payment Status",
     "Order Time",
     "Action",
   ];
@@ -758,7 +758,7 @@ const NewOrders = () => {
         </div>
 
         <div className="flex items-center justify-evenly gap-4">
-          <div className="relative">
+          {/* <div className="relative">
             <button
               onClick={() => setPaymentStatusOpen((p) => !p)}
               className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 bg-[#F8FBFC] rounded-lg hover:bg-gray-100 border"
@@ -784,7 +784,7 @@ const NewOrders = () => {
                 ))}
               </div>
             )}
-          </div>
+          </div> */}
 
           <div className="relative">
             <button
@@ -839,7 +839,7 @@ const NewOrders = () => {
                 <td className="px-4 py-3">{order.orderId}</td>
                 <td className="px-4 py-3">{order.quantity}</td>
                 <td className="px-4 py-3">₹{order.orderValue}</td>
-                <td
+                {/* <td
                   className={`px-4 py-3 font-medium text-xs ${
                     order.paymentType === "Prepaid"
                       ? "text-[#00A63E]"
@@ -849,7 +849,7 @@ const NewOrders = () => {
                   }`}
                 >
                   {order.paymentType}
-                </td>
+                </td> */}
                 <td className="px-4 py-3">{order.orderTime}</td>
 
                 <td className="px-4 py-3 text-right flex items-center justify-center gap-2">

@@ -86,7 +86,19 @@ export const updateProfileImage = createAsyncThunk(
 const userSlice = createSlice({
   name: "user",
   initialState,
-  reducers: {},
+  reducers: {
+    forceLogout: (state) => {
+      state.user = null;
+      state.isAuthenticated = false;
+      state.authChecked = true;
+      state.loading = false;
+      state.authLoading = false;
+      state.error = null;
+    },
+    clearError: (state) => {
+      state.error = null;
+    },
+  },
   extraReducers: (builder) => {
     builder
       // LOGIN
@@ -152,4 +164,5 @@ const userSlice = createSlice({
   },
 });
 
+export const { forceLogout, clearError } = userSlice.actions;
 export default userSlice.reducer;

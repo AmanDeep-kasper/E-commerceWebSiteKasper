@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { Eye, EyeOff, Mail, Lock, Star, LogIn, ArrowRight } from "lucide-react";
-import { getUserDetails, loginUser } from "../../redux/cart/userSlice";
+import { getUserDetails, loginUser, clearError } from "../../redux/cart/userSlice";
 import MainLog from "../../assets/IconsUsed/HomeMainLogo.png";
 import MainVideo from "../../assets/FirstPageVideo/login.mp4";
 
@@ -15,6 +15,11 @@ function Login() {
     (state) => state.user,
   );
   const navigate = useNavigate();
+
+  // Clear stale errors when Login mounts
+  useEffect(() => {
+    dispatch(clearError());
+  }, [dispatch]);
 
   const handleLogin = async (e) => {
     e.preventDefault();

@@ -154,7 +154,7 @@ const OrderDetails = ({
         </div>
       </div>
 
-      {/* Delivery Summmary  */}
+      {/* Delivery Summmary  
       <div className="mt-2">
         <span className="text-sm mt-3 mb-3">Delivery Summary</span>
         <div className="w-full p-3 text-sm text-gray-600 border rounded-md">
@@ -165,13 +165,14 @@ const OrderDetails = ({
                 <span>Delivery Type</span>
               </div>
               <div className="text-black font-medium shrink-0">
-                {/* change by contant */}
+                
                 {data.quantity ? data.quantity : ""}
               </div>
             </div>
           </div>
         </div>
       </div>
+      */}
       {/* Delivery Partner */}
       {isProcessing && (
         <div className="mt-2">
