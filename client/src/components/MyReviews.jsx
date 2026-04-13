@@ -220,7 +220,7 @@ function MyReviews({ totalItems = 0 }) {
         />
       ) : (
         /* Reviews List */
-        <div className="md:mt-4 md:space-y-4 max-h-[520px] overflow-y-auto pr-2">
+        <div className="md:mt-4 md:space-y-4 max-h-[750px] overflow-y-auto pr-2">
           {reviews.map((item, index) => (
             <div
               key={`${item.productId.productTittle}-${index}`}
@@ -229,10 +229,13 @@ function MyReviews({ totalItems = 0 }) {
               <div className="flex flex-col md:flex-row gap-6">
                 {/* Product Image */}
                 <div className="w-full md:w-24 flex-shrink-0">
-                  {/* <img
+                  <img
                     className="w-full h-full md:h-32 object-contain rounded-lg "
                     src={item.productId.image || img}
-                    alt={item.productId.productTittle}
+
+                    // alt={item.productId.productTittle}
+                    alt={item.productId.image ? item.productId.productTittle : "Product Image"}
+
                   />
                 </div>
 
@@ -241,7 +244,12 @@ function MyReviews({ totalItems = 0 }) {
                   {/* Product Name and Rating */}
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 ">
                     <h2 className="text-base sm:text-lg font-medium text-gray-700">
+
                       {item.productId.productTittle}
+                      {item.productId.productTittle.length > 50
+                        ? item.productId.productTittle.slice(0, 50) + "..."
+                        : item.productId.productTittle}
+
                     </h2>
 
                     {/* Reviewer Info */}

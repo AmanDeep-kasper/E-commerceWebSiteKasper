@@ -43,7 +43,6 @@ function Navbar() {
     }
   }, [user]);
 
-  
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [dropdown, setDropdown] = useState(false);
   const [subDropdown, setSubDropdown] = useState(null);
@@ -130,7 +129,7 @@ function Navbar() {
       name: "Free Shipping on orders above ₹1,999",
     },
     {
-      name: "COD Available",
+      name: "Buy more, Save more- Unlock exclusive discounts",
     },
   ];
 
@@ -350,10 +349,10 @@ function Navbar() {
                 </div>
               )}
             </div>
-
+            {/* admin side  */}
             {showChoice && (
               <button
-                onClick={() => navigate("/admin/dashboard")}
+                onClick={() => navigate("/admin")}
                 className="p-2 rounded-lg group hover:bg-amber-50 transition-colors"
               >
                 <LayoutDashboard
@@ -379,7 +378,7 @@ function Navbar() {
                 />
               </button>
 
-              <div className="absolute -right-[340%] hidden lg:group-hover:block max-lg:hidden top-9 z-50 border border-transparent">
+              <div className="absolute -right-[340%] hidden lg:group-hover:block max-lg:hidden top-8 z-50 border border-transparent">
                 <div className="border border-gray-200 mt-4">
                   <UserProfile />
                   <div className="pt-4 border-t border-gray-200 bg-white">
@@ -387,7 +386,7 @@ function Navbar() {
                       <>
                         {/* Logout Button */}
                         <div
-                          className="flex items-center gap-4 px-7 pb-6 rounded-lg cursor-pointer transition-colors duration-200 group"
+                          className="flex items-center gap-4 px-7 pb-5 rounded-lg cursor-pointer transition-colors duration-200 group"
                           onClick={() => setShowLogoutModal(true)}
                         >
                           <div className="p-2 rounded-lg bg-gray-100 group-hover:bg-[#D5E5F5] transition-colors duration-200">
