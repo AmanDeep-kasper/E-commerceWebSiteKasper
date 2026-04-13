@@ -5,7 +5,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Home from "../pages/Home";
 import Faqs from "../pages/Faqs";
 import Policy from "../pages/Policy";
-import SomethingWentWrong from "../SomethingWentWrong/SomethingWentWrong";
+import SomethingWentWrong from "../somethingWentWrong/SomethingWentWrong";
 import Product from "../pages/Product";
 import Cart from "../pages/Cart";
 import AccountDetails from "../pages/AccountDetails";
