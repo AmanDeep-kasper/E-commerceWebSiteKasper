@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import product from "../assets/ProductDetails1.jpg";
+// import product from "../assets/ProductDetails1.jpg";
 import Ratings from "./Ratings";
 import { ThumbsUp, ThumbsDown, Link } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -13,7 +13,7 @@ const customers = [
     rating: "5",
     likes: 42,
     dislike: 0,
-    images: product,
+    // images: product,
     date: "2025-04-05",
   },
   {
@@ -24,7 +24,7 @@ const customers = [
     rating: "5",
     likes: 42,
     dislike: 0,
-    images: product,
+    // images: product,
     date: "2025-04-05",
   },
   {
@@ -35,7 +35,7 @@ const customers = [
     rating: "5",
     likes: 42,
     dislike: 0,
-    images: product,
+    // images: product,
     date: "2025-04-05",
   },
   {
@@ -46,7 +46,7 @@ const customers = [
     rating: "5",
     likes: 42,
     dislike: 0,
-    images: product,
+    // images: product,
     date: "2025-04-05",
   },
   {
@@ -57,7 +57,7 @@ const customers = [
     rating: "5",
     likes: 42,
     dislike: 0,
-    images: product,
+    // images: product,
     date: "2025-04-05",
   },
   {
@@ -68,7 +68,7 @@ const customers = [
     rating: "5",
     likes: 42,
     dislike: 0,
-    images: product,
+    // images: product,
     date: "2025-04-05",
   },
 ];

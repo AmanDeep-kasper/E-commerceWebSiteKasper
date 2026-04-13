@@ -3,10 +3,10 @@ import { useEffect, useState } from "react";
 // import TopbannerImg from "../assets/TopBannerImg/TopBanner.png";
 import TopbannerVideo from "../assets/TopBannerImg/TopBannerVideo.mp4";
 
-import hero3 from "../assets/hero3.png";
-import hero4 from "../assets/hero4.png";
-import hero2 from "../assets/heroIcon2.png";
-import Offer from "../components/Offer";
+// import hero3 from "../assets/hero3.png";
+// import hero4 from "../assets/hero4.png";
+// import hero2 from "../assets/heroIcon2.png";
+// import Offer from "../components/Offer";
 import { motion, useAnimation } from "framer-motion";
 import products from "../data/products.json";
 import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
