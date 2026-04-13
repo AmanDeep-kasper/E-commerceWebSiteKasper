@@ -152,10 +152,11 @@ function LatestProducts() {
         // ref={ref} //grid-flow-col auto-cols-max
       >
         {latestProducts.slice(0, visibleCount)?.map((p) => {
+          {console.log(p)}
           const key = p.id || p.uuid || p.SKU;
           const v = p?.variants?.[0] || {};
-          const mrp = Number(v?.variantMrp || 0);
-          const sell = Number(v?.variantSellingPrice || 0);
+          const mrp = Number(v?.max || 0);
+          const sell = Number(v?.min || 0);
 
           // compute % off from MRP and Selling Price
           const discountPercent =
@@ -173,13 +174,10 @@ function LatestProducts() {
               <div className="relative w-full overflow-hidden rounded-md">
                 <img
                   className="w-full aspect-square object-contain transition-transform duration-300 group-hover/image:scale-110"
-                  // src={getCardImage(p)}
                   src={
-                    p?.variants?.[0]?.variantImage?.[0] ||
-                    p?.images?.[0] ||
-                    "/fallback.png"
+                    p.image && p.image
                   }
-                  alt={p.title || p.slug || p.category}
+                  alt={p.name || p.slug }
                   loading="lazy"
                 />
                 {/* Wishlist Button */}
@@ -250,24 +248,24 @@ function LatestProducts() {
 
               <div className="mt-3">
                 <h3 className="text-sm font-serif text-gray-800 font-normal line-clamp-1 mb-2">
-                  {p.productTittle}
+                  {p.name || p.slug || "Product Name"}
                 </h3>
 
                 <div className="flex items-center flex-wrap gap-2">
                   <span className="text-gray-900 font-medium">
-                    {/* {formatPrice(effective)} */}₹{sell || mrp || "--"}
+                    ₹{p.defaultPrice || "--"}
                   </span>
 
-                  {mrp > 0 && discountPercent > 0 && (
+                  {/* {mrp > 0 && discountPercent > 0 && ( */}
                     <span className="text-gray-400 text-xs line-through font-light">
-                      ₹{mrp}
+                      ₹{p.defaultPrice}
                     </span>
-                  )}
+                  {/* )} */}
                   <div className="border-l border-[#DBDBDB] h-3"></div>
-                  {discountPercent > 0 && (
+                  {p.discount > 0 && (
                     <>
                       <span className="text-[#35C772] text-xs">
-                        {discountPercent}% Off
+                        {Math.round(p.discount)}% Off
                       </span>
                     </>
                   )}
