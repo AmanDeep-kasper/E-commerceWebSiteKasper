@@ -171,7 +171,10 @@ export const updateReview = asyncHandler(async (req, res) => {
     throw AppError.notFound("Review not found", "NOT_FOUND");
   }
 
-  const product = await Product.findById(review.productId);
+  const product = await Product.findById(review.productId).populate(
+    "productId",
+    "productTittle variants.variantImage",
+  );
 
   // Ownership check
   if (!req.user?.userId) {
