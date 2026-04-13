@@ -1,4 +1,4 @@
-// import img from "../assets/Art3.jpg";
+// import defaultProductImg from "../assets/Art3.jpg";
 import { Link } from "react-router-dom";
 import {
   Star,
@@ -17,61 +17,6 @@ import EditReviewModal from "./EditReviewsModel";
 import reviewService from "../services/reviewService";
 import { useEffect } from "react";
 import ReviewSkeleton from "./ReviewSkeleton ";
-
-const initialReviews = [
-  {
-    name: "Adiyogi Shiva Metal Wall Art | Sculpture For Home Living Room ...",
-    rating: 5,
-    reviewTitle: "Awesome",
-    review:
-      "Absolutely beautiful! The detail in the metal is stunning and it looks elegant on our living room wall.",
-    // image: img,
-    like: 0,
-    dislike: 0,
-    userName: "Admin",
-    date: "11 Jun 2025",
-    id: 1,
-  },
-  {
-    name: "Adiyogi Shiva Metal Wall Art | Sculpture For Home Living Room ...",
-    rating: 5,
-    reviewTitle: "Awesome",
-    review:
-      "Absolutely beautiful! The detail in the metal is stunning and it looks elegant on our living room wall.",
-    // image: img,
-    like: 0,
-    dislike: 0,
-    userName: "Admin",
-    date: "11 Jun 2025",
-    id: 2,
-  },
-  {
-    name: "Adiyogi Shiva Metal Wall Art | Sculpture For Home Living Room ...",
-    rating: 5,
-    reviewTitle: "Awesome",
-    review:
-      "Absolutely beautiful! The detail in the metal is stunning and it looks elegant on our living room wall.",
-    // image: img,
-    like: 0,
-    dislike: 0,
-    userName: "Admin",
-    date: "11 Jun 2025",
-    id: 3,
-  },
-  {
-    name: "Adiyogi Shiva Metal Wall Art | Sculpture For Home Living Room ...",
-    rating: 5,
-    reviewTitle: "Awesome",
-    review:
-      "Absolutely beautiful! The detail in the metal is stunning and it looks elegant on our living room wall.",
-    // image: img,
-    like: 0,
-    dislike: 0,
-    userName: "Admin",
-    date: "11 Jun 2025",
-    id: 4,
-  },
-];
 
 function MyReviews({ totalItems = 0 }) {
   // delete model
@@ -177,9 +122,15 @@ function MyReviews({ totalItems = 0 }) {
             console.log("Sending update:", updated);
             const updatedReview = res.data || res.review;
 
+            // Preserve the existing productId data from the old review
             setReviews((prev) =>
               prev.map((r) =>
-                r._id === updatedReview._id ? updatedReview : r,
+                r._id === updatedReview._id 
+                  ? { 
+                      ...updatedReview, 
+                      productId: r.productId // Keep the original product data
+                    } 
+                  : r,
               ),
             );
             setOpenEditModal(false);
@@ -212,7 +163,7 @@ function MyReviews({ totalItems = 0 }) {
       ) : reviews.length === 0 ? (
         <EmptyState
           heading="No Reviews Yet"
-          description="You haven’t reviewed any products yet. Share your thoughts to help
+          description="You haven't reviewed any products yet. Share your thoughts to help
             others shop better."
           icon={Star}
           ctaLabel="Browse Products"
@@ -223,37 +174,29 @@ function MyReviews({ totalItems = 0 }) {
         <div className="md:mt-4 md:space-y-4 max-h-[750px] overflow-y-auto pr-2">
           {reviews.map((item, index) => (
             <div
-              key={`${item.productId.productTittle}-${index}`}
+              key={`${item.productId?._id || item._id}-${index}`}
               className="bg-white p-2 sm:p-3 md:rounded-md md:shadow-sm md:hover:shadow-md transition-shadow duration-200 border border-gray-200"
             >
               <div className="flex flex-col md:flex-row gap-6">
                 {/* Product Image */}
                 <div className="w-full md:w-24 flex-shrink-0">
                   <img
-                    className="w-full h-full md:h-32 object-contain rounded-lg "
-                    src={item.productId.image || img}
-                    // alt={item.productId.productTittle}
-                    alt={
-                      item.productId.image
-                        ? item.productId.productTittle
-                        : "Product Image"
-                    }
+                    className="w-full h-full md:h-32 object-contain rounded-lg"
+                    src={item.productId?.image}
+                    alt={item.productId?.productTittle || "Product Image"}
                   />
                 </div>
 
                 {/* Review Content */}
-                <div className="flex-1 ">
+                <div className="flex-1">
                   {/* Product Name and Rating */}
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 ">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <h2 className="text-base sm:text-lg font-medium text-gray-700">
-                      {item.productId.productTittle}
-                      {/* {item.productId.productTittle.length > 50
-                        ? item.productId.productTittle.slice(0, 50) + "..."
-                        : item.productId.productTittle}
+                      {item.productId?.productTittle || "Unknown Product"}
                     </h2>
 
                     {/* Reviewer Info */}
-                    <div className="flex flex-wrap items-center gap-2 text-gray-500 text-xs sm:text-sm mb-4">
+                    <div className="flex flex-wrap items-center gap-2 text-gray-500 text-xs sm:text-sm">
                       <span>
                         {new Date(item.updatedAt).toLocaleDateString("en-IN", {
                           day: "2-digit",
@@ -263,6 +206,14 @@ function MyReviews({ totalItems = 0 }) {
                       </span>
                     </div>
                   </div>
+
+                  {/* Review Title */}
+                  {item.reviewTitle && (
+                    <h3 className="text-md font-semibold text-gray-800 mt-1">
+                      {item.reviewTitle}
+                    </h3>
+                  )}
+
                   {/* stars in user reviews */}
                   <div className="flex items-center gap-2 mb-2 py-1 rounded-full w-max">
                     <div className="flex items-center">
@@ -283,9 +234,9 @@ function MyReviews({ totalItems = 0 }) {
                   <div className="mt-2">
                     {item.reviewImages && item.reviewImages.length > 0 ? (
                       <div className="flex gap-2 flex-wrap">
-                        {item.reviewImages.map((img, index) => (
+                        {item.reviewImages.map((img, idx) => (
                           <img
-                            key={index}
+                            key={idx}
                             src={img.url}
                             alt="review"
                             className="w-16 h-16 object-cover rounded-md border hover:scale-105 transition"
@@ -297,7 +248,7 @@ function MyReviews({ totalItems = 0 }) {
 
                   {/* Review Text */}
                   <p className="text-gray-600 mb-4 text-sm sm:text-base">
-                    {item.reviewText ? item.reviewText : "No Reviews"}
+                    {item.reviewText || "No Reviews"}
                   </p>
 
                   {/* Actions */}
