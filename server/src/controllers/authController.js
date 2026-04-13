@@ -9,7 +9,7 @@ import {
 import {
   blacklistToken,
   generateAuthTokens,
-  generateResetTokes,
+  generateResetToken,
   rotateTokens,
 } from "../utils/token.js";
 import env from "../config/env.js";
@@ -628,14 +628,7 @@ export const forgotPassword = asyncHandler(async (req, res) => {
   const resetLink = `${env.FRONTEND_URL}/reset-password?token=${resetToken}&email=${encodeURIComponent(email)}`;
 
   // Non-blocking email send — failures logged but don't affect response
-  sendPasswordResetEmail(user.email, user.name, resetLink, tokenExpiry).catch(
-    (emailError) => {
-      console.error(
-        `Failed to send password reset email to ${email}:`,
-        emailError,
-      );
-    },
-  );
+  await sendPasswordResetEmail(user.email, user.name, resetLink, tokenExpiry);
 
   res.status(200).json({
     success: true,
