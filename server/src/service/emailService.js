@@ -136,7 +136,8 @@ export const sendPasswordResetEmail = async (
   };
 
   const transporter = getTransporter();
-  await transporter.sendMail(mailOptions);
+  const info = await transporter.sendMail(mailOptions);
+  console.log("📨 Email response:", info);
 };
 
 // EMAIL CHANGE OTP
