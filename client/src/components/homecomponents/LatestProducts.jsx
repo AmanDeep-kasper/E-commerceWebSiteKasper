@@ -66,19 +66,19 @@ function LatestProducts() {
 
   const [latestProduct, setlatestProduct] = useState([]);
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const res = await axiosInstance.get("/products/all");
-        //  console.log("PRODUCTS:", res.data);
-        setlatestProduct(res.data);
-      } catch (error) {
-        console.log(error);
-      }
-    };
+  // useEffect(() => {
+  //   const fetchProducts = async () => {
+  //     try {
+  //       const res = await axiosInstance.get("/products/all");
+  //       //  console.log("PRODUCTS:", res.data);
+  //       setlatestProduct(res.data);
+  //     } catch (error) {
+  //       console.log(error);
+  //     }
+  //   };
 
-    fetchProducts();
-  }, []);
+  //   fetchProducts();
+  // }, []);
 
   const latestProducts = [...latestProduct].reverse().slice(0, 6);
 

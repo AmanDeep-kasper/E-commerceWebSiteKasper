@@ -267,14 +267,21 @@ export const rotateTokens = async (userId, role, oldRefreshToken, req) => {
   const currentIP = getIP(req);
   const currentFingerprint = generateDeviceFingerprint(req);
 
-  // 🔐 Fingerprint check (early attack detection)
+  // 🔐 Fingerprint check — only revoke THIS session on mismatch (not all sessions)
+  // Multi-device means different devices will always have different fingerprints
   if (decoded.fingerprint && decoded.fingerprint !== currentFingerprint) {
-    console.warn("🚨 Refresh token fingerprint mismatch");
+    console.warn("🚨 Refresh token fingerprint mismatch for session:", decoded.sessionId);
 
-    // revoke ALL sessions (possible theft)
+    // Revoke only THIS session (not all sessions — that would break multi-device)
+    await User.updateOne(
+      { _id: userId, "refreshTokens.sessionId": decoded.sessionId },
+      { $set: { "refreshTokens.$.isRevoked": true } },
+    );
+
+    // Remove this session from activeSessions
     await User.updateOne(
       { _id: userId },
-      { $set: { "refreshTokens.$[].isRevoked": true } },
+      { $pull: { activeSessions: decoded.sessionId } },
     );
 
     throw new Error("Security alert: Device mismatch. Please login again.");
@@ -300,7 +307,7 @@ export const rotateTokens = async (userId, role, oldRefreshToken, req) => {
     throw new Error("Invalid refresh token");
   }
 
-  // 🔥 TOKEN REUSE LOGIC (FIXED)
+  // 🔥 TOKEN REUSE LOGIC
   if (tokenData.isRevoked) {
     console.warn("⚠️ Token reuse detected");
 
@@ -321,6 +328,12 @@ export const rotateTokens = async (userId, role, oldRefreshToken, req) => {
         { $set: { "refreshTokens.$.isRevoked": true } },
       );
 
+      // Remove this session from activeSessions
+      await User.updateOne(
+        { _id: userId },
+        { $pull: { activeSessions: tokenData.sessionId } },
+      );
+
       throw new Error("Session expired. Please login again.");
     }
 
@@ -329,7 +342,12 @@ export const rotateTokens = async (userId, role, oldRefreshToken, req) => {
 
     await User.updateOne(
       { _id: userId },
-      { $set: { "refreshTokens.$[].isRevoked": true } },
+      {
+        $set: {
+          "refreshTokens.$[].isRevoked": true,
+          activeSessions: [],
+        },
+      },
     );
 
     throw new Error("Security alert: All sessions revoked.");

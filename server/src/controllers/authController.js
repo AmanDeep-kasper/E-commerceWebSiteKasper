@@ -228,6 +228,7 @@ export const loginUser = asyncHandler(async (req, res) => {
   const { accessToken, refreshToken, sessionId, expiresIn, tokenType } =
     await generateAuthTokens(user._id, user.role, req);
 
+  const MAX_SESSIONS = 5;
   await User.updateOne(
     { _id: user._id },
     {
@@ -237,7 +238,12 @@ export const loginUser = asyncHandler(async (req, res) => {
         lastLogin: new Date(),
         lastLoginIP: req.ip || req.connection?.remoteAddress,
         lastLoginDevice: req.headers["user-agent"],
-        currentSessionId: sessionId,
+      },
+      $push: {
+        activeSessions: {
+          $each: [sessionId],
+          $slice: -MAX_SESSIONS,
+        },
       },
     },
   );
@@ -397,8 +403,11 @@ export const logoutUser = asyncHandler(async (req, res) => {
   }
 
   if (userId && sessionId) {
-    await User.updateOne({ _id: userId }, { $unset: { currentSessionId: "" } });
-    operations.push({ type: "current_session", status: "cleared" });
+    await User.updateOne(
+      { _id: userId },
+      { $pull: { activeSessions: sessionId } },
+    );
+    operations.push({ type: "current_session", status: "removed" });
   }
 
   const isProduction = env.NODE_ENV === "development";
@@ -427,29 +436,13 @@ export const me = asyncHandler(async (req, res) => {
   const userId = req.user?.userId;
   const currentSessionId = req.user?.sessionId;
 
-  // Validate session is still active (use only exclusion projection)
+  // Validate session is still active
   const user = await User.findById(userId).select(
     "-password -refreshTokens -resetPasswordToken -resetPasswordExpires -lastLogin -loginAttempts -lockUntil -lastLoginDevice -lastLoginIP -resetPasswordAttempts",
   );
 
   if (!user) {
     throw AppError.notFound("User not found or inactive", "USER_NOT_FOUND");
-  }
-
-  // Check if session is still valid
-  if (!user.currentSessionId) {
-    throw AppError.authentication(
-      "Your session has been invalidated. Please login again.",
-      "SESSION_INVALIDATED",
-    );
-  }
-
-  // Verify session ID matches (prevents using old tokens after password change)
-  if (user.currentSessionId.toString() !== currentSessionId) {
-    throw AppError.authentication(
-      "Invalid session. Please login again.",
-      "INVALID_SESSION",
-    );
   }
 
   if (!user.isActive) {
@@ -523,17 +516,17 @@ export const changePassword = asyncHandler(async (req, res) => {
 
   await user.save();
 
-  // Issue fresh tokens for the current session
+  // Clear all other sessions, keep only new one
   const { accessToken, refreshToken, sessionId } = await generateAuthTokens(
     userId,
     user.role,
     req,
   );
 
-  // Update currentSessionId in DB when new session is created
+  // Replace all activeSessions with only the new session
   await User.updateOne(
     { _id: userId },
-    { $set: { currentSessionId: sessionId } },
+    { $set: { activeSessions: [sessionId] } },
   );
 
   const isProduction = env.NODE_ENV === "development";
@@ -706,7 +699,7 @@ export const resetPassword = asyncHandler(async (req, res) => {
   user.resetPasswordExpires = undefined;
   user.resetPasswordAttempts = 0;
   user.lastResetRequest = undefined;
-  user.currentSessionId = undefined; // Clear current session
+  user.activeSessions = []; // Clear ALL sessions — force all devices to re-login
 
   // Track password change
   user.lastPasswordChange = new Date();
@@ -759,10 +752,18 @@ export const refreshAccessToken = asyncHandler(async (req, res) => {
     req,
   );
 
-  // Update currentSessionId after token rotation
+  // Swap old sessionId with new sessionId in activeSessions array
   await User.updateOne(
     { _id: decoded.userId },
-    { $set: { currentSessionId: newTokens.sessionId } },
+    {
+      $pull: { activeSessions: decoded.sessionId },
+    },
+  );
+  await User.updateOne(
+    { _id: decoded.userId },
+    {
+      $push: { activeSessions: newTokens.sessionId },
+    },
   );
 
   const isProduction = env.NODE_ENV === "development";

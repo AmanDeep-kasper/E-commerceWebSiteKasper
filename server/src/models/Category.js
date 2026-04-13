@@ -18,8 +18,6 @@ const categorySchema = new mongoose.Schema(
       trim: true,
     },
 
-    description: String,
-
     categoryImage: {
       url: String,
       publicId: String,
@@ -29,11 +27,8 @@ const categorySchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
-
-    metaTitle: String,
-    metaDescription: String,
   },
-  { timestamps: true, versionKey: false }
+  { timestamps: true, versionKey: false },
 );
 
 // INDEXES
@@ -41,9 +36,17 @@ categorySchema.index({ isActive: 1 });
 categorySchema.index({ createdAt: -1 });
 
 // SLUG
-categorySchema.pre("validate", function (next) {
+categorySchema.pre("save", async function (next) {
   if (this.isModified("name")) {
-    this.slug = slugify(this.name, { lower: true, strict: true });
+    let baseSlug = slugify(this.name, { lower: true, strict: true });
+    let slug = baseSlug;
+    let count = 1;
+
+    while (await mongoose.models.Category.findOne({ slug })) {
+      slug = `${baseSlug}-${count++}`;
+    }
+
+    this.slug = slug;
   }
   next();
 });

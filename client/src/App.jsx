@@ -8,7 +8,7 @@ import PageRouter from "./Router/PageRouter";
 import { getUserDetails } from "./redux/cart/userSlice";
 // import { useAutoRefreshToken } from "./hooks/useAutoRefreshToken";
 // import { fetchAddresses } from "./redux/cart/addressSlice";
-import { fetchAllProducts } from "./redux/cart/productSlice";
+import { fetchAllProducts, fetchAllCategories } from "./redux/cart/productSlice";
 
 function App() {
   const dispatch = useDispatch();
@@ -17,13 +17,16 @@ function App() {
   // useAutoRefreshToken();
 
   useEffect(() => {
+    // Fetch public data for guests and users alike!
+    dispatch(fetchAllProducts());
+    dispatch(fetchAllCategories());
+
     const initializeUser = async () => {
       try {
         await dispatch(getUserDetails()).unwrap();
-        // await dispatch(fetchAllProducts());
       } catch (err) {
         // Cookie expired ya user not logged in
-        console.log("User not authenticated");
+        console.log("User not authenticated check");
       }
     };
 

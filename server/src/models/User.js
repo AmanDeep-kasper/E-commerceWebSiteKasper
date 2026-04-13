@@ -116,7 +116,11 @@ const userSchema = new mongoose.Schema(
       },
     ],
 
-    currentSessionId: String,
+    activeSessions: {
+      type: [String],
+      default: [],
+      select: false,
+    },
   },
   {
     timestamps: true,

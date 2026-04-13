@@ -17,6 +17,16 @@ const processQueue = (error) => {
   failedQueue = [];
 };
 
+// Dynamically import store to avoid circular dependencies
+let storeRef = null;
+const getStore = async () => {
+  if (!storeRef) {
+    const { store } = await import("../redux/store.js");
+    storeRef = store;
+  }
+  return storeRef;
+};
+
 // Response Interceptor with Auto-Refresh
 axiosInstance.interceptors.response.use(
   (response) => response,
@@ -27,7 +37,8 @@ axiosInstance.interceptors.response.use(
       error.response?.status === 401 &&
       !originalRequest._retry &&
       !originalRequest.url.includes("/auth/login") &&
-      !originalRequest.url.includes("/auth/refresh-token")
+      !originalRequest.url.includes("/auth/refresh-token") &&
+      !originalRequest.url.includes("/auth/me")
     ) {
       originalRequest._retry = true;
 
@@ -40,12 +51,33 @@ axiosInstance.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        await axiosInstance.post("/auth/refresh-token"); // 🔥 refresh token axiosInstance
+        await axiosInstance.post("/auth/refresh-token");
         processQueue(null);
         return axiosInstance(originalRequest); // retry original request
-      } catch (error) {
-        processQueue(error);
-        return Promise.reject(error);
+      } catch (refreshError) {
+        processQueue(refreshError);
+
+        // Refresh failed — force logout and redirect to login
+        try {
+          const store = await getStore();
+          const { forceLogout } = await import(
+            "../redux/cart/userSlice.js"
+          );
+          store.dispatch(forceLogout());
+        } catch (importError) {
+          console.error("Failed to force logout:", importError);
+        }
+
+        // Redirect to login page ONLY if not on login AND this wasn't just a /auth/me check
+        if (
+          typeof window !== "undefined" &&
+          !window.location.pathname.includes("/login") &&
+          !originalRequest.url.includes("/auth/me")
+        ) {
+          window.location.href = "/login";
+        }
+
+        return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;
       }
