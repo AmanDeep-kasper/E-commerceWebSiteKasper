@@ -34,7 +34,9 @@ export const registerUser = asyncHandler(async (req, res) => {
   const otp = generateOTP();
   const otpExpires = new Date(Date.now() + 10 * 60 * 1000);
 
-  // await sendRegistrationEmail(email, otp);
+  sendRegistrationEmail(email, otp).catch((err) => {
+    console.log("❌ Register OTP failed:", err);
+  });
 
   const tempUser = new TempUser({
     name,
@@ -54,13 +56,6 @@ export const registerUser = asyncHandler(async (req, res) => {
     success: true,
     message: "OTP sent to email. Please verify within 10 minutes.",
     tempUserId: tempUser._id,
-  });
-
-  // 🔥 EMAIL BACKGROUND
-  setImmediate(() => {
-    sendRegistrationEmail(email, otp).catch((err) => {
-      console.error("Email failed:", err.message);
-    });
   });
 });
 
@@ -95,7 +90,9 @@ export const resendOTP = asyncHandler(async (req, res) => {
   const otp = generateOTP();
   const otpExpires = new Date(Date.now() + 10 * 60 * 1000);
 
-  // await sendRegistrationEmail(tempUser.email, otp);
+  sendRegistrationEmail(tempUser.email, otp).catch((err) => {
+    console.log("❌ Resend OTP failed:", err);
+  });
 
   // Replace old OTP
   tempUser.otp = otp;
@@ -108,13 +105,6 @@ export const resendOTP = asyncHandler(async (req, res) => {
   res.status(200).json({
     success: true,
     message: "OTP resent successfully",
-  });
-
-  // 🔥 EMAIL BACKGROUND
-  setImmediate(() => {
-    sendRegistrationEmail(tempUser.email, otp).catch((err) => {
-      console.error("Email failed:", err.message);
-    });
   });
 });
 
