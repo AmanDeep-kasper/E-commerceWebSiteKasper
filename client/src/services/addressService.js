@@ -16,7 +16,7 @@ const getUserAddresses = async () => {
 // Update address
 const updateAddress = async (id, data) => {
   const res = await axiosInstance.put(
-    `/address/update-address/:${addressId}`,
+    `/address/update-address/${id}`,
     data,
   );
   return res.data;
@@ -25,16 +25,24 @@ const updateAddress = async (id, data) => {
 // Delete address
 const deleteAddress = async (id) => {
   const res = await axiosInstance.delete(
-    `/address/delete-address/:${addressId}`,
+    `/address/delete-address/${id}`,
   );
   return res.data; // should return success or deleted id
 };
 
+const setDefaultAddress = async (addressId) => {
+  console.log(addressId)
+  const res = await axiosInstance.patch(
+    `/address/set-default-address/${addressId}`,
+  );
 
+  return res.data;
+};
 
 export default {
   addAddress,
   getUserAddresses,
   updateAddress,
   deleteAddress,
+  setDefaultAddress,
 };

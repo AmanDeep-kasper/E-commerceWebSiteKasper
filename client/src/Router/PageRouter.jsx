@@ -105,6 +105,7 @@ import RewardPoints from "../pages/admin/Reward/RewardPoints";
 import Rating from "../pages/user/Rating";
 import Collection from "../pages/admin/Collection/Collection";
 import BestSelling from "../pages/admin/Collection/BestSelling";
+import ProtectedRoute from "../pages/user/ProtectedRoute";
 
 const PageRouter = () => {
   return (
@@ -131,8 +132,6 @@ const PageRouter = () => {
         {/* App Pages */}
         <Route path="/bag" element={<Cart />} />
         {/* Accounts */}
-
-
 
         <Route path="/accounts" element={<AccountLayout />}>
           <Route path="details" element={<AccountDetails />} />
@@ -170,9 +169,15 @@ const PageRouter = () => {
         <Route path="/checkout/payment" element={<Payment />} />
         <Route path="/policy" element={<Policy />} />
 
-
         {/* Admin Route */}
-        <Route path="/admin" element={<AdminLayout />}>
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminLayout />
+            </ProtectedRoute>
+          }
+        >
           {/* dashboard */}
           <Route path="dashboard" element={<Dashboard />} />
           {/* add product */}
@@ -291,15 +296,12 @@ const PageRouter = () => {
             element={<AccountSettingsEdit />}
           />
 
-
           {/* Reward */}
           <Route path="reward&points" element={<RewardPoints />} />
           {/* Collection */}
           <Route path="collection" element={<Collection />} />
           <Route path="best-selling" element={<BestSelling />} />
-
         </Route>
-
 
         {/* Catch-All */}
         <Route path="*" element={<SomethingWentWrong />} />

@@ -5,8 +5,8 @@ const VariantSchema = new mongoose.Schema({
   variantColor: { type: String, default: "", index: true },
   variantName: { type: String, default: "", index: true },
 
-  varintWeight: { type: Number, default: 0 },
-  varintWeightUnit: {
+  variantWeight: { type: Number, default: 0 },
+  variantWeightUnit: {
     type: String,
     enum: ["kg", "g", "mg"],
     default: "kg",
@@ -26,7 +26,7 @@ const VariantSchema = new mongoose.Schema({
   variantCostPrice: { type: Number, default: 0 },
   variantSellingPrice: { type: Number, default: 0, required: true },
 
-  varintGST: { type: Number, default: 0, required: true },
+  variantGST: { type: Number, default: 0, required: true },
 
   variantDiscount: { type: Number, default: 0 },
 
@@ -43,7 +43,7 @@ const ProductSchema = new mongoose.Schema(
 
     slug: {
       type: String,
-      required: true,
+      // required: true,
       unique: true,
       lowercase: true,
       trim: true,
@@ -69,12 +69,6 @@ const ProductSchema = new mongoose.Schema(
     isActive: {
       type: Boolean,
       default: true,
-      index: true,
-    },
-
-    isDraft: {
-      type: Boolean,
-      default: false,
       index: true,
     },
 

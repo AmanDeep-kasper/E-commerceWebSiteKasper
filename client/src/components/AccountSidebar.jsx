@@ -1,13 +1,20 @@
-import { Wallet, Camera, LogOut } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import axiosInstance from "../api/axiosInstance";
-import { Link, NavLink } from "react-router-dom";
-const dispatch = useDispatch;
+import { NavLink, useNavigate } from "react-router-dom";
 import users from "../data/user";
-import { User, Package, Heart, MapPin, HelpCircle, Star } from "lucide-react";
+import {
+  User,
+  Package,
+  Heart,
+  MapPin,
+  HelpCircle,
+  Star,
+  Camera,
+  LogOut,
+} from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
-import { logoutUser } from "../redux/cart/userSlice";
+import { logoutUser, updateProfileImage } from "../redux/cart/userSlice";
 
 const accountMenu = [
   { label: "Account Details", path: "/details", icon: User },
@@ -19,30 +26,12 @@ const accountMenu = [
 ];
 
 function AccountSidebar() {
-  const [image, setImage] = useState(users[0].profileImage);
-  const [name, setName] = useState(users[0].name);
+  const [image, setImage] = useState("");
+  const [name, setName] = useState("");
   const inputRef = useRef(null);
   const token = localStorage.getItem("token");
   const { user, isAuthenticated } = useSelector((s) => s.user);
-
-  // 🟡 Fetch user data including image on mount
-  useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const res = await axiosInstance.get("/users/me", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        setImage(res.data.profileImage);
-        setName(res.data.name);
-      } catch (err) {
-        console.error("Failed to load user data", err);
-      }
-    };
-
-    fetchUserData();
-  }, [token]);
+  const navigate = useNavigate();
 
   const handleImageChange = async (e) => {
     const file = e.target.files[0];
@@ -51,39 +40,31 @@ function AccountSidebar() {
     const formData = new FormData();
     formData.append("profileImage", file);
 
-    try {
-      const res = await axiosInstance.patch(
-        "/users/me/profile-image",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
-      setImage(res.data.profileImage);
+    const res = await dispatch(updateProfileImage(formData));
+
+    if (!res.error) {
       toast.success("Profile image updated");
-    } catch (err) {
-      console.error("Upload failed", err);
+    } else {
+      toast.error(res.payload);
     }
   };
+
   const dispatch = useDispatch();
 
   const handleLogout = () => {
-    dispatch(logoutUser()); // clear token + reset user state
-    // optional: if not done in slice
+    dispatch(logoutUser());
+
     toast.success("Logged out successfully");
-    navigate("/"); // redirect to homepage
+    navigate("/");
   };
 
   return (
-    <div className="sticky top-20 h-max min-w-[310px] !w-[310px] bg-white rounded-lg shadow-sm overflow-hidden ">
+    <div className="sticky top-28 h-max min-w-[310px] !w-[310px] bg-white rounded-lg shadow-sm overflow-hidden ">
       {/* Account holder */}
       <div className="px-6 py-4 flex gap-4 items-center text-white bg-[#D5E5F5] border-l-black rounded-b-3xl rounded-t-lg m-1">
         <div className="relative group w-14 h-14 rounded-full overflow-hidden border-2 border-white/90 hover:border-white/50 transition-all duration-300">
           <img
-            src={image || "/name1.jpg"}
+            src={user?.user?.profileImage?.url || "/name1.jpg"}
             alt="Profile"
             className="w-full h-full object-cover rounded-full group-hover:scale-110 transition-transform duration-300"
           />
@@ -104,7 +85,7 @@ function AccountSidebar() {
         </div>
         <div className="text-black">
           <p className="text-sm font-light">Welcome back</p>
-          <p className="font-medium">{name}</p>
+          <p className="font-medium">{user?.user?.name}</p>
         </div>
       </div>
 
@@ -135,43 +116,6 @@ function AccountSidebar() {
             ))}
           </ul>
         </div>
-
-        {/* Payments */}
-        {/* <div className="mb-6 border-t border-gray-200 pt-4">
-          <h1 className="flex items-center px-2 py-2 text-sm font-semibold text-gray-500 uppercase tracking-wider">
-            <Wallet className="w-4 h-4 mr-2" />
-            Payments
-          </h1>
-          <ul className="space-y-1">
-            <li className="flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-all duration-200">
-              <span>Gift Cards</span>
-              <span className="bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded-full">
-                ₹5
-              </span>
-            </li>
-            <li className="flex items-center px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-all duration-200">
-              Saved UPI
-            </li>
-            <li className="flex items-center px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-all duration-200">
-              Saved Cards
-            </li>
-          </ul>
-        </div> */}
-
-        {/* Legal */}
-        {/* <div className="mb-4 border-t border-gray-200 pt-4">
-          <h1 className="px-2 py-2 text-sm font-semibold text-gray-500 uppercase tracking-wider">
-            Legal
-          </h1>
-          <ul className="space-y-1">
-            <li className="flex items-center px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-all duration-200">
-              Terms of Use
-            </li>
-            <Link className="flex items-center px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-all duration-200" to={`/policy`}>
-              Privacy Policy
-            </Link>
-          </ul>
-        </div> */}
 
         {/* Logout */}
         <hr />

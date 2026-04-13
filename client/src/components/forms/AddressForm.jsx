@@ -3,16 +3,17 @@ import { X, House, Building2, MapPin } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import { createAddress, editAddress } from "../../redux/cart/addressSlice";
+// import Address from "../../pages/Address";
 
 const initialFormState = {
-  name: "",
+  fullName: "",
   phone: "",
   email: "",
-  zip: "",
-  street: "",
-  city: "",
+  address: "",
+  pinCode: "",
   state: "",
-  tag: "Home", // default
+  city: "",
+  addressType: "Home",
   isDefault: false,
 };
 
@@ -30,9 +31,10 @@ const AddressForm = ({ initialData = null, onClose, inline = false }) => {
   }, [initialData]);
 
   const validateInputs = () => {
-    const { name, phone, zip, street, city, state, email } = formData;
+    const { fullName, phone, pinCode, city, state, email, addressType,address } =
+      formData;
 
-    if (!name || !phone || !zip || !street || !city || !state) {
+    if (!fullName || !phone || !pinCode || !city || !state) {
       toast.error("Please fill all required fields");
       return false;
     }
@@ -42,7 +44,7 @@ const AddressForm = ({ initialData = null, onClose, inline = false }) => {
       return false;
     }
 
-    if (!/^\d{6}$/.test(zip)) {
+    if (!/^\d{6}$/.test(pinCode)) {
       toast.error("Enter a valid 6-digit pincode");
       return false;
     }
@@ -71,7 +73,7 @@ const AddressForm = ({ initialData = null, onClose, inline = false }) => {
       if (initialData?._id) {
         // update existing
         const res = await dispatch(
-          editAddress({ id: initialData._id, data: formData })
+          editAddress({ id: initialData._id, data: formData }),
         ).unwrap();
         toast.success(res.message || "Address updated");
       } else {
@@ -129,8 +131,8 @@ const AddressForm = ({ initialData = null, onClose, inline = false }) => {
               </label>
               <input
                 type="text"
-                name="name"
-                value={formData.name}
+                name="fullName"
+                value={formData.fullName}
                 onChange={handleChange}
                 required
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
@@ -153,7 +155,9 @@ const AddressForm = ({ initialData = null, onClose, inline = false }) => {
             </div>
 
             <div>
-              <label className="text-sm font-medium text-gray-700">Email <span className="text-[#D53B35]">*</span></label>
+              <label className="text-sm font-medium text-gray-700">
+                Email <span className="text-[#D53B35]">*</span>
+              </label>
               <input
                 type="email"
                 name="email"
@@ -169,8 +173,8 @@ const AddressForm = ({ initialData = null, onClose, inline = false }) => {
               </label>
               <input
                 type="text"
-                name="zip"
-                value={formData.zip}
+                name="pinCode"
+                value={formData.pinCode}
                 onChange={handleChange}
                 required
                 maxLength={6}
@@ -183,8 +187,8 @@ const AddressForm = ({ initialData = null, onClose, inline = false }) => {
                 Address <span className="text-[#D53B35]">*</span>
               </label>
               <textarea
-                name="street"
-                value={formData.street}
+                name="address"
+                value={formData.address}
                 onChange={handleChange}
                 required
                 rows={3}
@@ -231,9 +235,9 @@ const AddressForm = ({ initialData = null, onClose, inline = false }) => {
             <p className="text-sm font-medium text-gray-700">Address Type </p>
             <div className="flex flex-wrap gap-3">
               {[
-                { value: "Home", icon: <House size={16} /> },
-                { value: "Work", icon: <Building2 size={16} /> },
-                { value: "Other", icon: <MapPin size={16} /> },
+                { value: "home", icon: <House size={16} /> },
+                { value: "work", icon: <Building2 size={16} /> },
+                { value: "other", icon: <MapPin size={16} /> },
               ].map((type) => (
                 <button
                   type="button"
@@ -241,11 +245,11 @@ const AddressForm = ({ initialData = null, onClose, inline = false }) => {
                   onClick={() =>
                     setFormData((prev) => ({
                       ...prev,
-                      tag: type.value,
+                      addressType: type.value,
                     }))
                   }
                   className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-all ${
-                    formData.tag === type.value
+                    formData.addressType === type.value
                       ? "border-[#1800AC] bg-white text-[#1800AC]"
                       : "border-gray-300 hover:border-gray-400 text-gray-700"
                   }`}

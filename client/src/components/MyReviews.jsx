@@ -13,6 +13,10 @@ import {
 import EmptyState from "./EmptyState";
 import { useState } from "react";
 import EditReviewModal from "./EditReviewsModel";
+// import axiosInstance from "../api/axiosInstance";
+import reviewService from "../services/reviewService";
+import { useEffect } from "react";
+import ReviewSkeleton from "./ReviewSkeleton ";
 
 const initialReviews = [
   {
@@ -72,14 +76,35 @@ const initialReviews = [
 function MyReviews({ totalItems = 0 }) {
   // delete model
   const [openCancelModal, setOpenCancelModal] = useState(false);
-  const [reviews, setReviews] = useState(initialReviews);
+
+  const [reviews, setReviews] = useState([]);
+  const [loading, setLoading] = useState(false);
+
   const [selectedReviewId, setSelectedReviewId] = useState(null);
   const [deleting, setDeleting] = useState(false);
 
-  // Delete function (today: JSON)
-  const deleteReviewLocal = (id) => {
-    setReviews((prev) => prev.filter((r) => r.id !== id));
+  // edit model
+  const [openEditModal, setOpenEditModal] = useState(false);
+  const [selectedReview, setSelectedReview] = useState(null);
+
+  // Add API call to fetch reviews on component mount (useEffect)
+  const fetchReviews = async () => {
+    try {
+      setLoading(true);
+
+      const res = await reviewService.getUserReviews();
+      console.log("API RESPONSE:", res.data);
+
+      setReviews(res.data || res.reviews || []);
+    } catch (error) {
+      console.error("Error fetching reviews:", error);
+    } finally {
+      setLoading(false);
+    }
   };
+  useEffect(() => {
+    fetchReviews();
+  }, []);
 
   const handleConfirmDelete = async () => {
     if (!selectedReviewId) return;
@@ -87,25 +112,21 @@ function MyReviews({ totalItems = 0 }) {
     try {
       setDeleting(true);
 
-      //  TODAY (fake json)
-      deleteReviewLocal(selectedReviewId);
-
-      //  FUTURE (backend) - just replace above line with:
-      // await api.delete(`/reviews/${selectedReviewId}`);
-      // setReviews((prev) => prev.filter((r) => r._id !== selectedReviewId));
-      // or fetch again
-
+      // deleteReviewLocal(selectedReviewId);
+      await reviewService.deleteReview(selectedReviewId);
+      setReviews((prev) => prev.filter((r) => r._id !== selectedReviewId));
+      
       setOpenCancelModal(false);
       setSelectedReviewId(null);
+    } catch (error) {
+      console.error("Delete failed:", error);
     } finally {
       setDeleting(false);
     }
   };
-
-  // edit model
-  const [openEditModal, setOpenEditModal] = useState(false);
-  const [selectedReview, setSelectedReview] = useState(null);
-
+  
+  console.log("Deleting ID:", selectedReviewId);
+  
 
   return (
     <div className="w-full font-inter rounded-md overflow-hidden">
@@ -145,15 +166,28 @@ function MyReviews({ totalItems = 0 }) {
         open={openEditModal}
         review={selectedReview}
         onClose={() => {
-          setOpenEditModal(false);
           setSelectedReview(null);
+          setOpenEditModal(false);
         }}
-        onSave={(updated) => {
-          setReviews((prev) =>
-            prev.map((r) => (r.id === updated.id ? { ...r, ...updated } : r)),
-          );
-          setOpenEditModal(false);
-          setSelectedReview(null);
+        onSave={async (updated) => {
+          try {
+            const res = await reviewService.updateReview(
+              selectedReview._id,
+              updated,
+            );
+            console.log("Sending update:", updated);
+            const updatedReview = res.data || res.review;
+
+            setReviews((prev) =>
+              prev.map((r) =>
+                r._id === updatedReview._id ? updatedReview : r,
+              ),
+            );
+            setOpenEditModal(false);
+            setSelectedReview(null);
+          } catch (error) {
+            console.error("Update failed:", error);
+          }
         }}
       />
       {/* Header */}
@@ -162,9 +196,6 @@ function MyReviews({ totalItems = 0 }) {
           <h1 className="text-lg sm:text-xl font-semibold text-gray-800">
             Reviews & Ratings ({reviews.length})
           </h1>
-          {/* <p className="text-gray-500 text-sm">
-            {reviews.length} review{reviews.length > 1 ? "s" : ""}
-          </p> */}
         </div>
         {totalItems > 0 && (
           <button className="flex items-center gap-2 px-4 sm:px-5 py-2 text-[#1C3753] hover:text-[#1C3753] font-medium underline transition-colors duration-200 text-sm">
@@ -173,34 +204,13 @@ function MyReviews({ totalItems = 0 }) {
         )}
       </div>
 
-      {/* Empty State */}
-      {reviews.length === 0 ? (
-        // <div className="p-10 sm:p-14 text-center flex flex-col items-center justify-center h-full md:border border-gray-200">
-        //   {/* Icon Circle */}
-        //   <div className="mx-auto w-28 h-28 bg-yellow-50 rounded-full flex items-center justify-center mb-6 shadow-inner">
-        //     <Star className="w-12 h-12 text-yellow-400" />
-        //   </div>
-
-        //   {/* Heading */}
-        //   <h3 className="text-2xl font-semibold text-gray-900 mb-3">
-        //     No Reviews Yet
-        //   </h3>
-
-        //   {/* Subtext */}
-        //   <p className="text-gray-500 max-w-sm mx-auto mb-8">
-        //     You haven’t reviewed any products yet. Share your thoughts to help
-        //     others shop better.
-        //   </p>
-
-        //   {/* CTA Button */}
-        //   <Link
-        //     to="/products"
-        //     className="inline-block bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600
-        //       text-white rounded-full px-8 py-3 font-medium transition-all shadow-md hover:shadow-lg"
-        //   >
-        //     Browse Products
-        //   </Link>
-        // </div>
+      {loading ? (
+        <div className="md:mt-4 space-y-4">
+          {[1, 2, 3, 4].map((i) => (
+            <ReviewSkeleton key={i} />
+          ))}
+        </div>
+      ) : reviews.length === 0 ? (
         <EmptyState
           heading="No Reviews Yet"
           description="You haven’t reviewed any products yet. Share your thoughts to help
@@ -211,7 +221,6 @@ function MyReviews({ totalItems = 0 }) {
         />
       ) : (
         /* Reviews List */
-        // <div className="md:space-y-4 md:mt-4 ">
         <div className="md:mt-4 md:space-y-4 max-h-[520px] overflow-y-auto pr-2">
           {reviews.map((item, index) => (
             <div
@@ -223,7 +232,7 @@ function MyReviews({ totalItems = 0 }) {
                 <div className="w-full md:w-24 flex-shrink-0">
                   <img
                     className="w-full h-full md:h-32 object-contain rounded-lg "
-                    src={item.image}
+                    src={item.productImage || img}
                     alt={item.name}
                   />
                 </div>
@@ -233,17 +242,18 @@ function MyReviews({ totalItems = 0 }) {
                   {/* Product Name and Rating */}
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 ">
                     <h2 className="text-base sm:text-lg font-medium text-gray-700">
-                      {item.name}
+                      {item.reviewText}
                     </h2>
 
                     {/* Reviewer Info */}
                     <div className="flex flex-wrap items-center gap-2 text-gray-500 text-xs sm:text-sm mb-4">
-                      {/* <span className="flex items-center gap-1">
-                      {item.userName}
-                      <Check className="w-4 h-4 p-0.5 bg-gray-400 text-white rounded-full" />
-                    </span> */}
-                      {/* <span>•</span> */}
-                      <span>{item.date}</span>
+                      <span>
+                        {new Date(item.updatedAt).toLocaleDateString("en-IN", {
+                          day: "2-digit",
+                          month: "short",
+                          year: "numeric",
+                        })}
+                      </span>
                     </div>
                   </div>
                   {/* stars in user reviews */}
@@ -260,26 +270,27 @@ function MyReviews({ totalItems = 0 }) {
                         />
                       ))}
                     </div>
-                    {/* <span className="font-medium text-sm">{item.rating}</span> */}
                   </div>
 
-                  {/* Review Title */}
-                  {/* <h3 className="text-gray-800 font-medium mb-2 text-sm sm:text-base">
-                    {item.reviewTitle?item.reviewTitle:"No Reviews"}
-                  </h3> */}
-
                   {/* Review Images */}
-                  <div className="w-20 h-20 rounded-lg overflow-hidden">
-                    <img
-                      src="https://plus.unsplash.com/premium_photo-1664392147011-2a720f214e01?w=600&auto=format&fit=crop&q=60"
-                      alt="Review product"
-                      className="w-full h-full object-cover"
-                    />
+                  <div className="mt-2">
+                    {item.reviewImages && item.reviewImages.length > 0 ? (
+                      <div className="flex gap-2 flex-wrap">
+                        {item.reviewImages.map((img, index) => (
+                          <img
+                            key={index}
+                            src={img.url}
+                            alt="review"
+                            className="w-16 h-16 object-cover rounded-md border hover:scale-105 transition"
+                          />
+                        ))}
+                      </div>
+                    ) : null}
                   </div>
 
                   {/* Review Text */}
                   <p className="text-gray-600 mb-4 text-sm sm:text-base">
-                    {item.review ? item.review : "No Reviews"}
+                    {item.reviewText ? item.reviewText : "No Reviews"}
                   </p>
 
                   {/* Actions */}
@@ -296,7 +307,7 @@ function MyReviews({ totalItems = 0 }) {
                     </button>
                     <button
                       onClick={() => {
-                        setSelectedReviewId(item.id);
+                        setSelectedReviewId(item._id);
                         setOpenCancelModal(true);
                       }}
                       className="flex items-center gap-1 text-red-600 hover:text-red-700 transition-colors"
@@ -306,18 +317,6 @@ function MyReviews({ totalItems = 0 }) {
                     </button>
                   </div>
                 </div>
-
-                {/* Like/Dislike */}
-                {/* <div className="flex justify-end md:flex-col md:justify-center gap-6 md:gap-4 text-gray-400 text-sm mt-4 md:mt-0">
-                  <div className="flex items-center gap-1">
-                    <ThumbsUp className="w-5 h-5" />
-                    <span>{item.like}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <ThumbsDown className="w-5 h-5" />
-                    <span>{item.dislike}</span>
-                  </div>
-                </div> */}
               </div>
             </div>
           ))}

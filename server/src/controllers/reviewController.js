@@ -64,17 +64,38 @@ export const getAllUserReviews = asyncHandler(async (req, res) => {
 
   const skip = (page - 1) * limit;
 
-  const reviews = await Review.find({ userId }).skip(skip).limit(limit).lean();
+  const reviews = await Review.find({ userId })
+    .populate("productId", "productTittle variants.variantImage")
+    .skip(skip)
+    .limit(limit)
+    .lean();
+
   const total = await Review.countDocuments({ userId });
+
+  // ✅ extract only first image
+  const formattedReviews = reviews.map((review) => {
+    const product = review.productId;
+
+    const firstImage = product?.variants?.[0]?.variantImage?.[0]?.url || null;
+
+    return {
+      ...review,
+      productId: {
+        _id: product?._id,
+        productTittle: product?.productTittle,
+        image: firstImage, // 👈 only one image
+      },
+    };
+  });
 
   res.status(200).json({
     success: true,
     message: "Reviews fetched successfully",
-    data: reviews,
+    data: formattedReviews,
     pagination: {
       page,
       limit,
-      total: reviews.length,
+      total, // ✅ fix (not reviews.length)
       totalPages: Math.ceil(total / limit),
     },
   });

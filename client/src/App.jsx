@@ -6,21 +6,21 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import PageRouter from "./Router/PageRouter";
 import { getUserDetails } from "./redux/cart/userSlice";
-import { useAutoRefreshToken } from "./hooks/useAutoRefreshToken";
-import { fetchAddresses } from "./redux/cart/addressSlice";
+// import { useAutoRefreshToken } from "./hooks/useAutoRefreshToken";
+// import { fetchAddresses } from "./redux/cart/addressSlice";
 import { fetchAllProducts } from "./redux/cart/productSlice";
 
 function App() {
   const dispatch = useDispatch();
   const { isAuthenticated } = useSelector((state) => state.user);
 
-  useAutoRefreshToken();
+  // useAutoRefreshToken();
 
   useEffect(() => {
     const initializeUser = async () => {
       try {
         await dispatch(getUserDetails()).unwrap();
-        await dispatch(fetchAllProducts());
+        // await dispatch(fetchAllProducts());
       } catch (err) {
         // Cookie expired ya user not logged in
         console.log("User not authenticated");
@@ -30,11 +30,11 @@ function App() {
     initializeUser();
   }, [dispatch]);
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      dispatch(fetchAddresses());
-    }
-  }, [dispatch, isAuthenticated]);
+  // useEffect(() => {
+  //   if (isAuthenticated) {
+  //     dispatch(fetchAddresses());
+  //   }
+  // }, [dispatch, isAuthenticated]);
 
   useEffect(() => {
     dispatch(syncCart());
