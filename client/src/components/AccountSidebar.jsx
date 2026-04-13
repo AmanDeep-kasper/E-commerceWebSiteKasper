@@ -120,10 +120,10 @@ function AccountSidebar() {
         <hr />
         <button
           onClick={handleLogout}
-          className="w-full flex items-center bg-gradient-to-r from-[#CFC7FF]/50 to-[#FFC9EA]/20 px-3 py-3 mt-1 text-lg font-normal text-[#1C1C1C] hover:bg-[#D5E5F5] rounded-lg transition-all duration-200 group"
+          className="w-full flex items-center bg-[#F0EEFF] px-3 py-3 mt-1 text-lg font-normal text-[#1C1C1C] hover:bg-[#D5E5F5] rounded-lg transition-all duration-200 group"
         >
-          <div className="p-1.5 mr-3 bg-[#D5E5F5] text-[#1C3753] rounded-lg group-hover:bg-[#D5E5F5] transition-all duration-200">
-            <LogOut />
+          <div className="p-1.5 mr-3 bg-[#F0EEFF] text-[#1C3753] rounded-lg group-hover:bg-[#D5E5F5] transition-all duration-200">
+            <LogOut className="text-[#1800AC]"/>
           </div>
           Log Out
         </button>
