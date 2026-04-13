@@ -34,11 +34,7 @@ export const registerUser = asyncHandler(async (req, res) => {
   const otp = generateOTP();
   const otpExpires = new Date(Date.now() + 10 * 60 * 1000);
 
-  try {
-    await sendRegistrationEmail(email, otp);
-  } catch (error) {
-    console.log("Error sending email:", error);
-  }
+  await sendRegistrationEmail(email, otp);
 
   const tempUser = new TempUser({
     name,
@@ -92,11 +88,7 @@ export const resendOTP = asyncHandler(async (req, res) => {
   const otp = generateOTP();
   const otpExpires = new Date(Date.now() + 10 * 60 * 1000);
 
-  try {
-    await sendRegistrationEmail(tempUser.email, otp);
-  } catch (error) {
-    console.log("Error sending email:", error);
-  }
+  await sendRegistrationEmail(tempUser.email, otp);
 
   // Replace old OTP
   tempUser.otp = otp;
@@ -636,11 +628,7 @@ export const forgotPassword = asyncHandler(async (req, res) => {
   const resetLink = `${env.FRONTEND_URL}/reset-password?token=${resetToken}&email=${encodeURIComponent(email)}`;
 
   // Non-blocking email send — failures logged but don't affect response
-  try {
-    await sendPasswordResetEmail(user.email, user.name, resetLink, tokenExpiry);
-  } catch (error) {
-    console.log("Error sending email:", error);
-  }
+  await sendPasswordResetEmail(user.email, user.name, resetLink, tokenExpiry);
 
   res.status(200).json({
     success: true,

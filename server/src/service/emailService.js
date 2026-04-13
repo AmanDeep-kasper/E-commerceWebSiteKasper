@@ -2,88 +2,66 @@ import { getTransporter } from "../utils/mailer.js";
 import env from "../config/env.js";
 
 // REGISTRATION EMAIL OTP
-// export const sendRegistrationEmail = async (email, otp) => {
-//   const mailOptions = {
-//     from: `"${env.SMTP_FROM_NAME}" <${env.SMTP_FROM_EMAIL}>`,
-//     to: email,
-//     subject: "Your registration OTP for HappyArtSupplies",
-//     html: `
-//       <div style="margin:0;padding:0;background:#eef2f7;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial;">
-//         <div style="max-width:600px;margin:40px auto;padding:0 16px;">
-          
-//           <div style="background:#ffffff;border-radius:16px;overflow:hidden;
-//             box-shadow:0 8px 24px rgba(0,0,0,0.08);">
-
-//             <!-- Header -->
-//             <div style="background:linear-gradient(135deg,#667eea,#764ba2);
-//               padding:28px;text-align:center;">
-//               <h2 style="margin:0;color:#fff;font-weight:600;">HappyArtSupplies</h2>
-//             </div>
-
-//             <!-- Content -->
-//             <div style="padding:32px;">
-//               <p style="margin:0 0 12px;color:#111827;">Hi,</p>
-              
-//               <p style="color:#4b5563;line-height:1.6;">
-//                 Your registration OTP for HappyArt is
-//               </p>
-
-//               <!-- OTP -->
-//               <div style="text-align:center;margin:24px 0;">
-//                 <span style="display:inline-block;font-size:32px;
-//                   letter-spacing:8px;font-weight:700;color:#4f46e5;
-//                   background:#f3f4f6;padding:14px 26px;border-radius:10px;">
-//                   ${otp}
-//                 </span>
-//               </div>
-
-//               <p style="color:#4b5563;">
-//                 This OTP is valid for <b>10 minutes</b>.
-//               </p>
-
-//               <p style="color:#6b7280;">
-//                 If you did not request this, please ignore this email.
-//               </p>
-//             </div>
-
-//             <!-- Footer -->
-//             <div style="background:#f9fafb;padding:20px;text-align:center;
-//               border-top:1px solid #e5e7eb;">
-//               <p style="font-size:12px;color:#9ca3af;margin:0;">
-//                 © ${new Date().getFullYear()} HappyArtSupplies
-//               </p>
-//             </div>
-
-//           </div>
-//         </div>
-//       </div>
-//     `,
-//   };
-
-//   const transporter = getTransporter();
-//   await transporter.sendMail(mailOptions);
-// };
-
 export const sendRegistrationEmail = async (email, otp) => {
-  const transporter = getTransporter();
-
   const mailOptions = {
-    from: `"HappyArtSupplies" <${process.env.SMTP_USER}>`,
+    from: `"${env.SMTP_FROM_NAME}" <${env.SMTP_FROM_EMAIL}>`,
     to: email,
-    subject: "Your OTP",
-    text: `Your OTP is ${otp}`,
+    subject: "Your registration OTP for HappyArtSupplies",
+    html: `
+      <div style="margin:0;padding:0;background:#eef2f7;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial;">
+        <div style="max-width:600px;margin:40px auto;padding:0 16px;">
+          
+          <div style="background:#ffffff;border-radius:16px;overflow:hidden;
+            box-shadow:0 8px 24px rgba(0,0,0,0.08);">
+
+            <!-- Header -->
+            <div style="background:linear-gradient(135deg,#667eea,#764ba2);
+              padding:28px;text-align:center;">
+              <h2 style="margin:0;color:#fff;font-weight:600;">HappyArtSupplies</h2>
+            </div>
+
+            <!-- Content -->
+            <div style="padding:32px;">
+              <p style="margin:0 0 12px;color:#111827;">Hi,</p>
+              
+              <p style="color:#4b5563;line-height:1.6;">
+                Your registration OTP for HappyArt is
+              </p>
+
+              <!-- OTP -->
+              <div style="text-align:center;margin:24px 0;">
+                <span style="display:inline-block;font-size:32px;
+                  letter-spacing:8px;font-weight:700;color:#4f46e5;
+                  background:#f3f4f6;padding:14px 26px;border-radius:10px;">
+                  ${otp}
+                </span>
+              </div>
+
+              <p style="color:#4b5563;">
+                This OTP is valid for <b>10 minutes</b>.
+              </p>
+
+              <p style="color:#6b7280;">
+                If you did not request this, please ignore this email.
+              </p>
+            </div>
+
+            <!-- Footer -->
+            <div style="background:#f9fafb;padding:20px;text-align:center;
+              border-top:1px solid #e5e7eb;">
+              <p style="font-size:12px;color:#9ca3af;margin:0;">
+                © ${new Date().getFullYear()} HappyArtSupplies
+              </p>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    `,
   };
 
-  console.log("📩 Before sendMail");
-
-  try {
-    const info = await transporter.sendMail(mailOptions);
-    console.log("📨 Email sent:", info.response);
-  } catch (error) {
-    console.error("❌ Email error:", error);
-  }
-
-  console.log("🔥 After sendMail");
+  const transporter = getTransporter();
+  await transporter.sendMail(mailOptions);
 };
 
 // PASSWORD RESET EMAIL
