@@ -106,34 +106,105 @@ import Rating from "../pages/user/Rating";
 import Collection from "../pages/admin/Collection/Collection";
 import BestSelling from "../pages/admin/Collection/BestSelling";
 import ProtectedRoute from "../pages/user/ProtectedRoute";
+import GuestRoute from "../pages/user/GuestRoute";
 
 const PageRouter = () => {
   return (
     <BrowserRouter>
       <ScrollToTop />
       <Routes>
-        {/* Public Routes */}
-        <Route path="/" element={<Navigate to="/login" replace />} />
-        <Route path="/home" element={<Home />} />
+        {/* ========== GUEST-ONLY ROUTES (redirect to /home if logged in) ========== */}
+        <Route path="/" element={<Navigate to="/home" replace />} />
+        <Route
+          path="/login"
+          element={
+            <GuestRoute>
+              <Login />
+            </GuestRoute>
+          }
+        />
+        <Route
+          path="/register"
+          element={
+            <GuestRoute>
+              <Register />
+            </GuestRoute>
+          }
+        />
+        <Route
+          path="/forgot-password"
+          element={
+            <GuestRoute>
+              <ForgotPassword />
+            </GuestRoute>
+          }
+        />
+        <Route
+          path="/reset-password"
+          element={
+            <GuestRoute>
+              <ResetPassword />
+            </GuestRoute>
+          }
+        />
+
+        {/* ========== PUBLIC PAGES (guest + logged-in users) ========== */}
         <Route path="/faqs" element={<Faqs />} />
         <Route path="/policy" element={<Policy />} />
         <Route path="/aboutUs" element={<AboutUs />} />
         <Route path="/shippingpolicy" element={<ShippingPolicy />} />
         <Route path="/returnrefundpolicy" element={<ReturnRefundPolicy />} />
         <Route path="/termsconditions" element={<TermsConditions />} />
+
+        {/* Home & Store Browsing — public for guests */}
+        <Route path="/home" element={<Home />} />
+        <Route path="/products" element={<NewProducts />} />
+        <Route path="/products/top-products" element={<TopProducts />} />
+        <Route path="/products/:categoryName" element={<Product />} />
+        <Route
+          path="/products/:categoryName/:subcategoryName"
+          element={<Product />}
+        />
+        <Route path="/product/:uuid" element={<ProductDetails />} />
+        <Route path="/all-reviews/:uuid" element={<AllReviews />} />
+
+        {/* ========== PROTECTED USER ROUTES (require login) ========== */}
+        <Route
+          path="/bag"
+          element={
+            <ProtectedRoute>
+              <Cart />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/product-form"
+          element={
+            <ProtectedRoute>
+              <AddProduct />
+            </ProtectedRoute>
+          }
+        />
+
         {/* Rating */}
-        <Route path="rating" element={<Rating />} />
+        <Route
+          path="rating"
+          element={
+            <ProtectedRoute>
+              <Rating />
+            </ProtectedRoute>
+          }
+        />
 
-        {/* Auth Route */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
-        {/* App Pages */}
-        <Route path="/bag" element={<Cart />} />
         {/* Accounts */}
-
-        <Route path="/accounts" element={<AccountLayout />}>
+        <Route
+          path="/accounts"
+          element={
+            <ProtectedRoute>
+              <AccountLayout />
+            </ProtectedRoute>
+          }
+        >
           <Route path="details" element={<AccountDetails />} />
           <Route path="order-history" element={<OrderHistory />} />
           <Route path="order-detail/:orderId" element={<OrderDetail />} />
@@ -151,25 +222,43 @@ const PageRouter = () => {
           <Route path="reviews" element={<MyReviews />} />
         </Route>
 
-        <Route path="checkout/delivery" element={<Delivery />} />
-
-        {/* <Route path="/recent" element={<RecentActivity />} /> */}
-        <Route path="/order-history/:orderId" element={<OrderTracking />} />
-        <Route path="/products/:categoryName" element={<Product />} />
-        <Route path="/confirm-order" element={<ConfirmOrder />} />
-        <Route path="/all-reviews/:uuid" element={<AllReviews />} />
-        <Route path="/products" element={<NewProducts />} />
-        <Route path="/products/top-products" element={<TopProducts />} />
+        {/* Checkout */}
         <Route
-          path="/products/:categoryName/:subcategoryName"
-          element={<Product />}
+          path="checkout/delivery"
+          element={
+            <ProtectedRoute>
+              <Delivery />
+            </ProtectedRoute>
+          }
         />
-        <Route path="/product/:uuid" element={<ProductDetails />} />
-        <Route path="/product-form" element={<AddProduct />} />
-        <Route path="/checkout/payment" element={<Payment />} />
-        <Route path="/policy" element={<Policy />} />
+        <Route
+          path="/checkout/payment"
+          element={
+            <ProtectedRoute>
+              <Payment />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/confirm-order"
+          element={
+            <ProtectedRoute>
+              <ConfirmOrder />
+            </ProtectedRoute>
+          }
+        />
 
-        {/* Admin Route */}
+        {/* Order tracking */}
+        <Route
+          path="/order-history/:orderId"
+          element={
+            <ProtectedRoute>
+              <OrderTracking />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* ========== ADMIN ROUTES (require login + admin role) ========== */}
         <Route
           path="/admin"
           element={

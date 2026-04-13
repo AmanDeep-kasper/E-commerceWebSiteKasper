@@ -22,12 +22,11 @@ import { upload } from "../middlewares/multer.js";
 
 const router = express.Router();
 
-router.get("/detail", authenticate, authorize("user"), getUserDetails);
+router.get("/detail", authenticate, getUserDetails);
 
 router.patch(
   "/update-detail",
   authenticate,
-  authorize("user"),
   updateUserDetailsValidation,
   validateRequest,
   updateUserDetails,
@@ -36,7 +35,6 @@ router.patch(
 router.patch(
   "/update-profile-image",
   authenticate,
-  authorize("user"),
   (req, res, next) => {
     req.uploadFolder = "profile";
     next();
@@ -48,7 +46,6 @@ router.patch(
 router.post(
   "/update-email",
   authenticate,
-  authorize("user"),
   updateUserEmailValidation,
   validateRequest,
   updateUserEmail,
@@ -57,7 +54,6 @@ router.post(
 router.post(
   "/verify-otp",
   authenticate,
-  authorize("user"),
   otpValidation,
   validateRequest,
   verifyOTP,

@@ -1,5 +1,4 @@
 import Product from "../models/Product.js";
-import Category from "../models/Category.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import AppError from "../utils/AppError.js";
 import {
@@ -32,19 +31,19 @@ export const uploadVariantsImages = asyncHandler(async (req, res) => {
 });
 
 // delete images of variants
-export const deleteVariantImages = asyncHandler(async (req, res) => {
-  const publicId = decodeURIComponent(req.params.publicId);
-  if (!publicId) {
-    throw AppError.badRequest("publicId required", "MISSING_PUBLIC_ID");
-  }
+// export const deleteVariantImages = asyncHandler(async (req, res) => {
+//   const publicId = decodeURIComponent(req.params.publicId);
+//   if (!publicId) {
+//     throw AppError.badRequest("publicId required", "MISSING_PUBLIC_ID");
+//   }
 
-  await deleteImageFromCloudinary(publicId);
+//   await deleteImageFromCloudinary(publicId);
 
-  res.status(200).json({
-    success: true,
-    message: "Image deleted",
-  });
-});
+//   res.status(200).json({
+//     success: true,
+//     message: "Image deleted",
+//   });
+// });
 
 const cloudDelete = (images = []) =>
   Promise.allSettled(
@@ -374,6 +373,252 @@ export const adminDeleteProduct = asyncHandler(async (req, res) => {
   });
 });
 
+export const adminAddVariant = asyncHandler(async (req, res) => {
+  const { productId } = req.params;
+  const product = await Product.findById(productId);
+
+  if (!product) {
+    throw AppError.notFound("Product not found", "NOT_FOUND");
+  }
+
+  const newVariant = req.body; // make sure payload is flat
+
+  if (!newVariant.variantSkuId) {
+    throw AppError.badRequest("variantSkuId is required", "MISSING_SKU");
+  }
+
+  // ✅ SKU uniqueness check
+  const skuExists = await Product.findOne({
+    "variants.variantSkuId": newVariant.variantSkuId,
+  });
+
+  if (skuExists) {
+    throw AppError.conflict("SKU already exists", "SKU_ALREADY_EXISTS");
+  }
+
+  // ✅ Convert numbers
+  newVariant.variantMrp = Number(newVariant.variantMrp);
+  newVariant.variantSellingPrice = Number(newVariant.variantSellingPrice);
+
+  // ✅ Validate price
+  if (newVariant.variantSellingPrice > newVariant.variantMrp) {
+    throw AppError.badRequest(
+      "Selling price cannot exceed MRP",
+      "INVALID_PRICE",
+    );
+  }
+
+  // ✅ Calculate discount
+  newVariant.variantDiscount = Number(
+    (
+      ((newVariant.variantMrp - newVariant.variantSellingPrice) /
+        newVariant.variantMrp) *
+      100
+    ).toFixed(2),
+  );
+
+  // ✅ Handle selected variant
+  if (newVariant.isSelected) {
+    product.variants.forEach((v) => (v.isSelected = false));
+  }
+
+  product.variants.push(newVariant);
+
+  await product.save();
+
+  const added = product.variants[product.variants.length - 1];
+
+  res.status(201).json({
+    success: true,
+    message: "Variant added successfully",
+    data: added,
+  });
+});
+
+export const adminUpdateVariant = asyncHandler(async (req, res) => {
+  const { productId, variantId } = req.params;
+  const updates = req.body;
+
+  const product = await Product.findById(productId);
+  if (!product) {
+    throw AppError.notFound("Product not found", "NOT_FOUND");
+  }
+
+  const variant = product.variants.id(variantId);
+  if (!variant) {
+    throw AppError.notFound("Variant not found", "NOT_FOUND");
+  }
+
+  // ✅ Handle isSelected
+  if (updates.isSelected === true) {
+    product.variants.forEach((v) => (v.isSelected = false));
+    variant.isSelected = true;
+  }
+
+  // ✅ Allowed fields
+  const allowedVariantFields = [
+    "variantName",
+    "variantColor",
+    "variantWeight",
+    "variantWeightUnit",
+    "variantMrp",
+    "variantCostPrice",
+    "variantSellingPrice",
+    "variantGST",
+    "variantAvailableStock",
+    "variantLowStockAlertStock",
+  ];
+
+  // ✅ Update fields + convert numbers
+  for (const field of allowedVariantFields) {
+    if (updates[field] !== undefined) {
+      if (
+        [
+          "variantMrp",
+          "variantCostPrice",
+          "variantSellingPrice",
+          "variantGST",
+          "variantAvailableStock",
+          "variantLowStockAlertStock",
+        ].includes(field)
+      ) {
+        variant[field] = Number(updates[field]);
+      } else {
+        variant[field] = updates[field];
+      }
+    }
+  }
+
+  // ✅ Recalculate Discount (IMPORTANT)
+  const mrp = variant.variantMrp;
+  const selling = variant.variantSellingPrice;
+
+  if (selling > mrp) {
+    throw AppError.badRequest(
+      "Selling price cannot exceed MRP",
+      "INVALID_PRICE",
+    );
+  }
+
+  variant.variantDiscount = Number((((mrp - selling) / mrp) * 100).toFixed(2));
+
+  await product.save();
+
+  return res.status(200).json({
+    success: true,
+    message: "Variant updated successfully",
+    data: variant,
+  });
+});
+
+export const adminUpdateVariantImages = asyncHandler(async (req, res) => {
+  const { productId, variantId } = req.params;
+  const { variantImage = [] } = req.body;
+
+  // ✅ Validate input
+  if (!Array.isArray(variantImage)) {
+    throw AppError.badRequest(
+      "variantImage must be an array",
+      "INVALID_FORMAT",
+    );
+  }
+
+  // optional: at least 1 image required
+  if (variantImage.length === 0) {
+    throw AppError.badRequest(
+      "At least one image is required",
+      "MIN_ONE_IMAGE",
+    );
+  }
+
+  // Validate each image object
+  for (const img of variantImage) {
+    if (!img.url || !img.publicId) {
+      throw AppError.badRequest(
+        "Each image must have url and publicId",
+        "INVALID_IMAGE_OBJECT",
+      );
+    }
+  }
+
+  const product = await Product.findById(productId);
+  if (!product) {
+    throw AppError.notFound("Product not found", "NOT_FOUND");
+  }
+
+  const variant = product.variants.id(variantId);
+  if (!variant) {
+    throw AppError.notFound("Variant not found", "NOT_FOUND");
+  }
+
+  // Find removed images
+  const newPublicIds = new Set(variantImage.map((img) => img.publicId));
+
+  const removedImages = variant.variantImage.filter(
+    (img) => img.publicId && !newPublicIds.has(img.publicId),
+  );
+
+  // ✅ Delete removed images from Cloudinary
+  if (removedImages.length > 0) {
+    const publicIdsToDelete = removedImages.map((img) => img.publicId);
+
+    await Promise.allSettled(
+      publicIdsToDelete.map((id) => deleteImageFromCloudinary(id)),
+    );
+  }
+
+  // Assign new images (final state)
+  variant.variantImage = variantImage;
+
+  await product.save();
+
+  return res.status(200).json({
+    success: true,
+    message: "Variant images updated successfully",
+    data: variant.variantImage,
+  });
+});
+
+export const adminDeleteVariant = asyncHandler(async (req, res) => {
+  const { productId, variantId } = req.params;
+
+  const product = await Product.findById(productId);
+  if (!product) {
+    throw AppError.notFound("Product not found", "NOT_FOUND");
+  }
+
+  if (product.variants.length === 1) {
+    throw AppError.badRequest(
+      "Cannot delete the only variant. Delete the product instead.",
+      "ONLY_VARIANT",
+    );
+  }
+
+  const variant = product.variants.id(variantId);
+  if (!variant) {
+    throw AppError.notFound("Variant not found", "NOT_FOUND");
+  }
+
+  const wasSelected = variant.isSelected;
+
+  // Delete variant images from Cloudinary
+  await cloudDelete(variant.variantImage);
+
+  // Remove variant from array
+  product.variants.pull(variantId);
+
+  // Re-assign isSelected if needed
+  if (wasSelected && product.variants.length > 0) {
+    product.variants[0].isSelected = true;
+  }
+
+  await product.save();
+
+  return res
+    .status(200)
+    .json({ success: true, message: "Variant deleted successfully" });
+});
+
 // export const deleteProduct = async (req, res) => {
 //   try {
 //     const product = await Product.findByIdAndDelete(req.params.id);
@@ -399,130 +644,136 @@ export const adminDeleteProduct = asyncHandler(async (req, res) => {
 
 // ==================== USER CONTROLLERS ====================
 
-/**
- * Get all active products for users (with filters)
- */
+// user controller
 export const userGetAllProducts = asyncHandler(async (req, res) => {
   const {
     page = 1,
     limit = 20,
     search,
     category,
-    brand,
-    minPrice,
-    maxPrice,
-    sortBy = "createdAt",
-    sortOrder = "desc",
-    inStockOnly = false,
-    featured = false,
+    subcategory,
+    sortBy = "latest",
   } = req.query;
 
-  // Build filter - only active products
-  const filter = { isActive: true };
-  if (featured === "true") filter.isFeatured = true;
-  if (category) filter.categories = category;
-  if (brand) filter.brand = { $regex: brand, $options: "i" };
-
-  // Price filter
-  if (minPrice || maxPrice) {
-    filter["variants.sellingPrice"] = {};
-    if (minPrice) filter["variants.sellingPrice"].$gte = parseFloat(minPrice);
-    if (maxPrice) filter["variants.sellingPrice"].$lte = parseFloat(maxPrice);
-  }
-
-  // Stock filter
-  if (inStockOnly === "true") {
-    filter["variants.stockQuantity"] = { $gt: 0 };
-  }
-
-  // Search filter
-  if (search) {
-    filter.$or = [
-      { name: { $regex: search, $options: "i" } },
-      { brand: { $regex: search, $options: "i" } },
-      { shortDescription: { $regex: search, $options: "i" } },
-    ];
-  }
-
-  // Pagination
   const pageNum = parseInt(page);
   const limitNum = parseInt(limit);
   const skip = (pageNum - 1) * limitNum;
 
-  // Sort options for users
+  // ✅ FILTER (ONLY ACTIVE PRODUCTS)
+  const filter = { isActive: true };
+
+  // ✅ CATEGORY FILTER (ObjectId)
+  if (category && mongoose.Types.ObjectId.isValid(category)) {
+    filter.category = category;
+  }
+
+  // ✅ SUBCATEGORY FILTER
+  if (subcategory && mongoose.Types.ObjectId.isValid(subcategory)) {
+    filter.subcategory = subcategory;
+  }
+
+  // ✅ SEARCH (name + SKU)
+  if (search) {
+    filter.$or = [
+      { productTittle: { $regex: search, $options: "i" } },
+      { "variants.variantSkuId": { $regex: search, $options: "i" } },
+    ];
+  }
+
+  // ✅ SORT OPTIONS
   let sort = {};
+
   switch (sortBy) {
     case "price_low":
-      sort = { "variants.sellingPrice": 1 };
+      sort = { "variants.variantSellingPrice": 1 };
       break;
+
     case "price_high":
-      sort = { "variants.sellingPrice": -1 };
+      sort = { "variants.variantSellingPrice": -1 };
       break;
+
+    case "latest":
+      sort = { createdAt: -1 };
+      break;
+
+    case "oldest":
+      sort = { createdAt: 1 };
+      break;
+
+    case "az":
+      sort = { productTittle: 1 };
+      break;
+
+    case "za":
+      sort = { productTittle: -1 };
+      break;
+
     case "rating":
       sort = { "stats.averageRating": -1 };
       break;
+
     case "popularity":
       sort = { "stats.totalSold": -1 };
       break;
-    case "newest":
-      sort = { createdAt: -1 };
-      break;
+
     default:
-      sort[sortBy] = sortOrder === "desc" ? -1 : 1;
+      sort = { createdAt: -1 };
   }
 
-  // Execute queries
+  // ✅ QUERY
   const [products, total] = await Promise.all([
     Product.find(filter)
-      .populate("categories", "name slug")
-      .select(
-        "name slug brand shortDescription variants images isFeatured stats createdAt",
-      )
+      .populate("category", "name slug")
+      .populate("subcategory", "name slug")
+      .select("productTittle slug variants stats createdAt")
       .sort(sort)
       .skip(skip)
       .limit(limitNum)
       .lean(),
+
     Product.countDocuments(filter),
   ]);
 
-  // Process products for user view
+  // ✅ PROCESS DATA
   const processedProducts = products.map((product) => {
-    const activeVariants = product.variants.filter((v) => v.stockQuantity > 0);
-    const defaultVariant =
-      product.variants.find((v) => v.isDefault) || product.variants[0];
-    const lowestPrice = Math.min(
-      ...product.variants.map((v) => v.sellingPrice),
-    );
-    const highestPrice = Math.max(
-      ...product.variants.map((v) => v.sellingPrice),
-    );
-    const primaryImage =
-      product.images?.find((img) => img.isPrimary) ||
-      product.images?.[0] ||
-      defaultVariant?.images?.[0];
+    const variants = product.variants || [];
+
+    const inStockVariants = variants.filter((v) => v.variantAvailableStock > 0);
+
+    const defaultVariant = variants.find((v) => v.isSelected) || variants[0];
+
+    const prices = variants.map((v) => v.variantSellingPrice);
+
+    const lowestPrice = prices.length ? Math.min(...prices) : 0;
+    const highestPrice = prices.length ? Math.max(...prices) : 0;
+
+    const image = defaultVariant?.variantImage?.[0]?.url || null;
 
     return {
       _id: product._id,
-      name: product.name,
+      name: product.productTittle,
       slug: product.slug,
-      brand: product.brand,
-      shortDescription: product.shortDescription,
+
       priceRange: {
         min: lowestPrice,
         max: highestPrice,
         hasVariants: lowestPrice !== highestPrice,
       },
-      defaultPrice: defaultVariant?.sellingPrice,
-      discountPercent: defaultVariant?.discountPercent,
-      image: primaryImage?.url || null,
-      isFeatured: product.isFeatured,
+
+      defaultPrice: defaultVariant?.variantSellingPrice || 0,
+      discount: defaultVariant?.variantDiscount || 0,
+
+      image,
+
+      inStock: inStockVariants.length > 0,
+      variantCount: variants.length,
+
       stats: product.stats,
-      inStock: activeVariants.length > 0,
-      variantCount: activeVariants.length,
       createdAt: product.createdAt,
     };
   });
 
+  // ✅ RESPONSE
   res.status(200).json({
     success: true,
     data: processedProducts,
@@ -532,19 +783,9 @@ export const userGetAllProducts = asyncHandler(async (req, res) => {
       total,
       pages: Math.ceil(total / limitNum),
     },
-    filters: {
-      search,
-      category,
-      brand,
-      minPrice,
-      maxPrice,
-      inStockOnly,
-      featured,
-    },
   });
 });
 
-// user controller
 export const userGetProductDetails = asyncHandler(async (req, res) => {
   const { slugOrId } = req.params;
 
@@ -554,79 +795,15 @@ export const userGetProductDetails = asyncHandler(async (req, res) => {
     : { slug: slugOrId, isActive: true };
 
   const product = await Product.findOne(query)
-    .populate("categories", "name slug path")
+    .populate("category", "name slug")
     .lean();
 
   if (!product) {
-    throw new AppError("Product not found", 404);
+    throw AppError.notFound("Product not found", "NOT_FOUND");
   }
-
-  // Process variants for user view
-  const variants = product.variants.map((variant) => ({
-    _id: variant._id,
-    sku: variant.sku,
-    size: variant.size,
-    color: variant.color,
-    material: variant.material,
-    weightKg: variant.weightKg,
-    dimensions: variant.dimensions,
-    mrpPrice: variant.mrpPrice,
-    sellingPrice: variant.sellingPrice,
-    discountPercent: variant.discountPercent,
-    stockQuantity: variant.stockQuantity,
-    isDefault: variant.isDefault,
-    inStock: variant.stockQuantity > 0,
-    images: variant.images?.map((img) => ({
-      url: img.url,
-      altText: img.altText,
-      isPrimary: img.isPrimary,
-    })),
-  }));
-
-  // Get related products (same categories)
-  const relatedProducts = await Product.find({
-    isActive: true,
-    categories: { $in: product.categories },
-    _id: { $ne: product._id },
-  })
-    .limit(10)
-    .select("name slug brand images variants stats")
-    .lean();
-
-  const processedRelated = relatedProducts.map((p) => {
-    const defaultVariant = p.variants.find((v) => v.isDefault) || p.variants[0];
-    const primaryImage =
-      p.images?.find((img) => img.isPrimary) || p.images?.[0];
-
-    return {
-      _id: p._id,
-      name: p.name,
-      slug: p.slug,
-      brand: p.brand,
-      price: defaultVariant?.sellingPrice,
-      image: primaryImage?.url,
-      averageRating: p.stats?.averageRating,
-    };
-  });
-
-  // Get available filters from product
-  const availableFilters = {
-    sizes: [...new Set(product.variants.map((v) => v.size).filter(Boolean))],
-    colors: [...new Set(product.variants.map((v) => v.color).filter(Boolean))],
-    materials: [
-      ...new Set(product.variants.map((v) => v.material).filter(Boolean)),
-    ],
-  };
-
   res.status(200).json({
     success: true,
-    data: {
-      ...product,
-      variants,
-      availableFilters,
-      relatedProducts: processedRelated,
-      inStock: variants.some((v) => v.inStock),
-      hasVariants: variants.length > 1,
-    },
+    message: "Product details fetched successfully",
+    data: product,
   });
 });
