@@ -85,9 +85,9 @@ function CustomerLayout() {
 
         {!isEditPage ? (
           <Link to="edit">
-            <button className="border px-4 py-2 rounded-lg text-sm">
+            {/* <button className="border px-4 py-2 rounded-lg text-sm">
               Edit Customer
-            </button>
+            </button> */}
           </Link>
         ) : (
           <div className="flex gap-2">

@@ -396,9 +396,12 @@ const ProcessingOrders = () => {
   const [paymentstatusOpen, setPaymentStatusOpen] = useState(false);
   const [paymentstatus, setPaymentStatus] = useState("Label Generated");
   const Paymentstatuses = ["Label Generated", "Generated", "Not Generated"];
+  const [DeliveryPartner, setDeliveryPartner] = useState("Select Delivery Partner");
+  const DeliveryPartners = ["Kasper", "Other"];
 
   const [filterOne, setfilterOne] = useState("Latest Dispatch Date");
   const [filterOneOpen, setfilterOneOpen] = useState(false);
+  const [DeliveryPartnerOpen, setDeliveryPartnerOpen] = useState(false);
 
   const filterOneItems = [
     "Latest Dispatch Date",
@@ -524,9 +527,38 @@ const ProcessingOrders = () => {
                         setPaymentStatus(s);
                         setPaymentStatusOpen(false);
                       }}
-                      className={`px-4 py-2 text-sm cursor-pointer text-[#686868] hover:bg-gray-100 ${
-                        paymentstatus === s ? "bg-gray-100 font-medium" : ""
-                      }`}
+                      className={`px-4 py-2 text-sm cursor-pointer text-[#686868] hover:bg-gray-100 ${paymentstatus === s ? "bg-gray-100 font-medium" : ""
+                        }`}
+                    >
+                      {s}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+
+            <div className="relative">
+              <button
+                className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 bg-[#F8FBFC] rounded-lg hover:bg-gray-100 border"
+                onClick={() => setDeliveryPartnerOpen((p) => !p)}
+              >
+                {DeliveryPartner}
+                <ChevronDown className="w-4 h-4 text-gray-500" />
+              </button>
+              {DeliveryPartnerOpen && (
+                <div className="absolute mt-2 w-52 -right-2 top-8 bg-white border rounded-lg shadow-md z-100">
+                  {DeliveryPartners.map((s) => (
+                    <div
+                      key={s}
+                      onClick={() => {
+                        setDeliveryPartner(s);
+                        setDeliveryPartnerOpen(false);
+                      }}
+                      className={`px-4 py-2 text-sm cursor-pointer hover:bg-gray-100 text-[#686868] ${DeliveryPartner === s
+                        ? "bg-gray-100 text-[#686868] font-medium"
+                        : ""
+                        }`}
                     >
                       {s}
                     </div>
@@ -552,11 +584,10 @@ const ProcessingOrders = () => {
                         setfilterOne(s);
                         setfilterOneOpen(false);
                       }}
-                      className={`px-4 py-2 text-sm cursor-pointer hover:bg-gray-100 text-[#686868] ${
-                        filterOne === s
-                          ? "bg-gray-100 text-[#686868] font-medium"
-                          : ""
-                      }`}
+                      className={`px-4 py-2 text-sm cursor-pointer hover:bg-gray-100 text-[#686868] ${filterOne === s
+                        ? "bg-gray-100 text-[#686868] font-medium"
+                        : ""
+                        }`}
                     >
                       {s}
                     </div>

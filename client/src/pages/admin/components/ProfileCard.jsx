@@ -276,7 +276,7 @@ function ProfileCard({ customer }) {
               {customer.name}
             </div>
             {/* <div className="text-sm text-gray-500 mt-1">ID: {customer.id}</div> */}
-            <div className="text-sm text-gray-500 mt-1"> {customer.id}</div>
+            {/* <div className="text-sm text-gray-500 mt-1"> {customer.id}</div> */}
             <div className="text-sm text-gray-500 mt-1">{customer.phone}</div>
             <div className="text-sm text-gray-500 mt-1">{customer.email}</div>
           </div>

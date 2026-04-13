@@ -736,7 +736,7 @@ const CancelledOrders = () => {
   const columns = [
     "Order ID",
     "Order Value",
-    "Payment Type",
+    // "Payment Type",
     "Refund Status",
     "Cancellation Date",
     "Action",
@@ -937,7 +937,7 @@ const CancelledOrders = () => {
                 <td className="px-4 py-3">{order.orderId}</td>
                 <td className="px-4 py-3">₹{order.orderValue}</td>
 
-                <td
+                {/* <td
                   className={`px-4 py-3 font-medium text-xs ${
                     order.paymentType === "Prepaid"
                       ? "text-[#00A63E]"
@@ -947,7 +947,7 @@ const CancelledOrders = () => {
                   }`}
                 >
                   {order.paymentType}
-                </td>
+                </td> */}
 
                 <td className="px-4 py-3 text-xs">
                   <span

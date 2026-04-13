@@ -726,12 +726,12 @@ const OrderDetail = () => {
         {/* When Processing */}
         {order.orderStatus === "Processing" && (
           <>
-            <button
+            {/* <button
               onClick={() => setOpenCancelModal(true)}
               className="bg-white text-[#D53B35] px-6 py-2 rounded-md border border-[#D53B35] text-sm hover:bg-[#c7625e] hover:text-white transition-colors"
             >
               Cancel Order
-            </button>
+            </button> */}
 
             <button
               className="bg-[#1C3753] text-white px-6 py-2 rounded-md text-sm hover:bg-[#15314f] transition-colors"
