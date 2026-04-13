@@ -19,6 +19,19 @@ export const addReview = asyncHandler(async (req, res) => {
     throw AppError.notFound("Product not found", "NOT_FOUND");
   }
 
+  // check duplicate review on same product
+  const existingReview = await Review.findOne({
+    productId,
+    userId,
+  });
+
+  if (existingReview) {
+    throw AppError.conflict(
+      "You have already reviewed this product",
+      "DUPLICATE_REVIEW",
+    );
+  }
+
   // uplaod images to cloudinary
   const uploadedImages = [];
   if (reviewImages) {
@@ -151,7 +164,6 @@ export const getReview = asyncHandler(async (req, res) => {
 export const updateReview = asyncHandler(async (req, res) => {
   const { reviewId } = req.params;
   const { rating, reviewText, removeImages } = req.body;
-  const userId = req.user?.userId;
 
   const review = await Review.findById(reviewId);
 
@@ -162,8 +174,8 @@ export const updateReview = asyncHandler(async (req, res) => {
   const product = await Product.findById(review.productId);
 
   // Ownership check
-  if (review.userId.toString() !== userId.toString()) {
-    throw AppError.unauthorized("Not allowed");
+  if (!req.user?.userId) {
+    throw AppError.unauthorized("User not authenticated");
   }
 
   // Update fields
@@ -171,13 +183,20 @@ export const updateReview = asyncHandler(async (req, res) => {
   if (reviewText !== undefined) review.reviewText = reviewText;
 
   // update product stats
-  product.stats.averageRating = Number(
-    (product.stats.averageRating * (product.stats.totalReviews - 1) +
-      review.rating) /
-      product.stats.totalReviews,
-  ).toFixed(1);
-  await product.save();
+  if (product.stats.totalReviews === 1) {
+    product.stats.averageRating = 0;
+    product.stats.totalReviews = 0;
+  } else {
+    product.stats.averageRating = Number(
+      (
+        (product.stats.averageRating * product.stats.totalReviews -
+          review.rating) /
+        (product.stats.totalReviews - 1)
+      ).toFixed(1),
+    );
 
+    product.stats.totalReviews -= 1;
+  }
   // DELETE MULTIPLE IMAGES
   if (removeImages && Array.isArray(removeImages)) {
     // delete from cloudinary (parallel for speed)

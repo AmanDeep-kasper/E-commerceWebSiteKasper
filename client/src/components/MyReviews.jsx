@@ -232,10 +232,12 @@ function MyReviews({ totalItems = 0 }) {
                   <img
                     className="w-full h-full md:h-32 object-contain rounded-lg "
                     src={item.productId.image || img}
-
                     // alt={item.productId.productTittle}
-                    alt={item.productId.image ? item.productId.productTittle : "Product Image"}
-
+                    alt={
+                      item.productId.image
+                        ? item.productId.productTittle
+                        : "Product Image"
+                    }
                   />
                 </div>
 
@@ -244,12 +246,10 @@ function MyReviews({ totalItems = 0 }) {
                   {/* Product Name and Rating */}
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 ">
                     <h2 className="text-base sm:text-lg font-medium text-gray-700">
-
                       {item.productId.productTittle}
                       {item.productId.productTittle.length > 50
                         ? item.productId.productTittle.slice(0, 50) + "..."
                         : item.productId.productTittle}
-
                     </h2>
 
                     {/* Reviewer Info */}
