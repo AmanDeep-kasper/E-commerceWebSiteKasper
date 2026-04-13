@@ -18,7 +18,7 @@ export const generateAccessToken = (userId, role, sessionId, fingerprint) => {
   const isRS256 = env.NODE_ENV !== "development";
 
   return jwt.sign(payload, isRS256 ? env.PRIVATE_KEY : env.JWT_ACCESS_SECRET, {
-    expiresIn: env.JWT_ACCESS_EXPIRATION || "3m",
+    expiresIn: env.JWT_ACCESS_EXPIRATION || "15m",
     issuer: env.JWT_ISSUER,
     audience: env.JWT_AUDIENCE,
     algorithm: isRS256 ? "RS256" : "HS256",
@@ -84,17 +84,18 @@ export const generateAuthTokens = async (userId, role, req = null) => {
     accessToken,
     refreshToken,
     sessionId,
-    expiresIn: env.JWT_ACCESS_EXPIRATION || "3m",
+    expiresIn: env.JWT_ACCESS_EXPIRATION || "15m",
     tokenType: "Bearer",
   };
 };
 
 export const generateDeviceFingerprint = (req) => {
-  const fingerprint = {
-    userAgent: req.headers["user-agent"],
-    // acceptLanguage: req.headers["accept-language"],
-    // platform: req.headers["sec-ch-ua-platform"],
-  };
+  const fingerprint = req.headers["user-agent"] || "unknown";
+  // const fingerprint = {
+  //   // userAgent: req.headers["user-agent"],
+  //   // acceptLanguage: req.headers["accept-language"],
+  //   // platform: req.headers["sec-ch-ua-platform"],
+  // };
 
   return crypto
     .createHash("sha256")
@@ -337,7 +338,10 @@ export const rotateTokens = async (userId, role, oldRefreshToken, req) => {
         { $pull: { activeSessions: tokenData.sessionId } },
       );
 
-      throw new Error("Session expired. Please login again.");
+      console.warn("🟢 Same device reuse → allow rotation");
+
+      const newTokens = await generateAuthTokens(userId, role, req);
+      return newTokens;
     }
 
     // 🔴 CASE 2: Suspicious reuse (possible token theft)
