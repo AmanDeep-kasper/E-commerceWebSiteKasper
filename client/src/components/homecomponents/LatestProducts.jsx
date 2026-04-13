@@ -66,19 +66,24 @@ function LatestProducts() {
 
   const [latestProduct, setlatestProduct] = useState([]);
 
-  // useEffect(() => {
-  //   const fetchProducts = async () => {
-  //     try {
-  //       const res = await axiosInstance.get("/products/all");
-  //       //  console.log("PRODUCTS:", res.data);
-  //       setlatestProduct(res.data);
-  //     } catch (error) {
-  //       console.log(error);
-  //     }
-  //   };
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const res = await axiosInstance.get("/product/all");
+        console.log("PRODUCT API:", res.data);
 
-  //   fetchProducts();
-  // }, []);
+        const productData =
+          res?.data?.products || res?.data?.data || res?.data?.product || [];
+
+        setlatestProduct(Array.isArray(productData) ? productData : []);
+      } catch (error) {
+        console.log(error);
+        setlatestProduct([]);
+      }
+    };
+
+    fetchProducts();
+  }, []);
 
   const latestProducts = [...latestProduct].reverse().slice(0, 6);
 
@@ -148,7 +153,6 @@ function LatestProducts() {
       >
         {latestProducts.slice(0, visibleCount)?.map((p) => {
           const key = p.id || p.uuid || p.SKU;
-          // const { base, effective, discountPercent, symbol } = getPrices(p);
           const v = p?.variants?.[0] || {};
           const mrp = Number(v?.variantMrp || 0);
           const sell = Number(v?.variantSellingPrice || 0);
@@ -164,8 +168,7 @@ function LatestProducts() {
             <Link
               key={key}
               className="bg-white p-2 rounded-lg group/image block transition-shadow duration-300"
-              // to={`/product/${p.uuid}`}
-              to={`/product/${p._id}`} //mongo id
+              to={`/product/${p._id}`}
             >
               <div className="relative w-full overflow-hidden rounded-md">
                 <img
@@ -270,7 +273,6 @@ function LatestProducts() {
                   )}
                 </div>
                 <div className="flex flex-col items-start">
-
                   {/* <===========----------- Add to Cart ------------==========>*/}
                   <div
                     className={`w-full rounded-md flex justify-center items-center gap-4 p-2 mt-2 transition-all duration-300 ${
@@ -327,7 +329,6 @@ function LatestProducts() {
                       </>
                     )}
                   </div>
-                  
                 </div>
               </div>
             </Link>
