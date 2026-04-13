@@ -1,4 +1,4 @@
-import img from "../assets/Art3.jpg";
+// import img from "../assets/Art3.jpg";
 import { Link } from "react-router-dom";
 import {
   Star,
@@ -25,7 +25,7 @@ const initialReviews = [
     reviewTitle: "Awesome",
     review:
       "Absolutely beautiful! The detail in the metal is stunning and it looks elegant on our living room wall.",
-    image: img,
+    // image: img,
     like: 0,
     dislike: 0,
     userName: "Admin",
@@ -38,7 +38,7 @@ const initialReviews = [
     reviewTitle: "Awesome",
     review:
       "Absolutely beautiful! The detail in the metal is stunning and it looks elegant on our living room wall.",
-    image: img,
+    // image: img,
     like: 0,
     dislike: 0,
     userName: "Admin",
@@ -51,7 +51,7 @@ const initialReviews = [
     reviewTitle: "Awesome",
     review:
       "Absolutely beautiful! The detail in the metal is stunning and it looks elegant on our living room wall.",
-    image: img,
+    // image: img,
     like: 0,
     dislike: 0,
     userName: "Admin",
@@ -64,7 +64,7 @@ const initialReviews = [
     reviewTitle: "Awesome",
     review:
       "Absolutely beautiful! The detail in the metal is stunning and it looks elegant on our living room wall.",
-    image: img,
+    // image: img,
     like: 0,
     dislike: 0,
     userName: "Admin",
@@ -229,7 +229,7 @@ function MyReviews({ totalItems = 0 }) {
               <div className="flex flex-col md:flex-row gap-6">
                 {/* Product Image */}
                 <div className="w-full md:w-24 flex-shrink-0">
-                  <img
+                  {/* <img
                     className="w-full h-full md:h-32 object-contain rounded-lg "
                     src={item.productId.image || img}
                     alt={item.productId.productTittle}
