@@ -232,7 +232,7 @@ function AccountDetails() {
             </div>
 
             <div className="p-4 sm:p-6 space-y-5 sm:space-y-6">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 bg-blue-50 rounded-lg border border-blue-100">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 bg-[#F0EEFF] rounded-lg border border-blue-100">
                 <div className="flex items-start gap-3">
                   <div className="p-2 bg-[#FFFFFF] rounded-full">
                     <Mail className="w-5 h-5 text-[#1C3753]" />
@@ -314,7 +314,7 @@ function AccountDetails() {
                         disabled={isSaving}
                         className={`flex-1 py-2 sm:py-3 text-sm flex items-center justify-center gap-2 transition-colors ${
                           tempData?.gender === g
-                            ? "bg-[#D5E5F5] text-black font-medium"
+                            ? "bg-[#CFC7FF] text-black font-medium"
                             : "hover:bg-gray-50 text-gray-600"
                         } disabled:opacity-50 disabled:cursor-not-allowed`}
                       >
@@ -406,7 +406,7 @@ function AccountDetails() {
             </div>
           </div>
 
-          <div className="p-6 sm:p-8  flex flex-col items-center rounded-md bg-gradient-to-b from-[#D5E5F5] to-[#FFFFFF] space-y-5 sm:space-y-6">
+          <div className="p-6 sm:p-8  flex flex-col items-center rounded-md bg-gradient-to-b from-[#CFC7FF]/20 to-[#FFC9EA]/80 space-y-5 sm:space-y-6">
             <div className="w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center bg-[#F6F8F9] rounded-full shadow-inner overflow-hidden">
               {user?.user?.profileImage?.url ? (
                 <img

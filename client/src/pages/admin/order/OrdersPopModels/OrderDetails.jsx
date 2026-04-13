@@ -230,11 +230,11 @@ const OrderDetails = ({
           </div>
         </div>
       )} */}
-      {showTrackingSection && (
+      {/* {showTrackingSection && (
         <div className="mt-3">
           <p className="text-sm font-medium mb-2">Tracking Details</p>
 
-          {/* Shipped OR Tracking already exists */}
+          
           {trackingAlreadySaved ? (
             <div className="p-3 border rounded-md bg-[#F8FAFB] text-sm space-y-1">
               <div>
@@ -258,9 +258,8 @@ const OrderDetails = ({
               )}
             </div>
           ) : (
-            <>
-              {/* only in Processing */}
-              <input
+            <> 
+              {/* <input
                 value={trackingId}
                 onChange={(e) => setTrackingId(e.target.value)}
                 className="w-full border rounded-md p-2 text-sm mb-2"
@@ -271,7 +270,7 @@ const OrderDetails = ({
                 onChange={(e) => setTrackingUrl(e.target.value)}
                 className="w-full border rounded-md p-2 text-sm"
                 placeholder="Enter Tracking URL"
-              />
+              /> 
 
               <button
                 type="button"
@@ -287,7 +286,7 @@ const OrderDetails = ({
             </>
           )}
         </div>
-      )}
+      )}*/}
 
       {/* Customer Details */}
       <div className="mt-2">

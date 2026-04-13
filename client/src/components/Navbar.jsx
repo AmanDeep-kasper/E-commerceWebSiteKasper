@@ -66,27 +66,27 @@ function Navbar() {
   };
 
   // Mock shop categories data
-  // const shopCategories = Object.values(
-  //   products.reduce((acc, { category, subcategory }) => {
-  //     if (!acc[category]) {
-  //       acc[category] = {
-  //         name: category,
-  //         path: `/products/${encodeURIComponent(category)}`, // matches your route
-  //         sublist: [],
-  //       };
-  //     }
+  const shopCategories = Object.values(
+    products.reduce((acc, { category, subcategory }) => {
+      if (!acc[category]) {
+        acc[category] = {
+          name: category,
+          path: `/products/${encodeURIComponent(category)}`, // matches your route
+          sublist: [],
+        };
+      }
 
-  //     if (!acc[category].sublist.some((sub) => sub.name === subcategory)) {
-  //       acc[category].sublist.push({
-  //         name: subcategory,
-  //         category: subcategory,
-  //         path: `/${encodeURIComponent(subcategory)}`,
-  //       });
-  //     }
+      if (!acc[category].sublist.some((sub) => sub.name === subcategory)) {
+        acc[category].sublist.push({
+          name: subcategory,
+          category: subcategory,
+          path: `/${encodeURIComponent(subcategory)}`,
+        });
+      }
 
-  //     return acc;
-  //   }, {}),
-  // );
+      return acc;
+    }, {}),
+  );
 
   // disable background scroll when mobile nav is open
   useEffect(() => {
@@ -178,14 +178,14 @@ function Navbar() {
             </div>
 
             {/* Logo */}
-            <Link to="/home" className="flex items-center">
+            <Link to="/home" className="hidden lg:flex items-center">
               {/* <h1 className="text-lg sm:text-xl font-semibold text-amber-600">
                 Logo
               </h1> */}
               <img src={MainLog} alt="logo" />
             </Link>
             <Link to="/accounts/addresses">
-              <button className="flex items-center gap-1">
+              <button className="hidden lg:flex items-center gap-1">
                 <MapPin size={16} />
                 <span className="text-sm lg:text-xs md:text-sm text-[#4C5562]">
                   Add Delivery Location
@@ -507,6 +507,16 @@ function Navbar() {
                 </Link>
 
                 <div className="my-2 border-t border-gray-200"></div>
+                <Link
+                  to="/accounts/addresses"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="flex items-center gap-3 py-3 text-gray-800 font-medium hover:text-[#1C3753] transition-colors"
+                >
+                  <MapPin size={18} />
+                  Add Delivery Location
+                </Link>
+
+                <div className="my-2 border-t border-gray-200"></div>
 
                 {/* Categories */}
                 <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider py-2">
@@ -526,17 +536,15 @@ function Navbar() {
                       {item.subcategories?.length > 0 && (
                         <ChevronDown
                           size={16}
-                          className={`text-gray-400 transition-transform duration-300 ${
-                            subDropdown === index ? "rotate-180" : ""
-                          }`}
+                          className={`text-gray-400 transition-transform duration-300 ${subDropdown === index ? "rotate-180" : ""
+                            }`}
                         />
                       )}
                     </div>
 
                     <div
-                      className={`pl-6 flex flex-col gap-1 overflow-hidden transition-[max-height] duration-300 ease-in-out ${
-                        subDropdown === index ? "max-h-96" : "max-h-0"
-                      }`}
+                      className={`pl-6 flex flex-col gap-1 overflow-hidden transition-[max-height] duration-300 ease-in-out ${subDropdown === index ? "max-h-96" : "max-h-0"
+                        }`}
                     >
                       {/* All */}
                       <div

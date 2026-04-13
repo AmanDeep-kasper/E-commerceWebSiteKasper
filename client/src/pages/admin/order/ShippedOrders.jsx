@@ -380,7 +380,7 @@ const ShippedOrders = () => {
   const columns = [
     "Order ID",
     "Tracking ID",
-    "Expected Delivery Date",
+    // "Expected Delivery Date",
     "Delivery Partner",
     "Action",
   ];
@@ -469,6 +469,11 @@ const ShippedOrders = () => {
     (order) => order.orderId === openTimelineId,
   );
 
+  const [DeliveryPartner, setDeliveryPartner] = useState("Select Delivery Partner");
+  const DeliveryPartners = ["Kasper", "Other"];
+  const [DeliveryPartnerOpen, setDeliveryPartnerOpen] = useState(false);
+
+
   return (
     <>
       {selectOrder && (
@@ -510,7 +515,7 @@ const ShippedOrders = () => {
         </div>
 
         <div className="flex items-center justify-evenly gap-4">
-          <div className="relative">
+          {/* <div className="relative">
             <button
               onClick={() => setPaymentStatusOpen((p) => !p)}
               className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 bg-[#F8FBFC] rounded-lg hover:bg-gray-100 border"
@@ -537,9 +542,9 @@ const ShippedOrders = () => {
                 ))}
               </div>
             )}
-          </div>
+          </div> */}
 
-          <div className="relative">
+          {/* <div className="relative">
             <button
               className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 bg-[#F8FBFC] rounded-lg hover:bg-gray-100 border"
               onClick={() => setfilterOneOpen((p) => !p)}
@@ -562,6 +567,34 @@ const ShippedOrders = () => {
                         ? "bg-gray-100 text-[#686868] font-medium"
                         : ""
                     }`}
+                  >
+                    {s}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div> */}
+          <div className="relative">
+            <button
+              className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 bg-[#F8FBFC] rounded-lg hover:bg-gray-100 border"
+              onClick={() => setDeliveryPartnerOpen((p) => !p)}
+            >
+              {DeliveryPartner}
+              <ChevronDown className="w-4 h-4 text-gray-500" />
+            </button>
+            {DeliveryPartnerOpen && (
+              <div className="absolute mt-2 w-52 -right-2 top-8 bg-white border rounded-lg shadow-md z-100">
+                {DeliveryPartners.map((s) => (
+                  <div
+                    key={s}
+                    onClick={() => {
+                      setDeliveryPartner(s);
+                      setDeliveryPartnerOpen(false);
+                    }}
+                    className={`px-4 py-2 text-sm cursor-pointer hover:bg-gray-100 text-[#686868] ${DeliveryPartner === s
+                      ? "bg-gray-100 text-[#686868] font-medium"
+                      : ""
+                      }`}
                   >
                     {s}
                   </div>
@@ -595,7 +628,7 @@ const ShippedOrders = () => {
               >
                 <td className="px-4 py-3">{order.orderId}</td>
                 <td className="px-4 py-3">{order.trackingId || "-"}</td>
-                <td className="px-4 py-3">{order.deliveryDate || "-"}</td>
+                {/* <td className="px-4 py-3">{order.deliveryDate || "-"}</td> */}
 
                 <td className="px-4 py-3 font-medium text-xs">
                   <span className="bg-[#D5E5F5] inline-flex items-center justify-center min-w-[110px] px-4 py-1.5 rounded-lg font-medium text-center">
@@ -605,12 +638,12 @@ const ShippedOrders = () => {
 
                 <td className="px-4 py-3 text-right">
                   <div className="flex items-center justify-center gap-3">
-                    <button
+                    {/* <button
                       onClick={() => setOpenTimelineId(order.orderId)}
                       className="text-[#2C87E2]"
                     >
                       Timeline
-                    </button>
+                    </button> */}
 
                     <button
                       onClick={() => setSelectedOrderId(order.orderId)}

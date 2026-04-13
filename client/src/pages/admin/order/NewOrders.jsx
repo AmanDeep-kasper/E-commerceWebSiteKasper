@@ -622,7 +622,7 @@ const NewOrders = () => {
   const [paymentstatus, setPaymentStatus] = useState("Payment Type");
   const Paymentstatuses = ["Payment Type", "Prepaid", "COD"];
 
-  const [filterOne, setfilterOne] = useState("Latest Order Date");
+  const [filterOne, setfilterOne] = useState("Latest");
   const [filterOneOpen, setfilterOneOpen] = useState(false);
 
   const filterOneItems = [
