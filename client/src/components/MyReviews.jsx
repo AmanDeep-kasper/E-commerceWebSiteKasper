@@ -231,7 +231,7 @@ function MyReviews({ totalItems = 0 }) {
                 <div className="w-full md:w-24 flex-shrink-0">
                   <img
                     className="w-full h-full md:h-32 object-contain rounded-lg "
-                    src={item.productId.image || img}
+                    src={item.productId.image || "https://via.placeholder.com/150"}
 
                     // alt={item.productId.productTittle}
                     alt={item.productId.image ? item.productId.productTittle : "Product Image"}
@@ -246,9 +246,9 @@ function MyReviews({ totalItems = 0 }) {
                     <h2 className="text-base sm:text-lg font-medium text-gray-700">
 
                       {item.productId.productTittle}
-                      {item.productId.productTittle.length > 50
+                      {/* {item.productId.productTittle.length > 50
                         ? item.productId.productTittle.slice(0, 50) + "..."
-                        : item.productId.productTittle}
+                        : item.productId.productTittle} */}
 
                     </h2>
 

@@ -46,7 +46,7 @@ function EditReviewModal({ open, review, onClose, onSave }) {
           <div className="flex gap-4">
             <div className="w-16 h-16 rounded-lg overflow-hidden border bg-gray-50 flex-shrink-0">
               <img
-                src={review.productImage}
+                src={review.productId.image}
                 alt={review.name}
                 className="w-full h-full object-cover"
               />
@@ -56,7 +56,7 @@ function EditReviewModal({ open, review, onClose, onSave }) {
               <p className="text-sm text-gray-800 font-medium">
                 How was the item?
               </p>
-              <p className="text-sm text-gray-600">{review.name}</p>
+              <p className="text-sm text-gray-600">{review.productId.productTittle}</p>
             </div>
           </div>
 
@@ -120,7 +120,7 @@ function EditReviewModal({ open, review, onClose, onSave }) {
 
               {/* Optional: add upload later */}
               <button
-                type="button "
+                type="file"
                 className="w-20 h-20 rounded-lg border bg-white text-sm text-gray-500"
               >
                 + Add
