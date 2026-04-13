@@ -92,8 +92,8 @@ export const generateAuthTokens = async (userId, role, req = null) => {
 export const generateDeviceFingerprint = (req) => {
   const fingerprint = {
     userAgent: req.headers["user-agent"],
-    acceptLanguage: req.headers["accept-language"],
-    platform: req.headers["sec-ch-ua-platform"],
+    // acceptLanguage: req.headers["accept-language"],
+    // platform: req.headers["sec-ch-ua-platform"],
   };
 
   return crypto
@@ -166,13 +166,13 @@ export const verifyAccessToken = async (token, req = null) => {
       throw new Error("Token has been revoked");
     }
 
-    if (req && decoded.fingerprint) {
-      const currentFingerprint = generateDeviceFingerprint(req);
-      if (decoded.fingerprint !== currentFingerprint) {
-        console.warn("Device fingerprint mismatch");
-        throw new Error("Device fingerprint mismatch");
-      }
-    }
+    // if (req && decoded.fingerprint) {
+    //   const currentFingerprint = generateDeviceFingerprint(req);
+    //   if (decoded.fingerprint !== currentFingerprint) {
+    //     console.warn("Device fingerprint mismatch");
+    //     throw new Error("Device fingerprint mismatch");
+    //   }
+    // }
 
     return { valid: true, decoded };
   } catch (error) {
@@ -270,7 +270,10 @@ export const rotateTokens = async (userId, role, oldRefreshToken, req) => {
   // 🔐 Fingerprint check — only revoke THIS session on mismatch (not all sessions)
   // Multi-device means different devices will always have different fingerprints
   if (decoded.fingerprint && decoded.fingerprint !== currentFingerprint) {
-    console.warn("🚨 Refresh token fingerprint mismatch for session:", decoded.sessionId);
+    console.warn(
+      "🚨 Refresh token fingerprint mismatch for session:",
+      decoded.sessionId,
+    );
 
     // Revoke only THIS session (not all sessions — that would break multi-device)
     await User.updateOne(
