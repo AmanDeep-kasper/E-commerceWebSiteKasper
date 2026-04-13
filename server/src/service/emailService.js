@@ -75,6 +75,8 @@ export const sendPasswordResetEmail = async (
     ? new Date(tokenExpiry).toLocaleTimeString()
     : "10 minutes";
 
+  const transporter = getTransporter();
+
   const mailOptions = {
     from: `"${env.SMTP_FROM_NAME}" <${env.SMTP_FROM_EMAIL}>`,
     to: email,
@@ -135,12 +137,18 @@ export const sendPasswordResetEmail = async (
     `,
   };
 
-  const transporter = getTransporter();
-  await transporter.sendMail(mailOptions);
+  // 🔥 timeout protection
+  await Promise.race([
+    transporter.sendMail(mailOptions),
+    new Promise((_, reject) =>
+      setTimeout(() => reject(new Error("Email timeout")), 5000),
+    ),
+  ]);
 };
 
 // EMAIL CHANGE OTP
 export const sendEmailChangeOTP = async (email, otp, name = "User") => {
+  const transporter = getTransporter();
   const mailOptions = {
     from: `"${env.SMTP_FROM_NAME}" <${env.SMTP_FROM_EMAIL}>`,
     to: email,
@@ -205,12 +213,18 @@ export const sendEmailChangeOTP = async (email, otp, name = "User") => {
     `,
   };
 
-  const transporter = getTransporter();
-  await transporter.sendMail(mailOptions);
+  // 🔥 timeout protection
+  await Promise.race([
+    transporter.sendMail(mailOptions),
+    new Promise((_, reject) =>
+      setTimeout(() => reject(new Error("Email timeout")), 5000),
+    ),
+  ]);
 };
 
 // SUPPORT EMAIL
 export const sendSupportEmail = async (email, name, message, requestId) => {
+  const transporter = getTransporter();
   const mailOptions = {
     from: `"${name}" <${email}>`,
     to: env.SMTP_FROM_EMAIL,
@@ -429,6 +443,11 @@ HappyArtSupplies Support
     `,
   };
 
-  const transporter = getTransporter();
-  await transporter.sendMail(mailOptions);
+  // 🔥 timeout protection
+  await Promise.race([
+    transporter.sendMail(mailOptions),
+    new Promise((_, reject) =>
+      setTimeout(() => reject(new Error("Email timeout")), 5000),
+    ),
+  ]);
 };
