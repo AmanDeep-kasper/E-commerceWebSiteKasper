@@ -5,6 +5,7 @@ import {
   getAllUsers,
   getUserById,
   getUserDetails,
+  sendSupportMessage,
   updateStatus,
   updateUserDetails,
   updateUserEmail,
@@ -23,6 +24,7 @@ import { upload } from "../middlewares/multer.js";
 const router = express.Router();
 
 router.get("/detail", authenticate, getUserDetails);
+router.post("/send-support-message", authenticate, sendSupportMessage);
 
 router.patch(
   "/update-detail",

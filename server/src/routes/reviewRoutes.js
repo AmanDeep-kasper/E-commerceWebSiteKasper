@@ -72,10 +72,6 @@ router.patch(
   "/update-review/:reviewId",
   authenticate,
   authorize("user"),
-  (req, _res, next) => {
-    req.uploadFolder = "review";
-    next();
-  },
   upload.array("reviewImages", 5),
   updateReviewValidation,
   validateRequest,
