@@ -1,4 +1,4 @@
-import { getTransporter } from "../utils/mailer.js";
+import { getTransporter, transporter } from "../utils/mailer.js";
 import env from "../config/env.js";
 
 // REGISTRATION EMAIL OTP
@@ -60,8 +60,9 @@ export const sendRegistrationEmail = async (email, otp) => {
     `,
   };
 
-  const transporter = getTransporter();
-  await transporter.sendMail(mailOptions);
+  // const transporter = getTransporter();
+  const res = await transporter.sendMail(mailOptions);
+  console.log("mail send res : ", res);
 };
 
 // PASSWORD RESET EMAIL
@@ -135,7 +136,7 @@ export const sendPasswordResetEmail = async (
     `,
   };
 
-  const transporter = getTransporter();
+  // const transporter = getTransporter();
   const info = await transporter.sendMail(mailOptions);
   console.log("📨 Email response:", info);
 };
@@ -206,7 +207,7 @@ export const sendEmailChangeOTP = async (email, otp, name = "User") => {
     `,
   };
 
-  const transporter = getTransporter();
+  // const transporter = getTransporter();
   await transporter.sendMail(mailOptions);
 };
 
@@ -261,6 +262,5 @@ ${name}
     `,
   };
 
-  const transporter = getTransporter();
   await transporter.sendMail(mailOptions);
 };

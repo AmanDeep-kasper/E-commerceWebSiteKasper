@@ -61,11 +61,15 @@ export const addProductToWishlist = asyncHandler(async (req, res) => {
   }
 
   // Check if item already exists
-  const existingItemIndex = wishlist.items.findIndex(
-    (item) =>
-      item.product.toString() === productId &&
-      (variantId ? item.variantId?.toString() === variantId : !item.variantId),
-  );
+  const existingItemIndex = wishlist.items.findIndex((item) => {
+    const sameProduct = item.product.toString() === productId;
+
+    const sameVariant =
+      (item.variantId?.toString() || null) ===
+      (variantData?._id.toString() || null);
+
+    return sameProduct && sameVariant;
+  });
 
   if (existingItemIndex !== -1) {
     throw AppError.conflict("Product already exists in wishlist", "CONFLICT");
@@ -100,7 +104,12 @@ export const addProductToWishlist = asyncHandler(async (req, res) => {
   const populatedWishlist = await Wishlist.findById(wishlist._id)
     .populate({
       path: "items.product",
-      select: "_id productTittle slug category stats",
+      select: "_id productTittle slug stats",
+    })
+    .populate({
+      path: "items.variantId",
+      select:
+        "variantMrp variantSellingPrice variantColor variantWeight variantWeightUnit",
     })
     .lean();
 
@@ -110,7 +119,6 @@ export const addProductToWishlist = asyncHandler(async (req, res) => {
     success: true,
     message: "Product added to wishlist successfully",
     data: {
-      item: addedItem,
       wishlist: populatedWishlist,
     },
   });

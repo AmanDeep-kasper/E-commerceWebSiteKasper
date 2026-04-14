@@ -67,7 +67,7 @@ router.patch(
 );
 router.post(
   "/forgot-password",
-  sensitiveLimiter,
+  // sensitiveLimiter,
   forgotPasswordValidation,
   validateRequest,
   forgotPassword,

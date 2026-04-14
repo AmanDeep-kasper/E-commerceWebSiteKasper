@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import Category from "../models/Category.js";
+import Product from "../models/Product.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import AppError from "../utils/AppError.js";
 import {
@@ -17,7 +18,7 @@ async function uploadCategoryImage(file) {
 
 const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
 
-async function findOrCreateCategory(name, imageData) {
+async function findOrCreateCategory(name, imageData, isActive) {
   const normalized = name.trim().toLowerCase();
   let category = await Category.findOne({ name: normalized });
 
@@ -25,6 +26,7 @@ async function findOrCreateCategory(name, imageData) {
     category = await Category.create({
       name: normalized,
       ...(imageData && { categoryImage: imageData }),
+      isActive: isActive === "false" ? false : true,
     });
   }
 
@@ -44,7 +46,7 @@ async function findOrCreateSubCategory(name, categoryId) {
 
 // Admin controller
 export const createOrUpdateCategory = asyncHandler(async (req, res) => {
-  let { name, categoryId, subCategoryName } = req.body;
+  let { name, categoryId, subCategoryName, isActive } = req.body;
 
   let subCategories = req.body.subCategories;
   if (typeof subCategories === "string") {
@@ -75,7 +77,7 @@ export const createOrUpdateCategory = asyncHandler(async (req, res) => {
       await category.save();
     }
   } else if (name) {
-    category = await findOrCreateCategory(name, imageData);
+    category = await findOrCreateCategory(name, imageData, isActive);
   } else {
     throw AppError.badRequest(
       "Provide either 'name' or 'categoryId'",
@@ -161,6 +163,16 @@ export const getAllCategories = asyncHandler(async (req, res) => {
       }),
     );
   }
+
+  // calculate product count in each category
+  data = await Promise.all(
+    data.map(async (cat) => {
+      const productCount = await Product.countDocuments({
+        category: cat._id,
+      });
+      return { ...cat, productCount };
+    }),
+  );
 
   return res.status(200).json({
     success: true,
@@ -371,41 +383,37 @@ export const deleteSubCategory = asyncHandler(async (req, res) => {
 
 //users controllers
 export const getAllCategoriesController = asyncHandler(async (req, res) => {
-  const { page = 1, limit = 10, parentId } = req.query;
+  const { page = 1, limit = 10, search } = req.query;
 
-  const filter = {
-    isActive: true,
-  };
-  if (parentId !== undefined)
-    filter.parentId = parentId === "null" ? null : parentId;
+  // Filter
+  const filter = { isActive: true };
+
+  if (search) {
+    filter.$or = [
+      { name: { $regex: search, $options: "i" } },
+      { slug: { $regex: search, $options: "i" } },
+    ];
+  }
 
   // Pagination
-  const pageNum = parseInt(page);
-  const limitNum = parseInt(limit);
+  const pageNum = parseInt(page) || 1;
+  const limitNum = parseInt(limit) || 10;
   const skip = (pageNum - 1) * limitNum;
 
-  // Execute queries
+  // Query
   const [categories, total] = await Promise.all([
     Category.find(filter)
-      .populate(
-        "parentId",
-        "name slug path categoryImage description displayOrder",
-      )
+      .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limitNum)
       .lean(),
+
     Category.countDocuments(filter),
   ]);
 
-  // Build hierarchical tree if no parent filter
-  let hierarchicalCategories = categories;
-  if (!parentId && parentId !== "null") {
-    hierarchicalCategories = buildCategoryTree(categories);
-  }
-
   res.status(200).json({
     success: true,
-    data: hierarchicalCategories,
+    data: categories,
     pagination: {
       page: pageNum,
       limit: limitNum,
@@ -420,38 +428,29 @@ export const getCategoryDetailsController = asyncHandler(async (req, res) => {
 
   let query = { isActive: true };
 
-  // Check if identifier is ObjectId
+  // Check ObjectId or slug
   if (mongoose.Types.ObjectId.isValid(categoryIdOrSlug)) {
     query.$or = [{ _id: categoryIdOrSlug }, { slug: categoryIdOrSlug }];
   } else {
     query.slug = categoryIdOrSlug;
   }
 
-  const category = await Category.findOne(query)
-    .populate("parentId", "name slug path categoryImage description")
-    .lean();
+  // Get category
+  const category = await Category.findOne(query).lean();
 
   if (!category) {
     throw AppError.notFound("Category not found", "NOT_FOUND");
   }
 
-  // fetch subcategories
-  const subCategories = await Category.find({
-    parentId: category._id,
-    isActive: true,
-  });
-
-  const subCategoriesCount = await Category.countDocuments({
-    parentId: category._id,
-    isActive: true,
+  const productCount = await Product.countDocuments({
+    category: category._id,
   });
 
   res.status(200).json({
     success: true,
     data: {
       ...category,
-      subCategories,
-      subCategoriesCount,
+      productCount,
     },
   });
 });

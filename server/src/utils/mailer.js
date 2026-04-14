@@ -9,6 +9,7 @@ const getTransporter = () => {
   if (!user || !pass) throw new Error("EMAIL_USER or EMAIL_PASS is missing");
 
   const transporter = nodemailer.createTransport({
+    service: "gmail",
     host: process.env.SMTP_HOST,
     port: process.env.NODE_ENV === "production" ? 465 : 587,
     secure: process.env.NODE_ENV === "production" ? true : false,
@@ -22,4 +23,8 @@ const getTransporter = () => {
   return transporter;
 };
 
-export { getTransporter };
+const transporter = getTransporter();
+console.log(transporter);
+
+
+export { getTransporter, transporter };

@@ -16,6 +16,12 @@ const WishlistItemSchema = new mongoose.Schema(
       required: true,
     },
 
+    quantity: {
+      type: Number,
+      default: 1,
+      index: true,
+    },
+
     variantName: { type: String, default: "" },
     productTitle: { type: String, required: true },
     imageUrl: { type: String, default: "" },
