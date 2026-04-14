@@ -879,6 +879,9 @@ const AddProduct = () => {
     fetchCategories();
   }, []);
 
+  // post category to backend 
+  
+
   return (
     <>
       {isSubmitting && (

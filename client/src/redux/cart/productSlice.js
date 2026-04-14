@@ -3,7 +3,6 @@ import productService from "../../services/productService.js";
 
 // import { getAllProducts } from "../../services/productService";
 
-
 // Fetch all products
 export const fetchAllProducts = createAsyncThunk(
   "products/fetchAll",
@@ -12,10 +11,10 @@ export const fetchAllProducts = createAsyncThunk(
       return await productService.getAllProducts();
     } catch (error) {
       return thunkAPI.rejectWithValue(
-        error.response?.data?.message || "Failed to fetch products"
+        error.response?.data?.message || "Failed to fetch products",
       );
     }
-  }
+  },
 );
 
 // Fetch all categories
@@ -26,10 +25,10 @@ export const fetchAllCategories = createAsyncThunk(
       return await productService.getAllCategories();
     } catch (error) {
       return thunkAPI.rejectWithValue(
-        error.response?.data?.message || "Failed to fetch categories"
+        error.response?.data?.message || "Failed to fetch categories",
       );
     }
-  }
+  },
 );
 
 // Add product
@@ -40,10 +39,10 @@ export const addProduct = createAsyncThunk(
       return await productService.addProduct(formData);
     } catch (error) {
       return thunkAPI.rejectWithValue(
-        error.response?.data?.message || "Failed to add product"
+        error.response?.data?.message || "Failed to add product",
       );
     }
-  }
+  },
 );
 
 // Update product
@@ -54,10 +53,10 @@ export const updateProduct = createAsyncThunk(
       return await productService.updateProduct(id, formData);
     } catch (error) {
       return thunkAPI.rejectWithValue(
-        error.response?.data?.message || "Failed to update product"
+        error.response?.data?.message || "Failed to update product",
       );
     }
-  }
+  },
 );
 
 // Fetch product by ID
@@ -68,10 +67,10 @@ export const fetchProductById = createAsyncThunk(
       return await productService.getProductById(id);
     } catch (error) {
       return thunkAPI.rejectWithValue(
-        error.response?.data?.message || "Failed to fetch product"
+        error.response?.data?.message || "Failed to fetch product",
       );
     }
-  }
+  },
 );
 
 // Fetch product by slug
@@ -82,11 +81,19 @@ export const fetchProductBySlug = createAsyncThunk(
       return await productService.getProductBySlug(route);
     } catch (error) {
       return thunkAPI.rejectWithValue(
-        error.response?.data?.message || "Failed to fetch product"
+        error.response?.data?.message || "Failed to fetch product",
       );
     }
-  }
+  },
 );
+
+export const categoryService = async (formData) => {
+  try {
+    return await productService.categoryService(formData);
+  } catch (error) {
+    throw new Error(error.response?.data?.message || "Failed to add category");
+  }
+};
 
 const productSlice = createSlice({
   name: "products",
@@ -162,7 +169,7 @@ const productSlice = createSlice({
 
         // Find the product by ID or UUID and replace it
         const index = state.products.findIndex(
-          (p) => p._id === updated._id || p.uuid === updated.uuid
+          (p) => p._id === updated._id || p.uuid === updated.uuid,
         );
 
         if (index !== -1) {

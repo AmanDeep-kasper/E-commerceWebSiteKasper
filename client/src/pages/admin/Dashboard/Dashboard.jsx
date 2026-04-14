@@ -279,7 +279,7 @@ function Dashboard() {
   return (
     <div className="h-dvh flex flex-col gap-4 overflow-y-auto invisible-scrollbar p-[24px] bg-[#F6F8F9] rounded-md min-h-screen">
       <div className="flex flex-col py-4">
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {orderSummary.map(({ price, stats, icon: Icon, bgcolor, tag }) => (
             <div
               key={price}
@@ -294,7 +294,7 @@ function Dashboard() {
               </div>
 
               <Icon
-               className="h-8 w-8 p-2 border border-gray-400 rounded-full"
+                className="h-8 w-8 p-2 border border-gray-400 rounded-full"
                 style={{
                   backgroundColor: `${bgcolor}`,
                   color: bgcolor,
@@ -305,11 +305,12 @@ function Dashboard() {
         </div>
       </div>
 
-      <div className="flex gap-4 items-stretch">
-        <div className="w-2/3 border rounded-lg bg-white h-full">
+      <div className=" flex flex-col lg:flex-row gap-4 items-stretch">
+        <div className="w-2/3 lg:w-full border rounded-lg bg-white h-full">
           <SalesChart />
         </div>
 
+        {/* recent activity */}
         <div className="w-1/3 p-4 bg-white border  rounded-lg flex flex-col gap-4 h-[420px]">
           <h1>Recent Activity</h1>
 
@@ -437,7 +438,7 @@ function Dashboard() {
         </div>
       </div>
 
-      <div className="flex gap-4 items-start">
+      <div className="flex flex-wrap gap-4 items-start">
         <div className="flex flex-col flex-1 gap-4 min-w-0">
           <div className="flex gap-4 items-stretch">
             <div className="w-2/5 p-4 bg-white border border-gray-200 rounded-md min-h-[360px]">

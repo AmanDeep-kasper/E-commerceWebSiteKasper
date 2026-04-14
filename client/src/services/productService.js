@@ -61,6 +61,14 @@ const updateProduct = async (id, formData) => {
   return res.data;
 };
 
+// category service and sub category service can be added here in future if needed
+const categoryService = async (formData) => {
+  const res = await axiosInstance.post("/category/add-category", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  return res.data;
+};
+
 const productService = {
   getAllProducts,
   getAllCategories,
@@ -70,6 +78,7 @@ const productService = {
   getProductBySlug,
   addProduct,
   updateProduct,
+  categoryService
 };
 
 export default productService;

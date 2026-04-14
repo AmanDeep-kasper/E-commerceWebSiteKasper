@@ -32,7 +32,7 @@ import "swiper/css";
 
 function Navbar() {
   const { user, isAuthenticated } = useSelector((state) => state.user);
-  // console.log(user);
+  console.log(user);
   const [showChoice, setShowChoice] = useState(false);
 
   useEffect(() => {
@@ -58,11 +58,10 @@ function Navbar() {
     (state) => state?.wishlist?.totalItems,
   );
   const [showLogoutModal, setShowLogoutModal] = useState(false);
-  // const shopCategories = useSelector((state) => state.products.categories);
 
   const handleLogout = () => {
-    dispatch(logoutUser()); // updates Redux + clears localStorage
-    navigate("/home", { replace: true }); // redirect to home
+    dispatch(logoutUser());
+    navigate("/login", { replace: true }); 
   };
 
   // Mock shop categories data
@@ -178,11 +177,8 @@ function Navbar() {
             </div>
 
             {/* Logo */}
-            <Link to="/home" className="hidden lg:flex items-center">
-              {/* <h1 className="text-lg sm:text-xl font-semibold text-amber-600">
-                Logo
-              </h1> */}
-              <img src={MainLog} alt="logo" />
+            <Link to="/home" className="lg:flex items-center">
+              <img className="h-auto w-auto" src={MainLog} alt="logo" />
             </Link>
             <Link to="/accounts/addresses">
               <button className="hidden lg:flex items-center gap-1">
@@ -203,7 +199,7 @@ function Navbar() {
                 <input
                   type="text"
                   placeholder="Search for products..."
-                  value={query} // ✅ from searchParams
+                  value={query} 
                   onChange={(e) => {
                     setSearchParams({ q: e.target.value }); // ✅ always replace with new query
                     setIsOpen(true);
@@ -481,26 +477,35 @@ function Navbar() {
                    w-3/4 md:w-1/2 lg:hidden"
             >
               {/* Header */}
-              {/* <div className="p-5 border-b border-gray-200">
+              <div className="p-5 border-b border-gray-200">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center">
-                    <UserRound size={20} className="text-amber-600" />
+                    {user?.user?.profileImage?.url ? (
+                      <img
+                        src={user.user.profileImage.url}
+                        alt="Profile"
+                        className="w-full h-full object-cover rounded-full"
+                      />
+                    ) : (
+                      <UserRound size={20} className="text-amber-600" />
+                    )}
                   </div>
                   <div>
                     <p className="font-medium text-gray-900">
-                      {users?.[0]?.name || "Guest"}
+                     {user?.user?.name || "please login"}
+                      {console.log(user)}
                     </p>
 
                     <p className="text-sm text-gray-500">Welcome back!</p>
                   </div>
                 </div>
-              </div> */}
+              </div>
 
               {/* Links */}
               <div className="px-6 py-4 flex-1">
                 <Link
                   to="/home"
-                  onClick={() => setDropdown(false)}
+                 onClick={() => setIsMobileMenuOpen(false)}
                   className="flex items-center gap-3 py-3 text-gray-800 font-medium hover:text-[#1C3753] transition-colors"
                 >
                   Home
@@ -515,6 +520,7 @@ function Navbar() {
                   <MapPin size={18} />
                   Add Delivery Location
                 </Link>
+                
 
                 <div className="my-2 border-t border-gray-200"></div>
 

@@ -152,7 +152,7 @@ function LatestProducts() {
         // ref={ref} //grid-flow-col auto-cols-max
       >
         {latestProducts.slice(0, visibleCount)?.map((p) => {
-          {console.log(p)}
+          // {console.log(p)}
           const key = p.id || p.uuid || p.SKU;
           const v = p?.variants?.[0] || {};
           const mrp = Number(v?.max || 0);
