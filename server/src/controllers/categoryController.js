@@ -45,37 +45,127 @@ async function findOrCreateSubCategory(name, categoryId) {
 }
 
 // Admin controller
+// export const createOrUpdateCategory = asyncHandler(async (req, res) => {
+//   let { name, categoryId, subCategoryName, isActive } = req.body;
+
+//   let subCategories = req.body.subCategories;
+//   if (typeof subCategories === "string") {
+//     try {
+//       subCategories = JSON.parse(subCategories);
+//     } catch {
+//       subCategories = [subCategories];
+//     }
+//   }
+
+//   const imageData = await uploadCategoryImage(req.file);
+
+//   let category;
+
+//   if (categoryId) {
+//     if (!isValidObjectId(categoryId))
+//       throw AppError.badRequest("Invalid categoryId", "INVALID_CATEGORY_ID");
+
+//     category = await Category.findById(categoryId);
+//     if (!category) throw AppError.notFound("Category not found", "NOT_FOUND");
+
+//     // If caller also sent a new image while referencing by ID → replace it
+//     if (imageData) {
+//       if (category.categoryImage?.publicId) {
+//         await deleteImageFromCloudinary(category.categoryImage.publicId);
+//       }
+//       category.categoryImage = imageData;
+//       await category.save();
+//     }
+//   } else if (name) {
+//     category = await findOrCreateCategory(name, imageData, isActive);
+//   } else {
+//     throw AppError.badRequest(
+//       "Provide either 'name' or 'categoryId'",
+//       "BAD_REQUEST",
+//     );
+//   }
+
+//   // CASE 1: subCategories array
+//   if (Array.isArray(subCategories) && subCategories.length > 0) {
+//     const results = await Promise.all(
+//       subCategories.map((subName) =>
+//         findOrCreateSubCategory(subName, category._id),
+//       ),
+//     );
+
+//     return res.status(200).json({
+//       success: true,
+//       message: "Category and subcategories processed",
+//       data: { category, subCategories: results },
+//     });
+//   }
+
+//   // CASE 2 / 3: single subCategoryName
+//   if (subCategoryName) {
+//     const subCategory = await findOrCreateSubCategory(
+//       subCategoryName,
+//       category._id,
+//     );
+
+//     return res.status(200).json({
+//       success: true,
+//       message: "Category and subcategory processed",
+//       data: { category, subCategory },
+//     });
+//   }
+
+//   return res.status(200).json({
+//     success: true,
+//     message: "Category processed",
+//     data: { category },
+//   });
+// });
+
 export const createOrUpdateCategory = asyncHandler(async (req, res) => {
   let { name, categoryId, subCategoryName, isActive } = req.body;
 
-  let subCategories = req.body.subCategories;
-  if (typeof subCategories === "string") {
+  // Normalize subCategoryName → always array
+  let subCategoriesArray = [];
+
+  if (Array.isArray(subCategoryName)) {
+    subCategoriesArray = subCategoryName;
+  } else if (typeof subCategoryName === "string") {
     try {
-      subCategories = JSON.parse(subCategories);
+      const parsed = JSON.parse(subCategoryName);
+      subCategoriesArray = Array.isArray(parsed) ? parsed : [subCategoryName];
     } catch {
-      subCategories = [subCategories];
+      subCategoriesArray = [subCategoryName];
     }
   }
 
+  // 🔹 Upload image (optional)
   const imageData = await uploadCategoryImage(req.file);
 
   let category;
 
   if (categoryId) {
-    if (!isValidObjectId(categoryId))
+    if (!isValidObjectId(categoryId)) {
       throw AppError.badRequest("Invalid categoryId", "INVALID_CATEGORY_ID");
+    }
 
     category = await Category.findById(categoryId);
-    if (!category) throw AppError.notFound("Category not found", "NOT_FOUND");
+    if (!category) {
+      throw AppError.notFound("Category not found", "NOT_FOUND");
+    }
 
-    // If caller also sent a new image while referencing by ID → replace it
+    // ✅ update fields
+    if (name) category.name = name;
+    if (isActive !== undefined) category.isActive = isActive;
+
+    // ✅ update image
     if (imageData) {
       if (category.categoryImage?.publicId) {
         await deleteImageFromCloudinary(category.categoryImage.publicId);
       }
       category.categoryImage = imageData;
-      await category.save();
     }
+
+    await category.save();
   } else if (name) {
     category = await findOrCreateCategory(name, imageData, isActive);
   } else {
@@ -85,39 +175,26 @@ export const createOrUpdateCategory = asyncHandler(async (req, res) => {
     );
   }
 
-  // CASE 1: subCategories array
-  if (Array.isArray(subCategories) && subCategories.length > 0) {
-    const results = await Promise.all(
-      subCategories.map((subName) =>
+  let subCategories = [];
+
+  if (subCategoriesArray.length > 0) {
+    subCategories = await Promise.all(
+      subCategoriesArray.map((subName) =>
         findOrCreateSubCategory(subName, category._id),
       ),
     );
-
-    return res.status(200).json({
-      success: true,
-      message: "Category and subcategories processed",
-      data: { category, subCategories: results },
-    });
   }
 
-  // CASE 2 / 3: single subCategoryName
-  if (subCategoryName) {
-    const subCategory = await findOrCreateSubCategory(
-      subCategoryName,
-      category._id,
-    );
-
-    return res.status(200).json({
-      success: true,
-      message: "Category and subcategory processed",
-      data: { category, subCategory },
-    });
-  }
-
-  return res.status(200).json({
+  res.status(200).json({
     success: true,
-    message: "Category processed",
-    data: { category },
+    message:
+      subCategories.length > 0
+        ? "Category and subcategories processed successfully"
+        : "Category processed successfully",
+    data: {
+      category,
+      subCategories, // empty array if none
+    },
   });
 });
 
