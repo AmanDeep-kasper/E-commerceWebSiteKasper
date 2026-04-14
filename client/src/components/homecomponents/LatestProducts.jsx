@@ -66,7 +66,6 @@ function LatestProducts() {
 
   const [latestProduct, setlatestProduct] = useState([]);
 
-  useEffect(() => {
     const fetchProducts = async () => {
       try {
         const res = await axiosInstance.get("/product/all");
@@ -81,7 +80,8 @@ function LatestProducts() {
         setlatestProduct([]);
       }
     };
-
+    
+ useEffect(() => {
     fetchProducts();
   }, []);
 
@@ -258,7 +258,7 @@ function LatestProducts() {
 
                   {/* {mrp > 0 && discountPercent > 0 && ( */}
                     <span className="text-gray-400 text-xs line-through font-light">
-                      ₹{p.defaultPrice}
+                      ₹{p.mrp}
                     </span>
                   {/* )} */}
                   <div className="border-l border-[#DBDBDB] h-3"></div>
