@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import axiosInstance from "../../api/axiosInstance";
+import { toast } from "react-toastify";
 
 const CategoriesPopUpEdit = ({ open, onClose, data }) => {
   const [editStatus, setEditStatus] = useState("Active");
@@ -11,7 +13,7 @@ const CategoriesPopUpEdit = ({ open, onClose, data }) => {
       setEditCategory(data.category || data.name || "");
 
       const subs = Array.isArray(data.subCategories)
-        ? data.subCategories.map((s) => s.name) // ✅ extract names
+        ? data.subCategories.map((s) => s.name) // extract names
         : [];
 
       // console.log(data);
@@ -22,15 +24,14 @@ const CategoriesPopUpEdit = ({ open, onClose, data }) => {
 
   if (!open) return null;
 
-  // ✅ edit a subcategory at index
+  // edit a subcategory at index
   const updateSubCategory = (idx, value) => {
     setEditSubCategories((prev) => prev.map((s, i) => (i === idx ? value : s)));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // ✅ clean subcategories: trim + remove empty + remove duplicates
     const cleaned = editSubCategories
       .map((s) => (s || "").trim())
       .filter(Boolean);
@@ -41,17 +42,28 @@ const CategoriesPopUpEdit = ({ open, onClose, data }) => {
         unique.push(s);
       }
     }
+    try {
+      const payload = {
+        // categoryId: data._id, // REQUIRED
+        name: editCategory.trim(), // category update
+        subCategories: unique, // correct key
+        isActive: editStatus === "Active", // boolean
+      };
 
-    const payload = {
-      id: data?.uuid || data?.id,
-      status: editStatus,
-      categoryName: editCategory.trim(),
-      subcategories: unique, // ✅ edited list
-    };
+      console.log("PATCH PAYLOAD:", payload);
 
-    console.log(payload);
-
-    onClose();
+      await axiosInstance.patch(
+        `/category/admin/update-categoryOrSubcategory/${data._id}`,
+        payload,
+      );
+      toast.success("Category and subcategories updated successfully");
+      onClose();
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message ||
+          "Failed to update category or subcategories",
+      );
+    }
   };
 
   console.log(data);
@@ -98,7 +110,7 @@ const CategoriesPopUpEdit = ({ open, onClose, data }) => {
             />
           </div>
 
-          {/* ✅ Edit existing Subcategories only */}
+          {/* Edit existing Subcategories only */}
           <div>
             <label className="block text-sm mb-2">Edit Sub-Categories</label>
 
@@ -125,6 +137,7 @@ const CategoriesPopUpEdit = ({ open, onClose, data }) => {
           <div className="flex gap-2 pt-2">
             <button
               type="submit"
+              // onClick={handleSubmit}
               className="flex-1 text-sm bg-[#1C3753] text-white py-2 rounded-lg"
             >
               Save
