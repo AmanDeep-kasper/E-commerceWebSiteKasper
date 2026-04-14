@@ -8,7 +8,6 @@ const pass = env.SMTP_PASSWORD;
 
 if (!user || !pass) {
   console.log("SMTP_USER or SMTP_PASSWORD is missing");
-  return;
 }
 
 console.log(user, pass);
