@@ -11,7 +11,6 @@ import {
   getCategoryDetailsController,
   updateCategory,
   updateCategoryStatus,
-  updateSubCategory,
 } from "../controllers/categoryController.js";
 import { validateRequest } from "../validation/validator.js";
 import {
@@ -73,13 +72,6 @@ router.patch(
   authenticate,
   authorize("admin"),
   updateCategoryStatus,
-);
-
-router.patch(
-  "/admin/update-subcategory/:subCategoryId",
-  authenticate,
-  authorize("admin"),
-  updateSubCategory,
 );
 
 router.delete(
