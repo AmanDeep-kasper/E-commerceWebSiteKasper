@@ -31,8 +31,8 @@ router.post(
     next();
   },
   upload.single("categoryImage"),
-  addCategoryValidation,
-  validateRequest,
+  // addCategoryValidation,
+  // validateRequest,
   createOrUpdateCategory,
 );
 
