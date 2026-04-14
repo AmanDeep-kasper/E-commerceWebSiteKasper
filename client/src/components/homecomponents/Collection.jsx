@@ -41,6 +41,10 @@ function Collection() {
   const [isHovered, setIsHovered] = useState(false);
   const controls = useAnimation();
 
+    const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   const slideToEnd = () => {
     if (ref.current) {
       const card = ref.current.querySelector("a"); // your Link is wrapping each card
@@ -96,6 +100,43 @@ function Collection() {
   function actualPrice(price, discountPercent) {
     return price - (price * discountPercent) / 100;
   }
+// for categories fetch
+useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        setLoading(true);
+        
+        const response = await axiosInstance.get("/category/all-categories", {
+          params: {
+            page: 1,
+            limit: 20,
+          }
+        });
+        
+        console.log("Categories response:", response.data);
+        
+        let fetchedCategories = [];
+        
+        if (response.data?.success && response.data?.data) {
+          fetchedCategories = response.data.data;
+        } else if (Array.isArray(response.data)) {
+          fetchedCategories = response.data;
+        }
+        
+        setCategories(fetchedCategories);
+        setError(null);
+        
+      } catch (err) {
+        console.error("Error fetching categories:", err);
+        setError(err.response?.data?.message || "Failed to load categories");
+        setCategories([]); // Empty array, no static data
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   useEffect(() => {
     if (isHovered) return;
@@ -190,19 +231,19 @@ function Collection() {
   //   );
   // });
 
-  const categories = [
-    { id: 1, name: "Resin", img: resin },
-    { id: 2, name: "Molds", img: mold },
-    { id: 3, name: "Pigments", img: pigment },
-    { id: 4, name: "Tools", img: tool },
-    { id: 5, name: "Brushes", img: brush },
-    { id: 6, name: "Glitters", img: glitter },
-    { id: 7, name: "Resin", img: resin },
-    { id: 8, name: "Brushes", img: brush },
-    { id: 9, name: "Glitters", img: glitter },
-    { id: 10, name: "Resin", img: resin },
-    { id: 11, name: "Resin", img: resin },
-  ];
+  // const categories = [
+  //   { id: 1, name: "Resin", img: resin },
+  //   { id: 2, name: "Molds", img: mold },
+  //   { id: 3, name: "Pigments", img: pigment },
+  //   { id: 4, name: "Tools", img: tool },
+  //   { id: 5, name: "Brushes", img: brush },
+  //   { id: 6, name: "Glitters", img: glitter },
+  //   { id: 7, name: "Resin", img: resin },
+  //   { id: 8, name: "Brushes", img: brush },
+  //   { id: 9, name: "Glitters", img: glitter },
+  //   { id: 10, name: "Resin", img: resin },
+  //   { id: 11, name: "Resin", img: resin },
+  // ];
 
   const [startIndex, setStartIndex] = useState(0);
   const visibleCount = 7;
@@ -345,39 +386,49 @@ function Collection() {
         </div> */}
         {/* <========-------- Category --------=========> */}
         <div className="flex justify-center items-center mt-6">
+          {categories.length > visibleCount && (
           <span onClick={scrollLeft} className="cursor-pointer p-2">
             <MdOutlineKeyboardArrowLeft size={28} />
           </span>
+          )}
           <div
             ref={sliderRef}
             className="flex gap-6 overflow-hidden"
           >
-            {categories.slice(startIndex, startIndex + visibleCount).map((item) => (
+            {categories.slice(startIndex, startIndex + visibleCount).map((category) => (
               <div
-                key={item.id}
+                key={category._id}
                 className=""
               >
-                <div className="flex flex-col items-center gap-3">
-                  <div className="w-[150px] h-[150px] rounded overflow-hidden transition-all duration-1000">
-                    <img
-                      src={item.img}
-                      alt={item.name}
-                      className="w-full h-full object-cover hover:scale-110 transition duration-300 cursor-pointer"
-                    />
+                  <div className="flex flex-col items-center gap-3">
+                    <div className="w-[150px] h-[150px] rounded overflow-hidden transition-all duration-1000">
+                      <img
+                         src={category.categoryImage?.url || "/placeholder-category.jpg"}
+  alt="categoryname"
+                        className="w-full h-full object-cover hover:scale-110 transition duration-300 cursor-pointer"
+                        onError={(e) => {
+                          e.target.src = "/placeholder-category.jpg";
+                        }}
+                      />
+                    </div>
+                    <span className="text-[14px] sm:text-[16px] text-center capitalize">
+                      {category.name}
+                    </span>
                   </div>
-                  <span className="text-[14px] sm:text-[16px] text-center">
-                    {item.name}
-                  </span>
-
-                </div>
               </div>
             ))}
           </div>
-          <span onClick={scrollRight} className="cursor-pointer p-2">
-            <MdOutlineKeyboardArrowRight size={28} />
-          </span>
-
+          {categories.length > visibleCount && (
+            <span onClick={scrollRight} className="cursor-pointer p-2">
+              <MdOutlineKeyboardArrowRight size={28} />
+            </span>
+          )}
         </div>
+          {categories.length === 0 && !loading && !error && (
+          <div className="text-center text-gray-500 py-8">
+            No categories available at the moment.
+          </div>
+        )}
       </div>
     </section>
   );
