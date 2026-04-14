@@ -14,12 +14,6 @@ const getAllProducts = async () => {
   return res.data?.data || res.data;
 };
 
-// Get all categories
-const getAllCategories = async () => {
-  const res = await axiosInstance.get("/category/all-categories");
-  return res.data?.data || res.data?.categories || res.data;
-};
-
 // Get product by category
 const getProductsByCategory = async (categoryName) => {
   const res = await axiosInstance.get(`/products/category/${categoryName}`);
@@ -29,10 +23,10 @@ const getProductsByCategory = async (categoryName) => {
 // Get product by category + subcategory
 const getProductsByCategoryAndSubcategory = async (
   categoryName,
-  subcategoryName
+  subcategoryName,
 ) => {
   const res = await axiosInstance.get(
-    `/products/category/${categoryName}/${subcategoryName}`
+    `/products/category/${categoryName}/${subcategoryName}`,
   );
   return res.data;
 };
@@ -56,7 +50,7 @@ const updateProduct = async (id, formData) => {
     formData,
     {
       headers: { "Content-Type": "multipart/form-data" },
-    }
+    },
   );
   return res.data;
 };
@@ -68,6 +62,17 @@ const categoryService = async (formData) => {
   });
   return res.data;
 };
+// ////////////////////////////////////////////////////
+// Get all categories at catgory service
+const getAllCategories = async (page = 1, limit = 10) => {
+  const res = await axiosInstance.get(
+    `/category/admin/all-categories?page=${page}&limit=${limit}`,
+  ); // Add pagination parameters
+  return {
+    data: res?.data?.category || res?.data?.data || [],
+    pagination: res?.data?.pagination || {},
+  };
+};
 
 const productService = {
   getAllProducts,
@@ -78,7 +83,7 @@ const productService = {
   getProductBySlug,
   addProduct,
   updateProduct,
-  categoryService
+  categoryService,
 };
 
 export default productService;

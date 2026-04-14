@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import axiosInstance from "../../api/axiosInstance";
+import { toast } from "react-toastify";
 
 const SubCategoriesPopOnClick = ({
   open,
@@ -42,10 +44,9 @@ const SubCategoriesPopOnClick = ({
     setSubcategories((prev) => prev.filter((_, i) => i !== idx));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // if user didn't click "add" for last typed value, add it automatically
     const pending = subInput.trim();
     let finalSubs = [...subcategories];
 
@@ -58,17 +59,25 @@ const SubCategoriesPopOnClick = ({
 
     if (finalSubs.length === 0) return;
 
-    const payload = {
-      categoryId,
-      categoryName,
-      subcategories, // array
-      status,
-    };
-    console.log(payload);
+    try {
+      const payload = {
+        categoryId,
+        subCategoryName: finalSubs, // ✅ IMPORTANT
+      };
 
-    console.log(payload);
+      console.log("Sending payload:", payload);
 
-    onClose();
+      await axiosInstance.post(
+        "/category/admin/createOrUpdate-category",
+        payload,
+      );
+
+      onClose();
+      toast.success("Sub-category added successfully");
+    } catch (error) {
+      console.error(error.response?.data || error.message);
+      toast.error("Failed to add sub-category");
+    }
   };
 
   return (

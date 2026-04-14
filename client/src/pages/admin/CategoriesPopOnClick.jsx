@@ -36,84 +36,78 @@ const CategoriesPopOnClick = ({
     setSubInput("");
   };
 
- const handleSubmit = async (e) => {
-  e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  let finalSubs = [...subcategories];
-  const typed = subInput.trim();
+    const isAddProductPage = location.pathname === "/admin/add-product";
 
-  if (typed) {
-    if (location.pathname === "/admin/add-product") {
+    let finalSubs = [];
+    const typed = subInput.trim();
+
+    if (!category.trim()) {
+      toast.error("Category name required");
+      return;
+    }
+
+    if (isAddProductPage) {
+      if (!typed) {
+        toast.error("Sub-category name required");
+        return;
+      }
       finalSubs = [typed];
     } else {
-      finalSubs.push(typed);
-    }
-  }
-
-  // ✅ Validation
-  if (!category.trim()) {
-    alert("Category name required");
-    return;
-  }
-
-  if (finalSubs.length === 0) {
-    alert("At least one subcategory required");
-    return;
-  }
-
-  try {
-    const formData = new FormData();
-
-    formData.append("name", category.trim());
-    formData.append("status", status);
-
-    // 🔥 IMPORTANT
-    formData.append("subCategories", JSON.stringify(finalSubs));
-
-    if (imageFile) {
-      formData.append("categoryImage", imageFile);
-    }
-
-    const res = await axiosInstance.post(
-      "/category/admin/createOrUpdate-category",
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+      finalSubs = [...subcategories];
+      if (typed) {
+        const exists = finalSubs.some(
+          (s) => s.toLowerCase() === typed.toLowerCase(),
+        );
+        if (!exists) finalSubs.push(typed);
       }
-    );
 
-    // console.log("API SUCCESS:", res.data);
-    toast.success(res.data?.message || "Category saved successfully");
-
-    // ✅ Update UI
-    if (setNewCategory) {
-      setNewCategory(category.trim());
+      if (finalSubs.length === 0) {
+        toast.error("At least one subcategory required");
+        return;
+      }
     }
 
-    // if (setSubcategories) {
-    //   setSubcategories((prev) => ({
-    //     ...prev,
-    //     [category.trim()]: finalSubs,
-    //   }));
-    // }
+    try {
+      const formData = new FormData();
+      formData.append("name", category.trim());
+      formData.append("isActive", status === "Active");
+      formData.append("subCategories", JSON.stringify(finalSubs));
 
-    // ✅ Reset
-    setCategory("");
-    setStatus("Active");
-    setSubInput("");
-    setLocalSubcategories([]);
-    setImage(null);
-    setImageFile(null);
+      if (imageFile) {
+        formData.append("categoryImage", imageFile);
+      }
 
-    onclose();
+      const res = await axiosInstance.post(
+        "/category/admin/createOrUpdate-category",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        },
+      );
 
-  } catch (err) {
-    console.error(err);
-    alert(err?.response?.data?.message || "API Error");
-  }
-};
+      toast.success(res?.data?.message || "Category saved successfully");
+
+      if (setNewCategory) {
+        setNewCategory(category.trim());
+      }
+
+      setCategory("");
+      setStatus("Active");
+      setSubInput("");
+      setLocalSubcategories([]);
+      setImage(null);
+      setImageFile(null);
+      onclose();
+    } catch (err) {
+      console.error("CATEGORY API ERROR:", err?.response?.data || err);
+      toast.error(err?.response?.data?.message || "API Error");
+    }
+  };
 
   const handleUpload = (e) => {
     const file = e.target.files[0];
@@ -140,6 +134,7 @@ const CategoriesPopOnClick = ({
             <label className="flex items-center gap-2 cursor-pointer">
               <input
                 type="radio"
+                name="categoryStatus"
                 checked={status === "Active"}
                 onChange={() => setStatus("Active")}
               />
@@ -149,6 +144,7 @@ const CategoriesPopOnClick = ({
             <label className="flex items-center gap-2 cursor-pointer">
               <input
                 type="radio"
+                name="categoryStatus"
                 checked={status === "Inactive"}
                 onChange={() => setStatus("Inactive")}
               />
