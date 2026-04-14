@@ -9,7 +9,6 @@ const WishlistItemSchema = new mongoose.Schema(
     },
     variantId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Product",
     },
     category: {
       type: mongoose.Schema.Types.ObjectId,
