@@ -36,8 +36,6 @@ export default {
   ENABLE_DEVICE_FINGERPRINT: process.env.ENABLE_DEVICE_FINGERPRINT === "true",
   FRONTEND_URL: process.env.FRONTEND_URL,
 
-  CORS_ORIGIN: process.env.CORS_ORIGIN,
-
   NODE_ENV: process.env.NODE_ENV || "development",
 
   SMTP_HOST: process.env.SMTP_HOST,
