@@ -107,6 +107,7 @@ import Collection from "../pages/admin/Collection/Collection";
 import BestSelling from "../pages/admin/Collection/BestSelling";
 import ProtectedRoute from "../pages/user/ProtectedRoute";
 import GuestRoute from "../pages/user/GuestRoute";
+import Reward from "../pages/user/Reward";
 
 const PageRouter = () => {
   return (
@@ -220,6 +221,7 @@ const PageRouter = () => {
           <Route path="addresses" element={<Address />} />
           <Route path="support" element={<Contact />} />
           <Route path="reviews" element={<MyReviews />} />
+          <Route path="reward" element={<Reward />} />
         </Route>
 
         {/* Checkout */}

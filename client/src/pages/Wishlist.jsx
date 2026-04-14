@@ -35,7 +35,7 @@ function Wishlist() {
   const hasOutOfStock = outOfStockItems.length > 0;
 
   return (
-    <div className="w-full bg-white rounded-lg shadow-sm md:border border-gray-200">
+    <div className="mt-5 w-full bg-white rounded-lg shadow-sm md:border border-gray-200">
       <div className="flex flex-row items-center justify-between p-4 md:p-6 border-b border-gray-200">
         <h1 className="text-lg sm:text-xl font-medium text-gray-800 ">
           Wishlist <span>({totalItems})</span>

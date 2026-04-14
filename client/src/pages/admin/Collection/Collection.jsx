@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Pencil, Search, ChevronDown } from "lucide-react";
 import { MdOutlineAdd } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
+import { RiDeleteBin6Line } from "react-icons/ri";
 
 const data = [
     { id: 1, name: "Wall Art", productCount: 12, status: "Active" },
@@ -61,13 +62,12 @@ function Collection() {
 
     return (
         <div className="p-6 bg-[#F6F8F9] min-h-screen">
-
             {/* HEADER */}
             <div className="flex justify-between items-center mb-6">
                 <h2 className="text-[20px] font-semibold">Collection</h2>
 
-                <button className="flex items-center gap-2 px-4 py-2 bg-[#0B3142] text-white rounded-lg" 
-                onClick={() => setAddCollection(true)}>
+                <button className="flex items-center gap-2 px-4 py-2 bg-[#0B3142] text-white rounded-lg"
+                    onClick={() => setAddCollection(true)}>
                     <MdOutlineAdd size={20} />
                     Add Collection
                 </button>
@@ -143,6 +143,7 @@ function Collection() {
                             <th className="px-6 py-3 text-left">Collection Name</th>
                             <th className="px-6 py-3 text-center">Product Count</th>
                             <th className="px-6 py-3 text-center">Status</th>
+                            <th className="px-6 py-3 text-center"></th>
                         </tr>
                     </thead>
 
@@ -157,8 +158,6 @@ function Collection() {
                                 <td className="px-6 py-4 text-center">
                                     {item.productCount}
                                 </td>
-
-                                {/* CLICK */}
                                 <td
                                     className="px-6 py-4 text-center text-blue-600 cursor-pointer hover:underline"
                                     onClick={() =>
@@ -168,6 +167,9 @@ function Collection() {
                                     }
                                 >
                                     View All
+                                </td>
+                                <td className="px-6 py-4 text-center">
+                                    <span><RiDeleteBin6Line size={24} className="text-[#D53B35]" /></span>
                                 </td>
                             </tr>
                         ))}
@@ -195,7 +197,7 @@ function Collection() {
                     </button>
                 </div> */}
             </div>
-            
+
             {addCollection && (
                 <div
                     className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
@@ -212,6 +214,20 @@ function Collection() {
                         <h2 className="text-lg font-semibold mb-4">
                             Add Collection
                         </h2>
+
+                        <div className="mb-5">
+                            <span>Collection Status</span>
+                            <div className="flex items-center gap-6">
+                                <div className="flex items-center gap-1 mt-2">
+                                    <input type="radio" name="status" id="active" />
+                                    <label htmlFor="active">Active</label>
+                                </div>
+                                <div className="flex items-center gap-1 mt-2">
+                                    <input type="radio" name="status" id="inactive" />
+                                    <label htmlFor="inactive">Inactive</label>
+                                </div>
+                            </div>
+                        </div>
 
                         <input
                             type="text"

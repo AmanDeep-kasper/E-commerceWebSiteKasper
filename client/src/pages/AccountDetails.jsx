@@ -156,7 +156,7 @@ function AccountDetails() {
   }
 
   return (
-    <div className="w-full font-inter">
+    <div className="w-full font-inter mt-5">
       {/* Saving Overlay */}
       {isSaving && (
         <div className="fixed inset-0 bg-black/20 backdrop-blur-sm z-50 flex items-center justify-center">
