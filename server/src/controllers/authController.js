@@ -254,7 +254,7 @@ export const loginUser = asyncHandler(async (req, res) => {
     httpOnly: true,
     secure: isProduction ? false : true,
     sameSite: isProduction ? "lax" : "none",
-    maxAge: 3 * 60 * 1000,
+    maxAge: 15 * 60 * 1000,
   });
 
   res.cookie("refreshToken", refreshToken, {
@@ -538,7 +538,7 @@ export const changePassword = asyncHandler(async (req, res) => {
 
   res.cookie("accessToken", accessToken, {
     ...cookieOptions,
-    maxAge: 3 * 60 * 1000,
+    maxAge: 15 * 60 * 1000,
   });
 
   res.cookie("refreshToken", refreshToken, {
@@ -628,14 +628,7 @@ export const forgotPassword = asyncHandler(async (req, res) => {
   const resetLink = `${env.FRONTEND_URL}/reset-password?token=${resetToken}&email=${encodeURIComponent(email)}`;
 
   // Non-blocking email send — failures logged but don't affect response
-  sendPasswordResetEmail(user.email, user.name, resetLink, tokenExpiry).catch(
-    (emailError) => {
-      console.error(
-        `Failed to send password reset email to ${email}:`,
-        emailError,
-      );
-    },
-  );
+  await sendPasswordResetEmail(user.email, user.name, resetLink, tokenExpiry);
 
   res.status(200).json({
     success: true,
@@ -757,11 +750,6 @@ export const refreshAccessToken = asyncHandler(async (req, res) => {
     { _id: decoded.userId },
     {
       $pull: { activeSessions: decoded.sessionId },
-    },
-  );
-  await User.updateOne(
-    { _id: decoded.userId },
-    {
       $push: { activeSessions: newTokens.sessionId },
     },
   );
@@ -772,7 +760,7 @@ export const refreshAccessToken = asyncHandler(async (req, res) => {
     httpOnly: true,
     secure: isProduction ? false : true,
     sameSite: isProduction ? "lax" : "none",
-    maxAge: 3 * 60 * 1000,
+    maxAge: 15 * 60 * 1000,
   });
 
   res.cookie("refreshToken", newTokens.refreshToken, {

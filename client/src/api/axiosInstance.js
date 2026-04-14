@@ -37,8 +37,7 @@ axiosInstance.interceptors.response.use(
       error.response?.status === 401 &&
       !originalRequest._retry &&
       !originalRequest.url.includes("/auth/login") &&
-      !originalRequest.url.includes("/auth/refresh-token") &&
-      !originalRequest.url.includes("/auth/me")
+      !originalRequest.url.includes("/auth/refresh-token")
     ) {
       originalRequest._retry = true;
 
@@ -52,17 +51,20 @@ axiosInstance.interceptors.response.use(
 
       try {
         await axiosInstance.post("/auth/refresh-token");
-        processQueue(null);
-        return axiosInstance(originalRequest); // retry original request
+        await new Promise((res) => setTimeout(res, 100));
+        failedQueue.push({
+          resolve: () => resolve(axiosInstance(originalRequest)),
+          reject,
+        });
+        // processQueue(null);
+        // return axiosInstance(originalRequest); // retry original request
       } catch (refreshError) {
         processQueue(refreshError);
 
         // Refresh failed — force logout and redirect to login
         try {
           const store = await getStore();
-          const { forceLogout } = await import(
-            "../redux/cart/userSlice.js"
-          );
+          const { forceLogout } = await import("../redux/cart/userSlice.js");
           store.dispatch(forceLogout());
         } catch (importError) {
           console.error("Failed to force logout:", importError);
