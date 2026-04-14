@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import Category from "../models/Category.js";
+import Product from "../models/Product.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import AppError from "../utils/AppError.js";
 import {
@@ -161,6 +162,16 @@ export const getAllCategories = asyncHandler(async (req, res) => {
       }),
     );
   }
+
+  // calculate product count in each category
+  data = await Promise.all(
+    data.map(async (cat) => {
+      const productCount = await Product.countDocuments({
+        category: cat._id,
+      });
+      return { ...cat, productCount };
+    }),
+  );
 
   return res.status(200).json({
     success: true,
