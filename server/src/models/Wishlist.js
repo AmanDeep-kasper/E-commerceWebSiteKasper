@@ -9,11 +9,18 @@ const WishlistItemSchema = new mongoose.Schema(
     },
     variantId: {
       type: mongoose.Schema.Types.ObjectId,
+      ref: "Product",
     },
     category: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Category",
       required: true,
+    },
+
+    quantity: {
+      type: Number,
+      default: 1,
+      index: true,
     },
 
     variantName: { type: String, default: "" },
@@ -34,12 +41,6 @@ const WishlistSchema = new mongoose.Schema(
     },
     items: [WishlistItemSchema],
 
-    quantity: {
-      type: Number,
-      default: 1,
-      index: true,
-    }
-    ,
     isActive: {
       type: Boolean,
       default: true,
