@@ -760,6 +760,7 @@ export const userGetAllProducts = asyncHandler(async (req, res) => {
         hasVariants: lowestPrice !== highestPrice,
       },
 
+      mrp: defaultVariant?.variantMrp || 0,
       defaultPrice: defaultVariant?.variantSellingPrice || 0,
       discount: defaultVariant?.variantDiscount || 0,
 
