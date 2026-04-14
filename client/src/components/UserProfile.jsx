@@ -36,7 +36,7 @@ function UserProfile({ setIsProfileOpen }) {
   // console.log(isAuthenticated);
 
   return (
-    <div className="h-max md:w-[413px] sm:w-[350px] w-[280px] overflow-hidden mx-auto bg-white z-50">
+    <div className="h-max md:w-[413px] sm:w-[350px] w-[280px] overflow-hidden mx-auto bg-white z-50 ">
       {/* Top section: user icon and welcome message */}
       <div className="flex gap-4 items-center px-4 py-5 border-b border-gray-200 cursor-default">
         <div className="flex items-center gap-3">
@@ -74,8 +74,8 @@ function UserProfile({ setIsProfileOpen }) {
               }, 0);
             }}
             className={({ isActive }) =>
-              `flex items-center gap-4 p-3 my-1 rounded-lg transition-colors duration-200 group ${
-                isActive ? "bg-[#e8eff7]" : "hover:bg-gray-50"
+              `flex items-center gap-4 p-3 my-1 rounded-lg duration-200 group ${
+                isActive ? "bg-[]" : "hover:bg-[#F0EEFF]"
               }`
             }
           >
@@ -91,8 +91,8 @@ function UserProfile({ setIsProfileOpen }) {
                   <Icon
                     className={`w-5 h-5 ${
                       isActive
-                        ? "text-[#1C3753]"
-                        : "text-gray-600 group-hover:text-[#1C3753]"
+                        ? "text-[#0C0057]"
+                        : "text-[] group-hover:text-[#1C3753]"
                     }`}
                   />
                 </div>

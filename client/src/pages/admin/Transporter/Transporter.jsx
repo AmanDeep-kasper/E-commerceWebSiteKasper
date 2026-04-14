@@ -292,7 +292,7 @@ const Transporter = () => {
                 All Status
                 <ChevronDown />
               </button>
-              <button
+              {/* <button
                 onClick={() =>
                   setActiveFilter((prev) =>
                     prev === "category" ? null : "category",
@@ -302,7 +302,7 @@ const Transporter = () => {
               >
                 Delivery Type
                 <ChevronDown />
-              </button>
+              </button> */}
 
               <div className="relative inline-block">
                 {filterOpen && (
@@ -420,9 +420,9 @@ const Transporter = () => {
                   <th className="px-4 py-3 font-normal text-[#1C1C1C]">
                     Registration Number
                   </th>
-                  <th className="px-4 py-3 font-normal text-[#1C1C1C]">
+                  {/* <th className="px-4 py-3 font-normal text-[#1C1C1C]">
                     Delivery Type
-                  </th>
+                  </th> */}
                   <th className="px-4 py-3 font-normal text-[#1C1C1C]">
                     Active Shipments
                   </th>
@@ -459,11 +459,11 @@ const Transporter = () => {
                     <td className="px-4 py-3 text-[16px] text-[#1F2937]">
                       27AADCD3196Q1ZL
                     </td>
-                    <td className="px-4 py-3 text-[16px] text-[#1F2937]">
+                    {/* <td className="px-4 py-3 text-[16px] text-[#1F2937]">
                       <div className="bg-[#EFEFEF] p-[6px] w-[90px] text-center rounded-lg font-medium">
                         Forward
                       </div>
-                    </td>
+                    </td> */}
                     <td className="px-4 py-3 text-[16px] text-[#1F2937]">
                       (20)
                     </td>
@@ -569,6 +569,20 @@ const Transporter = () => {
               <p className="font-medium text-[14px] mb-2">Basic Information</p>
 
               <form className="space-y-4">
+                
+
+                <div>
+                  <label className="text-sm text-gray-600">Status</label>
+                  <select
+                    name="status"
+                    value={formdata.status}
+                    onChange={(e) => setFormData(e.target.value)}
+                    className="w-full mt-1 border rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-200"
+                  >
+                    <option value="Active">Active</option>
+                    <option value="Inactive">Inactive</option>
+                  </select>
+                </div>
                 <div>
                   <label className="text-sm text-gray-600">
                     Transporter Name
@@ -645,23 +659,10 @@ const Transporter = () => {
                   />
                 </div>
 
-                <div>
-                  <label className="text-sm text-gray-600">Status</label>
-                  <select
-                    name="status"
-                    value={formdata.status}
-                    onChange={(e) => setFormData(e.target.value)}
-                    className="w-full mt-1 border rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-200"
-                  >
-                    <option value="Active">Active</option>
-                    <option value="Inactive">Inactive</option>
-                  </select>
-                </div>
-
-                <p className="font-medium text-[14px] mb-2">Delivery Type</p>
-                <div className="border p-4 rounded-lg space-y-3">
+                {/* <p className="font-medium text-[14px] mb-2">Delivery Type</p> */}
+                {/* <div className="border p-4 rounded-lg space-y-3"> */}
                   {/* Forward Delivery */}
-                  <div className="flex items-center justify-between border-b pb-2">
+                  {/* <div className="flex items-center justify-between border-b pb-2">
                     <span>Forward Delivery</span>
                     <button
                       type="button"
@@ -678,10 +679,10 @@ const Transporter = () => {
                         }`}
                       />
                     </button>
-                  </div>
+                  </div> */}
 
                   {/* Return Delivery */}
-                  <div className="flex items-center justify-between border-b pb-2">
+                  {/* <div className="flex items-center justify-between border-b pb-2">
                     <span>Return Delivery</span>
                     <button
                       type="button"
@@ -698,10 +699,10 @@ const Transporter = () => {
                         }`}
                       />
                     </button>
-                  </div>
+                  </div> */}
 
                   {/* RTO */}
-                  <div className="flex items-center justify-between border-b pb-2">
+                  {/* <div className="flex items-center justify-between border-b pb-2">
                     <span>RTO</span>
                     <button
                       type="button"
@@ -718,10 +719,10 @@ const Transporter = () => {
                         }`}
                       />
                     </button>
-                  </div>
+                  </div> */}
 
                   {/* Fast Delivery */}
-                  <div className="flex items-center justify-between border-b pb-2">
+                  {/* <div className="flex items-center justify-between border-b pb-2">
                     <span>Fast Delivery</span>
                     <button
                       type="button"
@@ -738,10 +739,10 @@ const Transporter = () => {
                         }`}
                       />
                     </button>
-                  </div>
+                  </div> */}
 
                   {/* One Day Delivery */}
-                  <div className="flex items-center justify-between">
+                  {/* <div className="flex items-center justify-between">
                     <span>One Day Delivery</span>
                     <button
                       type="button"
@@ -758,10 +759,10 @@ const Transporter = () => {
                         }`}
                       />
                     </button>
-                  </div>
-                </div>
+                  </div> */}
+                {/* </div> */}
 
-                <p className="font-medium text-[14px] mb-2">
+                {/* <p className="font-medium text-[14px] mb-2">
                   SLA Configuration
                 </p>
                 <div>
@@ -860,7 +861,7 @@ const Transporter = () => {
                       className="w-full mt-1 border rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-200"
                     />
                   </div>
-                </div>
+                </div> */}
               </form>
             </div>
 

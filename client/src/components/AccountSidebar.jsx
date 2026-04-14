@@ -23,7 +23,7 @@ const accountMenu = [
   { label: "Manage Addresses", path: "/addresses", icon: MapPin },
   { label: "Support & Help", path: "/support", icon: HelpCircle },
   { label: "Reviews & Ratings", path: "/reviews", icon: Star },
-  { label: "Reward Points", path: "/reward-points", icon: Star },
+  { label: "Reward Points", path: "/reward", icon: Star },
 ];
 
 function AccountSidebar() {
@@ -60,7 +60,7 @@ function AccountSidebar() {
   };
 
   return (
-    <div className="sticky top-28 h-max min-w-[310px] !w-[310px] bg-white rounded-lg shadow-sm overflow-hidden ">
+    <div className="sticky top-28 h-max min-w-[310px] !w-[310px] bg-white rounded-lg shadow-sm overflow-hidden mt-5">
       {/* Account holder */}
       <div className="px-6 py-4 flex gap-4 items-center text-white bg-gradient-to-r from-[#CFC7FF]/50 to-[#FFC9EA]/20 rounded-b-3xl rounded-t-lg m-1">
         <div className="relative group w-14 h-14 rounded-full overflow-hidden border-2 border-white/90 hover:border-white/50 transition-all duration-300">

@@ -10,10 +10,10 @@ import {
 
 const rewardRouter = express.Router();
 
-rewardRouter.post("/create", authenticate, authorize("admin"),  createReward);
-rewardRouter.get("/", authenticate, authorize("admin"), getAllRewards);
-rewardRouter.get("/:id", authenticate, authorize("admin"), getRewardById);
-rewardRouter.put("/:id", authenticate, authorize("admin"),  updateReward);  
-rewardRouter.delete("/:id", authenticate, authorize("admin"),  deleteReward);
+rewardRouter.post("/create", createReward);
+rewardRouter.get("/", getAllRewards);
+rewardRouter.get("/:id", getRewardById);
+rewardRouter.put("/:id",  updateReward);  
+rewardRouter.delete("/:id",  deleteReward);
 
 export default rewardRouter;

@@ -9,10 +9,10 @@ const SomethingWentWrong = ({
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-6">
       <div className="max-w-md w-full bg-white rounded-2xl shadow-md overflow-hidden text-center p-10">
         {/* Icon Circle */}
-        <div className="mx-auto w-28 h-28 bg-amber-50 rounded-full flex items-center justify-center mb-6 shadow-inner">
+        <div className="mx-auto w-28 h-28 bg-[#F0EEFF] rounded-full flex items-center justify-center mb-6 shadow-inner">
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="w-14 h-14 text-amber-500"
+            className="w-14 h-14 text-[#1800AC] stroke-2"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -40,7 +40,7 @@ const SomethingWentWrong = ({
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link
             to="/"
-            className="inline-block bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600
+            className="inline-block bg-[#F0EEFF]
                    text-white rounded-full px-8 py-3 font-medium transition-all shadow-md hover:shadow-lg"
           >
             Continue Shopping
