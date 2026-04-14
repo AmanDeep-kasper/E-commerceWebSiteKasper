@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { CgSoftwareUpload } from "react-icons/cg";
 import { useLocation } from "react-router-dom";
+import axiosInstance from "../../api/axiosInstance";
+import { toast } from "react-toastify";
 
 const CategoriesPopOnClick = ({
   open,
@@ -14,6 +16,7 @@ const CategoriesPopOnClick = ({
   const [category, setCategory] = useState(newCategory || "");
   const [status, setStatus] = useState("Active");
   const [image, setImage] = useState(null);
+  const [imageFile, setImageFile] = useState(null);
   const [subInput, setSubInput] = useState("");
   const [subcategories, setLocalSubcategories] = useState([]);
 
@@ -33,49 +36,102 @@ const CategoriesPopOnClick = ({
     setSubInput("");
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+ const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    const finalSubs = [...subcategories];
-    const typed = subInput.trim();
-    if (typed) finalSubs.push(typed);
+  let finalSubs = [...subcategories];
+  const typed = subInput.trim();
 
-    const payload = {
-      name: category.trim(),
-      status,
-      subcategories: finalSubs,
-    };
+  if (typed) {
+    if (location.pathname === "/admin/add-product") {
+      finalSubs = [typed];
+    } else {
+      finalSubs.push(typed);
+    }
+  }
 
-    console.log(payload);
+  // ✅ Validation
+  if (!category.trim()) {
+    alert("Category name required");
+    return;
+  }
 
+  if (finalSubs.length === 0) {
+    alert("At least one subcategory required");
+    return;
+  }
+
+  try {
+    const formData = new FormData();
+
+    formData.append("name", category.trim());
+    formData.append("status", status);
+
+    // 🔥 IMPORTANT
+    formData.append("subCategories", JSON.stringify(finalSubs));
+
+    if (imageFile) {
+      formData.append("categoryImage", imageFile);
+    }
+
+    const res = await axiosInstance.post(
+      "/category/admin/createOrUpdate-category",
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+
+    // console.log("API SUCCESS:", res.data);
+    toast.success(res.data?.message || "Category saved successfully");
+
+    // ✅ Update UI
     if (setNewCategory) {
       setNewCategory(category.trim());
     }
 
-    if (setSubcategories) {
-      setSubcategories((prev) => ({
-        ...prev,
-        [category.trim()]: finalSubs,
-      }));
-    }
+    // if (setSubcategories) {
+    //   setSubcategories((prev) => ({
+    //     ...prev,
+    //     [category.trim()]: finalSubs,
+    //   }));
+    // }
 
+    // ✅ Reset
     setCategory("");
     setStatus("Active");
     setSubInput("");
     setLocalSubcategories([]);
+    setImage(null);
+    setImageFile(null);
+
     onclose();
-  };
+
+  } catch (err) {
+    console.error(err);
+    alert(err?.response?.data?.message || "API Error");
+  }
+};
 
   const handleUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setImage(URL.createObjectURL(file));
+      setImage(URL.createObjectURL(file)); // preview
+      setImageFile(file); // 🔥 required for API
     }
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center">
-      <div className="bg-white w-[380px] rounded-xl p-4">
+    <div
+      className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center"
+      onClick={onclose}
+    >
+      <div
+        className="bg-white w-[380px] rounded-xl p-4"
+        onClick={(e) => e.stopPropagation()}
+      >
         <h2 className="text-lg font-medium mb-4">Add Category</h2>
 
         <div className="mb-3">
@@ -148,7 +204,7 @@ const CategoriesPopOnClick = ({
                 className="w-full border px-3 py-2 rounded-lg outline-none"
               />
 
-              {location.pathname != "/admin/add-product" && (
+              {location.pathname !== "/admin/add-product" && (
                 <button
                   type="button"
                   onClick={addSubcategory}

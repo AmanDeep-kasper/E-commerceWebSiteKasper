@@ -247,9 +247,6 @@ function MyReviews({ totalItems = 0 }) {
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 ">
                     <h2 className="text-base sm:text-lg font-medium text-gray-700">
                       {item.productId.productTittle}
-                      {/* {item.productId.productTittle.length > 50
-                        ? item.productId.productTittle.slice(0, 50) + "..."
-                        : item.productId.productTittle}
                     </h2>
 
                     {/* Reviewer Info */}

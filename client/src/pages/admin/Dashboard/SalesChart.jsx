@@ -74,7 +74,7 @@ const SalesChart = () => {
   const graphData = chartData[activeTab][filterType];
 
   return (
-    <div className="bg-white rounded-xl p-4 ">
+    <div className="bg-white rounded-xl p-4">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-[18px] flex flex-col items-center font-medium gap-2">
           Sales Overview
