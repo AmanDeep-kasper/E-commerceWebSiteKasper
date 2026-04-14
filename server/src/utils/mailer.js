@@ -23,4 +23,8 @@ const getTransporter = () => {
   return transporter;
 };
 
-export { getTransporter };
+const transporter = getTransporter();
+console.log(transporter);
+
+
+export { getTransporter, transporter };

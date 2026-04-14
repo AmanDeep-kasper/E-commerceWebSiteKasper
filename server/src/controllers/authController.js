@@ -585,14 +585,14 @@ export const forgotPassword = asyncHandler(async (req, res) => {
   const timeSinceLastRequest = now - lastRequest;
   const MIN_TIME_BETWEEN_REQUESTS = 60 * 1000;
 
-  if (resetAttempts >= 3 && timeSinceLastRequest < 60 * 60 * 1000) {
-    console.warn(`Password reset rate limit hit for email: ${email}`);
-    return res.status(200).json({
-      success: true,
-      message:
-        "If an account with that email exists, a reset link has been sent.",
-    });
-  }
+  // if (resetAttempts >= 3 && timeSinceLastRequest < 60 * 60 * 1000) {
+  //   console.warn(`Password reset rate limit hit for email: ${email}`);
+  //   return res.status(200).json({
+  //     success: true,
+  //     message:
+  //       "If an account with that email exists, a reset link has been sent.",
+  //   });
+  // }
 
   if (timeSinceLastRequest < MIN_TIME_BETWEEN_REQUESTS) {
     const waitTime = Math.ceil(
