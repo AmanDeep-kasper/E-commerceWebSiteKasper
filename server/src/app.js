@@ -1,9 +1,6 @@
 // import dotenv from "dotenv";
 // dotenv.config();
 
-import dns from "dns";
-dns.setDefaultResultOrder("ipv4first");
-
 // import dns from "node:dns";
 // dns.setServers(["1.1.1.1", "1.0.0.1", "8.8.8.8", "8.8.4.4"]);
 
