@@ -1,49 +1,24 @@
 import nodemailer from "nodemailer";
-import env from "../config/env.js";
-import dns from "dns";
-dns.setDefaultResultOrder("ipv4first");
-
-const user = env.SMTP_USER;
-const pass = env.SMTP_PASSWORD;
-
-if (!user || !pass) {
-  console.log("SMTP_USER or SMTP_PASSWORD is missing");
-}
-
-console.log(user, pass);
-
-const emailConfig = {
-  host: env.SMTP_HOST,
-  port: env.NODE_ENV === "production" ? 465 : 587,
-  secure: env.NODE_ENV === "production" ? true : false,
-
-  auth: {
-    user: env.SMTP_USER,
-    pass: env.SMTP_PASSWORD,
-  },
-
-  family: 4,
-  connectionTimeout: 10000,
-  greetingTimeout: 10000,
-  socketTimeout: 10000,
-};
-
-let transporter = null;
+import dotenv from "dotenv";
+dotenv.config();
 
 const getTransporter = () => {
-  if (!transporter) {
-    transporter = nodemailer.createTransport(emailConfig);
+  const user = process.env.EMAIL_USER;
+  const pass = process.env.EMAIL_PASS;
 
-    transporter.verify((error) => {
-      if (error) {
-        console.error("SMTP connection verification failed:", error);
-        // Reset so next call retries
-        transporter = null;
-      } else {
-        console.log("SMTP server is ready to send emails");
-      }
-    });
-  }
+  if (!user || !pass) throw new Error("EMAIL_USER or EMAIL_PASS is missing");
+
+  const transporter = nodemailer.createTransport({
+    host: env.SMTP_HOST,
+    port: env.NODE_ENV === "production" ? 465 : 587,
+    secure: env.NODE_ENV === "production" ? true : false,
+
+    auth: {
+      user,
+      pass,
+    },
+  });
+
   return transporter;
 };
 
