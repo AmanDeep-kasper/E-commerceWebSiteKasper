@@ -296,7 +296,7 @@ export const getCategoryDetails = asyncHandler(async (req, res) => {
   });
 });
 
-export const updateCategory = asyncHandler(async (req, res) => {
+export const updateCategoryOrSubcategory = asyncHandler(async (req, res) => {
   const { categoryId } = req.params;
   const { name, isActive, subCategories } = req.body;
 

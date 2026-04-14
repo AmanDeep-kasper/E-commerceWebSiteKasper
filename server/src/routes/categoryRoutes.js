@@ -9,7 +9,7 @@ import {
   getAllSubCategories,
   getCategoryDetails,
   getCategoryDetailsController,
-  updateCategory,
+  updateCategoryOrSubcategory,
   updateCategoryStatus,
 } from "../controllers/categoryController.js";
 import { validateRequest } from "../validation/validator.js";
@@ -51,13 +51,12 @@ router.get(
 );
 
 router.patch(
-  "/admin/update-category/:categoryId",
+  "/admin/update-categoryOrSubcategory/:categoryId",
   authenticate,
   authorize("admin"),
-  upload.single("categoryImage"),
-  updateCategoryValidation,
-  validateRequest,
-  updateCategory,
+  // updateCategoryValidation,
+  // validateRequest,
+  updateCategoryOrSubcategory,
 );
 
 router.delete(
