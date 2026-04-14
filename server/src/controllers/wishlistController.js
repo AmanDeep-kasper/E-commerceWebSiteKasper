@@ -85,6 +85,7 @@ export const addProductToWishlist = asyncHandler(async (req, res) => {
     product: product._id,
     category: product.category,
     productTitle: product.productTittle,
+    quantity: 1,
     ...(variantData && {
       variantId: variantData._id,
       variantName: variantData.variantName,
@@ -100,7 +101,12 @@ export const addProductToWishlist = asyncHandler(async (req, res) => {
   const populatedWishlist = await Wishlist.findById(wishlist._id)
     .populate({
       path: "items.product",
-      select: "_id productTittle slug category stats",
+      select: "_id productTittle slug stats",
+      populate: {
+        path: "variantId",
+        select:
+          "variantMrp variantSellingPrice variantColor variantWeight variantWeightUnit",
+      },
     })
     .lean();
 
@@ -110,8 +116,7 @@ export const addProductToWishlist = asyncHandler(async (req, res) => {
     success: true,
     message: "Product added to wishlist successfully",
     data: {
-      item: addedItem,
-      wishlist: populatedWishlist,
+      wishlist: addedItem,
     },
   });
 });

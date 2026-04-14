@@ -18,7 +18,7 @@ async function uploadCategoryImage(file) {
 
 const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
 
-async function findOrCreateCategory(name, imageData) {
+async function findOrCreateCategory(name, imageData, isActive) {
   const normalized = name.trim().toLowerCase();
   let category = await Category.findOne({ name: normalized });
 
@@ -26,6 +26,7 @@ async function findOrCreateCategory(name, imageData) {
     category = await Category.create({
       name: normalized,
       ...(imageData && { categoryImage: imageData }),
+      isActive: isActive === "false" ? false : true,
     });
   }
 
@@ -45,7 +46,7 @@ async function findOrCreateSubCategory(name, categoryId) {
 
 // Admin controller
 export const createOrUpdateCategory = asyncHandler(async (req, res) => {
-  let { name, categoryId, subCategoryName } = req.body;
+  let { name, categoryId, subCategoryName, isActive } = req.body;
 
   let subCategories = req.body.subCategories;
   if (typeof subCategories === "string") {
@@ -76,7 +77,7 @@ export const createOrUpdateCategory = asyncHandler(async (req, res) => {
       await category.save();
     }
   } else if (name) {
-    category = await findOrCreateCategory(name, imageData);
+    category = await findOrCreateCategory(name, imageData, isActive);
   } else {
     throw AppError.badRequest(
       "Provide either 'name' or 'categoryId'",

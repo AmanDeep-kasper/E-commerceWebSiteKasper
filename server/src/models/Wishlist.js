@@ -34,6 +34,12 @@ const WishlistSchema = new mongoose.Schema(
     },
     items: [WishlistItemSchema],
 
+    quantity: {
+      type: Number,
+      default: 1,
+      index: true,
+    }
+    ,
     isActive: {
       type: Boolean,
       default: true,
