@@ -298,57 +298,98 @@ export const getCategoryDetails = asyncHandler(async (req, res) => {
 
 export const updateCategory = asyncHandler(async (req, res) => {
   const { categoryId } = req.params;
-  const { name, isActive } = req.body;
+  const { name, isActive, subCategories } = req.body;
 
-  // Find existing category
+  // Find category
   const category = await Category.findById(categoryId);
   if (!category) {
     throw AppError.notFound("Category not found", "NOT_FOUND");
   }
 
-  // Check for duplicate name (excluding current category)
+  // Update category name (with duplicate check)
   if (name && name !== category.name) {
     const existingCategory = await Category.findOne({
       name: name.toLowerCase(),
       _id: { $ne: categoryId },
     });
+
     if (existingCategory) {
       throw AppError.conflict(
         "Category with this name already exists",
         "CATEGORY_EXISTS",
       );
     }
+
+    category.name = name;
   }
 
-  // Handle image update
-  let categoryImage = category.categoryImage;
-  if (req.file) {
-    // Delete old image if exists
-    if (category.categoryImage?.publicId) {
-      await deleteImageFromCloudinary(category.categoryImage.publicId);
-    }
-    // Upload new image
-    const result = await uploadImageToCloudinary(req.file.path, "category");
-    categoryImage = {
-      url: result.url,
-      publicId: result.publicId,
-    };
-  }
-
-  // Apply updates
-  if (name !== undefined) category.name = name;
-  if (isActive !== undefined) category.isActive = isActive;
-
-  if (categoryImage !== undefined) {
-    category.categoryImage = categoryImage;
+  // Update isActive
+  if (isActive !== undefined) {
+    category.isActive = isActive;
   }
 
   await category.save();
 
+  let updatedSubCategories = [];
+
+  if (Array.isArray(subCategories) && subCategories.length > 0) {
+    updatedSubCategories = await Promise.all(
+      subCategories.map(async (sub) => {
+        const { subCategoryId, name } = sub;
+
+        if (!isValidObjectId(subCategoryId)) {
+          throw AppError.badRequest(
+            "Invalid subCategoryId",
+            "INVALID_SUBCATEGORY_ID",
+          );
+        }
+
+        const subCategory = await SubCategory.findById(subCategoryId);
+
+        if (!subCategory) {
+          throw AppError.notFound("SubCategory not found", "NOT_FOUND");
+        }
+
+        // Optional: ensure belongs to this category
+        if (subCategory.category.toString() !== categoryId) {
+          throw AppError.badRequest(
+            "SubCategory does not belong to this category",
+            "INVALID_RELATION",
+          );
+        }
+
+        // Update name
+        if (name && name !== subCategory.name) {
+          // Duplicate check inside same category
+          const duplicate = await SubCategory.findOne({
+            name: name.toLowerCase(),
+            category: categoryId,
+            _id: { $ne: subCategoryId },
+          });
+
+          if (duplicate) {
+            throw AppError.conflict(
+              "SubCategory with this name already exists",
+              "SUBCATEGORY_EXISTS",
+            );
+          }
+
+          subCategory.name = name;
+        }
+
+        await subCategory.save();
+        return subCategory;
+      }),
+    );
+  }
+
   res.status(200).json({
     success: true,
-    message: "Category updated successfully",
-    data: category,
+    message: "Category and subcategories updated successfully",
+    data: {
+      category,
+      subCategories: updatedSubCategories,
+    },
   });
 });
 
@@ -403,34 +444,6 @@ export const updateCategoryStatus = asyncHandler(async (req, res) => {
     message: `Category ${
       category.isActive ? "activated" : "deactivated"
     } successfully`,
-  });
-});
-
-export const updateSubCategory = asyncHandler(async (req, res) => {
-  const { subCategoryId } = req.params;
-
-  const subCategory = await SubCategory.findById(subCategoryId);
-  if (!subCategory)
-    throw AppError.notFound("SubCategory not found", "NOT_FOUND");
-
-  const { name, isActive, category } = req.body;
-
-  if (name) subCategory.name = name;
-  if (isActive !== undefined)
-    subCategory.isActive = isActive === "true" || isActive === true;
-
-  if (category) {
-    const exists = await Category.findById(category);
-    if (!exists) throw AppError.notFound("Category not found", "NOT_FOUND");
-    subCategory.category = category;
-  }
-
-  await subCategory.save();
-
-  return res.status(200).json({
-    success: true,
-    message: "SubCategory updated successfully",
-    data: subCategory,
   });
 });
 
