@@ -21,15 +21,18 @@ const validateProductAndVariant = async (productId, variantId = null) => {
   }
 
   let variantData = null;
+
   if (variantId) {
     variantData = product.variants.find((v) => v._id.toString() === variantId);
+
     if (!variantData) {
       throw AppError.notFound("Product variant not found", "NOT_FOUND");
     }
   } else {
     variantData =
       product.variants.find((variant) => variant.isSelected) ||
-      product.variants[0];
+      product.variants[0] ||
+      null;
   }
 
   return {
@@ -43,13 +46,13 @@ export const addProductToWishlist = asyncHandler(async (req, res) => {
   const userId = req.user?.userId;
   const { productId, variantId } = req.body;
 
-  // Validate product and variant existence
+  // ✅ Validate
   const { product, variantData } = await validateProductAndVariant(
     productId,
     variantId,
   );
 
-  // Find or create wishlist
+  // ✅ Find or create wishlist
   let wishlist = await Wishlist.findOne({ user: userId, isActive: true });
 
   if (!wishlist) {
@@ -60,8 +63,8 @@ export const addProductToWishlist = asyncHandler(async (req, res) => {
     });
   }
 
-  // Check if item already exists
-  const existingItemIndex = wishlist.items.findIndex((item) => {
+  // ✅ Prevent duplicate (product + variant treated unique)
+  const isAlreadyExists = wishlist.items.some((item) => {
     const sameProduct = item.product.toString() === productId;
 
     const sameVariant =
@@ -71,11 +74,11 @@ export const addProductToWishlist = asyncHandler(async (req, res) => {
     return sameProduct && sameVariant;
   });
 
-  if (existingItemIndex !== -1) {
+  if (isAlreadyExists) {
     throw AppError.conflict("Product already exists in wishlist", "CONFLICT");
   }
 
-  // Check wishlist limit (optional - prevent abuse)
+  // ✅ Limit protection
   const MAX_WISHLIST_ITEMS = 50;
   if (wishlist.items.length >= MAX_WISHLIST_ITEMS) {
     throw AppError.badRequest(
@@ -84,11 +87,12 @@ export const addProductToWishlist = asyncHandler(async (req, res) => {
     );
   }
 
-  // Prepare wishlist item data
+  // ✅ Prepare item
   const wishlistItem = {
     product: product._id,
     category: product.category,
     productTitle: product.productTittle,
+
     ...(variantData && {
       variantId: variantData._id,
       variantName: variantData.variantName,
@@ -96,30 +100,69 @@ export const addProductToWishlist = asyncHandler(async (req, res) => {
     }),
   };
 
-  // Add item to wishlist
+  // ✅ Save
   wishlist.items.push(wishlistItem);
   await wishlist.save();
 
-  // Get populated wishlist for response
+  // ===============================
+  // 🔥 OPTIMIZED FETCH (NO VARIANT POPULATE)
+  // ===============================
   const populatedWishlist = await Wishlist.findById(wishlist._id)
     .populate({
       path: "items.product",
-      select: "_id productTittle slug stats",
-    })
-    .populate({
-      path: "items.variantId",
-      select:
-        "variantMrp variantSellingPrice variantColor variantWeight variantWeightUnit",
+      select: "_id productTittle slug stats variants",
     })
     .lean();
 
-  const addedItem = populatedWishlist.items[populatedWishlist.items.length - 1];
+  // ===============================
+  // 🔥 MANUAL VARIANT MAPPING
+  // ===============================
+  const formattedItems = populatedWishlist.items.map((item) => {
+    let variantDetails = null;
 
+    if (item.variantId && item.product?.variants?.length) {
+      variantDetails = item.product.variants.find(
+        (v) => v._id.toString() === item.variantId.toString(),
+      );
+    }
+
+    return {
+      _id: item._id,
+      product: {
+        _id: item.product._id,
+        productTittle: item.product.productTittle,
+        slug: item.product.slug,
+        stats: item.product.stats,
+      },
+      category: item.category,
+      productTitle: item.productTitle,
+      variantId: item.variantId || null,
+      variant: variantDetails
+        ? {
+            _id: variantDetails._id,
+            variantName: variantDetails.variantName,
+            variantMrp: variantDetails.variantMrp,
+            variantSellingPrice: variantDetails.variantSellingPrice,
+            variantColor: variantDetails.variantColor,
+            variantWeight: variantDetails.variantWeight,
+            variantWeightUnit: variantDetails.variantWeightUnit,
+          }
+        : null,
+      imageUrl: item.imageUrl,
+    };
+  });
+
+  // ===============================
+  // ✅ RESPONSE
+  // ===============================
   res.status(200).json({
     success: true,
     message: "Product added to wishlist successfully",
     data: {
-      wishlist: populatedWishlist,
+      wishlist: {
+        ...populatedWishlist,
+        items: formattedItems,
+      },
     },
   });
 });
