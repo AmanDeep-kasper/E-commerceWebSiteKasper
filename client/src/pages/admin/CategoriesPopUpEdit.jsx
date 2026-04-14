@@ -10,11 +10,11 @@ const CategoriesPopUpEdit = ({ open, onClose, data }) => {
       setEditStatus(data.status || "Active");
       setEditCategory(data.category || data.name || "");
 
-      const subs = Array.isArray(data.subcategory)
-        ? data.subcategory
-        : data.subcategory
-          ? [data.subcategory]
-          : [];
+      const subs = Array.isArray(data.subCategories)
+        ? data.subCategories.map((s) => s.name) // ✅ extract names
+        : [];
+
+      // console.log(data);
 
       setEditSubCategories(subs);
     }
@@ -24,9 +24,7 @@ const CategoriesPopUpEdit = ({ open, onClose, data }) => {
 
   // ✅ edit a subcategory at index
   const updateSubCategory = (idx, value) => {
-    setEditSubCategories((prev) =>
-      prev.map((s, i) => (i === idx ? value : s))
-    );
+    setEditSubCategories((prev) => prev.map((s, i) => (i === idx ? value : s)));
   };
 
   const handleSubmit = (e) => {
@@ -56,6 +54,7 @@ const CategoriesPopUpEdit = ({ open, onClose, data }) => {
     onClose();
   };
 
+  console.log(data);
   return (
     <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center">
       <div className="bg-white w-[420px] rounded-xl p-4">
