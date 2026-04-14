@@ -3,13 +3,20 @@ import env from "../config/env.js";
 import dns from "dns";
 dns.setDefaultResultOrder("ipv4first");
 
+const user = env.SMTP_USER;
+const pass = env.SMTP_PASSWORD;
+
+if (!user || !pass) {
+  console.log("SMTP_USER or SMTP_PASSWORD is missing");
+  return;
+}
+
+console.log(user, pass);
+
 const emailConfig = {
   host: env.SMTP_HOST,
-  port: 587,
-  secure: false,
-
-  // port: env.NODE_ENV === "production" ? 465 : 587,
-  // secure: env.NODE_ENV === "production" ? true : false,
+  port: env.NODE_ENV === "production" ? 465 : 587,
+  secure: env.NODE_ENV === "production" ? true : false,
 
   auth: {
     user: env.SMTP_USER,
