@@ -1,21 +1,25 @@
 import nodemailer from "nodemailer";
 import env from "../config/env.js";
+import dns from "dns";
+dns.setDefaultResultOrder("ipv4first");
 
 const emailConfig = {
   host: env.SMTP_HOST,
-  port: env.NODE_ENV === "development" ? 587 : 465,
-  secure: env.NODE_ENV !== "development", // true for 465, false for other ports
+  port: 587,
+  secure: false,
+
+  // port: env.NODE_ENV === "production" ? 465 : 587,
+  // secure: env.NODE_ENV === "production" ? true : false,
+
   auth: {
     user: env.SMTP_USER,
     pass: env.SMTP_PASSWORD,
   },
-  pool: true,
-  maxConnections: env.SMTP_MAX_CONNECTIONS,
-  maxMessages: env.SMTP_MAX_MESSAGES,
-  rateLimit: env.SMTP_RATE_LIMIT,
-  connectionTimeout: env.SMTP_CONNECTION_TIMEOUT,
-  greetingTimeout: env.SMTP_GREETING_TIMEOUT,
-  socketTimeout: env.SMTP_SOCKET_TIMEOUT,
+
+  family: 4,
+  connectionTimeout: 10000,
+  greetingTimeout: 10000,
+  socketTimeout: 10000,
 };
 
 let transporter = null;

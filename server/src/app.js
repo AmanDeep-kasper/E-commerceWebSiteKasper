@@ -1,8 +1,8 @@
 // import dotenv from "dotenv";
 // dotenv.config();
 
-import dns from "node:dns";
-dns.setServers(["1.1.1.1", "1.0.0.1", "8.8.8.8", "8.8.4.4"]);
+// import dns from "node:dns";
+// dns.setServers(["1.1.1.1", "1.0.0.1", "8.8.8.8", "8.8.4.4"]);
 
 import express from "express";
 import cors from "cors";
@@ -40,6 +40,7 @@ const allowedOrigins = [
   "http://localhost:5173",
   "http://127.0.0.1:5173", // 🔥 ADD THIS
   "http://localhost:5174",
+  "https://e-commercewebsitekasper.onrender.com",
 ];
 
 const corsOptions = {
