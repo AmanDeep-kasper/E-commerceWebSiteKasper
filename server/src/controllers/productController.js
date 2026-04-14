@@ -753,7 +753,8 @@ export const userGetAllProducts = asyncHandler(async (req, res) => {
       _id: product._id,
       name: product.productTittle,
       slug: product.slug,
-
+category: product.category,  //add this
+categoryName: product.category?.name,  // ← ADD THIS
       priceRange: {
         min: lowestPrice,
         max: highestPrice,
