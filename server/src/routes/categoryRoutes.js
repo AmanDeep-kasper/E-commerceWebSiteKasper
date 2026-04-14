@@ -9,9 +9,8 @@ import {
   getAllSubCategories,
   getCategoryDetails,
   getCategoryDetailsController,
-  updateCategory,
+  updateCategoryOrSubcategory,
   updateCategoryStatus,
-  updateSubCategory,
 } from "../controllers/categoryController.js";
 import { validateRequest } from "../validation/validator.js";
 import {
@@ -32,8 +31,8 @@ router.post(
     next();
   },
   upload.single("categoryImage"),
-  addCategoryValidation,
-  validateRequest,
+  // addCategoryValidation,
+  // validateRequest,
   createOrUpdateCategory,
 );
 
@@ -52,13 +51,12 @@ router.get(
 );
 
 router.patch(
-  "/admin/update-category/:categoryId",
+  "/admin/update-categoryOrSubcategory/:categoryId",
   authenticate,
   authorize("admin"),
-  upload.single("categoryImage"),
-  updateCategoryValidation,
-  validateRequest,
-  updateCategory,
+  // updateCategoryValidation,
+  // validateRequest,
+  updateCategoryOrSubcategory,
 );
 
 router.delete(
@@ -73,13 +71,6 @@ router.patch(
   authenticate,
   authorize("admin"),
   updateCategoryStatus,
-);
-
-router.patch(
-  "/admin/update-subcategory/:subCategoryId",
-  authenticate,
-  authorize("admin"),
-  updateSubCategory,
 );
 
 router.delete(

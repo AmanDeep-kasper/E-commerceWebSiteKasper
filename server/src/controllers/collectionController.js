@@ -5,14 +5,7 @@ import AppError from "../utils/AppError.js";
 
 // Admin controller
 export const addCollection = asyncHandler(async (req, res) => {
-  const { collectionName, products, isActive } = req.body;
-
-  if (!products || !Array.isArray(products) || products.length === 0) {
-    throw AppError.badRequest(
-      "Products array is required",
-      "PRODUCTS_REQUIRED",
-    );
-  }
+  const { collectionName, isActive } = req.body;
 
   // Check duplicate collection
   const existingCollection = await Collection.findOne({ collectionName });
@@ -20,19 +13,9 @@ export const addCollection = asyncHandler(async (req, res) => {
     throw AppError.conflict("Collection already exists", "COLLECTION_EXISTS");
   }
 
-  // Validate product IDs exist
-  const validProducts = await Product.find({
-    _id: { $in: products },
-  }).select("_id");
-
-  if (validProducts.length !== products.length) {
-    throw AppError.badRequest("Some products are invalid", "INVALID_PRODUCTS");
-  }
-
   // Create collection
   const collection = await Collection.create({
     collectionName,
-    products,
     isActive: isActive ?? true,
   });
 
@@ -43,12 +26,42 @@ export const addCollection = asyncHandler(async (req, res) => {
   });
 });
 
+export const addProductToCollection = asyncHandler(async (req, res) => {
+  const { collectionId } = req.params;
+  const { products } = req.body;
+
+  // Validate products exist
+  const validProducts = await Product.find({
+    _id: { $in: products },
+  }).select("_id");
+
+  if (validProducts.length !== products.length) {
+    throw AppError.badRequest("Some products are invalid", "INVALID_PRODUCTS");
+  }
+
+  const updatedCollection = await Collection.findByIdAndUpdate(
+    collectionId,
+    {
+      $addToSet: { products: { $each: products } },
+    },
+    { new: true },
+  );
+
+  if (!updatedCollection) {
+    throw AppError.notFound("Collection not found", "NOT_FOUND");
+  }
+
+  res.status(200).json({
+    success: true,
+    message: "Products added to collection successfully",
+    data: updatedCollection,
+  });
+});
+
 export const getCollection = asyncHandler(async (req, res) => {
   const { collectionId } = req.params;
 
-  const collection = await Collection.findById(collectionId)
-    .populate("products")
-    .lean();
+  const collection = await Collection.findById(collectionId).lean();
 
   if (!collection) {
     throw AppError.notFound("Collection not found", "NOT_FOUND");
@@ -148,38 +161,6 @@ export const deleteCollection = asyncHandler(async (req, res) => {
   res.status(200).json({
     success: true,
     message: "Collection deleted successfully",
-  });
-});
-
-export const addProductToCollection = asyncHandler(async (req, res) => {
-  const { collectionId } = req.params;
-  const { products } = req.body;
-
-  // Validate products exist
-  const validProducts = await Product.find({
-    _id: { $in: products },
-  }).select("_id");
-
-  if (validProducts.length !== products.length) {
-    throw AppError.badRequest("Some products are invalid", "INVALID_PRODUCTS");
-  }
-
-  const updatedCollection = await Collection.findByIdAndUpdate(
-    collectionId,
-    {
-      $addToSet: { products: { $each: products } },
-    },
-    { new: true },
-  );
-
-  if (!updatedCollection) {
-    throw AppError.notFound("Collection not found", "NOT_FOUND");
-  }
-
-  res.status(200).json({
-    success: true,
-    message: "Products added to collection successfully",
-    data: updatedCollection,
   });
 });
 
