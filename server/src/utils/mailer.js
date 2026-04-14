@@ -5,8 +5,11 @@ dns.setDefaultResultOrder("ipv4first");
 
 const emailConfig = {
   host: env.SMTP_HOST,
-  port: env.NODE_ENV === "production" ? 465 : 587,
-  secure: env.NODE_ENV === "production" ? true : false,
+  port: 587,
+  secure: false,
+
+  // port: env.NODE_ENV === "production" ? 465 : 587,
+  // secure: env.NODE_ENV === "production" ? true : false,
 
   auth: {
     user: env.SMTP_USER,
