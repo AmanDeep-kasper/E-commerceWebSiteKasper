@@ -107,7 +107,7 @@ import Collection from "../pages/admin/Collection/Collection";
 import BestSelling from "../pages/admin/Collection/BestSelling";
 import ProtectedRoute from "../pages/user/ProtectedRoute";
 import GuestRoute from "../pages/user/GuestRoute";
-import Reward from "../pages/user/Reward";
+import Reward from "../pages/user/reward";
 
 const PageRouter = () => {
   return (
