@@ -38,16 +38,31 @@ const CategoriesPopOnClick = ({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!imageFile) {
+      toast.error("Category image is required");
+      return;
+    }
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
 
-    const isAddProductPage = location.pathname === "/admin/add-product";
+    if (!allowedTypes.includes(imageFile.type)) {
+      toast.error("Only JPG, PNG, WEBP images allowed");
+      return;
+    }
 
-    let finalSubs = [];
-    const typed = subInput.trim();
+    if (imageFile.size > 2 * 1024 * 1024) {
+      toast.error("Image size must be less than 2MB");
+      return;
+    }
 
     if (!category.trim()) {
       toast.error("Category name required");
       return;
     }
+
+    const isAddProductPage = location.pathname === "/admin/add-product";
+
+    let finalSubs = [];
+    const typed = subInput.trim();
 
     if (isAddProductPage) {
       if (!typed) {
@@ -74,7 +89,7 @@ const CategoriesPopOnClick = ({
       const formData = new FormData();
       formData.append("name", category.trim());
       formData.append("isActive", status === "Active");
-      formData.append("subCategories", JSON.stringify(finalSubs));
+      formData.append("subCategoryName", JSON.stringify(finalSubs));
 
       if (imageFile) {
         formData.append("categoryImage", imageFile);
@@ -112,8 +127,8 @@ const CategoriesPopOnClick = ({
   const handleUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setImage(URL.createObjectURL(file)); // preview
-      setImageFile(file); // 🔥 required for API
+      setImage(URL.createObjectURL(file)); //
+      setImageFile(file); //
     }
   };
 
@@ -180,11 +195,16 @@ const CategoriesPopOnClick = ({
             <label className="text-sm mb-2 block">Category Name</label>
             <input
               type="text"
+              required
               placeholder="Enter Category name"
               value={category}
-              onChange={(e) => setCategory(e.target.value)}
+              onChange={(e) => {
+                const value = e.target.value;
+                if (/^[A-Za-z\s-]*$/.test(value)) {
+                  setCategory(value);
+                }
+              }}
               className="w-full border px-3 py-2 rounded-lg outline-none"
-              required
             />
           </div>
 
@@ -194,9 +214,15 @@ const CategoriesPopOnClick = ({
             <div className="flex flex-col gap-2">
               <input
                 type="text"
+                required
                 placeholder="Enter sub-category name"
                 value={subInput}
-                onChange={(e) => setSubInput(e.target.value)}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (/^[A-Za-z\s-]*$/.test(value)) {
+                    setSubInput(value);
+                  }
+                }}
                 className="w-full border px-3 py-2 rounded-lg outline-none"
               />
 
