@@ -22,7 +22,6 @@ const formatErrorResponse = (err, isDevelopment = false) => {
   return response;
 };
 
-
 // Handle specific error types
 const handleError = (err, isDevelopment) => {
   let error = { ...err };
@@ -133,7 +132,8 @@ const handleError = (err, isDevelopment) => {
  * Must be defined last, after all other middleware and route handlers
  */
 export const errorHandler = (err, req, res, next) => {
-  const isDevelopment = env.NODE_ENV === "development" || env.NODE_ENV === "dev";
+  const isDevelopment =
+    env.NODE_ENV === "development" || env.NODE_ENV === "dev";
 
   // Handle the error
   let error = handleError(err, isDevelopment);
@@ -176,9 +176,9 @@ export const errorHandler = (err, req, res, next) => {
  * Should be placed after all route definitions
  */
 export const notFoundHandler = (req, res, next) => {
-  const error = AppError.notFound(
-    `Route ${req.method} ${req.path} not found`,
-    "ROUTE_NOT_FOUND",
+  const error = AppError.notAllowed(
+    `Route ${req.method} ${req.path} not found or not allowed`,
+    "ROUTE_NOT_FOUND OR NOT ALLOWED",
   );
   next(error);
 };
