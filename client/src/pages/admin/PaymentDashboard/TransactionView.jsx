@@ -1,4 +1,5 @@
 import { Search, CalendarDays, ChevronDown } from "lucide-react";
+import { useState } from "react";
 import {
   ResponsiveContainer,
   BarChart,
@@ -149,6 +150,8 @@ const getStatusClass = (status) => {
 };
 
 function TransactionView() {
+  const [filter, setFilter] = useState("Weekly");
+  const [openFilter, setOpenFilter] = useState(false);
   return (
     <div className="space-y-4">
       {/* <div className="flex items-center justify-between">
@@ -190,13 +193,32 @@ function TransactionView() {
               <span className="text-[#686868] text-[14px]">Total Revenue - ₹1,60,789</span>
             </div>
 
-            <section className="px-3 py-2 border rounded-lg text-sm text-[#4B5563] bg-white flex items-center gap-2">
-              Total Revenue
-              <ChevronDown className="w-4 h-4" />
-              {/* <option value=""></option>
-              <option value=""></option>
-              <option value=""></option> */}
-            </section>
+            <div className="relative inline-block">
+              <section
+                onClick={() => setOpenFilter((prev) => !prev)}
+                className="px-3 py-2 border rounded-lg text-sm text-[#4B5563] bg-white flex items-center gap-2 cursor-pointer"
+              >
+                {filter}
+                <ChevronDown className="w-4 h-4" />
+              </section>
+
+              {openFilter && (
+                <div className="absolute w-full bg-white border rounded-lg shadow-md z-50">
+                  {["Weekly", "Monthly", "Yearly"].map((item) => (
+                    <div
+                      key={item}
+                      onClick={() => {
+                        setFilter(item);
+                        setOpenFilter(false);
+                      }}
+                      className="px-3 py-2 text-sm cursor-pointer hover:bg-gray-100"
+                    >
+                      {item}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="h-[260px] rounded-lg border border-dashed border-[#D1D5DB] text-[#9CA3AF]">
@@ -254,7 +276,7 @@ function TransactionView() {
               <thead className="bg-[#F8F8F8] h-[54px]">
                 <tr className="text-[#4B5563] text-sm text-center">
                   <th className="px-4 py-3 font-medium text-[#1C1C1C]">
-                   Payment ID
+                    Payment ID
                   </th>
                   <th className="px-4 py-3 font-medium text-[#1C1C1C]">
                     Order ID
@@ -310,11 +332,10 @@ function TransactionView() {
                       </span>
                     </td>
                     <td
-                      className={`px-4 py-4 font-medium ${
-                        item.amount.startsWith("-")
-                          ? "text-red-500"
-                          : "text-green-600"
-                      }`}
+                      className={`px-4 py-4 font-medium ${item.amount.startsWith("-")
+                        ? "text-red-500"
+                        : "text-green-600"
+                        }`}
                     >
                       {item.amount}
                     </td>

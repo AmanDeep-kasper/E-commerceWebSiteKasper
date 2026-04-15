@@ -2,6 +2,21 @@ import React from "react";
 import { Link } from "react-router-dom";
 
 const GeneralSettings = () => {
+
+  const shipingData = [
+    {
+      Title: "Weight",
+      des: weightCharges,
+    },
+    {
+      Title: "Distance",
+      des: distanceCharges,
+    },
+    {
+      Title: "Delivery",
+      des: deliveryCharges,
+    },
+  ];
   const weightCharges = [
     { range: "0-1 kg", price: "₹20" },
     { range: "1-5 kg", price: "₹30" },
@@ -49,7 +64,7 @@ const GeneralSettings = () => {
       </h2>
 
       {/* Table Card */}
-      <div className="bg-white rounded-[14px] p-3 shadow-sm ">
+      {/* <div className="bg-white rounded-[14px] p-3 shadow-sm ">
         <div className="overflow-x-auto ">
           <table className="border-collapse text-center w-full ">
             <thead>
@@ -107,7 +122,7 @@ const GeneralSettings = () => {
                 ),
               }).map((_, index) => (
                 <tr key={index}>
-                  {/* Weight */}
+                   
                   <td className="border border-[#A3A3A3] px-8 py-3 text-[14px] text-[#333333]">
                     {weightCharges[index]?.range || ""}
                   </td>
@@ -115,7 +130,7 @@ const GeneralSettings = () => {
                     {weightCharges[index]?.price || ""}
                   </td>
 
-                  {/* Distance */}
+                  
                   <td className="border border-[#4B5563] px-8 py-3 text-[14px] text-[#333333]">
                     {distanceCharges[index]?.range || ""}
                   </td>
@@ -123,7 +138,7 @@ const GeneralSettings = () => {
                     {distanceCharges[index]?.price || ""}
                   </td>
 
-                  {/* Type of Delivery */}
+                  
                   <td className="border border-[#A3A3A3] px-8 py-3 text-[14px] text-[#333333]">
                     {deliveryCharges[index]?.type || ""}
                   </td>
@@ -135,6 +150,18 @@ const GeneralSettings = () => {
             </tbody>
           </table>
         </div>
+      </div> */}
+      <div className="mt-4 rounded-lg p-4 bg-white ">
+        <div className="flex flex-col">
+          <span className="text-[16px] text-[#1C1C1C] font-regular">Zone Based</span>
+          <span className="text-[12px] text-[#686868] font-regular">Different Zones Based</span>
+        </div>
+        {shipingData.map((item) => (
+          <div key={item.Title} className="mt-3 flex flex-col gap-1">
+            <span>{item.Title}</span>
+            <span>{item.des}</span>
+          </div>
+        ))}
       </div>
     </div>
   );

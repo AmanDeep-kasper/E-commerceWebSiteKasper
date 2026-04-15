@@ -1,10 +1,10 @@
 import { Outlet } from "react-router-dom";
 import PaymentNavbar from "./PaymentNavbar";
 
-const profileMenu = [
-  { label: "Transaction View", path: "transaction-view" },
-  // { label: "All Statements", path: "all-statements" },
-];
+// const profileMenu = [
+//   { label: "Transaction View", path: "transaction-view" },
+//   // { label: "All Statements", path: "all-statements" },
+// ];
 
 function PaymentPage() {
   return (
@@ -19,7 +19,7 @@ function PaymentPage() {
         </div>
 
         <div className="bg-white p-4 rounded-xl mt-5">
-          <PaymentNavbar profileMenu={profileMenu} />
+          <PaymentNavbar  />
           <div className="pt-4">
             <Outlet />
           </div>
