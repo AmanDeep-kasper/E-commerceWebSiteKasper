@@ -41,30 +41,53 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // ================== SECURITY ==================
-app.use(helmet());
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        connectSrc: [
+          "'self'",
+          "http://localhost:5173",
+          "https://e-commercewebsitekasper.onrender.com",
+        ],
+        imgSrc: [
+          "'self'",
+          "data:",
+          "https://res.cloudinary.com", // ✅ Cloudinary allow
+        ],
+        scriptSrc: ["'self'", "'unsafe-inline'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+      },
+    },
+  }),
+);
 app.use(hpp());
 
 // ================== CORS ==================
 const allowedOrigins = [
-  "http://localhost:3000",
   "http://localhost:5173",
   "http://127.0.0.1:5173",
-  "http://localhost:5174",
-  "http://localhost:5000",
   "https://e-commercewebsitekasper.onrender.com",
 ];
 
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
+      if (!origin) return callback(null, true); // Postman etc.
+
+      if (allowedOrigins.includes(origin)) {
         return callback(null, true);
       }
-      return callback(null, true);
+
+      return callback(new Error("❌ Not allowed by CORS"));
     },
     credentials: true,
-  })
+  }),
 );
+
+// Preflight fix
+app.options("*", cors());
 
 // ================== RATE LIMIT ==================
 if (env.NODE_ENV === "production") {
