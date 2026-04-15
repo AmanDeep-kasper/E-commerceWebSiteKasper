@@ -245,6 +245,7 @@ import {
   FunnelX,
 } from "lucide-react";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import axiosInstance from "../../../api/axiosInstance";
 import productData from "../../../data/products.json";
 // import axiosInstance from "../../../api/axiosInstance";
 // import kpiCards from "./KpiCardProductlist";
@@ -253,6 +254,7 @@ import productData from "../../../data/products.json";
 const Products = () => {
   const [product, setProduct] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   // useEffect(() => {
   //   const fetchProduct = async () => {
@@ -269,14 +271,43 @@ const Products = () => {
   // }, []);
 
   const { uuid } = useParams();
+  const navigate = useNavigate();
 
-  const Editproduct = useMemo(() => {
-    if (!uuid || !productData?.length) return null;
+  useEffect(() => {
+    const fetchProducts = async() => {
+      try {
+        setLoading(true);
+        const response = await axiosInstance.get("/product/all");
+        console.log("Products API Response:", response.data);
 
-    return productData.find(
-      (p) => p.uuid && p.uuid.toLowerCase() === uuid.toLowerCase()
-    );
-  }, [productData, uuid]);
+        let products =[];
+        if (response.data?.success && response.data?.data) {
+          products = response.data.data;
+        } else if (Array.isArray(response.data)) {
+          products = response.data;
+        } else if (response.data?.products) {
+          products = response.data.products;
+        }
+        setProduct(products);
+        setError(null);
+      }catch (error) {
+        console.error("Error fetching products:", error);
+        setError(error.response?.data?.message || "Failed to load products");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProducts();
+  },[]);
+
+
+  // const Editproduct = useMemo(() => {
+  //   if (!uuid || !productData?.length) return null;
+
+  //   return productData.find(
+  //     (p) => p.uuid && p.uuid.toLowerCase() === uuid.toLowerCase()
+  //   );
+  // }, [productData, uuid]);
 
 
   //  Delete button + selected items
@@ -285,7 +316,7 @@ const Products = () => {
 
   // Select all checkboxes
   const handleSelectAll = (e) => {
-    const visibleIds = currentItems.map((item) => item.id || item.uuid);
+    const visibleIds = currentItems.map((item) => item._id || item.id);
 
     if (e.target.checked) {
       // Add only visible product IDs
@@ -337,33 +368,51 @@ const Products = () => {
   const [selectedCategory, setSelectedCategory] = useState("Category");
 
   // 🔹 Filter products by debouncedSearch
-  let filteredProducts = productData.filter((p) => {
+  let filteredProducts = product.filter((p) => {
     //  Search filter
-    const searchMatch = (p.title || "").toLowerCase().includes(debouncedSearch);
+    const searchMatch = (p.name || p.productTitle || "").toLowerCase().includes(debouncedSearch);
 
     //  Status filter
-    const statusMatch =
-      selectedStatus === "Status" || p.status === selectedStatus;
+    const statusMatch = 
+      selectedStatus === "Status" || 
+      (selectedStatus === "Active" && p.isActive === true) ||
+      (selectedStatus === "Draft" && p.isActive === false) ||
+      (selectedStatus === "Archived" && p.isActive === false);
+
 
     //  Category filter
     const categoryMatch =
-      selectedCategory === "Category" || p.category === selectedCategory;
+      selectedCategory === "Category" || (p.categoryName || p.category?.name || "") === selectedCategory;
 
     return searchMatch && statusMatch && categoryMatch;
   });
 
   const [selectedSort, setSelectedSort] = useState("Price: Low → High");
+
+// extract unique categories from actual product data
+  const categories = useMemo(() => {
+    const uniqueCategories = new Set();
+    product.forEach((p) => {
+      const catName = p.categoryName || p.category?.name;
+      if(catName) {
+        uniqueCategories.add(catName);
+      }
+    })
+    return [...uniqueCategories];
+  }, [product]);
   // Apply category filter
-  const categories = [
-    "Spiritual & Religious Art",
-    "Nature & Wildlife",
-    "Geometric & Abstract",
-    "Wall Arts",
-    "Typography & Symbols",
-    "Clones",
-    "Festival & Occasion",
-    "Reflection Art",
-  ];
+  // const categories = [
+  //   "Spiritual & Religious Art",
+  //   "Nature & Wildlife",
+  //   "Geometric & Abstract",
+  //   "Wall Arts",
+  //   "Typography & Symbols",
+  //   "Clones",
+  //   "Festival & Occasion",
+  //   "Reflection Art",
+  // ];
+
+  // 
 
   ///////////////////////////////////
   // Sorting options
@@ -376,13 +425,13 @@ const Products = () => {
 
   // Apply sorting
   if (selectedSort === "Price: Low → High") {
-    filteredProducts.sort((a, b) => (a.costPrice || 0) - (b.costPrice || 0));
+    filteredProducts.sort((a, b) => (a.defaultPrice || 0) - (b.defaultPrice || 0));
   } else if (selectedSort === "Price: High → Low") {
-    filteredProducts.sort((a, b) => (b.costPrice || 0) - (a.costPrice || 0));
+    filteredProducts.sort((a, b) => (b.defaultPrice || 0) - (a.defaultPrice || 0));
   } else if (selectedSort === "Alphabetical (A–Z)") {
-    filteredProducts.sort((a, b) => a.title.localeCompare(b.title));
+    filteredProducts.sort((a, b) => (a.name || a.productTittle || "").localeCompare(b.name || b.productTittle || ""));
   } else if (selectedSort === "Alphabetical (Z–A)") {
-    filteredProducts.sort((a, b) => b.title.localeCompare(a.title));
+    filteredProducts.sort((a, b) => (b.name || b.productTittle || "").localeCompare(a.name || a.productTittle || ""));
   }
 
   // console.log(filteredProducts);
@@ -400,11 +449,9 @@ const Products = () => {
   //  Check if all visible rows are selected
   const allVisibleSelected =
     currentItems.length > 0 &&
-    currentItems.every((item) => selectedItems.includes(item.id));
+    currentItems.every((item) => selectedItems.includes(item._id || item.id));
 
   // navigate the section in product detlis page
-
-  const navigate = useNavigate();
   //////////////////////////
 
   const dropdownRef = useRef(null);
@@ -437,28 +484,28 @@ const Products = () => {
   const kpicardData = [
     {
       name: "Total Products",
-      data: "45",
+      data: product.length,
       icon: <Package />,
       iconbg: "bg-[#D5E5F5]",
       iconColor: "text-[#1C3753]",
     },
     {
       name: "Total Categories",
-      data: "15",
+      data: categories.length,
       icon: <Layers />,
       iconbg: "bg-[#E5DBFB]",
       iconColor: "text-[#713CE8]",
     },
     {
       name: "Active Products",
-      data: "42",
+      data: product.filter((p) => p.isActive === true).length,
       icon: <PackageCheck />,
       iconbg: "bg-[#F0FDF4]",
       iconColor: "text-[#00A63E]",
     },
     {
       name: "Draft",
-      data: "2",
+      data: product.filter((p) => p.isActive === false).length,
       icon: <FileText />,
       iconbg: "bg-[#EFEFEF]",
       iconColor: "text-[#686868]",
@@ -466,6 +513,7 @@ const Products = () => {
     {
       name: "Inactive",
       data: "1",
+      data: product.filter((p) => p.isActive === false).length,
       icon: <Archive />,
       iconbg: "bg-[#FFFBEB]",
       iconColor: "text-[#F8A14A]",
@@ -558,7 +606,8 @@ const Products = () => {
                   )
                 }
                 className=" border rounded-lg px-4 py-2 flex items-center justify-center gap-6 text-[#686868] bg-[#F8F8F8]">
-                All Status
+                {/* All Status */}
+                 {selectedStatus === "Status" ? "All Status" : selectedStatus}
                 <ChevronDown />
               </button>
               <button
@@ -568,7 +617,8 @@ const Products = () => {
                   )
                 }
                 className=" border rounded-lg px-4 py-2 flex items-center justify-center gap-6 text-[#686868] bg-[#F8F8F8]">
-                All Categories
+                {/* All Categories */}
+                 {selectedCategory === "Category" ? "All Categories" : selectedCategory}
                 <ChevronDown />
               </button>
               <div className="relative inline-block">
@@ -732,21 +782,23 @@ const Products = () => {
               <tbody>
                 {currentItems.map((item) => (
                   <tr
-                    key={item.uuid || item.id || item.route}
+                    key={item._id}
                     className={`border-t hover:bg-gray-50 transition ${
-                      selectedItems.includes(item.id) ? "bg-red-50" : ""
+                      selectedItems.includes(item._id) ? "bg-red-50" : ""
                     }`}
-                    onClick={(e) => {
-                      if (
-                        e.target.tagName !== "INPUT" &&
-                        e.target.tagName !== "BUTTON" &&
-                        e.target.tagName !== "svg" &&
-                        e.target.tagName !== "path"
-                      ) {
-                        // navigate(`/admin/product-info/:uuid${item.sku}`);
-                        // navigate(`/admin/product-info/${item.uuid}`);
-                      }
-                    }}>
+                    // onClick={(e) => {
+                    //   if (
+                    //     e.target.tagName !== "INPUT" &&
+                    //     e.target.tagName !== "BUTTON" &&
+                    //     e.target.tagName !== "svg" &&
+                    //     e.target.tagName !== "path"
+                    //   ) {
+                    //     // navigate(`/admin/product-info/:uuid${item.sku}`);
+                    //     // navigate(`/admin/product-info/${item.uuid}`);
+                    //   }
+                    // }}
+                     onClick={() => navigate(`/admin/product-info/${item.slug || item._id}`)}
+                    >
                     {/* <td className="px-4 py-3"> */}
                     {/* <input
                         type="checkbox"
@@ -763,17 +815,18 @@ const Products = () => {
                         <div className="h-[50px] w-[50px] ml-2 bg-[#EFEFEF] p-1 rounded-md overflow-hidden">
                           <img
                             className="h-full w-full object-cover object-center"
-                            src={item.images[0]}
-                            alt={item.title}
+                           src={item.image || "/placeholder.png"}
+                            alt={item.name || item.productTittle}
+                            onError={(e) => { e.target.src = "/placeholder.png"; }}
                           />
                         </div>
 
                         <div>
                           <span className="text-[#1F2937]  text-[16px] font-medium cursor-pointer">
-                            {item.title.split(" ").length > 3
-                              ? item.title.split(" ").slice(0, 3).join(" ") +
+                            {item.name && item.name.split(" ").length > 3
+                              ? item.name.split(" ").slice(0, 3).join(" ") +
                                 "..."
-                              : item.title}
+                              : (item.name || item.productTittle || "Untitled Product")}
                           </span>
                           {/* <div>
                             <p className="text-[14px] text-[#5D5D5D]">
@@ -794,13 +847,13 @@ const Products = () => {
                     </td>
 
                     <td className="px-4 py-3 text-[16px] text-[#1F2937]">
-                      {item.SKU}
+                       {item.variants?.[0]?.variantSkuId || "N/A"}
                     </td>
                     <td className="px-4 py-3 text-[16px] text-[#1F2937]">
-                      {item.category}
+                      {item.categoryName || item.category?.name || "N/A"}
                     </td>
                     <td className="px-4 py-3 text-[16px] text-[#1F2937]">
-                      ₹{item.sellingPrice}
+                       ₹{item.defaultPrice || 0}
                     </td>
                     {/* <td className="px-4 py-3 text-[16px] text-[#1F2937]">
                       {item.sellingPrice === 0 ? (
@@ -818,9 +871,9 @@ const Products = () => {
                       )}
                     </td> */}
                      <td className="px-4 py-3 text-[16px] text-[#1F2937]">
-                     4
+                    {item.variantCount || item.variants?.length || 1}
                     </td>
-                    <td className="px-4 py-3 text-[16px] text-[#1F2937]">
+                    {/* <td className="px-4 py-3 text-[16px] text-[#1F2937]">
                       {item.status === "Active" ? (
                         <div className="flex items-center justify-center gap-2 bg-[#E0F4DE] py-1.5 px-2 rounded-lg text-sm text-[#00A63E]">
                           <Circle
@@ -852,7 +905,22 @@ const Products = () => {
                           Archived
                         </div>
                       )}
+                    </td> */}
+
+                    <td className="px-4 py-3">
+                      {item.isActive === true ? (
+                        <div className="flex items-center justify-center gap-2 bg-[#E0F4DE] py-1.5 px-2 rounded-lg text-sm text-[#00A63E]">
+                          <Circle fill="#00A63E" color="#00A63E" size={"12px"} />
+                          Active
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-center gap-2 bg-[#EFEFEF] py-1.5 px-3 rounded-lg text-sm text-[#686868]">
+                          <Circle fill="#686868" color="#686868" size={"12px"} />
+                          Inactive
+                        </div>
+                      )}
                     </td>
+
 
                     {/* <td className="px-4 py-3 text-[16px] text-[#1F2937]">
                       ₹{item.sellingPrice}
@@ -866,9 +934,8 @@ const Products = () => {
                       <div className="flex items-center justify-center gap-2 ">
                         <button
                           onClick={(e) => {
-                            e.stopPropagation();
-                            // navigate(`/admin/add-product/${item.uuid}`);
-                            navigate(`/admin/product-info/${item.uuid}`);
+                           e.stopPropagation();
+                            navigate(`/admin/product-info/${item.slug || item._id}`);
                           }}
                           className="relative p-2 rounded group text-[#2C87E2] hover:underline">
                           {/* <PencilLine className="w-5 h-5 text-gray-900" /> */}
