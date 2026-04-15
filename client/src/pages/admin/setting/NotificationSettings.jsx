@@ -1,22 +1,37 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-const GeneralSettings = () => {
 
   const shipingData = [
     {
-      Title: "Weight",
-      des: weightCharges,
+      Title: "Within City (ZONE A)",
+      des: "Applies when warehouse and delivery are in the same city",
+      amount: "25"
     },
     {
-      Title: "Distance",
-      des: distanceCharges,
+      Title: "Within City (ZONE B)",
+      des: "Applies when the delivery is in the same state but different cities",
+      amount: "40",
     },
     {
-      Title: "Delivery",
-      des: deliveryCharges,
+      Title: "Within City (ZONE C)",
+      des: "Applies when the delivery cities are metro cities",
+      amount: "60"
     },
+    {
+      Title: "Within City (ZONE D)",
+      des: "Applies to all other delivery locations not covered",
+      amount: "80"
+    },
+    {
+      Title : "Within City (ZONE E)",
+      des: "Applies to North-East states, Jammu & Kashmir and special regions",
+      amount: "120"
+    }
   ];
+
+const GeneralSettings = () => {
+
   const weightCharges = [
     { range: "0-1 kg", price: "₹20" },
     { range: "1-5 kg", price: "₹30" },
@@ -157,11 +172,27 @@ const GeneralSettings = () => {
           <span className="text-[12px] text-[#686868] font-regular">Different Zones Based</span>
         </div>
         {shipingData.map((item) => (
-          <div key={item.Title} className="mt-3 flex flex-col gap-1">
-            <span>{item.Title}</span>
-            <span>{item.des}</span>
+          <div key={item.Title} className="flex justify-between items-center mt-3 border-b border-[#DEDEDE] px-2 py-2">
+            <div className="flex flex-col gap-1">
+            <span className="text-[#1C1C1C] text-[16px] font-regular">{item.Title}</span>
+            <span className="text-[12px] text-[#686868] font-regular">{item.des}</span>
+            </div>
+            <div>
+              <span className="font-medium text-[#1C1C1C] text-[18px]">₹ {item.amount}</span>
+            </div>
           </div>
         ))}
+      </div>
+
+      {/* <==================-------------- Zone Configration -----------------=================> */}
+      <div className="mt-5">
+        <span className="text-[16px] text-[#1C1C1C] text-medium">Zone Configuration</span>
+        <div className="bg-white p-4 rounded-lg mt-3">
+          <span className="text-[16px] text-[#1C1C1C] text-medium">Metro Cities</span>
+        <div className="mt-4">
+          <span className="rounded-full bg-[#F0EEFF] p-4">Delhi</span>
+        </div>
+        </div>
       </div>
     </div>
   );
