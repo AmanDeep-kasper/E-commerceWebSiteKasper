@@ -1,6 +1,6 @@
 // import { twMerge } from "tailwind-merge";
 import { useEffect, useState } from "react";
-import { useSelector } from 'react-redux';
+import { useSelector } from "react-redux";
 // import TopbannerImg from "../assets/TopBannerImg/TopBanner.png";
 import TopbannerVideo from "../assets/TopBannerImg/TopBannerVideo.mp4";
 
@@ -44,7 +44,6 @@ function Hero() {
   //   (item, index, self) =>
   //     index === self.findIndex((obj) => obj.category === item.category),
   // );
-
 
   // Animate on imageIndex change
   useEffect(() => {

@@ -108,19 +108,6 @@ function Navbar() {
     const handler = setTimeout(() => {
       if (query?.trim()) {
         setDebouncedSearch(query);
-        // fetchSearchResults(query);
-      } else {
-        setSearchResults([]);
-      }
-    }, 300);
-
-    return () => clearTimeout(handler);
-  }, [query]);
-
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      if (query?.trim()) {
-        setDebouncedSearch(query);
         fetchSearchResults(query);
       } else {
         setSearchResults([]);
@@ -131,15 +118,16 @@ function Navbar() {
   }, [query]);
 
   // Filter results
-  const filteredResults = searchResults
-    .filter((item) =>
-      (item?.productTittle ?? "")
-        .toLowerCase()
-        .includes((debouncedSearch ?? "").toLowerCase()),
-    )
-    .slice(0, 5);
+  // const filteredResults = searchResults
+  //   .filter((item) =>
+  //     (item?.productTittle ?? "")
+  //       .toLowerCase()
+  //       .includes((debouncedSearch ?? "").toLowerCase()),
+  //   )
+  //   .slice(0, 5);
+  const filteredResults = searchResults.slice(0, 5);
 
-  console.log(filteredResults);
+  // console.log(filteredResults);
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isShopOpen, setIsShopOpen] = useState(false);
@@ -166,10 +154,11 @@ function Navbar() {
 
       setLoading(true);
 
-      const res = await axiosInstance.get(
-        `/product?search=${encodeURIComponent(value)}`,
-      );
-
+      // const res = await axiosInstance.get(
+      //   `/product?search=${encodeURIComponent(value)}`,
+      // );
+      const res = await axiosInstance.get(`/product?search=${value}`);
+      console.log("API DATA:", res.data);
       setSearchResults(res.data.products || []);
     } catch (error) {
       console.error("Search error:", error);
@@ -252,7 +241,7 @@ function Navbar() {
                   placeholder="Search for products..."
                   value={query}
                   onChange={(e) => {
-                    setSearchParams({ q: e.target.value }); // ✅ always replace with new query
+                    setSearchParams({ q: e.target.value });
                     setIsOpen(true);
                   }}
                   onFocus={() => setIsOpen(true)}
@@ -275,9 +264,7 @@ function Navbar() {
                               setSearchParams({}, { replace: true });
                               setTimeout(() => {
                                 navigate(
-                                  `/products/${encodeURIComponent(
-                                    item.category,
-                                  )}`,
+                                  `/products/${encodeURIComponent(item.categoryName)}`,
                                 );
                               }, 0);
                             }}
@@ -289,10 +276,10 @@ function Navbar() {
                             />
                             <div>
                               <p className="text-sm font-medium">
-                                {item.title}
+                                {item.productTittle}
                               </p>
                               <p className="text-xs text-[#1C3753]">
-                                in {item.category || "Uncategorized"}
+                                in {item.categoryName || "Uncategorized"}
                               </p>
                             </div>
                           </li>
@@ -347,83 +334,51 @@ function Navbar() {
 
                   {/* Results */}
                   <div className="flex-1 overflow-y-auto">
-                    {searchResults.length > 0 ? (
-                      filteredResults.length > 0 ? (
-                        <ul className="divide-y divide-gray-100">
-                          {/* {filteredResults.map((item, index) => (
-                            <li
-                              key={index}
-                              className="flex items-center gap-3 p-2 hover:bg-gray-50 cursor-pointer"
-                              onClick={() => {
-                                setIsOpen(false);
-                                setSearchParams({}, { replace: true });
-                                setTimeout(() => {
-                                  navigate(
-                                    `/products/${encodeURIComponent(
-                                      item.category,
-                                    )}`,
-                                  );
-                                }, 0);
-                              }}
-                            >
-                              <img
-                                src={item.images[0]}
-                                alt={item.title}
-                                className="w-10 h-10 object-cover rounded border"
-                              />
-                              <div>
-                                <p className="text-sm font-medium">
-                                  {item.title}
-                                </p>
-                                <p className="text-xs text-amber-600">
-                                  in {item.category || "Uncategorized"}
-                                </p>
-                              </div>
-                            </li>
-                          ))} */}
-                          {filteredResults.map((item) => (
-                            <li
-                              key={item._id}
-                              className="flex items-center gap-3 p-2 hover:bg-gray-50 cursor-pointer"
-                              onClick={() => {
-                                setIsOpen(false);
-                                setSearchParams({}, { replace: true });
-
-                                setTimeout(() => {
-                                  navigate(
-                                    `/products/${encodeURIComponent(item.categoryName)}`,
-                                  );
-                                }, 0);
-                              }}
-                            >
-                              {console.log(item)}
-                              <img
-                                src={item?.image || "/placeholder.png"}
-                                alt={item.productTittle}
-                                className="w-12 h-12 object-cover rounded border"
-                              />
-
-                              <div>
-                                <p className="text-sm font-medium">
-                                  {item?.productTittle}
-                                </p>
-
-                                <p className="text-xs text-[#1C3753]">
-                                  in {item?.categoryName}
-                                </p>
-                              </div>
-                            </li>
-                          ))}
-                        </ul>
-                      ) : (
-                        <p className="text-gray-500 text-sm">
-                          No results found.
-                        </p>
-                      )
-                    ) : (
+                    {query.trim() === "" ? (
+                      // 👉 EMPTY INPUT
                       <p className="text-gray-400 text-sm italic">
                         Type to search...
                       </p>
+                    ) : loading ? (
+                      // 👉 LOADING STATE
+                      <p className="text-gray-500 text-sm">Loading...</p>
+                    ) : filteredResults.length > 0 ? (
+                      // 👉 RESULTS FOUND
+                      <ul className="divide-y divide-gray-100">
+                        {filteredResults.map((item, index) => (
+                          <li
+                            key={index}
+                            className="flex items-center gap-3 p-2 hover:bg-gray-50 cursor-pointer"
+                            onClick={() => {
+                              setIsOpen(false);
+                              setSearchParams({}, { replace: true });
+
+                              navigate(
+                                `/products/${encodeURIComponent(item.categoryName)}`,
+                              );
+                            }}
+                          >
+                            <img
+                              src={item.image}
+                              alt={item.productTittle}
+                              className="w-10 h-10 object-cover rounded border"
+                            />
+
+                            <div>
+                              <p className="text-sm font-medium">
+                                {item.productTittle}
+                              </p>
+
+                              <p className="text-xs text-amber-600">
+                                in {item.categoryName || "Uncategorized"}
+                              </p>
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      // 👉 NO RESULTS
+                      <p className="text-gray-500 text-sm">No results found.</p>
                     )}
                   </div>
                 </div>
