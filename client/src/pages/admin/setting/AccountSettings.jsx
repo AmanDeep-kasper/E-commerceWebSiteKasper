@@ -143,7 +143,7 @@ const AccountSettings = () => {
       </div>
 
       {/* Active Devices */}
-      <div className="mb-6">
+      {/* <div className="mb-6">
         <h2 className="text-[20px] font-medium text-[#2B2B2B] mb-3">
           Active Devices
         </h2>
@@ -175,7 +175,7 @@ const AccountSettings = () => {
                   </span>
                 )}
 
-                {/* {device.current && (
+                 {device.current && (
                   <button
                     onClick={handleLogoutClick}
                     className="flex items-center gap-2 border border-[#1F3B5B] text-[#1F3B5B] text-[14px] font-medium px-4 py-1 rounded-[6px]"
@@ -183,7 +183,7 @@ const AccountSettings = () => {
                     <LogOut size={16} />
                     Log Out
                   </button>
-                )} */}
+                )} *
               </div>
             </div>
           ))}
@@ -198,10 +198,10 @@ const AccountSettings = () => {
             </button>
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Danger Zone */}
-      <div>
+      {/* <div>
         <h2 className="text-[20px] font-medium text-[#2B2B2B] mb-3">
           Danger Zone
         </h2>
@@ -247,7 +247,7 @@ const AccountSettings = () => {
             </button>
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Logout Popup */}
       {showLogoutPopup && (

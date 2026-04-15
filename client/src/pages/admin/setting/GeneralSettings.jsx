@@ -125,7 +125,7 @@ function GeneralSettings() {
             +91 5256826823
           </div>
         </div>
-        <div className="flex items-start justify-between  border-b">
+        {/* <div className="flex items-start justify-between  border-b">
           <div>
             <h1>Registered Company Number</h1>
             <span>CIN number</span>
@@ -133,7 +133,7 @@ function GeneralSettings() {
           <div className="p-2 border rounded-lg bg-[#F8FBFC]">
            +91 3581265825
           </div>
-        </div>
+        </div> */}
       </div>
     </>
   );

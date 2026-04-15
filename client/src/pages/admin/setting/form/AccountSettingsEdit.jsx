@@ -48,6 +48,8 @@ const AccountSettingsEdit = () => {
   const inputClass =
     "w-full h-[38px] rounded-[6px] border border-[#D1D5DB] bg-[#F9FAFB] px-3 text-[13px] text-[#222222] outline-none focus:border-[#2563EB]";
 
+  const [showPassword, setShowPassword] = useState(false);
+
   return (
     <div className="w-full bg-[#F8FAFC] p-4">
       {/* Header */}
@@ -62,10 +64,10 @@ const AccountSettingsEdit = () => {
         </div>
 
         <div className="flex items-center gap-2">
-            <Link to={"/admin/settings/AccountSettings"}>
-          <button className="border border-[#1F3B5B] text-[#1F3B5B] bg-white text-[12px] font-medium px-3 py-1.5 rounded-[4px]">
-            Cancel
-          </button>
+          <Link to={"/admin/settings/AccountSettings"}>
+            <button className="border border-[#1F3B5B] text-[#1F3B5B] bg-white text-[12px] font-medium px-3 py-1.5 rounded-[4px]">
+              Cancel
+            </button>
           </Link>
           <button className="bg-[#1F3B5B] text-white text-[12px] font-medium px-3 py-1.5 rounded-[4px]">
             Save Changes
@@ -169,7 +171,9 @@ const AccountSettingsEdit = () => {
                 onChange={(e) => handleChange("password", e.target.value)}
                 className={inputClass}
               />
-              <button className="mt-2 text-[11px] text-[#2563EB] font-medium">
+              <button
+                onClick={() => setShowPassword((prev) => !prev)}
+                className="mt-2 text-[11px] text-[#2563EB] font-medium">
                 Change Password
               </button>
             </div>
@@ -194,7 +198,7 @@ const AccountSettingsEdit = () => {
       </div>
 
       {/* Active Devices */}
-      <div className="mb-5">
+      {/* <div className="mb-5">
         <h2 className="text-[16px] font-medium text-[#222222] mb-3">
           Active Devices
         </h2>
@@ -243,10 +247,10 @@ const AccountSettingsEdit = () => {
             </button>
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Danger Zone */}
-      <div>
+      {/* <div>
         <h2 className="text-[16px] font-medium text-[#222222] mb-3">
           Danger Zone
         </h2>
@@ -282,7 +286,53 @@ const AccountSettingsEdit = () => {
             </button>
           </div>
         </div>
-      </div>
+      </div> */}
+
+      {showPassword && (
+
+        <div
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-3 sm:p-6"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setShowPassword(false);
+            }
+          }}
+        >
+          <div
+            className="bg-white rounded-xl shadow-lg relative p-4 sm:p-6 overflow-y-auto w-full max-w-md"
+            onClick={(e) => e.stopPropagation()}
+          >
+
+            <span className="text-[18px] font-medium text-[#1c1c1c]">Change Password</span>
+            <div>
+              <div className="flex flex-col gap-2 mt-3">
+                <label htmlFor="currentPassword" className="text-[14px] font-medium text-[#1C1C1C]">Current Password</label>
+                <input type="password" id="currentPassword" placeholder="Enter Your Current Password" className="w-full p-4 bg-[#F3F4F6] rounded-md" />
+              </div>
+              
+              <div className="flex flex-col gap-2 mt-3">
+                <label htmlFor="newPassword" className="text-[14px] font-medium text-[#1C1C1C]">New Password</label>
+                <input type="password" id="newPassword" placeholder="Enter Your New Password" className="w-full p-4 bg-[#F3F4F6] rounded-md" />
+              </div>
+
+              
+              <div className="flex flex-col gap-2 mt-3">
+                <label htmlFor="confirmPassword" className="text-[14px] font-medium text-[#1C1C1C]">Confirm New Password</label>
+                <input type="password" id="confirmPassword" placeholder="Enter Your Confirm Password" className="w-full p-4 bg-[#F3F4F6] rounded-md" />
+              </div>
+            </div>
+
+            <div className="flex gap-4 items-center mt-4">
+              <button className="bg-[#0C0057] text-white text-[12px] font-medium px-4 py-2.5 rounded-[6px]">
+                Save
+              </button>
+              <button className="text-[#0C0057] border border-[#0C0057] text-[12px] font-medium px-4 py-2.5 rounded-[6px]" onClick={() => setShowPassword(false)}>
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

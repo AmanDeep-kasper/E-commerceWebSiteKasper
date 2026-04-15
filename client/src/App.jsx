@@ -18,7 +18,7 @@ function App() {
 
   useEffect(() => {
     // Fetch public data for guests and users alike!
-    dispatch(fetchAllProducts());
+    // dispatch(fetchAllProducts());
     dispatch(fetchAllCategories());
 
     const initializeUser = async () => {

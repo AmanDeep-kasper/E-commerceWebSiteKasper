@@ -227,27 +227,31 @@ const orderSummary = [
     price: `₹${formatPrice(totalRevenue).toLocaleString("en-IN")}`,
     stats: "Total Revenue",
     icon: HandCoins,
-    bgcolor: "#03ae25",
+    bgcolor: "#F0FDF4",
     tag: "this week",
+    textcolor: "#16A34A",
   },
   {
     price: orders.length,
     stats: "Total Orders",
     icon: ShoppingCart,
-    bgcolor: "#638bed",
+    bgcolor: "#E5DBFB",
     tag: "this week",
+    textcolor: "#713CE8",
   },
   {
     price: completed.length,
     stats: "Total Products",
     icon: PackageCheck,
-    bgcolor: "#03ae25",
+    bgcolor: "#D5E5F5",
+    textcolor: "#1C3753",
   },
   {
     price: pending.length,
     stats: "Total Customers",
     icon: Users,
-    bgcolor: "#d19b06",
+    bgcolor: "#FFFBEB",
+    textcolor: "#F8A14A",
   },
 ];
 
@@ -280,7 +284,7 @@ function Dashboard() {
     <div className="h-dvh flex flex-col gap-4 overflow-y-auto invisible-scrollbar p-[24px] bg-[#F6F8F9] rounded-md min-h-screen">
       <div className="flex flex-col py-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {orderSummary.map(({ price, stats, icon: Icon, bgcolor, tag }) => (
+          {orderSummary.map(({ price, stats, icon: Icon, bgcolor, tag, textcolor }) => (
             <div
               key={price}
               className="relative flex items-center justify-between gap-9 px-4 py-2 border rounded-2xl bg-white shadow-sm min-h-[96px]"
@@ -293,13 +297,15 @@ function Dashboard() {
                 <div className="text-2xl font-semibold">{price}</div>
               </div>
 
-              <Icon
-                className="h-8 w-8 p-2 border border-gray-400 rounded-full"
-                style={{
-                  backgroundColor: `${bgcolor}`,
-                  color: bgcolor,
-                }}
-              />
+              <div
+                className="p-3 rounded-lg"
+                style={{ backgroundColor: bgcolor }}
+              >
+                <Icon
+                  className="w-5 h-5"
+                  color={textcolor}
+                />
+              </div>
             </div>
           ))}
         </div>
