@@ -10,13 +10,13 @@ const addProduct = async (formData) => {
 
 // Get all products
 const getAllProducts = async () => {
-  const res = await axiosInstance.get("/products/all");
+  const res = await axiosInstance.get("/product/all");
   return res.data?.data || res.data;
 };
 
 // Get product by category
 const getProductsByCategory = async (categoryName) => {
-  const res = await axiosInstance.get(`/products/category/${categoryName}`);
+  const res = await axiosInstance.get(`/product/category/${categoryName}`);
   return res.data;
 };
 
@@ -26,27 +26,27 @@ const getProductsByCategoryAndSubcategory = async (
   subcategoryName,
 ) => {
   const res = await axiosInstance.get(
-    `/products/category/${categoryName}/${subcategoryName}`,
+    `/product/category/${categoryName}/${subcategoryName}`,
   );
   return res.data;
 };
 
 // Get product details by Mongo _id
 const getProductById = async (id) => {
-  const res = await axiosInstance.get(`/products/${id}`);
+  const res = await axiosInstance.get(`/product/${id}`);
   return res.data;
 };
 
 // Get product details by slug
 const getProductBySlug = async (route) => {
-  const res = await axiosInstance.get(`/products/slug/${route}`);
+  const res = await axiosInstance.get(`/product/slug/${route}`);
   return res.data;
 };
 
 // ✅ Update an existing product (Admin only)
 const updateProduct = async (id, formData) => {
   const res = await axiosInstance.put(
-    `/products/update-product/${id}`,
+    `/product/update-product/${id}`,
     formData,
     {
       headers: { "Content-Type": "multipart/form-data" },
