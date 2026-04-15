@@ -29,32 +29,44 @@ function Product() {
         setLoading(true);
         setError("");
 
-        const res = await axiosInstance.get("/products/all");
-        let fetchedProducts = res.data?.products || res.data || [];
+        const res = await axiosInstance.get("/product/all");
+        console.log("Product API Response:", res.data);
+
+        let fetchedProducts = [];
+       if(res.data?.success && res.data?.data) {
+  fetchedProducts = res.data.data;
+}else if(Array.isArray(res.data)){
+          fetchProducts = res.data;
+        }else if(res.data?.products) {
+          fetchProducts = res.data.products;
+        }
+
+        console.log("Fetched products:", fetchedProducts);
+        let filteredProducts = fetchedProducts;
 
         if (categoryName) {
-          fetchedProducts = fetchedProducts.filter(
-            (p) =>
-              p.category &&
-              p.category.toLowerCase() ===
-                decodeURIComponent(categoryName).toLowerCase()
-          );
+          const decodedCategory = decodeURIComponent(categoryName).toLowerCase();
+          filteredProducts = fetchedProducts.filter((p) => {
+            const productCategory = (p.categoryName || p.category?.name || "").toLowerCase();
+           return productCategory === decodedCategory;
+          })
+          console.log(`Filtered by category "${decodedCategory}":`, filteredProducts.length, "products");}
+          
+        if (subcategoryName && filteredProducts.length > 0) {
+          const decodedSubcategory = decodeURIComponent(subcategoryName).toLowerCase();
+          filteredProducts = filteredProducts.filter((p) => {
+            const productSubcategory = (p.subcategoryName || p.subcategory?.name || "").toLowerCase();
+            return productSubcategory === decodedSubcategory;
+          });
+          console.log(`Filtered by subcategory "${decodedSubcategory}":`, filteredProducts.length, "products");
         }
 
-        if (subcategoryName) {
-          fetchedProducts = fetchedProducts.filter(
-            (p) =>
-              p.subcategory &&
-              p.subcategory.toLowerCase() ===
-                decodeURIComponent(subcategoryName).toLowerCase()
-          );
-        }
 
-        setItems(fetchedProducts);
-        setOriginalItems(fetchedProducts);
+        setItems(filteredProducts);
+        setOriginalItems(filteredProducts);
       } catch (err) {
         console.error("API Error:", err);
-        setError("Failed to load products");
+        setError(err.response?.data?.message || "Failed to load products");
       } finally {
         setLoading(false);
       }
@@ -67,11 +79,13 @@ function Product() {
     const uniqueColors = new Set();
 
     originalItems.forEach((item) => {
-      item.variants?.forEach((variant) => {
+      if(item.variants && Array.isArray(item.variants)){
+        item.variants?.forEach((variant) => {
         if (variant.variantColor) {
           uniqueColors.add(variant.variantColor.toLowerCase());
         }
       });
+    }
     });
 
     return [...uniqueColors].map((colorName) => ({ colorName }));
@@ -82,42 +96,52 @@ function Product() {
 
     switch (val) {
       case "high":
-        sortedItems.sort((a, b) => (b.basePrice || 0) - (a.basePrice || 0));
+        sortedItems.sort((a, b) => (b.defaultPrice || 0) - (a.defaultPrice || 0));
         break;
 
-      case "low":
-        sortedItems.sort((a, b) => (a.basePrice || 0) - (b.basePrice || 0));
+    case "low":
+        sortedItems.sort((a, b) => (a.defaultPrice || 0) - (b.defaultPrice || 0));
         break;
 
       case "atoz":
         sortedItems.sort((a, b) =>
-          (a.productTittle || a.title || "").localeCompare(
-            b.productTittle || b.title || ""
+          (a.name || a.productTittle || "").localeCompare(
+            b.name || b.productTittle || ""
           )
         );
         break;
 
+
+      // case "rating":
+      //   sortedItems.sort((a, b) => {
+      //     const avgA =
+      //       Array.isArray(a.reviews) && a.reviews.length > 0
+      //         ? a.reviews.reduce((sum, r) => sum + (r.rating || 0), 0) /
+      //           a.reviews.length
+      //         : 0;
+
+      //     const avgB =
+      //       Array.isArray(b.reviews) && b.reviews.length > 0
+      //         ? b.reviews.reduce((sum, r) => sum + (r.rating || 0), 0) /
+      //           b.reviews.length
+      //         : 0;
+
+      //     return avgB - avgA;
+      //   });
+      //   break;
+
       case "rating":
         sortedItems.sort((a, b) => {
-          const avgA =
-            Array.isArray(a.reviews) && a.reviews.length > 0
-              ? a.reviews.reduce((sum, r) => sum + (r.rating || 0), 0) /
-                a.reviews.length
-              : 0;
-
-          const avgB =
-            Array.isArray(b.reviews) && b.reviews.length > 0
-              ? b.reviews.reduce((sum, r) => sum + (r.rating || 0), 0) /
-                b.reviews.length
-              : 0;
-
+          const avgA = a.stats?.averageRating || 0;
+          const avgB = b.stats?.averageRating || 0;
           return avgB - avgA;
         });
         break;
 
-      case "latest":
-        sortedItems.reverse();
+case "latest":
+        sortedItems.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         break;
+
 
       default:
         sortedItems = [...originalItems];
@@ -132,13 +156,21 @@ function Product() {
 
     const search = param.toLowerCase();
 
-    return (
-      p.productTittle?.toLowerCase().includes(search) ||
-      p.title?.toLowerCase().includes(search) ||
-      p.subcategory?.toLowerCase().includes(search) ||
-      p.category?.toLowerCase().includes(search)
+  //   return (
+  //     p.productTittle?.toLowerCase().includes(search) ||
+  //     p.title?.toLowerCase().includes(search) ||
+  //     p.subcategory?.toLowerCase().includes(search) ||
+  //     p.category?.toLowerCase().includes(search)
+  //   );
+  // });
+   return (
+      (p.name || p.productTittle || "")?.toLowerCase().includes(search) ||
+      (p.categoryName || p.category?.name || "")?.toLowerCase().includes(search) ||
+      (p.subcategoryName || p.subcategory?.name || "")?.toLowerCase().includes(search)
     );
   });
+
+
 
   const filteredArts = filterArts.filter(
     (p) =>
@@ -147,11 +179,15 @@ function Product() {
         color.includes(v.variantColor?.toLowerCase())
       )
   );
+// get display names for breadcrumbs
+   const displayCategory = categoryName ? decodeURIComponent(categoryName) : "";
+  const displaySubcategory = subcategoryName ? decodeURIComponent(subcategoryName) : "";
+
 
   return (
     <>
       <Navbar />
-      <Breadcrumbs category={categoryName} subcategory={subcategoryName} />
+      <Breadcrumbs category={displayCategory} subcategory={displaySubcategory} />
 
       <div className="lg:px-20 md:px-[60px] px-4 pb-[23px] lg:flex gap-4 bg-gray-50">
         <Filter

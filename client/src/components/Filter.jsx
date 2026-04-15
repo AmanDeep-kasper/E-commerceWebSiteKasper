@@ -36,7 +36,7 @@ function Filter({
   useEffect(() => {
     const fetchSubcategories = async () => {
       try {
-        const res = await axiosInstance.get("/products/all");
+        const res = await axiosInstance.get("/product/all");
         // console.log(res)
         const allProducts = Array.isArray(res.data)
           ? res.data
