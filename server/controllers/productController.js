@@ -1,4 +1,6 @@
 import Product from "../models/Product.js";
+import Category from "../models/Category.js";
+import SubCategory from "../models/SubCategory.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import AppError from "../utils/AppError.js";
 import {
@@ -723,8 +725,8 @@ export const userGetAllProducts = asyncHandler(async (req, res) => {
   // ✅ QUERY
   const [products, total] = await Promise.all([
     Product.find(filter)
-      .populate("category", "name slug")  //this populate category with name
-      .populate("subcategory", "name slug")  //this populate subcategory with name 
+      .populate("category", "name slug") //this populate category with name
+      .populate("subcategory", "name slug") //this populate subcategory with name
       .select("productTittle slug variants stats createdAt")
       .sort(sort)
       .skip(skip)
@@ -753,9 +755,9 @@ export const userGetAllProducts = asyncHandler(async (req, res) => {
       _id: product._id,
       name: product.productTittle,
       slug: product.slug,
-category: product.category,  //add this
-categoryName: product.category?.name,  // ← ADD THIS
-subcategory: product.subcategory,
+      category: product.category, //add this
+      categoryName: product.category?.name, // ← ADD THIS
+      subcategory: product.subcategory,
       subcategoryName: product.subcategory?.name,
       priceRange: {
         min: lowestPrice,
@@ -809,5 +811,74 @@ export const userGetProductDetails = asyncHandler(async (req, res) => {
     success: true,
     message: "Product details fetched successfully",
     data: product,
+  });
+});
+
+export const globalSearch = asyncHandler(async (req, res) => {
+  const { search } = req.query;
+
+  if (!search) {
+    throw AppError.badRequest("Search required");
+  }
+
+  const keyword = search.trim();
+
+  // 🔥 STEP 1: Find matching categories
+  const categories = await Category.find({
+    name: { $regex: keyword, $options: "i" },
+  }).select("_id name");
+
+  // 🔥 STEP 2: Find matching subcategories
+  const subcategories = await SubCategory.find({
+    name: { $regex: keyword, $options: "i" },
+  }).select("_id name");
+
+  // 🔥 STEP 3: Build OR conditions safely
+  const orConditions = [
+    {
+      productTittle: { $regex: keyword, $options: "i" },
+    },
+  ];
+
+  if (categories.length > 0) {
+    orConditions.push({
+      category: { $in: categories.map((c) => c._id) },
+    });
+  }
+
+  if (subcategories.length > 0) {
+    orConditions.push({
+      subcategory: { $in: subcategories.map((s) => s._id) },
+    });
+  }
+
+  // 🔥 STEP 4: Query
+  const products = await Product.find({
+    isActive: true,
+    $or: orConditions,
+  })
+    .limit(20)
+    .sort({ createdAt: -1 })
+    .select("productTittle variants category subcategory")
+    .populate({
+      path: "category",
+      select: "name",
+    })
+    .lean();
+
+  // 🔥 STEP 5: Format response (IMPORTANT)
+  const formatted = products.map((p) => ({
+    _id: p._id,
+    productTittle: p.productTittle,
+    categoryName: p.category?.name || "",
+
+    // first variant image
+    image: p.variants?.[0]?.variantImage?.[0]?.url || "",
+  }));
+
+  return res.status(200).json({
+    success: true,
+    count: formatted.length,
+    products: formatted,
   });
 });

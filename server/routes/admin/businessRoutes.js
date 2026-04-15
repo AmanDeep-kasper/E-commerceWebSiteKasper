@@ -1,0 +1,38 @@
+import { Router } from "express";
+import { authenticate, authorize } from "../../middlewares/authMiddleware.js";
+import {
+  createBusinessDetails,
+  getBusinessDetails,
+  updateBusinessDetails,
+} from "../../controllers/admin/businessController.js";
+import { upload } from "../../middlewares/multer.js";
+
+const router = Router();
+
+router.post(
+  "/create-business",
+  authenticate,
+  authorize("admin"),
+  (req, _res, next) => {
+    req.uploadFolder = "logo";
+    next();
+  },
+  upload.single("logo"),
+  createBusinessDetails,
+);
+
+router.put(
+  "update-business",
+  authenticate,
+  authorize("admin"),
+  updateBusinessDetails,
+);
+
+router.get(
+  "/get-business",
+  authenticate,
+  authorize("admin"),
+  getBusinessDetails,
+);
+
+export default router;
