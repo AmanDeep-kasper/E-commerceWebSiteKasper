@@ -2,6 +2,12 @@ import mongoose from "mongoose";
 
 const BusinessSettingSchema = new mongoose.Schema(
   {
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+      unique: true,
+    },
     businessName: String,
     logo: {
       url: String,
@@ -34,6 +40,11 @@ const BusinessSettingSchema = new mongoose.Schema(
       type: String,
       match: [/^[6-9]\d{9}$/, "Please provide a valid phone number"],
       unique: true,
+    },
+
+    isActive: {
+      type: Boolean,
+      default: true,
     },
   },
   { timestamps: true, versionKey: false },

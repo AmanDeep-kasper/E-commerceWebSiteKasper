@@ -10,6 +10,7 @@ import {
   adminUpdateProduct,
   adminUpdateVariant,
   adminUpdateVariantImages,
+  globalSearch,
   // deleteVariantImages,
   uploadVariantsImages,
   userGetAllProducts,
@@ -96,5 +97,6 @@ router.delete(
 // Public User Routes
 router.get("/all", userGetAllProducts);
 router.get("/:slugOrId", userGetProductDetails);
+router.get("/", globalSearch);
 
 export default router;
