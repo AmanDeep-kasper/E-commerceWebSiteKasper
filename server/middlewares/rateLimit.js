@@ -1,14 +1,15 @@
-import rateLimit from "express-rate-limit";
+import rateLimit, { ipKeyGenerator } from "express-rate-limit";
 import slowDown from "express-slow-down";
 import RedisStore from "rate-limit-redis";
 import { redis } from "../config/redis.js";
 
+// Helper (clean reusable)
+const getIP = (req) => ipKeyGenerator(req);
+
 // ─── Global Limiter ───────────────────────────────────────────────
-// Applied to all routes via app.use(). High limit for normal browsing.
-// Skips auth-specific routes that have their own stricter limiters.
 export const globalLimiter = rateLimit({
-  windowMs: 60 * 1000, // 1 minute
-  max: 100, // 100 requests/minute per key
+  windowMs: 60 * 1000,
+  max: 100,
 
   standardHeaders: true,
   legacyHeaders: false,
@@ -17,12 +18,11 @@ export const globalLimiter = rateLimit({
     if (req.user?.userId) {
       return `global:user:${req.user.userId}`;
     }
-    return `global:ip:${req.ip}`;
+    return `global:ip:${getIP(req)}`; // ✅ FIX
   },
 
   skip: (req) => {
     const path = req.path;
-    // Skip routes that have their own dedicated limiters
     return (
       path.includes("/auth/login") ||
       path.includes("/auth/register") ||
@@ -44,10 +44,8 @@ export const globalLimiter = rateLimit({
 });
 
 // ─── Login Limiter ────────────────────────────────────────────────
-// Strict: 5 failed attempts/minute per identifier (email/phone).
-// Successful requests don't count against the limit.
 export const loginLimiter = rateLimit({
-  windowMs: 1 * 60 * 1000, // 1 minute
+  windowMs: 1 * 60 * 1000,
   max: 5,
   standardHeaders: true,
   legacyHeaders: false,
@@ -55,7 +53,9 @@ export const loginLimiter = rateLimit({
 
   keyGenerator: (req) => {
     const identifier = (req.body?.identifier || "").toLowerCase().trim();
-    return `login:${identifier || req.ip}`;
+
+    // fallback to IP safely
+    return `login:${identifier || getIP(req)}`; // ✅ FIX
   },
 
   store: new RedisStore({
@@ -71,15 +71,14 @@ export const loginLimiter = rateLimit({
 });
 
 // ─── Sensitive Limiter ────────────────────────────────────────────
-// For register, OTP, forgot password — 5 requests per 5 minutes.
 export const sensitiveLimiter = rateLimit({
-  windowMs: 5 * 60 * 1000, // 5 minutes
+  windowMs: 5 * 60 * 1000,
   max: 5,
   standardHeaders: true,
   legacyHeaders: false,
 
   keyGenerator: (req) => {
-    return `sensitive:${req.ip}`;
+    return `sensitive:${getIP(req)}`; // ✅ FIX
   },
 
   store: new RedisStore({
@@ -95,10 +94,8 @@ export const sensitiveLimiter = rateLimit({
 });
 
 // ─── General Limiter ──────────────────────────────────────────────
-// For authenticated endpoints like /me, /logout, /change-password.
-// 30 requests/minute per user or IP.
 export const generalLimiter = rateLimit({
-  windowMs: 1 * 60 * 1000, // 1 minute
+  windowMs: 1 * 60 * 1000,
   max: 30,
   standardHeaders: true,
   legacyHeaders: false,
@@ -107,7 +104,7 @@ export const generalLimiter = rateLimit({
     if (req.user?.userId) {
       return `general:user:${req.user.userId}`;
     }
-    return `general:ip:${req.ip}`;
+    return `general:ip:${getIP(req)}`; // ✅ FIX
   },
 
   store: new RedisStore({
@@ -123,15 +120,13 @@ export const generalLimiter = rateLimit({
 });
 
 // ─── Speed Limiter ────────────────────────────────────────────────
-// Progressive slowdown: after 50 requests in 1 minute, each subsequent
-// request is delayed by 500ms. Doesn't block — just slows.
 export const speedLimiter = slowDown({
   windowMs: 60 * 1000,
   delayAfter: 50,
   delayMs: () => 500,
 
   keyGenerator: (req) => {
-    return `speed:${req.ip}`;
+    return `speed:${getIP(req)}`; // ✅ FIX
   },
 
   store: new RedisStore({

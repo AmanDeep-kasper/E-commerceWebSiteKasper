@@ -37,6 +37,11 @@ class AppError extends Error {
     return new AppError(message, 404, code);
   }
 
+  // create a not allowed method
+  static notAllowed(message = "Method not allowed", code = "NOT_ALLOWED") {
+    return new AppError(message, 405, code);
+  }
+
   // Create a conflict error
   static conflict(message, code = "CONFLICT") {
     return new AppError(message, 409, code);

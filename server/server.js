@@ -1,17 +1,17 @@
-// import dotenv from "dotenv";
-// dotenv.config();
-
+// ================== CORE IMPORTS ==================
 import dns from "node:dns";
-dns.setServers(["1.1.1.1", "1.0.0.1", "8.8.8.8", "8.8.4.4"]);
-
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import helmet from "helmet";
 import hpp from "hpp";
-import env from "./config/env.js";
 
-// Routes
+// ================== CONFIG ==================
+import env from "./config/env.js";
+import { connectDB } from "./config/db.js";
+import setupUnhandledErrorHandlers from "./utils/unhandledErrorHandler.js";
+
+// ================== ROUTES ==================
 import authRouter from "./routes/authRoutes.js";
 import userRouter from "./routes/userRoutes.js";
 import categoryRouter from "./routes/categoryRoutes.js";
@@ -23,73 +23,76 @@ import rewardRouter from "./routes/rewardRoutes.js";
 import wishlistRouter from "./routes/wishlistRouter.js";
 import cartRouter from "./routes/cartRoutes.js";
 
-// Middlewares
+// ================== MIDDLEWARES ==================
 import { errorHandler, notFoundHandler } from "./middlewares/errorHandler.js";
-
-// Rate limiting
 import { globalLimiter, speedLimiter } from "./middlewares/rateLimit.js";
+
+// ================== INIT ==================
+dns.setServers(["1.1.1.1", "1.0.0.1", "8.8.8.8", "8.8.4.4"]);
 
 const app = express();
 
-// Secure HTTP headers
+// ================== SECURITY ==================
 app.use(helmet());
 app.use(hpp());
 
-// cors configuration
+// ================== CORS ==================
 const allowedOrigins = [
   "http://localhost:3000",
   "http://localhost:5173",
-  "http://127.0.0.1:5173", // 🔥 ADD THIS
+  "http://127.0.0.1:5173",
   "http://localhost:5174",
   "https://e-commercewebsitekasper.onrender.com",
 ];
 
-const corsOptions = {
-  origin: function (origin, callback) {
-    console.log("Origin:", origin); // debug
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      console.log("🌐 Origin:", origin);
 
-    if (!origin) return callback(null, true);
+      if (!origin) return callback(null, true);
 
-    if (allowedOrigins.includes(origin)) {
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      // Allow all (you can tighten in production)
       return callback(null, true);
-    }
+    },
+    credentials: true,
+  }),
+);
 
-    // ❗ IMPORTANT CHANGE
-    return callback(null, true); // allow instead of false
-  },
-  credentials: true,
-};
-
-app.use(cors(corsOptions));
-
+// Debug Middleware
 app.use((req, _res, next) => {
-  console.log("Incoming Origin:", req.headers.origin);
+  console.log("➡️ Incoming Origin:", req.headers.origin);
   next();
 });
 
-// Rate limiting
+// ================== RATE LIMIT ==================
 if (env.NODE_ENV === "production") {
   app.set("trust proxy", 1);
 }
 app.use(globalLimiter);
 app.use(speedLimiter);
 
-// json parser
+// ================== BODY PARSING ==================
 app.use(express.json({ limit: "16kb" }));
 app.use(express.urlencoded({ extended: true, limit: "16kb" }));
 
-// cookie parser
+// ================== COOKIES & STATIC ==================
 app.use(cookieParser());
 app.use(express.static("public"));
 
-app.get("/", (req, res) => {
+// ================== HEALTH CHECK ==================
+app.get("/", (_req, res) => {
   res.status(200).json({
     success: true,
     message: "🚀 Server is running...",
   });
 });
 
-// Routes
+// ================== API ROUTES ==================
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/category", categoryRouter);
@@ -101,10 +104,24 @@ app.use("/api/v1/reward", rewardRouter);
 app.use("/api/v1/wishlist", wishlistRouter);
 app.use("/api/v1/cart", cartRouter);
 
-// 404 Not Found Handler
+// ================== ERROR HANDLING ==================
 app.use(notFoundHandler);
-
-// Global Error Handler
 app.use(errorHandler);
 
-export default app;
+// ================== SERVER START ==================
+const startServer = async () => {
+  try {
+    setupUnhandledErrorHandlers();
+
+    await connectDB();
+
+    app.listen(env.PORT, () => {
+      console.log(`🚀 Server running on port ${env.PORT}`);
+    });
+  } catch (error) {
+    console.error("❌ Failed to start server:", error);
+    process.exit(1);
+  }
+};
+
+startServer();
