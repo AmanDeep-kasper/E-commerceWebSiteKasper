@@ -218,7 +218,7 @@ function CategoryProducts() {
         const response = await axiosInstance.get("/product/all", {
           params: {
             page: 1,
-            limit: 50, // Get more products
+            limit: 100000, // Get more products
           }
         });
         
@@ -265,18 +265,30 @@ function CategoryProducts() {
   //   acc[categoryName].push(product);
   //   return acc;
   // }, {});
+
+  const getProductImage = (product) => {
+    if(product.image) {
+      return product.image;
+    }
+    if(product.variants?.[0]?.variantImage?.[0]?.url) {
+      return product.variants[0]?.variantImage[0]?.url;
+    }
+    if(product.images?.[0]) {
+      return product.images[0];
+    }
+    if(product.defaultImage) {
+      return product.defaultImage;
+    }
+    return "/fallback"
+  }
    const groupedProducts = allProducts.reduce((acc, product) => {
     // Check different possible category structures
     let categoryName = "Uncategorized";
     
-    if (product.category) {
-      if (typeof product.category === 'object' && product.category.name) {
-        // If category is populated with name
-        categoryName = product.category.name;
-      } else if (typeof product.category === 'string') {
-        // If category is just an ID (fallback)
-        categoryName = "Uncategorized";
-      }
+    if (product.categoryName) {
+      categoryName = product.categoryName;
+    } else if (product.category?.name) {
+      categoryName = product.category.name;
     }
     
     if (!acc[categoryName]) {
@@ -326,39 +338,32 @@ No Products available at the moment.
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                {items.slice(0, 4).map((p, index) => (
+                {items.slice(0, 4).map((product, index) => (
                   <Link
                     // key={`${p.id || p.uuid || p.SKU || p.title}-${index}`}
-                    key={p._id || index}
-                    to={`/product/${p._id}`}
+                    key={product._id || index}
+                    to={`/product/${product.slug || product._id}`}
                     className="cursor-pointer flex flex-col items-center transition-all duration-300 hover:shadow-sm"
                   >
                     <div className="flex flex-col w-full h-full overflow-hidden">
                       <div className="relative w-full aspect-square rounded-md overflow-hidden">
                         <img
-                          className="w-full h-full bg-white object-contain hover:scale-105 transition-transform duration-300"
-                          src={
-                            p?.variants?.[0]?.variantImage?.[0] ||
-                            p?.images?.[0] ||
-                            "/fallback.png"
-                          }
-                          alt={p.productTittle || category || "Product"}
+                          className="w-full h-full object-contain hover:scale-105 transition-transform duration-300"
+                          src={getProductImage(product)}
+                          alt={product.name || product.productTittle || "Product"}
                           loading="lazy"
-                          onError={() => {
-                            e.target.src = "/fallback.png";
-                          }}
                         />
 
                         {/* {typeof p?.reviews?.rating?.average === "number" && ( */}
-                        {p?.rating?.average && (
+                        {product?.rating?.average && (
                           <span className="absolute top-1 right-1 bg-yellow-400 text-gray-800 text-[10px] px-2 py-0.5 rounded-full shadow">
-                            {p.rating.average.toFixed(1)} ★
+                            {product.rating.average.toFixed(1)} ★
                           </span>
                         )}
                       </div>
 
                       <h3 className="text-xs py-2 bg-transparent line-clamp-1 h-6">
-                        {p.productTittle  || p.title || "United Product"}
+                        {product.productTittle  || product.title || "United Product"}
                       </h3>
                     </div>
                   </Link>
