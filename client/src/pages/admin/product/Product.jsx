@@ -512,7 +512,6 @@ const Products = () => {
     },
     {
       name: "Inactive",
-      data: "1",
       data: product.filter((p) => p.isActive === false).length,
       icon: <Archive />,
       iconbg: "bg-[#FFFBEB]",
