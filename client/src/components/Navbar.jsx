@@ -136,7 +136,7 @@ function Navbar() {
     // <div className="w-full">
     <div className="fixed top-0 left-0 w-full z-50">
       {/* Top Announcement Bar */}
-      <div className="w-full bg-[#1800AC] text-white text-center text-sm py-2">
+      <div className="w-full bg-[#F0EEFF] text-[#1C1C1C] text-center text-sm py-2">
         <Swiper
           modules={[Autoplay]}
           autoplay={{

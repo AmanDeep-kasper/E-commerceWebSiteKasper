@@ -129,9 +129,9 @@ const TaxSettingsForm = () => {
         <div className="bg-white rounded-[12px] border border-[#EEF2F6] p-4">
           <div className="border border-[#E5E7EB] rounded-[10px] overflow-hidden">
             <div className="px-4 py-3">
-              <button className="text-[#2563EB] text-[13px] font-medium">
+              {/* <button className="text-[#2563EB] text-[13px] font-medium">
                 Edit Address
-              </button>
+              </button> */}
             </div>
 
             <div className="px-4 pb-4">
@@ -199,9 +199,9 @@ const TaxSettingsForm = () => {
                 </div>
               </div>
 
-              <button className="text-[13px] text-[#1F3B5B] font-medium">
+              {/* <button className="text-[13px] text-[#1F3B5B] font-medium">
                 Close
-              </button>
+              </button> */}
             </div>
           </div>
         </div>
