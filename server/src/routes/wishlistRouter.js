@@ -4,7 +4,8 @@ import {
   addProductToWishlist,
   clearWishlist,
   getWishlist,
-  removeFromWishlist,
+  moveToCart,
+  moveToCartAll,
   removeProductFromWishlist,
 } from "../controllers/wishlistController.js";
 
@@ -15,6 +16,7 @@ router.post("/add-to-wishlist", authenticate, addProductToWishlist);
 router.get("/", authenticate, getWishlist);
 router.delete("/remove-item", authenticate, removeProductFromWishlist);
 router.delete("/clear-wishlist", authenticate, clearWishlist);
-router.delete("/delete-item/:itemId", authenticate, removeFromWishlist);
+router.post("/move-to-cart", authenticate, moveToCart);
+router.post("/move-to-cart-all", authenticate, moveToCartAll);
 
 export default router;

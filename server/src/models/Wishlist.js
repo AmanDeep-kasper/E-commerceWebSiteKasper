@@ -6,27 +6,61 @@ const WishlistItemSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Product",
       required: true,
-    },
-    variantId: {
-      type: mongoose.Schema.Types.ObjectId,
-    },
-    category: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Category",
-      required: true,
-    },
-
-    quantity: {
-      type: Number,
-      default: 1,
       index: true,
     },
 
-    variantName: { type: String, default: "" },
-    productTitle: { type: String, required: true },
-    imageUrl: { type: String, default: "" },
+    variantId: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      index: true,
+    },
+
+    variantSkuId: {
+      type: String,
+      required: true,
+      index: true,
+    },
+
+    // SNAPSHOT DATA
+    productTitle: {
+      type: String,
+      required: true,
+    },
+
+    variantName: {
+      type: String,
+      default: "",
+    },
+
+    variantColor: {
+      type: String,
+      default: "",
+    },
+
+    // ✅ FLEXIBLE ATTRIBUTES
+    variantAttributes: {
+      type: Map,
+      of: String,
+      default: {},
+    },
+
+    // IMAGE SNAPSHOT
+    image: {
+      url: { type: String, default: "" },
+      altText: { type: String, default: "" },
+    },
+
+    category: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Category",
+    },
+
+    addedAt: {
+      type: Date,
+      default: Date.now,
+    },
   },
-  { _id: true },
+  { _id: true }
 );
 
 const WishlistSchema = new mongoose.Schema(
@@ -36,8 +70,8 @@ const WishlistSchema = new mongoose.Schema(
       ref: "User",
       required: true,
       unique: true,
-      index: true,
     },
+
     items: [WishlistItemSchema],
 
     isActive: {
@@ -46,11 +80,10 @@ const WishlistSchema = new mongoose.Schema(
       index: true,
     },
   },
-  { timestamps: true, versionKey: false },
+  { timestamps: true, versionKey: false }
 );
 
-// Prevent duplicate product+variant combinations
-WishlistSchema.index({ user: 1, "items.product": 1, "items.variantId": 1 });
 
 const Wishlist = mongoose.model("Wishlist", WishlistSchema);
+
 export default Wishlist;
