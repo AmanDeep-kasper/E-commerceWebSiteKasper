@@ -112,7 +112,7 @@ app.use("/api/v1/cart", cartRouter);
 // ============= Dashboard Setting Routes =============
 app.use("/api/v1/dashboard/business", businessRouter);
 app.use("/api/v1/dashboard/warehouse", warehouseRouter);
-app.use("/api/v1/dashboard/policy");
+app.use("/api/v1/dashboard/policy", policyRouter);
 
 // ================== ERROR HANDLING ==================
 app.use(notFoundHandler);
