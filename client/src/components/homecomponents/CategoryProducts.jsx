@@ -222,7 +222,7 @@ function CategoryProducts() {
           }
         });
         
-        console.log("Products response:", response.data);
+        // console.log("Products response:", response.data);
         
         // Extract products from response
         let products = [];
@@ -355,15 +355,15 @@ No Products available at the moment.
                         />
 
                         {/* {typeof p?.reviews?.rating?.average === "number" && ( */}
-                        {product?.rating?.average && (
+                        {/* {product?.stats?.averageRating && (
                           <span className="absolute top-1 right-1 bg-yellow-400 text-gray-800 text-[10px] px-2 py-0.5 rounded-full shadow">
-                            {product.rating.average.toFixed(1)} ★
+                            {product?.stats.averageRating.toFixed(1)} ★
                           </span>
-                        )}
+                        )} */}
                       </div>
 
                       <h3 className="text-xs py-2 bg-transparent line-clamp-1 h-6">
-                        {product.productTittle  || product.title || "United Product"}
+                        {product.name || product.title || "United Product"}
                       </h3>
                     </div>
                   </Link>

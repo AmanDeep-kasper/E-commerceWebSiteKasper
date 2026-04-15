@@ -69,7 +69,7 @@ function LatestProducts() {
     const fetchProducts = async () => {
       try {
         const res = await axiosInstance.get("/product/all");
-        console.log("PRODUCT API:", res.data);
+        // console.log("PRODUCT API:", res.data);
 
         const productData =
           res?.data?.products || res?.data?.data || res?.data?.product || [];

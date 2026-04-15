@@ -404,9 +404,6 @@ useEffect(() => {
                          src={category.categoryImage?.url || "/placeholder-category.jpg"}
   alt="categoryname"
                         className="w-full h-full object-cover hover:scale-110 transition duration-300 cursor-pointer"
-                        onError={(e) => {
-                          e.target.src = "/placeholder-category.jpg";
-                        }}
                       />
                     </div>
                     <span className="text-[14px] sm:text-[16px] text-center capitalize">
