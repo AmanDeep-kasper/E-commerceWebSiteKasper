@@ -113,8 +113,6 @@ useEffect(() => {
           }
         });
         
-        console.log("Categories response:", response.data);
-        
         let fetchedCategories = [];
         
         if (response.data?.success && response.data?.data) {

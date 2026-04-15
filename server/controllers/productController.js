@@ -723,8 +723,8 @@ export const userGetAllProducts = asyncHandler(async (req, res) => {
   // ✅ QUERY
   const [products, total] = await Promise.all([
     Product.find(filter)
-      .populate("category", "name slug")
-      .populate("subcategory", "name slug")
+      .populate("category", "name slug")  //this populate category with name
+      .populate("subcategory", "name slug")  //this populate subcategory with name 
       .select("productTittle slug variants stats createdAt")
       .sort(sort)
       .skip(skip)
@@ -753,7 +753,10 @@ export const userGetAllProducts = asyncHandler(async (req, res) => {
       _id: product._id,
       name: product.productTittle,
       slug: product.slug,
-
+category: product.category,  //add this
+categoryName: product.category?.name,  // ← ADD THIS
+subcategory: product.subcategory,
+      subcategoryName: product.subcategory?.name,
       priceRange: {
         min: lowestPrice,
         max: highestPrice,

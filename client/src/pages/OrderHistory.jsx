@@ -76,7 +76,7 @@ function OrderHistory() {
   }, [param, status, orders, time]);
 
   return (
-    <div className="w-full">
+    <div className="w-full mt-5">
       <div className="md:mb-6 relative flex flex-row justify-between items-center border border-gray-200 bg-white md:rounded-lg p-3 gap-3 sm:gap-4">
         <div>
           <p className="text-lg font-semibold">Your Orders</p>

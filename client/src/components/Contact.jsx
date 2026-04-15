@@ -22,7 +22,7 @@ function ContactSection() {
   };
 
   return (
-    <div className="w-full font-inter">
+    <div className="w-full font-inter mt-5">
       <div className="bg-white md:rounded-md md:shadow-sm border border-gray-200 overflow-hidden">
         <div className="flex flex-col-reverse lg:grid lg:grid-cols-3">
           {/* ===== Left: Form ===== */}
@@ -39,7 +39,7 @@ function ContactSection() {
             </div>
 
             <form className="p-6 space-y-5" onSubmit={handleSubmit}>
-              {/* Full Name */}
+              {/* Full Name 
               <div>
                 <label
                   htmlFor="name"
@@ -57,8 +57,8 @@ function ContactSection() {
                   required
                 />
               </div>
-
-              {/* Email */}
+*/}
+              {/* Email 
               <div>
                 <label
                   htmlFor="email"
@@ -76,9 +76,9 @@ function ContactSection() {
                   required
                 />
               </div>
-
+*/}
               {/* Phone */}
-              <div>
+              {/* <div>
                 <label
                   htmlFor="phone"
                   className="block text-sm font-medium text-gray-700 mb-2"
@@ -119,7 +119,7 @@ function ContactSection() {
                   <option value="Technical Support">Technical Support</option>
                   <option value="Other">Other</option>
                 </select>
-              </div>
+              </div> */}
 
               {/* Message */}
               <div>
@@ -152,14 +152,14 @@ function ContactSection() {
           </div>
 
           {/* ===== Right: Contact Info ===== */}
-          <div className="p-8 flex flex-col justify-center bg-gradient-to-b from-[#D5E5F5] to-white space-y-6">
+          <div className="p-8 flex flex-col justify-center bg-gradient-to-b from-[#CFC7FF]/20 to-[#FFC9EA]/50 to-white space-y-6">
             <div className="text-center mb-1">
               <h2 className="text-lg font-semibold text-gray-800">
                 Get in Touch
               </h2>
-              <p className="text-sm text-gray-500 mt-1">
+              {/* <p className="text-sm text-gray-500 mt-1">
                 We're here to help with any questions
-              </p>
+              </p> */}
             </div>
 
             <div className="w-full bg-[#F6F8F9] rounded-lg p-5 border border-gray-200 shadow-sm space-y-3">
@@ -193,7 +193,7 @@ function ContactSection() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-4 p-3 bg-white rounded-lg">
+              {/* <div className="flex items-center gap-4 p-3 bg-white rounded-lg">
                 <div className="p-2 bg-[#F5F8FA] rounded-lg">
                   <Clock className="w-5 h-5 text-[#1C3753]" />
                 </div>
@@ -203,7 +203,7 @@ function ContactSection() {
                   </p>
                   <p className="text-sm text-gray-500">Mon - Fri, 9am - 6pm</p>
                 </div>
-              </div>
+              </div> */}
             </div>
 
             <div className="text-xs text-[#686868] mt-4 text-center">

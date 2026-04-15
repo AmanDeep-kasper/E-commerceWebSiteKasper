@@ -1,10 +1,13 @@
 import { div } from "framer-motion/m";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 
 /* <=========--------- icons --------=========> */
 import { MdOutlineAdd } from "react-icons/md";
 import { MdEdit } from "react-icons/md";
 import Surprisebox from "../../../assets/gift.gif"
+
+
 
 function RewardPoints() {
     const [showReward, setShowReward] = useState(false);
@@ -14,18 +17,49 @@ function RewardPoints() {
     const [showConfirm, setShowConfirm] = useState(false);
     const [selectedCard, setSelectedCard] = useState(null);
 
-    const rewardCardData = [
-        {
-            title: "First Reward Points",
-            description: "Get Points for every ₹500+ purchase.",
-            badge: "Inactive",
-        },
-        {
-            title: "Second Reward ",
-            description: "Get Points for every ₹1000+ purchase.",
-            badge: "Active",
-        },
-    ]
+
+    useEffect(() => {
+        fetchRewards();
+    }, []);
+
+    const fetchRewards = async () => {
+        try {
+            const res = await axios.get(
+                "http://localhost:5000/api/v1/reward",
+                {
+                    withCredentials: true, // IMPORTANT (because you use auth)
+                }
+            );
+
+            console.log("API Response:", res.data);
+
+            // map backend data → frontend format
+            const formatted = res.data.data.map((item) => ({
+                _id: item._id,
+                title: item.name,
+                description: `Get Points for every ₹${item.amount}+ purchase.`,
+                badge: item.isActive ? "Active" : "Inactive",
+                deadline: item.deadline,
+            }));
+
+            setRewardCard(formatted);
+        } catch (error) {
+            console.error("Error fetching rewards:", error);
+        }
+    };
+
+    // const rewardCardData = [
+    //     {
+    //         title: "First Reward Points",
+    //         description: "Get Points for every ₹500+ purchase.",
+    //         badge: "Inactive",
+    //     },
+    //     {
+    //         title: "Second Reward ",
+    //         description: "Get Points for every ₹1000+ purchase.",
+    //         badge: "Active",
+    //     },
+    // ]
 
     const [formData, setFormData] = useState({
         title: "",
@@ -59,7 +93,7 @@ function RewardPoints() {
 
                 {rewardCard.map((item, index) => (
 
-                    <div key={index} className="rounded-lg p-4 shadow-sm bg-gradient-to-r from-[#FFFFFF] to-[#B2FF00]/10 cursor-pointer"
+                    <div key={item._id || index} className="rounded-lg p-4 shadow-sm bg-gradient-to-r from-[#FFFFFF] to-[#B2FF00]/10 cursor-pointer"
                         onClick={() => {
                             setSelectedCard(item);
                             setShowCard(true);
@@ -102,7 +136,7 @@ function RewardPoints() {
                                 <span className="text-[#727681]">•</span>
 
                                 <span className="text-[#727681] font-medium whitespace-nowrap">
-                                    Valid Till 31st Dec, 2026
+                                    Valid Till {new Date(item.deadline).toLocaleDateString()}
                                 </span>
                             </div>
                         </div>
@@ -332,36 +366,42 @@ function RewardPoints() {
                             ) : (
                                 <button
                                     className="px-2.5 py-2 bg-[#1C3753] text-[#FFFFFF] rounded-md"
-                                    onClick={() => {
-                                        const today = new Date();
-                                        const selectedDate = new Date(formData.date);
+                                    onClick={async () => {
+                                        try {
+                                            await axios.post(
+                                                "http://localhost:5000/api/v1/reward/create",
+                                                {
+                                                    name: formData.title,
+                                                    amount: formData.amount,
+                                                    minPurchase: formData.minPurchase,
+                                                    deadline: formData.date,
+                                                    redeemPoints: 1,
+                                                    redeemPercent: 10,
+                                                    redeemAmount: 50,
+                                                },
+                                                { withCredentials: true }
+                                            );
 
-                                        today.setHours(0, 0, 0, 0);
-                                        selectedDate.setHours(0, 0, 0, 0);
+                                            fetchRewards();
 
-                                        const status =
-                                            selectedDate < today ? "Inactive" : "Active";
+                                            setShowReward(false);
+                                            setTimeout(() => {
+                                                setShowConfirm(true);
+                                            }, 200);
 
-                                        const newCard = {
-                                            title: formData.title,
-                                            description: `Get Points for every ₹${formData.amount}+ purchase.`,
-                                            badge: status,
-                                        };
+                                            setFormData({
+                                                title: "",
+                                                amount: "",
+                                                minPurchase: "",
+                                                date: "",
+                                                status: "Active",
+                                            });
 
-                                        setRewardCard((prev) => [...prev, newCard]);
+                                            setActiveTab("reward");
 
-                                        setShowReward(false);
-                                        setShowConfirm(true);
-
-                                        setFormData({
-                                            title: "",
-                                            amount: "",
-                                            minPurchase: "",
-                                            date: "",
-                                            status: "Active",
-                                        });
-
-                                        setActiveTab("reward");
+                                        } catch (error) {
+                                            console.error("Create Reward Error:", error);
+                                        }
                                     }}
                                 >
                                     Save
@@ -388,12 +428,12 @@ function RewardPoints() {
                     >
                         <div className="flex flex-col gap-1">
                             <div className="flex items-center justify-between gap-10">
-                                <span>First Order</span>
+                                <span>{selectedCard?.title}</span>
                                 <div className="flex items-center gap-2">
                                     <span
                                         className={`px-2 py-1 text-[12px] sm:text-[13px] rounded-full whitespace-nowrap ${selectedCard?.badge === "Active"
-                                                ? "text-[#01774B] bg-[#D4F7C7]"
-                                                : "text-[#A80205] bg-[#F7C7C9]"
+                                            ? "text-[#01774B] bg-[#D4F7C7]"
+                                            : "text-[#A80205] bg-[#F7C7C9]"
                                             }`}
                                     >
                                         {selectedCard?.badge}
@@ -402,7 +442,11 @@ function RewardPoints() {
                                 </div>
                             </div>
                             <div className="mt-2">
-                                <span className="text-[#727681] text-[16px] font-normal ">Get Points for every ₹ 500 Purchase. Redeem next time.</span>
+                            </div>
+                            <div className="mt-2">
+                                <span className="text-[#727681] text-[16px] font-normal">
+                                    {selectedCard?.description}
+                                </span>
                             </div>
 
                         </div>
@@ -438,6 +482,8 @@ function RewardPoints() {
                                 </span>
 
                             </div> */}
+
+                            
                         </div>
                     </div>
                 </div>

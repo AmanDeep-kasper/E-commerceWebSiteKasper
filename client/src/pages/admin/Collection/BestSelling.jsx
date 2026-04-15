@@ -86,12 +86,21 @@ function BestSelling() {
                         </span>
                     </div>
                 </Link>
-                <button className="flex items-center gap-2 px-4 py-2 bg-[#0B3142] text-white rounded-lg"
-                    onClick={() => setAddCollection(!addCollection)}
-                >
-                    <MdOutlineAdd size={20} />
-                    Add Product
-                </button>
+                <div className="flex items-center gap-2">
+                    <button className="flex items-center px-4 py-2 bg-[#F8FBFC] rounded-lg border border-[#1800AC] text-[#1C1C1C]">
+                        <select name="status" id="">
+                            <option value="All">All</option>
+                            <option value="x">Active</option>
+                            <option value="Inactive">Inactive</option>
+                        </select>
+                    </button>
+                    <button className="flex items-center px-4 py-2 bg-[#0B3142] text-white rounded-lg"
+                        onClick={() => setAddCollection(!addCollection)}
+                    >
+                        <MdOutlineAdd size={20} />
+                        Add Product
+                    </button>
+                </div>
             </div>
 
             <div className="bg-white p-4 rounded-xl">
@@ -262,7 +271,7 @@ function BestSelling() {
 
                         <input
                             type="search"
-                            placeholder=""
+                            placeholder="search product name"
                             className="w-full border p-2 rounded-lg mb-4 bg-[#F8FBFC] outline-none border border-[#DEDEDE] text-[#686868] text-[14px] font-normal"
                         />
 
@@ -273,8 +282,6 @@ function BestSelling() {
                             >
                                 Cancel
                             </button>
-
-                            {/* ✅ SAVE BUTTON */}
                             <button
                                 onClick={() => {
                                     // your save logic here
