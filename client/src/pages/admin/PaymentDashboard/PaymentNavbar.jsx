@@ -1,10 +1,10 @@
 import { NavLink } from "react-router-dom";
 
-const PaymentNavbar = ({ profileMenu }) => {
+const PaymentNavbar = () => {
   return (
-    <div className="border-b border-[#E5E7EB] mb-4">
+    <div className="">
       <div className="flex items-center gap-8">
-        {profileMenu.map((item) => (
+        {/* {profileMenu.map((item) => (
           <NavLink
             key={item.path}
             to={item.path}
@@ -18,7 +18,7 @@ const PaymentNavbar = ({ profileMenu }) => {
           >
             {item.label}
           </NavLink>
-        ))}
+        ))} */}
       </div>
     </div>
   );

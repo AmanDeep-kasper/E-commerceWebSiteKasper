@@ -1,18 +1,11 @@
 import axiosInstance from "../api/axiosInstance";
 
 // Add a new product (Admin only)
-const addProduct = async (formData) => {
-  const res = await axiosInstance.post("/products/add-product", formData, {
-    headers: { "Content-Type": "multipart/form-data" },
-  });
-  return res.data;
-};
 
-// Get all products
-// const getAllProducts = async () => {
-//   const res = await axiosInstance.get("/products/all");
-//   return res.data?.data || res.data;
-// };
+const getAllProducts = async () => {
+  const res = await axiosInstance.get("/products/all");
+  return res.data?.data || res.data;
+};
 
 // Get product by category
 const getProductsByCategory = async (categoryName) => {
@@ -75,13 +68,13 @@ const getAllCategories = async (page = 1, limit = 10) => {
 };
 
 const productService = {
-  // getAllProducts,
+  getAllProducts,
   getAllCategories,
   getProductsByCategory,
   getProductsByCategoryAndSubcategory,
   getProductById,
   getProductBySlug,
-  addProduct,
+  // addProduct,
   updateProduct,
   categoryService,
 };

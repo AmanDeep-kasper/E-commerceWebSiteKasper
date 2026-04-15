@@ -655,6 +655,7 @@ export const userGetAllProducts = asyncHandler(async (req, res) => {
     category,
     subcategory,
     sortBy = "latest",
+    showInactive = "true",
   } = req.query;
 
   const pageNum = parseInt(page);
@@ -662,7 +663,7 @@ export const userGetAllProducts = asyncHandler(async (req, res) => {
   const skip = (pageNum - 1) * limitNum;
 
   // ✅ FILTER (ONLY ACTIVE PRODUCTS)
-  const filter = { isActive: true };
+  const filter = {};
 
   // ✅ CATEGORY FILTER (ObjectId)
   if (category && mongoose.Types.ObjectId.isValid(category)) {
@@ -728,8 +729,6 @@ export const userGetAllProducts = asyncHandler(async (req, res) => {
       .populate("category", "name slug") //this populate category with name
       .populate("subcategory", "name slug") //this populate subcategory with name
       .select("productTittle slug variants stats createdAt")
-      .populate("category", "name slug")  //this populate category with name
-      .populate("subcategory", "name slug")  //this populate subcategory with name 
       .select("productTittle slug variants stats createdAt isActive")
       .sort(sort)
       .skip(skip)
@@ -763,6 +762,7 @@ export const userGetAllProducts = asyncHandler(async (req, res) => {
       subcategory: product.subcategory,
       subcategoryName: product.subcategory?.name,
       isActive: product.isActive,
+      skuId: defaultVariant?.variantSkuId || "N/A", 
       priceRange: {
         min: lowestPrice,
         max: highestPrice,
