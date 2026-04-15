@@ -27,6 +27,7 @@ import cartRouter from "./routes/cartRoutes.js";
 import businessRouter from "./routes/admin/businessRoutes.js";
 import warehouseRouter from "./routes/admin/warehouseRoutes.js";
 import policyRouter from "./routes/admin/policyRoutes.js";
+import shippingRouter from "./routes/admin/shippingRoutes.js";
 
 // ================== MIDDLEWARES ==================
 import { errorHandler, notFoundHandler } from "./middlewares/errorHandler.js";
@@ -113,6 +114,7 @@ app.use("/api/v1/cart", cartRouter);
 app.use("/api/v1/dashboard/business", businessRouter);
 app.use("/api/v1/dashboard/warehouse", warehouseRouter);
 app.use("/api/v1/dashboard/policy", policyRouter);
+app.use("/api/v1/dashboard/shipping", shippingRouter);
 
 // ================== ERROR HANDLING ==================
 app.use(notFoundHandler);

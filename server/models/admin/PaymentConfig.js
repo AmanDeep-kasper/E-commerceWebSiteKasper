@@ -11,6 +11,7 @@ const PaymentConfigSchema = new mongoose.Schema(
     razorpay: {
       keyId: String,
       secretKey: String,
+      webhookUrl: String,
       isActive: Boolean,
     },
 
