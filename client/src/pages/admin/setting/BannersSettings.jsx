@@ -1,30 +1,73 @@
 import React, { useState } from "react";
-
+import { MdOutlineFileUpload } from "react-icons/md";
+import { X } from "lucide-react";
 const BannersSettings = () => {
+  // const [selectedBanner, setSelectedBanner] = useState(null);
+  // const [isBanner4ModalOpen, setIsBanner4ModalOpen] = useState(false);
   const [selectedBanner, setSelectedBanner] = useState(null);
-  const [isBanner4ModalOpen, setIsBanner4ModalOpen] = useState(false);
+  const [fileError, setFileError] = useState("");
+  const [videoPreview, setVideoPreview] = useState(null);
+
+  const handleVideoUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const maxSize = 8 * 1024 * 1024;
+
+    if (file.size > maxSize) {
+      setFileError("Video must be less than 8MB");
+      e.target.value = "";
+      return;
+    }
+
+    setFileError("");
+
+    const videoURL = URL.createObjectURL(file); // ✅ IMPORTANT
+    setVideoPreview(videoURL); // ✅ SAVE IT
+  };
+
+
+  const generateThumbnail = (file) => {
+    const video = document.createElement("video");
+    video.src = URL.createObjectURL(file);
+
+    video.addEventListener("loadeddata", () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      const image = canvas.toDataURL("image/png");
+      setVideoPreview(image);
+    });
+  };
+
+  const handleRemoveVideo = () => {
+    setVideoPreview(null);
+  };
+
 
   const banners = [
     { id: 1, name: "Banner 1" },
     { id: 2, name: "Banner 2" },
-    { id: 3, name: "Banner 3" },
-    { id: 4, name: "Banner 4" },
   ];
 
-  const handleEditBanner = (banner) => {
-    if (banner.id === 4) {
-      setIsBanner4ModalOpen(true);
-      setSelectedBanner(null);
-    } else {
-      setSelectedBanner(banner);
-      setIsBanner4ModalOpen(false);
-    }
-  };
+  // const handleEditBanner = (banner) => {
+  //   if (banner.id === 4) {
+  //     setIsBanner4ModalOpen(true);
+  //     setSelectedBanner(null);
+  //   } else {
+  //     setSelectedBanner(banner);
+  //     setIsBanner4ModalOpen(false);
+  //   }
+  // };
 
-  const closeAll = () => {
-    setSelectedBanner(null);
-    setIsBanner4ModalOpen(false);
-  };
+  // const closeAll = () => {
+  //   setSelectedBanner(null);
+  //   setIsBanner4ModalOpen(false);
+  // };
 
   return (
     <>
@@ -65,7 +108,7 @@ const BannersSettings = () => {
                 </td>
                 <td className="px-6 py-5">
                   <button
-                    onClick={() => handleEditBanner(banner)}
+                    onClick={() => setSelectedBanner(banner)}
                     className="text-[#2563EB] text-[14px] font-medium hover:underline"
                   >
                     Edit Banner
@@ -78,14 +121,13 @@ const BannersSettings = () => {
       </div>
 
       {/* Banner 1,2,3 Form */}
-      {selectedBanner && selectedBanner.id !== 4 && (
+      {/* {selectedBanner && selectedBanner.id !== 4 && (
         <div className="mt-6 bg-white rounded-[8px] border border-[#E5E7EB] p-4 max-w-[600px]">
           
           <h2 className="text-[16px] font-semibold text-[#111827] mb-4">
             {selectedBanner.name}
           </h2>
 
-          {/* Upload */}
           <div className="mb-4">
             <label className="w-[56px] h-[56px] border border-[#D1D5DB] rounded-[6px] flex items-center justify-center cursor-pointer hover:bg-gray-50">
               <input type="file" className="hidden" />
@@ -108,7 +150,6 @@ const BannersSettings = () => {
             </label>
           </div>
 
-          {/* Title */}
           <div className="mb-4">
             <label className="block text-[14px] text-[#374151] mb-1">
               Title <span className="text-red-500">*</span>
@@ -120,7 +161,6 @@ const BannersSettings = () => {
             />
           </div>
 
-          {/* Description */}
           <div className="mb-5">
             <label className="block text-[14px] text-[#374151] mb-1">
               Description <span className="text-red-500">*</span>
@@ -132,7 +172,6 @@ const BannersSettings = () => {
             />
           </div>
 
-          {/* Buttons */}
           <div className="flex items-center gap-3">
             <button className="bg-[#183B63] hover:bg-[#163556] text-white text-[14px] font-medium px-5 py-2 rounded-[6px]">
               Save
@@ -145,37 +184,82 @@ const BannersSettings = () => {
             </button>
           </div>
         </div>
-      )}
+      )} */}
 
       {/* Banner 4 Modal */}
-      {isBanner4ModalOpen && (
+      {selectedBanner && (
         <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50 px-4">
           <div className="w-full max-w-[460px] bg-white rounded-[8px] shadow-lg p-4">
             <h2 className="text-[16px] font-semibold text-[#111827] mb-3">
-              Banner 4
+              {selectedBanner.name}
             </h2>
 
+            <div>
+              {!videoPreview ? (
+                // ✅ Upload box (only when no video)
+                <label className="w-[60px] h-[60px] border border-gray-300 rounded-md flex items-center justify-center cursor-pointer hover:bg-gray-100">
+                  <input
+                    type="file"
+                    accept="video/*"
+                    className="hidden"
+                    onChange={handleVideoUpload}
+                  />
+                  <MdOutlineFileUpload className="text-2xl text-gray-500" />
+                </label>
+              ) : (
+                // ✅ Video preview with remove button
+                <div className="relative w-[120px] h-[80px]">
+                  <video
+                    src={videoPreview}
+                    className="w-full h-full object-cover rounded-md"
+                  />
+
+                  {/* ❌ Remove button */}
+                  <button
+                    onClick={handleRemoveVideo}
+                    className="absolute top-1 right-1 bg-black/60 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center hover:bg-black"
+                  >
+                    <X size={14} className="text-black" />
+                  </button>
+                </div>
+              )}
+
+              {/* Message */}
+              <span
+                className={`text-[12px] ${fileError ? "text-red-500" : "text-[#686868]"
+                  }`}
+              >
+                {fileError
+                  ? fileError
+                  : "*Recommended 1920x800px size with 4-8Mb video size only in MP4"}
+              </span>
+            </div>
+
             {/* Title */}
-            <div className="mb-3">
+            <div className="mt-3">
               <label className="block text-[14px] text-[#374151] mb-1">
                 Title <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
                 placeholder="Write a title"
-                className="w-full h-[42px] rounded-[6px] border border-[#D1D5DB] px-3 text-[14px] outline-none focus:border-[#2563EB]"
+                className="w-full h-[42px] rounded-[6px] border border-[#D1D5DB] bg-[#F8FBFC] px-3 text-[14px] outline-none focus:border-[#2563EB]"
+                value={selectedBanner.title}
+                onChange={(e) => setSelectedBanner({ ...selectedBanner, title: e.target.value })}
               />
             </div>
 
             {/* Description */}
-            <div className="mb-5">
+            <div className="mt-3">
               <label className="block text-[14px] text-[#374151] mb-1">
                 Description <span className="text-red-500">*</span>
               </label>
               <textarea
                 placeholder="Write a description"
                 rows={4}
-                className="w-full rounded-[6px] border border-[#D1D5DB] px-3 py-3 text-[14px] outline-none resize-none focus:border-[#2563EB]"
+                className="w-full bg-[#F8FBFC] rounded-[6px] border border-[#D1D5DB] px-3 py-3 text-[14px] outline-none resize-none focus:border-[#2563EB]"
+                value={selectedBanner.description}
+                onChange={(e) => setSelectedBanner({ ...selectedBanner, description: e.target.value })}
               />
             </div>
 
@@ -185,7 +269,7 @@ const BannersSettings = () => {
                 Save
               </button>
               <button
-                onClick={closeAll}
+                onClick={() => setSelectedBanner(null)}
                 className="border border-[#94A3B8] text-[#183B63] text-[14px] font-medium px-5 py-2 rounded-[6px]"
               >
                 Cancel

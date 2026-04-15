@@ -17,7 +17,7 @@ function SettingsLayout() {
     { id: "taxes", label: "Warehouse Details", path: "taxes" },
     { id: "Banners", label: "Banners", path: "Banners" },
     { id: "Policies", label: "Policies", path: "Policies" },
-    { id: "Notifications", label: "Notifications", path: "Notifications" },
+    // { id: "Notifications", label: "Notifications", path: "Notifications" },
     { id: "AccountSettings", label: "Account Settings", path: "AccountSettings" },
   ];
 

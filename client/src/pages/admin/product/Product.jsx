@@ -464,7 +464,7 @@ const Products = () => {
       iconColor: "text-[#686868]",
     },
     {
-      name: "Archived",
+      name: "Inactive",
       data: "1",
       icon: <Archive />,
       iconbg: "bg-[#FFFBEB]",
@@ -543,7 +543,7 @@ const Products = () => {
               <input
                 type="text"
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search by product name, SKU ID, Category, Sub-category"
+                placeholder="Search by product name, SKU ID, Category"
                 className="outline-none flex-1 text-sm  text-gray-700 h-[20px] bg-transparent placeholder-[#686868]  placeholder:text-[16px]"
               />
             </div>
@@ -634,7 +634,7 @@ const Products = () => {
               )}
 
               {/* Price Dropdown */}
-              <div className="relative inline-block" ref={filterRef}>
+              {/* <div className="relative inline-block" ref={filterRef}>
                 <button
                   onClick={() => setOpen((prev) => !prev)}
                   className="w-full border rounded-lg px-4 py-2 flex items-center justify-center gap-6 bg-[#F8F8F8] text-[15px] text-[#686868] focus:outline-none">
@@ -647,7 +647,7 @@ const Products = () => {
                   <span>{selectedSort}</span>
                 </button>
 
-                {/* Price Dropdown Menu */}
+                
                 {open && (
                   <ul className="absolute  z-10 mt-1 w-52 border rounded-lg bg-white shadow-md max-h-60 overflow-y-auto text-[15px]">
                     {priceOptions.map((p, i) => (
@@ -665,7 +665,7 @@ const Products = () => {
                     ))}
                   </ul>
                 )}
-              </div>
+              </div> */}
               <button
                 onClick={() => {
                   setSelectedSort("Price: Low → High");

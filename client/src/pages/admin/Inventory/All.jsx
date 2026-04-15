@@ -268,11 +268,10 @@ const All = () => {
                         setfilterOne(s);
                         setfilterOneOpen(false);
                       }}
-                      className={`px-4 py-2 text-sm cursor-pointer hover:bg-gray-100 text-[#686868] ${
-                        filterOne === s
+                      className={`px-4 py-2 text-sm cursor-pointer hover:bg-gray-100 text-[#686868] ${filterOne === s
                           ? "bg-gray-100 text-[#686868] font-medium"
                           : ""
-                      }`}
+                        }`}
                     >
                       {s}
                     </div>
@@ -486,9 +485,9 @@ const All = () => {
                       <span className="text-[#1F2937] text-[16px]  font-medium cursor-pointer">
                         {order.item.productName.split(" ").length > 3
                           ? order.item.productName
-                              .split(" ")
-                              .slice(0, 6)
-                              .join(" ") + "..."
+                            .split(" ")
+                            .slice(0, 6)
+                            .join(" ") + "..."
                           : order.item.productName}
                       </span>
                       <div className="flex items-start justify-start gap-3 mt-1">
@@ -503,17 +502,16 @@ const All = () => {
                 <td className="px-4 py-3">{order.returnReason}</td>
 
                 <td className="px-4 py-3">{order.requestedAt}</td>
-                <td className="px-4 py-3 font-medium text-xs ">
+                <td className="px-4 py-3 font-medium text-xs">
                   <span
-                    className={`inline-flex items-center justify-center min-w-[110px] px-4 py-1.5 rounded-md font-medium text-center ${
-                      order.type === "In Stock"
+                    className={`inline-flex items-center justify-center min-w-[110px] px-4 py-1.5 rounded-md font-medium text-center ${order.status === "In Stock"
                         ? "text-[#00A63E] bg-[#E0F4DE]"
                         : order.type === "Low Stock"
                           ? "text-[#F8A14A] bg-[#FFFBEB]"
                           : order.type === "Out of Stock"
-                            ? "bg-[#e0d7d6] text-[#D53B35]"
+                            ? "bg-[#FFE4E3] text-[#D53B35]"
                             : ""
-                    }`}
+                      }`}
                   >
                     {order.type}
                   </span>

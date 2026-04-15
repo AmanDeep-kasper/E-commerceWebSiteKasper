@@ -165,11 +165,11 @@ const GeneralSettingsForm = () => {
 
         <div className="bg-white rounded-[14px] border border-[#EEF2F6] p-4">
           <div className="border border-[#E5E7EB] rounded-[10px] overflow-hidden">
-            <div className="px-4 py-3">
+            {/* <div className="px-4 py-3">
               <button className="text-[#2563EB] text-[14px] font-medium">
                 Edit Address
               </button>
-            </div>
+            </div> */}
 
             <div className="px-4 pb-4">
               <div className="mb-4">
@@ -241,9 +241,9 @@ const GeneralSettingsForm = () => {
                 </div>
               </div>
 
-              <button className="text-[13px] text-[#1F3B5B] font-medium">
+              {/* <button className="text-[13px] text-[#1F3B5B] font-medium">
                 Close
-              </button>
+              </button> */}
             </div>
           </div>
         </div>
@@ -311,7 +311,7 @@ const GeneralSettingsForm = () => {
               </p>
             </div>
 
-            <div className="w-full max-w-[330px]">
+            {/* <div className="w-full max-w-[330px]">
               <input
                 type="text"
                 name="secondaryPhone"
@@ -319,7 +319,7 @@ const GeneralSettingsForm = () => {
                 onChange={handleChange}
                 className="w-full h-[42px] rounded-[6px] border border-[#D1D5DB] px-3 text-[14px] text-[#222222] outline-none focus:border-[#2563EB]"
               />
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

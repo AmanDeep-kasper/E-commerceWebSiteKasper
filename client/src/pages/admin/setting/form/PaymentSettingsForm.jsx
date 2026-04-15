@@ -54,10 +54,10 @@ const PaymentSettingsForm = () => {
           Payment Gateway
         </h2>
 
-        <button className="flex items-center gap-2 bg-[#1F3B5B] text-white text-[12px] font-medium px-3 py-2 rounded-[6px]">
+        {/* <button className="flex items-center gap-2 bg-[#1F3B5B] text-white text-[12px] font-medium px-3 py-2 rounded-[6px]">
           <Plus size={14} />
           Add New Gateway
-        </button>
+        </button> */}
       </div>
 
       {/* Razorpay Card */}
@@ -71,9 +71,9 @@ const PaymentSettingsForm = () => {
               Connected
             </span>
 
-            <button className="bg-[#1F3B5B] text-white text-[12px] font-medium px-3 py-1.5 rounded-[6px]">
+            {/* <button className="bg-[#1F3B5B] text-white text-[12px] font-medium px-3 py-1.5 rounded-[6px]">
               Disconnect
-            </button>
+            </button> */}
           </div>
         </div>
 
@@ -112,7 +112,7 @@ const PaymentSettingsForm = () => {
       </div>
 
       {/* Stripe Card */}
-      <div className="bg-white rounded-[12px] p-4 mb-5 border border-[#EEF2F6]">
+      {/* <div className="bg-white rounded-[12px] p-4 mb-5 border border-[#EEF2F6]">
         <div className="flex items-start justify-between mb-4">
           <h3 className="text-[18px] font-medium text-[#222222]">Stripe</h3>
 
@@ -160,7 +160,7 @@ const PaymentSettingsForm = () => {
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Bank Account Details */}
       <div>

@@ -69,32 +69,32 @@ const chartData = {
 
 const graphData = chartData.revenue.weekly;
 
-const statCards = [
-  {
-    title: "Successful transactions",
-    value: "₹1,60,789",
-    change: "▲ 12.2% from previous period",
-    color: "text-green-600",
-  },
-  {
-    title: "Failed transactions",
-    value: "₹1,20,343",
-    change: "▲ 16% from previous period",
-    color: "text-green-600",
-  },
-  // {
-  //   title: "Cash On Delivery",
-  //   value: "₹40,446",
-  //   change: "▼ 8.6% from previous period",
-  //   color: "text-red-500",
-  // },
-  {
-    title: "Refunded",
-    value: "₹10,284",
-    change: "▼ 4% from previous period",
-    color: "text-red-500",
-  },
-];
+// const statCards = [
+//   {
+//     title: "Successful transactions",
+//     value: "₹1,60,789",
+//     change: "▲ 12.2% from previous period",
+//     color: "text-green-600",
+//   },
+//   {
+//     title: "Failed transactions",
+//     value: "₹1,20,343",
+//     change: "▲ 16% from previous period",
+//     color: "text-green-600",
+//   },
+//   // {
+//   //   title: "Cash On Delivery",
+//   //   value: "₹40,446",
+//   //   change: "▼ 8.6% from previous period",
+//   //   color: "text-red-500",
+//   // },
+//   {
+//     title: "Refunded",
+//     value: "₹10,284",
+//     change: "▼ 4% from previous period",
+//     color: "text-red-500",
+//   },
+// ];
 
 const transactions = [
   {
@@ -151,7 +151,7 @@ const getStatusClass = (status) => {
 function TransactionView() {
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      {/* <div className="flex items-center justify-between">
         <h3 className="text-[16px] font-semibold text-[#1C1C1C]">Overview</h3>
 
         <button className="flex items-center gap-2 px-3 py-2 border rounded-lg text-sm text-[#4B5563] bg-white">
@@ -159,10 +159,10 @@ function TransactionView() {
           Today
           <ChevronDown className="w-4 h-4" />
         </button>
-      </div>
+      </div> */}
 
-      <div className="grid grid-cols-12 gap-4">
-        <div className="col-span-4 space-y-6">
+      <div className="w-full">
+        {/* <div className="col-span-4 space-y-6">
           {statCards.map((card) => (
             <div
               key={card.title}
@@ -181,7 +181,7 @@ function TransactionView() {
               </div>
             </div>
           ))}
-        </div>
+        </div> */}
 
         <div className="col-span-8 bg-[#F9FAFB] border border-[#EEF2F7] rounded-xl p-4">
           <div className="flex items-center justify-between mb-4">
@@ -191,7 +191,7 @@ function TransactionView() {
             </div>
 
             <section className="px-3 py-2 border rounded-lg text-sm text-[#4B5563] bg-white flex items-center gap-2">
-              All Transactions
+              Total Revenue
               <ChevronDown className="w-4 h-4" />
               {/* <option value=""></option>
               <option value=""></option>
