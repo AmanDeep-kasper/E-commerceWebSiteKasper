@@ -2,6 +2,12 @@ import mongoose from "mongoose";
 
 const PolicySchema = new mongoose.Schema(
   {
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+
     type: {
       type: String,
       enum: ["return_refund", "shipping", "terms", "faq", "about", "privacy"],

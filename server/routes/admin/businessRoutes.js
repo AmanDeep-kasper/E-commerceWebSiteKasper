@@ -22,9 +22,10 @@ router.post(
 );
 
 router.put(
-  "update-business",
+  "/update-business",
   authenticate,
   authorize("admin"),
+  upload.single("logo"),
   updateBusinessDetails,
 );
 
