@@ -1,4 +1,4 @@
-import Collection from "../models/collection.js";
+import Collection from "../models/Collection.js";
 import Product from "../models/Product.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import AppError from "../utils/AppError.js";
