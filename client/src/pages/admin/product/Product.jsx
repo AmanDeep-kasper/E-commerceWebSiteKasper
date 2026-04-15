@@ -376,8 +376,7 @@ const Products = () => {
     const statusMatch = 
       selectedStatus === "Status" || 
       (selectedStatus === "Active" && p.isActive === true) ||
-      (selectedStatus === "Draft" && p.isActive === false) ||
-      (selectedStatus === "Archived" && p.isActive === false);
+      (selectedStatus === "Inactive" && p.isActive === false);
 
 
     //  Category filter
@@ -649,7 +648,7 @@ const Products = () => {
               {activeFilter === "status" && (
                 <div className="absolute left-0 top-11 ml-2 w-36 z-30">
                   <ul className=" bg-white border rounded-lg shadow">
-                    {["Active", "Draft", "Archived"].map((status) => (
+                    {["Active", "Inactive"].map((status) => (
                       <li
                         key={status}
                         onClick={() => {
@@ -846,7 +845,8 @@ const Products = () => {
                     </td>
 
                     <td className="px-4 py-3 text-[16px] text-[#1F2937]">
-                       {item.variants?.[0]?.variantSkuId || "N/A"}
+                       {/* {item.variants?.[0]?.variantSkuId || "N/A"} */}
+                       {item.skuId || item.variants?.[0]?.variantSkuId || "N/A"}
                     </td>
                     <td className="px-4 py-3 text-[16px] text-[#1F2937]">
                       {item.categoryName || item.category?.name || "N/A"}
