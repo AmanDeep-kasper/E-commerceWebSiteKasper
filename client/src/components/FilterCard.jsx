@@ -52,6 +52,8 @@ function FilterCard({ cardData }) {
               className=" lg:min-h-[202px] min-h-[160px] object-cover lg:rounded-t-[10px] lg:group-hover:scale-110 transition duration-300"
               src={item.image}
               alt={item.title}
+               crossOrigin="anonymous"
+  referrerPolicy="no-referrer"
             />
             <div className="p-2 flex flex-col md:gap-[1.5px] gap-[3px] lg:justify-between border border-gray-200 bg-white min-h-[178px] lg:group-hover:-translate-y-12 transition duration-300">
               <p className="text-[14px] w-full whitespace-nowrap overflow-clip text-ellipsis">

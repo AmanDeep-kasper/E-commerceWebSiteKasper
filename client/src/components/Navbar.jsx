@@ -272,6 +272,8 @@ function Navbar() {
                             <img
                               src={item.image}
                               alt={item.title}
+                               crossOrigin="anonymous"
+  referrerPolicy="no-referrer"
                               className="w-14 h-14 object-cover rounded border"
                             />
                             <div>
@@ -361,6 +363,8 @@ function Navbar() {
                             <img
                               src={item.image}
                               alt={item.productTittle}
+                               crossOrigin="anonymous"
+  referrerPolicy="no-referrer"
                               className="w-10 h-10 object-cover rounded border"
                             />
 
@@ -523,6 +527,8 @@ function Navbar() {
                       <img
                         src={user.user.profileImage.url}
                         alt="Profile"
+                         crossOrigin="anonymous"
+  referrerPolicy="no-referrer"
                         className="w-full h-full object-cover rounded-full"
                       />
                     ) : (

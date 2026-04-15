@@ -29,7 +29,7 @@ const UserReturnPage = () => {
   const orders = useSelector((s) => s.order.list);
   const order = useMemo(
     () => orders?.find((o) => o.orderId.slice(1) === orderId),
-    [orders, orderId]
+    [orders, orderId],
   );
 
   // ✅ state FIRST
@@ -115,14 +115,14 @@ const UserReturnPage = () => {
           photos: base64Photos,
           comment: commentByIdx[idxStr] || "",
         };
-      })
+      }),
     );
 
     dispatch(
       requestReturnItems({
         orderId: order.orderId,
         itemsToReturn,
-      })
+      }),
     );
 
     navigate(`/accounts/order-detail/${orderId}`);
@@ -160,12 +160,16 @@ const UserReturnPage = () => {
                 <img
                   src={item.img}
                   alt={item.name}
+                  crossOrigin="anonymous"
+                  referrerPolicy="no-referrer"
                   className="w-16 h-16 object-cover rounded border"
                 />
 
                 <div className="flex-1">
                   <p className="font-medium text-gray-900">{item.name}</p>
-                  <p className="text-sm text-gray-600">Qty in order: {maxQty}</p>
+                  <p className="text-sm text-gray-600">
+                    Qty in order: {maxQty}
+                  </p>
 
                   {checked && (
                     <>
@@ -261,6 +265,8 @@ const UserReturnPage = () => {
                                   src={URL.createObjectURL(file)}
                                   alt="proof"
                                   className="w-16 h-16 object-cover rounded border"
+                                  crossOrigin="anonymous"
+                                  referrerPolicy="no-referrer"
                                 />
                                 <button
                                   type="button"
