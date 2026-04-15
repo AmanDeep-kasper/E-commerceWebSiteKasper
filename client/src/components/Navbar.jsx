@@ -1,4 +1,4 @@
-import products from "../data/products.json";
+// import products from "../data/products.json";
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -20,7 +20,7 @@ import {
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import UserProfile from "./UserProfile";
-import users from "../data/user";
+// import users from "../data/user";
 import Modal from "./Modal";
 import { logoutUser } from "../redux/cart/userSlice";
 import MainLog from "../assets/IconsUsed/HomeMainLogo.png";
@@ -32,7 +32,7 @@ import "swiper/css";
 
 function Navbar() {
   const { user, isAuthenticated } = useSelector((state) => state.user);
-  console.log(user);
+  // console.log(user);
   const [showChoice, setShowChoice] = useState(false);
 
   useEffect(() => {
@@ -46,10 +46,9 @@ function Navbar() {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [dropdown, setDropdown] = useState(false);
   const [subDropdown, setSubDropdown] = useState(null);
-  const [isSearchBarOpen, setIsSearchBarOpen] = useState(false);
+  // const [isSearchBarOpen, setIsSearchBarOpen] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const [debouncedSearch, setDebouncedSearch] = useState("");
-  const query = searchParams.get("q") || "";
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -58,34 +57,37 @@ function Navbar() {
     (state) => state?.wishlist?.totalItems,
   );
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const query = searchParams.get("q") || "";
+  const [searchResults, setSearchResults] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const handleLogout = () => {
     dispatch(logoutUser());
-    navigate("/login", { replace: true }); 
+    navigate("/login", { replace: true });
   };
 
   // Mock shop categories data
-  const shopCategories = Object.values(
-    products.reduce((acc, { category, subcategory }) => {
-      if (!acc[category]) {
-        acc[category] = {
-          name: category,
-          path: `/products/${encodeURIComponent(category)}`, // matches your route
-          sublist: [],
-        };
-      }
+  // const shopCategories = Object.values(
+  //   products.reduce((acc, { category, subcategory }) => {
+  //     if (!acc[category]) {
+  //       acc[category] = {
+  //         name: category,
+  //         path: `/products/${encodeURIComponent(category)}`, // matches your route
+  //         sublist: [],
+  //       };
+  //     }
 
-      if (!acc[category].sublist.some((sub) => sub.name === subcategory)) {
-        acc[category].sublist.push({
-          name: subcategory,
-          category: subcategory,
-          path: `/${encodeURIComponent(subcategory)}`,
-        });
-      }
+  //     if (!acc[category].sublist.some((sub) => sub.name === subcategory)) {
+  //       acc[category].sublist.push({
+  //         name: subcategory,
+  //         category: subcategory,
+  //         path: `/${encodeURIComponent(subcategory)}`,
+  //       });
+  //     }
 
-      return acc;
-    }, {}),
-  );
+  //     return acc;
+  //   }, {}),
+  // );
 
   // disable background scroll when mobile nav is open
   useEffect(() => {
@@ -104,18 +106,40 @@ function Navbar() {
   // Debounce effect
   useEffect(() => {
     const handler = setTimeout(() => {
-      setDebouncedSearch(query);
+      if (query?.trim()) {
+        setDebouncedSearch(query);
+        // fetchSearchResults(query);
+      } else {
+        setSearchResults([]);
+      }
+    }, 300);
+
+    return () => clearTimeout(handler);
+  }, [query]);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      if (query?.trim()) {
+        setDebouncedSearch(query);
+        fetchSearchResults(query);
+      } else {
+        setSearchResults([]);
+      }
     }, 300);
 
     return () => clearTimeout(handler);
   }, [query]);
 
   // Filter results
-  const filteredResults = products
+  const filteredResults = searchResults
     .filter((item) =>
-      item.title.toLowerCase().includes(debouncedSearch.toLowerCase()),
+      (item?.productTittle ?? "")
+        .toLowerCase()
+        .includes((debouncedSearch ?? "").toLowerCase()),
     )
     .slice(0, 5);
+
+  console.log(filteredResults);
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isShopOpen, setIsShopOpen] = useState(false);
@@ -131,6 +155,33 @@ function Navbar() {
       name: "Buy more, Save more- Unlock exclusive discounts",
     },
   ];
+
+  // fetch products for search
+  const fetchSearchResults = async (value) => {
+    try {
+      if (!value || !value.trim()) {
+        setSearchResults([]);
+        return;
+      }
+
+      setLoading(true);
+
+      const res = await axiosInstance.get(
+        `/product?search=${encodeURIComponent(value)}`,
+      );
+
+      setSearchResults(res.data.products || []);
+    } catch (error) {
+      console.error("Search error:", error);
+      setSearchResults([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // useEffect(() => {
+  //   fetchSearchResults();
+  // }, []);
 
   return (
     // <div className="w-full">
@@ -199,7 +250,7 @@ function Navbar() {
                 <input
                   type="text"
                   placeholder="Search for products..."
-                  value={query} 
+                  value={query}
                   onChange={(e) => {
                     setSearchParams({ q: e.target.value }); // ✅ always replace with new query
                     setIsOpen(true);
@@ -232,7 +283,7 @@ function Navbar() {
                             }}
                           >
                             <img
-                              src={item.images[0]}
+                              src={item.image}
                               alt={item.title}
                               className="w-14 h-14 object-cover rounded border"
                             />
@@ -296,10 +347,10 @@ function Navbar() {
 
                   {/* Results */}
                   <div className="flex-1 overflow-y-auto">
-                    {debouncedSearch ? (
+                    {searchResults.length > 0 ? (
                       filteredResults.length > 0 ? (
                         <ul className="divide-y divide-gray-100">
-                          {filteredResults.map((item, index) => (
+                          {/* {filteredResults.map((item, index) => (
                             <li
                               key={index}
                               className="flex items-center gap-3 p-2 hover:bg-gray-50 cursor-pointer"
@@ -326,6 +377,39 @@ function Navbar() {
                                 </p>
                                 <p className="text-xs text-amber-600">
                                   in {item.category || "Uncategorized"}
+                                </p>
+                              </div>
+                            </li>
+                          ))} */}
+                          {filteredResults.map((item) => (
+                            <li
+                              key={item._id}
+                              className="flex items-center gap-3 p-2 hover:bg-gray-50 cursor-pointer"
+                              onClick={() => {
+                                setIsOpen(false);
+                                setSearchParams({}, { replace: true });
+
+                                setTimeout(() => {
+                                  navigate(
+                                    `/products/${encodeURIComponent(item.categoryName)}`,
+                                  );
+                                }, 0);
+                              }}
+                            >
+                              {console.log(item)}
+                              <img
+                                src={item?.image || "/placeholder.png"}
+                                alt={item.productTittle}
+                                className="w-12 h-12 object-cover rounded border"
+                              />
+
+                              <div>
+                                <p className="text-sm font-medium">
+                                  {item?.productTittle}
+                                </p>
+
+                                <p className="text-xs text-[#1C3753]">
+                                  in {item?.categoryName}
                                 </p>
                               </div>
                             </li>
@@ -492,7 +576,7 @@ function Navbar() {
                   </div>
                   <div>
                     <p className="font-medium text-gray-900">
-                     {user?.user?.name || "please login"}
+                      {user?.user?.name || "please login"}
                       {console.log(user)}
                     </p>
 
@@ -505,7 +589,7 @@ function Navbar() {
               <div className="px-6 py-4 flex-1">
                 <Link
                   to="/home"
-                 onClick={() => setIsMobileMenuOpen(false)}
+                  onClick={() => setIsMobileMenuOpen(false)}
                   className="flex items-center gap-3 py-3 text-gray-800 font-medium hover:text-[#1C3753] transition-colors"
                 >
                   Home
@@ -520,7 +604,6 @@ function Navbar() {
                   <MapPin size={18} />
                   Add Delivery Location
                 </Link>
-                
 
                 <div className="my-2 border-t border-gray-200"></div>
 
@@ -542,15 +625,17 @@ function Navbar() {
                       {item.subcategories?.length > 0 && (
                         <ChevronDown
                           size={16}
-                          className={`text-gray-400 transition-transform duration-300 ${subDropdown === index ? "rotate-180" : ""
-                            }`}
+                          className={`text-gray-400 transition-transform duration-300 ${
+                            subDropdown === index ? "rotate-180" : ""
+                          }`}
                         />
                       )}
                     </div>
 
                     <div
-                      className={`pl-6 flex flex-col gap-1 overflow-hidden transition-[max-height] duration-300 ease-in-out ${subDropdown === index ? "max-h-96" : "max-h-0"
-                        }`}
+                      className={`pl-6 flex flex-col gap-1 overflow-hidden transition-[max-height] duration-300 ease-in-out ${
+                        subDropdown === index ? "max-h-96" : "max-h-0"
+                      }`}
                     >
                       {/* All */}
                       <div
