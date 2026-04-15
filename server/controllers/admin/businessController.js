@@ -64,21 +64,38 @@ export const createBusinessDetails = asyncHandler(async (req, res) => {
     }
     throw error;
   } finally {
-    // cleanup local file
-    if (filePath && fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
+    try {
+      if (filePath) {
+        const absolutePath = path.resolve(filePath);
+
+        console.log("DELETE PATH:", absolutePath);
+
+        if (fs.existsSync(absolutePath)) {
+          fs.unlinkSync(absolutePath);
+          console.log("File deleted ✅");
+        } else {
+          console.log("File not found ❌");
+        }
+      }
+    } catch (err) {
+      console.error("Delete error:", err);
     }
   }
 });
 
 export const updateBusinessDetails = asyncHandler(async (req, res) => {
   const { businessName, gstNumber, companyNumber, address, email, phone } =
-    req.body;
+    req.body || {};
+
   const filePath = req.file?.path;
   const userId = req.user?.userId;
 
-  if (typeof address === "string") {
-    address = JSON.parse(address);
+  // SAFE PARSE
+  let parsedAddress;
+  try {
+    parsedAddress = typeof address === "string" ? JSON.parse(address) : address;
+  } catch {
+    throw AppError.badRequest("Invalid address JSON format", "INVALID_JSON");
   }
 
   const business = await BusinessSetting.findOne({
@@ -86,31 +103,44 @@ export const updateBusinessDetails = asyncHandler(async (req, res) => {
     isActive: true,
   });
 
-  if (
-    (email !== undefined && email !== business.email) ||
-    (phone !== undefined && phone !== business.phone)
-  ) {
-    throw AppError.conflict(
-      "Business already exists with this email or phone",
-      "ALREADY_EXISTS",
-    );
+  if (!business) {
+    throw AppError.notFound("Business not found");
   }
 
+  // PROPER DUPLICATE CHECK
+  if (email || phone) {
+    const existing = await BusinessSetting.findOne({
+      $or: [{ email }, { phone }],
+      _id: { $ne: business._id },
+    });
+
+    if (existing) {
+      throw AppError.conflict(
+        "Email or phone already exists",
+        "ALREADY_EXISTS",
+      );
+    }
+  }
+
+  // UPDATE FIELDS
   if (businessName !== undefined) business.businessName = businessName;
   if (gstNumber !== undefined) business.gstNumber = gstNumber;
   if (companyNumber !== undefined) business.companyNumber = companyNumber;
-  if (address !== undefined) business.address = address;
+  if (parsedAddress !== undefined) business.address = parsedAddress;
   if (email !== undefined) business.email = email;
   if (phone !== undefined) business.phone = phone;
 
+  // IMAGE UPDATE
   if (filePath) {
     if (business.logo?.publicId) {
       await deleteImageFromCloudinary(business.logo.publicId);
     }
-    const uploadedImage = await uploadImageToCloudinary(filePath);
+
+    const uploaded = await uploadImageToCloudinary(filePath);
+
     business.logo = {
-      url: uploadedImage.url,
-      publicId: uploadedImage.publicId,
+      url: uploaded.url,
+      publicId: uploaded.publicId,
     };
   }
 
@@ -118,7 +148,7 @@ export const updateBusinessDetails = asyncHandler(async (req, res) => {
 
   res.status(200).json({
     success: true,
-    message: "Business details updated successfully",
+    message: "Business updated successfully",
     business,
   });
 });
