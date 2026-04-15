@@ -9,10 +9,10 @@ const addProduct = async (formData) => {
 };
 
 // Get all products
-const getAllProducts = async () => {
-  const res = await axiosInstance.get("/product/all");
-  return res.data?.data || res.data;
-};
+// const getAllProducts = async () => {
+//   const res = await axiosInstance.get("/products/all");
+//   return res.data?.data || res.data;
+// };
 
 // Get product by category
 const getProductsByCategory = async (categoryName) => {
@@ -75,7 +75,7 @@ const getAllCategories = async (page = 1, limit = 10) => {
 };
 
 const productService = {
-  getAllProducts,
+  // getAllProducts,
   getAllCategories,
   getProductsByCategory,
   getProductsByCategoryAndSubcategory,

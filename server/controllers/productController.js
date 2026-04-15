@@ -728,6 +728,9 @@ export const userGetAllProducts = asyncHandler(async (req, res) => {
       .populate("category", "name slug") //this populate category with name
       .populate("subcategory", "name slug") //this populate subcategory with name
       .select("productTittle slug variants stats createdAt")
+      .populate("category", "name slug")  //this populate category with name
+      .populate("subcategory", "name slug")  //this populate subcategory with name 
+      .select("productTittle slug variants stats createdAt isActive")
       .sort(sort)
       .skip(skip)
       .limit(limitNum)
@@ -759,6 +762,7 @@ export const userGetAllProducts = asyncHandler(async (req, res) => {
       categoryName: product.category?.name, // ← ADD THIS
       subcategory: product.subcategory,
       subcategoryName: product.subcategory?.name,
+      isActive: product.isActive,
       priceRange: {
         min: lowestPrice,
         max: highestPrice,
