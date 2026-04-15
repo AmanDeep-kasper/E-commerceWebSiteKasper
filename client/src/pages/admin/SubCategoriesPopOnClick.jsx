@@ -91,6 +91,7 @@ const SubCategoriesPopOnClick = ({
             <label className="block text-sm mb-1">Category Name</label>
             <input
               type="text"
+              required
               value={categoryName}
               readOnly
               className="w-full border px-3 py-2 rounded-lg bg-gray-100 cursor-not-allowed"
@@ -104,9 +105,17 @@ const SubCategoriesPopOnClick = ({
             <div className="flex flex-col gap-2">
               <input
                 type="text"
+                required
                 placeholder="Enter sub-category name"
                 value={subInput}
-                onChange={(e) => setSubInput(e.target.value)}
+                onChange={(e) => {
+                  const value = e.target.value;
+
+                  // ✅ Allow only letters, space, hyphen
+                  if (/^[A-Za-z\s-]*$/.test(value)) {
+                    setSubInput(value);
+                  }
+                }}
                 className="w-full border px-3 py-2 rounded-lg outline-none"
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {

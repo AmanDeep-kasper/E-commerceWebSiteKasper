@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import axiosInstance from "../../api/axiosInstance";
 import { toast } from "react-toastify";
 
-const CategoriesPopUpEdit = ({ open, onClose, data }) => {
+const CategoriesPopUpEdit = ({ open, onClose, data, refreshData }) => {
   const [editStatus, setEditStatus] = useState("Active");
   const [editCategory, setEditCategory] = useState("");
   const [editSubCategories, setEditSubCategories] = useState([]); // array
@@ -32,22 +32,14 @@ const CategoriesPopUpEdit = ({ open, onClose, data }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const cleaned = editSubCategories
-      .map((s) => (s || "").trim())
-      .filter(Boolean);
-
-    const unique = [];
-    for (const s of cleaned) {
-      if (!unique.some((u) => u.toLowerCase() === s.toLowerCase())) {
-        unique.push(s);
-      }
-    }
     try {
       const payload = {
-        // categoryId: data._id, // REQUIRED
-        name: editCategory.trim(), // category update
-        subCategories: unique, // correct key
-        isActive: editStatus === "Active", // boolean
+        name: editCategory.trim(),
+        isActive: editStatus === "Active",
+        subCategories: data.subCategories.map((sub, idx) => ({
+          subCategoryId: sub._id,
+          name: editSubCategories[idx] || sub.name,
+        })),
       };
 
       console.log("PATCH PAYLOAD:", payload);
@@ -56,13 +48,13 @@ const CategoriesPopUpEdit = ({ open, onClose, data }) => {
         `/category/admin/update-categoryOrSubcategory/${data._id}`,
         payload,
       );
-      toast.success("Category and subcategories updated successfully");
+
+      toast.success("Updated successfully");
+      refreshData();
       onClose();
     } catch (error) {
-      toast.error(
-        error.response?.data?.message ||
-          "Failed to update category or subcategories",
-      );
+      console.error(error);
+      toast.error(error.response?.data?.message || "Update failed");
     }
   };
 
@@ -80,6 +72,7 @@ const CategoriesPopUpEdit = ({ open, onClose, data }) => {
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="radio"
+                  required
                   checked={editStatus === "Active"}
                   onChange={() => setEditStatus("Active")}
                 />
@@ -89,6 +82,7 @@ const CategoriesPopUpEdit = ({ open, onClose, data }) => {
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="radio"
+                  required
                   checked={editStatus === "Inactive"}
                   onChange={() => setEditStatus("Inactive")}
                 />
@@ -104,7 +98,12 @@ const CategoriesPopUpEdit = ({ open, onClose, data }) => {
               type="text"
               placeholder="Enter Category name"
               value={editCategory}
-              onChange={(e) => setEditCategory(e.target.value)}
+              onChange={(e) => {
+                const value = e.target.value;
+                if (/^[A-Za-z\s-]*$/.test(value)) {
+                  setEditCategory(value);
+                }
+              }}
               className="w-full border px-3 py-2 rounded-lg"
               required
             />
@@ -123,7 +122,14 @@ const CategoriesPopUpEdit = ({ open, onClose, data }) => {
                     key={idx}
                     type="text"
                     value={sub}
-                    onChange={(e) => updateSubCategory(idx, e.target.value)}
+                    onChange={(e) => {
+                      const value = e.target.value;
+
+                      // ✅ Allow only letters, space, hyphen
+                      if (/^[A-Za-z\s-]*$/.test(value)) {
+                        updateSubCategory(idx, value);
+                      }
+                    }}
                     className="w-full border px-3 py-2 rounded-lg outline-none"
                     placeholder={`Sub-category ${idx + 1}`}
                     required

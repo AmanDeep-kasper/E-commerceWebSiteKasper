@@ -101,12 +101,17 @@ const Products = () => {
   let filteredProducts = (Array.isArray(product) ? product : []).filter((p) => {
     const searchMatch = (p.name || "").toLowerCase().includes(debouncedSearch);
 
-    const statusText = p.isActive ? "Active" : "Inactive";
+    const statusText =
+      p.isActive === true || p.isActive === "true" || p.isActive === 1
+        ? "Active"
+        : "Inactive";
+
     const statusMatch =
       selectedStatus === "Status" || statusText === selectedStatus;
 
     const categoryMatch =
-      selectedCategory === "Category" || p.name === selectedCategory;
+      selectedCategory === "Category" ||
+      (p.name || "").toLowerCase() === selectedCategory.toLowerCase();
 
     return searchMatch && statusMatch && categoryMatch;
   });
@@ -125,8 +130,8 @@ const Products = () => {
   const itemsPerPage = 10;
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const currentItems = filteredProducts
-  
+  const currentItems = filteredProducts;
+
   useEffect(() => {
     setCurrentPage(1);
   }, [selectedStatus, selectedCategory]);
@@ -184,6 +189,28 @@ const Products = () => {
   // pass the data is edit the category and sub category
   const [selectedRow, setSelectedRow] = useState(null);
 
+  const SkeletonRow = () => {
+    return (
+      <tr className="animate-pulse border-t">
+        <td className="px-4 py-3">
+          <div className="h-4 w-32 bg-gray-200 rounded"></div>
+        </td>
+        <td className="px-4 py-3 text-center">
+          <div className="h-4 w-10 bg-gray-200 rounded mx-auto"></div>
+        </td>
+        <td className="px-4 py-3 text-center">
+          <div className="h-4 w-10 bg-gray-200 rounded mx-auto"></div>
+        </td>
+        <td className="px-4 py-3 text-center">
+          <div className="h-6 w-20 bg-gray-200 rounded mx-auto"></div>
+        </td>
+        <td className="px-4 py-3 text-center">
+          <div className="h-6 w-16 bg-gray-200 rounded mx-auto"></div>
+        </td>
+      </tr>
+    );
+  };
+
   return (
     <>
       <CategoriesPopOnClick
@@ -208,6 +235,7 @@ const Products = () => {
         open={openEditCategory}
         onClose={() => setOpenEditCategory(false)}
         data={selectedRow}
+        refreshData={fetchProduct}
       />
       {/* <SubCategoriesPopUpEdit
         open={openEditSubCategory}
@@ -251,8 +279,7 @@ const Products = () => {
               <input
                 type="text"
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search by product name, SKU ID, Category, Sub-category"
-                // placeholder="Search by Category and Sub-category"
+                placeholder="Search by Category and Sub-category"
                 className="outline-none flex-1 text-sm  text-gray-700 h-[20px] bg-transparent placeholder-[#686868]  placeholder:text-[16px]"
               />
             </div>
@@ -280,7 +307,9 @@ const Products = () => {
                 }
                 className=" border rounded-lg px-4 py-2 flex items-center justify-center gap-6 text-[#686868] bg-[#F8F8F8]"
               >
-               {selectedCategory === "Category" ? "All Categories" : selectedCategory}
+                {selectedCategory === "Category"
+                  ? "All Categories"
+                  : selectedCategory}
                 <ChevronDown />
               </button>
               <div className="relative inline-block">
@@ -382,105 +411,142 @@ const Products = () => {
               </thead>
 
               <tbody>
-                {currentItems.map((item) => (
-                  <React.Fragment key={item._id}>
-                    <tr
-                      className={`border-t hover:bg-gray-50 transition ${
-                        selectedItems.includes(item._id) ? "bg-red-50" : ""
-                      }`}
-                    >
-                      <td className="px-4 py-3 text-left text-[15px] text-[#1F2937]">
-                        <div
-                          onClick={() => {
-                            setExpandedCategoryId(
-                              expandedCategoryId === item._id ? null : item._id,
-                            );
-                          }}
-                          className="flex items-center gap-2 cursor-pointer"
-                        >
-                          <ChevronRight
-                            size={16}
-                            className={`transition-transform ${
-                              expandedCategoryId === item._id ? "rotate-90" : ""
-                            }`}
-                          />
-                          <span>{item.name}</span>
-                        </div>
-                      </td>
-
-                      <td className="px-4 py-3 text-center text-[15px]">
-                        {item.subCategories?.length || 0}
-                      </td>
-
-                      <td className="px-4 py-3 text-center text-[15px]">
-                        {item.productCount || 0}
-                      </td>
-
-                      <td className="px-4 py-3 text-[16px] text-center text-[#1F2937]">
-                        {item.isActive ? (
-                          <div className="inline-flex items-center gap-2 bg-[#E0F4DE] px-3 py-1 rounded-lg text-[#00A63E] text-sm">
-                            <Circle fill="#00A63E" color="#00A63E" size={10} />
-                            Active
-                          </div>
-                        ) : (
-                          <div className="inline-flex items-center gap-2 bg-[#EFEFEF] px-3 py-1 rounded-lg text-[#686868] text-sm">
-                            <Circle fill="#686868" color="#686868" size={10} />
-                            Inactive
-                          </div>
-                        )}
-                      </td>
-
-                      <td className="px-4 py-3 text-center">
-                        <div className="flex items-center justify-center gap-3">
-                          <button
+                {loading ? (
+                  [...Array(5)].map((_, i) => <SkeletonRow key={i} />)
+                ) : currentItems.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} className="text-center py-6 text-gray-500">
+                      No data found
+                    </td>
+                  </tr>
+                ) : (
+                  currentItems.map((item) => (
+                    <React.Fragment key={item._id}>
+                      <tr
+                        className={`border-t hover:bg-gray-50 transition ${
+                          selectedItems.includes(item._id) ? "bg-red-50" : ""
+                        }`}
+                      >
+                        <td className="px-4 py-3 text-left text-[15px] text-[#1F2937]">
+                          <div
                             onClick={() => {
-                              setSelectedCategoryRow(item);
-                              setOpenSubCategory(true);
+                              setExpandedCategoryId(
+                                expandedCategoryId === item._id
+                                  ? null
+                                  : item._id,
+                              );
                             }}
-                            className="relative p-2 rounded group"
+                            className="flex items-center gap-2 cursor-pointer"
                           >
-                            <CirclePlus className="w-5 h-5 text-[#1C1C1C]" />
-                          </button>
+                            <ChevronRight
+                              size={16}
+                              className={`transition-transform ${
+                                expandedCategoryId === item._id
+                                  ? "rotate-90"
+                                  : ""
+                              }`}
+                            />
 
-                          <button
-                            onClick={() => {
-                              setOpenEditCategory(true);
-                              setSelectedRow(item);
-                            }}
-                            className="relative p-2 rounded group"
-                          >
-                            <Pencil className="w-5 h-5 text-[#1C1C1C]" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
+                            <img
+                              src={
+                                item.categoryImage?.url || "/placeholder.png"
+                              }
+                              alt={item.name}
+                              className="w-10 h-10 rounded object-cover border border-gray-200"
+                              onError={(e) => {
+                                e.target.src = "/placeholder.png";
+                              }}
+                            />
 
-                    {expandedCategoryId === item._id && (
-                      <tr className="bg-[#F8FBFC] border-t">
-                        <td colSpan={5} className="px-3 text-sm text-gray-600">
-                          <p className="p-2">Sub-Categories</p>
-                          <div className="flex flex-wrap gap-3 pb-4">
-                            {item.subCategories?.length > 0 ? (
-                              item.subCategories.map((sub, idx) => (
-                                <div
-                                  key={sub._id || `${item._id}-${idx}`}
-                                  className="flex items-center gap-2 bg-[#D5E5F5] py-2 px-3 rounded-full"
-                                >
-                                  <Circle size={8} fill="#686868" />
-                                  <p className="text-sm">{sub.name}</p>
-                                </div>
-                              ))
-                            ) : (
-                              <p className="text-sm text-gray-500">
-                                No sub-categories
-                              </p>
-                            )}
+                            <span>{item.name}</span>
+                          </div>
+                        </td>
+
+                        <td className="px-4 py-3 text-center text-[15px]">
+                          {item.subCategories?.length || 0}
+                        </td>
+
+                        <td className="px-4 py-3 text-center text-[15px]">
+                          {item.productCount || 0}
+                        </td>
+
+                        <td className="px-4 py-3 text-[16px] text-center text-[#1F2937]">
+                          {item.isActive ? (
+                            <div className="inline-flex items-center gap-2 bg-[#E0F4DE] px-3 py-1 rounded-lg text-[#00A63E] text-sm">
+                              <Circle
+                                fill="#00A63E"
+                                color="#00A63E"
+                                size={10}
+                              />
+                              Active
+                            </div>
+                          ) : (
+                            <div className="inline-flex items-center gap-2 bg-[#EFEFEF] px-3 py-1 rounded-lg text-[#686868] text-sm">
+                              <Circle
+                                fill="#686868"
+                                color="#686868"
+                                size={10}
+                              />
+                              Inactive
+                            </div>
+                          )}
+                        </td>
+
+                        <td className="px-4 py-3 text-center">
+                          <div className="flex items-center justify-center gap-3">
+                            <button
+                              onClick={() => {
+                                setSelectedCategoryRow(item);
+                                setOpenSubCategory(true);
+                              }}
+                              className="relative p-2 rounded group"
+                            >
+                              <CirclePlus className="w-5 h-5 text-[#1C1C1C]" />
+                            </button>
+
+                            <button
+                              onClick={() => {
+                                setOpenEditCategory(true);
+                                setSelectedRow(item);
+                              }}
+                              className="relative p-2 rounded group"
+                            >
+                              <Pencil className="w-5 h-5 text-[#1C1C1C]" />
+                            </button>
                           </div>
                         </td>
                       </tr>
-                    )}
-                  </React.Fragment>
-                ))}
+
+                      {expandedCategoryId === item._id && (
+                        <tr className="bg-[#F8FBFC] border-t">
+                          <td
+                            colSpan={5}
+                            className="px-3 text-sm text-gray-600"
+                          >
+                            <p className="p-2">Sub-Categories</p>
+                            <div className="flex flex-wrap gap-3 pb-4">
+                              {item.subCategories?.length > 0 ? (
+                                item.subCategories.map((sub, idx) => (
+                                  <div
+                                    key={sub._id || `${item._id}-${idx}`}
+                                    className="flex items-center gap-2 bg-[#D5E5F5] py-2 px-3 rounded-full"
+                                  >
+                                    <Circle size={8} fill="#686868" />
+                                    <p className="text-sm">{sub.name}</p>
+                                  </div>
+                                ))
+                              ) : (
+                                <p className="text-sm text-gray-500">
+                                  No sub-categories
+                                </p>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </React.Fragment>
+                  ))
+                )}
               </tbody>
             </table>
 
