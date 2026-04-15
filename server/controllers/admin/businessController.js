@@ -7,9 +7,14 @@ import {
 } from "../../utils/cloudinary.js";
 
 export const createBusinessDetails = asyncHandler(async (req, res) => {
-  const { businessName, gstNumber, companyNumber, address, email, phone } =
+  let { businessName, gstNumber, companyNumber, address, email, phone } =
     req.body;
   const userId = req.user?.userId;
+
+  // parse address string to object
+  if (address) {
+    address = JSON.parse(address);
+  }
 
   // Better duplicate check
   const existing = await BusinessSetting.findOne({
@@ -71,6 +76,10 @@ export const updateBusinessDetails = asyncHandler(async (req, res) => {
     req.body;
   const filePath = req.file?.path;
   const userId = req.user?.userId;
+
+  if (typeof address === "string") {
+    address = JSON.parse(address);
+  }
 
   const business = await BusinessSetting.findOne({
     userId,
