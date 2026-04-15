@@ -46,16 +46,13 @@ export const createPolicy = asyncHandler(async (req, res) => {
 
 export const updatePolicy = asyncHandler(async (req, res) => {
   const { type, title, content } = req.body;
-  const userId = req.user?.userId;
+  const { policyId } = req.params;
 
   if (type !== undefined && !allowedType.includes(type)) {
     throw AppError.badRequest("Invalid policy type", "INVALID_TYPE");
   }
 
-  const policy = await Policy.findOne({
-    userId,
-    isActive: true,
-  });
+  const policy = await Policy.findById(policyId);
 
   if (!policy) {
     throw AppError.notFound("Policy not found", "NOT_FOUND");
@@ -77,7 +74,7 @@ export const updatePolicy = asyncHandler(async (req, res) => {
 export const getPolicy = asyncHandler(async (req, res) => {
   const userId = req.user?.userId;
 
-  const policy = await Policy.findOne({
+  const policy = await Policy.find({
     userId,
     isActive: true,
   }).lean();
