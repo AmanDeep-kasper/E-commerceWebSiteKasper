@@ -11,71 +11,53 @@ const allowedType = [
   "privacy",
 ];
 
-export const createPolicy = asyncHandler(async (req, res) => {
-  const { type, title, content } = req.body;
-  const userId = req.user?.userId;
+export const upsertPolicies = asyncHandler(async (req, res) => {
+  const { policies } = req.body;
 
-  if (!allowedType.includes(type)) {
-    throw AppError.badRequest("Invalid policy type", "INVALID_TYPE");
+  if (!Array.isArray(policies) || policies.length === 0) {
+    throw AppError.badRequest("Policies array required", "EMPTY_PAYLOAD");
   }
 
-  // Better duplicate check
-  const existing = await Policy.findOne({
-    userId,
-    type,
-  });
+  const operations = [];
 
-  if (existing) {
-    throw AppError.conflict("Policy already exists", "ALREADY_EXISTS");
+  for (const policy of policies) {
+    const { type, title, content } = policy;
+
+    if (!allowedType.includes(type)) {
+      throw AppError.badRequest(`Invalid type: ${type}`, "INVALID_TYPE");
+    }
+
+    operations.push({
+      updateOne: {
+        filter: { type },
+        update: {
+          $set: {
+            title,
+            content,
+            isActive: true,
+          },
+        },
+        upsert: true,
+      },
+    });
   }
 
-  const policy = await Policy.create({
-    userId,
-    type,
-    title,
-    content,
-    isActive: true,
-  });
+  await Policy.bulkWrite(operations);
 
-  res.status(201).json({
-    success: true,
-    message: "Policy created successfully",
-    policy,
-  });
-});
-
-export const updatePolicy = asyncHandler(async (req, res) => {
-  const { type, title, content } = req.body;
-  const { policyId } = req.params;
-
-  if (type !== undefined && !allowedType.includes(type)) {
-    throw AppError.badRequest("Invalid policy type", "INVALID_TYPE");
-  }
-
-  const policy = await Policy.findById(policyId);
-
-  if (!policy) {
-    throw AppError.notFound("Policy not found", "NOT_FOUND");
-  }
-
-  if (type !== undefined) policy.type = type;
-  if (title !== undefined) policy.title = title;
-  if (content !== undefined) policy.content = content;
-
-  await policy.save();
+  // optional: fetch updated policies
+  const updatedPolicies = await Policy.find({
+    type: { $in: policies.map((p) => p.type) },
+  }).lean();
 
   res.status(200).json({
     success: true,
-    message: "Policy updated successfully",
-    policy,
+    message: "Policies saved successfully",
+    policies: updatedPolicies,
   });
 });
 
 export const getPolicy = asyncHandler(async (req, res) => {
-  const userId = req.user?.userId;
-
   const policy = await Policy.find({
-    userId,
     isActive: true,
   }).lean();
 

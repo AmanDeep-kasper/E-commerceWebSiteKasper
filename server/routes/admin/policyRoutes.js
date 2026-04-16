@@ -1,20 +1,19 @@
 import { Router } from "express";
 import { authenticate, authorize } from "../../middlewares/authMiddleware.js";
 import {
-  createPolicy,
   getPolicy,
-  updatePolicy,
+  upsertPolicies,
 } from "../../controllers/admin/policyController.js";
 
 const router = Router();
 
-router.post("/create-policy", authenticate, authorize("admin"), createPolicy);
-router.put(
-  "/update-policy/:policyId",
+router.post(
+  "/upsert-policies",
   authenticate,
   authorize("admin"),
-  updatePolicy,
+  upsertPolicies,
 );
+
 router.get("/get-policy", getPolicy);
 
 export default router;
