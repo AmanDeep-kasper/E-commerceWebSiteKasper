@@ -74,7 +74,6 @@ const OrderSchema = new mongoose.Schema(
     // Financial (all in INR paise-safe floats)
     subtotal: { type: Number, required: true },
     totalGST: { type: Number, default: 0 },
-    couponDiscount: { type: Number, default: 0 },
     shippingCharge: { type: Number, default: 0 },
     grandTotal: { type: Number, required: true },
 
