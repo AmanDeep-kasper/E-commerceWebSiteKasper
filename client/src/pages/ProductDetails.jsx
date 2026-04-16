@@ -36,7 +36,10 @@ function ProductDetails() {
   const [product, setProduct] = useState(null);
   const [similarProducts, setSimilarProducts] = useState([]);
   const [selectedVariant, setSelectedVariant] = useState(null);
-  const [selectedColor, setSelectedColor] = useState(null);
+
+  const [selectedWeight, setSelectedWeight] = useState(null);
+  const [selectedStyle, setSelectedStyle] = useState(null);
+
   const [selectedSize, setSelectedSize] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [mainImageIndex, setMainImageIndex] = useState(0);
@@ -102,7 +105,7 @@ function ProductDetails() {
           const v0 = found.variants[0];
 
           setSelectedVariant(v0);
-          setSelectedColor(v0?.variantColor || null);
+          // setSelectedColor(v0?.variantColor || null);
           setSelectedSize(normalizeSize(v0));
         }
 
@@ -135,12 +138,11 @@ function ProductDetails() {
   const normalizeSize = (v) =>
     `${v?.variantLength}x${v?.variantBreadth} ${v?.variantDimensionunit || ""}`.trim();
 
-  const findVariant = (weight, name) => {
+  const findVariant = (weight, style) => {
     return (product?.variants || []).find((v) => {
-      return (
-        (!weight || v.variantWeight === weight) &&
-        (!name || v.variantName === name)
-      );
+      const matchWeight = weight ? v.variantWeight === weight : true;
+      const matchStyle = style ? v.variantName === style : true;
+      return matchWeight && matchStyle;
     });
   };
 
@@ -158,7 +160,7 @@ function ProductDetails() {
     cartItems.find((i) => i.uuid === product?.uuid && i.variantId === variantId)
       ?.quantity || 0;
 
-  const colorOptions = [
+  const weightOptions = [
     ...new Set(
       (product?.variants || []).map((v) => v?.variantWeight).filter(Boolean),
     ),
@@ -167,16 +169,17 @@ function ProductDetails() {
   const sizeOptions = [
     ...new Set(
       (product?.variants || [])
-        .map((v) =>
-          `${v.variantLength}x${v.variantBreadth} ${v.variantDimensionunit || ""}`.trim(),
-        )
+        .map((v) => `${v.variantName} `.trim())
         .filter(Boolean),
     ),
   ];
 
-  const onSelectColor = (color) => {
-    setSelectedColor(color);
-    const match = findVariant(color, selectedSize) || findVariant(color, null);
+  const onSelectStyle = (style) => {
+    setSelectedStyle(style);
+
+    const match =
+      findVariant(selectedWeight, style) || findVariant(null, style);
+
     if (match) {
       setSelectedVariant(match);
       setMainImageIndex(0);
@@ -185,11 +188,10 @@ function ProductDetails() {
   };
 
   const onSelectWeight = (weight) => {
-    setSelectedColor(weight); // you are using this as weight
+    setSelectedWeight(weight);
 
     const match =
-      findVariant(weight, selectedSize) || findVariant(weight, null);
-
+      findVariant(weight, selectedStyle) || findVariant(weight, null);
     if (match) {
       setSelectedVariant(match);
       setMainImageIndex(0);
@@ -231,7 +233,8 @@ function ProductDetails() {
     const v0 = product.variants[0];
     setSelectedVariant(v0);
 
-    setSelectedColor(v0?.variantColor || null);
+    // setSelectedColor(v0?.variantColor || null);
+
     setSelectedSize(normalizeSize(v0));
 
     setMainImageIndex(0);
@@ -267,20 +270,19 @@ function ProductDetails() {
   }
 
   const avgRating =
-    product?.reviews?.length > 0
-      ? product.reviews.reduce((sum, review) => sum + review.rating, 0) /
-        product.reviews.length
-      : 0;
+    product?.stats?.averageRating?.length > 0 ? product.stats.averageRating : 0;
+  // console.log(avgRating)
 
   const handleBuyNow = (product) => {
     dispatch(buyNow(product));
     navigate("/checkout/payment");
   };
+
   return (
     <>
       <Navbar />
       <Breadcrumbs
-        category={product.category?.name}
+        category={product.category}
         subcategory={product.subcategory}
         title={product.productTittle}
       />
@@ -465,8 +467,10 @@ function ProductDetails() {
                   <Ratings size={20} avgRating={avgRating} />
                   <span className="text-sm text-gray-500">
                     <span>Based on </span>
-                    {product?.reviews?.length ?? 0}{" "}
-                    {product?.reviews?.length === 1 ? "review" : "reviews"}
+                    {product?.stats?.totalReviews ?? 0}{" "}
+                    {product?.stats?.totalReviews?.length === 1
+                      ? "review"
+                      : "reviews"}
                   </span>
                 </div>
                 {/* <div className="h-6 w-px bg-gray-300"></div>x
@@ -503,8 +507,8 @@ function ProductDetails() {
               </span>
             </div>
 
-            {/* Color Options */}
-            {colorOptions.length > 0 && (
+            {/* Weight Options */}
+            {weightOptions.length > 0 && (
               <div className="mt-2">
                 <h3 className="font-medium">
                   Weight:{" "}
@@ -517,16 +521,16 @@ function ProductDetails() {
                 </h3>
 
                 <div className="flex gap-2 mt-2 flex-wrap">
-                  {colorOptions.map((c) => (
+                  {weightOptions.map((c) => (
                     <button
                       key={c}
                       className={`px-3 py-1 rounded-md border border-[#B6AAFF] text-sm
             ${
               selectedVariant?.variantWeight === c
                 ? "border-2 border-[#1C3753] bg-[#F7F5FF] text-[#1800AC]"
-                : "bg-white hover:bg-gray-200"
+                : "bg-white hover:bg-[#B6AAFF]"
             }`}
-                      onClick={() => onSelectColor(c)}
+                      onClick={() => onSelectWeight(c)}
                     >
                       {c}
                       {selectedVariant?.variantWeightUnit || ""}
@@ -542,9 +546,7 @@ function ProductDetails() {
                 <h3 className="font-medium">
                   Style Name :{" "}
                   <span className="text-[#1C1C1C] font-medium">
-                    {`${selectedVariant?.variantName} ${
-                      selectedVariant?.variantDimensionunit || ""
-                    }`}
+                    {`${selectedVariant?.variantName || "-"}`}
                   </span>
                 </h3>
 
@@ -552,13 +554,13 @@ function ProductDetails() {
                   {sizeOptions.map((s) => (
                     <button
                       key={s}
-                      className={`px-3 py-1 rounded-md border border-[#1C3753] text-sm
+                      className={`px-3 py-1 rounded-md border border-[#B6AAFF] text-sm
             ${
-              s === normalizeSize(selectedVariant)
-                ? "border-2 border-[#1C3753] bg-[#D5E5F5] text-[#1C1C1C]"
-                : "bg-white hover:bg-[#D5E5F5]"
+              s === selectedVariant?.variantName
+                ? "border-2 border-[#1C3753] bg-[#fffff] text-[#1C1C1C]"
+                : "bg-white hover:bg-[#B6AAFF]"
             }`}
-                      onClick={() => onSelectSize(s)}
+                      onClick={() => onSelectStyle(s)}
                     >
                       {s}
                     </button>
@@ -718,7 +720,7 @@ hover:scale-105 border border-[#1C3753] rounded-md"
                 <p className="capitalize">
                   <span className="text-[#1C1C1C]">Sub-Category:</span> -{" "}
                   <span className="text-[#686868]">
-                    {product.subcategory || "-"}
+                    {product.subcategory?.name || "-"}
                   </span>
                 </p>
                 {/* <p className="capitalize">

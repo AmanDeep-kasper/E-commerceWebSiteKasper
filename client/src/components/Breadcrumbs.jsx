@@ -2,6 +2,11 @@ import React from "react";
 import { Link } from "react-router-dom";
 
 function Breadcrumbs({ category, subcategory, title }) {
+  const categoryName = category?.name || category;
+  const categorySlug = category?.slug || category;
+
+  const subcategoryName = subcategory?.name || subcategory;
+  const subcategorySlug = subcategory?.slug || subcategory;
   return (
     <nav
       className="flex lg:px-20 md:px-[60px] px-3 py-3 bg-[#F6F8F9]"
@@ -21,10 +26,10 @@ function Breadcrumbs({ category, subcategory, title }) {
             <div className="flex items-center">
               <SeparatorIcon />
               <Link
-                to={`/products/${encodeURIComponent(category)}`}
+                to={`/products/${encodeURIComponent(categorySlug)}`}
                 className="ms-1 text-gray-800 truncate max-w-[120px] sm:max-w-none"
               >
-                {category}
+                {categoryName}
               </Link>
             </div>
           </li>
@@ -36,26 +41,26 @@ function Breadcrumbs({ category, subcategory, title }) {
             <div className="flex items-center">
               <SeparatorIcon />
               <Link
-                to={`/products/${encodeURIComponent(
-                  category
-                )}/${encodeURIComponent(subcategory)}`}
+                to={`/products/${encodeURIComponent(categorySlug)}/${encodeURIComponent(subcategorySlug)}`}
                 className="ms-1 text-gray-800 truncate max-w-[120px] sm:max-w-none"
               >
-                {subcategory}
+                {subcategoryName}
               </Link>
             </div>
           </li>
         )}
 
         {/* Product / Last Crumb */}
-        {title && <li className="flex-shrink-0">
-          <div className="flex items-center">
-            <SeparatorIcon />
-            <span className="ms-1 text-gray-900 truncate max-w-[150px] sm:max-w-none">
-              {title}
-            </span>
-          </div>
-        </li>}
+        {title && (
+          <li className="flex-shrink-0">
+            <div className="flex items-center">
+              <SeparatorIcon />
+              <span className="ms-1 text-gray-900 truncate max-w-[150px] sm:max-w-none">
+                {title}
+              </span>
+            </div>
+          </li>
+        )}
       </ol>
     </nav>
   );

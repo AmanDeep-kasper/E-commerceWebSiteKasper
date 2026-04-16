@@ -34,13 +34,13 @@ const AddProduct = () => {
       {
         variantColor: "",
         variantName: "",
-        varintWeight: "",
-        varintWeightUnit: "kg",
+        variantWeight: "",
+        variantWeightUnit: "kg",
         variantSkuId: "",
         variantImage: [],
         variantMrp: "",
         variantCostPrice: "",
-        varintGST: "",
+        variantGST: "",
         variantDiscount: "",
         variantDiscountUnit: "%",
         variantSellingPrice: "",
@@ -60,8 +60,8 @@ const AddProduct = () => {
     variantColor: "",
     variantName: "",
     variantDimensionunit: "In", // default
-    variantWidth: "",
-    variantWidthUnit: "kg", // default
+    variantWeight: "",
+    variantWeightUnit: "kg", // default
     variantSkuId: "",
     variantImage: [],
     variantMrp: "",
@@ -97,130 +97,132 @@ const AddProduct = () => {
   //   }));
   // };
 
- 
   const addVariantRow = () => {
-  let productSKU = formData.SKU?.trim();
-  
-  // If no SKU exists, create one from product title
-  if (!productSKU && formData.productTittle) {
-    const words = formData.productTittle.trim().split(" ");
-    const initials = words.slice(0, 3).map((w) => w[0]?.toUpperCase()).join("");
-    const randomNum = Math.floor(100 + Math.random() * 900);
-    productSKU = `${initials}-ART-${randomNum}`;
-    
-    // Update the main SKU in formData
-    setFormData(prev => ({ ...prev, SKU: productSKU }));
-  }
+    let productSKU = formData.SKU?.trim();
 
-  if (!productSKU) {
-    toast.error("Please enter a product name first!", {
-      position: "top-right",
-      autoClose: 2000,
-    });
-    return;
-  }
+    // If no SKU exists, create one from product title
+    if (!productSKU && formData.productTittle) {
+      const words = formData.productTittle.trim().split(" ");
+      const initials = words
+        .slice(0, 3)
+        .map((w) => w[0]?.toUpperCase())
+        .join("");
+      const randomNum = Math.floor(100 + Math.random() * 900);
+      productSKU = `${initials}-ART-${randomNum}`;
 
-  const randomNum = Math.floor(100 + Math.random() * 900);
-  const newVariant = {
-    ...emptyVariant(),
-    variantSkuId: `${productSKU}-V-${randomNum}`,
-  };
-
-  setFormData((prev) => ({
-    ...prev,
-    variants: [...prev.variants, newVariant],
-  }));
-};
-  // edit product added new here(akash)
-const [isEditing, setIsEditing] = useState(false);
-const [productId, setProductId] = useState(null);
-const [loadingProduct, setLoadingProduct] = useState(false);
-
-
-// Fetch product for editing from API
-useEffect(() => {
-  const fetchProductForEdit = async () => {
-    if (!uuid) return;
-    
-    try {
-      setLoadingProduct(true);
-      const response = await axiosInstance.get(`/product/${uuid}`);
-      // console.log("Product to edit:", response.data);
-      
-      let productData = null;
-      if (response.data?.success && response.data?.data) {
-        productData = response.data.data;
-      } else if (response.data) {
-        productData = response.data;
-      }
-      
-      if (productData) {
-        let categoryId = "";
-        if (productData.category) {
-          if (typeof productData.category === 'object') {
-            categoryId = productData.category._id || productData.category.id || "";
-          } else {
-            categoryId = productData.category;
-          }
-        }
-
-        let subcategoryId = "";
-        if (productData.subcategory) {
-          if (typeof productData.subcategory === 'object') {
-            subcategoryId = productData.subcategory._id || productData.subcategory.id || "";
-          } else {
-            subcategoryId = productData.subcategory;
-          }
-        }
-        // Map variants to match form structure
-        const mappedVariants = productData.variants.map(variant => ({
-          variantColor: variant.variantColor || "",
-          variantName: variant.variantName || "",
-          varintWeight: variant.variantWeight || "",
-          varintWeightUnit: variant.variantWeightUnit || "kg",
-          variantSkuId: variant.variantSkuId || "",
-          variantImage: variant.variantImage || [],
-          variantMrp: variant.variantMrp || "",
-          variantCostPrice: variant.variantCostPrice || "",
-          varintGST: variant.variantGST || "",
-          variantDiscount: variant.variantDiscount || "",
-          variantDiscountUnit: "%",
-          variantSellingPrice: variant.variantSellingPrice || "",
-          variantAvailableStock: variant.variantAvailableStock || "",
-          variantLowStockAlertStock: variant.variantLowStockAlertStock || "",
-          isSelected: variant.isSelected || false,
-        }));
-        
-        setFormData({
-          productTittle: productData.productTittle || "",
-          description: productData.description || "",
-          status: productData.isActive ? "ACTIVE" : "INACTIVE",
-         category: categoryId,    
-          subcategory: subcategoryId,
-          variants: mappedVariants,
-        });
-        
-        // Also set SKU if exists for variant generation
-        if (productData.SKU) {
-          setFormData(prev => ({ ...prev, SKU: productData.SKU }));
-        }
-        
-        setProductId(productData._id);
-        setIsEditing(true);
-      } else {
-        // console.log("Product not found with uuid:", uuid);
-      }
-    } catch (error) {
-      // console.error("Error fetching product:", error);
-      toast.error("Failed to load product data");
-    } finally {
-      setLoadingProduct(false);
+      // Update the main SKU in formData
+      setFormData((prev) => ({ ...prev, SKU: productSKU }));
     }
-  };
-  
-  fetchProductForEdit();
-}, [uuid]);
 
+    if (!productSKU) {
+      toast.error("Please enter a product name first!", {
+        position: "top-right",
+        autoClose: 2000,
+      });
+      return;
+    }
+
+    const randomNum = Math.floor(100 + Math.random() * 900);
+    const newVariant = {
+      ...emptyVariant(),
+      variantSkuId: `${productSKU}-V-${randomNum}`,
+    };
+
+    setFormData((prev) => ({
+      ...prev,
+      variants: [...prev.variants, newVariant],
+    }));
+  };
+  // edit product added new here(akash)
+  const [isEditing, setIsEditing] = useState(false);
+  const [productId, setProductId] = useState(null);
+  const [loadingProduct, setLoadingProduct] = useState(false);
+
+  // Fetch product for editing from API
+  useEffect(() => {
+    const fetchProductForEdit = async () => {
+      if (!uuid) return;
+
+      try {
+        setLoadingProduct(true);
+        const response = await axiosInstance.get(`/product/${uuid}`);
+        // console.log("Product to edit:", response.data);
+
+        let productData = null;
+        if (response.data?.success && response.data?.data) {
+          productData = response.data.data;
+        } else if (response.data) {
+          productData = response.data;
+        }
+
+        if (productData) {
+          let categoryId = "";
+          if (productData.category) {
+            if (typeof productData.category === "object") {
+              categoryId =
+                productData.category._id || productData.category.id || "";
+            } else {
+              categoryId = productData.category;
+            }
+          }
+
+          let subcategoryId = "";
+          if (productData.subcategory) {
+            if (typeof productData.subcategory === "object") {
+              subcategoryId =
+                productData.subcategory._id || productData.subcategory.id || "";
+            } else {
+              subcategoryId = productData.subcategory;
+            }
+          }
+          // Map variants to match form structure
+          const mappedVariants = productData.variants.map((variant) => ({
+            variantColor: variant.variantColor || "",
+            variantName: variant.variantName || "",
+            variantWeight: variant.variantWeight || "",
+            variantWeightUnit: variant.variantWeightUnit || "kg",
+            variantSkuId: variant.variantSkuId || "",
+            variantImage: variant.variantImage || [],
+            variantMrp: variant.variantMrp || "",
+            variantCostPrice: variant.variantCostPrice || "",
+            variantGST: variant.variantGST || "",
+            variantDiscount: variant.variantDiscount || "",
+            variantDiscountUnit: "%",
+            variantSellingPrice: variant.variantSellingPrice || "",
+            variantAvailableStock: variant.variantAvailableStock || "",
+            variantLowStockAlertStock: variant.variantLowStockAlertStock || "",
+            isSelected: variant.isSelected || false,
+          }));
+
+          setFormData({
+            productTittle: productData.productTittle || "",
+            description: productData.description || "",
+            status: productData.isActive ? "ACTIVE" : "INACTIVE",
+            category: categoryId,
+            subcategory: subcategoryId,
+            variants: mappedVariants,
+          });
+
+          // Also set SKU if exists for variant generation
+          if (productData.SKU) {
+            setFormData((prev) => ({ ...prev, SKU: productData.SKU }));
+          }
+
+          setProductId(productData._id);
+          setIsEditing(true);
+        } else {
+          // console.log("Product not found with uuid:", uuid);
+        }
+      } catch (error) {
+        // console.error("Error fetching product:", error);
+        toast.error("Failed to load product data");
+      } finally {
+        setLoadingProduct(false);
+      }
+    };
+
+    fetchProductForEdit();
+  }, [uuid]);
 
   const handleButtonClick = () => {
     fileInputRef.current.click();
@@ -477,206 +479,118 @@ useEffect(() => {
     setItemsOpenVar(true);
   };
 
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-
-  //   if (!formData.productTittle.trim()) {
-  //     toast.error("Product name is required");
-  //     return;
-  //   }
-
-  //   if (!formData.category.trim()) {
-  //     toast.error("Category is required");
-  //     return;
-  //   }
-
-  //   for (let i = 0; i < formData.variants.length; i++) {
-  //     const variant = formData.variants[i];
-
-  //     const hasAnyVariantInput =
-  //       variant.variantColor?.trim() ||
-  //       variant.variantName?.trim() ||
-  //       String(variant.variantWidth || "").trim() ||
-  //       variant.variantSkuId?.trim() ||
-  //       String(variant.variantMrp || "").trim() ||
-  //       String(variant.variantSellingPrice || "").trim() ||
-  //       String(variant.variantLowStockAlertStock || "").trim() ||
-  //       (variant.variantImage && variant.variantImage.length > 0);
-
-  //     if (hasAnyVariantInput) {
-  //       if (!variant.variantSkuId?.trim()) {
-  //         toast.error(`Variant ${i + 1}: Variant SKU ID is required`);
-  //         return;
-  //       }
-
-  //       if (!variant.variantImage || variant.variantImage.length === 0) {
-  //         toast.error(`Variant ${i + 1}: At least one image is required`);
-  //         return;
-  //       }
-
-  //       if (!String(variant.variantMrp || "").trim()) {
-  //         toast.error(`Variant ${i + 1}: MRP is required`);
-  //         return;
-  //       }
-
-  //       if (!String(variant.variantSellingPrice || "").trim()) {
-  //         toast.error(`Variant ${i + 1}: Selling Price is required`);
-  //         return;
-  //       }
-
-  //       if (!String(variant.variantLowStockAlertStock || "").trim()) {
-  //         toast.error(`Variant ${i + 1}: Low Stock Alert is required`);
-  //         return;
-  //       }
-  //     }
-  //   }
-
-  //   setIsSubmitting(true);
-
-  //   const payload = {
-  //     ...formData,
-  //     uuid: formData.uuid || uuidv4(),
-  //     variants: formData.variants.map((v) => ({
-  //       ...v,
-  //       variantId: v.variantSkuId,
-  //     })),
-  //   };
-
-  //   try {
-  //     await axiosInstance.post("/product/admin/add-product", payload);
-
-  //     toast.success(
-  //       isEditing
-  //         ? "Product updated successfully!"
-  //         : "Product added successfully!",
-  //     );
-
-  //     setIsDraftEnabled(false);
-  //     localStorage.removeItem("addProductDraft");
-  //     setFormData(createInitialState());
-
-  //     setTimeout(() => {
-  //       navigate("/admin/products");
-  //     }, 800);
-  //   } catch (err) {
-  //     console.log(err);
-  //     toast.error(err?.response?.data?.message || "Error uploading product!");
-  //   } finally {
-  //     setIsSubmitting(false);
-  //   }
-  // };
-
-  // generate variant sku
-  
-  // 
-  
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  if (!formData.productTittle.trim()) {
-    toast.error("Product name is required");
-    return;
-  }
+    if (!formData.productTittle.trim()) {
+      toast.error("Product name is required");
+      return;
+    }
 
-  if (!formData.category.trim()) {
-    toast.error("Category is required");
-    return;
-  }
+    if (!formData.category.trim()) {
+      toast.error("Category is required");
+      return;
+    }
 
-  for (let i = 0; i < formData.variants.length; i++) {
-    const variant = formData.variants[i];
+    for (let i = 0; i < formData.variants.length; i++) {
+      const variant = formData.variants[i];
 
-    const hasAnyVariantInput =
-      variant.variantColor?.trim() ||
-      variant.variantName?.trim() ||
-      String(variant.varintWeight || "").trim() ||
+      const hasAnyVariantInput =
+        variant.variantColor?.trim() ||
+        variant.variantName?.trim() ||
+        String(variant.variantWeight || "").trim();
       variant.variantSkuId?.trim() ||
-      String(variant.variantMrp || "").trim() ||
-      String(variant.variantSellingPrice || "").trim() ||
-      String(variant.variantLowStockAlertStock || "").trim() ||
-      (variant.variantImage && variant.variantImage.length > 0);
+        String(variant.variantMrp || "").trim() ||
+        String(variant.variantSellingPrice || "").trim() ||
+        String(variant.variantLowStockAlertStock || "").trim() ||
+        (variant.variantImage && variant.variantImage.length > 0);
 
-    if (hasAnyVariantInput) {
-      if (!variant.variantSkuId?.trim()) {
-        toast.error(`Variant ${i + 1}: Variant SKU ID is required`);
-        return;
-      }
+      if (hasAnyVariantInput) {
+        if (!variant.variantSkuId?.trim()) {
+          toast.error(`Variant ${i + 1}: Variant SKU ID is required`);
+          return;
+        }
 
-      if (!variant.variantImage || variant.variantImage.length === 0) {
-        toast.error(`Variant ${i + 1}: At least one image is required`);
-        return;
-      }
+        if (!variant.variantImage || variant.variantImage.length === 0) {
+          toast.error(`Variant ${i + 1}: At least one image is required`);
+          return;
+        }
 
-      if (!String(variant.variantMrp || "").trim()) {
-        toast.error(`Variant ${i + 1}: MRP is required`);
-        return;
-      }
+        if (!String(variant.variantMrp || "").trim()) {
+          toast.error(`Variant ${i + 1}: MRP is required`);
+          return;
+        }
 
-      if (!String(variant.variantSellingPrice || "").trim()) {
-        toast.error(`Variant ${i + 1}: Selling Price is required`);
-        return;
-      }
+        if (!String(variant.variantSellingPrice || "").trim()) {
+          toast.error(`Variant ${i + 1}: Selling Price is required`);
+          return;
+        }
 
-      if (!String(variant.variantLowStockAlertStock || "").trim()) {
-        toast.error(`Variant ${i + 1}: Low Stock Alert is required`);
-        return;
+        if (!String(variant.variantLowStockAlertStock || "").trim()) {
+          toast.error(`Variant ${i + 1}: Low Stock Alert is required`);
+          return;
+        }
       }
     }
-  }
 
-  setIsSubmitting(true);
+    setIsSubmitting(true);
 
-  // Prepare payload - same structure for both add and edit
-  const payload = {
-    productTittle: formData.productTittle,
-    description: formData.description,
-    category: formData.category,
-    subcategory: formData.subcategory,
-    variants: formData.variants.map((v) => ({
-      variantColor: v.variantColor,
-      variantName: v.variantName,
-      variantWeight: v.varintWeight,
-      variantWeightUnit: v.varintWeightUnit,
-      variantSkuId: v.variantSkuId,
-      variantImage: v.variantImage,
-      variantMrp: Number(v.variantMrp) || 0,
-      variantCostPrice: Number(v.variantCostPrice) || 0,
-      variantSellingPrice: Number(v.variantSellingPrice) || 0,
-      variantGST: Number(v.varintGST) || 0,
-      variantDiscount: Number(v.variantDiscount) || 0,
-      variantAvailableStock: Number(v.variantAvailableStock) || 0,
-      variantLowStockAlertStock: Number(v.variantLowStockAlertStock) || 0,
-      isSelected: v.isSelected || false,
-    })),
+    // Prepare payload - same structure for both add and edit
+    const payload = {
+      productTittle: formData.productTittle,
+      description: formData.description,
+      category: formData.category,
+      subcategory: formData.subcategory,
+      variants: formData.variants.map((v) => ({
+        variantColor: v.variantColor,
+        variantName: v.variantName,
+        variantWeight: v.variantWeight,
+        variantWeightUnit: v.variantWeightUnit,
+        variantSkuId: v.variantSkuId,
+        variantImage: v.variantImage,
+        variantMrp: Number(v.variantMrp) || 0,
+        variantCostPrice: Number(v.variantCostPrice) || 0,
+        variantSellingPrice: Number(v.variantSellingPrice) || 0,
+        variantGST: Number(v.variantGST) || 0,
+        variantDiscount: Number(v.variantDiscount) || 0,
+        variantAvailableStock: Number(v.variantAvailableStock) || 0,
+        variantLowStockAlertStock: Number(v.variantLowStockAlertStock) || 0,
+        isSelected: v.isSelected || false,
+      })),
+    };
+
+    try {
+      let response;
+      if (isEditing && productId) {
+        // UPDATE existing product
+        response = await axiosInstance.patch(
+          `/product/admin/update-product/${productId}`,
+          payload,
+        );
+        toast.success("Product updated successfully!");
+      } else {
+        // CREATE new product
+        response = await axiosInstance.post(
+          "/product/admin/add-product",
+          payload,
+        );
+        toast.success("Product added successfully!");
+      }
+
+      setIsDraftEnabled(false);
+      localStorage.removeItem("addProductDraft");
+      setFormData(createInitialState());
+
+      setTimeout(() => {
+        navigate("/admin/products");
+      }, 800);
+    } catch (err) {
+      console.log(err);
+      toast.error(err?.response?.data?.message || "Error saving product!");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
-
-  try {
-    let response;
-    if (isEditing && productId) {
-      // UPDATE existing product
-      response = await axiosInstance.patch(`/product/admin/update-product/${productId}`, payload);
-      toast.success("Product updated successfully!");
-    } else {
-      // CREATE new product
-      response = await axiosInstance.post("/product/admin/add-product", payload);
-      toast.success("Product added successfully!");
-    }
-
-    setIsDraftEnabled(false);
-    localStorage.removeItem("addProductDraft");
-    setFormData(createInitialState());
-
-    setTimeout(() => {
-      navigate("/admin/products");
-    }, 800);
-  } catch (err) {
-    console.log(err);
-    toast.error(err?.response?.data?.message || "Error saving product!");
-  } finally {
-    setIsSubmitting(false);
-  }
-};
-
 
   // const generateVariantSKU = (variantIndex) => {
   //   const productSKU = formData.SKU?.trim();
@@ -705,43 +619,45 @@ useEffect(() => {
   // };
 
   // this is first drop down
-  
+
   const generateVariantSKU = (variantIndex) => {
-  // For edit mode, try to get SKU from formData or create one from product title
-  let productSKU = formData.SKU?.trim();
-  
-  if (!productSKU && formData.productTittle) {
-    // Create SKU from product title if not exists
-    const words = formData.productTittle.trim().split(" ");
-    const initials = words.slice(0, 3).map((w) => w[0]?.toUpperCase()).join("");
+    // For edit mode, try to get SKU from formData or create one from product title
+    let productSKU = formData.SKU?.trim();
+
+    if (!productSKU && formData.productTittle) {
+      // Create SKU from product title if not exists
+      const words = formData.productTittle.trim().split(" ");
+      const initials = words
+        .slice(0, 3)
+        .map((w) => w[0]?.toUpperCase())
+        .join("");
+      const randomNum = Math.floor(100 + Math.random() * 900);
+      productSKU = `${initials}-ART-${randomNum}`;
+
+      // Update the main SKU
+      setFormData((prev) => ({ ...prev, SKU: productSKU }));
+    }
+
+    if (!productSKU) {
+      toast.error("Please enter a product name first!", {
+        position: "top-right",
+        autoClose: 2000,
+      });
+      return;
+    }
+
     const randomNum = Math.floor(100 + Math.random() * 900);
-    productSKU = `${initials}-ART-${randomNum}`;
-    
-    // Update the main SKU
-    setFormData(prev => ({ ...prev, SKU: productSKU }));
-  }
+    const variantSKU = `${productSKU}-V-${randomNum}`;
 
-  if (!productSKU) {
-    toast.error("Please enter a product name first!", {
-      position: "top-right",
-      autoClose: 2000,
+    setFormData((prev) => {
+      const variants = [...prev.variants];
+      variants[variantIndex] = {
+        ...variants[variantIndex],
+        variantSkuId: variantSKU,
+      };
+      return { ...prev, variants };
     });
-    return;
-  }
-
-  const randomNum = Math.floor(100 + Math.random() * 900);
-  const variantSKU = `${productSKU}-V-${randomNum}`;
-
-  setFormData((prev) => {
-    const variants = [...prev.variants];
-    variants[variantIndex] = {
-      ...variants[variantIndex],
-      variantSkuId: variantSKU,
-    };
-    return { ...prev, variants };
-  });
-};
-
+  };
 
   const [categoriesopen, setCategoriesOpen] = useState(false);
   // selected option
@@ -1148,33 +1064,35 @@ useEffect(() => {
   }, [setCategories]);
 
   // Load subcategories when category changes (for edit mode)
-useEffect(() => {
-  const loadSubcategories = async () => {
-    if (formData.category) {
-      try {
-        const selectedCategory = categories.find(cat => cat._id === formData.category);
-        if (selectedCategory) {
-          setSubCategories(selectedCategory.subCategories || []);
+  useEffect(() => {
+    const loadSubcategories = async () => {
+      if (formData.category) {
+        try {
+          const selectedCategory = categories.find(
+            (cat) => cat._id === formData.category,
+          );
+          if (selectedCategory) {
+            setSubCategories(selectedCategory.subCategories || []);
+          }
+        } catch (error) {
+          console.error("Error loading subcategories:", error);
         }
-      } catch (error) {
-        console.error("Error loading subcategories:", error);
       }
-    }
-  };
-  
-  loadSubcategories();
-}, [formData.category, categories]);
+    };
+
+    loadSubcategories();
+  }, [formData.category, categories]);
 
   if (loadingProduct) {
-  return (
-    <div className="flex justify-center items-center h-64">
-      <div className="text-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1C3753] mx-auto"></div>
-        <p className="mt-4 text-gray-600">Loading product data...</p>
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1C3753] mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading product data...</p>
+        </div>
       </div>
-    </div>
-  );
-}
+    );
+  }
 
   return (
     <>
@@ -1221,7 +1139,7 @@ useEffect(() => {
               <ChevronLeft className="w-8 h-8 text-[#686868]" />
             </Link>
             <h1 className="text-[#1C1C1C] text-[20px] font-medium font-['Inter']">
-             {isEditing ? "Edit Product" : "Add Product"}
+              {isEditing ? "Edit Product" : "Add Product"}
             </h1>
           </div>
 
@@ -1602,11 +1520,11 @@ useEffect(() => {
                                 type="number"
                                 min="0"
                                 step="0.01"
-                                value={variant.varintWeight || ""}
+                                value={variant.variantWeight || ""}
                                 onChange={(e) =>
                                   handleVariantChange(
                                     index,
-                                    "varintWeight",
+                                    "variantWeight",
                                     e.target.value,
                                   )
                                 }
@@ -1614,14 +1532,14 @@ useEffect(() => {
                                 className="px-2 py-1 placeholder:text-[#6B6B6B] outline-none"
                               />
                               <select
-                                value={variant.varintWeightUnit || "kg"}
-                                onChange={(e) => {
+                                value={variant.variantWeightUnit || "kg"}
+                                onChange={(e) =>
                                   handleVariantChange(
                                     index,
-                                    "varintWeightUnit",
+                                    "variantWeightUnit",
                                     e.target.value,
-                                  );
-                                }}
+                                  )
+                                }
                                 className="border rounded-lg px-3 bg-[#264464] text-white text-sm"
                               >
                                 <option value="kg">kg</option>
@@ -1801,11 +1719,11 @@ useEffect(() => {
                           <td className="px-3 py-2">
                             <input
                               type="number"
-                              value={variant.varintGST || ""}
+                              value={variant.variantGST || ""}
                               onChange={(e) =>
                                 handleVariantChange(
                                   index,
-                                  "varintGST",
+                                  "variantGST",
                                   e.target.value,
                                 )
                               }
