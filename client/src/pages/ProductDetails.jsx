@@ -86,7 +86,7 @@ function ProductDetails() {
     return list.slice(0, 10);
   };
 
-  console.log(product);
+  // console.log(product); ///////aman
 
   // FETCH PRODUCT + SIMILAR PRODUCTS
   useEffect(() => {
@@ -95,7 +95,7 @@ function ProductDetails() {
         setIsLoading(true);
 
         const res = await axiosInstance.get(`/product/${slugOrId}`);
-        console.log("API:", res.data);
+        // console.log("API:", res.data);
 
         const found = res.data.data; // ✅ DIRECT OBJECT
 
@@ -269,8 +269,7 @@ function ProductDetails() {
     );
   }
 
-  const avgRating =
-    product?.stats?.averageRating?.length > 0 ? product.stats.averageRating : 0;
+  const avgRating = Number(product?.stats?.averageRating || 0);
   // console.log(avgRating)
 
   const handleBuyNow = (product) => {
@@ -291,24 +290,22 @@ function ProductDetails() {
           open={openAddReviewModal}
           review={selectedReview}
           product={{
+            _id: product?._id,
             uuid: product?.uuid,
-            title: product?.title,
+            title: product?.productTittle,
+            image:
+              selectedVariant?.variantImage?.[0]?.url || "/placeholder.png",
             selectedVariant,
-            image: getImageUrl(
-              selectedVariant?.images?.[0] ||
-                product?.images?.[0] ||
-                selectedVariant?.variantImage?.[0]?.url,
-            ),
           }}
           onClose={handleCloseReview}
-          onSave={(newReviewOrUpdated) => {
+          onSave={(savedReview) => {
             setProduct((prev) => ({
               ...prev,
-              reviews: selectedReview
-                ? prev.reviews.map((r) =>
-                    r._id === newReviewOrUpdated._id ? newReviewOrUpdated : r,
-                  )
-                : [newReviewOrUpdated, ...(prev.reviews || [])],
+              reviews: [savedReview, ...(prev.reviews || [])],
+              stats: {
+                ...prev.stats,
+                totalReviews: (prev.stats?.totalReviews || 0) + 1,
+              },
             }));
             handleCloseReview();
           }}
@@ -456,36 +453,35 @@ function ProductDetails() {
             </h1>
 
             {(isDemo || product?.reviews?.length > 0) && (
-              <div className=" border-gray-200 pb-2 flex items-center gap-4">
+              <div className="border-gray-200 pb-2 flex items-center gap-4">
                 <div className="flex items-center gap-1">
                   <span className="text-2xl font-semibold text-gray-900">
-                    {avgRating ?? "—"}
+                    {avgRating > 0 ? avgRating.toFixed(1) : "—"}
                   </span>
                   <span className="text-gray-500 text-sm">/5</span>
                 </div>
+
                 <div className="flex flex-col gap-1">
                   <Ratings size={20} avgRating={avgRating} />
                   <span className="text-sm text-gray-500">
                     <span>Based on </span>
                     {product?.stats?.totalReviews ?? 0}{" "}
-                    {product?.stats?.totalReviews?.length === 1
-                      ? "review"
-                      : "reviews"}
+                    {product?.stats?.totalReviews === 1 ? "review" : "reviews"}
                   </span>
                 </div>
-                {/* <div className="h-6 w-px bg-gray-300"></div>x
-                <button
-                  className="text-sm font-medium text-[#1C3753] hover:text-[#1C3753] transition-colors underline"
-                  onClick={() =>
-                    document
-                      .getElementById("reviews-section")
-                      ?.scrollIntoView({ behavior: "smooth" })
-                  }
-                >
-                  See all reviews
-                </button> */}
               </div>
             )}
+            {/* <div className="h-6 w-px bg-gray-300"></div>x
+            <button
+              className="text-sm font-medium text-[#1C3753] hover:text-[#1C3753] transition-colors underline"
+              onClick={() =>
+                document
+                  .getElementById("reviews-section")
+                  ?.scrollIntoView({ behavior: "smooth" })
+              }
+            >
+              See all reviews
+            </button> */}
 
             {/* Product Price & details */}
             <div className="py-2 border-b">
