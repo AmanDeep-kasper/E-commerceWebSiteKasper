@@ -61,7 +61,7 @@ export const addProductToCollection = asyncHandler(async (req, res) => {
 export const getCollection = asyncHandler(async (req, res) => {
   const { collectionId } = req.params;
 
-  const collection = await Collection.findById(collectionId).lean();
+  const collection = await Collection.findById(collectionId).populate("products").lean();
 
   if (!collection) {
     throw AppError.notFound("Collection not found", "NOT_FOUND");
