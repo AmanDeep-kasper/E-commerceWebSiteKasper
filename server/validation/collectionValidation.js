@@ -9,22 +9,9 @@ export const addCollectionValidation = [
     .trim(),
 
   body("products")
-  .optional()
-    .withMessage("Products array is required")
+    .optional()
     .isArray()
     .withMessage("Products must be an array"),
-    // .custom((value) => {
-    //   // if (!Array.isArray(value)) {
-    //   //   throw new Error("Products must be an array");
-    //   // }
-    //   // if (value.length === 0) {
-    //   //   throw new Error("Products array cannot be empty");
-    //   // }
-    //   if (value && Array.isArray(value) && value.length === 0) {
-    //     return true;  // Empty array is allowed for new collection
-    //   }
-    //   return true;
-    // }),
 
   body("isActive")
     .optional()
