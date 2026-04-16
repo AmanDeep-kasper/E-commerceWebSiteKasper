@@ -127,6 +127,8 @@ function CustomerReview({ reviews = [], id, allReviews = false }) {
                       className="w-10 h-10 rounded-full object-cover"
                       src={userImage}
                       alt={`${user}'s avatar`}
+                       crossOrigin="anonymous"
+  referrerPolicy="no-referrer"
                     />
                   ) : (
                     <div className="w-10 h-10 rounded-full bg-[#D9A7A0] flex items-center justify-center text-white font-medium text-sm shrink-0">
@@ -162,6 +164,8 @@ function CustomerReview({ reviews = [], id, allReviews = false }) {
                         key={idx}
                         className="w-14 h-14 object-cover rounded border"
                         src={img}
+                         crossOrigin="anonymous"
+  referrerPolicy="no-referrer"
                         alt="review"
                       />
                     ),

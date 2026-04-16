@@ -587,6 +587,8 @@ const OrderDetail = () => {
                   <img
                     src={item.img}
                     alt={item.name}
+                     crossOrigin="anonymous"
+  referrerPolicy="no-referrer"
                     className="w-20 h-20 object-cover rounded border"
                   />
                   <div>

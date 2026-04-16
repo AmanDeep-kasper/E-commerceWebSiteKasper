@@ -26,10 +26,11 @@ function EditReviewModal({ open, review, onClose, onSave }) {
     setRating(review.rating || 0);
     setText(review.reviewText || "");
 
-    const existing = review.reviewImages?.map((img) => ({
-      url: img.url,
-      publicId: img.publicId,
-    })) || [];
+    const existing =
+      review.reviewImages?.map((img) => ({
+        url: img.url,
+        publicId: img.publicId,
+      })) || [];
 
     setExistingImages(existing);
     setNewImagesPreview([]);
@@ -88,6 +89,8 @@ function EditReviewModal({ open, review, onClose, onSave }) {
               <img
                 src={review.productId?.image}
                 alt={review.name}
+                crossOrigin="anonymous"
+                referrerPolicy="no-referrer"
                 className="w-full h-full object-cover"
               />
             </div>
@@ -149,6 +152,8 @@ function EditReviewModal({ open, review, onClose, onSave }) {
                     src={img.url}
                     alt="review"
                     className="w-full h-full object-cover"
+                    crossOrigin="anonymous"
+                    referrerPolicy="no-referrer"
                   />
                   <button
                     type="button"
@@ -171,6 +176,8 @@ function EditReviewModal({ open, review, onClose, onSave }) {
                     src={src}
                     alt="new review"
                     className="w-full h-full object-cover"
+                    crossOrigin="anonymous"
+                    referrerPolicy="no-referrer"
                   />
                   <button
                     type="button"

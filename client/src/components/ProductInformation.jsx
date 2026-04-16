@@ -81,6 +81,8 @@ function ProductInformation() {
                   <img
                     src={img}
                     alt={`preview ${i}`}
+                    crossOrigin="anonymous"
+                    referrerPolicy="no-referrer"
                     className="w-[137px] h-[137px] object-cover rounded-lg border border-neutral-200"
                   />
                 </div>
@@ -281,6 +283,8 @@ function ProductInformation() {
                                     URL.createObjectURL(item.variantImage[0]) // Otherwise, create a URL
                               }
                               className="w-full h-full object-cover rounded-lg border border-neutral-200"
+                              crossOrigin="anonymous"
+                              referrerPolicy="no-referrer"
                               alt={item.variantName}
                             />
                             {/* If there are more than 1 image, show the "+{N}" badge */}
@@ -293,7 +297,7 @@ function ProductInformation() {
                                       ? item.variantImage[0]
                                       : item.variantImage[0].preview ||
                                         URL.createObjectURL(
-                                          item.variantImage[0]
+                                          item.variantImage[0],
                                         );
                                   setCurrentImage(first); // Set the first image as the current image
                                   setIsModalOpen(true); // Open the modal

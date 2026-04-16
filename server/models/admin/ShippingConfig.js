@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const ShippingConfigSchema = new mongoose.Schema(
+const shippingConfigSchema = new mongoose.Schema(
   {
     // CHARGES
     charges: {
@@ -53,6 +53,6 @@ const ShippingConfigSchema = new mongoose.Schema(
   { timestamps: true, versionKey: false },
 );
 
-const ShippingConfig = mongoose.model("ShippingConfig", ShippingConfigSchema);
+const Shipping = mongoose.model("Shipping", shippingConfigSchema);
 
-export default ShippingConfig;
+export default Shipping;

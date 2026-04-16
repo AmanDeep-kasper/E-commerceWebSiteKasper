@@ -98,6 +98,8 @@ const CancelItemsPage = () => {
                 <img
                   src={item.img}
                   alt={item.name}
+                  crossOrigin="anonymous"
+                  referrerPolicy="no-referrer"
                   className="w-16 h-16 object-cover rounded border"
                 />
 
@@ -140,10 +142,10 @@ const CancelItemsPage = () => {
             <option value="Changed my mind">Changed my mind</option>
             <option value="Ordered by mistake">Ordered by mistake</option>
             <option value="Found cheaper elsewhere">
-             Found Cheaper Somewhere Else
+              Found Cheaper Somewhere Else
             </option>
             <option value="Delivery taking too long">
-             Need to Change Payment Method
+              Need to Change Payment Method
             </option>
             <option value="Need to change address">
               Need to Change Shipping Address

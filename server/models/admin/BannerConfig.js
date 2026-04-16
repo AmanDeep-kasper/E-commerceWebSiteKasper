@@ -1,24 +1,45 @@
 import mongoose from "mongoose";
 
-const BannerSchema = new mongoose.Schema(
+const bannerSchema = new mongoose.Schema(
   {
-    serialNumber: Number,
+    serialNumber: {
+      type: Number,
+      default: 0,
+      index: true, // sorting fast
+    },
+
     bannerType: {
       type: String,
       enum: ["image", "video"],
       default: "image",
     },
-    title: String,
-    imageOrVideo: {
-      url: String,
-      publicId: String,
+
+    title: {
+      type: String,
+      trim: true,
     },
-    description: String,
-    isActive: Boolean,
+
+    imageOrVideo: {
+      url: { type: String, required: true },
+      publicId: { type: String, required: true },
+    },
+
+    description: {
+      type: String,
+      default: "",
+    },
+
+    isActive: {
+      type: Boolean,
+      default: true,
+      index: true,
+    },
   },
   { timestamps: true, versionKey: false },
 );
 
-const Banner = mongoose.model("Banner", BannerSchema);
+// INDEX
+bannerSchema.index({ isActive: 1, serialNumber: 1 });
 
+const Banner = mongoose.model("Banner", bannerSchema);
 export default Banner;
