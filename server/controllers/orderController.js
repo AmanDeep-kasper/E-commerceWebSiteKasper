@@ -4,8 +4,14 @@ import Cart from "../models/Cart.js";
 import Product from "../models/Product.js";
 import Shipping from "../models/admin/ShippingConfig.js";
 import Warehouse from "../models/admin/WarehouseConfig.js";
+import Payment from "../models/Payment.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import AppError from "../utils/AppError.js";
+import env from "../config/env.js";
+import razorpay, {
+  createRazorpayOrder,
+  verifyPaymentSignature,
+} from "../service/razorpayService.js";
 
 // Helper function
 const calculateShippingCharge = ({
@@ -16,65 +22,29 @@ const calculateShippingCharge = ({
   config,
   cartTotal,
 }) => {
-  // ✅ Free delivery
-  if (cartTotal >= config.freeDeliveryAbove) {
-    return 0;
-  }
+  if (cartTotal >= config.freeDeliveryAbove) return 0;
 
   const city = userCity.toLowerCase();
   const state = userState.toLowerCase();
 
-  const warehouseCityLc = warehouseCity.toLowerCase();
-  const warehouseStateLc = warehouseState.toLowerCase();
+  const whCity = warehouseCity.toLowerCase();
+  const whState = warehouseState.toLowerCase();
 
-  // ✅ Same city
-  if (city === warehouseCityLc) {
-    return config.charges.withinCity;
-  }
+  if (city === whCity) return config.charges.withinCity;
 
-  // ✅ Same state
-  if (state === warehouseStateLc) {
-    return config.charges.withinState;
-  }
+  if (state === whState) return config.charges.withinState;
 
-  // ✅ Special states (Northeast etc.)
-  if (config.specialStates.includes(state)) {
-    return config.charges.specialRegion;
-  }
+  if (config.specialStates.includes(state)) return config.charges.specialRegion;
 
-  // ✅ Metro to Metro
   if (
     config.metroCities.includes(city) &&
-    config.metroCities.includes(warehouseCityLc)
+    config.metroCities.includes(whCity)
   ) {
     return config.charges.metroToMetro;
   }
 
-  // ✅ Rest of India
   return config.charges.restOfIndia;
 };
-
-// export const checkout = asyncHandler(async (req, res) => {
-//   const userId = req.user?.userId;
-//   const { paymentMethod, shippingAddress } = req.body;
-
-//   if (!paymentMethod || !shippingAddress) {
-//     throw AppError.badRequest(
-//       "Payment method and shipping address is required",
-//       "ALL_FIELDS_REQUIRED",
-//     );
-//   }
-
-//   const cart = await Cart.findOne({ userId, status: "active" });
-
-//   if (!cart || cart.items.length === 0) {
-//     throw AppError.badRequest("Cart is empty", "CART_EMPTY");
-//   }
-
-//   // calculate shipping charge by zones
-//   let shippingCharge = 0;
-// });
-
 
 export const checkout = asyncHandler(async (req, res) => {
   const userId = req.user?.userId;
@@ -84,42 +54,32 @@ export const checkout = asyncHandler(async (req, res) => {
   if (paymentMethod !== "razorpay") {
     throw AppError.badRequest(
       "Only Razorpay is supported currently",
-      "INVALID_PAYMENT_METHOD"
+      "INVALID_PAYMENT_METHOD",
     );
   }
 
   if (!shippingAddress) {
     throw AppError.badRequest(
       "Shipping address is required",
-      "ADDRESS_REQUIRED"
+      "ADDRESS_REQUIRED",
     );
   }
-
-  // ✅ Get cart (lightweight)
-  const cart = await Cart.findOne(
-    { userId, status: "active" },
-    { items: 1, subtotal: 1, totalGST: 1 }
-  ).lean();
+  // ⚡ Parallel queries (FAST)
+  const [cart, config, warehouse] = await Promise.all([
+    Cart.findOne({ userId, status: "active" }),
+    Shipping.findOne({ isActive: true }).lean(),
+    Warehouse.findOne({ isActive: true }).lean(),
+  ]);
 
   if (!cart || cart.items.length === 0) {
     throw AppError.badRequest("Cart is empty", "CART_EMPTY");
   }
 
-  // ✅ Get shipping config
-  const config = await Shipping.findOne({ isActive: true }).lean();
-
-  if (!config) {
-    throw AppError.notFound("Shipping config not found", "CONFIG_NOT_FOUND");
+  if (!config || !warehouse) {
+    throw AppError.internal("Config missing", "CONFIG_ERROR");
   }
 
-  // ✅ Get warehouse (single for now)
-  const warehouse = await Warehouse.findOne({ isActive: true }).lean();
-
-  if (!warehouse) {
-    throw AppError.notFound("Warehouse not found", "WAREHOUSE_NOT_FOUND");
-  }
-
-  // ✅ Calculate shipping
+  // ✅ Shipping
   const shippingCharge = calculateShippingCharge({
     userCity: shippingAddress.city,
     userState: shippingAddress.state,
@@ -129,45 +89,132 @@ export const checkout = asyncHandler(async (req, res) => {
     cartTotal: cart.subtotal,
   });
 
-  // ✅ Final totals
   const platformFee = config.platformFee || 0;
-  const additionalCharges = config.additionalCharges || 0;
+  const grandTotal = cart.grandTotal + shippingCharge + platformFee;
 
-  const grandTotal =
-    cart.subtotal +
-    cart.totalGST +
-    shippingCharge +
-    platformFee +
-    additionalCharges;
-
-  // ❗ Safety (no NaN)
   if (isNaN(grandTotal)) {
     throw AppError.internal("Invalid total calculation", "TOTAL_ERROR");
   }
 
-  // ✅ Create order (simplified)
-  const order = await Order.create({
+  // Razorpay order
+  const razorpayOrder = await createRazorpayOrder(grandTotal, {
     userId,
+  });
+
+  // ✅ Create ORDER (IMPORTANT FIRST)
+  const order = await Order.create({
+    user: userId,
     items: cart.items,
     shippingAddress,
     paymentMethod,
-    pricing: {
-      subtotal: cart.subtotal,
-      gst: cart.totalGST,
-      shippingCharge,
-      platformFee,
-      additionalCharges,
-      grandTotal,
-    },
-    status: "pending",
+    subtotal: cart.subtotal,
+    totalGST: cart.totalGST,
+    shippingCharge,
+    grandTotal,
+    paymentStatus: "pending",
+    status: "placed",
   });
+
+  // ✅ Create PAYMENT
+  const payment = await Payment.create({
+    order: order._id,
+    user: userId,
+    amount: grandTotal,
+    razorpayOrderId: razorpayOrder.id,
+    status: "created",
+  });
+
+  // link payment to order
+  order.payment = payment._id;
+  await order.save();
 
   res.status(200).json({
     success: true,
-    message: "Checkout successful",
+    message: "Payment initiated",
     data: {
       orderId: order._id,
-      pricing: order.pricing,
+      razorpay: {
+        rzOrderId: razorpayOrder.id,
+        amount: razorpayOrder.amount,
+        currency: razorpayOrder.currency,
+        key: env.RAZORPAY_API_KEY, // ✅ correct
+      },
+    },
+  });
+});
+
+export const verifyPayment = asyncHandler(async (req, res) => {
+  const userId = req.user?.userId;
+
+  const { razorpayOrderId, razorpayPaymentId, razorpaySignature } = req.body;
+
+  if (!razorpayOrderId || !razorpayPaymentId || !razorpaySignature) {
+    throw AppError.badRequest(
+      "All payment fields required",
+      "PAYMENT_DATA_MISSING",
+    );
+  }
+
+  // ✅ Verify signature
+  const isValid = verifyPaymentSignature({
+    razorpayOrderId,
+    razorpayPaymentId,
+    razorpaySignature,
+  });
+
+  // ✅ Find payment
+  const payment = await Payment.findOne({ razorpayOrderId });
+
+  if (!payment) {
+    throw AppError.notFound("Payment not found", "PAYMENT_NOT_FOUND");
+  }
+
+  const order = await Order.findById(payment.order);
+
+  if (!order) {
+    throw AppError.notFound("Order not found", "ORDER_NOT_FOUND");
+  }
+
+  // ❌ PAYMENT FAILED
+  if (!isValid) {
+    payment.status = "failed";
+    payment.failedAt = new Date();
+
+    order.paymentStatus = "failed";
+    order.status = "cancelled";
+    order.cancelledAt = new Date();
+
+    await payment.save();
+    await order.save();
+
+    return res.status(400).json({
+      success: false,
+      message: "Payment verification failed",
+    });
+  }
+
+  // ✅ PAYMENT SUCCESS
+  payment.status = "captured";
+  payment.razorpayPaymentId = razorpayPaymentId;
+  payment.razorpaySignature = razorpaySignature;
+  payment.isVerified = true;
+  payment.capturedAt = new Date();
+
+  order.paymentStatus = "paid";
+  order.status = "confirmed";
+  order.confirmedAt = new Date();
+
+  await payment.save();
+  await order.save();
+
+  // 🧹 Clear cart
+  await Cart.updateOne({ userId, status: "active" }, { status: "checked_out" });
+
+  res.status(200).json({
+    success: true,
+    message: "Payment verified successfully",
+    data: {
+      orderId: order._id,
     },
   });
 });

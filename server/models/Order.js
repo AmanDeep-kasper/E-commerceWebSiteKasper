@@ -16,7 +16,10 @@ const OrderItemSchema = new mongoose.Schema(
     variantName: { type: String, default: "" },
     variantColor: { type: String, default: "" },
     productTitle: { type: String, required: true },
-    imageUrl: { type: String, default: "" },
+    image: {
+      url: { type: String, default: "" },
+      altText: { type: String, default: "" },
+    },
 
     mrp: { type: Number, required: true },
     sellingPrice: { type: Number, required: true },
@@ -74,7 +77,6 @@ const OrderSchema = new mongoose.Schema(
     // Financial (all in INR paise-safe floats)
     subtotal: { type: Number, required: true },
     totalGST: { type: Number, default: 0 },
-    couponDiscount: { type: Number, default: 0 },
     shippingCharge: { type: Number, default: 0 },
     grandTotal: { type: Number, required: true },
 
@@ -194,24 +196,8 @@ OrderSchema.pre("save", async function (next) {
     this.orderNumber = `ORD-${dateStr}-${String(count + 1).padStart(4, "0")}`;
   }
 
-  // Push status change to history automatically
-  if (this.isModified("status")) {
-    this.statusHistory.push({ status: this.status });
-  }
-
   next();
 });
-
-// Instance method: add status update with note
-OrderSchema.methods.updateStatus = async function (
-  newStatus,
-  note = "",
-  changedBy = null,
-) {
-  this.status = newStatus;
-  this.statusHistory.push({ status: newStatus, note, changedBy });
-  return this.save();
-};
 
 const Order = mongoose.model("Order", OrderSchema);
 export default Order;
