@@ -104,10 +104,10 @@ import AccountSettingsEdit from "../pages/admin/setting/form/AccountSettingsEdit
 import RewardPoints from "../pages/admin/Reward/RewardPoints";
 import Rating from "../pages/user/Rating";
 import Collection from "../pages/admin/Collection/Collection";
-import BestSelling from "../pages/admin/Collection/BestSelling";
 import ProtectedRoute from "../pages/user/ProtectedRoute";
 import GuestRoute from "../pages/user/GuestRoute";
 import Reward from "../pages/user/reward";
+import CollectionProducts from "../pages/admin/Collection/CollectionProducts";
 
 const PageRouter = () => {
   return (
@@ -392,7 +392,8 @@ const PageRouter = () => {
           <Route path="reward&points" element={<RewardPoints />} />
           {/* Collection */}
           <Route path="collection" element={<Collection />} />
-          <Route path="best-selling" element={<BestSelling />} />
+          {/* <Route path="best-selling" element={<BestSelling />} /> */}
+          <Route path="collection/:collectionId/products" element={<CollectionProducts />} />
         </Route>
 
         {/* Catch-All */}
