@@ -214,7 +214,6 @@ function CategoryProducts() {
     const fetchProducts = async () => {
       try {
         setLoading(true);
-        // ✅ Correct endpoint (from your routes: /product/all)
         const response = await axiosInstance.get("/product/all", {
           params: {
             page: 1,

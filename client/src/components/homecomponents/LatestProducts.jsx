@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
-import products from "../../data/products.json";
+// import products from "../../data/products.json";
 import { Link, useNavigate } from "react-router-dom";
 import { useRef } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+// import { ChevronLeft, ChevronRight } from "lucide-react";
 import Title from "../Title";
 import Ratings from "../Ratings";
 import {
@@ -26,10 +26,39 @@ import { LuMinus } from "react-icons/lu";
 import { LuPlus } from "react-icons/lu";
 import { Heart } from "lucide-react";
 import { useSelector } from "react-redux";
+import { useParams } from "react-router-dom";
 
 function LatestProducts() {
-  const [temp, setTemp] = useState(250);
-  const [count, setCount] = useState(0);
+  const { slugOrId } = useParams();
+  const [Mainproduct, setMainProduct] = useState(null);
+  const [MainProductloading, setMainProductLoading] = useState(true);
+
+  const fetchProduct = async () => {
+    try {
+      setLoading(true);
+
+      const res = await axiosInstance.get(
+        `/product/${slugOrId}` // ✅ YOUR NEW API
+      );
+
+      setMainProduct(res.data.data);
+    } catch (error) {
+      console.log("Error:", error);
+      setMainProduct(null);
+    } finally {
+      setMainProductLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (slugOrId) {
+      fetchProduct();
+    }
+  }, [slugOrId]);
+
+
+
+
   const ref = useRef(null);
   const navigate = useNavigate(null);
   const [visibleCount, setVisibleCount] = useState(4);
@@ -54,34 +83,24 @@ function LatestProducts() {
     return () => window.removeEventListener("resize", updateCount);
   }, []);
 
-  // function getRandomItems(products, number) {
-  //   const shuffled = [...products].sort(() => 0.5 - Math.random());
-  //   return shuffled.slice(0, number);
-  // }
-  // const randomTen = useMemo(() => getRandomItems(products, 10), [products]);
-
-  // const productsBackend = async () => {
-  //   axiosInstance.get("")
-  // };
-
   const [latestProduct, setlatestProduct] = useState([]);
 
-    const fetchProducts = async () => {
-      try {
-        const res = await axiosInstance.get("/product/all");
-        // console.log("PRODUCT API:", res.data);
+  const fetchProducts = async () => {
+    try {
+      const res = await axiosInstance.get("/product/all");
+      console.log("PRODUCT API:", res.data);
 
-        const productData =
-          res?.data?.products || res?.data?.data || res?.data?.product || [];
+      const productData =
+        res?.data?.products || res?.data?.data || res?.data?.product || [];
 
-        setlatestProduct(Array.isArray(productData) ? productData : []);
-      } catch (error) {
-        console.log(error);
-        setlatestProduct([]);
-      }
-    };
-    
- useEffect(() => {
+      setlatestProduct(Array.isArray(productData) ? productData : []);
+    } catch (error) {
+      console.log(error);
+      setlatestProduct([]);
+    }
+  };
+
+  useEffect(() => {
     fetchProducts();
   }, []);
 
@@ -147,16 +166,14 @@ function LatestProducts() {
       </div>
 
       {/* Best Selling Products */}
-      <div
-        className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4 relative"
-        // ref={ref} //grid-flow-col auto-cols-max
-      >
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4 relative">
         {latestProducts.slice(0, visibleCount)?.map((p) => {
           // {console.log(p)}
           const key = p._id || p.uuid || p.SKU;
           const v = p?.variants?.[0] || {};
           const mrp = Number(v?.max || 0);
           const sell = Number(v?.min || 0);
+           const productLink = p.slug || p._id;
 
           // compute % off from MRP and Selling Price
           const discountPercent =
@@ -167,17 +184,15 @@ function LatestProducts() {
 
           return (
             <Link
-              key={key}
+              key={productLink}
               className="bg-white p-2 rounded-lg group/image block transition-shadow duration-300"
-              to={`/product/${p._id}`}
+              to={`/product/${productLink}`}
             >
               <div className="relative w-full overflow-hidden rounded-md">
                 <img
                   className="w-full aspect-square object-contain transition-transform duration-300 group-hover/image:scale-110"
-                  src={
-                    p.image && p.image
-                  }
-                  alt={p.name || p.slug }
+                  src={p.image && p.image}
+                  alt={p.name || p.slug}
                   loading="lazy"
                 />
                 {/* Wishlist Button */}
@@ -257,9 +272,9 @@ function LatestProducts() {
                   </span>
 
                   {/* {mrp > 0 && discountPercent > 0 && ( */}
-                    <span className="text-gray-400 text-xs line-through font-light">
-                      ₹{p.mrp}
-                    </span>
+                  <span className="text-gray-400 text-xs line-through font-light">
+                    ₹{p.mrp}
+                  </span>
                   {/* )} */}
                   <div className="border-l border-[#DBDBDB] h-3"></div>
                   {p.discount > 0 && (
