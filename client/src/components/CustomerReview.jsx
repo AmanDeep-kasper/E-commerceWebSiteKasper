@@ -1,88 +1,47 @@
-import { useMemo, useState } from "react";
-// import product from "../assets/ProductDetails1.jpg";
+import { useEffect, useMemo, useState } from "react";
 import Ratings from "./Ratings";
-import { ThumbsUp, ThumbsDown, Link } from "lucide-react";
+import axiosInstance from "../api/axiosInstance";
 import { useNavigate } from "react-router-dom";
 
-const customers = [
-  {
-    user: "Rohit Sharma",
-    userImage: "https://randomuser.me/api/portraits/men/32.jpg",
-    comment:
-      "calms your mind whenever you look” and “excellent product… must‑have for home decor.”",
-    rating: "5",
-    likes: 42,
-    dislike: 0,
-    // images: product,
-    date: "2025-04-05",
-  },
-  {
-    user: "Neha Sharma",
-    userImage: "https://randomuser.me/api/portraits/women/32.jpg",
-    comment:
-      "calms your mind whenever you look” and “excellent product… must‑have for home decor.”",
-    rating: "5",
-    likes: 42,
-    dislike: 0,
-    // images: product,
-    date: "2025-04-05",
-  },
-  {
-    user: "Rohit Sharma",
-    userImage: "https://randomuser.me/api/portraits/men/32.jpg",
-    comment:
-      "calms your mind whenever you look” and “excellent product… must‑have for home decor.”",
-    rating: "5",
-    likes: 42,
-    dislike: 0,
-    // images: product,
-    date: "2025-04-05",
-  },
-  {
-    user: "Neha Sharma",
-    userImage: "https://randomuser.me/api/portraits/women/32.jpg",
-    comment:
-      "calms your mind whenever you look” and “excellent product… must‑have for home decor.”",
-    rating: "5",
-    likes: 42,
-    dislike: 0,
-    // images: product,
-    date: "2025-04-05",
-  },
-  {
-    user: "Rohit Sharma",
-    userImage: "https://randomuser.me/api/portraits/men/32.jpg",
-    comment:
-      "calms your mind whenever you look” and “excellent product… must‑have for home decor.”",
-    rating: "5",
-    likes: 42,
-    dislike: 0,
-    // images: product,
-    date: "2025-04-05",
-  },
-  {
-    user: "Neha Sharma",
-    userImage: "https://randomuser.me/api/portraits/women/32.jpg",
-    comment:
-      "calms your mind whenever you look” and “excellent product… must‑have for home decor.”",
-    rating: "5",
-    likes: 42,
-    dislike: 0,
-    // images: product,
-    date: "2025-04-05",
-  },
-];
-
 function CustomerReview({ reviews = [], id, allReviews = false }) {
-  const [moreReview, setMoreReview] = useState(2);
+  const [moreReview] = useState(2);
+  const [fetchedReviews, setFetchedReviews] = useState([]);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasFetchedAll, setHasFetchedAll] = useState(false);
+
   const navigate = useNavigate();
 
-  const productReview = useMemo(() => {
-    if (!reviews) return [];
-    return allReviews ? reviews : reviews.slice(0, moreReview);
-  }, [reviews, allReviews, moreReview]);
+  useEffect(() => {
+    setFetchedReviews(reviews || []);
+    setHasFetchedAll(false);
+  }, [reviews]);
 
-  if (!reviews || reviews.length === 0) {
+  const productReview = useMemo(() => {
+    if (!fetchedReviews) return [];
+    return allReviews || hasFetchedAll
+      ? fetchedReviews
+      : fetchedReviews.slice(0, moreReview);
+  }, [fetchedReviews, allReviews, hasFetchedAll, moreReview]);
+
+  const handleSeeMoreReviews = async () => {
+    try {
+      setLoadingMore(true);
+
+      const res = await axiosInstance.get(`/review/all-product-reviews/${id}`);
+      const allProductReviews = res?.data?.data || [];
+
+      console.log("Fetched reviews:", allProductReviews);
+
+      setFetchedReviews(allProductReviews);
+      setHasFetchedAll(true);
+    } catch (error) {
+      console.error("Error fetching reviews:", error);
+    } finally {
+      setLoadingMore(false);
+    }
+  };
+
+  if (!fetchedReviews || fetchedReviews.length === 0) {
     return (
       <div className="py-8 flex flex-col items-center justify-center text-center border rounded-lg bg-white">
         <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mb-4">
@@ -115,36 +74,47 @@ function CustomerReview({ reviews = [], id, allReviews = false }) {
     <div className="w-full">
       <div className="flex flex-col gap-3">
         {productReview.map(
-          ({ user, userImage, comment, rating, images, date }, index) => (
+          (
+            {
+              _id,
+              reviewerName,
+              reviewerImage,
+              reviewText,
+              rating,
+              reviewImages,
+              createdAt,
+            },
+            index,
+          ) => (
             <div
-              key={index}
+              key={_id || index}
               className="border border-[#DADADA] rounded-lg bg-[#FCFCFC] p-4"
             >
               <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                 <div className="flex gap-3">
-                  {userImage ? (
+                  {reviewerImage ? (
                     <img
                       className="w-10 h-10 rounded-full object-cover"
-                      src={userImage}
-                      alt={`${user}'s avatar`}
-                       crossOrigin="anonymous"
-  referrerPolicy="no-referrer"
+                      src={reviewerImage}
+                      alt={`${reviewerName}'s avatar`}
+                      crossOrigin="anonymous"
+                      referrerPolicy="no-referrer"
                     />
                   ) : (
                     <div className="w-10 h-10 rounded-full bg-[#D9A7A0] flex items-center justify-center text-white font-medium text-sm shrink-0">
-                      {user?.charAt(0)?.toUpperCase()}
+                      {reviewerName?.charAt(0)?.toUpperCase() || "U"}
                     </div>
                   )}
 
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
                       <h1 className="text-[15px] font-medium text-[#222]">
-                        {user}
+                        {reviewerName}
                       </h1>
                       <Ratings avgRating={Number(rating)} />
                       <span className="text-[#6C6B6B] text-[12px]">
                         (
-                        {new Date(date).toLocaleDateString("en-GB", {
+                        {new Date(createdAt).toLocaleDateString("en-GB", {
                           day: "numeric",
                           month: "short",
                           year: "numeric",
@@ -156,42 +126,52 @@ function CustomerReview({ reviews = [], id, allReviews = false }) {
                 </div>
               </div>
 
-              {images && (
+              {reviewImages?.length > 0 && (
                 <div className="flex flex-wrap gap-2 mt-3">
-                  {(Array.isArray(images) ? images : [images]).map(
-                    (img, idx) => (
-                      <img
-                        key={idx}
-                        className="w-14 h-14 object-cover rounded border"
-                        src={img}
-                         crossOrigin="anonymous"
-  referrerPolicy="no-referrer"
-                        alt="review"
-                      />
-                    ),
-                  )}
+                  {reviewImages.map((img, idx) => (
+                    <img
+                      key={idx}
+                      className="w-14 h-14 object-cover rounded border"
+                      src={img?.url}
+                      crossOrigin="anonymous"
+                      referrerPolicy="no-referrer"
+                      alt="review"
+                    />
+                  ))}
                 </div>
               )}
 
-              <p className="text-sm text-[#3A3A3A] mt-3 leading-6">{comment}</p>
+              <p className="text-sm text-[#3A3A3A] mt-3 leading-6">
+                {reviewText}
+              </p>
             </div>
           ),
         )}
       </div>
 
-      {reviews.length > moreReview && !allReviews && (
-        <Link to={"/rating"}>
+      {!allReviews && fetchedReviews.length > moreReview && (
         <button
           type="button"
           className="py-2 mt-3 font-medium text-[#1C3753]"
           onClick={() => navigate(`/all-reviews/${id}`)}
         >
-          See more reviews &#8250;
+          See more reviews ›
         </button>
-        </Link>
       )}
     </div>
   );
 }
 
 export default CustomerReview;
+
+//  {reviews.length > moreReview && !allReviews && (
+//         <Link to={"/rating"}>
+//           <button
+//             type="button"
+//             className="py-2 mt-3 font-medium text-[#1C3753]"
+//             onClick={() => navigate(`/all-reviews/${id}`)}
+//           >
+//             See more reviews &#8250;
+//           </button>
+//         </Link>
+//       )}

@@ -41,7 +41,7 @@ const SomethingWentWrong = ({
           <Link
             to="/"
             className="inline-block bg-[#F0EEFF]
-                   text-white rounded-full px-8 py-3 font-medium transition-all shadow-md hover:shadow-lg"
+                   text-[#1c1c1c] rounded-full px-8 py-3 font-medium transition-all shadow-md hover:shadow-lg"
           >
             Continue Shopping
           </Link>
