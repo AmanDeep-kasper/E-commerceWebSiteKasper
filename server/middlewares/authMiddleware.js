@@ -60,7 +60,7 @@ export const authenticate = async (req, res, next) => {
     }
 
     const user = await User.findById(decoded.userId).select(
-      "_id name email role isActive isVerified +activeSessions lastLogin",
+      "_id name email role isActive isVerified +activeSessions",
     );
 
     if (!user) {
@@ -74,6 +74,14 @@ export const authenticate = async (req, res, next) => {
       return res.status(403).json({
         success: false,
         message: "Account is deactivated. Please contact support.",
+      });
+    }
+
+     if (!user.activeSessions?.includes(decoded.sessionId)) {
+      return res.status(401).json({
+        success: false,
+        message: "Session expired. Please login again.",
+        code: "SESSION_EXPIRED",
       });
     }
 
@@ -97,19 +105,6 @@ export const authenticate = async (req, res, next) => {
       });
     }
 
-    if (env.ENABLE_DEVICE_FINGERPRINT && decoded.fingerprint) {
-      const { generateDeviceFingerprint } = await import("../utils/token.js");
-      const currentFingerprint = generateDeviceFingerprint(req);
-      if (decoded.fingerprint !== currentFingerprint) {
-        console.warn("Device fingerprint mismatch detected");
-        // Optionally: return 401 here for strict mode
-        return res.status(401).json({
-          success: false,
-          message: "Device fingerprint mismatch. Please login again.",
-        });
-      }
-    }
-
     req.user = {
       id: user._id,
       userId: user._id,
@@ -125,7 +120,7 @@ export const authenticate = async (req, res, next) => {
     req.token = token;
     req.tokenDecoded = decoded;
 
-    next();
+    return next();
   } catch (error) {
     console.error("Auth middleware error:", error);
     return res.status(500).json({

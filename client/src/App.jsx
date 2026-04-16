@@ -6,38 +6,23 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import PageRouter from "./Router/PageRouter";
 import { getUserDetails } from "./redux/cart/userSlice";
-// import { useAutoRefreshToken } from "./hooks/useAutoRefreshToken";
-// import { fetchAddresses } from "./redux/cart/addressSlice";
-import { fetchAllProducts, fetchAllCategories } from "./redux/cart/productSlice";
 
 function App() {
   const dispatch = useDispatch();
   const { isAuthenticated } = useSelector((state) => state.user);
 
-  // useAutoRefreshToken();
-
   useEffect(() => {
-    // Fetch public data for guests and users alike!
-    // dispatch(fetchAllProducts());
-    dispatch(fetchAllCategories());
-
     const initializeUser = async () => {
       try {
         await dispatch(getUserDetails()).unwrap();
       } catch (err) {
         // Cookie expired ya user not logged in
-        console.log("User not authenticated check");
+        // console.log("User not authenticated check");
       }
     };
 
     initializeUser();
   }, [dispatch]);
-
-  // useEffect(() => {
-  //   if (isAuthenticated) {
-  //     dispatch(fetchAddresses());
-  //   }
-  // }, [dispatch, isAuthenticated]);
 
   useEffect(() => {
     dispatch(syncCart());

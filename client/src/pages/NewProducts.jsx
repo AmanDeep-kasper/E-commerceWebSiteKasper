@@ -19,7 +19,7 @@ function NewProducts() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const allProducts = useSelector((state) => state.products.products);
+  const allProducts = useSelector((state) => state.products.product);
 
   useEffect(() => {
     if (allProducts && allProducts.length > 0) {

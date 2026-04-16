@@ -30,7 +30,6 @@ function Product() {
         setError("");
 
         const res = await axiosInstance.get("/product/all");
-        // console.log("Product API Response:", res.data);
 
         let fetchedProducts = [];
 
@@ -209,7 +208,10 @@ function Product() {
         subcategory={displaySubcategory}
       />
 
-      <div className="lg:px-20 md:px-[60px] px-4 pb-[23px] lg:flex gap-4 bg-gray-50" style={{paddingTop:'100px'}}>
+      <div
+        className="lg:px-20 md:px-[60px] px-4 pb-[23px] lg:flex gap-4 bg-gray-50"
+        style={{ paddingTop: "100px" }}
+      >
         <Filter
           setParam={setParam}
           val={val}

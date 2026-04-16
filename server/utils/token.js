@@ -43,12 +43,7 @@ export const generateRefreshToken = async (userId, sessionId, req) => {
     audience: env.JWT_AUDIENCE,
   });
 
-  const hashedToken = crypto
-    .createHash("sha256")
-    .update(refreshToken)
-    .digest("hex");
-
-  await storeRefreshToken(userId, refreshTokenId, sessionId, hashedToken, req);
+  await storeRefreshToken(userId, refreshTokenId, sessionId, refreshToken, req);
 
   return refreshToken;
 };
@@ -91,6 +86,13 @@ async function storeRefreshToken(
   refreshToken,
   req,
 ) {
+  const hashedToken = crypto
+    .createHash("sha256")
+    .update(refreshToken)
+    .digest("hex");
+
+  const MAX_SESSIONS = 10;
+
   await User.updateOne(
     { _id: userId },
     {
@@ -100,12 +102,12 @@ async function storeRefreshToken(
             {
               tokenId: refreshTokenId,
               sessionId,
-              token: refreshToken,
+              token: hashedToken,
               createdAt: new Date(),
               expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
               isRevoked: false,
               deviceInfo: {
-                userAgent: req?.headers["user-agent"],
+                userAgent: req?.headers["user-agent"]?.slice(0, 200),
                 ipAddress:
                   req?.headers["x-forwarded-for"]?.split(",")[0] ||
                   req?.ip ||
@@ -113,7 +115,7 @@ async function storeRefreshToken(
               },
             },
           ],
-          $slice: -5,
+          $slice: -MAX_SESSIONS,
         },
       },
     },
@@ -170,12 +172,10 @@ export const rotateTokens = async (userId, role, oldRefreshToken, req) => {
      REUSE DETECTION
   ======================== */
   if (tokenData.isRevoked) {
-    console.warn("⚠️ Token reuse detected");
-
-    const isSameIP = tokenData.deviceInfo?.ipAddress === currentIP;
+    const isSameDevice = tokenData.deviceInfo?.ipAddress === currentIP;
 
     // ✅ SAME DEVICE → allow silently (NO logout)
-    if (isSameIP) {
+    if (isSameDevice) {
       return await generateAuthTokens(userId, role, req);
     }
 

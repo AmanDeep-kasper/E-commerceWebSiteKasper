@@ -13,7 +13,7 @@ import {
   rotateTokens,
 } from "../utils/token.js";
 import env from "../config/env.js";
-import { TempUser } from "../models/tempUser.js";
+import TempUser from "../models/TempUser.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import AppError from "../utils/AppError.js";
 
@@ -29,7 +29,7 @@ export const registerUser = asyncHandler(async (req, res) => {
   }
 
   // Remove stale temp record if present
-  await TempUser.deleteOne({ email });
+  await TempUser.deleteMany({ email });
 
   const otp = generateOTP();
   const otpExpires = new Date(Date.now() + 10 * 60 * 1000);
@@ -166,7 +166,8 @@ export const loginUser = asyncHandler(async (req, res) => {
   if (cleanIdentifier.includes("@")) {
     query.email = cleanIdentifier;
   } else {
-    query.phoneNumber = cleanIdentifier;
+    const normalizedPhone = cleanIdentifier.replace(/\D/g, "");
+    query.phoneNumber = normalizedPhone;
   }
 
   const user = await User.findOne(query).select(
@@ -204,31 +205,18 @@ export const loginUser = asyncHandler(async (req, res) => {
     // Lock after 5 attempts
     if (attempts >= 5) {
       update.$set = {
-        lockUntil: new Date(Date.now() + 30 * 60 * 1000),
+        lockUntil: new Date(Date.now() + 5 * 60 * 1000),
       };
-
-      console.warn({
-        event: "ACCOUNT_LOCKED",
-        userId: user._id,
-        ip: req.ip,
-      });
     }
 
     await User.updateOne({ _id: user._id }, update);
-
-    console.warn({
-      event: "LOGIN_FAILED",
-      userId: user._id,
-      ip: req.ip,
-      attempts,
-    });
     throw AppError.authentication(GENERIC_ERROR, "INVALID_CREDENTIALS");
   }
 
   const { accessToken, refreshToken, sessionId, expiresIn, tokenType } =
     await generateAuthTokens(user._id, user.role, req);
 
-  const MAX_SESSIONS = 5;
+  const MAX_SESSIONS = 10;
   await User.updateOne(
     { _id: user._id },
     {
@@ -236,8 +224,11 @@ export const loginUser = asyncHandler(async (req, res) => {
         loginAttempts: 0,
         lockUntil: null,
         lastLogin: new Date(),
-        lastLoginIP: req.ip || req.connection?.remoteAddress,
-        lastLoginDevice: req.headers["user-agent"],
+        lastLoginIP:
+          req.ip ||
+          req.connection?.remoteAddress ||
+          req.headers["x-forwarded-for"]?.split(",")[0],
+        lastLoginDevice: req.headers["user-agent"]?.slice(0, 200),
       },
       $push: {
         activeSessions: {
@@ -248,26 +239,30 @@ export const loginUser = asyncHandler(async (req, res) => {
     },
   );
 
-  const isProduction = env.NODE_ENV === "development";
+  const isProduction = env.NODE_ENV === "production";
+
+  const cookieOptions = {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax",
+    path: "/",
+  };
 
   res.cookie("accessToken", accessToken, {
-    httpOnly: true,
-    secure: isProduction ? false : true,
-    sameSite: isProduction ? "lax" : "none",
+    ...cookieOptions,
     maxAge: 15 * 60 * 1000,
   });
 
   res.cookie("refreshToken", refreshToken, {
-    httpOnly: true,
-    secure: isProduction ? false : true,
-    sameSite: isProduction ? "lax" : "none",
+    ...cookieOptions,
     maxAge: 7 * 24 * 60 * 60 * 1000,
   });
 
   res.cookie("sessionId", sessionId, {
     httpOnly: false,
-    secure: isProduction ? false : true,
-    sameSite: isProduction ? "lax" : "none",
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax",
+    path: "/",
     maxAge: 7 * 24 * 60 * 60 * 1000,
   });
 
@@ -286,11 +281,6 @@ export const loginUser = asyncHandler(async (req, res) => {
       isActive: user.isActive,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
-    },
-    session: {
-      id: sessionId,
-      expiresIn,
-      tokenType,
     },
   });
 });
@@ -311,78 +301,40 @@ async function bcryptDummy(password) {
 export const logoutUser = asyncHandler(async (req, res) => {
   const accessToken =
     req.cookies.accessToken || req.headers.authorization?.split(" ")[1];
+
   const refreshToken = req.cookies.refreshToken;
 
   const userId = req.user?.userId;
   const sessionId = req.user?.sessionId;
-  const tokenId = req.user?.tokenId;
 
   const operations = [];
 
+  //  ACCESS TOKEN BLACKLIST
   if (accessToken) {
     const blacklisted = await blacklistToken(accessToken);
+
     operations.push({
       type: "access_token",
       status: blacklisted ? "blacklisted" : "failed",
     });
-
-    if (blacklisted) {
-      console.log(`Access token blacklisted: ${tokenId} for user: ${userId}`);
-    }
   }
 
-  if (refreshToken && userId && sessionId) {
-    const hashedRefreshToken = crypto
-      .createHash("sha256")
-      .update(refreshToken)
-      .digest("hex");
-
-    const result = await User.updateOne(
-      {
-        _id: userId,
-        "refreshTokens.sessionId": sessionId,
-        "refreshTokens.token": hashedRefreshToken,
-        "refreshTokens.isRevoked": false,
-      },
-      {
-        $set: {
-          "refreshTokens.$.isRevoked": true,
-          "refreshTokens.$.revokedAt": new Date(),
-        },
-      },
-    );
-
-    if (result.modifiedCount > 0) {
-      operations.push({ type: "refresh_token", status: "invalidated" });
-    } else {
-      const sessionResult = await User.updateOne(
-        { _id: userId, "refreshTokens.sessionId": sessionId },
-        {
-          $set: {
-            "refreshTokens.$.isRevoked": true,
-            "refreshTokens.$.revokedAt": new Date(),
-          },
-        },
-      );
-      operations.push({
-        type: "refresh_token",
-        status: sessionResult.modifiedCount > 0 ? "invalidated" : "not_found",
-      });
-    }
-  } else if (refreshToken && !userId) {
+  //  REFRESH TOKEN REVOKE
+  if (refreshToken) {
     try {
-      const decoded = jwt.decode(refreshToken);
+      const decoded = req.user || jwt.decode(refreshToken);
+
       if (decoded?.userId && decoded?.sessionId) {
-        const hashedRefreshToken = crypto
+        const hashedToken = crypto
           .createHash("sha256")
           .update(refreshToken)
           .digest("hex");
 
-        await User.updateOne(
+        const result = await User.updateOne(
           {
             _id: decoded.userId,
             "refreshTokens.sessionId": decoded.sessionId,
-            "refreshTokens.token": hashedRefreshToken,
+            "refreshTokens.token": hashedToken,
           },
           {
             $set: {
@@ -391,44 +343,53 @@ export const logoutUser = asyncHandler(async (req, res) => {
             },
           },
         );
+
         operations.push({
           type: "refresh_token",
-          status: "invalidated_from_decode",
+          status: result.modifiedCount > 0 ? "invalidated" : "not_found",
         });
       }
-    } catch (decodeError) {
-      console.error("Error decoding refresh token:", decodeError);
-      operations.push({ type: "refresh_token", status: "decode_failed" });
+    } catch (err) {
+      console.error("Refresh revoke error:", err);
+      operations.push({ type: "refresh_token", status: "failed" });
     }
   }
 
+  //  REMOVE SESSION
   if (userId && sessionId) {
     await User.updateOne(
       { _id: userId },
       { $pull: { activeSessions: sessionId } },
     );
-    operations.push({ type: "current_session", status: "removed" });
+
+    operations.push({
+      type: "session",
+      status: "removed",
+    });
   }
 
-  const isProduction = env.NODE_ENV === "development";
+  //  COOKIE CONFIG (FIXED)
+  const isProduction = env.NODE_ENV === "production";
+
   const cookieOptions = {
     httpOnly: true,
-    secure: isProduction ? false : true,
-    sameSite: isProduction ? "lax" : "none",
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax",
     path: "/",
   };
 
+  // ✅ IMPORTANT: same options as set cookie
   res.clearCookie("accessToken", cookieOptions);
   res.clearCookie("refreshToken", cookieOptions);
-  res.clearCookie("sessionId", { ...cookieOptions, httpOnly: false });
+  res.clearCookie("sessionId", {
+    ...cookieOptions,
+    httpOnly: false,
+  });
 
-  res.status(200).json({
+  //  RESPONSE
+  return res.status(200).json({
     success: true,
-    message: "Logged out successfully",
-    data: {
-      operations,
-      timestamp: new Date().toISOString(),
-    },
+    message: "User logged out successfully",
   });
 });
 
@@ -436,9 +397,16 @@ export const me = asyncHandler(async (req, res) => {
   const userId = req.user?.userId;
   const currentSessionId = req.user?.sessionId;
 
+  if (!userId || !currentSessionId) {
+    throw AppError.authentication(
+      "Unauthorized. Please login again.",
+      "UNAUTHORIZED",
+    );
+  }
+
   // Validate session is still active
   const user = await User.findById(userId).select(
-    "-password -refreshTokens -resetPasswordToken -resetPasswordExpires -lastLogin -loginAttempts -lockUntil -lastLoginDevice -lastLoginIP -resetPasswordAttempts",
+    "name email role gender dateOfBirth phoneNumber profileImage isVerified isActive createdAt updatedAt activeSessions",
   );
 
   if (!user) {
@@ -450,6 +418,14 @@ export const me = asyncHandler(async (req, res) => {
       "Your account has been deactivated.",
       "ACCOUNT_DEACTIVATED",
     );
+  }
+
+  // Session invalid (VERY IMPORTANT)
+  if (!user.activeSessions?.includes(currentSessionId)) {
+    return res.status(401).json({
+      success: false,
+      message: "Session expired. Please login again.",
+    });
   }
 
   // Return user data without sensitive fields
@@ -529,11 +505,11 @@ export const changePassword = asyncHandler(async (req, res) => {
     { $set: { activeSessions: [sessionId] } },
   );
 
-  const isProduction = env.NODE_ENV === "development";
+  const isProduction = env.NODE_ENV === "production";
   const cookieOptions = {
     httpOnly: true,
-    secure: isProduction ? false : true,
-    sameSite: isProduction ? "lax" : "none",
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax",
   };
 
   res.cookie("accessToken", accessToken, {
@@ -546,17 +522,10 @@ export const changePassword = asyncHandler(async (req, res) => {
     maxAge: 7 * 24 * 60 * 60 * 1000,
   });
 
-  console.log(
-    `🔐 Password changed for user: ${userId} | ${revokedCount - 1} other session(s) logged out`,
-  );
-
   res.status(200).json({
     success: true,
     message:
       "Password changed successfully. Other devices have been logged out.",
-    data: {
-      otherSessionsLoggedOut: Math.max(0, revokedCount - 1),
-    },
   });
 });
 
@@ -585,14 +554,14 @@ export const forgotPassword = asyncHandler(async (req, res) => {
   const timeSinceLastRequest = now - lastRequest;
   const MIN_TIME_BETWEEN_REQUESTS = 60 * 1000;
 
-  // if (resetAttempts >= 3 && timeSinceLastRequest < 60 * 60 * 1000) {
-  //   console.warn(`Password reset rate limit hit for email: ${email}`);
-  //   return res.status(200).json({
-  //     success: true,
-  //     message:
-  //       "If an account with that email exists, a reset link has been sent.",
-  //   });
-  // }
+  if (resetAttempts >= 5 && timeSinceLastRequest < 60 * 60 * 1000) {
+    console.warn(`Password reset rate limit hit for email: ${email}`);
+    return res.status(200).json({
+      success: true,
+      message:
+        "If an account with that email exists, a reset link has been sent.",
+    });
+  }
 
   if (timeSinceLastRequest < MIN_TIME_BETWEEN_REQUESTS) {
     const waitTime = Math.ceil(
@@ -754,36 +723,33 @@ export const refreshAccessToken = asyncHandler(async (req, res) => {
     },
   );
 
-  const isProduction = env.NODE_ENV === "development";
+  const isProduction = env.NODE_ENV === "production";
+
+  const cookieOptions = {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax",
+  };
 
   res.cookie("accessToken", newTokens.accessToken, {
-    httpOnly: true,
-    secure: isProduction ? false : true,
-    sameSite: isProduction ? "lax" : "none",
+    ...cookieOptions,
     maxAge: 15 * 60 * 1000,
   });
 
   res.cookie("refreshToken", newTokens.refreshToken, {
-    httpOnly: true,
-    secure: isProduction ? false : true,
-    sameSite: isProduction ? "lax" : "none",
+    ...cookieOptions,
     maxAge: 7 * 24 * 60 * 60 * 1000,
   });
 
   res.cookie("sessionId", newTokens.sessionId, {
     httpOnly: false,
-    secure: isProduction ? false : true,
-    sameSite: isProduction ? "lax" : "none",
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax",
     maxAge: 7 * 24 * 60 * 60 * 1000,
   });
 
   res.status(200).json({
     success: true,
     message: "Access token refreshed successfully",
-    data: {
-      expiresIn: newTokens.expiresIn,
-      tokenType: newTokens.tokenType,
-      sessionId: newTokens.sessionId,
-    },
   });
 });
