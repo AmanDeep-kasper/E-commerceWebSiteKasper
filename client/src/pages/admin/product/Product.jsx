@@ -277,7 +277,8 @@ const Products = () => {
     const fetchProducts = async() => {
       try {
         setLoading(true);
-        const response = await axiosInstance.get("/product/all");
+        // const response = await axiosInstance.get("/product/all");
+         const response = await axiosInstance.get("/product/admin/get-all-products");
         console.log("Products API Response:", response.data);
 
         let products =[];
