@@ -1,8 +1,5 @@
 // ================== CORE IMPORTS ==================
 import dns from "node:dns";
-import path from "path";
-import { fileURLToPath } from "url";
-
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
@@ -25,7 +22,12 @@ import reviewRouter from "./routes/reviewRoutes.js";
 import rewardRouter from "./routes/rewardRoutes.js";
 import wishlistRouter from "./routes/wishlistRouter.js";
 import cartRouter from "./routes/cartRoutes.js";
+
+// =========== admin dashboard setting routes ==============
 import businessRouter from "./routes/admin/businessRoutes.js";
+import warehouseRouter from "./routes/admin/warehouseRoutes.js";
+import policyRouter from "./routes/admin/policyRoutes.js";
+import shippingRouter from "./routes/admin/shippingRoutes.js";
 
 // ================== MIDDLEWARES ==================
 import { errorHandler, notFoundHandler } from "./middlewares/errorHandler.js";
@@ -35,10 +37,6 @@ import { globalLimiter, speedLimiter } from "./middlewares/rateLimit.js";
 dns.setServers(["1.1.1.1", "1.0.0.1", "8.8.8.8", "8.8.4.4"]);
 
 const app = express();
-
-// Fix __dirname (ESM)
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 // ================== SECURITY ==================
 app.use(helmet());
@@ -50,21 +48,32 @@ const allowedOrigins = [
   "http://localhost:5173",
   "http://127.0.0.1:5173",
   "http://localhost:5174",
-  "http://localhost:5000",
   "https://e-commercewebsitekasper.onrender.com",
 ];
 
 app.use(
   cors({
-    origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
+    origin: function (origin, callback) {
+      console.log("🌐 Origin:", origin);
+
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
         return callback(null, true);
       }
+
+      // Allow all (you can tighten in production)
       return callback(null, true);
     },
     credentials: true,
-  })
+  }),
 );
+
+// Debug Middleware
+app.use((req, _res, next) => {
+  console.log("➡️ Incoming Origin:", req.headers.origin);
+  next();
+});
 
 // ================== RATE LIMIT ==================
 if (env.NODE_ENV === "production") {
@@ -73,36 +82,23 @@ if (env.NODE_ENV === "production") {
 app.use(globalLimiter);
 app.use(speedLimiter);
 
-// ================== BODY ==================
+// ================== BODY PARSING ==================
 app.use(express.json({ limit: "16kb" }));
 app.use(express.urlencoded({ extended: true, limit: "16kb" }));
 
-// ================== COOKIES ==================
+// ================== COOKIES & STATIC ==================
 app.use(cookieParser());
+app.use(express.static("public"));
 
-/* ======================================================
-   ✅ STATIC FILES (FIX FOR IMAGE ISSUE)
-====================================================== */
-
-// 🔥 Absolute path (IMPORTANT FIX)
-const publicPath = path.join(__dirname, "public");
-
-// Debug (you can remove later)
-console.log("📂 Public folder path:", publicPath);
-
-// Serve images like: http://localhost:5000/public/image.jpg
-app.use("/public", express.static(publicPath));
-
-/* ======================================================
-   HEALTH CHECK
-====================================================== */
-app.get("/api/health", (_req, res) => {
-  res.json({ success: true, message: "🚀 Server running" });
+// ================== HEALTH CHECK ==================
+app.get("/", (_req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "🚀 Server is running...",
+  });
 });
 
-/* ======================================================
-   API ROUTES
-====================================================== */
+// ================== API ROUTES ==================
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/category", categoryRouter);
@@ -113,42 +109,26 @@ app.use("/api/v1/review", reviewRouter);
 app.use("/api/v1/reward", rewardRouter);
 app.use("/api/v1/wishlist", wishlistRouter);
 app.use("/api/v1/cart", cartRouter);
+
+// ============= Dashboard Setting Routes =============
 app.use("/api/v1/dashboard/business", businessRouter);
+app.use("/api/v1/dashboard/warehouse", warehouseRouter);
+app.use("/api/v1/dashboard/policy", policyRouter);
+app.use("/api/v1/dashboard/shipping", shippingRouter);
 
-/* ======================================================
-   FRONTEND (SPA)
-====================================================== */
-
-const buildPath = path.join(__dirname, "../client/dist");
-
-// Serve frontend build
-app.use(express.static(buildPath));
-
-// favicon fix
-app.get("/favicon.ico", (_req, res) => res.status(204).end());
-
-// ✅ SPA fallback (DO NOT TOUCH)
-app.get(/^\/(?!api).*/, (req, res) => {
-  res.sendFile(path.join(buildPath, "index.html"));
-});
-
-/* ======================================================
-   ERROR HANDLING
-====================================================== */
+// ================== ERROR HANDLING ==================
 app.use(notFoundHandler);
 app.use(errorHandler);
 
-/* ======================================================
-   START SERVER
-====================================================== */
+// ================== SERVER START ==================
 const startServer = async () => {
   try {
     setupUnhandledErrorHandlers();
+
     await connectDB();
 
     app.listen(env.PORT, () => {
       console.log(`🚀 Server running on port ${env.PORT}`);
-      console.log(`🌐 Public URL: http://localhost:${env.PORT}/public`);
     });
   } catch (error) {
     console.error("❌ Failed to start server:", error);

@@ -5,47 +5,76 @@ import { ChevronLeft, Search, Eye, Pin } from "lucide-react";
 import ReviewIcon from "../../../assets/review.svg";
 import Ratings from "../../../components/Ratings";
 import Reviews from "../../../components/Reviews";
+import axiosInstance from "../../../api/axiosInstance";
 
 function ProductInformation() {
   const { uuid } = useParams();
-
   const navigate = useNavigate();
 
-  const product = useMemo(() => {
-    if (!products || products.length === 0) return undefined;
-    return products.find((p) => p.uuid.toLowerCase() === uuid.toLowerCase());
-  }, [products, uuid]);
+   const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+    // Fetch product from API
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        setLoading(true);
+        const response = await axiosInstance.get(`/product/${uuid}`);
+        console.log("Product Details Response:", response.data);
+
+        let productData = null;
+        if (response.data?.success && response.data?.data) {
+          productData = response.data.data;
+        } else if (response.data) {
+          productData = response.data;
+        }
+
+        setProduct(productData);
+        setError(null);
+      } catch (err) {
+        console.error("Error fetching product:", err);
+        setError(err.response?.data?.message || "Failed to load product");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (uuid) {
+      fetchProduct();
+    }
+  }, [uuid]);
+
+    // Get default variant
+  const defaultVariant = useMemo(() => {
+    if (!product?.variants || product.variants.length === 0) return null;
+    return product.variants.find(v => v.isSelected) || product.variants[0];
+  }, [product]);
+
+  
+  
   // console.log(product)
 
   /////////////////////////
 
-  const [reviews, setReviews] = useState(product?.reviews || []);
-  // console.log("Product:", product);
-  // console.log("Reviews:", reviews);
+  // const [reviews, setReviews] = useState(product?.reviews || []);
+  // // console.log("Product:", product);
+  // // console.log("Reviews:", reviews);
 
-  ////////////////////////////////
-  const avgRating =
-    products?.reviews?.length > 0
-      ? product.reviews.reduce((sum, review) => sum + review.rating, 0) /
-        product.reviews.length
-      : 0;
+  // ////////////////////////////////
+  // const avgRating =
+  //   products?.reviews?.length > 0
+  //     ? product.reviews.reduce((sum, review) => sum + review.rating, 0) /
+  //       product.reviews.length
+  //     : 0;
 
   /////////////////////////
 
-  const handleEdit = () => {
-    // if (!products.uuid) {
-    //   alert("Product ID not found!");
-    //   return;
-    // }
-
-    navigate(`/admin/add-product/${product.uuid}`);
-  };
 
   // console.log(product)
 
   const [selectedType, setSelectedType] = useState("product");
   const [selectedVariant, setSelectedVariant] = useState(null);
-
   // search define
   const [searchData, setSearchData] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -59,26 +88,55 @@ function ProductInformation() {
     return () => clearTimeout(timer);
   }, [searchData]);
 
+    // Calculate average rating
+  const avgRating = useMemo(() => {
+    if (!product?.reviews || product.reviews.length === 0) return 0;
+    const total = product.reviews.reduce((sum, review) => sum + (review.rating || 0), 0);
+    return total / product.reviews.length;
+  }, [product?.reviews]);
+
   // search logic
   const text = debouncedSearch?.toLowerCase() || "";
 
   // main
-  const mainProductMatch =
-    product?.SKU?.toLowerCase().includes(text) ||
-    product?.title?.toLowerCase().includes(text) ||
-    product?.ProductColor?.toLowerCase().includes(text);
+ const mainProductMatch = 
+    (defaultVariant?.variantSkuId || "").toLowerCase().includes(text) ||
+    (product?.productTittle || "").toLowerCase().includes(text) ||
+    (defaultVariant?.variantColor || "").toLowerCase().includes(text);
+
   // add kar ha size bhi
 
   // varinats
 
-  const filterVariants = (product?.variants || []).filter((v) => {
+   const filterVariants = (product?.variants || []).filter((v) => {
     return (
-      v.variantId?.toLowerCase().includes(text) ||
-      v.variantValue?.toLowerCase().includes(text) ||
-      v.color?.toLowerCase().includes(text) ||
-      v.size?.toLowerCase().includes(text)
+      (v.variantSkuId || "").toLowerCase().includes(text) ||
+      (v.variantName || "").toLowerCase().includes(text) ||
+      (v.variantColor || "").toLowerCase().includes(text)
     );
   });
+
+  const handleEdit = () => {
+    navigate(`/admin/add-product/${product?._id || uuid}`);
+  };
+
+    if (loading) {
+    return (
+      <div className="p-[24px] bg-[#F6F8F9] rounded-md min-h-screen flex justify-center items-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1C3753] mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading product details...</p>
+        </div>
+      </div>
+    );
+  }
+
+
+   const currentVariant = selectedType === "product" ? defaultVariant : selectedVariant;
+  const currentImages = selectedType === "product" 
+    ? currentVariant?.variantImage?.map(img => img.url) || []
+    : currentVariant?.variantImage?.map(img => img.url) || [];
+
   return (
     <div className="p-[24px] bg-[#F6F8F9] rounded-md min-h-screen">
       {/* Header */}
@@ -86,7 +144,7 @@ function ProductInformation() {
         <Link to="/admin/products" className="flex items-center gap-2">
           <ChevronLeft className="w-8 h-8 text-gray-800" />
           <h1 className="text-black text-[20px] font-semibold">
-            {product.title}
+            {product.productTittle || "Product Details"}
           </h1>
         </Link>
         <button
@@ -119,7 +177,7 @@ function ProductInformation() {
           {/* Variant List (Scrollable) */}
           <div className="flex flex-col gap-3 flex-1 overflow-y-auto pr-1">
             {/* MAIN PRODUCT */}
-            {(!debouncedSearch || mainProductMatch) && (
+            {(!debouncedSearch || mainProductMatch) && defaultVariant && (
               <div
                 onClick={() => {
                   setSelectedType("product");
@@ -133,26 +191,28 @@ function ProductInformation() {
               >
                 <img
                   className="w-10 h-10 rounded-md object-cover"
-                  src={product.images?.[0]}
-                  alt="product"
+                 src={defaultVariant?.variantImage?.[0]?.url || "/placeholder.png"}
+                  alt={product.productTittle}
                 />
 
                 <div className="flex-1">
                   <div className="flex justify-between text-sm font-medium">
-                    <p>{product.SKU}</p>
-                    <p>₹ {product.sellingPrice}</p>
+                   <p>{defaultVariant?.variantSkuId || "N/A"}</p>
+                   <p>₹ {defaultVariant?.variantSellingPrice || 0}</p>
                   </div>
 
                   <div className="flex justify-between text-xs text-gray-600 mt-0.5">
                     <div className="flex gap-2">
+                       {defaultVariant?.variantColor && (
                       <p className="border border-[#495F75] px-1 rounded-md">
-                        Black
+                       {defaultVariant.variantColor}
                       </p>
+                       )}
                       <p className="border border-[#495F75] px-1 rounded-md">
                         20×20
                       </p>
                     </div>
-                    <p>{product.variantQuantity} in stock</p>
+                     <p>{defaultVariant?.variantAvailableStock || 0} in stock</p>
                   </div>
                 </div>
               </div>
@@ -161,39 +221,42 @@ function ProductInformation() {
             {/* VARIANTS */}
             {filterVariants.map((item, index) => (
               <div
-                key={item.variantId || index}
+                key={item._id || index}
                 onClick={() => {
                   setSelectedType("variant");
                   setSelectedVariant(item);
                 }}
                 className={`flex items-center gap-4 bg-[#F5F8FA] border rounded-xl p-3 hover:border-gray-400 cursor-pointer transition${
-                  selectedType === "variant"
-                    ? "variant"
-                    : "bg-[#F5F8FA] hover:border-gray-400"
+                  selectedType === "variant" && selectedVariant?._id === item._id
+                    ? "bg-blue-50 border-blue-400"
+                    : "bg-[#F5F8FA]"
                 }`}
               >
                 <img
                   className="w-10 h-10 rounded-md object-cover"
-                  src={item.variantImage?.[0]}
-                  alt="variant"
+                  src={item.variantImage?.[0]?.url || "/placeholder.png"}
+                  alt={item.variantName}
                 />
 
                 <div className="flex-1">
                   <div className="flex justify-between text-sm font-medium">
-                    <p>{item.variantId}</p>
-                    <p>₹ {product.sellingPrice}</p>
+                    <p>{item.variantSkuId}</p>
+                    <p>₹ {item.variantSellingPrice}</p>
                   </div>
 
                   <div className="flex justify-between text-xs text-gray-600 mt-0.5">
                     <div className="flex gap-2">
-                      <p className="border border-[#495F75] px-1 rounded-md">
-                        {item.variantValue}
-                      </p>
+                       {item.variantColor && (
+                        <p className="border border-[#495F75] px-1 rounded-md">
+                          {item.variantColor}
+                        </p>
+                      )}
+
                       <p className="border border-[#495F75] px-1 rounded-md">
                         20×20
                       </p>
                     </div>
-                    <p>{item.variantQuantity} in stock</p>
+                     <p>{item.variantAvailableStock || 0} in stock</p>
                   </div>
                 </div>
               </div>
@@ -209,15 +272,15 @@ function ProductInformation() {
             <div>
               <p className="">Product Name</p>
               <span className="text-[#686868] text-sm">
-                {selectedType === "product"
-                  ? product.title
+                {selectedType === "product" 
+                  ? product.productTittle 
                   : selectedVariant?.variantName || "-"}
               </span>
             </div>
             <div className="mb-4">
               <p className="text-md font-medium mb-1">Description</p>
               <p className="text-[#2C2C2C] text-sm leading-relaxed break-words whitespace-pre-line">
-                {product.description}
+                {product.description || "No description available"}
               </p>
             </div>
           </div>
@@ -229,26 +292,26 @@ function ProductInformation() {
             <div>
               <p className="text-[14px] text-[#686868] text-sm mb-2">Images</p>
               <div className="flex flex-wrap gap-3 items-start">
-                {(selectedType === "product"
-                  ? product?.images || []
-                  : selectedVariant?.variantImage || []
-                ).map((img, i) => (
-                  <img
-                    key={i}
-                    src={img}
-                    alt={`preview-${i}`}
-                    className="w-[80px] h-[80px] object-cover rounded-lg border border-neutral-200"
-                  />
-                ))}
+               {currentImages.length > 0 ? (
+                  currentImages.map((img, i) => (
+                    <img
+                      key={i}
+                      src={img}
+                      alt={`preview-${i}`}
+                      className="w-[80px] h-[80px] object-cover rounded-lg border border-neutral-200"
+                      onError={(e) => { e.target.src = "/placeholder.png"; }}
+                    />
+                  ))
+                ) : (
+                  <p className="text-gray-400 text-sm">No images available</p>
+                )}
               </div>
               <div className="grid grid-flow-row grid-cols-3 gap-14 mt-4">
                 <div className="flex flex-col flex-wrap justify-start space-y-[10px]">
                   <div>
                     <p className="text-sm text-[#686868] font-medium">SKU-ID</p>
                     <span className="text-base text-[#2C2C2C] font-medium">
-                      {selectedType === "product"
-                        ? product.SKU
-                        : selectedVariant.variantId}
+                     {currentVariant?.variantSkuId || "N/A"}
                     </span>
                   </div>
                   {/* <div className="text-start">
@@ -262,7 +325,7 @@ function ProductInformation() {
                       Category
                     </p>
                     <span className="text-base text-[#2C2C2C] font-medium">
-                      {product.category}
+                      {product.category?.name || "N/A"}
                     </span>
                   </div>
                   {/* <div>
@@ -278,7 +341,7 @@ function ProductInformation() {
                       Product Color
                     </p>
                     <span className="text-base text-[#2C2C2C] font-medium">
-                      Black
+                     {currentVariant?.variantColor || "N/A"}
                     </span>
                   </div>
                 </div>
@@ -288,8 +351,7 @@ function ProductInformation() {
                       Available Stock
                     </p>
                     <span className="text-base text-[#2C2C2C] font-medium">
-                      {/* {product.stockQuantity} */}
-                      20
+                    {currentVariant?.variantAvailableStock || 0}
                     </span>
                   </div>
 
@@ -306,7 +368,7 @@ function ProductInformation() {
                       Subcategory
                     </p>
                     <span className="text-base text-[#2C2C2C] font-medium">
-                      {product.subcategory}
+                      {product?.subcategory?.name || "N/A"}
                     </span>
                   </div>
                   <div>
@@ -314,15 +376,16 @@ function ProductInformation() {
                       Dimension
                     </p>
                     <span className="text-base text-[#2C2C2C] font-medium">
-                      55L x 35W cm
                     </span>
                   </div>
-                  {/* <div className="text-start">
+                  <div className="text-start">
                     <p className="text-sm text-[#686868] font-medium">Weight</p>
                     <span className="text-base text-[#2C2C2C] font-medium">
-                      {product.weight}
+                      {currentVariant?.variantWeight 
+                        ? `${currentVariant.variantWeight} ${currentVariant.variantWeightUnit || 'kg'}`
+                        : "N/A"}
                     </span>
-                  </div> */}
+                  </div>
                 </div>
                 <div className="flex flex-col flex-wrap items-start text-start justify-start space-y-[10px]">
                   <div>
@@ -330,8 +393,7 @@ function ProductInformation() {
                       Low Stock Alert
                     </p>
                     <span className="text-base text-[#2C2C2C] font-medium">
-                      {/* {product.stockQuantity} */}
-                      20
+                     {currentVariant?.variantLowStockAlertStock || 0}
                     </span>
                   </div>
                   <div className="">
@@ -345,7 +407,9 @@ function ProductInformation() {
                   <div className="text-start">
                     <p className="text-sm text-[#686868] font-medium">Weight</p>
                     <span className="text-base text-[#2C2C2C] font-medium">
-                      {product.weight}
+                      {currentVariant?.variantWeight 
+                        ? `${currentVariant.variantWeight} ${currentVariant.variantWeightUnit || 'kg'}`
+                        : "N/A"}
                     </span>
                   </div>
                   {/* <div>
@@ -369,13 +433,13 @@ function ProductInformation() {
                 <div>
                   <p className="text-sm text-[#797979] font-medium">MRP</p>
                   <span className="text-base text-[#2C2C2C] font-medium">
-                    {product.mrp}
+                   ₹{currentVariant?.variantMrp || 0}
                   </span>
                 </div>
                 <div>
                   <p className="text-sm text-[#797979] font-medium">Profit</p>
                   <span className="text-base text-[#2C2C2C] font-medium">
-                    {product.profit}
+                     ₹{(currentVariant?.variantSellingPrice || 0) - (currentVariant?.variantCostPrice || 0)}
                   </span>
                 </div>
 
@@ -387,13 +451,13 @@ function ProductInformation() {
                     Selling Price
                   </p>
                   <span className="text-base text-[#2C2C2C] font-medium">
-                    {product.sellingPrice}
+                     ₹{currentVariant?.variantSellingPrice || 0}
                   </span>
                 </div>
                 <div className="text-start">
                   <p className="text-sm text-[#797979] font-medium">Discount</p>
                   <span className="text-base text-[#2C2C2C] font-medium">
-                    <span>{product.discountPercent}%</span>
+                    <span>  {currentVariant?.variantDiscount || 0}%</span>
                   </span>
                 </div>
               </div>
@@ -403,13 +467,13 @@ function ProductInformation() {
                     Cost Price
                   </p>
                   <span className="text-base text-[#2C2C2C] font-medium">
-                    {product.costPrice}
+                     ₹{currentVariant?.variantCostPrice || 0}
                   </span>
                 </div>
                 <div>
                   <p className="text-sm text-[#797979] font-medium">GST</p>
                   <span className="text-base text-[#2C2C2C] font-medium">
-                    {product.taxPercent}%
+                    {currentVariant?.variantGST || 0}%
                   </span>
                 </div>
               </div>
@@ -423,22 +487,9 @@ function ProductInformation() {
         <h2 className="text-lg font-medium mb-2">Rating & Reviews</h2>
 
         <Reviews reviews={product?.reviews} avgRating={avgRating} />
-        {reviews && reviews.length > 0 ? (
+        {product?.reviews && product.reviews.length > 0 ? (
           <div className="max-h-[450px] overflow-y-auto pr-2">
-            {reviews.map(
-              (
-                {
-                  user,
-                  userImage,
-                  comment,
-                  rating,
-                  // likes,
-                  // dislike,
-                  images,
-                  // date,
-                },
-                index,
-              ) => (
+            {product.reviews.map((review, index) => (
                 <div
                   key={index}
                   className="py-4 flex gap-3 flex-col border border-[#CBCACA] px-4 rounded-xl mb-4"
@@ -454,18 +505,15 @@ function ProductInformation() {
                       ) : (
                         <div className="w-11 h-11 rounded-full bg-gray-400 flex items-center justify-center text-white font-bold">
                           <h1 className="text-white">
-                            {user?.charAt(0).toUpperCase()}
+                            {review.user?.charAt(0).toUpperCase() || "U"}
                           </h1>
                         </div>
                       )}
 
                       <div className="flex flex-col">
-                        <h1 className="text-[14px]">{user}</h1>
+                        <h1 className="text-[14px]">{review.user || "Anonymous"}</h1>
                         <div className="flex items-center gap-1">
-                          <Ratings
-                            reviews={product?.reviews}
-                            avgRating={rating}
-                          />
+                          <Ratings reviews={product.reviews} avgRating={review.rating} />
                         </div>
                       </div>
                     </div>
@@ -503,12 +551,11 @@ function ProductInformation() {
                     <span>{dislike}</span> */}
                     {/* <span className="text-[#717182] text-sm">•</span> */}
                     <span className="text-[#6C6B6B] text-[12px]">
-                      {`Reviewed ${new Date().toISOString().split("T")[0]}`}
-                    </span>
-                  </div>
+                      {review.createdAt ? `Reviewed ${new Date(review.createdAt).toISOString().split("T")[0]}` : ""}
+                  </span>
                 </div>
-              ),
-            )}
+              </div>
+            ))}
           </div>
         ) : (
           <div className=" flex flex-col items-center justify-center text-center">

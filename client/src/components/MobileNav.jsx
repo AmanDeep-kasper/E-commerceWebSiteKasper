@@ -22,6 +22,8 @@ function MobileNav({ navLinks }) {
             <img
               className="w-[130] h-full object-cover"
               src={formImage}
+               crossOrigin="anonymous"
+  referrerPolicy="no-referrer"
               alt=""
             />
           </div>

@@ -27,32 +27,32 @@ function Card({ cardData = [] }) {
   //helper function to get product id
   const getProductId = (item) => {
     return item._id || item.uuid || item.id;
-  }
+  };
 
   // helper to get product name
   const getProductName = (item) => {
     return item.name || item.productTittle || item.title || "United Product";
-  }
+  };
 
   // helper to get product image
   const getProductImage = (item) => {
-    if(item.image && item.image.startsWith("http")) {
+    if (item.image && item.image.startsWith("http")) {
       return item.image;
     }
-    if(item.variants?.[0]?.variantImage?.[0]?.url) {
+    if (item.variants?.[0]?.variantImage?.[0]?.url) {
       return item.variants[0].variantImage[0]?.url;
     }
     return "/placeholder.png";
-  }
+  };
 
   // helper to get default variant
   const getDefaultVariant = (item) => {
-    if(item.variants && item.variants.length > 0) {
+    if (item.variants && item.variants.length > 0) {
       const selected = item.variants.find((v) => v.isSelected);
       return selected || item.variants[0];
     }
     return null;
-  }
+  };
 
   // const handleAddToCart = (item, defaultVariant) => {
   //   // Mark this item as loading
@@ -105,10 +105,10 @@ function Card({ cardData = [] }) {
   //   }, 200);
   // };
 
-   const handleAddToCart = (item) => {
+  const handleAddToCart = (item) => {
     const productId = getProductId(item);
     const defaultVariant = getDefaultVariant(item);
-    
+
     if (!defaultVariant) {
       console.error("No variant available for product:", item);
       return;
@@ -121,16 +121,17 @@ function Card({ cardData = [] }) {
       variantId: defaultVariant._id || defaultVariant.variantId,
       title: getProductName(item),
       basePrice: defaultVariant.variantMrp || item.mrp || 0,
-      effectivePrice: defaultVariant.variantSellingPrice || item.defaultPrice || 0,
+      effectivePrice:
+        defaultVariant.variantSellingPrice || item.defaultPrice || 0,
       discountPercent: defaultVariant.variantDiscount || item.discount || 0,
       stockQuantity: defaultVariant.variantAvailableStock || 10,
       image: getProductImage(item),
       deliverBy: item.deliverBy || "7-10 business days",
       selectedOptions: {
         color: defaultVariant.variantColor || "Default",
-        dimension: defaultVariant.variantWeight ? 
-          `${defaultVariant.variantWeight} ${defaultVariant.variantWeightUnit}` : 
-          "Standard",
+        dimension: defaultVariant.variantWeight
+          ? `${defaultVariant.variantWeight} ${defaultVariant.variantWeightUnit}`
+          : "Standard",
       },
     };
 
@@ -139,7 +140,6 @@ function Card({ cardData = [] }) {
       setLoadingIds((prev) => prev.filter((id) => id !== productId));
     }, 200);
   };
-
 
   // const getSafeImage = (variant, product) => {
   //   let img = null;
@@ -162,7 +162,7 @@ function Card({ cardData = [] }) {
     <div className="grid xl:grid-cols-5 lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-3 grid-cols-2 gap-2 w-full place-content-between overflow-visible">
       {cardData && cardData.length > 0 ? (
         cardData.map((item, index) => {
-         const productId = getProductId(item);
+          const productId = getProductId(item);
           const productName = getProductName(item);
           const productImage = getProductImage(item);
           const defaultVariant = getDefaultVariant(item);
@@ -194,27 +194,27 @@ function Card({ cardData = [] }) {
           // );
           // const isLoading = loadingIds.includes(item.uuid);
 
-          const effectivePrice = item.defaultPrice || defaultVariant?.variantSellingPrice || 0;
+          const effectivePrice =
+            item.defaultPrice || defaultVariant?.variantSellingPrice || 0;
           const basePrice = item.mrp || defaultVariant?.variantMrp || 0;
-          const discountPercent = item.discount || defaultVariant?.variantDiscount || 0;
-          
+          const discountPercent =
+            item.discount || defaultVariant?.variantDiscount || 0;
+
           const variantStock = defaultVariant?.variantAvailableStock ?? 10;
           const outOfStock = variantStock <= 0;
-          
+
           const inCart = cartItems.some(
-            (i) => i.uuid === productId && i.variantId === defaultVariant?._id
+            (i) => i.uuid === productId && i.variantId === defaultVariant?._id,
           );
           const isLoading = loadingIds.includes(productId);
           const inWishlist = wishlistItems.some(
-            (i) => i.uuid === productId && i.variantId === defaultVariant?._id
+            (i) => i.uuid === productId && i.variantId === defaultVariant?._id,
           );
-
 
           return (
             <div
               key={productId || index}
               onClick={() => navigate(`/product/${item.slug || productId}`)}
-
               className="relative group flex flex-col lg:justify-between items-center bg-white rounded-lg sm:h-[333px] lg:h-[333px] max-sm:h-max overflow-hidden group lg:hover:drop-shadow-md aspect-4/3 object-top cursor-pointer border border-gray-200"
             >
               {/* {cartItems.some(i => i.uuid === item.uuid && i.variantId === item.variantId) && <div className="absolute bg-white/70 px-2 py-1 rounded-full text-xs top-1 left-1 z-20 backdrop-blur-xl h-8 w-8 flex items-center"><ShoppingCart size={16}/></div>} */}
@@ -283,28 +283,32 @@ function Card({ cardData = [] }) {
                 onClick={(e) => {
                   e.stopPropagation();
                   if (inWishlist) {
-                    dispatch(removeFromWishlist({
-                      uuid: productId,
-                      variantId: defaultVariant?._id,
-                    }));
+                    dispatch(
+                      removeFromWishlist({
+                        uuid: productId,
+                        variantId: defaultVariant?._id,
+                      }),
+                    );
                   } else {
-                    dispatch(addToWishlist({
-                      uuid: productId,
-                      variantId: defaultVariant?._id,
-                      title: productName,
-                      basePrice: basePrice,
-                      discountPercent: discountPercent,
-                      stockQuantity: variantStock,
-                      image: productImage,
-                      deliverBy: item.deliverBy || "7-10 business days",
-                      selectedOptions: {
-                        color: defaultVariant?.variantColor || "Default",
-                        type: defaultVariant?.variantName || "Standard",
-                        dimension: defaultVariant?.variantWeight ? 
-                          `${defaultVariant.variantWeight} ${defaultVariant.variantWeightUnit}` : 
-                          "Standard",
-                      },
-                    }));
+                    dispatch(
+                      addToWishlist({
+                        uuid: productId,
+                        variantId: defaultVariant?._id,
+                        title: productName,
+                        basePrice: basePrice,
+                        discountPercent: discountPercent,
+                        stockQuantity: variantStock,
+                        image: productImage,
+                        deliverBy: item.deliverBy || "7-10 business days",
+                        selectedOptions: {
+                          color: defaultVariant?.variantColor || "Default",
+                          type: defaultVariant?.variantName || "Standard",
+                          dimension: defaultVariant?.variantWeight
+                            ? `${defaultVariant.variantWeight} ${defaultVariant.variantWeightUnit}`
+                            : "Standard",
+                        },
+                      }),
+                    );
                   }
                 }}
               >
@@ -320,6 +324,8 @@ function Card({ cardData = [] }) {
                 className="lg:min-h-[202px] pt-2 sm:min-w-[207px] sm:min-h-[160px] max-w-40 max-h-40 object-contain lg:group-hover:scale-110 transition duration-300 bg-white"
                 src={productImage}
                 alt={productName}
+                crossOrigin="anonymous"
+                referrerPolicy="no-referrer"
               />
 
               {/* <div className="p-2 flex flex-col gap-1.5 w-full bg-white min-h-[150px] md:min-h-[173px] lg:justify-between lg:group-hover:-translate-y-12 transition-transform duration-300"> */}
@@ -331,14 +337,14 @@ function Card({ cardData = [] }) {
                   <span className="text-gray-900 font-medium text-lg tracking-tight">
                     {formatPrice(effectivePrice)}
                   </span>
-{basePrice > effectivePrice && (
-  <>
-                  <span className="text-gray-400 text-xs line-through font-light">
-                    {formatPrice(basePrice)}
-                  </span>
-                  <div className="border-l border-[#DBDBDB] h-3"></div>
-                  </>
-)}
+                  {basePrice > effectivePrice && (
+                    <>
+                      <span className="text-gray-400 text-xs line-through font-light">
+                        {formatPrice(basePrice)}
+                      </span>
+                      <div className="border-l border-[#DBDBDB] h-3"></div>
+                    </>
+                  )}
 
                   {discountPercent > 0 && (
                     <div>

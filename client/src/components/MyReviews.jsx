@@ -184,6 +184,8 @@ function MyReviews({ totalItems = 0 }) {
                     className="w-full h-full md:h-32 object-contain rounded-lg"
                     src={item.productId?.image}
                     alt={item.productId?.productTittle || "Product Image"}
+                     crossOrigin="anonymous"
+  referrerPolicy="no-referrer"
                   />
                 </div>
 
@@ -238,6 +240,8 @@ function MyReviews({ totalItems = 0 }) {
                           <img
                             key={idx}
                             src={img.url}
+                             crossOrigin="anonymous"
+  referrerPolicy="no-referrer"
                             alt="review"
                             className="w-16 h-16 object-cover rounded-md border hover:scale-105 transition"
                           />

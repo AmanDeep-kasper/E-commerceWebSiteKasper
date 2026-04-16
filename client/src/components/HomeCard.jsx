@@ -23,6 +23,8 @@ const HomeCard = ({ product }) => {
           className="w-full aspect-square object-contain transition-transform duration-300 group-hover:scale-110"
           src={getCardImage(product)}
           alt={product.title || product.slug || product.category}
+           crossOrigin="anonymous"
+  referrerPolicy="no-referrer"
           loading="lazy"
         />
 

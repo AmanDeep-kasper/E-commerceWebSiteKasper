@@ -119,7 +119,9 @@ function AddReviewsModel({ open, review, onClose, onSave, product }) {
       <div className="w-full max-w-3xl rounded-xl bg-white shadow-lg overflow-hidden">
         {/* Header */}
         <div className="border-b px-6 py-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-gray-900">Ratings & Reviews</h2>
+          <h2 className="text-lg font-semibold text-gray-900">
+            Ratings & Reviews
+          </h2>
           <button onClick={onClose} className="p-1">
             <X className="w-6 h-6 text-gray-700" />
           </button>
@@ -132,11 +134,15 @@ function AddReviewsModel({ open, review, onClose, onSave, product }) {
               <img
                 src={review?.image || product?.image || "/placeholder.png"}
                 alt={review?.name || product?.title || "Product"}
+                crossOrigin="anonymous"
+                referrerPolicy="no-referrer"
                 className="w-full h-full object-cover"
               />
             </div>
             <div className="flex-1">
-              <p className="text-sm text-gray-800 font-medium">How was the item?</p>
+              <p className="text-sm text-gray-800 font-medium">
+                How was the item?
+              </p>
               <p className="text-sm text-gray-600">
                 {review?.name || product?.title || "Write your review"}
               </p>
@@ -155,7 +161,9 @@ function AddReviewsModel({ open, review, onClose, onSave, product }) {
               >
                 <Star
                   className={`w-8 h-8 ${
-                    s <= rating ? "fill-[#F4A13D] text-[#F4A13D]" : "text-gray-300"
+                    s <= rating
+                      ? "fill-[#F4A13D] text-[#F4A13D]"
+                      : "text-gray-300"
                   }`}
                 />
               </button>
@@ -164,7 +172,9 @@ function AddReviewsModel({ open, review, onClose, onSave, product }) {
 
           {/* Textarea */}
           <div className="mt-4">
-            <p className="text-sm font-medium text-gray-900 mb-2">Write a review</p>
+            <p className="text-sm font-medium text-gray-900 mb-2">
+              Write a review
+            </p>
             <textarea
               value={text}
               onChange={(e) => setText(e.target.value)}
@@ -181,7 +191,13 @@ function AddReviewsModel({ open, review, onClose, onSave, product }) {
                   key={src + idx}
                   className="relative w-20 h-20 rounded-lg overflow-hidden border bg-white"
                 >
-                  <img src={src} alt="review" className="w-full h-full object-cover" />
+                  <img
+                    src={src}
+                    crossOrigin="anonymous"
+                    referrerPolicy="no-referrer"
+                    alt="review"
+                    className="w-full h-full object-cover"
+                  />
                   <button
                     type="button"
                     onClick={() => handleRemoveImage(idx)}

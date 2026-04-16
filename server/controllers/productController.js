@@ -762,7 +762,7 @@ export const userGetAllProducts = asyncHandler(async (req, res) => {
       subcategory: product.subcategory,
       subcategoryName: product.subcategory?.name,
       isActive: product.isActive,
-      skuId: defaultVariant?.variantSkuId || "N/A", 
+      skuId: defaultVariant?.variantSkuId || "N/A",
       priceRange: {
         min: lowestPrice,
         max: highestPrice,
@@ -806,6 +806,7 @@ export const userGetProductDetails = asyncHandler(async (req, res) => {
 
   const product = await Product.findOne(query)
     .populate("category", "name slug")
+    .populate("subcategory", "name slug")
     .lean();
 
   if (!product) {

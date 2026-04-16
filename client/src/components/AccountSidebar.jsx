@@ -67,6 +67,8 @@ function AccountSidebar() {
           <img
             src={user?.user?.profileImage?.url || "/name1.jpg"}
             alt="Profile"
+            crossOrigin="anonymous"
+            referrerPolicy="no-referrer"
             className="w-full h-full object-cover rounded-full group-hover:scale-110 transition-transform duration-300"
           />
 
@@ -103,9 +105,10 @@ function AccountSidebar() {
                 <NavLink
                   to={`/accounts${path}`}
                   className={({ isActive }) =>
-                    `flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${isActive
-                      ? "bg-[#F0EEFF] text-[#1C3753] border-l-4 border-[#1C3753] "
-                      : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                    `flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
+                      isActive
+                        ? "bg-[#F0EEFF] text-[#1C3753] border-l-4 border-[#1C3753] "
+                        : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
                     }`
                   }
                 >
@@ -124,7 +127,7 @@ function AccountSidebar() {
           className="w-full flex items-center bg-[#F0EEFF] px-3 py-3 mt-1 text-lg font-normal text-[#1C1C1C] hover:bg-[#D5E5F5] rounded-lg transition-all duration-200 group"
         >
           <div className="p-1.5 mr-3 bg-[#F0EEFF] text-[#1C3753] rounded-lg group-hover:bg-[#D5E5F5] transition-all duration-200">
-            <LogOut className="text-[#1800AC]"/>
+            <LogOut className="text-[#1800AC]" />
           </div>
           Log Out
         </button>
