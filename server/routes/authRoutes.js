@@ -32,7 +32,6 @@ const router = express.Router();
 
 router.post(
   "/register",
-  sensitiveLimiter,
   upload.single("profileImage"),
   registerValidation,
   validateRequest,
