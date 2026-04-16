@@ -97,6 +97,65 @@ const AddProduct = () => {
   //   }));
   // };
 
+
+  const addVariantRow = () => {
+  let productSKU = formData.SKU?.trim();
+  // If no SKU exists, create one from product title
+  if (!productSKU && formData.productTittle) {
+    const words = formData.productTittle.trim().split(" ");
+    const initials = words.slice(0, 3).map((w) => w[0]?.toUpperCase()).join("");
+    const randomNum = Math.floor(100 + Math.random() * 900);
+    productSKU = `${initials}-ART-${randomNum}`;
+    
+    // Update the main SKU in formData
+    setFormData(prev => ({ ...prev, SKU: productSKU }));
+  }
+  if (!productSKU) {
+    toast.error("Please enter a product name first!", {
+      position: "top-right",
+      autoClose: 2000,
+    });
+    return;
+  }
+  const randomNum = Math.floor(100 + Math.random() * 900);
+  const newVariant = {
+    ...emptyVariant(),
+    variantSkuId: `${productSKU}-V-${randomNum}`,
+  };
+  setFormData((prev) => ({
+    ...prev,
+    variants: [...prev.variants, newVariant],
+  }));
+};
+  // edit product added new here(akash)
+const [isEditing, setIsEditing] = useState(false);
+const [productId, setProductId] = useState(null);
+const [loadingProduct, setLoadingProduct] = useState(false);
+// Fetch product for editing from API
+useEffect(() => {
+  const fetchProductForEdit = async () => {
+    if (!uuid) return;
+    
+    try {
+      setLoadingProduct(true);
+      // const response = await axiosInstance.get(`/product/${uuid}`);
+      const response = await axiosInstance.get(`/product/admin/get-product-details/${uuid}`);
+      console.log("Product to edit:", response.data);
+      
+      let productData = null;
+      if (response.data?.success && response.data?.data) {
+        productData = response.data.data;
+      } else if (response.data) {
+        productData = response.data;
+      }
+      
+      if (productData) {
+        let categoryId = "";
+        if (productData.category) {
+          if (typeof productData.category === 'object') {
+            categoryId = productData.category._id || productData.category.id || "";
+          } else {
+            categoryId = productData.category;
   const addVariantRow = () => {
     let productSKU = formData.SKU?.trim();
 
@@ -219,6 +278,16 @@ const AddProduct = () => {
       } finally {
         setLoadingProduct(false);
       }
+    } catch (error) {
+      // console.error("Error fetching product:", error);
+      toast.error("Failed to load product data");
+    } finally {
+      setLoadingProduct(false);
+    }
+  };
+  
+  fetchProductForEdit();
+}, [uuid]);
     };
 
     fetchProductForEdit();
@@ -1233,7 +1302,6 @@ const AddProduct = () => {
                   </div>
                 </div>
               </div>
-
               <div className="flex flex-col space-y-3">
                 <div className="bg-white rounded-2xl p-4 border">
                   <h2 className="text-black text-[18px] font-medium mb-4">
