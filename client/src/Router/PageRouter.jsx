@@ -166,8 +166,8 @@ const PageRouter = () => {
           path="/products/:categoryName/:subcategoryName"
           element={<Product />}
         />
-        <Route path="/product/:uuid" element={<ProductDetails />} />
-        <Route path="/all-reviews/:uuid" element={<AllReviews />} />
+        <Route path="/product/:slugOrId" element={<ProductDetails />} />
+        <Route path="/all-reviews/:slugOrId" element={<AllReviews />} />
 
         {/* ========== PROTECTED USER ROUTES (require login) ========== */}
         <Route
