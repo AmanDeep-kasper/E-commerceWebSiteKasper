@@ -11,6 +11,7 @@ import {
   Wallet,
   Ticket,
   SquareDashedKanban,
+  Component,
 } from "lucide-react";
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
@@ -29,7 +30,7 @@ const dashboard = [
   { name: "Transporter", path: "/transporter", icon: ClipboardCheck },
  { name: "Payments", path: "/payment", icon: Wallet },
   // { name: "Support & Ticket", path: "/support&ticket", icon: Ticket },
-  { name: "Reward", path: "/reward&points", icon: Wallet },
+  { name: "Reward", path: "/reward&points", icon: Component },
 ];
 
 

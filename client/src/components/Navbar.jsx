@@ -408,7 +408,7 @@ function Navbar() {
             {showChoice && (
               <button
                 onClick={() => navigate("/admin")}
-                className="p-2 rounded-lg group hover:bg-amber-50 transition-colors"
+                className="p-2 rounded-lg group hover:bg-[#F0EEFF] transition-colors"
               >
                 <LayoutDashboard
                   size={20}
@@ -420,7 +420,7 @@ function Navbar() {
             {/* User dropdown */}
             <div className="relative group cursor-pointer">
               <button
-                className="p-2 rounded-lg hover:bg-[#D5E5F5] transition-colors"
+                className="p-2 rounded-lg hover:bg-[#F0EEFF] transition-colors"
                 onClick={() => {
                   setIsProfileOpen(!isProfileOpen);
                   setDropdown(false);
@@ -445,7 +445,7 @@ function Navbar() {
                           className="flex items-center gap-4 px-7 pb-5 rounded-lg cursor-pointer transition-colors duration-200 group"
                           onClick={() => setShowLogoutModal(true)}
                         >
-                          <div className="p-2 rounded-lg bg-gray-100 group-hover:bg-[#D5E5F5] transition-colors duration-200">
+                          <div className="p-2 rounded-lg bg-gray-100 group-hover:bg-[#F0EEFF] transition-colors duration-200">
                             <LogOut className="w-5 h-5 text-gray-600 group-hover:text-[#1C3753]" />
                           </div>
                           <div className="flex-1">
@@ -481,7 +481,7 @@ function Navbar() {
             {/* Wishlist */}
             <Link
               to="/accounts/wishlist"
-              className="relative p-2 rounded-lg group hover:bg-[#D5E5F5] transition-colors"
+              className="relative p-2 rounded-lg group hover:bg-[#F0EEFF] transition-colors"
             >
               <Heart
                 size={20}
@@ -497,7 +497,7 @@ function Navbar() {
             {/* Cart */}
             <Link
               to="/bag"
-              className="relative p-2 group rounded-lg hover:bg-[#D5E5F5] transition-colors"
+              className="relative p-2 group rounded-lg hover:bg-[#F0EEFF] transition-colors"
             >
               <ShoppingCart
                 size={20}

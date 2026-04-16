@@ -11,6 +11,7 @@ import {
   Star,
   Camera,
   LogOut,
+  Component 
 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
@@ -23,7 +24,7 @@ const accountMenu = [
   { label: "Manage Addresses", path: "/addresses", icon: MapPin },
   { label: "Support & Help", path: "/support", icon: HelpCircle },
   { label: "Reviews & Ratings", path: "/reviews", icon: Star },
-  { label: "Reward Points", path: "/reward", icon: Star },
+  { label: "Reward Points", path: "/reward", icon: Component  },
 ];
 
 function AccountSidebar() {
@@ -124,9 +125,9 @@ function AccountSidebar() {
         <hr />
         <button
           onClick={handleLogout}
-          className="w-full flex items-center bg-[#F0EEFF] px-3 py-3 mt-1 text-lg font-normal text-[#1C1C1C] hover:bg-[#D5E5F5] rounded-lg transition-all duration-200 group"
+          className="w-full flex items-center bg-[#F0EEFF] px-3 py-3 mt-1 text-lg font-normal text-[#1C1C1C] rounded-lg transition-all duration-200 group"
         >
-          <div className="p-1.5 mr-3 bg-[#F0EEFF] text-[#1C3753] rounded-lg group-hover:bg-[#D5E5F5] transition-all duration-200">
+          <div className="p-1.5 mr-3 bg-[#F0EEFF] text-[#1C3753] rounded-lg transition-all duration-200">
             <LogOut className="text-[#1800AC]" />
           </div>
           Log Out
