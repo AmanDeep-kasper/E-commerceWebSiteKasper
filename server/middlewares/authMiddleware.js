@@ -25,16 +25,11 @@ export const authenticate = async (req, res, next) => {
 
     let decoded;
     try {
-      const isRS256 = env.NODE_ENV !== "development";
-      decoded = jwt.verify(
-        token,
-        isRS256 ? env.PUBLIC_KEY : env.JWT_ACCESS_SECRET,
-        {
-          algorithms: isRS256 ? ["RS256"] : ["HS256"],
-          issuer: env.JWT_ISSUER,
-          audience: env.JWT_AUDIENCE,
-        },
-      );
+      decoded = jwt.verify(token, env.JWT_ACCESS_SECRET, {
+        algorithms: ["HS256"],
+        issuer: env.JWT_ISSUER,
+        audience: env.JWT_AUDIENCE,
+      });
     } catch (jwtError) {
       if (jwtError.name === "TokenExpiredError") {
         return res.status(401).json({

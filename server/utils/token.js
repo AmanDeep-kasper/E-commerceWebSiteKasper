@@ -17,13 +17,11 @@ export const generateAccessToken = (userId, role, sessionId) => {
     sessionId,
   };
 
-  const isRS256 = env.NODE_ENV !== "development";
-
-  return jwt.sign(payload, isRS256 ? env.PRIVATE_KEY : env.JWT_ACCESS_SECRET, {
+  return jwt.sign(payload, env.JWT_ACCESS_SECRET, {
     expiresIn: env.JWT_ACCESS_EXPIRATION || "15m",
     issuer: env.JWT_ISSUER,
     audience: env.JWT_AUDIENCE,
-    algorithm: isRS256 ? "RS256" : "HS256",
+    algorithm: "HS256",
   });
 };
 
@@ -127,17 +125,11 @@ async function storeRefreshToken(
 ================================ */
 export const verifyAccessToken = async (token) => {
   try {
-    const isRS256 = env.NODE_ENV !== "development";
-
-    const decoded = jwt.verify(
-      token,
-      isRS256 ? env.PUBLIC_KEY : env.JWT_ACCESS_SECRET,
-      {
-        algorithms: isRS256 ? ["RS256"] : ["HS256"],
-        issuer: env.JWT_ISSUER,
-        audience: env.JWT_AUDIENCE,
-      },
-    );
+    const decoded = jwt.verify(token, env.JWT_ACCESS_SECRET, {
+      algorithms: ["HS256"],
+      issuer: env.JWT_ISSUER,
+      audience: env.JWT_AUDIENCE,
+    });
 
     const isBlacklisted = await checkBlacklist(token);
     if (isBlacklisted) throw new Error("Token revoked");

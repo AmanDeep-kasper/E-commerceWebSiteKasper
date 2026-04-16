@@ -51,10 +51,6 @@ export default {
   RAZORPAY_API_KEY: process.env.RAZORPAY_API_KEY,
   RAZORPAY_API_SECRET: process.env.RAZORPAY_API_SECRET,
 
-  // Production RSA keys
-  PRIVATE_KEY: process.env.PRIVATE_KEY.replace(/\\n/g, "\n"),
-  PUBLIC_KEY: process.env.PRIVATE_KEY.replace(/\\n/g, "\n"),
-
   REDIS_URL: process.env.REDIS_URL,
 
   ADMIN_EMAIL: process.env.ADMIN_EMAIL,
