@@ -72,6 +72,8 @@ const ProductSchema = new mongoose.Schema(
       index: true,
     },
 
+    reviews: [{ type: mongoose.Schema.Types.ObjectId, ref: "Review" }],
+
     stats: {
       averageRating: {
         type: Number,

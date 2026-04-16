@@ -49,16 +49,6 @@ const ShippingAddressSchema = new mongoose.Schema(
   { _id: false },
 );
 
-const StatusHistorySchema = new mongoose.Schema(
-  {
-    status: { type: String, required: true },
-    changedAt: { type: Date, default: Date.now },
-    note: { type: String, default: "" }, // e.g. "Shipped via Delhivery"
-    changedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" }, // admin/system
-  },
-  { _id: false },
-);
-
 const OrderSchema = new mongoose.Schema(
   {
     user: {
@@ -80,14 +70,6 @@ const OrderSchema = new mongoose.Schema(
 
     // Address snapshot
     shippingAddress: { type: ShippingAddressSchema, required: true },
-
-    // Coupon
-    coupon: {
-      couponId: { type: mongoose.Schema.Types.ObjectId, ref: "Coupon" },
-      code: String,
-      discountType: { type: String, enum: ["flat", "percent"] },
-      discountValue: { type: Number, default: 0 },
-    },
 
     // Financial (all in INR paise-safe floats)
     subtotal: { type: Number, required: true },
@@ -168,8 +150,6 @@ const OrderSchema = new mongoose.Schema(
       },
       note: String,
     },
-
-    statusHistory: [StatusHistorySchema],
 
     // Shipping / logistics
     tracking: {

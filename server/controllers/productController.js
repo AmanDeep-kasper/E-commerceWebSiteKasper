@@ -931,6 +931,7 @@ export const userGetProductDetails = asyncHandler(async (req, res) => {
   const product = await Product.findOne(query)
     .populate("category", "name slug")
     .populate("subcategory", "name slug")
+    .populate("reviews")
     .lean();
 
   if (!product) {
