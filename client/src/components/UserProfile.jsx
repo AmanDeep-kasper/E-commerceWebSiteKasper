@@ -63,53 +63,44 @@ function UserProfile({ setIsProfileOpen }) {
       </div>
 
       {/* List of Account Sections */}
-      <div className="py-2 px-4">
-        {accountDetails.map(({ listName, listIcon: Icon, path }) => (
-          <NavLink
-            key={listName}
-            to={`/accounts${path}`}
-            onClick={() => {
-              setTimeout(() => {
-                setIsProfileOpen(false);
-              }, 0);
-            }}
-            className={({ isActive }) =>
-              `flex items-center gap-4 p-3 my-1 rounded-lg duration-200 group ${
-                isActive ? "bg-[]" : "hover:bg-[#F0EEFF]"
-              }`
-            }
-          >
-            {({ isActive }) => (
-              <>
-                <div
-                  className={`p-2 rounded-lg transition-colors duration-200 ${
-                    isActive
-                      ? "bg-[#D5E5F5]"
-                      : "bg-[#D5E5F5] group-hover:bg-[#D5E5F5]"
-                  }`}
-                >
-                  <Icon
-                    className={`w-5 h-5 ${
-                      isActive
-                        ? "text-[#0C0057]"
-                        : "text-[] group-hover:text-[#1C3753]"
-                    }`}
-                  />
-                </div>
-                <div className="flex-1">
-                  <h2
-                    className={`font-medium text-[16px] ${
-                      isActive ? "text-[#1C3753]" : "text-gray-800"
+      {isAuthenticated && (
+        <div className="py-2 px-4">
+          {accountDetails.map(({ listName, listIcon: Icon, path }) => (
+            <NavLink
+              key={listName}
+              to={`/accounts${path}`}
+              onClick={() => {
+                setTimeout(() => {
+                  setIsProfileOpen(false);
+                }, 0);
+              }}
+              className={({ isActive }) =>
+                `flex items-center gap-4 p-3 my-1 rounded-lg duration-200 group ${
+                  isActive ? "bg-[#F0EEFF]" : "hover:bg-[#F0EEFF]"
+                }`
+              }
+            >
+              {({ isActive }) => (
+                <>
+                  <div
+                    className={`p-2 rounded-lg ${
+                      isActive ? "bg-[#D5E5F5]" : "bg-[#D5E5F5]"
                     }`}
                   >
-                    {listName}
-                  </h2>
-                </div>
-              </>
-            )}
-          </NavLink>
-        ))}
-      </div>
+                    <Icon className="w-5 h-5 text-[#1C3753]" />
+                  </div>
+
+                  <div className="flex-1">
+                    <h2 className="font-medium text-[16px] text-gray-800">
+                      {listName}
+                    </h2>
+                  </div>
+                </>
+              )}
+            </NavLink>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
