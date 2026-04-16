@@ -138,6 +138,163 @@ export const addProduct = asyncHandler(async (req, res) => {
   });
 });
 
+// export const adminGetAllProducts = asyncHandler(async (req, res) => {
+//   const {
+//     page = 1,
+//     limit = 10,
+//     search,
+//     category,
+//     status,
+//     sortBy = "latest",
+//   } = req.query;
+
+//   const pageNum = parseInt(page);
+//   const limitNum = parseInt(limit);
+//   const skip = (pageNum - 1) * limitNum;
+
+//   // 🔍 MATCH STAGE
+//   const matchStage = {};
+
+//   // ✅ STATUS FILTER
+//   if (status === "active") matchStage.isActive = true;
+//   if (status === "inactive") matchStage.isActive = false;
+//   if (status === "draft") matchStage.isActive = false;
+
+//   // 🔍 SEARCH (name, slug, sku)
+//   if (search) {
+//     matchStage.$or = [
+//       { productTittle: { $regex: search, $options: "i" } },
+//       { slug: { $regex: search, $options: "i" } },
+//       { "variants.variantSkuId": { $regex: search, $options: "i" } },
+//     ];
+//   }
+
+//   // 🧠 SORT LOGIC
+//   let sortStage = {};
+
+//   switch (sortBy) {
+//     case "latest":
+//       sortStage = { createdAt: -1 };
+//       break;
+
+//     case "oldest":
+//       sortStage = { createdAt: 1 };
+//       break;
+
+//     case "atoz":
+//       sortStage = { productTittle: 1 };
+//       break;
+
+//     case "ztoa":
+//       sortStage = { productTittle: -1 };
+//       break;
+
+//     case "lowtohigh":
+//       sortStage = { "variants.variantSellingPrice": 1 };
+//       break;
+
+//     case "hightolow":
+//       sortStage = { "variants.variantSellingPrice": -1 };
+//       break;
+
+//     default:
+//       sortStage = { createdAt: -1 };
+//   }
+
+//   // 🚀 AGGREGATION
+//   const pipeline = [
+//     { $match: matchStage },
+
+//     // 🔗 Join category (for name search/filter)
+//     {
+//       $lookup: {
+//         from: "categories",
+//         localField: "category",
+//         foreignField: "_id",
+//         as: "categoryData",
+//       },
+//     },
+//     {
+//       $unwind: {
+//         path: "$categoryData",
+//         preserveNullAndEmptyArrays: true,
+//       },
+//     },
+//   ];
+
+//   // ✅ CATEGORY NAME FILTER
+//   if (category) {
+//     pipeline.push({
+//       $match: {
+//         "categoryData.name": { $regex: category, $options: "i" },
+//       },
+//     });
+//   }
+
+//   // ✅ SEARCH ALSO IN CATEGORY NAME
+//   if (search) {
+//     pipeline.push({
+//       $match: {
+//         $or: [
+//           { productTittle: { $regex: search, $options: "i" } },
+//           { slug: { $regex: search, $options: "i" } },
+//           { "variants.variantSkuId": { $regex: search, $options: "i" } },
+//           { "categoryData.name": { $regex: search, $options: "i" } },
+//         ],
+//       },
+//     });
+//   }
+
+//   // 📊 SORT
+//   pipeline.push({ $sort: sortStage });
+
+//   // 📄 PAGINATION
+//   pipeline.push({ $skip: skip });
+//   pipeline.push({ $limit: limitNum });
+
+//   // 🎯 CLEAN RESPONSE
+//   pipeline.push({
+//     $project: {
+//       productTittle: 1,
+//       slug: 1,
+//       isActive: 1,
+//       createdAt: 1,
+//       category: "$categoryData.name",
+//       firstImage: {
+//         $arrayElemAt: [{ $arrayElemAt: ["$variants.variantImage.url", 0] }, 0],
+//       },
+//       price: {
+//         $arrayElemAt: ["$variants.variantSellingPrice", 0],
+//       },
+//     },
+//   });
+
+//   // 🚀 EXECUTE
+//   const products = await Product.aggregate(pipeline);
+
+//   // ⚠️ TOTAL COUNT (important)
+//   const totalPipeline = [
+//     ...pipeline.filter(
+//       (stage) => !stage.$skip && !stage.$limit && !stage.$sort,
+//     ),
+//     { $count: "total" },
+//   ];
+//   const totalResult = await Product.aggregate(totalPipeline);
+//   const total = totalResult[0]?.total || 0;
+
+//   res.status(200).json({
+//     success: true,
+//     message: "Products fetched successfully",
+//     data: products,
+//     pagination: {
+//       total,
+//       page: pageNum,
+//       limit: limitNum,
+//       totalPages: Math.ceil(total / limitNum),
+//     },
+//   });
+// });
+
 export const adminGetAllProducts = asyncHandler(async (req, res) => {
   const {
     page = 1,
@@ -152,149 +309,116 @@ export const adminGetAllProducts = asyncHandler(async (req, res) => {
   const limitNum = parseInt(limit);
   const skip = (pageNum - 1) * limitNum;
 
-  // 🔍 MATCH STAGE
-  const matchStage = {};
+  // 🔍 FILTER
+  const filter = {};
 
   // ✅ STATUS FILTER
-  if (status === "active") matchStage.isActive = true;
-  if (status === "inactive") matchStage.isActive = false;
-  if (status === "draft") matchStage.isActive = false;
+  if (status === "active") filter.isActive = true;
+  if (status === "inactive") filter.isActive = false;
 
   // 🔍 SEARCH (name, slug, sku)
   if (search) {
-    matchStage.$or = [
+    filter.$or = [
       { productTittle: { $regex: search, $options: "i" } },
       { slug: { $regex: search, $options: "i" } },
       { "variants.variantSkuId": { $regex: search, $options: "i" } },
     ];
   }
 
-  // 🧠 SORT LOGIC
-  let sortStage = {};
+  // ✅ CATEGORY FILTER (by category name)
+  let categoryFilter = {};
+  if (category) {
+    const categoryDoc = await Category.findOne({ 
+      name: { $regex: category, $options: "i" } 
+    });
+    if (categoryDoc) {
+      filter.category = categoryDoc._id;
+    }
+  }
 
+  // ✅ SORT OPTIONS
+  let sort = {};
   switch (sortBy) {
     case "latest":
-      sortStage = { createdAt: -1 };
+      sort = { createdAt: -1 };
       break;
-
     case "oldest":
-      sortStage = { createdAt: 1 };
+      sort = { createdAt: 1 };
       break;
-
     case "atoz":
-      sortStage = { productTittle: 1 };
+      sort = { productTittle: 1 };
       break;
-
     case "ztoa":
-      sortStage = { productTittle: -1 };
+      sort = { productTittle: -1 };
       break;
-
     case "lowtohigh":
-      sortStage = { "variants.variantSellingPrice": 1 };
+      sort = { "variants.variantSellingPrice": 1 };
       break;
-
     case "hightolow":
-      sortStage = { "variants.variantSellingPrice": -1 };
+      sort = { "variants.variantSellingPrice": -1 };
       break;
-
     default:
-      sortStage = { createdAt: -1 };
+      sort = { createdAt: -1 };
   }
 
-  // 🚀 AGGREGATION
-  const pipeline = [
-    { $match: matchStage },
+  // ✅ QUERY with populate (same as userGetAllProducts)
+  const [products, total] = await Promise.all([
+    Product.find(filter)
+      .populate("category", "name slug")
+      .populate("subcategory", "name slug")
+      .sort(sort)
+      .skip(skip)
+      .limit(limitNum)
+      .lean(),
+    Product.countDocuments(filter),
+  ]);
 
-    // 🔗 Join category (for name search/filter)
-    {
-      $lookup: {
-        from: "categories",
-        localField: "category",
-        foreignField: "_id",
-        as: "categoryData",
-      },
-    },
-    {
-      $unwind: {
-        path: "$categoryData",
-        preserveNullAndEmptyArrays: true,
-      },
-    },
-  ];
+  // ✅ PROCESS DATA (same structure as userGetAllProducts)
+  const processedProducts = products.map((product) => {
+    const variants = product.variants || [];
+    const defaultVariant = variants.find((v) => v.isSelected) || variants[0];
+    const prices = variants.map((v) => v.variantSellingPrice);
+    const lowestPrice = prices.length ? Math.min(...prices) : 0;
+    const highestPrice = prices.length ? Math.max(...prices) : 0;
+    const image = defaultVariant?.variantImage?.[0]?.url || null;
 
-  // ✅ CATEGORY NAME FILTER
-  if (category) {
-    pipeline.push({
-      $match: {
-        "categoryData.name": { $regex: category, $options: "i" },
+    return {
+      _id: product._id,
+      name: product.productTittle,
+      slug: product.slug,
+      category: product.category,
+      categoryName: product.category?.name || "N/A",
+      subcategory: product.subcategory,
+      subcategoryName: product.subcategory?.name || "N/A",
+      isActive: product.isActive,
+      skuId: defaultVariant?.variantSkuId || "N/A",
+      priceRange: {
+        min: lowestPrice,
+        max: highestPrice,
+        hasVariants: lowestPrice !== highestPrice,
       },
-    });
-  }
-
-  // ✅ SEARCH ALSO IN CATEGORY NAME
-  if (search) {
-    pipeline.push({
-      $match: {
-        $or: [
-          { productTittle: { $regex: search, $options: "i" } },
-          { slug: { $regex: search, $options: "i" } },
-          { "variants.variantSkuId": { $regex: search, $options: "i" } },
-          { "categoryData.name": { $regex: search, $options: "i" } },
-        ],
-      },
-    });
-  }
-
-  // 📊 SORT
-  pipeline.push({ $sort: sortStage });
-
-  // 📄 PAGINATION
-  pipeline.push({ $skip: skip });
-  pipeline.push({ $limit: limitNum });
-
-  // 🎯 CLEAN RESPONSE
-  pipeline.push({
-    $project: {
-      productTittle: 1,
-      slug: 1,
-      isActive: 1,
-      createdAt: 1,
-      category: "$categoryData.name",
-      firstImage: {
-        $arrayElemAt: [{ $arrayElemAt: ["$variants.variantImage.url", 0] }, 0],
-      },
-      price: {
-        $arrayElemAt: ["$variants.variantSellingPrice", 0],
-      },
-    },
+      mrp: defaultVariant?.variantMrp || 0,
+      defaultPrice: defaultVariant?.variantSellingPrice || 0,
+      discount: defaultVariant?.variantDiscount || 0,
+      image: image,
+      inStock: variants.some((v) => v.variantAvailableStock > 0),
+      variantCount: variants.length,
+      stats: product.stats,
+      createdAt: product.createdAt,
+    };
   });
-
-  // 🚀 EXECUTE
-  const products = await Product.aggregate(pipeline);
-
-  // ⚠️ TOTAL COUNT (important)
-  const totalPipeline = [
-    ...pipeline.filter(
-      (stage) => !stage.$skip && !stage.$limit && !stage.$sort,
-    ),
-    { $count: "total" },
-  ];
-  const totalResult = await Product.aggregate(totalPipeline);
-  const total = totalResult[0]?.total || 0;
 
   res.status(200).json({
     success: true,
-    message: "Products fetched successfully",
-    data: products,
+    data: processedProducts,
     pagination: {
-      total,
       page: pageNum,
       limit: limitNum,
-      totalPages: Math.ceil(total / limitNum),
+      total,
+      pages: Math.ceil(total / limitNum),
     },
   });
 });
-
 export const adminGetProductDetails = asyncHandler(async (req, res) => {
   const { idOrSlug } = req.params;
 
