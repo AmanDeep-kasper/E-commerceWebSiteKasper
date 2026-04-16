@@ -246,9 +246,6 @@ function ProductInformation() {
 
                   <div className="flex justify-between text-xs text-gray-600 mt-0.5">
                     <div className="flex gap-2">
-                      {/* <p className="border border-[#495F75] px-1 rounded-md">
-                        {item.variantValue}
-                      </p> */}
                        {item.variantColor && (
                         <p className="border border-[#495F75] px-1 rounded-md">
                           {item.variantColor}
@@ -371,7 +368,7 @@ function ProductInformation() {
                       Subcategory
                     </p>
                     <span className="text-base text-[#2C2C2C] font-medium">
-                      {product.subcategory?.name || "N/A"}
+                      {product?.subcategory?.name || "N/A"}
                     </span>
                   </div>
                   <div>
@@ -384,7 +381,9 @@ function ProductInformation() {
                   <div className="text-start">
                     <p className="text-sm text-[#686868] font-medium">Weight</p>
                     <span className="text-base text-[#2C2C2C] font-medium">
-                      {product.weight}
+                      {currentVariant?.variantWeight 
+                        ? `${currentVariant.variantWeight} ${currentVariant.variantWeightUnit || 'kg'}`
+                        : "N/A"}
                     </span>
                   </div>
                 </div>
