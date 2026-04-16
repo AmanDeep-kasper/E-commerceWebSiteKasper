@@ -1,5 +1,6 @@
 import { Star, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import axiosInstance from "../api/axiosInstance";
 
 function AddReviewsModel({ open, review, onClose, onSave, product }) {
   const [rating, setRating] = useState(0);
@@ -12,6 +13,7 @@ function AddReviewsModel({ open, review, onClose, onSave, product }) {
   const [imageFiles, setImageFiles] = useState([]);
 
   const fileInputRef = useRef(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // ✅ Reset for Add mode, fill for Edit mode
   useEffect(() => {
@@ -57,7 +59,7 @@ function AddReviewsModel({ open, review, onClose, onSave, product }) {
     if (!files.length) return;
 
     // ✅ optional constraints
-    const MAX_FILES = 6;
+    const MAX_FILES = 5;
     const MAX_SIZE_MB = 5;
 
     // filter only image
@@ -97,21 +99,46 @@ function AddReviewsModel({ open, review, onClose, onSave, product }) {
     setImageFiles((prev) => prev.filter((_, i) => i !== idx));
   };
 
-  const handleSave = () => {
-    onSave({
-      ...(review || {}),
-      rating,
-      review: text,
+  const handleSave = async () => {
+    try {
+      if (!rating) {
+        alert("Please select rating");
+        return;
+      }
 
-      // ✅ for UI + backend
-      images, // preview urls or existing urls
+      if (!product?._id) {
+        alert("Product id missing");
+        return;
+      }
 
-      // ✅ if you plan backend upload, send files too
-      imageFiles,
+      setIsSubmitting(true);
 
-      productUuid: product?.uuid,
-      variantId: product?.selectedVariant?.variantId,
-    });
+      const formData = new FormData();
+      formData.append("rating", rating);
+      formData.append("reviewText", text);
+
+      imageFiles.forEach((file) => {
+        formData.append("reviewImages", file);
+      });
+
+      const res = await axiosInstance.post(
+        `/review/add-review/${product._id}`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        },
+      );
+
+      const savedReview = res?.data?.data;
+      onSave(savedReview);
+    } catch (error) {
+      console.error("Error adding review:", error);
+      alert(error?.response?.data?.message || "Failed to add review");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
