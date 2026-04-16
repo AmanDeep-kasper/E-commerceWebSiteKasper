@@ -27,8 +27,8 @@ import MainLog from "../assets/IconsUsed/HomeMainLogo.png";
 import axiosInstance from "../api/axiosInstance";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay } from "swiper/modules";
-
 import "swiper/css";
+import { useRef } from "react";
 
 function Navbar() {
   const { user, isAuthenticated } = useSelector((state) => state.user);
@@ -60,6 +60,25 @@ function Navbar() {
   const query = searchParams.get("q") || "";
   const [searchResults, setSearchResults] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  const searchRef = useRef(null);
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (searchRef.current && !searchRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("touchstart", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
+    };
+  }, [isOpen]);
 
   const handleLogout = () => {
     dispatch(logoutUser());
@@ -110,6 +129,7 @@ function Navbar() {
         setDebouncedSearch(query);
         fetchSearchResults(query);
       } else {
+        setDebouncedSearch("");
         setSearchResults([]);
       }
     }, 300);
@@ -117,14 +137,6 @@ function Navbar() {
     return () => clearTimeout(handler);
   }, [query]);
 
-  // Filter results
-  // const filteredResults = searchResults
-  //   .filter((item) =>
-  //     (item?.productTittle ?? "")
-  //       .toLowerCase()
-  //       .includes((debouncedSearch ?? "").toLowerCase()),
-  //   )
-  //   .slice(0, 5);
   const filteredResults = searchResults.slice(0, 5);
 
   // console.log(filteredResults);
@@ -151,14 +163,9 @@ function Navbar() {
         setSearchResults([]);
         return;
       }
-
       setLoading(true);
-
-      // const res = await axiosInstance.get(
-      //   `/product?search=${encodeURIComponent(value)}`,
-      // );
       const res = await axiosInstance.get(`/product?search=${value}`);
-      console.log("API DATA:", res.data);
+      // console.log("API DATA:", res.data);
       setSearchResults(res.data.products || []);
     } catch (error) {
       console.error("Search error:", error);
@@ -168,9 +175,6 @@ function Navbar() {
     }
   };
 
-  // useEffect(() => {
-  //   fetchSearchResults();
-  // }, []);
 
   return (
     // <div className="w-full">
@@ -250,10 +254,19 @@ function Navbar() {
               </div>
 
               {/* Desktop Dropdown */}
-              <div className="hidden lg:block border border-transparent">
-                {isOpen && debouncedSearch && (
+              <div className="hidden lg:block">
+                {isOpen && (
                   <div className="absolute top-full left-0 w-64 lg:w-80 xl:w-96 bg-white border border-gray-200 shadow-md mt-2.5 z-50">
-                    {filteredResults.length > 0 ? (
+                    {query.trim() === "" ? (
+                      // 👉 EMPTY INPUT
+                      <p className="p-3 text-sm text-gray-400 italic">
+                        Type to search...
+                      </p>
+                    ) : loading ? (
+                      // 👉 LOADING
+                      <p className="p-3 text-sm text-gray-500">Loading...</p>
+                    ) : filteredResults.length > 0 ? (
+                      // 👉 RESULTS
                       <ul className="divide-y divide-gray-100">
                         {filteredResults.map((item, index) => (
                           <li
@@ -262,11 +275,10 @@ function Navbar() {
                             onClick={() => {
                               setIsOpen(false);
                               setSearchParams({}, { replace: true });
-                              setTimeout(() => {
-                                navigate(
-                                  `/products/${encodeURIComponent(item.categoryName)}`,
-                                );
-                              }, 0);
+
+                              navigate(
+                                `/products/${encodeURIComponent(item.categoryName)}`,
+                              );
                             }}
                           >
                             <img
@@ -288,6 +300,7 @@ function Navbar() {
                         ))}
                       </ul>
                     ) : (
+                      // 👉 NO RESULTS
                       <p className="p-3 text-sm text-gray-500">
                         No results found.
                       </p>
@@ -308,7 +321,10 @@ function Navbar() {
               {isOpen && (
                 <div className="fixed inset-0 bg-white z-50 p-4 lg:hidden flex flex-col overflow-hidden">
                   {/* Header */}
-                  <div className="flex items-center justify-between border-b pb-2 mb-4">
+                  <div
+                    ref={searchRef}
+                    className="flex items-center justify-between border-b pb-2 mb-4"
+                  >
                     <h2 className="text-lg font-semibold">Search</h2>
                     <button
                       onClick={() => {
@@ -419,7 +435,8 @@ function Navbar() {
 
               <div className="absolute -right-[340%] hidden lg:group-hover:block max-lg:hidden top-8 z-50 border border-transparent">
                 <div className="border border-gray-200 mt-4">
-                  <UserProfile />
+                  <UserProfile isAuthenticated={isAuthenticated} />
+                 
                   <div className="pt-4 border-t border-gray-200 bg-white">
                     {isAuthenticated ? (
                       <>
