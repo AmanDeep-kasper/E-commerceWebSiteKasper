@@ -59,7 +59,7 @@ const categoryService = async (formData) => {
 // Get all categories at catgory service
 const getAllCategories = async (page = 1, limit = 10) => {
   const res = await axiosInstance.get(
-    `/category/admin/all-categories?page=${page}&limit=${limit}`,
+    `/category/all-categories?page=${page}&limit=${limit}`,
   ); // Add pagination parameters
   return {
     data: res?.data?.category || res?.data?.data || [],

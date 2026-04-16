@@ -154,6 +154,9 @@ const userSlice = createSlice({
       })
       .addCase(updateUserDetails.rejected, (state, action) => {
         state.loading = false;
+        // state.user = null;
+        // state.isAuthenticated = false;
+        // state.authChecked = true;
         state.error = action.payload;
       })
       // UPDATE PROFILE IMAGE
