@@ -30,7 +30,7 @@ function Product() {
         setError("");
 
         const res = await axiosInstance.get("/product/all");
-        console.log("Product API Response:", res.data);
+        // console.log("Product API Response:", res.data);
 
         let fetchedProducts = [];
 
@@ -42,7 +42,7 @@ function Product() {
           fetchedProducts = res.data.products;
         }
 
-        console.log("Fetched products:", fetchedProducts);
+        // console.log("Fetched products:", fetchedProducts);
         let filteredProducts = fetchedProducts;
 
         if (categoryName) {
@@ -56,11 +56,11 @@ function Product() {
             ).toLowerCase();
             return productCategory === decodedCategory;
           });
-          console.log(
-            `Filtered by category "${decodedCategory}":`,
-            filteredProducts.length,
-            "products",
-          );
+          // console.log(
+          //   `Filtered by category "${decodedCategory}":`,
+          //   filteredProducts.length,
+          //   "products",
+          // );
         }
 
         if (subcategoryName && filteredProducts.length > 0) {
