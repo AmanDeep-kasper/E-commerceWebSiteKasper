@@ -369,19 +369,6 @@ function AccountDetails() {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Password
                   </label>
-
-                  <button
-                    type="button"
-                    className="text-[#006EE1] text-sm mb-2"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      setShowPasswordModal(true);
-                    }}
-                    disabled={isSaving}
-                  >
-                    Change Password
-                  </button>
                 </div>
 
                 {isEditing ? (
@@ -402,6 +389,20 @@ function AccountDetails() {
                     </p>
                   </div>
                 )}
+                <div className="flex justify-end">
+                  <button
+                    type="button"
+                    className="text-[#006EE1] text-sm mb-2"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setShowPasswordModal(true);
+                    }}
+                    disabled={isSaving}
+                  >
+                    Change Password
+                  </button>
+                  </div>
               </div>
             </div>
           </div>
@@ -434,8 +435,8 @@ function AccountDetails() {
             <div className="w-full bg-[#F6F8F9] rounded-lg p-4 sm:p-5 border border-gray-200 shadow-sm">
               <div className="space-y-3">
                 <div className="flex items-center gap-3 sm:gap-4 p-3 bg-[#FFFFFF] rounded-lg">
-                  <div className="p-2 bg-[#F5F8FA] rounded-lg">
-                    <Calendar className="w-4 sm:w-5 h-4 sm:h-5 text-[#1C3753]" />
+                  <div className="p-2 bg-[#F0EEFF] rounded-full">
+                    <Calendar className="w-4 sm:w-5 h-4 sm:h-5 text-[#1800AC]" />
                   </div>
                   <div>
                     <p className="text-xs sm:text-sm font-medium text-gray-700">
@@ -457,8 +458,8 @@ function AccountDetails() {
                 </div>
 
                 <div className="flex items-center gap-3 sm:gap-4 p-3 bg-[#FFFFFF] rounded-lg">
-                  <div className="p-2 bg-[#F5F8FA] rounded-lg">
-                    <Phone className="w-4 sm:w-5 h-4 sm:h-5 text-[#1C3753]" />
+                  <div className="p-2 bg-[#F0EEFF] rounded-full">
+                    <Phone className="w-4 sm:w-5 h-4 sm:h-5 text-[#1800AC]" />
                   </div>
                   <div>
                     <p className="text-xs sm:text-sm font-medium text-gray-700">
@@ -473,8 +474,8 @@ function AccountDetails() {
                 </div>
 
                 <div className="flex items-center gap-3 sm:gap-4 p-3 bg-[#FFFFFF] rounded-lg">
-                  <div className="p-2 bg-[#F5F8FA] rounded-lg">
-                    <User className="w-4 sm:w-5 h-4 sm:h-5 text-[#1C3753]" />
+                  <div className="p-2 bg-[#F0EEFF] rounded-full">
+                    <User className="w-4 sm:w-5 h-4 sm:h-5 text-[#1800AC]" />
                   </div>
                   <div>
                     <p className="text-xs sm:text-sm font-medium text-gray-700">
