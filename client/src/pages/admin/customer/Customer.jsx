@@ -14,6 +14,7 @@ import { ChevronLeft } from "lucide-react";
 import customers from "../data/customer.json"; // json data
 import { useNavigate } from "react-router-dom";
 // import { div } from "framer-motion/m";
+import axiosInstance from "../../../api/axiosInstance";
 
 const classNames = (...c) => c.filter(Boolean).join(" ");
 
@@ -26,8 +27,12 @@ const links = [
 function Customer() {
   const [page, setPage] = useState(1);
   const rowsPerPage = 10;
-  // search filter
+  // state for users from API
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
+  // search filter
   const [search, setSearch] = useState("");
   const [debouncedValue, setDebouncedValue] = useState("");
   // console.log(search);
@@ -38,6 +43,40 @@ function Customer() {
   // status filter
   const [statusOpen, setStatusOpen] = useState(false);
   const [status, setStatus] = useState("All Status");
+
+   const navigate = useNavigate(null);
+   useEffect(() => {
+    const fetchUsers = async() => {
+      try{
+        setLoading(true);
+        const response = await axiosInstance.get("/user/admin/all-users");
+        console.log("Users response:", response.data);
+          
+        let usersData = [];
+        if (response.data?.success && response.data?.users) {
+          usersData = response.data.users;
+        } else if (Array.isArray(response.data)) {
+          usersData = response.data;
+        } else if (response.data?.data) {
+          usersData = response.data.data;
+        }
+
+        // filter out admin users only show customers (role === "user")
+        const customerUsers = usersData.filter((user) => user.role !== "admin");
+        
+        setUsers(customerUsers);
+        setError(null);
+      } catch (err) {
+        console.error("Error fetching users:", err);
+        setError(err.response?.data?.message || "Failed to load users");
+        setUsers([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchUsers();
+  }, []);
   // const allRows = [...customers];
 
   // debouncce filter
@@ -52,47 +91,63 @@ function Customer() {
 
   // all filter logic
 
-  const filterCustomers = useMemo(() => {
-    let result = [...customers];
+  const filterUsers = useMemo(() => {
+    let result = [...users];
 
     // Search logic filter
     if (debouncedValue.trim() !== "") {
       result = result.filter((item) => {
         return (
-          item.name.toLowerCase().includes(debouncedValue.toLowerCase()) ||
-          item.email.toLowerCase().includes(debouncedValue.toLowerCase()) ||
-          item.phone.includes(debouncedValue)
+          item?.name?.toLowerCase().includes(debouncedValue.toLowerCase()) ||
+          item?.email?.toLowerCase().includes(debouncedValue.toLowerCase()) ||
+          item?.phoneNumber?.includes(debouncedValue)
         );
       });
     }
     // STATUS FILTER
-    if (status !== "All Status") {
-      result = result.filter((item) => item.status === status);
+  if (status !== "All Status") {
+      if (status === "Active") {
+        result = result.filter((item) => item.isActive === true);
+      } else if (status === "Blocked") {
+        result = result.filter((item) => item.isActive === false);
+      }
     }
 
+
+    // if (filterOne === "Latest") {
+    //   result.sort(
+    //     (a, b) => new Date(b.last_order_date) - new Date(a.last_order_date),
+    //   );
+    // }
+
+    // if (filterOne === "Oldest") {
+    //   result.sort((a, b) => {
+    //     return new Date(a.last_order_date) - new Date(b.last_order_date);
+    //   });
+    // }
+
+    // if (filterOne === "Alphabetical (A-Z)") {
+    //   result.sort((a, b) => {
+    //     return a.name.localeCompare(b.name);
+    //   });
+    // }
+
+    // if (filterOne === "Alphabetical (Z-A)") {
+    //   result.sort((a, b) => {
+    //     return b.name.localeCompare(a.name);
+    //   });
+    // }
+    // Sorting
     if (filterOne === "Latest") {
-      result.sort(
-        (a, b) => new Date(b.last_order_date) - new Date(a.last_order_date),
-      );
+      result.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    } else if (filterOne === "Oldest") {
+      result.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+    } else if (filterOne === "Alphabetical (A-Z)") {
+      result.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+    } else if (filterOne === "Alphabetical (Z-A)") {
+      result.sort((a, b) => (b.name || "").localeCompare(a.name || ""));
     }
 
-    if (filterOne === "Oldest") {
-      result.sort((a, b) => {
-        return new Date(a.last_order_date) - new Date(b.last_order_date);
-      });
-    }
-
-    if (filterOne === "Alphabetical (A-Z)") {
-      result.sort((a, b) => {
-        return a.name.localeCompare(b.name);
-      });
-    }
-
-    if (filterOne === "Alphabetical (Z-A)") {
-      result.sort((a, b) => {
-        return b.name.localeCompare(a.name);
-      });
-    }
 
     if (filterOne === "Spend (Low-High)") {
       result.sort((a, b) => {
@@ -117,14 +172,13 @@ function Customer() {
     }
 
     return result;
-  }, [customers, debouncedValue, status, filterOne]);
+  }, [users, debouncedValue, status, filterOne]);
 
-  const totalPages = Math.ceil(filterCustomers.length / rowsPerPage);
-  const rows = filterCustomers.slice(
+  const totalPages = Math.ceil(filterUsers.length / rowsPerPage);
+  const rows = filterUsers.slice(
     (page - 1) * rowsPerPage,
     page * rowsPerPage,
   );
-  const navigate = useNavigate(null);
 
   // store the Latest filter status
 
@@ -146,8 +200,21 @@ function Customer() {
   //  pagination side logic
 
   const start = (page - 1) * rowsPerPage + 1;
-  const end = Math.min(page * rowsPerPage, filterCustomers.length);
-  const total = filterCustomers.length;
+  const end = Math.min(page * rowsPerPage, filterUsers.length);
+  const total = filterUsers.length;
+
+  // Loading state
+   if (loading) {
+    return (
+      <div className="p-[24px] bg-[#F6F8F9] min-h-screen flex justify-center items-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1C3753] mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading customers...</p>
+        </div>
+      </div>
+    );
+  }
+
 
   return (
     <div className="p-[24px] bg-[#F6F8F9] min-h-screen">
@@ -250,6 +317,7 @@ function Customer() {
                   setStatus("All Status");
                   setfilterOne("Latest");
                   setPage(1);
+                  setSearch("");
                 }}
                 className="border rounded-lg px-3 py-2 text-sm text-[#686868] flex items-center justify-between gap-2 bg-[#F8FBFC]  hover:bg-gray-100"
               >
@@ -287,44 +355,37 @@ function Customer() {
               </thead>
 
               <tbody>
-                {rows.map((r) => (
+                {rows.map((user) => (
                   <tr
-                    key={r.id}
-                      onClick={() => navigate(`/admin/customers/${r.id}/customer-info`)}
+                    key={user._id}
+                      onClick={() => navigate(`/admin/customers/${user._id}/customer-info`)}
                     className="border-t hover:bg-gray-50 transition cursor-pointer"
                   >
-                    <td className="px-4 py-3">{r.name}</td>
-                    <td className="px-4 py-3">{r.email}</td>
-                    <td className="px-4 py-3">{r.phone}</td>
-                    <td className="px-4 py-3">{r.total_orders}</td>
-                    <td className="px-4 py-3">₹{r.total_spent}</td>
-                    <td className="px-4 py-3">{r.last_order_date}</td>
+                    <td className="px-4 py-3">{user.name  || "N/A"}</td>
+                    <td className="px-4 py-3">{user.email  || "N/A"}</td>
+                    <td className="px-4 py-3">{user.phoneNumber || "N/A"}</td>
+                    <td className="px-4 py-3">{user.total_orders || "N/A"}</td>
+                    <td className="px-4 py-3">₹{user.total_spent || "N/A"}</td>
+                    <td className="px-4 py-3">{user.last_order_date || "N/A"}</td>
 
                     {/* Status */}
-                    <td className="px-4 py-3">
+                  <td className="px-4 py-3">
                       <span
-                        className={`inline-flex items-center gap-2 px-3 py-1 rounded-md text-xs font-medium
-                ${
-                  r.status === "Active"
-                    ? "bg-green-100 text-green-600"
-                    : r.status === "Blocked"
-                      ? "bg-red-100 text-red-600"
-                      : ""
-                }
-              `}
+                        className={`inline-flex items-center gap-2 px-3 py-1 rounded-md text-xs font-medium ${
+                          user.isActive === true
+                            ? "bg-green-100 text-green-600"
+                            : "bg-red-100 text-red-600"
+                        }`}
                       >
                         <span
                           className={`w-2 h-2 rounded-xl ${
-                            r.status === "Active"
-                              ? "bg-green-500"
-                              : r.status === "Blocked"
-                                ? "bg-red-500"
-                                : ""
+                            user.isActive === true ? "bg-green-500" : "bg-red-500"
                           }`}
                         />
-                        {r.status}
+                        {user.isActive === true ? "Active" : "Blocked"}
                       </span>
                     </td>
+
 
                     {/* Action */}
                     {/* <td className="px-4 py-3 text-right">
@@ -344,7 +405,7 @@ function Customer() {
           </div>
 
           {/* Pagination */}
-
+ {filterUsers.length > 0 && (
           <div className="flex items-center justify-between px-6 py-3  text-sm text-gray-600">
             {/* Showing text */}
             <div>
@@ -377,6 +438,12 @@ function Customer() {
               </button>
             </div>
           </div>
+ )}
+ {filterUsers.length === 0 && !loading && (
+  <div className="text-center py-8 text-gray-500">
+              No customers found
+            </div>
+ )}
         </div>
       </div>
     </div>
