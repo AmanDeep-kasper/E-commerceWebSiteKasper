@@ -10,7 +10,7 @@ import {
   sendEmailChangeOTP,
   sendSupportEmail,
 } from "../service/emailService.js";
-import { TempUser } from "../models/tempUser.js";
+import TempUser from "../models/TempUser.js";
 import { generateOTP } from "../utils/generateOTP.js";
 
 export const getUserDetails = asyncHandler(async (req, res) => {

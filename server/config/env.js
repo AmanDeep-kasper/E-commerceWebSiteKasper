@@ -33,7 +33,6 @@ export default {
   JWT_ISSUER: process.env.JWT_ISSUER,
   JWT_AUDIENCE: process.env.JWT_AUDIENCE,
 
-  ENABLE_DEVICE_FINGERPRINT: process.env.ENABLE_DEVICE_FINGERPRINT === "true",
   FRONTEND_URL: process.env.FRONTEND_URL,
 
   NODE_ENV: process.env.NODE_ENV || "development",
