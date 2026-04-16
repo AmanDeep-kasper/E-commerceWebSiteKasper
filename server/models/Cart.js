@@ -79,18 +79,11 @@ const CartSchema = new mongoose.Schema(
       default: 0,
     },
 
-    // REWARD (NO COUPON AS PER YOUR REQUIREMENT)
-    reward: {
-      usedPoints: { type: Number, default: 0 },
-      discount: { type: Number, default: 0 },
-    },
-
-    // SHIPPING (FUTURE READY)
-    shipping: {
-      charge: { type: Number, default: 0 },
-      zone: { type: String, default: "" },
-      method: { type: String, default: "" },
-    },
+    // // REWARD (NO COUPON AS PER YOUR REQUIREMENT)
+    // reward: {
+    //   usedPoints: { type: Number, default: 0 },
+    //   discount: { type: Number, default: 0 },
+    // },
 
     // TOTALS
     subtotal: { type: Number, default: 0 },

@@ -8,7 +8,10 @@ import Payment from "../models/Payment.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import AppError from "../utils/AppError.js";
 import env from "../config/env.js";
-import razorpay, { createRazorpayOrder } from "../service/razorpayService.js";
+import razorpay, {
+  createRazorpayOrder,
+  verifyPaymentSignature,
+} from "../service/razorpayService.js";
 
 // Helper function
 const calculateShippingCharge = ({
@@ -131,191 +134,87 @@ export const checkout = asyncHandler(async (req, res) => {
     data: {
       orderId: order._id,
       razorpay: {
-        orderId: razorpayOrder.id,
+        rzOrderId: razorpayOrder.id,
         amount: razorpayOrder.amount,
         currency: razorpayOrder.currency,
-        key: process.env.RAZORPAY_API_KEY, // ✅ correct
+        key: env.RAZORPAY_API_KEY, // ✅ correct
       },
     },
   });
 });
 
 export const verifyPayment = asyncHandler(async (req, res) => {
+  const userId = req.user?.userId;
+
   const { razorpayOrderId, razorpayPaymentId, razorpaySignature } = req.body;
 
+  if (!razorpayOrderId || !razorpayPaymentId || !razorpaySignature) {
+    throw AppError.badRequest(
+      "All payment fields required",
+      "PAYMENT_DATA_MISSING",
+    );
+  }
+
+  // ✅ Verify signature
   const isValid = verifyPaymentSignature({
     razorpayOrderId,
     razorpayPaymentId,
     razorpaySignature,
   });
 
-  if (!isValid) {
-    throw AppError.badRequest("Invalid signature", "INVALID_SIGNATURE");
-  }
-
-  // ✅ Payment find
+  // ✅ Find payment
   const payment = await Payment.findOne({ razorpayOrderId });
 
   if (!payment) {
-    throw AppError.notFound("Payment not found", "NOT_FOUND");
+    throw AppError.notFound("Payment not found", "PAYMENT_NOT_FOUND");
   }
 
-  // ✅ Update payment
+  const order = await Order.findById(payment.order);
+
+  if (!order) {
+    throw AppError.notFound("Order not found", "ORDER_NOT_FOUND");
+  }
+
+  // ❌ PAYMENT FAILED
+  if (!isValid) {
+    payment.status = "failed";
+    payment.failedAt = new Date();
+
+    order.paymentStatus = "failed";
+    order.status = "cancelled";
+    order.cancelledAt = new Date();
+
+    await payment.save();
+    await order.save();
+
+    return res.status(400).json({
+      success: false,
+      message: "Payment verification failed",
+    });
+  }
+
+  // ✅ PAYMENT SUCCESS
+  payment.status = "captured";
   payment.razorpayPaymentId = razorpayPaymentId;
   payment.razorpaySignature = razorpaySignature;
-  payment.status = "captured";
   payment.isVerified = true;
   payment.capturedAt = new Date();
-
-  await payment.save();
-
-  // ✅ Update order
-  const order = await Order.findById(payment.order);
 
   order.paymentStatus = "paid";
   order.status = "confirmed";
   order.confirmedAt = new Date();
 
+  await payment.save();
   await order.save();
 
-  // ✅ Clear cart
-  await Cart.updateOne(
-    { userId: order.user, status: "active" },
-    { $set: { status: "checked_out" } },
-  );
+  // 🧹 Clear cart
+  await Cart.updateOne({ userId, status: "active" }, { status: "checked_out" });
 
   res.status(200).json({
     success: true,
-    message: "Payment verified",
-  });
-});
-
-export const checkout = asyncHandler(async (req, res) => {
-  const userId = req.user?.userId;
-  const { paymentMethod, shippingAddress } = req.body;
-
-  // ✅ Only Razorpay supported
-  if (paymentMethod !== "razorpay") {
-    throw AppError.badRequest(
-      "Only Razorpay is supported currently",
-      "INVALID_PAYMENT_METHOD",
-    );
-  }
-
-  if (!shippingAddress) {
-    throw AppError.badRequest(
-      "Shipping address is required",
-      "ADDRESS_REQUIRED",
-    );
-  }
-
-  // ✅ Get cart (lightweight)
-  const cart = await Cart.findOne({ userId, status: "active" }).lean();
-
-  if (!cart || cart.items.length === 0) {
-    throw AppError.badRequest("Cart is empty", "CART_EMPTY");
-  }
-
-  // ✅ Get shipping config
-  const config = await Shipping.findOne({ isActive: true }).lean();
-
-  if (!config) {
-    throw AppError.notFound("Shipping config not found", "CONFIG_NOT_FOUND");
-  }
-
-  // ✅ Get warehouse (single for now)
-  const warehouse = await Warehouse.findOne({ isActive: true }).lean();
-
-  if (!warehouse) {
-    throw AppError.notFound("Warehouse not found", "WAREHOUSE_NOT_FOUND");
-  }
-
-  // ✅ Calculate shipping
-  const shippingCharge = calculateShippingCharge({
-    userCity: shippingAddress.city,
-    userState: shippingAddress.state,
-    warehouseCity: warehouse.address.city,
-    warehouseState: warehouse.address.state,
-    config,
-    cartTotal: cart.subtotal,
-  });
-
-  // ✅ Final totals
-  const platformFee = config.platformFee || 0;
-  const additionalCharges = config.additionalCharges || 0;
-
-  const grandTotal = cart.grandTotal + shippingCharge + platformFee;
-
-  // ❗ Safety (no NaN)
-  if (isNaN(grandTotal)) {
-    throw AppError.internal("Invalid total calculation", "TOTAL_ERROR");
-  }
-
-  if (paymentMethod === "razorpay") {
-    const razorpayOrder = await createRazorpayOrder(grandTotal);
-
-    const order = await Order.create({
-      user: userId,
-      orderNumber: `ORD-${Date.now()}`,
-      items: cart.items,
-      shippingAddress,
-      paymentMethod,
-      subtotal: cart.subtotal,
-      totalGST: cart.totalGST,
-      shippingCharge,
-      grandTotal,
-      payment: razorpayOrder.id,
-      paymentStatus: "pending",
-      status: "cancelled",
-    });
-
-    // create payment
-    const payment = await Payment.create({
-      order: order._id,
-      user: userId,
-      amount: grandTotal,
-      razorpayOrderId: razorpayOrder.id,
-    });
-
-    res.status(200).json({
-      success: true,
-      message: "Payment initiated",
+    message: "Payment verified successfully",
+    data: {
       orderId: order._id,
-      razorpay: {
-        razorpayId: razorpayOrder.id,
-        currency: razorpayOrder.currency,
-        amount: razorpayOrder.amount,
-        key: env.RAZORPAY_API_SECRET,
-        receipt: razorpayOrder.receipt,
-      },
-    });
-  }
-
-  res.status(400).json({
-    success: false,
-    message: "Invalid payment method",
+    },
   });
-});
-
-export const verifyPayment = asyncHandler(async (req, res) => {
-  const userId = req.user?.userId;
-  const { razorpayOrderId, razorpayPaymentId, razorpaySignature } = req.body;
-
-  const body = razorpayOrderId + "|" + razorpayPaymentId;
-  const expectedSignature = crypto
-    .createHmac("sha256", env.RAZORPAY_API_SECRET)
-    .update(body.toString())
-    .digest("hex");
-
-  if (razorpaySignature !== expectedSignature) {
-    throw AppError.badRequest("Invalid signature", "INVALID_SIGNATURE");
-  }
-
-  const cart = await Cart.findOne({ userId, status: "active" }).lean();
-
-  if (!cart || cart.items.length === 0) {
-    throw AppError.badRequest("Cart is empty", "CART_EMPTY");
-  }
-
-  const order = await Order.findOne({});
 });
