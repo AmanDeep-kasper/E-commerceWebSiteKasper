@@ -61,6 +61,8 @@ export const addReview = asyncHandler(async (req, res) => {
       review.rating) /
       product.stats.totalReviews,
   ).toFixed(1);
+  product.reviews.push(review._id);
+
   await product.save();
 
   res.status(201).json({

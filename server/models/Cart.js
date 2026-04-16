@@ -131,15 +131,13 @@ CartSchema.methods.recalculate = function () {
   this.totalQuantity = totalQty;
 
   // ✅ SAFE DEFAULTS (VERY IMPORTANT)
-  const shippingCharge = this.shipping?.charge || 0;
-  const rewardDiscount = this.reward?.discount || 0;
+  // const shippingCharge = this.shipping?.charge || 0;
+  // const rewardDiscount = this.reward?.discount || 0;
 
   this.subtotal = Math.round(subtotal * 100) / 100;
   this.totalGST = Math.round(totalGST * 100) / 100;
 
-  this.grandTotal =
-    Math.round((subtotal + totalGST + shippingCharge - rewardDiscount) * 100) /
-    100;
+  this.grandTotal = Math.round((subtotal + totalGST) * 100) / 100;
 };
 
 const Cart = mongoose.model("Cart", CartSchema);
