@@ -22,7 +22,7 @@ function ProductInformation() {
         setLoading(true);
         // const response = await axiosInstance.get(`/product/${uuid}`);
         const response = await axiosInstance.get(`/product/admin/get-product-details/${uuid}`);
-        console.log("Product Details Response from admin:", response.data);
+        // console.log("Product Details Response from admin:", response.data);
 
         let productData = null;
         if (response.data?.success && response.data?.data) {
@@ -484,158 +484,80 @@ function ProductInformation() {
       </div>
 
       {/* Customer Reviews */}
-      <div className="mt-6 bg-white rounded-xl p-4">
-        <h2 className="text-lg font-medium mb-2">Rating & Reviews</h2>
+      {/* Customer Reviews */}
+<div className="mt-6 bg-white rounded-xl p-4">
+  <h2 className="text-lg font-medium mb-2">Rating & Reviews</h2>
 
-        <Reviews reviews={product?.reviews} avgRating={avgRating} />
-        {product?.reviews && product.reviews.length > 0 ? (
-          <div className="max-h-[450px] overflow-y-auto pr-2">
-            {product.reviews.map((review, index) => (
-                <div
-                  key={index}
-                  className="py-4 flex gap-3 flex-col border border-[#CBCACA] px-4 rounded-xl mb-4"
-                >
-                  <div className="flex justify-between">
-                    {/* <div className="flex gap-4">
-                      {userImage ? (
-                        <img
-                          className="w-11 h-11 rounded-full"
-                          src={userImage}
-                          alt={`${user}'s avatar`}
-                        />
-                      ) : (
-                        <div className="w-11 h-11 rounded-full bg-gray-400 flex items-center justify-center text-white font-bold">
-                          <h1 className="text-white">
-                            {review.user?.charAt(0).toUpperCase() || "U"}
-                          </h1>
-                        </div>
-                      )}
-
-                      <div className="flex flex-col">
-                        <h1 className="text-[14px]">{review.user || "Anonymous"}</h1>
-                        <div className="flex items-center gap-1">
-                          <Ratings reviews={product.reviews} avgRating={review.rating} />
-                        </div>
-                      </div>
-                    </div> */}
-                    {product?.reviews && product.reviews.length > 0 ? (
-  <div className="max-h-[450px] overflow-y-auto pr-2">
-    {product.reviews.map((review, index) => (
-      <div
-        key={index}
-        className="py-4 flex gap-3 flex-col border border-[#CBCACA] px-4 rounded-xl mb-4"
-      >
-        <div className="flex justify-between">
-          <div className="flex gap-4">
-            {review.userImage ? (
-              <img
-                className="w-11 h-11 rounded-full"
-                src={review.userImage}
-                alt={`${review.user}'s avatar`}
-              />
-            ) : (
-              <div className="w-11 h-11 rounded-full bg-gray-400 flex items-center justify-center text-white font-bold">
-                <h1 className="text-white">
-                  {review.user?.charAt(0).toUpperCase() || "U"}
-                </h1>
-              </div>
-            )}
-            <div className="flex flex-col">
-              <h1 className="text-[14px]">{review.user || "Anonymous"}</h1>
-              <div className="flex items-center gap-1">
-                <Ratings reviews={product.reviews} avgRating={review.rating} />
-              </div>
-            </div>
-          </div>
-          <div className="flex items-center justify-center gap-2">
-            <button className="bg-gray-200 p-1 rounded-lg">
-              <Eye size={20} color="#1C1C1C" />
-            </button>
-            <button className="bg-gray-200 p-1 rounded-lg">
-              <Pin size={20} color="#1C1C1C" />
-            </button>
-          </div>
-        </div>
-        <p className="text-sm">{review.comment || "No comment"}</p>
-        {review.images && review.images.length > 0 && (
-          <div className="flex gap-3">
-            {review.images.map((img, imgIndex) => (
-              <img
-                className="w-[60px] h-[60px] rounded-md"
-                src={img}
-                alt="product"
-                key={imgIndex}
-              />
-            ))}
-          </div>
-        )}
-        <div className="flex items-end justify-end gap-2 text-[#6C6B6B] text-[14px]">
-          <span className="text-[#6C6B6B] text-[12px]">
-            {review.createdAt ? `Reviewed ${new Date(review.createdAt).toISOString().split("T")[0]}` : ""}
-          </span>
-        </div>
-      </div>
-    ))}
-  </div>
-) : (
-  <div className="flex flex-col items-center justify-center text-center">
-    <div className="w-20 h-20 bg-[#FFF4EB] rounded-full flex items-center justify-center mb-4">
-      <img src={ReviewIcon} alt="" />
-    </div>
-    <h3 className="text-lg font-medium text-gray-700 mb-1">No Reviews Yet</h3>
-  </div>
-)}
-                    <div className="flex items-center justify-center gap-2">
-                      <button className="bg-gray-200 p-1 rounded-lg">
-                        <Eye size={20} color="#1C1C1C" />
-                      </button>
-                      <button className="bg-gray-200 p-1 rounded-lg">
-                        <Pin size={20} color="#1C1C1C" />
-                      </button>
-                    </div>
-                  </div>
-                  <p className="text-sm">{comment}</p>
-                  {images && (
-                    <div className="flex gap-3">
-                      {images.map((img, index) => (
-                        <img
-                          className="w-[60px] h-[60px] rounded-md"
-                          src={img}
-                          alt="product"
-                          key={index}
-                        />
-                      ))}
-                    </div>
-                  )}
-                  <div className="flex items-end justify-end gap-2 text-[#6C6B6B] text-[14px]">
-                    {/* <span>
-                      <ThumbsUp />
-                    </span> */}
-
-                    {/* <span>{likes}</span>
-                    <span className="ml-4">
-                      <ThumbsDownIcon />
-                    </span>
-                    <span>{dislike}</span> */}
-                    {/* <span className="text-[#717182] text-sm">•</span> */}
-                    <span className="text-[#6C6B6B] text-[12px]">
-                      {review.createdAt ? `Reviewed ${new Date(review.createdAt).toISOString().split("T")[0]}` : ""}
-                  </span>
+  <Reviews reviews={product?.reviews} avgRating={avgRating} />
+  
+  {product?.reviews && product.reviews.length > 0 ? (
+    <div className="max-h-[450px] overflow-y-auto pr-2">
+      {product.reviews.map((review, index) => (
+        <div
+          key={index}
+          className="py-4 flex gap-3 flex-col border border-[#CBCACA] px-4 rounded-xl mb-4"
+        >
+          <div className="flex justify-between">
+            <div className="flex gap-4">
+              {review.userImage ? (
+                <img
+                  className="w-11 h-11 rounded-full"
+                  src={review.userImage}
+                  alt={`${review.user}'s avatar`}
+                />
+              ) : (
+                <div className="w-11 h-11 rounded-full bg-gray-400 flex items-center justify-center text-white font-bold">
+                  <h1 className="text-white">
+                    {review.user?.charAt(0).toUpperCase() || "U"}
+                  </h1>
+                </div>
+              )}
+              <div className="flex flex-col">
+                <h1 className="text-[14px]">{review.user || "Anonymous"}</h1>
+                <div className="flex items-center gap-1">
+                  <Ratings reviews={product.reviews} avgRating={review.rating} />
                 </div>
               </div>
-            ))}
-          </div>
-        ) : (
-          <div className=" flex flex-col items-center justify-center text-center">
-            <div className="w-20 h-20 bg-[#FFF4EB] rounded-full flex items-center justify-center mb-4">
-              <img src={ReviewIcon} alt="" />
             </div>
-            <h3 className="text-lg font-medium text-gray-700 mb-1">
-              No Reviews Yet
-            </h3>
+            <div className="flex items-center justify-center gap-2">
+              <button className="bg-gray-200 p-1 rounded-lg">
+                <Eye size={20} color="#1C1C1C" />
+              </button>
+              <button className="bg-gray-200 p-1 rounded-lg">
+                <Pin size={20} color="#1C1C1C" />
+              </button>
+            </div>
           </div>
-        )}
+          <p className="text-sm">{review.comment || "No comment"}</p>
+          {review.images && review.images.length > 0 && (
+            <div className="flex gap-3">
+              {review.images.map((img, imgIndex) => (
+                <img
+                  className="w-[60px] h-[60px] rounded-md"
+                  src={img}
+                  alt="product"
+                  key={imgIndex}
+                />
+              ))}
+            </div>
+          )}
+          <div className="flex items-end justify-end gap-2 text-[#6C6B6B] text-[14px]">
+            <span className="text-[#6C6B6B] text-[12px]">
+              {review.createdAt ? `Reviewed ${new Date(review.createdAt).toISOString().split("T")[0]}` : ""}
+            </span>
+          </div>
+        </div>
+      ))}
+    </div>
+  ) : (
+    <div className="flex flex-col items-center justify-center text-center">
+      <div className="w-20 h-20 bg-[#FFF4EB] rounded-full flex items-center justify-center mb-4">
+        <img src={ReviewIcon} alt="" />
       </div>
+      <h3 className="text-lg font-medium text-gray-700 mb-1">No Reviews Yet</h3>
+    </div>
+  )}
+</div>
     </div>
   );
 }

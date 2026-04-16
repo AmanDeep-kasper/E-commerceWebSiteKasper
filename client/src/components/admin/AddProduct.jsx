@@ -131,6 +131,8 @@ const AddProduct = () => {
 const [isEditing, setIsEditing] = useState(false);
 const [productId, setProductId] = useState(null);
 const [loadingProduct, setLoadingProduct] = useState(false);
+// for editning status
+const [status, setStatus] = useState("active");
 // Fetch product for editing from API
 useEffect(() => {
   const fetchProductForEdit = async () => {
@@ -194,6 +196,10 @@ useEffect(() => {
           subcategory: subcategoryId,
           variants: mappedVariants,
         });
+
+        // ✅ Set the status state for the radio buttons
+setStatus(productData.isActive ? "active" : "inactive");
+
         
         // Also set SKU if exists for variant generation
         if (productData.SKU) {
@@ -625,6 +631,7 @@ useEffect(() => {
     description: formData.description,
     category: formData.category,
     subcategory: formData.subcategory,
+     isActive: status === "active",
     variants: formData.variants.map((v) => ({
       variantColor: v.variantColor,
       variantName: v.variantName,
@@ -1309,6 +1316,61 @@ useEffect(() => {
                 </div>
               </div>
               <div className="flex flex-col space-y-3">
+                 {/* for status editing */} 
+                {isEditing && (
+  <div
+      style={{
+        width: "100%",
+        maxWidth: "600px",
+        padding: "16px",
+        background: "white",
+        borderRadius: "12px",
+        fontFamily: "Arial, sans-serif",
+      }}
+    >
+      <h2 className="text-black text-[18px] font-medium mb-4">
+        Product Status
+      </h2>
+
+      <div style={{ display: "flex", gap: "30px", alignItems: "center" }}>
+        {/* Active */}
+        <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", color: "#1d4ed8" }}>
+          <input
+            type="radio"
+            name="status"
+            value="active"
+            checked={status === "active"}
+            onChange={() => setStatus("active")}
+            style={{
+              width: "18px",
+              height: "18px",
+              accentColor: "#1d4ed8",
+              cursor: "pointer",
+            }}
+          />
+          Active
+        </label>
+
+        {/* Inactive */}
+        <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", color: "#1d4ed8" }}>
+          <input
+            type="radio"
+            name="status"
+            value="inactive"
+            checked={status === "inactive"}
+            onChange={() => setStatus("inactive")}
+            style={{
+              width: "18px",
+              height: "18px",
+              accentColor: "#1d4ed8",
+              cursor: "pointer",
+            }}
+          />
+          Inactive
+        </label>
+      </div>
+    </div>
+)}
                 <div className="bg-white rounded-2xl p-4 border">
                   <h2 className="text-black text-[18px] font-medium mb-4">
                     Product Classification
