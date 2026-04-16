@@ -37,7 +37,7 @@ export const upsertPolicies = asyncHandler(async (req, res) => {
             isActive: true,
           },
         },
-        upsert: true, // 🔥 create if not exists
+        upsert: true,
       },
     });
   }
