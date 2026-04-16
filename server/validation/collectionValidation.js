@@ -4,9 +4,9 @@ export const addCollectionValidation = [
   body("collectionName")
     .notEmpty()
     .withMessage("Collection name is required")
-    .trim()
     .isLength({ min: 3, max: 50 })
-    .withMessage("Collection name must be between 3 and 50 characters"),
+    .withMessage("Collection name must be between 3 and 50 characters")
+    .trim(),
 
   body("products")
   .optional()
@@ -35,9 +35,9 @@ export const addCollectionValidation = [
 export const updateCollectionValidation = [
   body("collectionName")
     .optional()
-    .trim()
     .isLength({ min: 3, max: 50 })
-    .withMessage("Collection name must be between 3 and 50 characters"),
+    .withMessage("Collection name must be between 3 and 50 characters")
+    .trim(),
 
   body("isActive")
     .optional()
@@ -87,9 +87,9 @@ export const queryValidation = [
 
   query("search")
     .optional()
-    .trim()
     .isLength({ min: 3, max: 50 })
-    .withMessage("Search query must be between 2 and 50 characters"),
+    .withMessage("Search query must be between 3 and 50 characters")
+    .trim(),
 
   query("status")
     .optional()
