@@ -111,7 +111,12 @@ import CollectionProducts from "../pages/admin/Collection/CollectionProducts";
 
 const PageRouter = () => {
   return (
-    <BrowserRouter>
+    <BrowserRouter
+      future={{
+        v7_startTransition: true,
+        v7_relativeSplatPath: true,
+      }}
+    >
       <ScrollToTop />
       <Routes>
         {/* ========== GUEST-ONLY ROUTES (redirect to /home if logged in) ========== */}
@@ -393,7 +398,10 @@ const PageRouter = () => {
           {/* Collection */}
           <Route path="collection" element={<Collection />} />
           {/* <Route path="best-selling" element={<BestSelling />} /> */}
-          <Route path="collection/:collectionId/products" element={<CollectionProducts />} />
+          <Route
+            path="collection/:collectionId/products"
+            element={<CollectionProducts />}
+          />
         </Route>
 
         {/* Catch-All */}

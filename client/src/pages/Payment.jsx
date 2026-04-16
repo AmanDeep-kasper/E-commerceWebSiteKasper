@@ -16,6 +16,7 @@ import { clearCart, resetBuyNow } from "../redux/cart/cartSlice";
 import BASEURL from "../api/axiosInstance";
 import { Banknote, ChevronLeft, PackageCheck, Truck } from "lucide-react";
 import Razorpay from "../assets/IconsUsed/Razorpay.png";
+import { loadRazorpay } from "../hooks/loadRazorpay";
 
 function Payment() {
   const {
@@ -129,6 +130,13 @@ function Payment() {
 
   const handleRazorpayPayment = async (orderDetails) => {
     try {
+      const isLoaded = await loadRazorpay();
+
+      if (!isLoaded) {
+        toast.error("Razorpay SDK failed to load");
+        return;
+      }
+
       const backendUrl =
         import.meta.env.VITE_API_URL || "http://localhost:5000";
       const { data } = await axios.post(
@@ -144,7 +152,7 @@ function Payment() {
         key: data.key,
         amount: razorpayOrder.amount,
         currency: razorpayOrder.currency,
-        name: "Laser Cut Metal Wall Art",
+        name: "Happy Art Supplies",
         description: "Order Payment",
         order_id: razorpayOrder.id,
         handler: async function (response) {

@@ -5,10 +5,11 @@ const axiosInstance = axios.create({
   withCredentials: true,
 });
 
-// Auto Token Refresh Logic
+// ================== REFRESH CONTROL ==================
 let isRefreshing = false;
 let failedQueue = [];
 
+// Process queued requests
 const processQueue = (error) => {
   failedQueue.forEach((prom) => {
     if (error) prom.reject(error);
@@ -17,7 +18,7 @@ const processQueue = (error) => {
   failedQueue = [];
 };
 
-// Dynamically import store to avoid circular dependencies
+// ================== STORE (NO CIRCULAR DEP) ==================
 let storeRef = null;
 const getStore = async () => {
   if (!storeRef) {
@@ -27,20 +28,27 @@ const getStore = async () => {
   return storeRef;
 };
 
-// Response Interceptor with Auto-Refresh
+// ================== RESPONSE INTERCEPTOR ==================
 axiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
 
+    const isAuthRoute =
+      originalRequest.url.includes("/auth/login") ||
+      originalRequest.url.includes("/auth/register") ||
+      originalRequest.url.includes("/auth/refresh-token") ||
+      originalRequest.url.includes("/auth/me"); // ✅ IMPORTANT
+
+    // ================== HANDLE 401 ==================
     if (
       error.response?.status === 401 &&
       !originalRequest._retry &&
-      !originalRequest.url.includes("/auth/login") &&
-      !originalRequest.url.includes("/auth/refresh-token")
+      !isAuthRoute
     ) {
       originalRequest._retry = true;
 
+      // ================== QUEUE ==================
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
@@ -50,31 +58,30 @@ axiosInstance.interceptors.response.use(
       isRefreshing = true;
 
       try {
+        // 🔁 Refresh token
         await axiosInstance.post("/auth/refresh-token");
-        await new Promise((res) => setTimeout(res, 100));
-        failedQueue.push({
-          resolve: () => resolve(axiosInstance(originalRequest)),
-          reject,
-        });
-        // processQueue(null);
-        // return axiosInstance(originalRequest); // retry original request
+
+        // ✅ Process queued requests
+        processQueue(null);
+
+        // 🔁 Retry original request
+        return axiosInstance(originalRequest);
       } catch (refreshError) {
         processQueue(refreshError);
 
-        // Refresh failed — force logout and redirect to login
+        // ================== FORCE LOGOUT ==================
         try {
           const store = await getStore();
           const { forceLogout } = await import("../redux/cart/userSlice.js");
           store.dispatch(forceLogout());
-        } catch (importError) {
-          console.error("Failed to force logout:", importError);
+        } catch (err) {
+          console.error("Logout error:", err);
         }
 
-        // Redirect to login page ONLY if not on login AND this wasn't just a /auth/me check
+        // ================== SAFE REDIRECT ==================
         if (
           typeof window !== "undefined" &&
-          !window.location.pathname.includes("/login") &&
-          !originalRequest.url.includes("/auth/me")
+          !window.location.pathname.includes("/login")
         ) {
           window.location.href = "/login";
         }

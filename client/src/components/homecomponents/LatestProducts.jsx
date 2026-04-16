@@ -38,7 +38,7 @@ function LatestProducts() {
       setLoading(true);
 
       const res = await axiosInstance.get(
-        `/product/${slugOrId}` // ✅ YOUR NEW API
+        `/product/${slugOrId}`, // ✅ YOUR NEW API
       );
 
       setMainProduct(res.data.data);
@@ -55,9 +55,6 @@ function LatestProducts() {
       fetchProduct();
     }
   }, [slugOrId]);
-
-
-
 
   const ref = useRef(null);
   const navigate = useNavigate(null);
@@ -88,7 +85,6 @@ function LatestProducts() {
   const fetchProducts = async () => {
     try {
       const res = await axiosInstance.get("/product/all");
-      console.log("PRODUCT API:", res.data);
 
       const productData =
         res?.data?.products || res?.data?.data || res?.data?.product || [];
@@ -173,7 +169,7 @@ function LatestProducts() {
           const v = p?.variants?.[0] || {};
           const mrp = Number(v?.max || 0);
           const sell = Number(v?.min || 0);
-           const productLink = p.slug || p._id;
+          const productLink = p.slug || p._id;
 
           // compute % off from MRP and Selling Price
           const discountPercent =
@@ -184,7 +180,7 @@ function LatestProducts() {
 
           return (
             <Link
-              key={productLink}
+              key={p._id}
               className="bg-white p-2 rounded-lg group/image block transition-shadow duration-300"
               to={`/product/${productLink}`}
             >
