@@ -106,7 +106,7 @@ function CollectionProducts() {
 
     // Filter products by search
     let filteredProducts = products.filter((product) => {
-        const searchMatch = (product.name || product.productTittle || "")
+        const searchMatch = (product.productTittle || product.name || "")
             .toLowerCase()
             .includes(search.toLowerCase());
         return searchMatch;
@@ -114,9 +114,9 @@ function CollectionProducts() {
 
     // Sort logic
     if (selectedSort === "A-Z") {
-        filteredProducts.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+        filteredProducts.sort((a, b) => (a.productTittle  || "").localeCompare(b.productTittle  || ""));
     } else if (selectedSort === "Z-A") {
-        filteredProducts.sort((a, b) => (b.name || "").localeCompare(a.name || ""));
+        filteredProducts.sort((a, b) => (b.productTittle  || "").localeCompare(a.productTittle  || ""));
     } else if (selectedSort === "Latest") {
         filteredProducts = [...filteredProducts].reverse();
     }
@@ -234,52 +234,65 @@ function CollectionProducts() {
                             </tr>
                         </thead>
                         <tbody>
-                            {currentItems.map((item, index) => (
-                                <tr key={item._id} className="border-t hover:bg-gray-50">
-                                    <td className="px-6 py-4 text-left">
-                                        {startIndex + index + 1}
-                                    </td>
-                                    <td className="px-6 py-4 text-left">
-                                        <div className="flex gap-2 items-center">
-                                            <img 
-                                                src={item.image || "/placeholder.png"} 
-                                                alt={item.name} 
-                                                className="w-12 h-12 rounded-md object-cover"
-                                                onError={(e) => e.target.src = "/placeholder.png"}
-                                            />
-                                            <div className="flex flex-col">
-                                                <span className="text-[16px] font-medium">{item.name || item.productTittle}</span>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4 text-center">
-                                        {item.skuId || item.variants?.[0]?.variantSkuId || "N/A"}
-                                    </td>
-                                    <td className="px-6 py-4 text-center">
-                                        {item.categoryName || item.category?.name || "N/A"}
-                                    </td>
-                                    <td className="px-6 py-4 text-center">
-                                        ₹{item.defaultPrice || 0}
-                                    </td>
-                                    <td className="px-6 py-4 text-center">
-                                        <button
-                                            onClick={() => handleRemoveProduct(item._id)}
-                                            className="px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 text-sm"
-                                        >
-                                            Remove
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))}
-                            {currentItems.length === 0 && (
-                                <tr>
-                                    <td colSpan={6} className="text-center py-6 text-gray-500">
-                                        No products found in this collection
-                                    </td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
+            {currentItems.map((item, index) => {
+                // Get the first variant (or default variant)
+                const defaultVariant = item.variants?.[0];
+                // Get image from variant
+                const productImage = defaultVariant?.variantImage?.[0]?.url || item.image || "/placeholder.png";
+                // Get SKU from variant
+                const productSku = defaultVariant?.variantSkuId || item.skuId || "N/A";
+                // Get price from variant
+                const productPrice = defaultVariant?.variantSellingPrice || item.defaultPrice || 0;
+                // Get category name (might be populated or just ID)
+                const categoryName = item.category?.name || item.categoryName || "N/A";
+                
+                return (
+                    <tr key={item._id} className="border-t hover:bg-gray-50">
+                        <td className="px-6 py-4 text-left">
+                            {startIndex + index + 1}
+                        </td>
+                        <td className="px-6 py-4 text-left">
+                            <div className="flex gap-2 items-center">
+                                <img 
+                                    src={productImage} 
+                                    alt={item.productTittle || item.name} 
+                                    className="w-12 h-12 rounded-md object-cover"
+                                    onError={(e) => e.target.src = "/placeholder.png"}
+                                />
+                                <div className="flex flex-col">
+                                    <span className="text-[16px] font-medium">{item.productTittle || item.name}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td className="px-6 py-4 text-center">
+                            {productSku}
+                        </td>
+                        <td className="px-6 py-4 text-center">
+                            {categoryName}
+                        </td>
+                        <td className="px-6 py-4 text-center">
+                            ₹{productPrice}
+                        </td>
+                        <td className="px-6 py-4 text-center">
+                            <button
+                                onClick={() => handleRemoveProduct(item._id)}
+                                className="px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 text-sm"
+                            >
+                                Remove
+                            </button>
+                        </td>
+                    </tr>
+                );
+            })}
+            {currentItems.length === 0 && (
+                <tr>
+                    <td colSpan={6} className="text-center py-6 text-gray-500">
+                        No products found in this collection
+                    </td>
+                </tr>
+            )}
+        </tbody>
+    </table>
                 </div>
 
                 {/* PAGINATION */}

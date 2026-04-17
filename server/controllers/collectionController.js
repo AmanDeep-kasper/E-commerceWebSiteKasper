@@ -61,7 +61,15 @@ export const addProductToCollection = asyncHandler(async (req, res) => {
 export const getCollection = asyncHandler(async (req, res) => {
   const { collectionId } = req.params;
 
-  const collection = await Collection.findById(collectionId).populate("products").lean();
+  const collection = await Collection.findById(collectionId)
+   .populate({
+      path: "products",
+      populate: [
+        { path: "category", select: "name slug" },
+        { path: "subcategory", select: "name slug" }
+      ]
+    })
+  .lean();
 
   if (!collection) {
     throw AppError.notFound("Collection not found", "NOT_FOUND");
@@ -90,7 +98,13 @@ export const getAllCollections = asyncHandler(async (req, res) => {
   const skip = (Number(page) - 1) * Number(limit);
 
   const collections = await Collection.find(query)
-    .populate("products")
+    .populate({
+      path:"products", 
+        populate:[
+          {path:"category", select:"name slug"},
+          {path:"subcategory", select:"name slug"}
+        ]
+    })
     .sort({
       createdAt: -1,
     })
@@ -227,7 +241,13 @@ export const getAllCollectionsController = asyncHandler(async (req, res) => {
   const skip = (Number(page) - 1) * Number(limit);
 
   const collections = await Collection.find(query)
-    .populate("products")
+    .populate({
+      path: "products",
+      populate: [
+        { path: "category", select: "name slug" },
+        { path: "subcategory", select: "name slug" }
+      ]
+    })
     .sort({
       createdAt: -1,
     })
