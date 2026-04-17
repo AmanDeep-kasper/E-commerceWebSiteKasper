@@ -31,7 +31,7 @@ const AddressForm = ({ initialData = null, onClose, inline = false }) => {
   }, [initialData]);
 
   const validateInputs = () => {
-    const { fullName, phone, pinCode, city, state, email, addressType,address } =
+    const { fullName, phone, pinCode, city, state, email, addressType, address } =
       formData;
 
     if (!fullName || !phone || !pinCode || !city || !state) {
@@ -91,18 +91,16 @@ const AddressForm = ({ initialData = null, onClose, inline = false }) => {
 
   return (
     <div
-      className={`${
-        inline
+      className={`${inline
           ? "bg-white rounded-lg p-6 shadow-sm"
           : "fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
-      }`}
+        }`}
     >
       <div
-        className={`${
-          inline
+        className={`${inline
             ? "w-full"
             : "bg-white rounded-xl w-full max-w-md lg:max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl"
-        }`}
+          }`}
       >
         {/* Header */}
         {!inline && (
@@ -147,7 +145,10 @@ const AddressForm = ({ initialData = null, onClose, inline = false }) => {
                 type="tel"
                 name="phone"
                 value={formData.phone}
-                onChange={handleChange}
+                o onChange={(e) => {
+                  const value = e.target.value.replace(/[^0-9]/g, ""); // allow only numbers
+                  handleChange({ target: { name: "phone", value } });
+                }}
                 required
                 maxLength={10}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
@@ -248,11 +249,10 @@ const AddressForm = ({ initialData = null, onClose, inline = false }) => {
                       addressType: type.value,
                     }))
                   }
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-all ${
-                    formData.addressType === type.value
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-all ${formData.addressType === type.value
                       ? "border-[#1800AC] bg-white text-[#1800AC]"
                       : "border-gray-300 hover:border-gray-400 text-gray-700"
-                  }`}
+                    }`}
                 >
                   {type.icon}
                   {type.value}
@@ -287,7 +287,7 @@ const AddressForm = ({ initialData = null, onClose, inline = false }) => {
             )}
             <button
               type="submit"
-              className="flex-1 px-6 py-3 bg-[#0C0057] text-white font-medium rounded-lg hover:bg-[#101f30]"
+              className="flex-1 px-6 py-3 bg-[#1800AC] text-white font-medium rounded-lg"
             >
               {initialData ? "Update Address" : "Save"}
             </button>

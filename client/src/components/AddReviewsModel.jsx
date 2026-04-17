@@ -262,7 +262,7 @@ function AddReviewsModel({ open, review, onClose, onSave, product }) {
             <button
               type="button"
               onClick={handleSave}
-              className="min-w-[140px] rounded-lg bg-[#1C3753] px-6 py-3 text-white text-sm font-medium hover:opacity-95"
+              className="min-w-[140px] rounded-lg bg-[#1800AC] px-6 py-3 text-white text-sm font-medium hover:opacity-95"
             >
               {review ? "Update" : "Save"}
             </button>

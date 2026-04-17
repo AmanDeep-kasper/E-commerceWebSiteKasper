@@ -149,8 +149,8 @@ function RegisterPage() {
             {step === "register" && (
               <div>
                 <div className="text-center mb-6">
-                  <div className="bg-blue-50 p-3 rounded-full w-12 h-12 mx-auto mb-4 flex items-center justify-center">
-                    <Mail className="w-6 h-6 text-[#1C3753]" />
+                  <div className="bg-[#F0EEFF] p-3 rounded-full w-12 h-12 mx-auto mb-4 flex items-center justify-center">
+                    <Mail className="w-6 h-6 text-[#1800AC]" />
                   </div>
                   <h2 className="text-2xl font-bold text-gray-900">
                     Create Account
@@ -166,10 +166,10 @@ function RegisterPage() {
                       <div
                         className={`w-7 h-7 rounded-full flex items-center justify-center border-2 ${
                           step === "register"
-                            ? "bg-[#1C3753] border-[#1C3753] text-white"
+                            ? "bg-[#1800AC] text-white"
                             : step === "otp" || step === "done"
                               ? "bg-green-400 border-green-400 text-white"
-                              : "bg-[#DEDEDE] text-[#686868]"
+                              : "bg-[#1800AC] text-[#1800AC]"
                         }`}
                       >
                         {step === "register" ? (
@@ -178,7 +178,7 @@ function RegisterPage() {
                           <CheckCircle className="w-4 h-4" />
                         )}
                       </div>
-                      <span className="text-xs mt-2">Create Account</span>
+                      <span className="text-xs mt-2 text-[#1800AC]">Create Account</span>
                     </div>
 
                     {/* Line */}

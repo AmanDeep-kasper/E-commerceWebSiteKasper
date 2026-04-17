@@ -150,7 +150,7 @@ function Address() {
         </div>
         <button
           onClick={() => setOpen(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-[#1C3753] text-white rounded-lg hover:bg-[#1C3753]/90 transition-all shadow-sm"
+          className="flex items-center gap-2 px-4 py-2 bg-[#1800AC] text-white rounded-lg hover:bg-[#1C3753]/90 transition-all shadow-sm"
         >
           <Plus size={18} />
           <span>Add New Address</span>
@@ -173,7 +173,7 @@ function Address() {
                 {/* Default Badge */}
                 {add.isDefault && (
                   <div className="absolute top-0 right-0">
-                    <div className="bg-[#1C3753] text-white text-xs font-medium px-3 py-1 rounded-bl-lg flex items-center gap-1">
+                    <div className="bg-[#1800AC] text-white text-xs font-medium px-3 py-1 rounded-bl-lg flex items-center gap-1">
                       <Star size={12} className="fill-current" />
                       Default
                     </div>
@@ -286,7 +286,7 @@ function Address() {
               className="bg-white rounded-xl border-2 border-dashed border-gray-300 p-6 flex flex-col items-center justify-center cursor-pointer hover:border-[#1C3753] hover:bg-gray-50 transition-all duration-200 min-h-[280px] group"
               onClick={() => setOpen(true)}
             >
-              <div className="p-3 bg-gray-100 rounded-full group-hover:bg-[#D5E5F5] transition-colors duration-200">
+              <div className="p-3 bg-gray-100 rounded-full group-hover:bg-[#F0EEFF] transition-colors duration-200">
                 <Plus
                   size={28}
                   className="text-gray-500 group-hover:text-[#1C3753]"
