@@ -255,21 +255,6 @@ const Products = () => {
   const [product, setProduct] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  // useEffect(() => {
-  //   const fetchProduct = async () => {
-  //     try {
-  //       const res = await axiosInstance.get("/products/all");
-  //       setProduct(res.data);
-  //     } catch (error) {
-  //       console.error("Error fetching products:", error);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-  //   fetchProduct();
-  // }, []);
-
   const { uuid } = useParams();
   const navigate = useNavigate();
 
@@ -505,7 +490,8 @@ const Products = () => {
     },
     {
       name: "Draft",
-      data: product.filter((p) => p.isActive === false).length,
+      data:0,
+      //  product.filter((p) => p.isActive === false).length,
       icon: <FileText />,
       iconbg: "bg-[#EFEFEF]",
       iconColor: "text-[#686868]",
@@ -522,6 +508,11 @@ const Products = () => {
   // const handleEdit = () => {
   //   navigate(`/admin/add-product/${Editproduct.uuid}`);
   // };
+
+ const isFilterActive = 
+    selectedStatus !== "Status" || 
+    selectedCategory !== "Category" || 
+    search !== "";
 
      if (loading) {
     return (
@@ -725,16 +716,20 @@ const Products = () => {
                   </ul>
                 )}
               </div> */}
+              {isFilterActive && (
               <button
                 onClick={() => {
                   setSelectedSort("Price: Low → High");
                   setSelectedCategory("Category");
                   setSelectedStatus("Status");
+                  setSearch("");
+                  setCurrentPage(1)
                 }}
                 className="text-[#1C3753] flex items-center justify-between gap-2">
                 {/* <FunnelX size={18} /> */}
                 Clear Filter
               </button>
+              )}
             </div>
           </div>
 
@@ -977,39 +972,39 @@ const Products = () => {
             </table>
 
             {/* Pagination */}
-            <div className="flex justify-end items-center gap-2 px-6 py-4 border-t">
-              <button
-                className="px-3 py-1 border rounded"
-                onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-                disabled={currentPage === 1}>
-                ‹
-              </button>
-              {/* {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                (page) => (
-                  <button
-                    key={page}
-                    className={`px-3 py-1 border rounded ${
-                      page === currentPage ? "bg-[#212121] text-white" : ""
-                    }`}
-                    onClick={() => setCurrentPage(page)}>
-                    {page}
-                  </button>
-                )
-              )} */}
-              <div className="px-4 py-1.5 border rounded text-sm text-gray-700">
-                Page {String(currentPage).padStart(2, "0")} of{" "}
-                {String(totalPages).padStart(2, "0")}
-              </div>
+           {/* Pagination */}
+<div className="flex justify-between items-center gap-2 px-6 py-4 border-t">
+    {/* Showing X of Y results */}
+    <div className="text-sm text-gray-600">
+        Showing <span className="font-medium">{startIndex + 1}</span> to{" "}
+        <span className="font-medium">{Math.min(endIndex, filteredProducts.length)}</span> of{" "}
+        <span className="font-medium">{filteredProducts.length}</span> results
+    </div>
 
-              <button
-                className="px-3 py-1 border rounded"
-                onClick={() =>
-                  setCurrentPage((p) => Math.min(p + 1, totalPages))
-                }
-                disabled={currentPage === totalPages}>
-                ›
-              </button>
-            </div>
+    {/* Pagination controls */}
+    <div className="flex items-center gap-2">
+        <button
+            className="px-3 py-1 border rounded disabled:opacity-40"
+            onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+            disabled={currentPage === 1}
+        >
+            ‹
+        </button>
+
+        <div className="px-4 py-1 border rounded text-sm text-gray-700">
+            Page {String(currentPage).padStart(2, "0")} of{" "}
+            {String(totalPages).padStart(2, "0")}
+        </div>
+
+        <button
+            className="px-3 py-1 border rounded disabled:opacity-40"
+            onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+            disabled={currentPage === totalPages}
+        >
+            ›
+        </button>
+    </div>
+</div>
           </div>
         </div>
       </div>
