@@ -1142,17 +1142,24 @@ useEffect(() => {
 
           <div className="flex items-center gap-4 px-2">
             <button
-              type="button"
-              onClick={() => {
+        type="button"
+        onClick={() => {
+            if (isEditing) {
+                // In edit mode, just navigate back without clearing
+                navigate("/admin/products");
+            } else {
+                // In add mode, clear draft and reset form
                 localStorage.removeItem("addProductDraft");
                 setFormData(createInitialState());
                 toast.info("Draft cleared");
                 navigate("/admin/products");
-              }}
-              className="py-1 px-3 rounded border border-[#737373] text-[#737373] hover:bg-[#706f6f] hover:text-white bg-[#F6F8F9] font-medium"
-            >
-              Discard
-            </button>
+            }
+        }}
+        className="py-1 px-3 rounded border border-[#737373] text-[#737373] hover:bg-[#706f6f] hover:text-white bg-[#F6F8F9] font-medium"
+    >
+        Cancel
+    </button>
+    {!isEditing && (
             <button
               type="button"
               onClick={handleSaveDraft}
@@ -1163,6 +1170,7 @@ useEffect(() => {
             >
               Save Draft
             </button>
+    )}
             <button
               type="submit"
               disabled={isSubmitting}
@@ -1297,6 +1305,11 @@ useEffect(() => {
                       </label>
 
                       <div className="relative w-full">
+                        {isEditing ? (
+    <div className="w-full h-[48px] px-4 rounded-xl bg-gray-100 text-gray-600 flex items-center border border-gray-200">
+        {categories.find(cat => cat._id === formData.category)?.name || "Not selected"}
+    </div>
+) : (
                         <select
                           name="category"
                           value={formData.category}
@@ -1332,6 +1345,7 @@ useEffect(() => {
                             </option>
                           ))}
                         </select>
+)}
 
                         <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center">
                           <svg
@@ -1352,6 +1366,11 @@ useEffect(() => {
                       </label>
 
                       <div className="relative w-full">
+                        {isEditing ? (
+    <div className="w-full h-[48px] px-4 rounded-xl bg-gray-100 text-gray-600 flex items-center border border-gray-200">
+        {subCategories.find(sub => sub._id === formData.subcategory)?.name || "Not selected"}
+    </div>
+) : (
                         <select
                           name="subcategory"
                           value={formData.subcategory}
@@ -1398,6 +1417,7 @@ useEffect(() => {
                             </option>
                           ))}
                         </select>
+)}
 
                         <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center">
                           <svg
@@ -1412,6 +1432,7 @@ useEffect(() => {
                         </div>
                       </div>
                     </div>
+                    {!isEditing && (
                     <div className="flex flex-col items-start gap-1">
                       <button
                         type="button"
@@ -1424,6 +1445,7 @@ useEffect(() => {
                         Can’t find a category? Create one here
                       </span>
                     </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -1433,7 +1455,7 @@ useEffect(() => {
                 <div className="mb-4 flex items-center justify-between">
                   <h1 className="text-lg font-semibold">Variant Listings</h1>
                   <div className="flex items-center justify-end gap-3">
-                    {isAnyVariantSelected && (
+                    {/* {isAnyVariantSelected && (
                       <button
                         type="button"
                         onClick={removeSelectedVariants}
@@ -1441,7 +1463,7 @@ useEffect(() => {
                       >
                         Remove Selected
                       </button>
-                    )}
+                    )} */}
 
                     <button
                       type="button"
@@ -1520,6 +1542,11 @@ useEffect(() => {
                           </td>
 
                           <td className="px-3 py-1">
+                            {isEditing ? (
+                              <div className="w-[140px] rounded-md border px-3 py-1 text-sm bg-gray-100 text-gray-600 min-h-[36px]">
+        {variant.variantColor || "-"}
+    </div>
+) : (
                             <div className="flex flex-wrap items-center gap-2 rounded-lg p-2 w-[140px]">
                               <select
                                 value={variant.variantColor || ""}
@@ -1543,9 +1570,15 @@ useEffect(() => {
                                 ))}
                               </select>
                             </div>
+)}
                           </td>
 
                           <td className="px-3 py-1">
+                            {isEditing ? (
+                               <div className="border px-3 py-2 rounded bg-gray-100 text-gray-600 min-w-[120px]">
+        {variant.variantName || "-"}
+    </div>
+) : (
                             <div className="flex gap-2 border px-3 py-2 rounded">
                               <input
                                 type="text"
@@ -1561,9 +1594,15 @@ useEffect(() => {
                                 className="outline-none placeholder:text-[#6B6B6B]"
                               />
                             </div>
+)}
                           </td>
 
                           <td className="px-3 py-1">
+                            {isEditing ? (
+                               <div className="flex items-center gap-2 border rounded px-3 py-1 bg-gray-100 text-gray-600 min-w-[140px]">
+        <span>{variant.variantWeight || "-"} {variant.variantWeightUnit || "kg"}</span>
+    </div>
+) : (
                             <div className="flex items-center justify-center gap-2 border rounded px-3 py-1">
                               {" "}
                               <input
@@ -1596,10 +1635,16 @@ useEffect(() => {
                                 <option value="gm">g</option>
                               </select>
                             </div>
+)}
                           </td>
 
                           <td className="px-3 py-2">
                             <div>
+                              {isEditing ? (
+                                 <div className="w-[274px] h-[28px] border rounded px-3 bg-gray-100 text-gray-600 flex items-center">
+        {variant.variantSkuId || "N/A"}
+    </div>
+                              ) : (
                               <div className="relative">
                                 <input
                                   type="text"
@@ -1630,11 +1675,33 @@ useEffect(() => {
                                   </button>
                                 )}
                               </div>
+                              )}
                             </div>
                           </td>
                           {/* images */}
                           <td className="px-3 py-2">
-                            {(() => {
+                            {isEditing ? (
+        // ✅ VIEW-ONLY MODE FOR EDIT
+        <div className="flex items-center gap-3">
+            {variant.variantImage && variant.variantImage.length > 0 ? (
+                <div className="flex items-center gap-2">
+                    <div className="h-9 w-9 rounded-md overflow-hidden border bg-gray-100">
+                        <img 
+                            src={variant.variantImage[0]?.url || "/placeholder.png"} 
+                            className="h-full w-full object-cover"
+                            alt="product"
+                        />
+                    </div>
+                    <span className="text-sm text-gray-500">
+                        {variant.variantImage.length} image{variant.variantImage.length !== 1 ? 's' : ''}
+                    </span>
+                </div>
+            ) : (
+                <div className="text-sm text-gray-400">No images</div>
+            )}
+        </div>
+    ) : (
+                            (() => {
                               const imgs =
                                 formData.variants[index].variantImage || [];
 
@@ -1716,7 +1783,8 @@ useEffect(() => {
                                   />
                                 </div>
                               );
-                            })()}
+                            })()
+                          )}
                           </td>
 
                           <td className="px-3 py-2">
@@ -1817,6 +1885,11 @@ useEffect(() => {
                           </td>
 
                           <td className=" px-3 py-2">
+                            {isEditing ? (
+                               <div className="rounded border px-2 py-1 bg-gray-100 text-gray-600  min-w-[200px]">
+        {variant.variantAvailableStock || 0}
+    </div>
+) : (
                             <input
                               type="number"
                               value={variant.variantAvailableStock || ""}
@@ -1830,6 +1903,7 @@ useEffect(() => {
                               className="rounded border px-2 py-1 placeholder:text-[#6B6B6B]"
                               placeholder="Enter Available Stock"
                             />
+   )}
                           </td>
                           <td className="px-3 py-2">
                             <input

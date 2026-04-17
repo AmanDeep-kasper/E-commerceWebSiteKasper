@@ -533,7 +533,7 @@ const Products = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center justify-between  16px px-2 rounded-md">
               <h2 className="text-[20px] font-semibold text-gray-800">
-                All Products
+                All Products  
               </h2>
             </div>
 
@@ -754,7 +754,7 @@ const Products = () => {
                     /> */}
                   {/* </th> */}
                   <th className="px-4 py-3 font-normal text-[#1C1C1C]">
-                    Product
+                    Product Name
                   </th>
                   <th className="px-4 py-3 font-normal text-[#1C1C1C]">
                     SKU ID
@@ -765,10 +765,10 @@ const Products = () => {
                   <th className="px-4 py-3 font-normal text-[#1C1C1C]">
                     Price
                   </th>
-                  <th className="px-4 py-3 font-normal text-[#1C1C1C]">
+                  <th className="px-4 py-3 font-normal text-[#1C1C1C] text-center">
                     Variants
                   </th>
-                  <th className="px-4 py-3 font-normal text-[#1C1C1C]">
+                  <th className="px-4 py-3 font-normal text-[#1C1C1C] text-center">
                     Status
                   </th>
                   {/* <th className="px-4 py-3 font-normal text-[#1C1C1C]">
@@ -777,7 +777,7 @@ const Products = () => {
                   <th className="px-4 py-3 font-normal text-[#1C1C1C]">
                     Cost Price{" "}
                   </th> */}
-                  <th className="px-4 py-3 font-normal text-[#1C1C1C]">
+                  <th className="px-4 py-3 font-normal text-[#1C1C1C] text-center">
                     Action
                   </th>
                 </tr>
@@ -875,7 +875,7 @@ const Products = () => {
                         </div>
                       )}
                     </td> */}
-                     <td className="px-4 py-3 text-[16px] text-[#1F2937]">
+                     <td className="px-4 py-3 text-[16px] text-[#1F2937] text-center">
                     {item.variantCount || item.variants?.length || 1}
                     </td>
                     {/* <td className="px-4 py-3 text-[16px] text-[#1F2937]">
@@ -912,7 +912,7 @@ const Products = () => {
                       )}
                     </td> */}
 
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-3 text-center">
                       {item.isActive === true ? (
                         <div className="flex items-center justify-center gap-2 bg-[#E0F4DE] py-1.5 px-2 rounded-lg text-sm text-[#00A63E]">
                           <Circle fill="#00A63E" color="#00A63E" size={"12px"} />
@@ -935,7 +935,7 @@ const Products = () => {
                     </td> */}
 
                     {/* Centered action icons (hidden until hover) */}
-                    <td className="px-0 py-3">
+                    <td className="px-0 py-3 text-center">
                       <div className="flex items-center justify-center gap-2 ">
                         <button
                           onClick={(e) => {
