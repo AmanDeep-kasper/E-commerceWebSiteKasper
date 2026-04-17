@@ -326,7 +326,7 @@ function AccountDetails() {
                     ))}
                   </div>
                 ) : (
-                  <div className="px-3 sm:px-4 py-2 sm:py-3 bg-[#DEDEDE] rounded-lg border border-gray-200">
+                  <div className="px-3 sm:px-4 py-2 sm:py-3 border-gray-300 bg-gray-50 rounded-lg border ">
                     <p className="text-gray-800 capitalize text-sm sm:text-base">
                       {user?.user?.gender || "Not provided"}
                     </p>
@@ -372,16 +372,21 @@ function AccountDetails() {
                 </div>
 
                 {isEditing ? (
-                  <input
-                    type="password"
-                    value={tempData?.password || ""}
-                    onChange={(e) =>
-                      handleInputChange("password", e.target.value)
-                    }
-                    className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1C3753] focus:border-[#1C3753] outline-none transition"
-                    placeholder="Enter your password"
-                    disabled={isSaving}
-                  />
+                  // <input
+                  //   type="password"
+                  //   value={tempData?.password || ""}
+                  //   onChange={(e) =>
+                  //     handleInputChange("password", e.target.value)
+                  //   }
+                  //   className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#1C3753] focus:border-[#1C3753] outline-none transition"
+                  //   placeholder="Enter your password"
+                  //   disabled={isSaving}
+                  // />
+                   <div className="px-3 sm:px-4 py-2 sm:py-3 bg-gray-50 rounded-lg border border-gray-200">
+                    <p className="text-gray-800 text-sm sm:text-base">
+                      ***********
+                    </p>
+                  </div>
                 ) : (
                   <div className="px-3 sm:px-4 py-2 sm:py-3 bg-gray-50 rounded-lg border border-gray-200">
                     <p className="text-gray-800 text-sm sm:text-base">
