@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { Mail, Phone, MapPin, Clock, Send } from "lucide-react";
+import axiosInstance from "../api/axiosInstance";
+import { toast } from "react-toastify";
 
 function ContactSection() {
   const [formData, setFormData] = useState({
-    name: "",
-    email: "",
+    // name: "",
+    // email: "",
     // phone: "",
-    subject: "",
+    // subject: "",
     message: "",
   });
 
@@ -15,10 +17,25 @@ function ContactSection() {
     setFormData({ ...formData, [id]: value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle form submission here
-    console.log("Form submitted:", formData);
+
+    const promise = axiosInstance.post("/user/send-support-message", formData);
+
+    toast.promise(promise, {
+      pending: "Sending support message...",
+      success: "Support message sent successfully",
+      error: "Failed to send support message",
+    });
+
+    try {
+      await promise;
+      setFormData({
+        message: "",
+      });
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (
@@ -152,7 +169,7 @@ function ContactSection() {
           </div>
 
           {/* ===== Right: Contact Info ===== */}
-          <div className="p-8 flex flex-col justify-center bg-gradient-to-b from-[#CFC7FF]/20 to-[#FFC9EA]/50 to-white space-y-6">
+          <div className="p-8 flex flex-col justify-center bg-gradient-to-b from-[#CFC7FF]/20 to-[#FFC9EA]/50 space-y-6">
             <div className="text-center mb-1">
               <h2 className="text-lg font-semibold text-gray-800">
                 Get in Touch
