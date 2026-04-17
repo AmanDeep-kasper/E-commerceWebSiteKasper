@@ -533,6 +533,7 @@ function Collection() {
     const startIndex = (currentPage - 1) * itemsPerPage;
     const currentItems = filteredData.slice(startIndex, startIndex + itemsPerPage);
 
+    const isFilterActive = selectedSort !=="Latest"  || search !== "";
     // Loading state
     if (loading) {
         return (
@@ -608,6 +609,17 @@ function Collection() {
                                 </div>
                             )}
                         </div>
+                        {isFilterActive && (
+                        <button
+                            onClick={() =>{ setSelectedSort("Latest");
+                                setSearch("");
+                                setCurrentPage(1);
+                            }}
+                            className="text-[#1C3753]"
+                        >
+                            Clear
+                        </button>
+                        )}
                         <div className="relative">
                             {/* <button
                                 onClick={() =>

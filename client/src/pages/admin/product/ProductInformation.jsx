@@ -321,14 +321,6 @@ function ProductInformation() {
                       {product.weight}
                     </span>
                   </div> */}
-                  <div>
-                    <p className="text-sm text-[#686868] font-medium">
-                      Category
-                    </p>
-                    <span className="text-base text-[#2C2C2C] font-medium">
-                      {product.category?.name || "N/A"}
-                    </span>
-                  </div>
                   {/* <div>
                     <p className="text-sm text-[#686868] font-medium">
                       Dimension
@@ -347,14 +339,14 @@ function ProductInformation() {
                   </div>
                 </div>
                 <div className="flex flex-col flex-wrap  justify-start space-y-[10px]">
-                  <div>
+                  {/* <div>
                     <p className="text-sm text-[#686868] font-medium">
                       Available Stock
                     </p>
                     <span className="text-base text-[#2C2C2C] font-medium">
                     {currentVariant?.variantAvailableStock || 0}
                     </span>
-                  </div>
+                  </div> */}
 
                   {/* <div className="text-start">
                     <p className="text-sm text-[#686868] font-medium">
@@ -372,47 +364,47 @@ function ProductInformation() {
                       {product?.subcategory?.name || "N/A"}
                     </span>
                   </div>
-                  <div>
+                  {/* <div>
                     <p className="text-sm text-[#686868] font-medium">
                       Dimension
                     </p>
                     <span className="text-base text-[#2C2C2C] font-medium">
                     </span>
-                  </div>
-                  <div className="text-start">
+                  </div> */}
+                  {/* <div className="text-start">
                     <p className="text-sm text-[#686868] font-medium">Weight</p>
                     <span className="text-base text-[#2C2C2C] font-medium">
                       {currentVariant?.variantWeight 
                         ? `${currentVariant.variantWeight} ${currentVariant.variantWeightUnit || 'kg'}`
                         : "N/A"}
                     </span>
-                  </div>
+                  </div> */}
                 </div>
                 <div className="flex flex-col flex-wrap items-start text-start justify-start space-y-[10px]">
-                  <div>
+                <div>
                     <p className="text-sm text-[#686868] font-medium">
-                      Low Stock Alert
+                      Category
                     </p>
                     <span className="text-base text-[#2C2C2C] font-medium">
-                     {currentVariant?.variantLowStockAlertStock || 0}
+                      {product.category?.name || "N/A"}
                     </span>
                   </div>
-                  <div className="">
+                  {/* <div className="">
                     <p className="text-sm  text-[#686868] font-medium">
                       Material
                     </p>
                     <span className="text-base text-[#2C2C2C] font-medium">
                       {product.materialType}
                     </span>
-                  </div>
-                  <div className="text-start">
+                  </div> */}
+                  {/* <div className="text-start">
                     <p className="text-sm text-[#686868] font-medium">Weight</p>
                     <span className="text-base text-[#2C2C2C] font-medium">
                       {currentVariant?.variantWeight 
                         ? `${currentVariant.variantWeight} ${currentVariant.variantWeightUnit || 'kg'}`
                         : "N/A"}
                     </span>
-                  </div>
+                  </div> */}
                   {/* <div>
                     <p className="text-sm text-[#686868] font-medium">
                       Product Color
@@ -437,10 +429,16 @@ function ProductInformation() {
                    ₹{currentVariant?.variantMrp || 0}
                   </span>
                 </div>
-                <div>
+                {/* <div>
                   <p className="text-sm text-[#797979] font-medium">Profit</p>
                   <span className="text-base text-[#2C2C2C] font-medium">
                      ₹{(currentVariant?.variantSellingPrice || 0) - (currentVariant?.variantCostPrice || 0)}
+                  </span>
+                </div> */}
+                <div className="text-start">
+                  <p className="text-sm text-[#797979] font-medium">Discount</p>
+                  <span className="text-base text-[#2C2C2C] font-medium">
+                    <span>  {currentVariant?.variantDiscount || 0}%</span>
                   </span>
                 </div>
 
@@ -453,12 +451,6 @@ function ProductInformation() {
                   </p>
                   <span className="text-base text-[#2C2C2C] font-medium">
                      ₹{currentVariant?.variantSellingPrice || 0}
-                  </span>
-                </div>
-                <div className="text-start">
-                  <p className="text-sm text-[#797979] font-medium">Discount</p>
-                  <span className="text-base text-[#2C2C2C] font-medium">
-                    <span>  {currentVariant?.variantDiscount || 0}%</span>
                   </span>
                 </div>
               </div>
@@ -483,7 +475,6 @@ function ProductInformation() {
         </div>
       </div>
 
-      {/* Customer Reviews */}
       {/* Customer Reviews */}
 <div className="mt-6 bg-white rounded-xl p-4">
   <h2 className="text-lg font-medium mb-2">Rating & Reviews</h2>

@@ -16,6 +16,8 @@ function CollectionProducts() {
     const [addProductModal, setAddProductModal] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedProduct, setSelectedProduct] = useState(null);
+    const [selectedCategory, setSelectedCategory] = useState("All");
+const [categories, setCategories] = useState([]);
 
     const [step, setStep] = useState(1); // 1: search, 2: list, 3: preview
     const [searchInput, setSearchInput] = useState("");
@@ -60,6 +62,7 @@ function CollectionProducts() {
     useEffect(() => {
         fetchCollectionDetails();
         fetchAllProducts();
+        fetchCategories();
     }, [collectionId]);
 
     const fetchCollectionDetails = async () => {
@@ -119,6 +122,22 @@ function CollectionProducts() {
         }
     };
 
+    // Fetch all categories for filter
+const fetchCategories = async () => {
+    try {
+        const response = await axiosInstance.get("/category/admin/all-categories");
+        let categoriesData = [];
+        if (response.data?.success && response.data?.category) {
+            categoriesData = response.data.category;
+        } else if (Array.isArray(response.data)) {
+            categoriesData = response.data;
+        }
+        setCategories(categoriesData);
+    } catch (err) {
+        console.error("Error fetching categories:", err);
+    }
+};
+
     // Remove product from collection
     const handleRemoveProduct = async (productId) => {
         try {
@@ -139,7 +158,10 @@ function CollectionProducts() {
         const searchMatch = (product.productTittle || product.name || "")
             .toLowerCase()
             .includes(search.toLowerCase());
-        return searchMatch;
+             const categoryMatch = selectedCategory === "All" || 
+        (product.category?.name === selectedCategory) ||
+        (product.categoryName === selectedCategory);
+        return searchMatch && categoryMatch;
     });
 
     // Sort logic
@@ -160,6 +182,7 @@ function CollectionProducts() {
     const availableProducts = allProducts.filter(
         (p) => !products.some((cp) => cp._id === p._id)
     );
+    const isFilterActive = selectedSort !=="Latest" || selectedCategory !== "All" || search !== "";
 
     if (loading) {
         return (
@@ -213,6 +236,43 @@ function CollectionProducts() {
                     </div>
 
                     <div className="flex gap-3 items-center">
+                            {/* CATEGORY FILTER */}
+    <div className="relative">
+        <button
+            onClick={() => setActiveFilter(activeFilter === "category" ? null : "category")}
+            className="border px-4 py-2 rounded-lg flex items-center gap-2 bg-[#F8F8F8]"
+        >
+            {selectedCategory === "All" ? "All Categories" : selectedCategory} <ChevronDown size={16} />
+        </button>
+
+        {activeFilter === "category" && (
+            <div className="absolute mt-2 bg-white border rounded shadow w-48 z-20 max-h-60 overflow-y-auto">
+                <div
+                    onClick={() => {
+                        setSelectedCategory("All");
+                        setActiveFilter(null);
+                        setCurrentPage(1);
+                    }}
+                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                >
+                    All Categories
+                </div>
+                {categories.map((cat) => (
+                    <div
+                        key={cat._id}
+                        onClick={() => {
+                            setSelectedCategory(cat.name);
+                            setActiveFilter(null);
+                            setCurrentPage(1);
+                        }}
+                        className="px-4 py-2 hover:bg-gray-100 cursor-pointer capitalize"
+                    >
+                        {cat.name}
+                    </div>
+                ))}
+            </div>
+        )}
+    </div>
                         {/* SORT */}
                         <div className="relative">
                             <button
@@ -241,12 +301,18 @@ function CollectionProducts() {
                         </div>
 
                         {/* CLEAR */}
+                        {isFilterActive && (
                         <button
-                            onClick={() => setSelectedSort("Latest")}
+                            onClick={() =>{ setSelectedSort("Latest");
+                                setSelectedCategory("All");
+                                setSearch("");
+                                setCurrentPage(1);
+                            }}
                             className="text-[#1C3753]"
                         >
                             Clear
                         </button>
+                        )}
                     </div>
                 </div>
 

@@ -1236,7 +1236,6 @@ useEffect(() => {
   <div
       style={{
         width: "100%",
-        maxWidth: "600px",
         padding: "16px",
         background: "white",
         borderRadius: "12px",
