@@ -11,7 +11,7 @@ import {
   Star,
   Camera,
   LogOut,
-  Component 
+  Component,
 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
@@ -24,10 +24,12 @@ const accountMenu = [
   { label: "Manage Addresses", path: "/addresses", icon: MapPin },
   { label: "Support & Help", path: "/support", icon: HelpCircle },
   { label: "Reviews & Ratings", path: "/reviews", icon: Star },
-  { label: "Reward Points", path: "/reward", icon: Component  },
+  { label: "Reward Points", path: "/reward", icon: Component },
 ];
 
 function AccountSidebar() {
+  const [isUploading, setIsUploading] = useState(false);
+  // const inputRef = useRef(null);
   const [image, setImage] = useState("");
   const [name, setName] = useState("");
   const inputRef = useRef(null);
@@ -36,18 +38,27 @@ function AccountSidebar() {
   const navigate = useNavigate();
 
   const handleImageChange = async (e) => {
-    const file = e.target.files[0];
+    const file = e.target.files?.[0];
     if (!file) return;
 
-    const formData = new FormData();
-    formData.append("profileImage", file);
+    try {
+      setIsUploading(true);
 
-    const res = await dispatch(updateProfileImage(formData));
+      const formData = new FormData();
+      formData.append("profileImage", file);
 
-    if (!res.error) {
-      toast.success("Profile image updated");
-    } else {
-      toast.error(res.payload);
+      const res = await dispatch(updateProfileImage(formData));
+
+      if (!res.error) {
+        toast.success("Profile image updated");
+      } else {
+        toast.error(res.payload || "Failed to update profile image");
+      }
+    } catch (error) {
+      toast.error("Something went wrong while uploading image");
+    } finally {
+      setIsUploading(false);
+      e.target.value = "";
     }
   };
 
@@ -70,14 +81,26 @@ function AccountSidebar() {
             alt="Profile"
             crossOrigin="anonymous"
             referrerPolicy="no-referrer"
-            className="w-full h-full object-cover rounded-full group-hover:scale-110 transition-transform duration-300"
+            className={`w-full h-full object-cover rounded-full transition-transform duration-300 ${
+              isUploading ? "opacity-60" : "group-hover:scale-110"
+            }`}
           />
 
           <div
-            className="absolute inset-0 bg-black/40 flex items-center justify-center cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-            onClick={() => inputRef.current.click()}
+            className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${
+              isUploading
+                ? "bg-black/50 opacity-100 cursor-not-allowed"
+                : "bg-black/40 opacity-0 group-hover:opacity-100 cursor-pointer"
+            }`}
+            onClick={() => {
+              if (!isUploading) inputRef.current?.click();
+            }}
           >
-            <Camera className="text-white w-5 h-5" />
+            {isUploading ? (
+              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+            ) : (
+              <Camera className="text-white w-5 h-5" />
+            )}
           </div>
           <input
             type="file"
@@ -85,6 +108,7 @@ function AccountSidebar() {
             className="hidden"
             accept="image/*"
             onChange={handleImageChange}
+            disabled={isUploading}
           />
         </div>
         <div className="text-black">
