@@ -6,7 +6,7 @@ function Policy() {
   return (
     <>
       <Navbar></Navbar>
-      <section className="px-4 sm:px-8 md:px-16 lg:px-32 xl:px-[240px] py-10 sm:py-12 md:py-16 lg:py-20">
+      <section className="px-4 sm:px-8 md:px-16 lg:px-32 xl:px-[240px] py-10 sm:py-12 md:py-16 lg:py-20 mt-10">
         <div className="flex flex-col items-center gap-4">
           {/* <p className="text-[#E5B800] text-sm sm:text-base">
             Current as of 20 Sep 2024
