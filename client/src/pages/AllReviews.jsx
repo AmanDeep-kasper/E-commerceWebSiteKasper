@@ -99,8 +99,8 @@ function AllReviews() {
             <div className="mt-6 rounded-xl bg-[#ffff] border border-[#E5E5E5] p-3">
               <div className="flex items-center justify-between mb-3">
                 <div>
-                  <h4 className="text-[18px] font-semibold text-[#1C1C1C]">
-                    Customer Photos
+                  <h4 className="text-[18px] font-semibold text-[#1800AC]">
+                    Review With images
                   </h4>
                   <p className="text-sm text-[#686868]">
                     {allReviewImages.length} photo

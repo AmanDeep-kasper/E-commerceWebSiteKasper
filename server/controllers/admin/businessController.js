@@ -2,9 +2,9 @@ import BusinessSetting from "../../models/admin/BusinessConfig.js";
 import AppError from "../../utils/AppError.js";
 import asyncHandler from "../../utils/asyncHandler.js";
 import {
-  uploadImageToCloudinary,
-  deleteImageFromCloudinary,
-} from "../../utils/cloudinary.js";
+  uploadToCloudinary,
+  deleteFromCloudinary,
+} from "../../utils/uploader.js";
 
 export const createBusinessDetails = asyncHandler(async (req, res) => {
   let { businessName, gstNumber, companyNumber, address, email, phone } =
@@ -25,8 +25,7 @@ export const createBusinessDetails = asyncHandler(async (req, res) => {
     throw AppError.conflict("Business already exists", "ALREADY_EXISTS");
   }
 
-  const filePath = req.file?.path;
-  if (!filePath) {
+  if (!req.file) {
     throw AppError.badRequest("Logo is required", "FILE_REQUIRED");
   }
 
@@ -34,7 +33,12 @@ export const createBusinessDetails = asyncHandler(async (req, res) => {
 
   try {
     // ✅ Upload first
-    uploadedImage = await uploadImageToCloudinary(filePath);
+    uploadedImage = await uploadToCloudinary(
+      req.file.buffer,
+      req.fileType,
+      req.fileType === "image" ? "images" : "videos",
+      req.file.originalname,
+    );
 
     // ✅ Create document with image
     const business = await BusinessSetting.create({
@@ -60,26 +64,9 @@ export const createBusinessDetails = asyncHandler(async (req, res) => {
   } catch (error) {
     // 🔥 rollback cloudinary if DB fails
     if (uploadedImage?.publicId) {
-      await deleteImageFromCloudinary(uploadedImage.publicId);
+      await deleteFromCloudinary(uploadedImage.publicId);
     }
     throw error;
-  } finally {
-    try {
-      if (filePath) {
-        const absolutePath = path.resolve(filePath);
-
-        console.log("DELETE PATH:", absolutePath);
-
-        if (fs.existsSync(absolutePath)) {
-          fs.unlinkSync(absolutePath);
-          console.log("File deleted ✅");
-        } else {
-          console.log("File not found ❌");
-        }
-      }
-    } catch (err) {
-      console.error("Delete error:", err);
-    }
   }
 });
 
@@ -87,7 +74,6 @@ export const updateBusinessDetails = asyncHandler(async (req, res) => {
   const { businessName, gstNumber, companyNumber, address, email, phone } =
     req.body || {};
 
-  const filePath = req.file?.path;
   const userId = req.user?.userId;
 
   // SAFE PARSE
@@ -131,12 +117,17 @@ export const updateBusinessDetails = asyncHandler(async (req, res) => {
   if (phone !== undefined) business.phone = phone;
 
   // IMAGE UPDATE
-  if (filePath) {
+  if (req.file) {
     if (business.logo?.publicId) {
-      await deleteImageFromCloudinary(business.logo.publicId);
+      await deleteFromCloudinary(business.logo.publicId);
     }
 
-    const uploaded = await uploadImageToCloudinary(filePath);
+    const uploaded = await uploadToCloudinary(
+      req.file.buffer,
+      req.fileType,
+      req.fileType === "image" ? "images" : "videos",
+      req.file.originalname,
+    );
 
     business.logo = {
       url: uploaded.url,

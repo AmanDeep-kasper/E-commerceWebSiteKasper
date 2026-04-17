@@ -273,8 +273,9 @@ const NotificationSettingsForm = () => {
         
 
       </div> */}
-
-      <span className="text-[#1C1C1C] text-[16px] font-medium">Shipping Charges</span>
+      <div className="mb-4">
+      <span className="text-[#1C1C1C] text-[16px] font-medium mb-4">Shipping Charges</span>
+      </div>
       <div className=" bg-white p-4 rounded-lg">
         <div className="mt-4 rounded-lg p-2 bg-white ">
           <div className="flex flex-col">
@@ -305,7 +306,7 @@ const NotificationSettingsForm = () => {
 
       {/* <==================-------------- Zone Configration -----------------=================> */}
       <div className="mt-5">
-        <span className="text-[16px] text-[#1C1C1C] text-medium">Zone Configuration</span>
+        <span className="text-[#1C1C1C] text-[16px] font-medium">Zone Configuration</span>
         <div className="bg-white p-4 rounded-lg mt-3">
           <div className="flex justify-between items-center">
             <span className="text-[16px] text-[#1C1C1C] text-medium">Metro Cities</span>
@@ -360,8 +361,10 @@ const NotificationSettingsForm = () => {
               <span className="text-[#1C1C1C] text-[16px] font-regular">Free Delivery Above</span>
               <span className="text-[#686868] text-[12px] font-regular">If the total cart value is above  ₹1,999</span>
             </div>
-            <div>
-              <span className="text-[#1C1C1C] text-[18px] font-medium">₹1,999</span>
+            <div className="p-2 bg-[#F8FBFC] border border-[#DEDEDE] rounded-lg flex items-center gap-2">
+              <input type="number"
+              className="bg-[#F8FBFC]"
+              />
             </div>
           </div>
           <div className="flex justify-between items-center py-3 px-2">

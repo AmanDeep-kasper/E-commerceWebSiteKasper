@@ -83,7 +83,7 @@ function Faqs() {
         {/* Contact + Newsletter */}
         <div>
           {/* Still Have Questions */}
-          <div className="h-auto bg-[#D5E5F5] flex flex-col items-center py-6 px-4 gap-2 rounded-md">
+          <div className="h-auto bg-[#F0EEFF] flex flex-col items-center py-6 px-4 gap-2 rounded-md">
             <h1 className="text-lg sm:text-xl text-gray-800 md:text-[20px] font-medium">
              Do you still have any questions?
             </h1>
@@ -91,7 +91,7 @@ function Faqs() {
               Can’t find the answer you’re looking for? Please chat to our
               friendly team.
             </p>
-            <button className="py-2 px-6 flex items-center gap-2 bg-[#1C3753] text-white  rounded-md mt-4">
+            <button className="py-2 px-6 flex items-center gap-2 bg-[#1800AC] text-white  rounded-md mt-4">
               Contact Us  <ArrowRight className="w-5 h-5" />
             </button>
           </div>

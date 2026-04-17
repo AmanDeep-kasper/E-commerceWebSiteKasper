@@ -152,7 +152,7 @@ function CustomerReview({ reviews = [], id, allReviews = false }) {
       {!allReviews && fetchedReviews.length > moreReview && (
         <button
           type="button"
-          className="py-2 mt-3 font-medium text-[#1C3753]"
+          className="py-2 mt-3 font-medium text-[#1800AC]"
           onClick={() => navigate(`/all-reviews/${id}`)}
         >
           See more reviews ›

@@ -14,7 +14,7 @@ function Products() {
        <Design/>
        </section>
       <TopProducts />
-      <DiwaliProducts />
+      {/* <DiwaliProducts /> */}
     </section>
   );
 }

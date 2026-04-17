@@ -29,6 +29,7 @@ import businessRouter from "./routes/admin/businessRoutes.js";
 import warehouseRouter from "./routes/admin/warehouseRoutes.js";
 import policyRouter from "./routes/admin/policyRoutes.js";
 import shippingRouter from "./routes/admin/shippingRoutes.js";
+import bannerRouter from "./routes/admin/bannerRoutes.js";
 
 // ================== MIDDLEWARES ==================
 import { errorHandler, notFoundHandler } from "./middlewares/errorHandler.js";
@@ -117,6 +118,7 @@ app.use("/api/v1/dashboard/business", businessRouter);
 app.use("/api/v1/dashboard/warehouse", warehouseRouter);
 app.use("/api/v1/dashboard/policy", policyRouter);
 app.use("/api/v1/dashboard/shipping", shippingRouter);
+app.use("/api/v1/dashboard/banner", bannerRouter);
 
 // ================== ERROR HANDLING ==================
 app.use(notFoundHandler);

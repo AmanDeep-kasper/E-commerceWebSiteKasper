@@ -37,10 +37,6 @@ router.patch(
 router.patch(
   "/update-profile-image",
   authenticate,
-  (req, _res, next) => {
-    req.uploadFolder = "profile";
-    next();
-  },
   upload.single("profileImage"),
   updateUserProfileImage,
 );

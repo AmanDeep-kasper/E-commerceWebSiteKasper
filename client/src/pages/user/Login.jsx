@@ -149,7 +149,7 @@ function Login() {
 
             {/* Form Header */}
             <div className="text-center mb-8">
-              <div className="bg-[#D5E5F5] p-3 rounded-full w-12 h-12 mx-auto mb-4 flex items-center justify-center">
+              <div className="bg-[#F0EEFF] p-3 rounded-full w-12 h-12 mx-auto mb-4 flex items-center justify-center">
                 <LogIn className="w-6 h-6 text-[#1C3753]" />
               </div>
               <h2 className="text-3xl font-bold text-gray-900">Welcome Back</h2>

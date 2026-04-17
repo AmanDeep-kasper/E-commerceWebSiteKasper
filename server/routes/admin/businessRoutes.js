@@ -13,10 +13,6 @@ router.post(
   "/create-business",
   authenticate,
   authorize("admin"),
-  (req, _res, next) => {
-    req.uploadFolder = "logo";
-    next();
-  },
   upload.single("logo"),
   createBusinessDetails,
 );
