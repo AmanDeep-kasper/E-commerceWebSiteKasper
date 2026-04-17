@@ -264,7 +264,7 @@
 // export default Collection;
 
 
-import React, { useState, useEffect, useRef  } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Pencil, Search, ChevronDown, Eye, Trash2, MoreHorizontal } from "lucide-react";
 import { MdOutlineAdd } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
@@ -273,55 +273,55 @@ import axiosInstance from "../../../api/axiosInstance";
 import { toast } from "react-toastify";
 
 const ActionMenu = ({ item, onEdit, onDelete }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const menuRef = useRef(null);
+    const [isOpen, setIsOpen] = useState(false);
+    const menuRef = useRef(null);
 
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (menuRef.current && !menuRef.current.contains(event.target)) {
-        setIsOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+    // Close dropdown when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (menuRef.current && !menuRef.current.contains(event.target)) {
+                setIsOpen(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
 
-  return (
-    <div className="relative" ref={menuRef}>
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="p-2 rounded-full hover:bg-gray-100 transition-colors"
-      >
-        <MoreHorizontal size={20} className="text-gray-600" />
-      </button>
+    return (
+        <div className="relative" ref={menuRef}>
+            <button
+                onClick={() => setIsOpen(!isOpen)}
+                className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+            >
+                <MoreHorizontal size={20} className="text-gray-600" />
+            </button>
 
-      {isOpen && (
-        <div className="absolute right-0 mt-2 w-36 bg-white rounded-lg shadow-lg border z-50 overflow-hidden">
-          <button
-            onClick={() => {
-              onEdit();
-              setIsOpen(false);
-            }}
-            className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2 transition-colors"
-          >
-            <Pencil size={16} className="text-blue-500" />
-            <span>Edit</span>
-          </button>
-          <button
-            onClick={() => {
-              onDelete();
-              setIsOpen(false);
-            }}
-            className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2 transition-colors border-t"
-          >
-            <Trash2 size={16} className="text-red-500" />
-            <span>Delete</span>
-          </button>
+            {isOpen && (
+                <div className="absolute right-0 mt-2 w-36 bg-white rounded-lg shadow-lg border z-50 overflow-hidden">
+                    <button
+                        onClick={() => {
+                            onEdit();
+                            setIsOpen(false);
+                        }}
+                        className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2 transition-colors"
+                    >
+                        <Pencil size={16} className="text-blue-500" />
+                        <span>Edit</span>
+                    </button>
+                    <button
+                        onClick={() => {
+                            onDelete();
+                            setIsOpen(false);
+                        }}
+                        className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2 transition-colors border-t"
+                    >
+                        <Trash2 size={16} className="text-red-500" />
+                        <span>Delete</span>
+                    </button>
+                </div>
+            )}
         </div>
-      )}
-    </div>
-  );
+    );
 };
 
 function Collection() {
@@ -341,7 +341,7 @@ function Collection() {
     const [editCollection, setEditCollection] = useState(null);
     const [deleteConfirm, setDeleteConfirm] = useState(null);
 
-     // Form states
+    // Form states
     const [formData, setFormData] = useState({
         collectionName: "",
         isActive: true,
@@ -352,7 +352,7 @@ function Collection() {
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
 
- // Fetch collections from API
+    // Fetch collections from API
     useEffect(() => {
         fetchCollections();
     }, []);
@@ -361,7 +361,7 @@ function Collection() {
         try {
             setLoading(true);
             const response = await axiosInstance.get("/collection/admin/get-all-collections");
-            console.log("Collections API Response:", response.data);
+            // console.log("Collections API Response:", response.data);
 
             let collectionsData = [];
             if (response.data?.success && response.data?.data?.collections) {
@@ -375,7 +375,7 @@ function Collection() {
             setCollections(collectionsData);
             setError(null);
         } catch (err) {
-            console.error("Error fetching collections:", err);
+            // console.error("Error fetching collections:", err);
             setError(err.response?.data?.message || "Failed to load collections");
         } finally {
             setLoading(false);
@@ -383,50 +383,50 @@ function Collection() {
     };
 
     // Add new collection
-// Add new collection
-const handleAddCollection = async () => {
-    const trimmedName = formData.collectionName.trim();
-    
-    if (!trimmedName) {
-        toast.error("Collection name is required");
-        return;
-    }
-    
-    if (trimmedName.length < 2) {
-        toast.error("Collection name must be at least 2 characters");
-        return;
-    }
+    // Add new collection
+    const handleAddCollection = async () => {
+        const trimmedName = formData.collectionName.trim();
 
-    console.log("Sending payload:", {
-        collectionName: trimmedName,
-        products:[],
-        isActive: formData.isActive === true
-    });
+        if (!trimmedName) {
+            toast.error("Collection name is required");
+            return;
+        }
 
-    setSubmitting(true);
-    try {
-        const payload = {
-            collectionName: trimmedName,
-            products:[],
-            isActive: formData.isActive === true  // Ensure boolean
-        };
-        
-        const response = await axiosInstance.post("/collection/admin/add-collection", payload);
-        console.log("Response:", response.data);
-        
-        toast.success("Collection added successfully!");
-        setAddCollectionModal(false);
-        resetForm();
-        fetchCollections();
-    } catch (err) {
-        console.error("Error response:", err.response?.data);
-        // Show the actual error message from backend
-        const errorMessage = err.response?.data?.message || "Failed to add collection";
-        toast.error(errorMessage);
-    } finally {
-        setSubmitting(false);
-    }
-};
+        if (trimmedName.length < 2) {
+            toast.error("Collection name must be at least 2 characters");
+            return;
+        }
+
+        // console.log("Sending payload:", {
+        //     collectionName: trimmedName,
+        //     products:[],
+        //     isActive: formData.isActive === true
+        // });
+
+        setSubmitting(true);
+        try {
+            const payload = {
+                collectionName: trimmedName,
+                products: [],
+                isActive: formData.isActive === true  // Ensure boolean
+            };
+
+            const response = await axiosInstance.post("/collection/admin/add-collection", payload);
+            // console.log("Response:", response.data);
+
+            toast.success("Collection added successfully!");
+            setAddCollectionModal(false);
+            resetForm();
+            fetchCollections();
+        } catch (err) {
+            // console.error("Error response:", err.response?.data);
+            // Show the actual error message from backend
+            const errorMessage = err.response?.data?.message || "Failed to add collection";
+            toast.error(errorMessage);
+        } finally {
+            setSubmitting(false);
+        }
+    };
 
     // Update collection
     const handleUpdateCollection = async () => {
@@ -450,7 +450,7 @@ const handleAddCollection = async () => {
             resetForm();
             fetchCollections();
         } catch (err) {
-            console.error("Error updating collection:", err);
+            // console.error("Error updating collection:", err);
             toast.error(err.response?.data?.message || "Failed to update collection");
         } finally {
             setSubmitting(false);
@@ -469,7 +469,7 @@ const handleAddCollection = async () => {
             setDeleteConfirm(null);
             fetchCollections();
         } catch (err) {
-            console.error("Error deleting collection:", err);
+            // console.error("Error deleting collection:", err);
             toast.error(err.response?.data?.message || "Failed to delete collection");
         }
     };
@@ -483,7 +483,7 @@ const handleAddCollection = async () => {
             toast.success(`Collection ${collection.isActive ? "deactivated" : "activated"} successfully!`);
             fetchCollections();
         } catch (err) {
-            console.error("Error toggling status:", err);
+            // console.error("Error toggling status:", err);
             toast.error(err.response?.data?.message || "Failed to update status");
         }
     };
@@ -580,7 +580,7 @@ const handleAddCollection = async () => {
 
                     {/* FILTER UI */}
                     <div className="flex gap-3 items-center">
-                        {/* SORT */}
+
                         <div className="relative">
                             <button
                                 onClick={() =>
@@ -609,14 +609,14 @@ const handleAddCollection = async () => {
                             )}
                         </div>
                         <div className="relative">
-                            <button
+                            {/* <button
                                 onClick={() =>
                                     setActiveFilter(activeFilter === "status" ? null : "status")
                                 }
                                 className="border px-4 py-2 rounded-lg flex items-center gap-2 bg-[#F8F8F8]"
                             >
                                 {selectedStatus} <ChevronDown size={16} />
-                            </button>
+                            </button> */}
 
                             {activeFilter === "status" && (
                                 <div className="absolute mt-2 bg-white border rounded shadow w-40 z-20">
@@ -639,7 +639,7 @@ const handleAddCollection = async () => {
 
 
                         {/* CLEAR */}
-                        <button
+                        {/* <button
                             onClick={() => {
                                 setSelectedSort("Latest");
                                 setSelectedStatus("All");
@@ -648,7 +648,7 @@ const handleAddCollection = async () => {
                             className="text-[#1C3753]"
                         >
                             Clear
-                        </button>
+                        </button> */}
 
                     </div>
                 </div>
@@ -660,7 +660,7 @@ const handleAddCollection = async () => {
                         <tr>
                             <th className="px-6 py-3 text-left">Collection Name</th>
                             <th className="px-6 py-3 text-center">Product Count</th>
-                            <th className="px-6 py-3 text-center">Status</th>
+                            {/* <th className="px-6 py-3 text-center">Status</th> */}
                             <th className="px-6 py-3 text-center">Action</th>
                         </tr>
                     </thead>
@@ -676,7 +676,7 @@ const handleAddCollection = async () => {
                                 <td className="px-6 py-4 text-center">
                                     {item.products?.length || 0}
                                 </td>
-                                <td
+                                {/* <td
                                     className="px-6 py-4 text-center text-blue-600 cursor-pointer hover:underline"
                                     // onClick={() =>
                                     //     navigate("/admin/best-selling", {
@@ -687,41 +687,74 @@ const handleAddCollection = async () => {
 
                                 >
                                     View All
-                                </td>
+                                </td> */}
                                 <td className="px-6 py-4 text-center">
-  <ActionMenu
-    item={item}
-    onEdit={() => openEditModal(item)}
-    onDelete={() => setDeleteConfirm(item)}
-  />
-</td>
+                                    <div className="flex justify-center items-center gap-4">
+
+                                        {/* VIEW */}
+                                        <span
+                                            onClick={() => navigate(`/admin/collection/${item._id}/products`)}
+                                            className="text-blue-600 cursor-pointer hover:underline text-sm"
+                                        >
+                                            View
+                                        </span>
+
+                                        {/* EDIT */}
+                                        <Pencil
+                                            size={16}
+                                            className="text-gray-600 cursor-pointer hover:text-blue-500"
+                                            onClick={() => openEditModal(item)}
+                                        />
+
+                                        {/* DELETE */}
+                                        <Trash2
+                                            size={16}
+                                            className="text-red-500 cursor-pointer hover:text-red-600"
+                                            onClick={() => setDeleteConfirm(item)}
+                                        />
+
+                                    </div>
+                                </td>
                             </tr>
                         ))}
                     </tbody>
                 </table>
 
-                
-
                 {/* PAGINATION */}
-                {/* <div className="flex justify-end items-center gap-2 mt-4">
-                    <button
-                        onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-                    >
-                        ‹
-                    </button>
+                {totalPages > 1 && (
+                    <div className="flex items-center justify-between px-6 py-3 border-t text-sm text-gray-600 mt-4">
+                        {/* Showing text */}
+                        <div>
+                            Showing <span className="font-medium">{startIndex + 1}</span>–
+                            <span className="font-medium">{Math.min(startIndex + itemsPerPage, filteredData.length)}</span> of{" "}
+                            <span className="font-medium">{filteredData.length}</span> results
+                        </div>
 
-                    <span>
-                        Page {currentPage} of {totalPages}
-                    </span>
+                        {/* Pagination controls */}
+                        <div className="flex items-center gap-2">
+                            <button
+                                className="px-3 py-1 border rounded disabled:opacity-40"
+                                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                                disabled={currentPage === 1}
+                            >
+                                ‹
+                            </button>
 
-                    <button
-                        onClick={() =>
-                            setCurrentPage((p) => Math.min(p + 1, totalPages))
-                        }
-                    >
-                        ›
-                    </button>
-                </div> */}
+                            <div className="px-4 py-1 border rounded">
+                                Page {String(currentPage).padStart(2, "0")} of{" "}
+                                {String(totalPages).padStart(2, "0")}
+                            </div>
+
+                            <button
+                                className="px-3 py-1 border rounded disabled:opacity-40"
+                                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                                disabled={currentPage === totalPages}
+                            >
+                                ›
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
 
             {addCollectionModal && (
@@ -746,32 +779,32 @@ const handleAddCollection = async () => {
                             <span>Collection Status</span>
                             <div className="flex items-center gap-6">
                                 <div className="flex items-center gap-1 mt-2">
-                                     <label className="flex items-center gap-2">
-                                    <input
-                                        type="radio"
-                                        name="status"
-                                        checked={formData.isActive === true}
-                                        onChange={() => setFormData({ ...formData, isActive: true })}
-                                    />
-                                    Active
-                                </label>
+                                    <label className="flex items-center gap-2">
+                                        <input
+                                            type="radio"
+                                            name="status"
+                                            checked={formData.isActive === true}
+                                            onChange={() => setFormData({ ...formData, isActive: true })}
+                                        />
+                                        Active
+                                    </label>
 
                                 </div>
                                 <div className="flex items-center gap-1 mt-2">
-                                   <label className="flex items-center gap-2">
-                                    <input
-                                        type="radio"
-                                        name="status"
-                                        checked={formData.isActive === false}
-                                        onChange={() => setFormData({ ...formData, isActive: false })}
-                                    />
-                                    Inactive
-                                </label>
+                                    <label className="flex items-center gap-2">
+                                        <input
+                                            type="radio"
+                                            name="status"
+                                            checked={formData.isActive === false}
+                                            onChange={() => setFormData({ ...formData, isActive: false })}
+                                        />
+                                        Inactive
+                                    </label>
                                 </div>
                             </div>
                         </div>
 
-                         <input
+                        <input
                             type="text"
                             placeholder="Collection Name"
                             value={formData.collectionName}
@@ -792,7 +825,7 @@ const handleAddCollection = async () => {
                             </button>
 
                             {/* ✅ SAVE BUTTON */}
-                             <button
+                            <button
                                 onClick={handleAddCollection}
                                 disabled={submitting}
                                 className="px-4 py-2 bg-[#1C3753] text-white rounded disabled:opacity-50"

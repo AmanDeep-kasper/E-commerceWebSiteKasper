@@ -172,81 +172,170 @@ import { useSelector } from 'react-redux';
 
 //////////////////////////
 import Title from "../Title";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import Rating from "@mui/material/Rating";
 import Stack from "@mui/material/Stack";
 import { useEffect, useMemo, useState } from "react";
 import axiosInstance from "../../api/axiosInstance";
 import { FaBagShopping } from "react-icons/fa6";
-import { addToCart } from "../../redux/cart/cartSlice";
+import {useDispatch} from "react-redux";
+import { addToCart, decreaseQty, increaseQty } from "../../redux/cart/cartSlice";
+import { LuMinus, LuPlus } from "react-icons/lu";
+import { toast } from "react-toastify";
 
 function TopProducts() {
+  const {collectionId} = useParams();
+  const dispatch = useDispatch();
   const [visibleCount, setVisibleCount] = useState(4);
+     const [collection, setCollection] = useState(null);
+    const [products, setProducts] = useState([]);
+    const [loading, setLoading] = useState(true);
   const [topproduct, setTopProduct] = useState([]);
   const [addedItems, setAddedItems] = useState({});
 
-  // useEffect(() => {
-  //   const fetchTopproduct = async () => {
-  //     try {
-  //       const res = await axiosInstance.get("/products/all");
-  //       // console.log("API response:", res.data);
+    // Fetch collection products
+    useEffect(() => {
+        const fetchCollectionProducts = async () => {
+            try {
+                setLoading(true);
+                // Use the public endpoint for users
+                const response = await axiosInstance.get(`/collection/get-all-collections`);
+                console.log("Collections response:", response.data);
+                
+                let collectionsData = [];
+                if (response.data?.success && response.data?.data?.collections) {
+                    collectionsData = response.data.data.collections;
+                } else if (Array.isArray(response.data)) {
+                    collectionsData = response.data;
+                } else if (response.data?.collections) {
+                    collectionsData = response.data.collections;
+                }
+                
+                // If collectionId is provided, find that specific collection
+                if (collectionId) {
+                    const foundCollection = collectionsData.find(c => c._id === collectionId);
+                    setCollection(foundCollection);
+                    setProducts(foundCollection?.products || []);
+                } else {
+                    // Show first collection or all products from all collections
+                    const allProducts = collectionsData.flatMap(c => c.products || []);
+                    setProducts(allProducts);
+                }
+            } catch (error) {
+                console.error("Error fetching collections:", error);
+                toast.error("Failed to load products");
+                setProducts([]);
+            } finally {
+                setLoading(false);
+            }
+        };
+        
+        fetchCollectionProducts();
+    }, [collectionId]);
 
-  //       // supports both array and object response
-  //       if (Array.isArray(res.data)) {
-  //         setTopProduct(res.data);
-  //       } else if (Array.isArray(res.data?.products)) {
-  //         setTopProduct(res.data.products);
-  //       } else {
-  //         setTopProduct([]);
-  //       }
-  //     } catch (error) {
-  //       console.log("ERROR:", error);
-  //       setTopProduct([]);
-  //     }
-  //   };
+     // Calculate average rating for each product
+    const productsWithRating = useMemo(() => {
+        return (products || []).map((item) => {
+            const avgRating = item.reviews && item.reviews.length > 0
+                ? item.reviews.reduce((sum, r) => sum + (r.rating || 0), 0) / item.reviews.length
+                : 0;
+            return { ...item, avgRating };
+        });
+    }, [products]);
 
-  //   fetchTopproduct();
-  // }, []);
+    // Responsive grid count
+    useEffect(() => {
+        const updateCount = () => {
+            if (window.innerWidth >= 1280) {
+                setVisibleCount(5);
+            } else if (window.innerWidth >= 640) {
+                setVisibleCount(6);
+            } else {
+                setVisibleCount(4);
+            }
+        };
+        
+        updateCount();
+        window.addEventListener("resize", updateCount);
+        return () => window.removeEventListener("resize", updateCount);
+    }, []);
 
-  const topProducts = useMemo(() => {
-    return (
-      (topproduct || [])
-        .map((item) => {
-          const avgRating =
-            item.reviews && item.reviews.length > 0
-              ? item.reviews.reduce((sum, r) => sum + (r.rating || 0), 0) /
-                item.reviews.length
-              : 0;
-
-          return { ...item, avgRating };
-        })
-        // remove this filter if you want products to show even without reviews
-        // .filter((item) => item.avgRating >= 4)
-        .sort((a, b) => b.avgRating - a.avgRating)
-    );
-  }, [topproduct]);
-
-  useEffect(() => {
-    const updateCount = () => {
-      if (window.innerWidth >= 1280) {
-        setVisibleCount(5);
-      } else if (window.innerWidth >= 640) {
-        setVisibleCount(6);
-      } else {
-        setVisibleCount(4);
-      }
+    // Add to cart handler
+    const handleAddToCart = (product) => {
+        const defaultVariant = product.variants?.[0];
+        if (!defaultVariant) {
+            toast.error("No variant available");
+            return;
+        }
+        
+        dispatch(addToCart({
+            uuid: product._id,
+            variantId: defaultVariant._id,
+            title: product.productTittle,
+            basePrice: defaultVariant.variantMrp || 0,
+            effectivePrice: defaultVariant.variantSellingPrice || 0,
+            discountPercent: defaultVariant.variantDiscount || 0,
+            stockQuantity: defaultVariant.variantAvailableStock || 0,
+            image: defaultVariant.variantImage?.[0]?.url || "/placeholder.png",
+            deliverBy: "7-10 business days",
+            selectedOptions: {
+                color: defaultVariant.variantColor || "Default",
+                dimension: "Standard",
+            },
+        }));
+        
+        setAddedItems(prev => ({ ...prev, [product._id]: 1 }));
+        toast.success("Added to cart!");
     };
 
-    updateCount();
-    window.addEventListener("resize", updateCount);
+    const increaseQty = (id) => {
+        setAddedItems((prev) => ({
+            ...prev,
+            [id]: (prev[id] || 1) + 1,
+        }));
+        // Also update Redux cart
+        dispatch(increaseQty({ uuid: id }));
+    };
 
-    return () => window.removeEventListener("resize", updateCount);
-  }, []);
+    const decreaseQty = (id) => {
+        setAddedItems((prev) => {
+            const current = prev[id] || 0;
+            if (current <= 1) {
+                const updated = { ...prev };
+                delete updated[id];
+                return updated;
+            }
+            return { ...prev, [id]: current - 1 };
+        });
+        dispatch(decreaseQty({ uuid: id }));
+    };
+
+    // Loading state
+    if (loading) {
+        return (
+            <div className="lg:px-20 md:px-[60px] px-4 py-[23px] bg-white shadow-sm rounded-lg">
+                <div className="flex justify-center items-center h-64">
+                    <div className="text-center">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1C3753] mx-auto"></div>
+                        <p className="mt-4 text-gray-600">Loading products...</p>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    // Get products to display (top rated or featured)
+    const displayProducts = productsWithRating
+        .sort((a, b) => b.avgRating - a.avgRating)
+        .slice(0, visibleCount);
 
   return (
     <div className="lg:px-20 md:px-[60px] px-4 py-[23px]  bg-white shadow-sm rounded-lg">
       <div className="flex items-center">
-        <Title className="md:items-start px-2">Featured Collection</Title>
+        <Title className="md:items-start px-2">
+          Featured Collection
+        {/* {collection?.collectionName || "Featured Collection"} */}
+        </Title>
         <Link
           className="whitespace-nowrap text-[#2C87E2] hover:text-blue-950 px-2 text-sm underline cursor-pointer"
           to="/products/top-products"
@@ -257,43 +346,30 @@ function TopProducts() {
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4 relative p-4">
-        {topProducts?.length > 0 ? (
-          topProducts.slice(0, visibleCount).map((p) => {
-            const key = p._id || p.id || p.uuid || p.SKU;
-            const ratingAvg = p?.avgRating || 0;
-
-            const v = p?.variants?.[0];
-            const mrp = Number(v?.variantMrp || 0);
-            const sp = Number(v?.variantSellingPrice || 0);
-
-            const discountPercent =
-              mrp > 0 && sp > 0 ? Math.round(((mrp - sp) / mrp) * 100) : 0;
-
-            const apiDiscount =
-              v?.variantDiscountUnit === "%"
-                ? Number(v?.variantDiscount || 0)
-                : 0;
-
-            const finalDiscountPercent = discountPercent || apiDiscount;
-            const effective = sp || mrp || 0;
-            const base = mrp || 0;
+         {displayProducts.length > 0 ? (
+                    displayProducts.map((p) => {
+                        const defaultVariant = p.variants?.[0];
+                        const productImage = defaultVariant?.variantImage?.[0]?.url || p.image || "/placeholder.png";
+                        const mrp = defaultVariant?.variantMrp || 0;
+                        const sellingPrice = defaultVariant?.variantSellingPrice || 0;
+                        const discountPercent = mrp > 0 && sellingPrice > 0 
+                            ? Math.round(((mrp - sellingPrice) / mrp) * 100) 
+                            : 0;
+                        const ratingAvg = p.avgRating || 0;
 
             return (
               <Link
-                key={key}
-                className="bg-white p-2 group  rounded-lg block transition-shadow duration-300"
-                to={`/product/${p._id}`}
+                key={p._id}
+                className="bg-white p-2 group  rounded-lg block transition-shadow duration-300 hover:shadow-lg"
+                to={`/product/${p.slug || p._id}`}
               >
                 <div className="relative w-full overflow-hidden rounded-md">
                   <img
                     className="w-full aspect-square object-contain transition-transform duration-300 group-hover:scale-110"
-                    src={
-                      p?.variants?.[0]?.variantImage?.[0] ||
-                      p?.images?.[0] ||
-                      "/fallback.png"
-                    }
-                    alt={p.productTittle}
-                    loading="lazy"
+                     src={productImage}
+                                        alt={p.productTittle}
+                                        loading="lazy"
+                                        onError={(e) => { e.target.src = "/placeholder.png"; }}
                   />
 
                   {ratingAvg > 0 && (
@@ -310,18 +386,20 @@ function TopProducts() {
 
                   <div className="flex items-center flex-wrap gap-2">
                     <span className="text-gray-900 font-medium">
-                      ₹{effective || "--"}
+                      ₹{sellingPrice || mrp || "--"}
                     </span>
-                    {base > 0 && effective > 0 && base !== effective && (
+                    {mrp > 0 && sellingPrice > 0 && mrp !== sellingPrice && (
                       <span className="text-gray-400 text-xs line-through font-light">
-                        ₹{base}
+                        ₹{mrp}
                       </span>
                     )}
+                     {discountPercent > 0 && (
+                      <>
                     <div className="border-l border-[#DBDBDB] h-3"></div>
-                    {finalDiscountPercent > 0 && (
                       <span className="text-[#168408] text-xs ">
-                        {finalDiscountPercent}% Off
+                        {discountPercent}% Off
                       </span>
+                      </>
                     )}
                   </div>
 
@@ -340,9 +418,10 @@ function TopProducts() {
                         ({p?.reviews?.length || 0})
                       </span>
                     </div> */}
+                    
                   </div>
                   <div
-                    className={`w-full rounded-md flex justify-center items-center gap-4 p-2 mt-2 transition-all duration-300 ${
+                    className={`w-full rounded-md flex justify-center items-center gap-4 p-2 mt-2 transition-all duration-300 cursor-pointer ${
                       addedItems[p._id]
                         ? "bg-white border border-[#252525]"
                         : "bg-[#252525] border border-[#252525]"
@@ -352,7 +431,7 @@ function TopProducts() {
                       e.stopPropagation();
 
                       if (!addedItems[p._id]) {
-                        addToCart(p);
+                         handleAddToCart(p);
                       }
                     }}
                   >
@@ -402,7 +481,7 @@ function TopProducts() {
           })
         ) : (
           <div className="col-span-full text-center text-gray-500 py-10">
-            No products found
+            No products found in this collection
           </div>
         )}
       </div>

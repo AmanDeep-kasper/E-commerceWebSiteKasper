@@ -3,10 +3,12 @@ import { Link } from "react-router-dom";
 
 function Breadcrumbs({ category, subcategory, title }) {
   const categoryName = category?.name || category;
-  const categorySlug = category?.slug || category;
+  const categorySlug = category?.slug || (category ? String(category).toLowerCase().replace(/\s+/g, '-') : '');
 
   const subcategoryName = subcategory?.name || subcategory;
-  const subcategorySlug = subcategory?.slug || subcategory;
+ const subcategorySlug = subcategory?.slug || (subcategory ? String(subcategory).toLowerCase().replace(/\s+/g, '-') : '');
+
+  // console.log("Breadcrumbs received:", { category, subcategory, title });
   return (
     <nav
       className="flex lg:px-20 md:px-[60px] px-3 py-3 bg-[#F6F8F9]"
@@ -21,7 +23,7 @@ function Breadcrumbs({ category, subcategory, title }) {
         </li>
 
         {/* Category */}
-        {category && (
+        {categoryName  && (
           <li className="flex-shrink-0">
             <div className="flex items-center">
               <SeparatorIcon />
@@ -36,7 +38,7 @@ function Breadcrumbs({ category, subcategory, title }) {
         )}
 
         {/* Subcategory */}
-        {subcategory && (
+        {subcategoryName  && (
           <li className="flex-shrink-0">
             <div className="flex items-center">
               <SeparatorIcon />
