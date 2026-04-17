@@ -3,10 +3,7 @@ import Category from "../models/Category.js";
 import SubCategory from "../models/SubCategory.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import AppError from "../utils/AppError.js";
-import {
-  uploadImageToCloudinary,
-  deleteImageFromCloudinary,
-} from "../utils/cloudinary.js";
+import { uploadToCloudinary, deleteFromCloudinary } from "../utils/uploader.js";
 import mongoose from "mongoose";
 
 // Upload images of variants first
@@ -17,7 +14,12 @@ export const uploadVariantsImages = asyncHandler(async (req, res) => {
 
   const data = await Promise.all(
     req.files.map((file, i) =>
-      uploadImageToCloudinary(file.path, "products").then((r) => ({
+      uploadToCloudinary(
+        file.buffer,
+        file.mimetype.startsWith("video") ? "video" : "image",
+        file.mimetype.startsWith("video") ? "product-videos" : "product-images",
+        file.originalname,
+      ).then((r) => ({
         url: r.url,
         publicId: r.publicId,
         altText: req.body[`altText_${i}`] || "",
@@ -32,26 +34,11 @@ export const uploadVariantsImages = asyncHandler(async (req, res) => {
   });
 });
 
-// delete images of variants
-// export const deleteVariantImages = asyncHandler(async (req, res) => {
-//   const publicId = decodeURIComponent(req.params.publicId);
-//   if (!publicId) {
-//     throw AppError.badRequest("publicId required", "MISSING_PUBLIC_ID");
-//   }
-
-//   await deleteImageFromCloudinary(publicId);
-
-//   res.status(200).json({
-//     success: true,
-//     message: "Image deleted",
-//   });
-// });
-
 const cloudDelete = (images = []) =>
   Promise.allSettled(
     images
       .filter((img) => img?.publicId)
-      .map((img) => deleteImageFromCloudinary(img.publicId)),
+      .map((img) => deleteFromCloudinary(img.publicId)),
   );
 
 //  Admin controllers
@@ -328,8 +315,8 @@ export const adminGetAllProducts = asyncHandler(async (req, res) => {
   // ✅ CATEGORY FILTER (by category name)
   let categoryFilter = {};
   if (category) {
-    const categoryDoc = await Category.findOne({ 
-      name: { $regex: category, $options: "i" } 
+    const categoryDoc = await Category.findOne({
+      name: { $regex: category, $options: "i" },
     });
     if (categoryDoc) {
       filter.category = categoryDoc._id;
@@ -419,6 +406,7 @@ export const adminGetAllProducts = asyncHandler(async (req, res) => {
     },
   });
 });
+
 export const adminGetProductDetails = asyncHandler(async (req, res) => {
   const { idOrSlug } = req.params;
 
@@ -689,7 +677,7 @@ export const adminUpdateVariantImages = asyncHandler(async (req, res) => {
     const publicIdsToDelete = removedImages.map((img) => img.publicId);
 
     await Promise.allSettled(
-      publicIdsToDelete.map((id) => deleteImageFromCloudinary(id)),
+      publicIdsToDelete.map((id) => deleteFromCloudinary(id)),
     );
   }
 

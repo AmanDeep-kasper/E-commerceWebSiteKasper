@@ -46,8 +46,8 @@ function UserProfile({ setIsProfileOpen }) {
                 src={user?.user?.profileImage?.url}
                 alt="UserImage"
                 className=" rounded-full"
-                 crossOrigin="anonymous"
-  referrerPolicy="no-referrer"
+                crossOrigin="anonymous"
+                referrerPolicy="no-referrer"
               />
             ) : (
               <UserRound size={20} className="text-[#1C3753]" />
