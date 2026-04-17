@@ -34,3 +34,4 @@ build/Release
 .vscode/
 private_key.pem
 public_key.pem
+test.js
