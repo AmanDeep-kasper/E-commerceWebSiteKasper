@@ -1,7 +1,7 @@
 import { ChevronLeft, Minus, Plus, ShoppingCart, Trash2 } from "lucide-react";
 import PriceDetails from "../components/PriceDetails";
 import DeliveryDetailsDialog from "../components/DeliveryDetailsDialog";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   removeFromCart,
@@ -18,8 +18,10 @@ import Modal from "../components/Modal";
 import EmptyState from "../components/EmptyState";
 import { twMerge } from "tailwind-merge";
 import Ratings from "../components/Ratings";
+import axiosInstance from "../api/axiosInstance";
 
 function Cart() {
+  const [cart, setCart] = useState(null);
   const [open, setOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -27,7 +29,6 @@ function Cart() {
     (s) => s.cart,
   );
 
-  console.log(cartItems);
   const dispatch = useDispatch();
   const closeDialog = () => setOpen(false);
 
@@ -37,14 +38,53 @@ function Cart() {
   };
 
   // detect out of stock
-  const hasOutOfStock = cartItems.some(
+  const hasOutOfStock = cart?.items?.some(
     (item) => !item.stockQuantity || item.quantity > item.stockQuantity,
   );
+
+  const fetchCartItem = async () => {
+    try {
+      const res = await axiosInstance.get("/cart");
+      await setCart(res.data?.data);
+      console.log(res);
+    } catch (error) {}
+  };
+
+  useEffect(() => {
+    fetchCartItem();
+  }, []);
+
+  const handleClearCart = async () => {
+    try {
+      axiosInstance.delete("/cart/clear-cart"); // or your API route
+
+      setCart({
+        items: [],
+        totalQuantity: 0,
+        grandTotal: 0,
+      });
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleUpdateQty = async (itemId, action) => {
+    try {
+      const res = await axiosInstance.patch("/cart/update-item", {
+        itemId,
+        action,
+      });
+
+      setCart(res.data.data); // update UI with fresh cart
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   return (
     <>
       <Navbar />
-      <section className="lg:px-20 md:px-[60px] md:py-4 bg-gray-50">
+      <section className="lg:px-20 md:px-[60px] md:py-4 bg-gray-50 mt-24">
         <div className="flex flex-col lg:flex-row justify-between lg:gap-6 font-inter">
           {/* Main Cart Content */}
           <div className={`w-full ${totalItems > 0 ? "lg:w-2/3" : "w-full "}`}>
@@ -57,12 +97,11 @@ function Cart() {
                     <ChevronLeft className="w-7 h-7" />
                   </Link>{" "}
                   <span className="font-marcellus text-[#1800AC]">
-                    Shopping Cart ({totalItems})
+                    Shopping Cart ({cart?.totalQuantity || 0})
                   </span>
                 </div>
-                {cartItems.length > 1 && (
+                {cart?.items?.length > 1 && (
                   <button
-                    // onClick={() => dispatch(clearCart())}
                     onClick={() => setIsModalOpen(true)}
                     className="bg-white text-red-500 border border-red-500 hover:bg-red-500 hover:text-white px-3 py-1.5 text-sm font-medium transition-colors rounded-md"
                   >
@@ -71,7 +110,7 @@ function Cart() {
                 )}
               </div>
 
-              {cartItems.length === 0 ? (
+              {!cart || cart.items.length === 0 ? (
                 <EmptyState
                   heading="Your Cart is Empty"
                   description="Looks like you haven’t added anything yet. Browse our
@@ -83,15 +122,14 @@ function Cart() {
               ) : (
                 <>
                   <div className="divide-y divide-gray-100">
-                    {cartItems?.map((item) => {
-                      // const { base, effective } = getPrices(item);
-                      const base = Number(item.basePrice);
-                      const effective = Number(item.effectivePrice);
-                      const isOutOfStock = item.stockQuantity <= 0;
+                    {cart?.items?.map((item) => {
+                      const base = Number(item.mrp);
+                      const effective = Number(item.sellingPrice);
+                      const isOutOfStock = item.variantAvailableStock <= 0;
 
                       return (
                         <div
-                          key={`${item.id}-${item.title}`}
+                          key={item._id}
                           className="p-4 md:p-6 hover:bg-gray-50 transition-colors"
                         >
                           <div className="flex flex-row md:gap-6 gap-4 ">
@@ -103,8 +141,8 @@ function Cart() {
                               >
                                 <img
                                   className="sm:w-36 sm:h-36 w-20 h-20 object-contain"
-                                  src={item?.image}
-                                  alt={item.title}
+                                  src={item?.image?.url}
+                                  alt={item.productTitle}
                                 />
                               </Link>
                             </div>
@@ -114,7 +152,7 @@ function Cart() {
                               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                                 <div>
                                   <h3 className="md:text-lg text-sm font-medium text-[#1C1C1C] line-clamp-2">
-                                    {item.productTittle} soon
+                                    {item.productTitle} soon
                                   </h3>
 
                                   {/* <div className="flex flex-col text-sm">
@@ -133,10 +171,10 @@ function Cart() {
                                     </div>
                                   </div> */}
 
-                                  <div className=" border-gray-200 pb-2 flex items-center gap-4">
+                                  {/* <div className=" border-gray-200 pb-2 flex items-center gap-4">
                                     <div className="flex items-center gap-1">
                                       <span className="text-2xl font-semibold text-gray-900">
-                                        {/* {avgRating ?? "—"} */}
+                                        {avgRating ?? "—"}
                                       </span>
                                       <span className="text-gray-500 text-sm">
                                         /5
@@ -145,17 +183,14 @@ function Cart() {
                                     <div className="flex flex-col gap-1">
                                       <Ratings
                                         size={20}
-                                        // avgRating={avgRating}
+
                                       />
                                       <span className="text-sm text-gray-500">
                                         <span>Based on </span>
-                                        {/* {product?.reviews?.length ?? 0}{" "}
-                                        {product?.reviews?.length === 1
-                                          ? "review"
-                                          : "reviews"} */}
+                                      
                                       </span>
                                     </div>
-                                  </div>
+                                  </div> */}
 
                                   {isOutOfStock && (
                                     <p className="text-red-600 text-sm mt-1">
@@ -183,8 +218,7 @@ function Cart() {
                                 </span> */}
                                 <span className="text-green-600 text-sm">
                                   {Math.round(
-                                    ((item.basePrice - item.discountPercent) /
-                                      item.basePrice) *
+                                    ((item.mrp - item.discount) / item.mrp) *
                                       100,
                                   )}
                                   % Off
@@ -207,18 +241,45 @@ function Cart() {
                                 <div className="flex flex-wrap items-center gap-4">
                                   {/* Qty Controls */}
 
-                                  <div className="flex w-[106px] items-center justify-center px-2 border border-[#B6AAFF]  py-1 rounded-lg">
-                                    <span className="text-[#1800AC]">300g</span>
+                                  <div className="flex items-center gap-2">
+                                    {item.variantAttributes?.weight ? (
+                                      <div className="flex w-[106px] items-center justify-center px-2 border border-[#B6AAFF]  py-1 rounded-lg">
+                                        <span className="text-[#1800AC]">
+                                          {item.variantAttributes?.weight}
+                                        </span>
+                                      </div>
+                                    ) : (
+                                      "N/A"
+                                    )}
+                                    {item.variantColor ? (
+                                      <div className="flex w-[106px] items-center justify-center px-2 border border-[#B6AAFF]  py-1 rounded-lg">
+                                        <span className="text-[#1800AC]">
+                                          {item?.variantColor}
+                                        </span>
+                                      </div>
+                                    ) : (
+                                      "N/A"
+                                    )}
+
+                                    {item.variantName ? (
+                                      <div className="flex w-[106px] items-center justify-center px-2 border border-[#B6AAFF]  py-1 rounded-lg">
+                                        <span className="text-[#1800AC]">
+                                          {item.variantName}
+                                        </span>
+                                      </div>
+                                    ) : (
+                                      "N/A"
+                                    )}
                                   </div>
                                   <div className="flex w-[106px] items-center justify-between px-2 border-[#E8E8E8] ring-1 ring-[#E8E8E8] p-1 rounded-md transition-all ease-in">
                                     <button
                                       onClick={() =>
-                                        dispatch(decreaseQty(item))
+                                        handleUpdateQty(item._id, "dec")
                                       }
                                       className="w-4 h-4 flex items-center justify-center rounded-lg transition-colors"
                                     >
                                       {item.quantity === 1 ? (
-                                        <Trash2 />
+                                       <Minus />
                                       ) : (
                                         <Minus />
                                       )}
@@ -228,7 +289,7 @@ function Cart() {
                                     </span>
                                     <button
                                       onClick={() =>
-                                        dispatch(increaseQty(item))
+                                        handleUpdateQty(item._id, "inc")
                                       }
                                       className="w-4 h-4 flex items-center justify-center rounded-lg"
                                     >
@@ -272,12 +333,12 @@ function Cart() {
 
           {/* 
            Section */}
-          {totalItems > 0 && (
+          {cart?.totalQuantity > 0 && (
             <PriceDetails
-              totalItems={totalItems}
+              totalItems={cart?.totalQuantity}
               totalDiscount={totalDiscount}
-              totalPrice={totalPrice}
-              product={cartItems}
+              totalPrice={cart?.grandTotal}
+              product={cart?.items}
               step="cart"
               hasOutOfStock={hasOutOfStock}
             />
@@ -289,8 +350,8 @@ function Cart() {
             <Modal
               isOpen={isModalOpen}
               onClose={() => setIsModalOpen(false)}
-              onConfirm={() => {
-                dispatch(clearCart());
+              onConfirm={async () => {
+                await handleClearCart();
                 setIsModalOpen(false);
               }}
               title="Clear Cart?"

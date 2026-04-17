@@ -53,7 +53,6 @@ const AddProduct = () => {
 
   const [formData, setFormData] = useState(createInitialState);
   const [uploadingVariantIndex, setUploadingVariantIndex] = useState(null);
-  
 
   // variants
   const emptyVariant = () => ({
@@ -75,38 +74,41 @@ const AddProduct = () => {
     isSelected: false,
   });
   const addVariantRow = () => {
-  let productSKU = formData.SKU?.trim();
-  
-  // If no SKU exists, create one from product title
-  if (!productSKU && formData.productTittle) {
-    const words = formData.productTittle.trim().split(" ");
-    const initials = words.slice(0, 3).map((w) => w[0]?.toUpperCase()).join("");
+    let productSKU = formData.SKU?.trim();
+
+    // If no SKU exists, create one from product title
+    if (!productSKU && formData.productTittle) {
+      const words = formData.productTittle.trim().split(" ");
+      const initials = words
+        .slice(0, 3)
+        .map((w) => w[0]?.toUpperCase())
+        .join("");
+      const randomNum = Math.floor(100 + Math.random() * 900);
+      productSKU = `${initials}-ART-${randomNum}`;
+
+      // Update the main SKU in formData
+      setFormData((prev) => ({ ...prev, SKU: productSKU }));
+    }
+
+    if (!productSKU) {
+      toast.error("Please enter a product name first!", {
+        position: "top-right",
+        autoClose: 2000,
+      });
+      return;
+    }
+
     const randomNum = Math.floor(100 + Math.random() * 900);
-    productSKU = `${initials}-ART-${randomNum}`;
-    
-    // Update the main SKU in formData
-    setFormData(prev => ({ ...prev, SKU: productSKU }));
-  }
+    const newVariant = {
+      ...emptyVariant(),
+      variantSkuId: `${productSKU}-V-${randomNum}`,
+    };
 
-  if (!productSKU) {
-    toast.error("Please enter a product name first!", {
-      position: "top-right",
-      autoClose: 2000,
-    });
-    return;
-  }
-
-  const randomNum = Math.floor(100 + Math.random() * 900);
-  const newVariant = {
-    ...emptyVariant(),
-    variantSkuId: `${productSKU}-V-${randomNum}`,
+    setFormData((prev) => ({
+      ...prev,
+      variants: [...prev.variants, newVariant],
+    }));
   };
-
-  setFormData((prev) => ({
-    ...prev,
-    variants: [...prev.variants, newVariant],
-  }));
-};
 
   // const addVariantRow = () => {
   //   const productSKU = formData.SKU?.trim();
@@ -132,93 +134,97 @@ const AddProduct = () => {
   // };
 
   // edit product added new here(akash)
-const [isEditing, setIsEditing] = useState(false);
-const [productId, setProductId] = useState(null);
-const [loadingProduct, setLoadingProduct] = useState(false);
-// for editning status
-const [status, setStatus] = useState("active");
-// Fetch product for editing from API
-useEffect(() => {
-  const fetchProductForEdit = async () => {
-    if (!uuid) return;
-    
-    try {
-      setLoadingProduct(true);
-      const response = await axiosInstance.get(`/product/admin/get-product-details/${uuid}`);
-      console.log("Product to edit:", response.data);
-      
-      let productData = null;
-      if (response.data?.success && response.data?.data) {
-        productData = response.data.data;
-      } else if (response.data) {
-        productData = response.data;
-      }
-      
-      if (productData) {
-        let categoryId = "";
-        if (productData.category) {
-          if (typeof productData.category === 'object') {
-            categoryId = productData.category._id || productData.category.id || "";
-          } else {
-            categoryId = productData.category;
-          }
+  const [isEditing, setIsEditing] = useState(false);
+  const [productId, setProductId] = useState(null);
+  const [loadingProduct, setLoadingProduct] = useState(false);
+  // for editning status
+  const [status, setStatus] = useState("active");
+  // Fetch product for editing from API
+  useEffect(() => {
+    const fetchProductForEdit = async () => {
+      if (!uuid) return;
+
+      try {
+        setLoadingProduct(true);
+        const response = await axiosInstance.get(
+          `/product/admin/get-product-details/${uuid}`,
+        );
+        console.log("Product to edit:", response.data);
+
+        let productData = null;
+        if (response.data?.success && response.data?.data) {
+          productData = response.data.data;
+        } else if (response.data) {
+          productData = response.data;
         }
 
-        let subcategoryId = "";
-        if (productData.subcategory) {
-          if (typeof productData.subcategory === 'object') {
-            subcategoryId = productData.subcategory._id || productData.subcategory.id || "";
-          } else {
-            subcategoryId = productData.subcategory;
+        if (productData) {
+          let categoryId = "";
+          if (productData.category) {
+            if (typeof productData.category === "object") {
+              categoryId =
+                productData.category._id || productData.category.id || "";
+            } else {
+              categoryId = productData.category;
+            }
           }
+
+          let subcategoryId = "";
+          if (productData.subcategory) {
+            if (typeof productData.subcategory === "object") {
+              subcategoryId =
+                productData.subcategory._id || productData.subcategory.id || "";
+            } else {
+              subcategoryId = productData.subcategory;
+            }
+          }
+
+          const mappedVariants = productData.variants.map((variant) => ({
+            variantColor: variant.variantColor || "",
+            variantName: variant.variantName || "",
+            variantWeight: variant.variantWeight || "",
+            variantWeightUnit: variant.variantWeightUnit || "kg",
+            variantSkuId: variant.variantSkuId || "",
+            variantImage: variant.variantImage || [],
+            variantMrp: variant.variantMrp || "",
+            variantCostPrice: variant.variantCostPrice || "",
+            variantGST: variant.variantGST || "",
+            variantDiscount: variant.variantDiscount || "",
+            variantDiscountUnit: "%",
+            variantSellingPrice: variant.variantSellingPrice || "",
+            variantAvailableStock: variant.variantAvailableStock || "",
+            variantLowStockAlertStock: variant.variantLowStockAlertStock || "",
+            isSelected: variant.isSelected || false,
+          }));
+
+          setFormData({
+            productTittle: productData.productTittle || "",
+            description: productData.description || "",
+            status: productData.isActive ? "ACTIVE" : "INACTIVE",
+            category: categoryId,
+            subcategory: subcategoryId,
+            variants: mappedVariants,
+          });
+
+          setStatus(productData.isActive ? "active" : "inactive");
+
+          if (productData.SKU) {
+            setFormData((prev) => ({ ...prev, SKU: productData.SKU }));
+          }
+
+          setProductId(productData._id);
+          setIsEditing(true);
         }
-        
-        const mappedVariants = productData.variants.map(variant => ({
-          variantColor: variant.variantColor || "",
-          variantName: variant.variantName || "",
-          variantWeight: variant.variantWeight || "",
-          variantWeightUnit: variant.variantWeightUnit || "kg",
-          variantSkuId: variant.variantSkuId || "",
-          variantImage: variant.variantImage || [],
-          variantMrp: variant.variantMrp || "",
-          variantCostPrice: variant.variantCostPrice || "",
-          variantGST: variant.variantGST || "",
-          variantDiscount: variant.variantDiscount || "",
-          variantDiscountUnit: "%",
-          variantSellingPrice: variant.variantSellingPrice || "",
-          variantAvailableStock: variant.variantAvailableStock || "",
-          variantLowStockAlertStock: variant.variantLowStockAlertStock || "",
-          isSelected: variant.isSelected || false,
-        }));
-        
-        setFormData({
-          productTittle: productData.productTittle || "",
-          description: productData.description || "",
-          status: productData.isActive ? "ACTIVE" : "INACTIVE",
-          category: categoryId,    
-          subcategory: subcategoryId,
-          variants: mappedVariants,
-        });
-        
-        setStatus(productData.isActive ? "active" : "inactive");
-        
-        if (productData.SKU) {
-          setFormData(prev => ({ ...prev, SKU: productData.SKU }));
-        }
-        
-        setProductId(productData._id);
-        setIsEditing(true);
+      } catch (error) {
+        console.error("Error fetching product:", error);
+        toast.error("Failed to load product data");
+      } finally {
+        setLoadingProduct(false);
       }
-    } catch (error) {
-      console.error("Error fetching product:", error);
-      toast.error("Failed to load product data");
-    } finally {
-      setLoadingProduct(false);
-    }
-  };
-  
-  fetchProductForEdit();
-}, [uuid]);
+    };
+
+    fetchProductForEdit();
+  }, [uuid]);
 
   const handleButtonClick = () => {
     fileInputRef.current.click();
@@ -491,15 +497,15 @@ useEffect(() => {
     for (let i = 0; i < formData.variants.length; i++) {
       const variant = formData.variants[i];
 
-     const hasAnyVariantInput =
-  variant.variantColor?.trim() ||
-  variant.variantName?.trim() ||
-  String(variant.variantWeight || "").trim() ||
-  variant.variantSkuId?.trim() ||
-  String(variant.variantMrp || "").trim() ||
-  String(variant.variantSellingPrice || "").trim() ||
-  String(variant.variantLowStockAlertStock || "").trim() ||
-  (variant.variantImage && variant.variantImage.length > 0);
+      const hasAnyVariantInput =
+        variant.variantColor?.trim() ||
+        variant.variantName?.trim() ||
+        String(variant.variantWeight || "").trim() ||
+        variant.variantSkuId?.trim() ||
+        String(variant.variantMrp || "").trim() ||
+        String(variant.variantSellingPrice || "").trim() ||
+        String(variant.variantLowStockAlertStock || "").trim() ||
+        (variant.variantImage && variant.variantImage.length > 0);
 
       if (hasAnyVariantInput) {
         if (!variant.variantSkuId?.trim()) {
@@ -537,8 +543,8 @@ useEffect(() => {
       description: formData.description,
       category: formData.category,
       subcategory: formData.subcategory,
-       isActive: status === "active",
-    variants: formData.variants.map((v) => ({
+      isActive: status === "active",
+      variants: formData.variants.map((v) => ({
         variantColor: v.variantColor,
         variantName: v.variantName,
         variantWeight: v.variantWeight,
@@ -1239,7 +1245,7 @@ useEffect(() => {
                 </div>
               </div>
               <div className="flex flex-col space-y-3">
-                 {/* for status editing */} 
+                {/* for status editing */}
                 {isEditing && (
   <div
       style={{

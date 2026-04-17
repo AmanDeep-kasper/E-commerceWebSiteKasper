@@ -15,6 +15,7 @@ import {
   buyNow,
   decreaseQty,
   increaseQty,
+  setCartFromAPI,
 } from "../redux/cart/cartSlice";
 import { addToWishlist, removeFromWishlist } from "../redux/cart/wishlistSlice";
 import { getPrices } from "../utils/homePageUtils";
@@ -26,13 +27,13 @@ import "swiper/css/thumbs";
 import EmptyState from "../components/EmptyState";
 import axiosInstance from "../api/axiosInstance";
 import AddReviewsModel from "../components/AddReviewsModel";
+import { toast } from "react-toastify";
 
 function ProductDetails() {
   const { slugOrId } = useParams();
   // console.log("URL ID from useParams:", slugOrId);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
   const [product, setProduct] = useState(null);
   const [similarProducts, setSimilarProducts] = useState([]);
   const [selectedVariant, setSelectedVariant] = useState(null);
@@ -41,7 +42,11 @@ function ProductDetails() {
   const [selectedStyle, setSelectedStyle] = useState(null);
 
   const [selectedSize, setSelectedSize] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+  // const [isLoading, setIsLoading] = useState(true);
+
+  const [pageLoading, setPageLoading] = useState(true);
+  const [cartUpdating, setCartUpdating] = useState(false);
+
   const [mainImageIndex, setMainImageIndex] = useState(0);
   const [thumbsSwiper, setThumbsSwiper] = useState(null);
   const [totalCartItems, setTotalCartItems] = useState(0);
@@ -52,6 +57,20 @@ function ProductDetails() {
 
   const [openAddReviewModal, setOpenAddReviewModal] = useState(false);
   const [selectedReview, setSelectedReview] = useState(null);
+  const [localQty, setLocalQty] = useState(0);
+
+  const syncCartFromBackend = async () => {
+    try {
+      const res = await axiosInstance.get("/cart");
+      dispatch(setCartFromAPI(res.data.data));
+    } catch (err) {
+      console.error("Cart sync failed:", err);
+    }
+  };
+
+  useEffect(() => {
+    syncCartFromBackend();
+  }, []);
 
   const getSimilarProducts = (all, found, uuid) => {
     if (!found) return [];
@@ -86,18 +105,16 @@ function ProductDetails() {
     return list.slice(0, 10);
   };
 
-  // console.log(product); ///////aman
-
   // FETCH PRODUCT + SIMILAR PRODUCTS
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        setIsLoading(true);
+        setPageLoading(true);
 
         const res = await axiosInstance.get(`/product/${slugOrId}`);
         // console.log("API:", res.data);
 
-        const found = res.data.data; // ✅ DIRECT OBJECT
+        const found = res.data.data; // DIRECT OBJECT
 
         setProduct(found);
 
@@ -114,7 +131,7 @@ function ProductDetails() {
         console.error(err);
         setProduct(null);
       } finally {
-        setIsLoading(false);
+        setPageLoading(false);
       }
     };
 
@@ -124,7 +141,7 @@ function ProductDetails() {
   const getImageUrl = (img) => {
     if (!img) return "/placeholder.png";
 
-    // ✅ handle object
+    // handle object
     const imagePath = typeof img === "string" ? img : img?.url;
 
     if (!imagePath) return "/placeholder.png";
@@ -146,19 +163,37 @@ function ProductDetails() {
     });
   };
 
-  // ✅ SINGLE SOURCE OF TRUTH FOR VARIANT ID
+  // SINGLE SOURCE OF TRUTH FOR VARIANT ID
   const variantId = selectedVariant?.variantId || selectedVariant?._id;
 
   const inCart = useMemo(() => {
     if (!selectedVariant || !product) return false;
+
     return cartItems.some(
-      (i) => i.uuid === product.uuid && i.variantId === variantId,
+      (i) =>
+        String(i.productId || i.uuid) === String(product._id) &&
+        String(i.variantId) === String(variantId),
     );
-  }, [cartItems, product?.uuid, selectedVariant, variantId]);
+  }, [cartItems, product?._id, selectedVariant, variantId]);
 
   const qtyInCart =
-    cartItems.find((i) => i.uuid === product?.uuid && i.variantId === variantId)
-      ?.quantity || 0;
+    cartItems.find(
+      (i) =>
+        String(i.productId || i.uuid) === String(product?._id) &&
+        String(i.variantId) === String(variantId),
+    )?.quantity || 0;
+
+  useEffect(() => {
+    setLocalQty(qtyInCart);
+  }, [qtyInCart]);
+
+  const currentCartItem = cartItems.find(
+    (i) =>
+      String(i.productId || i.uuid) === String(product?._id) &&
+      String(i.variantId) === String(variantId),
+  );
+
+  const cartItemId = currentCartItem?._id;
 
   const weightOptions = [
     ...new Set(
@@ -223,11 +258,11 @@ function ProductDetails() {
   const stock = Number(selectedVariant?.variantAvailableStock || 0);
   const outOfStock = stock <= 0;
 
-  // ✅ IMPORTANT: this useEffect MUST be before any "return"
+  // IMPORTANT: this useEffect MUST be before any "return"
   useEffect(() => {
     if (!product?.variants?.length) return;
 
-    // ✅ don't overwrite if already selected from fetch or user action
+    // don't overwrite if already selected from fetch or user action
     if (selectedVariant) return;
 
     const v0 = product.variants[0];
@@ -242,7 +277,7 @@ function ProductDetails() {
   }, [product, thumbsSwiper, selectedVariant]);
 
   // IF LOADING
-  if (isLoading) {
+  if (pageLoading) {
     return (
       <>
         <Navbar />
@@ -387,6 +422,7 @@ function ProductDetails() {
 
               {/* Wishlist Button */}
               <button
+                type="button"
                 className="absolute bg-white shadow-md md:shadow-lg md:bg-white group-hover:block active:scale-110 transition-all ease-in-out duration-300 md:p-2 p-2 rounded-full text-xs top-1 right-1 z-20 cursor-default"
                 onClick={(e) => {
                   e.stopPropagation();
@@ -471,6 +507,7 @@ function ProductDetails() {
             )}
             {/* <div className="h-6 w-px bg-gray-300"></div>x
             <button
+            type="button"
               className="text-sm font-medium text-[#1C3753] hover:text-[#1C3753] transition-colors underline"
               onClick={() =>
                 document
@@ -517,6 +554,7 @@ function ProductDetails() {
                 <div className="flex gap-2 mt-2 flex-wrap">
                   {weightOptions.map((c) => (
                     <button
+                      type="button"
                       key={c}
                       className={`px-3 py-1 rounded-md border border-[#B6AAFF] text-sm
             ${selectedVariant?.variantWeight === c
@@ -546,6 +584,7 @@ function ProductDetails() {
                 <div className="flex gap-2 mt-2 flex-wrap">
                   {sizeOptions.map((s) => (
                     <button
+                      type="button"
                       key={s}
                       className={`px-3 py-1 rounded-md border border-[#B6AAFF] text-sm
             ${s === selectedVariant?.variantName
@@ -564,111 +603,133 @@ function ProductDetails() {
             <div className="flex gap-3 py-4 border-b">
               {outOfStock ? (
                 <button
+                  type="button"
                   disabled
                   className="px-6 py-2 bg-gray-300 text-gray-600 rounded-full cursor-not-allowed"
                 >
                   Out of Stock
                 </button>
               ) : inCart ? (
-                <>
-                  <div className="flex items-center gap-3 px-4 border-[#1C3753] ring-1 ring-[#1C3753]/50 shadow-md p-1 rounded-md transition-all ease-in ">
-                    {/* ➖ Decrease */}
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        dispatch(
-                          decreaseQty({ uuid: product.uuid, variantId }),
-                        );
-                      }}
-                      className="w-6 h-6 flex items-center justify-center"
-                      disabled={isLoading}
-                    >
-                      {qtyInCart === 1 ? (
-                        <Trash2 size={16} />
-                      ) : (
-                        <Minus size={16} />
-                      )}
-                    </button>
+                <div className="flex items-center gap-3 px-4 border-[#1C3753] ring-1 ring-[#1C3753]/50 shadow-md p-1 rounded-md transition-all ease-in">
+                  {/* Decrease */}
+                  <button
+                    type="button"
+                    onClick={async (e) => {
+                      e.stopPropagation();
 
-                    {/* Quantity */}
-                    <span className="w-6 text-center">{qtyInCart}</span>
+                      if (!cartItemId) {
+                        toast.error("Cart item not found");
+                        return;
+                      }
 
-                    {/*  Increase */}
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        dispatch(
-                          increaseQty({ uuid: product.uuid, variantId }),
+                      const previousQty = localQty;
+                      const nextQty = Math.max(localQty - 1, 0);
+                      setLocalQty(nextQty);
+
+                      try {
+                        await axiosInstance.patch("/cart/update-item", {
+                          itemId: cartItemId,
+                          action: "dec",
+                        });
+
+                        await syncCartFromBackend();
+                      } catch (err) {
+                        console.error(err);
+                        setLocalQty(previousQty);
+                        toast.error(
+                          err?.response?.data?.message ||
+                            "Failed to update cart",
                         );
-                      }}
-                      className="w-6 h-6 flex items-center justify-center"
-                      disabled={isLoading}
-                    >
-                      <Plus size={16} />
-                    </button>
-                  </div>
-                </>
+                      }
+                    }}
+                    className="w-6 h-6 flex items-center justify-center"
+                    disabled={cartUpdating}
+                  >
+                    {localQty === 1 ? (
+                      <Trash2 size={16} />
+                    ) : (
+                      <Minus size={16} />
+                    )}
+                  </button>
+
+                  {/* Quantity */}
+                  {/* <span className="w-6 text-center">{qtyInCart}</span> */}
+                  <span className="w-6 text-center">{localQty}</span>
+
+                  {/* Increase */}
+                  <button
+                    type="button"
+                    onClick={async (e) => {
+                      e.stopPropagation();
+
+                      if (!cartItemId) {
+                        toast.error("Cart item not found");
+                        return;
+                      }
+
+                      const previousQty = localQty;
+                      setLocalQty((prev) => prev + 1);
+
+                      try {
+                        await axiosInstance.patch("/cart/update-item", {
+                          itemId: cartItemId,
+                          action: "inc",
+                        });
+
+                        await syncCartFromBackend();
+                      } catch (err) {
+                        console.error(err);
+                        setLocalQty(previousQty);
+                        toast.error(
+                          err?.response?.data?.message ||
+                            "Failed to update cart",
+                        );
+                      }
+                    }}
+                    className="w-6 h-6 flex items-center justify-center"
+                    disabled={cartUpdating}
+                  >
+                    <Plus size={16} />
+                  </button>
+                </div>
               ) : (
-                // add on cart
                 <button
-                  onClick={() => {
-                    console.log("ADDING TO CART:", {
-                      uuid: product.uuid,
-                      variantId,
-                      selectedVariant,
-                    });
+                  type="button"
+                  onClick={async () => {
+                    try {
+                      setCartUpdating(true);
 
-                    const { base, effective, discountPercent } =
-                      getPrices(product);
+                      await axiosInstance.post("/cart/add-to-cart", {
+                        productId: product._id,
+                        variantId,
+                        quantity: 1,
+                      });
 
-                    setIsLoading(true);
-                    setTimeout(() => {
-                      dispatch(
-                        addToCart({
-                          uuid: product.uuid,
-                          variantId,
-                          title: product.title,
-
-                          basePrice: base,
-                          effectivePrice: effective,
-                          discountPercent,
-
-                          stockQuantity:
-                            selectedVariant.variantQuantity ?? 999999,
-
-                          image:
-                            selectedVariant.variantImage?.[0] ||
-                            "/placeholder.png",
-
-                          deliverBy: product.deliverBy,
-
-                          selectedOptions: {
-                            color: selectedVariant.color,
-                            type: selectedVariant.variantType,
-                            dimension: selectedVariant.variantValue,
-                          },
-                        }),
-                      );
-
-                      setIsLoading(false);
-                    }, 200);
+                      await syncCartFromBackend();
+                      toast.success("Add To Cart");
+                    } catch (err) {
+                      console.error(err);
+                      toast.error("Failed to add to cart");
+                    } finally {
+                      setCartUpdating(false);
+                    }
                   }}
-                  disabled={isLoading}
+                  disabled={pageLoading}
                   className="px-6 py-2 bg-[#F6F8F9] hover:bg-[#0C0057] hover:text-white 
-transform transition-all duration-200 ease-in-out 
-hover:scale-105 text-[#0C0057] border border-[#0C0057] rounded-md"
+      transform transition-all duration-200 ease-in-out 
+      hover:scale-105 text-[#0C0057] border border-[#0C0057] rounded-md"
                 >
-                  {isLoading ? "Adding..." : "Add to Cart"}
+                  {pageLoading ? "Adding..." : "Add to Cart"}
                 </button>
               )}
 
-              {/* 🛒 Buy Now */}
               <button
+                type="button"
                 className="px-6 py-2 bg-[#0C0057] text-white hover:bg-[white] hover:text-[#0C0057] 
-transform transition-all duration-200 ease-in-out 
-hover:scale-105 border border-[#1C3753] rounded-md"
+    transform transition-all duration-200 ease-in-out 
+    hover:scale-105 border border-[#1C3753] rounded-md"
                 onClick={() => handleBuyNow(product, selectedVariant)}
-                disabled={outOfStock || isLoading}
+                disabled={outOfStock || pageLoading}
               >
                 Buy now
               </button>
