@@ -620,7 +620,7 @@ const handleAddCollection = async () => {
 
                             {activeFilter === "status" && (
                                 <div className="absolute mt-2 bg-white border rounded shadow w-40 z-20">
-                                    {["All", "Active", "Inactive"].map((s) => (
+                                    {["", "Active", "Inactive"].map((s) => (
                                         <div
                                             key={s}
                                             onClick={() => {
