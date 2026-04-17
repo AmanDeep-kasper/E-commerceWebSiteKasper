@@ -9,7 +9,7 @@ const EmptyState = ({
   onClick, // optional
 }) => {
   const buttonClasses =
-    "inline-block bg-gradient-to-r from-[#1C3753] to-[#1C3753] hover:from-[#1C3753] hover:to-[#1C3753] \
+    "inline-block bg-[#1800AC] hover:from-[#1C3753] hover:to-[#1C3753] \
      text-white rounded-lg md:px-8 md:py-3 px-4 py-2 text-sm md:text-base font-medium transition-all shadow-md hover:shadow-lg";
 
   return (

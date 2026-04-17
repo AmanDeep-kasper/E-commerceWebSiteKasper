@@ -10,6 +10,7 @@ import {
   LogIn,
   ChevronRight,
   X,
+  Component,
 } from "lucide-react";
 
 import { useEffect, useState } from "react";
@@ -25,6 +26,7 @@ const accountDetails = [
   { listName: "Manage Addresses", listIcon: MapPinHouse, path: "/addresses" },
   { listName: "Support & Help", listIcon: Headset, path: "/support" },
   { listName: "Rating & Reviews", listIcon: Star, path: "/reviews" },
+  { listName: "Reward Points" ,listIcon: Component , path: "/reward"}
 ];
 
 function UserProfile({ setIsProfileOpen }) {
