@@ -2,16 +2,12 @@ import Review from "../models/Review.js";
 import Product from "../models/Product.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import AppError from "../utils/AppError.js";
-import {
-  uploadImageToCloudinary,
-  deleteImageFromCloudinary,
-} from "../utils/cloudinary.js";
+import { uploadToCloudinary, deleteFromCloudinary } from "../utils/uploader.js";
 
 export const addReview = asyncHandler(async (req, res) => {
   const { rating, reviewText } = req.body;
   const { productId } = req.params;
   const userId = req.user?.userId;
-  const reviewImages = req.files;
 
   const product = await Product.findById(productId);
 
@@ -34,16 +30,25 @@ export const addReview = asyncHandler(async (req, res) => {
 
   // uplaod images to cloudinary
   const uploadedImages = [];
-  if (reviewImages) {
-    for (const image of reviewImages) {
-      const result = await uploadImageToCloudinary(image.path, "reviews");
+  if (req.files && req.files.length > 0) {
+    for (const file of req.files) {
+      const resourceType = file.mimetype.startsWith("video")
+        ? "video"
+        : "image";
+
+      const result = await uploadToCloudinary(
+        file.buffer,
+        resourceType,
+        resourceType === "image" ? "review-images" : "review-videos",
+        file.originalname,
+      );
+
       uploadedImages.push({
         url: result.url,
         publicId: result.publicId,
       });
     }
   }
-
   // create review
   const review = await Review.create({
     productId,
@@ -206,7 +211,7 @@ export const updateReview = asyncHandler(async (req, res) => {
   if (removeImages && Array.isArray(removeImages)) {
     // delete from cloudinary (parallel for speed)
     await Promise.all(
-      removeImages.map((publicId) => deleteImageFromCloudinary(publicId)),
+      removeImages.map((publicId) => deleteFromCloudinary(publicId)),
     );
 
     // remove from DB
@@ -218,7 +223,14 @@ export const updateReview = asyncHandler(async (req, res) => {
   // ADD MULTIPLE IMAGES
   if (req.files && req.files.length > 0) {
     const uploadedImages = await Promise.all(
-      req.files.map((file) => uploadImageToCloudinary(file.path, "reviews")),
+      req.files.map((file) =>
+        uploadToCloudinary(
+          file.buffer,
+          file.mimetype.startsWith("video") ? "video" : "image",
+          file.mimetype.startsWith("video") ? "review-videos" : "review-images",
+          file.originalname,
+        ),
+      ),
     );
 
     const formattedImages = uploadedImages.map((img) => ({
@@ -277,7 +289,7 @@ export const deleteReview = asyncHandler(async (req, res) => {
   // delete images from cloudinary if exist
   if (review.reviewImages) {
     for (const image of review.reviewImages) {
-      await deleteImageFromCloudinary(image.publicId);
+      await deleteFromCloudinary(image.publicId);
     }
   }
 
