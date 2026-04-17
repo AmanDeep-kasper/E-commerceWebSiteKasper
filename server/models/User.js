@@ -37,7 +37,6 @@ const userSchema = new mongoose.Schema(
     phoneNumber: {
       type: String,
       sparse: true,
-      unique: true,
       trim: true,
       match: [/^[6-9]\d{9}$/, "Please provide a valid phone number"],
     },
@@ -158,7 +157,7 @@ userSchema.methods.incrementLoginAttempts = async function () {
 
   const updates = { $inc: { loginAttempts: 1 } };
   if (this.loginAttempts + 1 >= 5) {
-    updates.$set = { lockUntil: new Date(Date.now() + 30 * 60 * 1000) };
+    updates.$set = { lockUntil: new Date(Date.now() + 5 * 60 * 1000) };
   }
 
   return await this.updateOne(updates);
