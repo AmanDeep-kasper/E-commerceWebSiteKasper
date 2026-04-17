@@ -186,7 +186,7 @@ function ContactSection() {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-700">Email</p>
-                  <p className="text-sm text-gray-500">support@example.com</p>
+                  <p className="text-sm text-gray-500">happyartsupplies@gmail.com</p>
                 </div>
               </div>
 
@@ -196,7 +196,7 @@ function ContactSection() {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-700">Phone</p>
-                  <p className="text-sm text-gray-500">+91 98765 43210</p>
+                  <p className="text-sm text-gray-500">(+91) 98868 94723</p>
                 </div>
               </div>
 
@@ -206,7 +206,7 @@ function ContactSection() {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-700">Address</p>
-                  <p className="text-sm text-gray-500">Mumbai, India</p>
+                  <p className="text-sm text-gray-500">B402, Unites Crossandra, Hormavu Agara Lake Road Horamavu, Bengaluru 560043, Karnataka, India</p>
                 </div>
               </div>
 
@@ -222,10 +222,10 @@ function ContactSection() {
                 </div>
               </div> */}
             </div>
-
+{/* 
             <div className="text-xs text-[#686868] mt-4 text-center">
               We typically respond within 24 hours
-            </div>
+            </div> */}
           </div>
         </div>
       </div>
