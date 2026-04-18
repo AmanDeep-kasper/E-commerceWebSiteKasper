@@ -13,7 +13,7 @@ import {
 import { Link } from "react-router-dom";
 import Footer from "../sections/Footer";
 import Navbar from "../components/Navbar";
-import { addToWishlist } from "../redux/cart/wishlistSlice";
+import { addToWishlist, setWishlistFromAPI } from "../redux/cart/wishlistSlice";
 import { formatPrice, getPrices } from "../utils/homePageUtils";
 import Modal from "../components/Modal";
 import EmptyState from "../components/EmptyState";
@@ -34,19 +34,25 @@ function Cart() {
 
   const dispatch = useDispatch();
   const closeDialog = () => setOpen(false);
+  const syncWishlistFromBackend = async () => {
+    try {
+      const res = await axiosInstance.get("/wishlist");
+      dispatch(setWishlistFromAPI(res.data.data));
+    } catch (err) {
+      console.error("Failed to sync wishlist:", err);
+    }
+  };
 
   const moveToWishlist = async (item) => {
     const previousCart = cart;
 
     try {
       const promise = (async () => {
-        // 1. Add to wishlist
         await axiosInstance.post("/wishlist/add-to-wishlist", {
           productId: item.product || item.productId || item.uuid,
           variantId: item.variantId,
         });
 
-        // 2. Remove from cart
         const removeRes = await axiosInstance.delete(
           `/cart/remove-item/${item._id}`,
         );
@@ -64,13 +70,13 @@ function Cart() {
         },
       });
 
-      // 3. Update UI + Redux
       setCart(res.data.data);
       dispatch(setCartFromAPI(res.data.data));
+
+      await syncWishlistFromBackend();
     } catch (err) {
       console.error(err);
 
-      // rollback
       setCart(previousCart);
       if (previousCart) {
         dispatch(setCartFromAPI(previousCart));
@@ -370,7 +376,7 @@ function Cart() {
                               <div className="mt-2 text-xs text-gray-500 mb-4">
                                 inclusive of all taxes
                               </div>
-                              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                              <div className="flex  flex-col sm:flex-row sm:items-center justify-between gap-3">
                                 {/* Left Section */}
                                 <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full">
                                   {/* Variant Info */}
@@ -425,25 +431,24 @@ function Cart() {
                                     </button>
                                   </div>
                                 </div>
+                                  {/* Actions */}
+                                  <div className="flex w-[20%] items-center gap-2 text-sm font-medium">
+                                    <button
+                                      className="text-[#0C0057]"
+                                      onClick={() => handleRemoveItem(item)}
+                                    >
+                                      Remove
+                                    </button>
 
-                                {/* Actions */}
-                                <div className="flex items-center gap-3 text-sm font-medium">
-                                  <button
-                                    className="text-[#0C0057]"
-                                    onClick={() => handleRemoveItem(item)}
-                                  >
-                                    Remove
-                                  </button>
+                                    <span className="hidden sm:inline">|</span>
 
-                                  <span className="hidden sm:inline">|</span>
-
-                                  <button
-                                    className="text-[#0C0057]"
-                                    onClick={() => moveToWishlist(item)}
-                                  >
-                                    Save for later
-                                  </button>
-                                </div>
+                                    <button
+                                      className="text-[#0C0057]"
+                                      onClick={() => moveToWishlist(item)}
+                                    >
+                                      Save later
+                                    </button>
+                                  </div>
                               </div>
                             </div>
                           </div>

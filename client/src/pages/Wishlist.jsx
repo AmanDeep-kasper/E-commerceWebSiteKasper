@@ -82,12 +82,12 @@ function Wishlist() {
     }
   };
 
-  const moveAllToCart = (wishlistItems) => {
-    wishlistItems.forEach((item) => {
-      dispatch(addToCart(item));
-    });
-    dispatch(clearWishlist());
-  };
+  // const moveAllToCart = (wishlistItems) => {
+  //   wishlistItems.forEach((item) => {
+  //     dispatch(addToCart(item));
+  //   });
+  //   dispatch(clearWishlist());
+  // };
 
   // Detect out of stock items
   const outOfStockItems = wishlistItems.filter(
@@ -118,6 +118,12 @@ function Wishlist() {
       }));
 
       setApiWishlist(formatted);
+
+      dispatch(
+        setWishlistFromAPI({
+          items,
+        }),
+      );
     } catch (error) {
       console.error("Error fetching wishlist:", error);
     }
@@ -126,6 +132,50 @@ function Wishlist() {
   useEffect(() => {
     fetchWishlist();
   }, []);
+
+  const handleClearWishlist = async () => {
+    try {
+      await toast.promise(
+        await axiosInstance.delete("/wishlist/clear-wishlist"),
+        setApiWishlist([]),
+        dispatch(
+          setWishlistFromAPI({
+            items: [],
+          }),
+        ),
+        {
+          pending: "Clearing wishlist...",
+          success: "Wishlist cleared",
+          error: {
+            render({ data }) {
+              return (
+                data?.response?.data?.message || "Failed to clear wishlist"
+              );
+            },
+          },
+        },
+      );
+    } catch (error) {
+      console.error("Error clearing wishlist:", error);
+    }
+  };
+
+  const moveAllToCart = async () => {
+    try {
+      const res = await axiosInstance.post("/wishlist/move-to-cart-all");
+
+      dispatch(setCartFromAPI(res.data.data));
+
+      setApiWishlist([]);
+      dispatch(
+        setWishlistFromAPI({
+          items: [],
+        }),
+      );
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   return (
     <div className="mt-5 w-full bg-white rounded-lg shadow-sm md:border border-gray-200">
@@ -284,7 +334,7 @@ function Wishlist() {
                     : "bg-[#1C3753] text-white hover:bg-black"
                 }`}
                 disabled={hasOutOfStock}
-                onClick={() => !hasOutOfStock && moveAllToCart(wishlistItems)}
+                onClick={() => !hasOutOfStock && moveAllToCart()}
               >
                 <ShoppingCart size={16} />
                 Move All to Cart
@@ -308,8 +358,8 @@ function Wishlist() {
           <Modal
             isOpen={isModalOpen}
             onClose={() => setIsModalOpen(false)}
-            onConfirm={() => {
-              dispatch(clearWishlist());
+            onConfirm={async () => {
+              await handleClearWishlist();
               setIsModalOpen(false);
             }}
             title="Clear Wishlist?"
