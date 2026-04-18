@@ -122,8 +122,22 @@ export const toggleTransporter = asyncHandler(async (req, res) => {
 
   res.status(200).json({
     success: true,
-    message: `"Transporter ${transporter.isActive ? "activated" : "deactivated"}  successfully"`,
+    message: `Transporter ${transporter.isActive ? "activated" : "deactivated"}  successfully`,
   });
 });
 
-export const getTransporter = asyncHandler(async (req, res) => {});
+export const getTransporterDetails = asyncHandler(async (req, res) => {
+  const { transporterId } = req.params;
+
+  const transporter = await Transporter.findById(transporterId).lean();
+
+  if (!transporter) {
+    throw AppError.notFound("Transporter not found", "NOT_FOUND");
+  }
+
+  res.status(200).json({
+    success: true,
+    message: "Transporter fetched successfully",
+    transporter,
+  });
+});
