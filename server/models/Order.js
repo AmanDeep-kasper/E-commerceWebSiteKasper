@@ -31,7 +31,7 @@ const OrderItemSchema = new mongoose.Schema(
     // Individual item status (for partial returns / cancellations)
     status: {
       type: String,
-      enum: ["active", "cancelled", "returned", "refunded", "exchanged"],
+      enum: ["active", "cancelled", "refunded"],
       default: "active",
     },
   },
@@ -88,13 +88,13 @@ const OrderSchema = new mongoose.Schema(
 
     paymentMethod: {
       type: String,
-      enum: ["razorpay", "cod", "wallet"],
+      enum: ["razorpay"],
       required: true,
     },
 
     paymentStatus: {
       type: String,
-      enum: ["pending", "paid", "failed", "refunded", "partially_refunded"],
+      enum: ["pending", "paid", "failed", "refunded"],
       default: "pending",
       index: true,
     },
@@ -107,50 +107,12 @@ const OrderSchema = new mongoose.Schema(
         "confirmed",
         "processing",
         "shipped",
-        "out_for_delivery",
         "delivered",
         "cancelled",
-        "return_requested",
-        "return_rejected",
-        "exchange_requested",
-        "exchange_rejected",
-        "exchange_accepted",
-        "exchanged",
-        "return_picked",
         "refunded",
       ],
       default: "placed",
       index: true,
-    },
-
-    returnRequest: {
-      requestedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-      requestedAt: Date,
-      approvedAt: Date,
-      approvedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-      reason: String,
-      returnImage: String,
-      status: {
-        type: String,
-        enum: ["pending", "approved", "rejected"],
-        default: "pending",
-      },
-      note: String,
-    },
-
-    exchangeRequest: {
-      requestedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-      requestedAt: Date,
-      approvedAt: Date,
-      approvedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-      reason: String,
-      exchangeImage: String,
-      status: {
-        type: String,
-        enum: ["pending", "approved", "rejected"],
-        default: "pending",
-      },
-      note: String,
     },
 
     // Shipping / logistics
@@ -158,26 +120,12 @@ const OrderSchema = new mongoose.Schema(
       carrier: String, // "Delhivery", "BlueDart", etc.
       trackingNumber: String,
       trackingUrl: String,
-      estimatedDelivery: Date,
-      shippedAt: Date,
-      deliveredAt: Date,
     },
 
     // Timestamps
     placedAt: { type: Date, default: Date.now },
-    confirmedAt: Date,
-    processingAt: Date,
-    shippedAt: Date,
-    outForDeliveryAt: Date,
     deliveredAt: Date,
     cancelledAt: Date,
-    returnedAt: Date,
-    exchangedAt: Date,
-    refundedAt: Date,
-
-    // COD specific
-    isCOD: { type: Boolean, default: false },
-    codCollected: { type: Boolean, default: false },
   },
   { timestamps: true, versionKey: false },
 );

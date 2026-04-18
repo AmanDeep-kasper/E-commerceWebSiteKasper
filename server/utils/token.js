@@ -11,7 +11,7 @@ export const generateAccessToken = (userId, role, sessionId) => {
   const tokenId = crypto.randomBytes(16).toString("hex");
 
   return jwt.sign({ userId, role, tokenId, sessionId }, env.JWT_ACCESS_SECRET, {
-    expiresIn: env.JWT_ACCESS_EXPIRATION || "15m",
+    expiresIn: env.JWT_ACCESS_EXPIRATION || "3m",
     issuer: env.JWT_ISSUER,
     audience: env.JWT_AUDIENCE,
     algorithm: "HS256",
@@ -52,7 +52,7 @@ export const generateAuthTokens = async (userId, role, req = null) => {
     accessToken,
     refreshToken,
     sessionId,
-    expiresIn: env.JWT_ACCESS_EXPIRATION || "15m",
+    expiresIn: env.JWT_ACCESS_EXPIRATION || "3m",
     tokenType: "Bearer",
   };
 };

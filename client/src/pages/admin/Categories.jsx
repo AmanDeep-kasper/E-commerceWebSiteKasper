@@ -25,7 +25,10 @@ const Products = () => {
     try {
       setLoading(true);
 
-      const res = await productService.getAllCategories(page, itemsPerPage);
+      const res = await productService.getAllCategoriesAdmin(
+        page,
+        itemsPerPage,
+      );
 
       setProduct(Array.isArray(res.data) ? res.data : []);
       setTotalPages(res.pagination?.pages || 1);

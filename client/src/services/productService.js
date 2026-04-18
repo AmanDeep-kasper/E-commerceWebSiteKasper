@@ -67,7 +67,19 @@ const getAllCategories = async (page = 1, limit = 10) => {
   };
 };
 
+// admin
+const getAllCategoriesAdmin = async (page = 1, limit = 10) => {
+  const res = await axiosInstance.get(
+    `/category/admin/all-categories?page=${page}&limit=${limit}`,
+  ); // Add pagination parameters
+  return {
+    data: res?.data?.category || res?.data?.data || [],
+    pagination: res?.data?.pagination || {},
+  };
+};
+
 const productService = {
+  getAllCategoriesAdmin,
   getAllProducts,
   getAllCategories,
   getProductsByCategory,

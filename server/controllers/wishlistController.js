@@ -79,6 +79,7 @@ export const addProductToWishlist = asyncHandler(async (req, res) => {
     productTitle: product.productTittle,
     variantName: variantData.variantName,
     variantColor: variantData.variantColor,
+    variantAvailableStock: variantData.variantAvailableStock,
 
     variantAttributes: {
       weight: `${variantData.variantWeight}${variantData.variantWeightUnit}`,
@@ -266,6 +267,7 @@ export const moveToCart = asyncHandler(async (req, res) => {
     productTitle: item.productTitle,
     variantName: item.variantName,
     variantColor: item.variantColor,
+    variantAvailableStock: variantData.variantAvailableStock,
 
     variantAttributes: item.variantAttributes || {},
 
@@ -409,6 +411,7 @@ export const moveToCartAll = asyncHandler(async (req, res) => {
         productTitle: item.productTitle,
         variantName: item.variantName,
         variantColor: item.variantColor,
+        variantAvailableStock: variantData.variantAvailableStock,
 
         variantAttributes: item.variantAttributes || {},
 

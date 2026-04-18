@@ -48,7 +48,7 @@ router.post(
 );
 router.post(
   "/login",
-  loginLimiter,
+  // loginLimiter,
   loginValidation,
   validateRequest,
   loginUser,

@@ -30,6 +30,7 @@ import warehouseRouter from "./routes/admin/warehouseRoutes.js";
 import policyRouter from "./routes/admin/policyRoutes.js";
 import shippingRouter from "./routes/admin/shippingRoutes.js";
 import bannerRouter from "./routes/admin/bannerRoutes.js";
+import transportRouter from "./routes/admin/transportRoutes.js";
 
 // ================== MIDDLEWARES ==================
 import { errorHandler, notFoundHandler } from "./middlewares/errorHandler.js";
@@ -81,7 +82,7 @@ app.use((req, _res, next) => {
 if (env.NODE_ENV === "production") {
   app.set("trust proxy", 1);
 }
-app.use(globalLimiter);
+// app.use(globalLimiter);
 app.use(speedLimiter);
 
 // ================== BODY PARSING ==================
@@ -119,6 +120,7 @@ app.use("/api/v1/dashboard/warehouse", warehouseRouter);
 app.use("/api/v1/dashboard/policy", policyRouter);
 app.use("/api/v1/dashboard/shipping", shippingRouter);
 app.use("/api/v1/dashboard/banner", bannerRouter);
+app.use("/api/v1/dashboard/transport", transportRouter);
 
 // ================== ERROR HANDLING ==================
 app.use(notFoundHandler);

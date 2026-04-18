@@ -59,6 +59,8 @@ export const addToCart = asyncHandler(async (req, res) => {
     productTitle: product.productTittle,
     variantName: variant.variantName,
     variantColor: variant.variantColor,
+    variantAvailableStock: variant.variantAvailableStock,
+
 
     variantAttributes: {
       weight: `${variant.variantWeight}${variant.variantWeightUnit}`,
