@@ -82,13 +82,6 @@ function Wishlist() {
     }
   };
 
-  // const moveAllToCart = (wishlistItems) => {
-  //   wishlistItems.forEach((item) => {
-  //     dispatch(addToCart(item));
-  //   });
-  //   dispatch(clearWishlist());
-  // };
-
   // Detect out of stock items
   const outOfStockItems = wishlistItems.filter(
     (item) => (item.stockQuantity ?? 0) <= 0,
@@ -135,26 +128,18 @@ function Wishlist() {
 
   const handleClearWishlist = async () => {
     try {
-      await toast.promise(
-        await axiosInstance.delete("/wishlist/clear-wishlist"),
-        setApiWishlist([]),
-        dispatch(
-          setWishlistFromAPI({
-            items: [],
-          }),
-        ),
-        {
-          pending: "Clearing wishlist...",
-          success: "Wishlist cleared",
-          error: {
-            render({ data }) {
-              return (
-                data?.response?.data?.message || "Failed to clear wishlist"
-              );
-            },
+      await toast.promise(axiosInstance.delete("/wishlist/clear-wishlist"), {
+        pending: "Clearing wishlist...",
+        success: "Wishlist cleared",
+        error: {
+          render({ data }) {
+            return data?.response?.data?.message || "Failed to clear wishlist";
           },
         },
-      );
+      });
+
+      setApiWishlist([]);
+      dispatch(setWishlistFromAPI({ items: [] }));
     } catch (error) {
       console.error("Error clearing wishlist:", error);
     }

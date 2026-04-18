@@ -160,7 +160,7 @@ function ContactSection() {
               {/* Submit */}
               <button
                 type="submit"
-                className="w-full md:w-auto px-6 py-3 text-sm font-medium bg-[#1800AC] text-white rounded-lg shadow-sm hover:bg-black transition flex items-center justify-center"
+                className="w-full md:w-auto px-6 py-3 text-sm font-medium bg-[#1800AC] text-white rounded-lg shadow-sm transition flex items-center justify-center"
               >
                 <Send className="w-4 h-4 mr-2" />
                 Submit

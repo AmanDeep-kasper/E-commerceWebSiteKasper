@@ -11,10 +11,10 @@ function Breadcrumbs({ category, subcategory, title }) {
   // console.log("Breadcrumbs received:", { category, subcategory, title });
   return (
     <nav
-      className="flex lg:px-20 md:px-[60px] px-3 py-3 bg-[#F6F8F9]"
+      className="flex lg:px-20 md:px-[60px] px-3 py-3 bg-gray-100 border-b border-gray-200"
       aria-label="Breadcrumb"
     >
-      <ol className="inline-flex items-center text-sm sm:text-[16px] space-x-1 sm:space-x-2 rtl:space-x-reverse overflow-x-auto max-w-full scrollbar-hide">
+      <ol className="inline-flex items-center text-sm space-x-2">
         {/* Home */}
         <li className="inline-flex items-center flex-shrink-0">
           <Link to="/home" className="inline-flex items-center text-gray-600">
