@@ -150,7 +150,7 @@ function Address() {
         </div>
         <button
           onClick={() => setOpen(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-[#1800AC] text-white rounded-lg hover:bg-[#1C3753]/90 transition-all shadow-sm"
+          className="flex items-center gap-2 px-4 py-2 bg-[#1800AC] text-white rounded-lg transition-all shadow-sm"
         >
           <Plus size={18} />
           <span>Add New Address</span>

@@ -92,7 +92,7 @@ function OrderHistory() {
             <input
               type="text"
               placeholder="Search your orders..."
-              className="outline-none bg-transparent w-64 ml-2 text-gray-700 placeholder-[#686868] text-xs sm:text-sm"
+              className="outline-none bg-transparent w-fit ml-2 text-gray-700 placeholder-[#686868] text-xs sm:text-sm"
               value={param}
               onChange={(e) => setParam(e.target.value)}
             />
@@ -100,7 +100,7 @@ function OrderHistory() {
 
           {/* Filter Button - Desktop */}
           <button
-            className="hidden sm:flex items-center justify-center py-2 px-5 text-xs sm:text-sm hover:text-white border border-[#212121] hover:bg-[#212121] rounded-full transition-colors shadow-sm"
+            className="hidden sm:flex items-center justify-center py-2 px-5 text-xs sm:text-sm bg-[#1800AC] rounded-full transition-colors shadow-sm text-white"
             onClick={() => setIsFilterOpen(!isFilterOpen)}
           >
             <ListFilter className="w-4 h-4 mr-2" />
