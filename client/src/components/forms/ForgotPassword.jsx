@@ -5,6 +5,7 @@ import { Mail, ArrowLeft, Star, Shield, Send } from "lucide-react";
 import userService from "../../services/userService";
 import MainLog from "../../assets/IconsUsed/HomeMainLogo.png";
 import SideImg from "../../assets/FirstPageVideo/RestImg.png";
+import { MdLockReset } from "react-icons/md";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
@@ -84,15 +85,15 @@ const ForgotPassword = () => {
                   />
                 </div> */}
                 {/* <h1 className="text-2xl font-bold text-gray-900">LaserCut</h1> */}
-                 <img src={MainLog} alt="lazercut" />
+                <img src={MainLog} alt="lazercut" />
               </div>
               <p className="text-gray-600">Reset your password securely</p>
             </div>
 
             {/* Form Header */}
             <div className="text-center mb-8">
-              <div className="bg-blue-50 p-3 rounded-full w-12 h-12 mx-auto mb-4 flex items-center justify-center">
-                <Shield className="w-6 h-6 text-blue-600" />
+              <div className="bg-[#F0EEFF] p-3 rounded-full w-12 h-12 mx-auto mb-4 flex items-center justify-center">
+                <MdLockReset className="w-6 h-6 text-blue-600" />
               </div>
               <h2 className="text-3xl font-bold text-gray-900">
                 Forgot Password?
@@ -127,22 +128,28 @@ const ForgotPassword = () => {
                     disabled={loading}
                   />
                   <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  {errors.email && (
+                  {/* {errors.email && (
                     <p className="text-xs text-red-500 absolute right-50 top-full mt-1">
                       {errors.email}
                     </p>
-                  )}
+                  )} */}
                 </div>
-                <p className="text-xs text-gray-500 mt-2">
-                  Enter the email address associated with your account
-                </p>
+                {errors.email ? (
+                  <p className="text-xs text-red-500 mt-2">
+                    {errors.email}
+                  </p>
+                ) : (
+                  <p className="text-xs text-gray-500 mt-2">
+                    Enter the email address associated with your account
+                  </p>
+                )}
               </div>
 
               {/* Submit Button */}
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-[#1800AC] text-[#FFFFFF] hover:bg-[#1C3753] hover:text-white disabled:bg-gray-400 py-3 px-4 rounded-lg font-semibold transition-all duration-200 transform hover:scale-[1.02] disabled:scale-100 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full bg-[#1800AC] text-[#FFFFFF] hover:bg-[#1800AC] hover:text-white disabled:bg-gray-400 py-3 px-4 rounded-lg font-semibold transition-all duration-200 transform hover:scale-[1.02] disabled:scale-100 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {loading ? (
                   <>
@@ -160,13 +167,12 @@ const ForgotPassword = () => {
               {/* Support Info */}
               <div className="text-center mt-8 pt-6 border-t border-gray-200">
                 <p className="text-gray-600 text-sm">
-                  Need help?{" "}
-                  <Link
-                    to="/contact"
+                  Need help?
+                  <span
                     className="text-amber-600 hover:text-amber-700 font-medium"
-                  >
-                    Contact support
-                  </Link>
+                  >(+91) 98868 94723
+                  </span>
+
                 </p>
               </div>
 

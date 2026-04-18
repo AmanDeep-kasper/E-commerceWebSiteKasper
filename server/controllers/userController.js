@@ -2,10 +2,7 @@ import fs from "fs";
 import User from "../models/User.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import AppError from "../utils/AppError.js";
-import {
-  deleteImageFromCloudinary,
-  uploadImageToCloudinary,
-} from "../utils/cloudinary.js";
+import { uploadToCloudinary, deleteFromCloudinary } from "../utils/uploader.js";
 import {
   sendEmailChangeOTP,
   sendSupportEmail,
@@ -95,13 +92,12 @@ export const updateUserProfileImage = asyncHandler(async (req, res) => {
     throw AppError.notFound("User not found", "USER_NOT_FOUND");
   }
 
-  const newImagePath = req.file?.path;
   const removeImage = req.body?.removeImage === "true";
 
   // 🔥 CASE 1: Remove image
   if (removeImage) {
     if (user.profileImage?.publicId) {
-      await deleteImageFromCloudinary(user.profileImage.publicId);
+      await deleteFromCloudinary(user.profileImage.publicId);
     }
 
     user.profileImage = { publicId: "", url: "" };
@@ -128,18 +124,23 @@ export const updateUserProfileImage = asyncHandler(async (req, res) => {
   }
 
   // ❌ No file
-  if (!newImagePath) {
+  if (!req.file) {
     throw AppError.badRequest("No file provided", "FILE_REQUIRED");
   }
 
   try {
     // 🔥 Delete old image (cloudinary)
     if (user.profileImage?.publicId) {
-      await deleteImageFromCloudinary(user.profileImage.publicId);
+      await deleteFromCloudinary(user.profileImage.publicId);
     }
 
     // 🔥 Upload new image
-    const cloudinaryResult = await uploadImageToCloudinary(newImagePath);
+    const cloudinaryResult = await uploadToCloudinary(
+      req.file.buffer,
+      req.fileType,
+      req.fileType === "image" ? "images" : "videos",
+      req.file.originalname,
+    );
 
     user.profileImage = {
       publicId: cloudinaryResult.publicId,
@@ -166,11 +167,12 @@ export const updateUserProfileImage = asyncHandler(async (req, res) => {
         updatedAt: user.updatedAt,
       },
     });
-  } finally {
-    // 🧹 ALWAYS delete local file (IMPORTANT 🔥)
-    if (newImagePath && fs.existsSync(newImagePath)) {
-      fs.unlinkSync(newImagePath);
+  } catch (error) {
+    // 🔥 rollback cloudinary if DB fails
+    if (cloudinaryResult?.publicId) {
+      await deleteFromCloudinary(cloudinaryResult.publicId);
     }
+    throw error;
   }
 });
 

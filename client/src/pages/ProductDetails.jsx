@@ -31,7 +31,7 @@ import { toast } from "react-toastify";
 
 function ProductDetails() {
   const { slugOrId } = useParams();
-  console.log("URL ID from useParams:", slugOrId);
+  // console.log("URL ID from useParams:", slugOrId);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [product, setProduct] = useState(null);
@@ -291,7 +291,7 @@ function ProductDetails() {
     return (
       <>
         <Navbar />
-        <Breadcrumbs title={"Not Found"} />
+        <Breadcrumbs category={product?.category} subcategory={product?.subcategory} title={product?.productTittle} />
         <EmptyState
           heading="Not Found"
           description="The product you’re looking for may have been removed, is out of stock, or the link is broken. Try browsing our categories or return to the home page.."
@@ -311,14 +311,13 @@ function ProductDetails() {
     dispatch(buyNow(product));
     navigate("/checkout/payment");
   };
-
   return (
     <>
       <Navbar />
       <Breadcrumbs
-        category={product.category}
-        subcategory={product.subcategory}
-        title={product.productTittle}
+        category={product?.category}
+        subcategory={product?.subcategory}
+        title={product?.productTittle}
       />
       <section className="lg:px-40 md:px-[60px] px-4 py-6 bg-[#F6F8F9]">
         <AddReviewsModel
@@ -366,11 +365,10 @@ function ProductDetails() {
                   <SwiperSlide key={idx} className="!w-auto !h-auto">
                     <div
                       className={`relative w-20 h-20 cursor-pointer transform transition duration-300 flex items-center justify-center
-                          ${
-                            mainImageIndex === idx
-                              ? "border-2 border-[#977c2d] shadow-md rounded-md"
-                              : "border-2 border-transparent hover:border-gray-200 rounded-md"
-                          }`}
+                          ${mainImageIndex === idx
+                          ? "border-2 border-[#977c2d] shadow-md rounded-md"
+                          : "border-2 border-transparent hover:border-gray-200 rounded-md"
+                        }`}
                       onClick={() => {
                         setMainImageIndex(idx);
                         thumbsSwiper?.slideTo?.(idx);
@@ -559,11 +557,10 @@ function ProductDetails() {
                       type="button"
                       key={c}
                       className={`px-3 py-1 rounded-md border border-[#B6AAFF] text-sm
-            ${
-              selectedVariant?.variantWeight === c
-                ? "border-2 border-[#1C3753] bg-[#F7F5FF] text-[#1800AC]"
-                : "bg-white hover:bg-[#B6AAFF]"
-            }`}
+            ${selectedVariant?.variantWeight === c
+                          ? "border-2 border-[#1C3753] bg-[#F7F5FF] text-[#1800AC]"
+                          : "bg-white hover:bg-[#B6AAFF]"
+                        }`}
                       onClick={() => onSelectWeight(c)}
                     >
                       {c}
@@ -590,11 +587,10 @@ function ProductDetails() {
                       type="button"
                       key={s}
                       className={`px-3 py-1 rounded-md border border-[#B6AAFF] text-sm
-            ${
-              s === selectedVariant?.variantName
-                ? "border-2 border-[#1C3753] bg-[#fffff] text-[#1C1C1C]"
-                : "bg-white hover:bg-[#B6AAFF]"
-            }`}
+            ${s === selectedVariant?.variantName
+                          ? "border-2 border-[#1C3753] bg-[#fffff] text-[#1C1C1C]"
+                          : "bg-white hover:bg-[#B6AAFF]"
+                        }`}
                       onClick={() => onSelectStyle(s)}
                     >
                       {s}

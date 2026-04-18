@@ -160,7 +160,7 @@ function ContactSection() {
               {/* Submit */}
               <button
                 type="submit"
-                className="w-full md:w-auto px-6 py-3 text-sm font-medium bg-[#1C3753] text-white rounded-lg shadow-sm hover:bg-black transition flex items-center justify-center"
+                className="w-full md:w-auto px-6 py-3 text-sm font-medium bg-[#1800AC] text-white rounded-lg shadow-sm hover:bg-black transition flex items-center justify-center"
               >
                 <Send className="w-4 h-4 mr-2" />
                 Submit
@@ -181,8 +181,8 @@ function ContactSection() {
 
             <div className="w-full bg-[#F6F8F9] rounded-lg p-5 border border-gray-200 shadow-sm space-y-3">
               <div className="flex items-center gap-4 p-3 bg-white rounded-lg">
-                <div className="p-2 bg-[#F5F8FA] rounded-lg">
-                  <Mail className="w-5 h-5 text-[#1C3753]" />
+                <div className="p-2 bg-[#F0EEFF] rounded-lg">
+                  <Mail className="w-5 h-5 text-[#1800AC]" />
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-700">Email</p>
@@ -191,8 +191,8 @@ function ContactSection() {
               </div>
 
               <div className="flex items-center gap-4 p-3 bg-white rounded-lg">
-                <div className="p-2 bg-[#F5F8FA] rounded-lg">
-                  <Phone className="w-5 h-5 text-[#1C3753]" />
+                <div className="p-2 bg-[#F0EEFF] rounded-lg">
+                  <Phone className="w-5 h-5 text-[#1800AC]" />
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-700">Phone</p>
@@ -201,8 +201,8 @@ function ContactSection() {
               </div>
 
               <div className="flex items-center gap-4 p-3 bg-white rounded-lg">
-                <div className="p-2 bg-[#F5F8FA] rounded-lg">
-                  <MapPin className="w-5 h-5 text-[#1C3753]" />
+                <div className="p-2 bg-[#F0EEFF] rounded-lg">
+                  <MapPin className="w-5 h-5 text-[#1800AC]" />
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-700">Address</p>

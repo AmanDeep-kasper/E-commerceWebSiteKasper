@@ -10,14 +10,7 @@ import Blacklist from "../models/blacklist.js";
 export const generateAccessToken = (userId, role, sessionId) => {
   const tokenId = crypto.randomBytes(16).toString("hex");
 
-  const payload = {
-    userId,
-    role,
-    tokenId,
-    sessionId,
-  };
-
-  return jwt.sign(payload, env.JWT_ACCESS_SECRET, {
+  return jwt.sign({ userId, role, tokenId, sessionId }, env.JWT_ACCESS_SECRET, {
     expiresIn: env.JWT_ACCESS_EXPIRATION || "15m",
     issuer: env.JWT_ISSUER,
     audience: env.JWT_AUDIENCE,
@@ -31,17 +24,15 @@ export const generateAccessToken = (userId, role, sessionId) => {
 export const generateRefreshToken = async (userId, sessionId, req) => {
   const refreshTokenId = crypto.randomBytes(32).toString("hex");
 
-  const payload = {
-    userId,
-    sessionId,
-    refreshTokenId,
-  };
-
-  const refreshToken = jwt.sign(payload, env.JWT_REFRESH_SECRET, {
-    expiresIn: env.JWT_REFRESH_EXPIRATION || "7d",
-    issuer: env.JWT_ISSUER,
-    audience: env.JWT_AUDIENCE,
-  });
+  const refreshToken = jwt.sign(
+    { userId, sessionId, refreshTokenId },
+    env.JWT_REFRESH_SECRET,
+    {
+      expiresIn: env.JWT_REFRESH_EXPIRATION || "7d",
+      issuer: env.JWT_ISSUER,
+      audience: env.JWT_AUDIENCE,
+    },
+  );
 
   await storeRefreshToken(userId, refreshTokenId, sessionId, refreshToken, req);
 
@@ -49,7 +40,7 @@ export const generateRefreshToken = async (userId, sessionId, req) => {
 };
 
 /* ================================
-   GENERATE TOKENS
+   GENERATE TOKENS (LOGIN ONLY)
 ================================ */
 export const generateAuthTokens = async (userId, role, req = null) => {
   const sessionId = crypto.randomBytes(32).toString("hex");
@@ -72,7 +63,6 @@ export const generateResetToken = () => {
     .createHash("sha256")
     .update(resetToken)
     .digest("hex");
-
   return { resetToken, hashedToken };
 };
 
@@ -143,7 +133,7 @@ export const verifyAccessToken = async (token) => {
 };
 
 /* ================================
-   ROTATE TOKENS (MAIN LOGIC)
+   ROTATE TOKENS (FINAL FIXED)
 ================================ */
 export const rotateTokens = async (userId, role, oldRefreshToken, req) => {
   const decoded = jwt.verify(oldRefreshToken, env.JWT_REFRESH_SECRET, {
@@ -156,12 +146,17 @@ export const rotateTokens = async (userId, role, oldRefreshToken, req) => {
     .update(oldRefreshToken)
     .digest("hex");
 
-  const user = await User.findById(userId);
+  const user = await User.findById(userId).select("refreshTokens");
   if (!user) throw new Error("User not found");
 
   const tokenData = user.refreshTokens.find((t) => t.token === hashedToken);
 
   if (!tokenData) throw new Error("Invalid refresh token");
+
+  // ✅ Expiry check
+  if (tokenData.expiresAt < new Date()) {
+    throw new Error("Refresh token expired");
+  }
 
   const currentIP =
     req.headers["x-forwarded-for"]?.split(",")[0] ||
@@ -174,12 +169,23 @@ export const rotateTokens = async (userId, role, oldRefreshToken, req) => {
   if (tokenData.isRevoked) {
     const isSameDevice = tokenData.deviceInfo?.ipAddress === currentIP;
 
-    // ✅ SAME DEVICE → allow silently (NO logout)
+    // ✅ Same device → allow but KEEP SAME SESSION
     if (isSameDevice) {
-      return await generateAuthTokens(userId, role, req);
+      const accessToken = generateAccessToken(userId, role, decoded.sessionId);
+      const refreshToken = await generateRefreshToken(
+        userId,
+        decoded.sessionId,
+        req,
+      );
+
+      return {
+        accessToken,
+        refreshToken,
+        sessionId: decoded.sessionId,
+      };
     }
 
-    // 🔴 SUSPICIOUS → revoke all
+    // 🔴 suspicious → revoke all
     await User.updateOne(
       { _id: userId },
       {
@@ -196,14 +202,30 @@ export const rotateTokens = async (userId, role, oldRefreshToken, req) => {
   /* ========================
      NORMAL ROTATION
   ======================== */
-  await User.updateOne(
-    { _id: userId, "refreshTokens.sessionId": decoded.sessionId },
+  const result = await User.updateOne(
+    { _id: userId, "refreshTokens.token": hashedToken },
     {
       $set: { "refreshTokens.$.isRevoked": true },
     },
   );
 
-  return await generateAuthTokens(userId, role, req);
+  if (result.modifiedCount === 0) {
+    throw new Error("Failed to revoke token");
+  }
+
+  // ✅ IMPORTANT: reuse sessionId
+  const accessToken = generateAccessToken(userId, role, decoded.sessionId);
+  const refreshToken = await generateRefreshToken(
+    userId,
+    decoded.sessionId,
+    req,
+  );
+
+  return {
+    accessToken,
+    refreshToken,
+    sessionId: decoded.sessionId,
+  };
 };
 
 /* ================================

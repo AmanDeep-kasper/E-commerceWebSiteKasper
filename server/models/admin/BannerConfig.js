@@ -41,5 +41,14 @@ const bannerSchema = new mongoose.Schema(
 // INDEX
 bannerSchema.index({ isActive: 1, serialNumber: 1 });
 
+// auto increase serial number
+bannerSchema.pre("save", async function (next) {
+  if (this.isNew) {
+    const lastBanner = await Banner.findOne().sort({ serialNumber: -1 });
+    this.serialNumber = lastBanner ? lastBanner.serialNumber + 1 : 1;
+  }
+  next();
+});
+
 const Banner = mongoose.model("Banner", bannerSchema);
 export default Banner;

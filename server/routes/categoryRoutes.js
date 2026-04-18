@@ -26,10 +26,6 @@ router.post(
   "/admin/createOrUpdate-category",
   authenticate,
   authorize("admin"),
-  (req, _res, next) => {
-    req.uploadFolder = "category";
-    next();
-  },
   upload.single("categoryImage"),
   // addCategoryValidation,
   // validateRequest,

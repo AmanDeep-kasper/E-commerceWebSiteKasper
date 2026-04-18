@@ -200,9 +200,16 @@ function Product() {
     ? decodeURIComponent(subcategoryName)
     : "";
 
+    console.log("breadcrumbssds34rer", displayCategory);
+    console.log("displaysubcategorysder44", displaySubcategory)
+
   return (
     <>
       <Navbar />
+              <div style={{ background: 'red', padding: '10px', margin: '10px', color: 'white' }}>
+            DEBUG: Breadcrumbs should be here. Category: {displayCategory}
+        </div>
+
       <Breadcrumbs
         category={displayCategory}
         subcategory={displaySubcategory}

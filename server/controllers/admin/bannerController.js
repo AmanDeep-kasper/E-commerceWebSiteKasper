@@ -2,25 +2,30 @@ import Banner from "../../models/admin/BannerConfig.js";
 import AppError from "../../utils/AppError.js";
 import asyncHandler from "../../utils/asyncHandler.js";
 import {
-  uploadImageToCloudinary,
-  deleteImageFromCloudinary,
-} from "../../utils/cloudinary.js";
+  uploadToCloudinary,
+  deleteFromCloudinary,
+} from "../../utils/uploader.js";
+import { buildMediaUrls } from "../../utils/urlBuilder.js";
 
-export const createBanner = asyncHandler(async (req, res) => {
-  const { title, description, bannerType, serialNumber } = req.body;
+export const uploadBanner = asyncHandler(async (req, res) => {
+  const { title, description, bannerType } = req.body;
 
   if (!req.file) {
     throw AppError.badRequest("Media file is required", "FILE_REQUIRED");
   }
 
   // upload to cloudinary
-  const uploaded = await uploadImageToCloudinary(req.file.path);
+  const uploaded = await uploadToCloudinary(
+    req.file.buffer,
+    req.fileType,
+    req.fileType === "image" ? "images" : "videos",
+    req.file.originalname,
+  );
 
   const banner = await Banner.create({
     title,
     description,
     bannerType,
-    serialNumber,
     imageOrVideo: {
       url: uploaded.url,
       publicId: uploaded.publicId,
@@ -49,9 +54,14 @@ export const updateBanner = asyncHandler(async (req, res) => {
   // if new file uploaded
   if (req.file) {
     // delete old
-    await deleteImageFromCloudinary(existing.imageOrVideo.publicId);
+    await deleteFromCloudinary(existing.imageOrVideo.publicId);
 
-    const uploaded = await uploadImageToCloudinary(req.file.path);
+    const uploaded = await uploadToCloudinary(
+      req.file.buffer,
+      req.fileType,
+      req.fileType === "image" ? "images" : "videos",
+      req.file.originalname,
+    );
 
     media = {
       url: uploaded.url,
@@ -66,7 +76,6 @@ export const updateBanner = asyncHandler(async (req, res) => {
         title: req.body.title ?? existing.title,
         description: req.body.description ?? existing.description,
         bannerType: req.body.bannerType ?? existing.bannerType,
-        serialNumber: req.body.serialNumber ?? existing.serialNumber,
         isActive: req.body.isActive ?? existing.isActive,
         imageOrVideo: media,
       },
@@ -95,9 +104,21 @@ export const getActiveBanners = asyncHandler(async (req, res) => {
     .sort({ serialNumber: 1 })
     .lean();
 
+  // 🔥 transform media here
+  const formattedBanners = banners.map((banner) => {
+    const type = banner.imageOrVideo?.url?.includes("/video/")
+      ? "video"
+      : "image";
+
+    return {
+      ...banner,
+      media: buildMediaUrls(banner.imageOrVideo.publicId, type),
+    };
+  });
+
   res.status(200).json({
     success: true,
-    data: banners,
+    data: formattedBanners,
   });
 });
 
@@ -120,8 +141,15 @@ export const deleteBanner = asyncHandler(async (req, res) => {
   }
 
   // delete from cloudinary
-  await deleteImageFromCloudinary(banner.imageOrVideo.publicId);
+  await deleteFromCloudinary(banner.imageOrVideo.publicId);
 
+  // adjust serialNumber
+  await Banner.updateMany(
+    { serialNumber: { $gt: banner.serialNumber } },
+    { $inc: { serialNumber: -1 } },
+  );
+
+  // delete from db
   await banner.deleteOne();
 
   res.status(200).json({
