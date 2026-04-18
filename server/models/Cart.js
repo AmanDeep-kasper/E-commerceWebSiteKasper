@@ -32,6 +32,7 @@ const CartItemSchema = new mongoose.Schema(
     productTitle: { type: String, required: true },
     variantName: { type: String, default: "" },
     variantColor: { type: String, default: "" },
+    variantAvailableStock: { type: Number, default: 0 },
 
     variantAttributes: {
       type: Map,
