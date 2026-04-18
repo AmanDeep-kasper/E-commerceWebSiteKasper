@@ -228,7 +228,7 @@ function LatestProducts() {
                     }
                   }}
                 >
-                  <Heart
+                  {/* <Heart
                     className="w-8 h-8 p-1 cursor-pointer"
                     fill={
                       wishlistItems.some(
@@ -247,7 +247,7 @@ function LatestProducts() {
                         : "black"
                     }
                     strokeWidth={1}
-                  />
+                  /> */}
                 </button>
 
                 {/* {typeof ratingAvg === "number" && (

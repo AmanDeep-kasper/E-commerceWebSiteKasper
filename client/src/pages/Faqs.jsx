@@ -53,20 +53,22 @@ function Faqs() {
     <>
       <Navbar />
       <Link
-        className="lg:px-20 md:px-[60px] px-4 flex gap-2 items-center py-[30px] border-t border-t-[#EBEBEB]"
+        className="flex gap-2 items-center py-[30px] border-t border-t-[#EBEBEB]"
         to={"/"}
       >
         <ArrowLeft size={18} strokeWidth={1} />
         <p className="text-[#565656]">FAQS</p>
       </Link>
 
-      <section className="lg:px-20 md:px-[60px] px-4 flex flex-col  gap-8 py-[23px]">
+      <section className="lg:px-80 md:px-[60px] px-4 flex flex-col gap-8 py-[23px] justify-center">
         {/* FAQ Content */}
         <div className=" w-full mx-auto">
           <h1 className="text-3xl md:text-4xl font-[400] mb-6">
             Frequently Asked Questions (FAQs)
           </h1>
-          <div className="flex flex-col gap-6">
+          
+          <span>At Happy Art Supplies, we value your privacy and are committed to protecting your personal information. This Privacy Policy explains how we collect, use, and safeguard your data when you visit or make a purchase from our website.</span>
+          <div className="flex flex-col gap-6 mt-5">
             {faqs.map((faq) => (
               <div key={faq.question} className="flex flex-col gap-2">
                 <h2 className="text-[18px] md:text-[20px] text-black font-[400]">
@@ -85,7 +87,7 @@ function Faqs() {
           {/* Still Have Questions */}
           <div className="h-auto bg-[#F0EEFF] flex flex-col items-center py-6 px-4 gap-2 rounded-md">
             <h1 className="text-lg sm:text-xl text-gray-800 md:text-[20px] font-medium">
-             Do you still have any questions?
+              Do you still have any questions?
             </h1>
             <p className="text-[#1C1C1C] text-center text-sm md:text-base max-w-lg">
               Can’t find the answer you’re looking for? Please chat to our
