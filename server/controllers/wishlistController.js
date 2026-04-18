@@ -411,7 +411,7 @@ export const moveToCartAll = asyncHandler(async (req, res) => {
         productTitle: item.productTitle,
         variantName: item.variantName,
         variantColor: item.variantColor,
-        variantAvailableStock: variantData.variantAvailableStock,
+        variantAvailableStock: item.variantAvailableStock,
 
         variantAttributes: item.variantAttributes || {},
 
