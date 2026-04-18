@@ -82,7 +82,7 @@ app.use((req, _res, next) => {
 if (env.NODE_ENV === "production") {
   app.set("trust proxy", 1);
 }
-app.use(globalLimiter);
+// app.use(globalLimiter);
 app.use(speedLimiter);
 
 // ================== BODY PARSING ==================
