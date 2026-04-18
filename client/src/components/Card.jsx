@@ -279,7 +279,7 @@ function Card({ cardData = [] }) {
                 />
               </button> */}
               <button
-                className="absolute max-lg:block hidden bg-white shadow-md md:shadow-lg md:bg-white group-hover:block active:scale-110 transition-all ease-in-out duration-300 md:p-2 p-2 rounded-full text-xs top-1 right-1 z-20"
+                className="absolute bg-white shadow-md md:shadow-lg md:bg-white active:scale-110 transition-all duration-300 md:p-2 p-2 rounded-full text-xs top-1 right-1 z-20"
                 onClick={(e) => {
                   e.stopPropagation();
                   if (inWishlist) {

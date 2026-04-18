@@ -383,7 +383,7 @@ useEffect(() => {
           </button>
         </div> */}
         {/* <========-------- Category --------=========> */}
-        <Link to="/products/second">
+        
         <div className="flex justify-center items-center mt-6">
           {categories.length > visibleCount && (
           <span onClick={scrollLeft} className="cursor-pointer p-2">
@@ -395,6 +395,7 @@ useEffect(() => {
             className="flex gap-6 overflow-hidden"
           >
             {categories.slice(startIndex, startIndex + visibleCount).map((category) => (
+              <Link to="/products/second">
               <div
                 key={category._id}
                 className=""
@@ -412,6 +413,8 @@ useEffect(() => {
                     </span>
                   </div>
               </div>
+              
+        </Link>
             ))}
           </div>
           {categories.length > visibleCount && (
@@ -420,7 +423,6 @@ useEffect(() => {
             </span>
           )}
         </div>
-        </Link>
           {categories.length === 0 && !loading && !error && (
           <div className="text-center text-gray-500 py-8">
             No categories available at the moment.
