@@ -37,6 +37,12 @@ const WishlistItemSchema = new mongoose.Schema(
       default: "",
     },
 
+    variantAvailableStock: {
+      type: Number,
+      default: 0,
+      index: true,
+    },
+
     // ✅ FLEXIBLE ATTRIBUTES
     variantAttributes: {
       type: Map,
@@ -60,7 +66,7 @@ const WishlistItemSchema = new mongoose.Schema(
       default: Date.now,
     },
   },
-  { _id: true }
+  { _id: true },
 );
 
 const WishlistSchema = new mongoose.Schema(
@@ -80,9 +86,8 @@ const WishlistSchema = new mongoose.Schema(
       index: true,
     },
   },
-  { timestamps: true, versionKey: false }
+  { timestamps: true, versionKey: false },
 );
-
 
 const Wishlist = mongoose.model("Wishlist", WishlistSchema);
 
