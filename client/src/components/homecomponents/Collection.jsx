@@ -383,6 +383,7 @@ useEffect(() => {
           </button>
         </div> */}
         {/* <========-------- Category --------=========> */}
+        <Link to="/products/second">
         <div className="flex justify-center items-center mt-6">
           {categories.length > visibleCount && (
           <span onClick={scrollLeft} className="cursor-pointer p-2">
@@ -419,6 +420,7 @@ useEffect(() => {
             </span>
           )}
         </div>
+        </Link>
           {categories.length === 0 && !loading && !error && (
           <div className="text-center text-gray-500 py-8">
             No categories available at the moment.
