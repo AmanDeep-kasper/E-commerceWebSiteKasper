@@ -718,8 +718,7 @@ export const refreshAccessToken = asyncHandler(async (req, res) => {
   await User.updateOne(
     { _id: decoded.userId },
     {
-      $pull: { activeSessions: decoded.sessionId },
-      $push: { activeSessions: newTokens.sessionId },
+      $addToSet: { activeSessions: decoded.sessionId },
     },
   );
 
