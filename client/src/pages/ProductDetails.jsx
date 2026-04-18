@@ -291,7 +291,11 @@ function ProductDetails() {
     return (
       <>
         <Navbar />
-        <Breadcrumbs category={product?.category} subcategory={product?.subcategory} title={product?.productTittle} />
+        <Breadcrumbs
+          category={product?.category}
+          subcategory={product?.subcategory}
+          title={product?.productTittle}
+        />
         <EmptyState
           heading="Not Found"
           description="The product you’re looking for may have been removed, is out of stock, or the link is broken. Try browsing our categories or return to the home page.."
@@ -311,6 +315,86 @@ function ProductDetails() {
     dispatch(buyNow(product));
     navigate("/checkout/payment");
   };
+
+  const handleWishlistToggle = async (e) => {
+    e.stopPropagation();
+
+    const isInWishlist = wishlistItems.some(
+      (i) =>
+        String(i.uuid || i.product || i.productId) === String(product._id) &&
+        String(i.variantId) === String(variantId),
+    );
+
+    try {
+      if (isInWishlist) {
+        await toast.promise(
+          axiosInstance.delete("/wishlist/remove-item", {
+            data: {
+              productId: product._id,
+              variantId,
+            },
+          }),
+          {
+            pending: "Removing from wishlist...",
+            success: "Removed from wishlist",
+            error: {
+              render({ data }) {
+                return (
+                  data?.response?.data?.message ||
+                  "Failed to remove from wishlist"
+                );
+              },
+            },
+          },
+        );
+
+        dispatch(removeFromWishlist({ uuid: product._id, variantId }));
+      } else {
+        await toast.promise(
+          axiosInstance.post("/wishlist/add-to-wishlist", {
+            productId: product._id,
+            variantId,
+          }),
+          {
+            pending: "Adding to wishlist...",
+            success: "Added to wishlist",
+            error: {
+              render({ data }) {
+                return (
+                  data?.response?.data?.message || "Failed to add to wishlist"
+                );
+              },
+            },
+          },
+        );
+
+        dispatch(
+          addToWishlist({
+            uuid: product._id,
+            product: product._id,
+            variantId,
+            title: product.productTittle,
+            basePrice: Number(selectedVariant?.variantMrp || 0),
+            discountPercent: Number(selectedVariant?.variantDiscount || 0),
+            stockQuantity: Number(selectedVariant?.variantAvailableStock || 0),
+            image:
+              selectedVariant?.variantImage?.[0]?.url || "/placeholder.png",
+            variantName: selectedVariant?.variantName,
+            variantColor: selectedVariant?.variantColor,
+            variantAttributes: {
+              weight: `${selectedVariant?.variantWeight || ""}${selectedVariant?.variantWeightUnit || ""}`,
+              mrp: Number(selectedVariant?.variantMrp || 0),
+              sellingPrice: Number(selectedVariant?.variantSellingPrice || 0),
+              discount: Number(selectedVariant?.variantDiscount || 0),
+            },
+          }),
+        );
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   return (
     <>
       <Navbar />
@@ -365,10 +449,11 @@ function ProductDetails() {
                   <SwiperSlide key={idx} className="!w-auto !h-auto">
                     <div
                       className={`relative w-20 h-20 cursor-pointer transform transition duration-300 flex items-center justify-center
-                          ${mainImageIndex === idx
-                          ? "border-2 border-[#977c2d] shadow-md rounded-md"
-                          : "border-2 border-transparent hover:border-gray-200 rounded-md"
-                        }`}
+                          ${
+                            mainImageIndex === idx
+                              ? "border-2 border-[#977c2d] shadow-md rounded-md"
+                              : "border-2 border-transparent hover:border-gray-200 rounded-md"
+                          }`}
                       onClick={() => {
                         setMainImageIndex(idx);
                         thumbsSwiper?.slideTo?.(idx);
@@ -424,44 +509,16 @@ function ProductDetails() {
               <button
                 type="button"
                 className="absolute bg-white shadow-md md:shadow-lg md:bg-white group-hover:block active:scale-110 transition-all ease-in-out duration-300 md:p-2 p-2 rounded-full text-xs top-1 right-1 z-20 cursor-default"
-                onClick={(e) => {
-                  e.stopPropagation();
-
-                  const isInWishlist = wishlistItems.some(
-                    (i) => i.uuid === product.uuid && i.variantId === variantId,
-                  );
-
-                  if (isInWishlist) {
-                    dispatch(
-                      removeFromWishlist({ uuid: product.uuid, variantId }),
-                    );
-                  } else {
-                    dispatch(
-                      addToWishlist({
-                        uuid: product.uuid,
-                        variantId,
-                        title: product.title,
-                        basePrice: selectedVariant.price,
-                        stockQuantity: selectedVariant.stockQuantity,
-                        discountPercent: product.discountPercent,
-                        image: product.images,
-                        deliverBy: product.deliverBy,
-                        selectedOptions: {
-                          color: selectedVariant.color,
-                          type: selectedVariant.type,
-                          dimension: selectedVariant.dimension,
-                        },
-                      }),
-                    );
-                  }
-                }}
+                onClick={handleWishlistToggle}
               >
                 <Heart
                   className="w-8 h-8 p-1 cursor-pointer"
                   fill={
                     wishlistItems.some(
                       (i) =>
-                        i.uuid === product.uuid && i.variantId === variantId,
+                        String(i.uuid || i.product || i.productId) ===
+                          String(product._id) &&
+                        String(i.variantId) === String(variantId),
                     )
                       ? "red"
                       : "white"
@@ -469,7 +526,9 @@ function ProductDetails() {
                   stroke={
                     wishlistItems.some(
                       (i) =>
-                        i.uuid === product.uuid && i.variantId === variantId,
+                        String(i.uuid || i.product || i.productId) ===
+                          String(product._id) &&
+                        String(i.variantId) === String(variantId),
                     )
                       ? "red"
                       : "black"
@@ -557,10 +616,11 @@ function ProductDetails() {
                       type="button"
                       key={c}
                       className={`px-3 py-1 rounded-md border border-[#B6AAFF] text-sm
-            ${selectedVariant?.variantWeight === c
-                          ? "border-2 border-[#1C3753] bg-[#F7F5FF] text-[#1800AC]"
-                          : "bg-white hover:bg-[#B6AAFF]"
-                        }`}
+            ${
+              selectedVariant?.variantWeight === c
+                ? "border-2 border-[#1C3753] bg-[#F7F5FF] text-[#1800AC]"
+                : "bg-white hover:bg-[#B6AAFF]"
+            }`}
                       onClick={() => onSelectWeight(c)}
                     >
                       {c}
@@ -587,10 +647,11 @@ function ProductDetails() {
                       type="button"
                       key={s}
                       className={`px-3 py-1 rounded-md border border-[#B6AAFF] text-sm
-            ${s === selectedVariant?.variantName
-                          ? "border-2 border-[#1C3753] bg-[#fffff] text-[#1C1C1C]"
-                          : "bg-white hover:bg-[#B6AAFF]"
-                        }`}
+            ${
+              s === selectedVariant?.variantName
+                ? "border-2 border-[#1C3753] bg-[#fffff] text-[#1C1C1C]"
+                : "bg-white hover:bg-[#B6AAFF]"
+            }`}
                       onClick={() => onSelectStyle(s)}
                     >
                       {s}
