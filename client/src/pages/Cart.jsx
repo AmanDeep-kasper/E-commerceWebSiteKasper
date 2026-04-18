@@ -8,6 +8,7 @@ import {
   increaseQty,
   decreaseQty,
   clearCart,
+  setCartFromAPI,
 } from "../redux/cart/cartSlice";
 import { Link } from "react-router-dom";
 import Footer from "../sections/Footer";
@@ -19,11 +20,13 @@ import EmptyState from "../components/EmptyState";
 import { twMerge } from "tailwind-merge";
 import Ratings from "../components/Ratings";
 import axiosInstance from "../api/axiosInstance";
+import { toast } from "react-toastify";
 
 function Cart() {
   const [cart, setCart] = useState(null);
   const [open, setOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [cartLoading, setCartLoading] = useState(true);
 
   const { cartItems, totalPrice, totalItems, totalDiscount } = useSelector(
     (s) => s.cart,
@@ -32,9 +35,47 @@ function Cart() {
   const dispatch = useDispatch();
   const closeDialog = () => setOpen(false);
 
-  const moveToWishlist = (item) => {
-    dispatch(addToWishlist(item));
-    dispatch(removeFromCart(item));
+  const moveToWishlist = async (item) => {
+    const previousCart = cart;
+
+    try {
+      const promise = (async () => {
+        // 1. Add to wishlist
+        await axiosInstance.post("/wishlist/add-to-wishlist", {
+          productId: item.product || item.productId || item.uuid,
+          variantId: item.variantId,
+        });
+
+        // 2. Remove from cart
+        const removeRes = await axiosInstance.delete(
+          `/cart/remove-item/${item._id}`,
+        );
+
+        return removeRes;
+      })();
+
+      const res = await toast.promise(promise, {
+        pending: "Moving to wishlist...",
+        success: "Moved to wishlist",
+        error: {
+          render({ data }) {
+            return data?.response?.data?.message || "Failed to move item";
+          },
+        },
+      });
+
+      // 3. Update UI + Redux
+      setCart(res.data.data);
+      dispatch(setCartFromAPI(res.data.data));
+    } catch (err) {
+      console.error(err);
+
+      // rollback
+      setCart(previousCart);
+      if (previousCart) {
+        dispatch(setCartFromAPI(previousCart));
+      }
+    }
   };
 
   // detect out of stock
@@ -42,12 +83,19 @@ function Cart() {
     (item) => !item.stockQuantity || item.quantity > item.stockQuantity,
   );
 
+  // fetch cart details from api
   const fetchCartItem = async () => {
     try {
+      setCartLoading(true);
+
       const res = await axiosInstance.get("/cart");
-      await setCart(res.data?.data);
-      console.log(res);
-    } catch (error) {}
+      setCart(res.data?.data);
+      dispatch(setCartFromAPI(res.data?.data));
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setCartLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -56,30 +104,119 @@ function Cart() {
 
   const handleClearCart = async () => {
     try {
-      axiosInstance.delete("/cart/clear-cart"); // or your API route
+      await axiosInstance.delete("/cart/clear-cart");
 
-      setCart({
+      const emptyCart = {
         items: [],
         totalQuantity: 0,
+        subtotal: 0,
+        totalGST: 0,
         grandTotal: 0,
-      });
+      };
+
+      setCart(emptyCart);
+      dispatch(setCartFromAPI(emptyCart));
     } catch (err) {
       console.error(err);
     }
   };
 
   const handleUpdateQty = async (itemId, action) => {
+    const previousCart = cart;
+
+    setCart((prev) => {
+      if (!prev) return prev;
+
+      const updatedItems = prev.items
+        .map((item) => {
+          if (item._id !== itemId) return item;
+
+          const newQty =
+            action === "inc"
+              ? item.quantity + 1
+              : Math.max(item.quantity - 1, 0);
+
+          return { ...item, quantity: newQty };
+        })
+        .filter((item) => item.quantity > 0);
+
+      return {
+        ...prev,
+        items: updatedItems,
+        totalQuantity: updatedItems.reduce(
+          (sum, item) => sum + item.quantity,
+          0,
+        ),
+      };
+    });
+
     try {
       const res = await axiosInstance.patch("/cart/update-item", {
         itemId,
         action,
       });
 
-      setCart(res.data.data); // update UI with fresh cart
+      setCart(res.data.data);
+      dispatch(setCartFromAPI(res.data.data));
     } catch (err) {
       console.error(err);
+
+      setCart(previousCart);
+      if (previousCart) {
+        dispatch(setCartFromAPI(previousCart));
+      }
+
+      toast.error(err?.response?.data?.message || "Failed to update cart");
     }
   };
+
+  const handleRemoveItem = async (item) => {
+    const previousCart = cart;
+
+    // optimistic UI
+    setCart((prev) => {
+      if (!prev) return prev;
+
+      const updatedItems = prev.items.filter((i) => i._id !== item._id);
+
+      return {
+        ...prev,
+        items: updatedItems,
+        totalQuantity: updatedItems.reduce((sum, i) => sum + i.quantity, 0),
+      };
+    });
+
+    try {
+      const res = await axiosInstance.delete(`/cart/remove-item/${item._id}`);
+
+      setCart(res.data.data);
+      dispatch(setCartFromAPI(res.data.data));
+      toast.success("Item removed");
+    } catch (err) {
+      console.error(err);
+
+      setCart(previousCart);
+      if (previousCart) {
+        dispatch(setCartFromAPI(previousCart));
+      }
+
+      toast.error(err?.response?.data?.message || "Failed to remove item");
+    }
+  };
+
+  if (cartLoading) {
+    return (
+      <>
+        <Navbar />
+        <section className="lg:px-20 md:px-[60px] md:py-4 bg-gray-50 mt-24">
+          <div className="bg-white md:rounded-lg shadow-sm p-8 text-center">
+            Loading cart...
+          </div>
+        </section>
+        <Footer />
+      </>
+    );
+  }
 
   return (
     <>
@@ -117,7 +254,7 @@ function Cart() {
                     collection and find something you love."
                   icon={ShoppingCart}
                   ctaLabel="Continue Shopping"
-                  ctaLink="/products"
+                  ctaLink="/home"
                 />
               ) : (
                 <>
@@ -199,7 +336,6 @@ function Cart() {
                                   )}
                                 </div>
                               </div>
-
                               {/* Price Section */}
                               <div className="mt-2 flex flex-wrap items-center gap-2">
                                 <span className="md:text-xl text-base font-semibold text-gray-800">
@@ -224,7 +360,6 @@ function Cart() {
                                   % Off
                                 </span>
                               </div>
-
                               {/* <div
                                 className={twMerge(
                                   "md:w-4 w-3 md:h-4 h-3 ring-2 ring-[#BEBEBE] ring-offset-2 ml-1 my-2 rounded-full transition-all duration-150 ease-in-out",
@@ -232,90 +367,82 @@ function Cart() {
                                     "bg-gray-200",
                                 )}
                               /> */}
-
                               <div className="mt-2 text-xs text-gray-500 mb-4">
                                 inclusive of all taxes
                               </div>
-
-                              <div className="flex flex-wrap items-center justify-between gap-4">
-                                <div className="flex flex-wrap items-center gap-4">
-                                  {/* Qty Controls */}
-
-                                  <div className="flex items-center gap-2">
-                                    {item.variantAttributes?.weight ? (
-                                      <div className="flex w-[106px] items-center justify-center px-2 border border-[#B6AAFF]  py-1 rounded-lg">
-                                        <span className="text-[#1800AC]">
-                                          {item.variantAttributes?.weight}
+                              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                {/* Left Section */}
+                                <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full">
+                                  {/* Variant Info */}
+                                  <div className="flex flex-wrap items-center gap-2">
+                                    {item.variantAttributes?.weight && (
+                                      <div className="min-w-[80px] px-2 py-1 border border-[#B6AAFF] rounded-lg text-center">
+                                        <span className="text-[#1800AC] text-sm">
+                                          {item.variantAttributes.weight}
                                         </span>
                                       </div>
-                                    ) : (
-                                      "N/A"
-                                    )}
-                                    {item.variantColor ? (
-                                      <div className="flex w-[106px] items-center justify-center px-2 border border-[#B6AAFF]  py-1 rounded-lg">
-                                        <span className="text-[#1800AC]">
-                                          {item?.variantColor}
-                                        </span>
-                                      </div>
-                                    ) : (
-                                      "N/A"
                                     )}
 
-                                    {item.variantName ? (
-                                      <div className="flex w-[106px] items-center justify-center px-2 border border-[#B6AAFF]  py-1 rounded-lg">
-                                        <span className="text-[#1800AC]">
+                                    {item.variantColor && (
+                                      <div className="min-w-[80px] px-2 py-1 border border-[#B6AAFF] rounded-lg text-center">
+                                        <span className="text-[#1800AC] text-sm">
+                                          {item.variantColor}
+                                        </span>
+                                      </div>
+                                    )}
+
+                                    {item.variantName && (
+                                      <div className="min-w-[80px] px-2 py-1 border border-[#B6AAFF] rounded-lg text-center">
+                                        <span className="text-[#1800AC] text-sm">
                                           {item.variantName}
                                         </span>
                                       </div>
-                                    ) : (
-                                      "N/A"
                                     )}
                                   </div>
-                                  <div className="flex w-[106px] items-center justify-between px-2 border-[#E8E8E8] ring-1 ring-[#E8E8E8] p-1 rounded-md transition-all ease-in">
+
+                                  {/* Quantity */}
+                                  <div className="flex items-center justify-between w-[110px] px-2 py-1 border border-[#E8E8E8] rounded-md">
                                     <button
                                       onClick={() =>
                                         handleUpdateQty(item._id, "dec")
                                       }
-                                      className="w-4 h-4 flex items-center justify-center rounded-lg transition-colors"
+                                      className="w-5 h-5 flex items-center justify-center"
                                     >
-                                      {item.quantity === 1 ? (
-                                       <Minus />
-                                      ) : (
-                                        <Minus />
-                                      )}
+                                      <Minus />
                                     </button>
-                                    <span className="w-6 text-center">
+
+                                    <span className="text-sm font-medium">
                                       {item.quantity}
                                     </span>
+
                                     <button
                                       onClick={() =>
                                         handleUpdateQty(item._id, "inc")
                                       }
-                                      className="w-4 h-4 flex items-center justify-center rounded-lg"
+                                      className="w-5 h-5 flex items-center justify-center"
                                     >
-                                      <Plus></Plus>
+                                      <Plus />
                                     </button>
                                   </div>
                                 </div>
 
                                 {/* Actions */}
-                                <div className="flex md:gap-4 gap-2 font-medium">
+                                <div className="flex items-center gap-3 text-sm font-medium">
                                   <button
-                                    className="text-sm text-[#0C0057] cursor-pointer md:px-1 px-1.5 md:py-1 py-0.5"
-                                    onClick={() =>
-                                      dispatch(removeFromCart(item))
-                                    }
+                                    className="text-[#0C0057]"
+                                    onClick={() => handleRemoveItem(item)}
                                   >
                                     Remove
                                   </button>
-                                  <div>|</div>
 
-                                  <div
-                                    className="text-sm cursor-pointer rounded-full  text-[#0C0057]  md:px-1 px-1 md:py-1 py-0.5"
+                                  <span className="hidden sm:inline">|</span>
+
+                                  <button
+                                    className="text-[#0C0057]"
                                     onClick={() => moveToWishlist(item)}
                                   >
                                     Save for later
-                                  </div>
+                                  </button>
                                 </div>
                               </div>
                             </div>
