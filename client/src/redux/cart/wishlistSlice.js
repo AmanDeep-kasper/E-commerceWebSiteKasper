@@ -1,86 +1,10 @@
-// import { createSlice } from "@reduxjs/toolkit";
-// import { toast } from "react-toastify";
-
-// const loadWishlistFromStorage = () => {
-//   try {
-//     const saved = localStorage.getItem("wishlist");
-//     return saved ? JSON.parse(saved) : [];
-//   } catch {
-//     return [];
-//   }
-// };
-
-// const saveWishlistToStorage = (wishlistItems) => {
-//   try {
-//     localStorage.setItem("wishlist", JSON.stringify(wishlistItems));
-//   } catch {}
-// };
-
-// const savedItems = loadWishlistFromStorage();
-
-// const initialState = {
-//   wishlistItems: savedItems,
-//   totalItems: savedItems.length,
-// };
-
-// const wishlistSlice = createSlice({
-//   name: "wishlist",
-//   initialState,
-//   reducers: {
-//     syncWishlist: (state) => {
-//       state.totalItems = state.wishlistItems.length;
-//       saveWishlistToStorage(state.wishlistItems);
-//     },
-//     addToWishlist: (state, { payload: item }) => {
-//       const exists = state.wishlistItems.some((i) => i.uuid === item.uuid);
-//       if (!exists) {
-//         state.wishlistItems.push(item);
-//         toast.success("Added to favourites");
-//       }
-//       wishlistSlice.caseReducers.syncWishlist(state);
-//     },
-//     removeFromWishlist: (state, { payload: item }) => {
-//       state.wishlistItems = state.wishlistItems.filter(
-//         (i) => i.uuid !== item.uuid
-//       );
-//       wishlistSlice.caseReducers.syncWishlist(state);
-//     },
-//     clearWishlist: (state) => {
-//       state.wishlistItems = [];
-//       wishlistSlice.caseReducers.syncWishlist(state);
-//     },
-//   },
-// });
-
-// export const {
-//   syncWishlist,
-//   addToWishlist,
-//   removeFromWishlist,
-//   clearWishlist,
-// } = wishlistSlice.actions;
-
-// export default wishlistSlice.reducer;
-
 import { createSlice } from "@reduxjs/toolkit";
-import { toast } from "react-toastify";
-import products from "../../data/products.json"; // 👈 import products to resync stock
 
-// Load from localStorage + resync with latest stock
+// Load from localStorage
 const loadWishlistFromStorage = () => {
   try {
     const saved = localStorage.getItem("wishlist");
-    let wishlist = saved ? JSON.parse(saved) : [];
-
-    // 🔄 Sync stock quantity with latest product data
-    wishlist = wishlist.map((item) => {
-      const latest = products.find((p) => p.uuid === item.uuid);
-      return {
-        ...item,
-        stockQuantity: latest?.stockQuantity ?? 0,
-      };
-    });
-
-    return wishlist;
+    return saved ? JSON.parse(saved) : [];
   } catch {
     return [];
   }
@@ -107,6 +31,30 @@ const wishlistSlice = createSlice({
       state.totalItems = state.wishlistItems.length;
       saveWishlistToStorage(state.wishlistItems);
     },
+
+    setWishlistFromAPI: (state, { payload }) => {
+      const wishlist = payload || {};
+
+      state.wishlistItems = (wishlist.items || []).map((item) => ({
+        _id: item._id,
+        product: item.product,
+        productId: item.product,
+        uuid: item.product,
+        variantId: item.variantId,
+        title: item.productTitle,
+        image: item.image?.url || "/placeholder.png",
+        variantName: item.variantName,
+        variantColor: item.variantColor,
+        variantAttributes: item.variantAttributes || {},
+        basePrice: Number(item.variantAttributes?.mrp || 0),
+        discountPercent: Number(item.variantAttributes?.discount || 0),
+        stockQuantity: Number(item.variantAvailableStock || 0),
+      }));
+
+      state.totalItems = state.wishlistItems.length;
+      saveWishlistToStorage(state.wishlistItems);
+    },
+
     addToWishlist: (state, { payload: item }) => {
       const exists = state.wishlistItems.find(
         (i) => i.uuid === item.uuid && i.variantId === item.variantId
@@ -115,18 +63,20 @@ const wishlistSlice = createSlice({
       if (!exists) {
         state.wishlistItems.push({
           ...item,
-          stockQuantity: item.stockQuantity ?? 0, // 👈 ensure stock is stored
+          stockQuantity: item.stockQuantity ?? 0,
         });
-        // toast.success("Added to favourites");
       }
+
       wishlistSlice.caseReducers.syncWishlist(state);
     },
+
     removeFromWishlist: (state, { payload: item }) => {
       state.wishlistItems = state.wishlistItems.filter(
         (i) => !(i.uuid === item.uuid && i.variantId === item.variantId)
       );
       wishlistSlice.caseReducers.syncWishlist(state);
     },
+
     clearWishlist: (state) => {
       state.wishlistItems = [];
       wishlistSlice.caseReducers.syncWishlist(state);
@@ -136,6 +86,7 @@ const wishlistSlice = createSlice({
 
 export const {
   syncWishlist,
+  setWishlistFromAPI,
   addToWishlist,
   removeFromWishlist,
   clearWishlist,

@@ -600,6 +600,8 @@ function ProductDetails() {
               </div>
             )}
 
+            {/* Add to cart */}
+
             <div className="flex gap-3 py-4 border-b">
               {outOfStock ? (
                 <button
@@ -609,117 +611,56 @@ function ProductDetails() {
                 >
                   Out of Stock
                 </button>
-              ) : inCart ? (
-                <div className="flex items-center gap-3 px-4 border-[#1C3753] ring-1 ring-[#1C3753]/50 shadow-md p-1 rounded-md transition-all ease-in">
-                  {/* Decrease */}
-                  <button
-                    type="button"
-                    onClick={async (e) => {
-                      e.stopPropagation();
-
-                      if (!cartItemId) {
-                        toast.error("Cart item not found");
-                        return;
-                      }
-
-                      const previousQty = localQty;
-                      const nextQty = Math.max(localQty - 1, 0);
-                      setLocalQty(nextQty);
-
-                      try {
-                        await axiosInstance.patch("/cart/update-item", {
-                          itemId: cartItemId,
-                          action: "dec",
-                        });
-
-                        await syncCartFromBackend();
-                      } catch (err) {
-                        console.error(err);
-                        setLocalQty(previousQty);
-                        toast.error(
-                          err?.response?.data?.message ||
-                            "Failed to update cart",
-                        );
-                      }
-                    }}
-                    className="w-6 h-6 flex items-center justify-center"
-                    disabled={cartUpdating}
-                  >
-                    {localQty === 1 ? (
-                      <Trash2 size={16} />
-                    ) : (
-                      <Minus size={16} />
-                    )}
-                  </button>
-
-                  {/* Quantity */}
-                  {/* <span className="w-6 text-center">{qtyInCart}</span> */}
-                  <span className="w-6 text-center">{localQty}</span>
-
-                  {/* Increase */}
-                  <button
-                    type="button"
-                    onClick={async (e) => {
-                      e.stopPropagation();
-
-                      if (!cartItemId) {
-                        toast.error("Cart item not found");
-                        return;
-                      }
-
-                      const previousQty = localQty;
-                      setLocalQty((prev) => prev + 1);
-
-                      try {
-                        await axiosInstance.patch("/cart/update-item", {
-                          itemId: cartItemId,
-                          action: "inc",
-                        });
-
-                        await syncCartFromBackend();
-                      } catch (err) {
-                        console.error(err);
-                        setLocalQty(previousQty);
-                        toast.error(
-                          err?.response?.data?.message ||
-                            "Failed to update cart",
-                        );
-                      }
-                    }}
-                    className="w-6 h-6 flex items-center justify-center"
-                    disabled={cartUpdating}
-                  >
-                    <Plus size={16} />
-                  </button>
-                </div>
               ) : (
                 <button
                   type="button"
                   onClick={async () => {
+                    if (inCart) {
+                      toast.info("Already Added");
+                      return;
+                    }
+
                     try {
                       setCartUpdating(true);
 
-                      await axiosInstance.post("/cart/add-to-cart", {
+                      const promise = axiosInstance.post("/cart/add-to-cart", {
                         productId: product._id,
                         variantId,
                         quantity: 1,
                       });
 
-                      await syncCartFromBackend();
-                      toast.success("Add To Cart");
+                      const res = await toast.promise(promise, {
+                        pending: "Adding to cart...",
+                        success: "Added to Cart",
+                        error: {
+                          render({ data }) {
+                            return (
+                              data?.response?.data?.message ||
+                              "Failed to add to cart"
+                            );
+                          },
+                        },
+                      });
+
+                      dispatch(setCartFromAPI(res.data.data));
                     } catch (err) {
                       console.error(err);
-                      toast.error("Failed to add to cart");
                     } finally {
                       setCartUpdating(false);
                     }
                   }}
-                  disabled={pageLoading}
-                  className="px-6 py-2 bg-[#F6F8F9] hover:bg-[#0C0057] hover:text-white 
-      transform transition-all duration-200 ease-in-out 
-      hover:scale-105 text-[#0C0057] border border-[#0C0057] rounded-md"
+                  disabled={cartUpdating}
+                  className={`px-6 py-2 border rounded-md ${
+                    inCart
+                      ? "bg-[#0C0057] text-white border-[#0C0057]"
+                      : "bg-[#F6F8F9] hover:bg-[#0C0057] hover:text-white text-[#0C0057] border-[#0C0057]"
+                  }`}
                 >
-                  {pageLoading ? "Adding..." : "Add to Cart"}
+                  {cartUpdating
+                    ? "Adding..."
+                    : inCart
+                      ? "Added"
+                      : "Add to Cart"}
                 </button>
               )}
 
@@ -729,7 +670,7 @@ function ProductDetails() {
     transform transition-all duration-200 ease-in-out 
     hover:scale-105 border border-[#1C3753] rounded-md"
                 onClick={() => handleBuyNow(product, selectedVariant)}
-                disabled={outOfStock || pageLoading}
+                disabled={outOfStock || cartUpdating}
               >
                 Buy now
               </button>

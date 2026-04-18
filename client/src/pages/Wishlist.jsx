@@ -1,5 +1,5 @@
 import AccountSidebar from "../components/AccountSidebar";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Heart, HeartIcon, ShoppingCart } from "lucide-react";
 import Navbar from "../components/Navbar";
 import Footer from "../sections/Footer";
@@ -10,15 +10,76 @@ import { Link } from "react-router-dom";
 import { formatPrice } from "../utils/homePageUtils";
 import Modal from "../components/Modal";
 import EmptyState from "../components/EmptyState";
+import axiosInstance from "../api/axiosInstance";
+import { setCartFromAPI } from "../redux/cart/cartSlice";
+import { setWishlistFromAPI } from "../redux/cart/wishlistSlice";
+import { toast } from "react-toastify";
 
 function Wishlist() {
-  const { wishlistItems, totalItems } = useSelector((s) => s.wishlist);
+  // const { wishlistItems, totalItems } = useSelector((s) => s.wishlist);
+  const [apiWishlist, setApiWishlist] = useState([]);
+  const wishlistItems = apiWishlist;
+  const totalItems = apiWishlist.length;
   const [isModalOpen, setIsModalOpen] = useState(false);
   const dispatch = useDispatch();
+  const [actionLoadingId, setActionLoadingId] = useState(null);
 
-  const moveToCart = (item) => {
-    dispatch(addToCart(item));
-    dispatch(removeFromWishlist(item));
+  const moveToCart = async (item) => {
+    try {
+      setActionLoadingId(item._id);
+
+      const res = await toast.promise(
+        axiosInstance.post("/wishlist/move-to-cart", {
+          itemId: item._id,
+        }),
+        {
+          pending: "Moving to cart...",
+          success: "Item moved to cart",
+          error: {
+            render({ data }) {
+              return data?.response?.data?.message || "Failed to move item";
+            },
+          },
+        },
+      );
+
+      dispatch(setCartFromAPI(res.data.data));
+      await fetchWishlist();
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setActionLoadingId(null);
+    }
+  };
+
+  const handleRemoveWishlistItem = async (item) => {
+    try {
+      setActionLoadingId(item._id);
+
+      await toast.promise(
+        axiosInstance.delete("/wishlist/remove-item", {
+          data: {
+            productId: item.product || item.productId || item.uuid,
+            variantId: item.variantId,
+          },
+        }),
+        {
+          pending: "Removing...",
+          success: "Removed from wishlist",
+          error: {
+            render({ data }) {
+              return data?.response?.data?.message || "Failed to remove item";
+            },
+          },
+        },
+      );
+
+      await fetchWishlist();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setActionLoadingId(null);
+    }
   };
 
   const moveAllToCart = (wishlistItems) => {
@@ -28,11 +89,43 @@ function Wishlist() {
     dispatch(clearWishlist());
   };
 
-  // ✅ Detect out of stock items
+  // Detect out of stock items
   const outOfStockItems = wishlistItems.filter(
-    (item) => (item.stockQuantity ?? 0) <= 0
+    (item) => (item.stockQuantity ?? 0) <= 0,
   );
   const hasOutOfStock = outOfStockItems.length > 0;
+
+  // get wishlist api
+  const fetchWishlist = async () => {
+    try {
+      const res = await axiosInstance.get("/wishlist");
+
+      const items = res.data?.data?.items || [];
+
+      const formatted = items.map((item) => ({
+        _id: item._id,
+        product: item.product,
+        uuid: item.product,
+        variantId: item.variantId,
+        title: item.productTitle,
+        image: item.image?.url,
+        variantName: item.variantName,
+        variantColor: item.variantColor,
+        variantAttributes: item.variantAttributes,
+        basePrice: Number(item.variantAttributes?.mrp || 0),
+        discountPercent: Number(item.variantAttributes?.discount || 0),
+        stockQuantity: Number(item.variantAvailableStock || 0),
+      }));
+
+      setApiWishlist(formatted);
+    } catch (error) {
+      console.error("Error fetching wishlist:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchWishlist();
+  }, []);
 
   return (
     <div className="mt-5 w-full bg-white rounded-lg shadow-sm md:border border-gray-200">
@@ -57,7 +150,7 @@ function Wishlist() {
             later."
           icon={Heart}
           ctaLabel="Discover Products"
-          ctaLink="/products"
+          ctaLink="/home"
         />
       ) : (
         <>
@@ -87,11 +180,44 @@ function Wishlist() {
                       >
                         {item.title}
                       </Link>
+
+                      <div>
+                        <div className="flex items-center gap-1">
+                          {item.variantColor ? (
+                            <>
+                              <p className="text-[#686868]">Color: </p>
+                              <span>{item.variantColor}</span>
+                            </>
+                          ) : (
+                            ""
+                          )}
+                        </div>
+                        <div className="flex items-center gap-1">
+                          {item.variantAttributes?.weight ? (
+                            <>
+                              <p className="text-[#686868]">Weight: </p>
+                              <span>{item.variantAttributes.weight}</span>
+                            </>
+                          ) : (
+                            ""
+                          )}
+                        </div>
+                        <div className="flex items-center gap-1">
+                          {item.variantName ? (
+                            <>
+                              <p className="text-[#686868]">Style Name: </p>
+                              <span>{item.variantName}</span>
+                            </>
+                          ) : (
+                            ""
+                          )}
+                        </div>
+                      </div>
                       <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1">
                         <span className="md:text-xl text-base font-semibold text-gray-800">
                           {formatPrice(
                             item.basePrice -
-                              (item.discountPercent * item.basePrice) / 100
+                              (item.discountPercent * item.basePrice) / 100,
                           )}
                         </span>
                         {item.discountPercent > 0 && (
@@ -105,6 +231,9 @@ function Wishlist() {
                           </>
                         )}
                       </div>
+                      <span className="text-sm text-[#686868]">
+                        inclusive of all taxes
+                      </span>
 
                       {/* Out of Stock Label */}
                       {(item.stockQuantity ?? 0) <= 0 && (
@@ -117,19 +246,27 @@ function Wishlist() {
                       <button
                         className="bg-[#1C3753] md:px-4 px-2 md:py-1 py-0.5 text-sm text-white border border-[#1C3753] transition-colors whitespace-nowrap shadow-sm hover:shadow-sm rounded-lg disabled:bg-gray-300 disabled:border-gray-300 disabled:text-gray-500"
                         onClick={() => moveToCart(item)}
-                        disabled={(item.stockQuantity ?? 0) <= 0}
+                        disabled={
+                          (item.stockQuantity ?? 0) <= 0 ||
+                          actionLoadingId === item._id
+                        }
                       >
                         {(item.stockQuantity ?? 0) <= 0
                           ? "Out of Stock"
-                          : "Add to Cart"}
+                          : actionLoadingId === item._id
+                            ? "Please wait..."
+                            : "Add to Cart"}
                       </button>
 
                       <button
-                        className="md:px-4 px-2 md:py-1 py-0.5 flex items-center text-sm border border-[#1C3753] text-[#1C3753] gap-2 rounded-lg"
-                        onClick={() => dispatch(removeFromWishlist(item))}
+                        className="md:px-4 px-2 md:py-1 py-0.5 flex items-center text-sm border border-[#1C3753] text-[#1C3753] gap-2 rounded-lg disabled:opacity-60"
+                        onClick={() => handleRemoveWishlistItem(item)}
+                        disabled={actionLoadingId === item._id}
                         aria-label="Remove item"
                       >
-                        Remove
+                        {actionLoadingId === item._id
+                          ? "Removing..."
+                          : "Remove"}
                       </button>
                     </div>
                   </div>
