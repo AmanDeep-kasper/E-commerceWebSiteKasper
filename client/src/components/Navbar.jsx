@@ -21,7 +21,7 @@ import {
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import UserProfile from "./UserProfile";
-// import users from "../data/user";
+import { setWishlistFromAPI } from "../redux/cart/wishlistSlice";
 import Modal from "./Modal";
 import { logoutUser } from "../redux/cart/userSlice";
 import MainLog from "../assets/IconsUsed/HomeMainLogo.png";
@@ -46,6 +46,26 @@ function Navbar() {
   }, [user]);
 
 
+  // add by aman
+  useEffect(() => {
+    const syncData = async () => {
+      try {
+        if (!isAuthenticated) return;
+
+        // 🔹 Cart sync
+        const cartRes = await axiosInstance.get("/cart");
+        dispatch(setCartFromAPI(cartRes.data.data));
+
+        // 🔹 Wishlist sync
+        const wishRes = await axiosInstance.get("/wishlist");
+        dispatch(setWishlistFromAPI(wishRes.data.data));
+      } catch (error) {
+        console.error("Navbar sync error:", error);
+      }
+    };
+
+    syncData();
+  }, [isAuthenticated]);
 
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [dropdown, setDropdown] = useState(false);
@@ -89,8 +109,7 @@ function Navbar() {
     navigate("/login", { replace: true });
   };
 
-
-    const totalItems = useSelector((state) => state.cart.totalItems);
+  const totalItems = useSelector((state) => state.cart.totalItems);
 
   // useEffect(() => {
   //   const fetchCartAndSync = async () => {

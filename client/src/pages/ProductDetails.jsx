@@ -10,6 +10,7 @@ import Card from "../components/Card";
 import { Heart, Minus, PackageOpen, Plus, Trash2 } from "lucide-react";
 
 import { useDispatch, useSelector } from "react-redux";
+
 import {
   addToCart,
   buyNow,
@@ -31,7 +32,7 @@ import { toast } from "react-toastify";
 
 function ProductDetails() {
   const { slugOrId } = useParams();
-  // console.log("URL ID from useParams:", slugOrId);
+  const { isAuthenticated } = useSelector((s) => s.user);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [product, setProduct] = useState(null);
@@ -69,8 +70,10 @@ function ProductDetails() {
   };
 
   useEffect(() => {
-    syncCartFromBackend();
-  }, []);
+    if (isAuthenticated) {
+      syncCartFromBackend();
+    }
+  }, [isAuthenticated]);
 
   const getSimilarProducts = (all, found, uuid) => {
     if (!found) return [];
@@ -325,6 +328,38 @@ function ProductDetails() {
         String(i.variantId) === String(variantId),
     );
 
+    if (!isAuthenticated) {
+      if (isInWishlist) {
+        dispatch(removeFromWishlist({ uuid: product._id, variantId }));
+        toast.success("Removed from wishlist");
+      } else {
+        dispatch(
+          addToWishlist({
+            uuid: product._id,
+            product: product._id,
+            productId: product._id,
+            variantId,
+            title: product.productTittle,
+            image:
+              selectedVariant?.variantImage?.[0]?.url || "/placeholder.png",
+            basePrice: Number(selectedVariant?.variantMrp || 0),
+            discountPercent: Number(selectedVariant?.variantDiscount || 0),
+            stockQuantity: Number(selectedVariant?.variantAvailableStock || 0),
+            variantName: selectedVariant?.variantName,
+            variantColor: selectedVariant?.variantColor,
+            variantAttributes: {
+              weight: `${selectedVariant?.variantWeight || ""}${selectedVariant?.variantWeightUnit || ""}`,
+              mrp: Number(selectedVariant?.variantMrp || 0),
+              sellingPrice: Number(selectedVariant?.variantSellingPrice || 0),
+              discount: Number(selectedVariant?.variantDiscount || 0),
+            },
+          }),
+        );
+        toast.success("Added to wishlist");
+      }
+      return;
+    }
+
     try {
       if (isInWishlist) {
         await toast.promise(
@@ -372,13 +407,14 @@ function ProductDetails() {
           addToWishlist({
             uuid: product._id,
             product: product._id,
+            productId: product._id,
             variantId,
             title: product.productTittle,
+            image:
+              selectedVariant?.variantImage?.[0]?.url || "/placeholder.png",
             basePrice: Number(selectedVariant?.variantMrp || 0),
             discountPercent: Number(selectedVariant?.variantDiscount || 0),
             stockQuantity: Number(selectedVariant?.variantAvailableStock || 0),
-            image:
-              selectedVariant?.variantImage?.[0]?.url || "/placeholder.png",
             variantName: selectedVariant?.variantName,
             variantColor: selectedVariant?.variantColor,
             variantAttributes: {
@@ -678,6 +714,45 @@ function ProductDetails() {
                   onClick={async () => {
                     if (inCart) {
                       toast.info("Already Added");
+                      return;
+                    }
+
+                    if (!isAuthenticated) {
+                      dispatch(
+                        addToCart({
+                          uuid: product._id,
+                          productId: product._id,
+                          variantId,
+                          title: product.productTittle,
+                          image:
+                            selectedVariant?.variantImage?.[0]?.url ||
+                            "/placeholder.png",
+                          basePrice: Number(selectedVariant?.variantMrp || 0),
+                          sellingPrice: Number(
+                            selectedVariant?.variantSellingPrice || 0,
+                          ),
+                          discountPercent: Number(
+                            selectedVariant?.variantDiscount || 0,
+                          ),
+                          stockQuantity: Number(
+                            selectedVariant?.variantAvailableStock || 0,
+                          ),
+                          quantity: 1,
+                          variantName: selectedVariant?.variantName,
+                          variantColor: selectedVariant?.variantColor,
+                          variantAttributes: {
+                            weight: `${selectedVariant?.variantWeight || ""}${selectedVariant?.variantWeightUnit || ""}`,
+                            mrp: Number(selectedVariant?.variantMrp || 0),
+                            sellingPrice: Number(
+                              selectedVariant?.variantSellingPrice || 0,
+                            ),
+                            discount: Number(
+                              selectedVariant?.variantDiscount || 0,
+                            ),
+                          },
+                        }),
+                      );
+                      toast.success("Added to Cart");
                       return;
                     }
 
