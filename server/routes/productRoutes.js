@@ -2,6 +2,7 @@ import express from "express";
 import { authenticate, authorize } from "../middlewares/authMiddleware.js";
 import {
   addProduct,
+  adjustStock,
   adminAddVariant,
   adminDeleteProduct,
   adminDeleteVariant,
@@ -44,6 +45,8 @@ router.get(
   authorize("admin"),
   adminGetAllProducts,
 );
+
+router.patch("/adjust-stock", authenticate, authorize("admin"), adjustStock);
 
 router.get(
   "/admin/get-product-details/:idOrSlug",
