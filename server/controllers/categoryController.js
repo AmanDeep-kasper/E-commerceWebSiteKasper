@@ -132,25 +132,27 @@ export const getAllCategories = asyncHandler(async (req, res) => {
     withSubCategories = "true",
   } = req.query;
 
+  const pageNum = parseInt(page) || 1;
+  const limitNum = parseInt(limit) || 10;
+
   // Build filter
-  const filter = {};
+  let filter = {};
+  let sort = { createdAt: -1 };
 
   if (search) {
     filter.$or = [
       { name: { $regex: search, $options: "i" } },
       { slug: { $regex: search, $options: "i" } },
     ];
+    sort = { name: 1 };
   }
 
   // Pagination
-  const skip = (Number(page) - 1) * Number(limit);
+  const skip = (pageNum - 1) * limitNum;
 
   // Execute queries
   const [categories, total] = await Promise.all([
-    Category.find(filter)
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(Number(limit)),
+    Category.find(filter).sort(sort).skip(skip).limit(limitNum),
     Category.countDocuments(filter),
   ]);
 
@@ -182,10 +184,10 @@ export const getAllCategories = asyncHandler(async (req, res) => {
     message: "Categories fetched successfully",
     category: data,
     pagination: {
+      page: pageNum,
+      limit: limitNum,
       total,
-      page: Number(page),
-      limit: Number(limit),
-      pages: Math.ceil(total / Number(limit)),
+      pages: Math.ceil(total / limitNum),
     },
   });
 });
@@ -401,28 +403,28 @@ export const deleteSubCategory = asyncHandler(async (req, res) => {
 export const getAllCategoriesController = asyncHandler(async (req, res) => {
   const { page = 1, limit = 10, search } = req.query;
 
+  const pageNum = parseInt(page) || 1;
+  const limitNum = parseInt(limit) || 10;
+
   // Filter
-  const filter = { isActive: true };
+  let filter = { isActive: true };
+  let sort = { createdAt: -1 };
 
   if (search) {
     filter.$or = [
       { name: { $regex: search, $options: "i" } },
       { slug: { $regex: search, $options: "i" } },
     ];
+
+    sort = { name: 1 };
   }
 
   // Pagination
-  const pageNum = parseInt(page) || 1;
-  const limitNum = parseInt(limit) || 10;
   const skip = (pageNum - 1) * limitNum;
 
   // Query
   const [categories, total] = await Promise.all([
-    Category.find(filter)
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limitNum)
-      .lean(),
+    Category.find(filter).sort(sort).skip(skip).limit(limitNum).lean(),
 
     Category.countDocuments(filter),
   ]);
