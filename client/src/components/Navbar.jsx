@@ -1,6 +1,7 @@
 // import products from "../data/products.json";
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { getCart } from "../services/CartService";
 import {
   Menu,
   X,
@@ -29,6 +30,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay } from "swiper/modules";
 import "swiper/css";
 import { useRef } from "react";
+import { setCartFromAPI } from "../redux/cart/cartSlice";
 
 function Navbar() {
   const { user, isAuthenticated } = useSelector((state) => state.user);
@@ -43,6 +45,8 @@ function Navbar() {
     }
   }, [user]);
 
+
+
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [dropdown, setDropdown] = useState(false);
   const [subDropdown, setSubDropdown] = useState(null);
@@ -52,7 +56,7 @@ function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const totalItems = useSelector((state) => state.cart.totalItems);
+  // const totalItems = useSelector((state) => state.cart.totalItems);
   const totalWishlistItems = useSelector(
     (state) => state?.wishlist?.totalItems,
   );
@@ -85,28 +89,23 @@ function Navbar() {
     navigate("/login", { replace: true });
   };
 
-  // Mock shop categories data
-  // const shopCategories = Object.values(
-  //   products.reduce((acc, { category, subcategory }) => {
-  //     if (!acc[category]) {
-  //       acc[category] = {
-  //         name: category,
-  //         path: `/products/${encodeURIComponent(category)}`, // matches your route
-  //         sublist: [],
-  //       };
-  //     }
 
-  //     if (!acc[category].sublist.some((sub) => sub.name === subcategory)) {
-  //       acc[category].sublist.push({
-  //         name: subcategory,
-  //         category: subcategory,
-  //         path: `/${encodeURIComponent(subcategory)}`,
-  //       });
-  //     }
+    const totalItems = useSelector((state) => state.cart.totalItems);
 
-  //     return acc;
-  //   }, {}),
-  // );
+  useEffect(() => {
+    const fetchCartAndSync = async () => {
+      try {
+        const res = await axiosInstance.get("/cart");
+        dispatch(setCartFromAPI(res.data.data));
+      } catch (error) {
+        console.error("Failed to fetch cart:", error);
+      }
+    };
+
+    fetchCartAndSync();
+  }, [dispatch]);
+
+  console.log(totalItems);
 
   // disable background scroll when mobile nav is open
   useEffect(() => {
@@ -174,7 +173,6 @@ function Navbar() {
       setLoading(false);
     }
   };
-
 
   return (
     // <div className="w-full">
@@ -284,8 +282,8 @@ function Navbar() {
                             <img
                               src={item.image}
                               alt={item.title}
-                               crossOrigin="anonymous"
-  referrerPolicy="no-referrer"
+                              crossOrigin="anonymous"
+                              referrerPolicy="no-referrer"
                               className="w-14 h-14 object-cover rounded border"
                             />
                             <div>
@@ -379,8 +377,8 @@ function Navbar() {
                             <img
                               src={item.image}
                               alt={item.productTittle}
-                               crossOrigin="anonymous"
-  referrerPolicy="no-referrer"
+                              crossOrigin="anonymous"
+                              referrerPolicy="no-referrer"
                               className="w-10 h-10 object-cover rounded border"
                             />
 
@@ -436,7 +434,7 @@ function Navbar() {
               <div className="absolute -right-[340%] hidden lg:group-hover:block max-lg:hidden top-8 z-50 border border-transparent">
                 <div className="border border-gray-200 mt-4">
                   <UserProfile isAuthenticated={isAuthenticated} />
-                 
+
                   <div className="pt-4 border-t border-gray-200 bg-white">
                     {isAuthenticated ? (
                       <>
@@ -544,8 +542,8 @@ function Navbar() {
                       <img
                         src={user.user.profileImage.url}
                         alt="Profile"
-                         crossOrigin="anonymous"
-  referrerPolicy="no-referrer"
+                        crossOrigin="anonymous"
+                        referrerPolicy="no-referrer"
                         className="w-full h-full object-cover rounded-full"
                       />
                     ) : (

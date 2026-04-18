@@ -55,6 +55,7 @@ router.post(
 );
 router.post("/logout", generalLimiter, authenticate, logoutUser);
 router.get("/me", generalLimiter, authenticate, me);
+
 router.patch(
   "/change-password",
   generalLimiter,
@@ -64,6 +65,7 @@ router.patch(
   validateRequest,
   changePassword,
 );
+
 router.post(
   "/forgot-password",
   // sensitiveLimiter,
