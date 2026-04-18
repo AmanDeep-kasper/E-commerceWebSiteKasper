@@ -19,14 +19,14 @@ function NewProducts() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const allProducts = useSelector((state) => state.products.product);
+  // const allProducts = useSelector((state) => state.products.product);
 
-  useEffect(() => {
-    if (allProducts && allProducts.length > 0) {
-      setItems(allProducts);
-      setLoading(false);
-    }
-  }, [allProducts]);
+  // useEffect(() => {
+  //   if (allProducts && allProducts.length > 0) {
+  //     setItems(allProducts);
+  //     setLoading(false);
+  //   }
+  // }, [allProducts]);
 
   const sort = (val) => {
     setItems((prev) => {

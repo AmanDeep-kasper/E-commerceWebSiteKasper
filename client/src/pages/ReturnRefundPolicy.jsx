@@ -6,11 +6,11 @@ const ReturnRefundPolicy = () => {
   return (
     <>
       <Navbar></Navbar>
-      <section className="px-4 sm:px-8 md:px-16 lg:px-32 xl:px-[240px] py-10 sm:py-12 md:py-16 lg:py-20 mt-10">
-        <div className="flex flex-col items-center gap-4">
-          {/* <p className="text-[#E5B800] text-sm sm:text-base">
+      {/* <section className="px-4 sm:px-8 md:px-16 lg:px-32 xl:px-[240px] py-10 sm:py-12 md:py-16 lg:py-20 mt-10">
+        <div className="flex flex-col items-center gap-4 justify-center">
+          <p className="text-[#E5B800] text-sm sm:text-base">
             Current as of 20 Sep 2024
-          </p> */}
+          </p> 
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-semibold">
             Return & Refund Policy
           </h1>
@@ -21,7 +21,6 @@ const ReturnRefundPolicy = () => {
           </p>
         </div>
 
-        {/* Generic Section */}
         <div className="text-[#828282] flex flex-col  gap-6 my-12 text-sm sm:text-base leading-relaxed max-w-4xl mx-auto">
           <h1 className="text-xl sm:text-2xl md:text-3xl text-[#3D3D3D] font-medium">
             Order Processing
@@ -45,7 +44,6 @@ const ReturnRefundPolicy = () => {
           </p>
         </div>
 
-        {/* Reusable Section Pattern */}
         {[
           "Eligibility for Returns",
           "Damaged or Incorrect Products",
@@ -83,7 +81,71 @@ const ReturnRefundPolicy = () => {
             </p>
           </div>
         ))}
-      </section>
+      </section> */}
+
+
+      { /* <===============------------- Return policy ---------------===================> */}
+      <div className="mt-px-4 sm:px-8 md:px-16 lg:px-32 xl:px-[240px] py-10 sm:py-12 md:py-16 lg:py-20 mt-10">
+        <div className="flex flex-col justify-center">
+          <div className="flex flex-col gap-2">
+            <span className="text-[28px] font-medium text-[#1C1C1C]">Return & Refund Policy</span>
+            <span className="text-[16px] text-[#1C1C1C] font-regular">At Happy Art Supplies, we strive to provide high-quality resin art materials and supplies. Due to the nature of our products, we maintain a strict policy of no returns, no exchanges, and no cancellations once an order has been placed.</span>
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-2 mt-5">
+          <span className="text-[#1C1C1C] text-[22px] font-medium">Damaged or Incorrect Items</span>
+          <div className="flex flex-col gap-2 mt-3">
+            <span>We understand that the issues can occure during transit. if you recive:</span>
+            <span>• A incorrect item</span>
+            <span>• A damage product</span>
+            <span>Please contact with us within  24 hours delivery with:</span>
+            <span>•
+              Clear photos/videos of the product
+            </span>
+            <span>• Order details (Order ID, invoice)</span>
+            <span>
+              After verification, we will:</span>
+            <span>• Offer a replacement, or</span>
+            <span>•
+              Provide a refund, depending on the situation</span>
+          </div>
+        </div>
+        <div className="flex flex-col gap-2 mt-5">
+          <span className="text-[#1C1C1C] text-[22px] font-medium">Refund Process</span>
+          <div className="flex flex-col gap-2 mt-3">
+            <span>If a return Approved:</span>
+            <span>• it will processed within 5-7 bussiness days</span>
+            <span>• The amount will be credited to your original payment method</span>
+          </div>
+        </div>
+        <div className="flex flex-col gap-2 mt-5">
+          <span className="text-[#1C1C1C] text-[22px] font-medium">Non-Refundable Situations</span>
+          <div className="flex flex-col gap-2 mt-3">
+            <span>Refunds will not be applicable in the following cases:</span>
+            <span>• Change of mind after purchase</span>
+            <span>• Incorrect usage of product</span>
+            <span>• Delay in reporting issues (after 24 hours of delivery)</span>
+            <span>• Minor variations in color/texture (common in art materials)</span>
+          </div>
+        </div>
+        <div className="flex flex-col gap-2 mt-5">
+          <span className="text-[#1C1C1C] text-[22px] font-medium">Non-Refundable Situations</span>
+          <div className="flex flex-col gap-2 mt-3">
+            <span>• Orders cannot be cancelled once placed</span>
+            <span>• Please review your order carefully before confirming purchase</span>
+          </div>
+        </div>
+        <div className="flex flex-col gap-2 mt-5">
+          <span className="text-[#1C1C1C] text-[22px] font-medium">Non-Refundable Situations</span>
+          <div className="flex flex-col gap-2 mt-3">
+            <span>For any issues or queries, reach out to our support team:</span>
+            <span>• Email: happyartsupplies@gmail.com</span>
+            <span>• Phone: +91 98868 94723</span>
+          </div>
+        </div>
+
+      </div>
       <Footer></Footer>
     </>
   );

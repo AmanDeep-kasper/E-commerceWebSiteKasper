@@ -92,18 +92,18 @@ function Navbar() {
 
     const totalItems = useSelector((state) => state.cart.totalItems);
 
-  useEffect(() => {
-    const fetchCartAndSync = async () => {
-      try {
-        const res = await axiosInstance.get("/cart");
-        dispatch(setCartFromAPI(res.data.data));
-      } catch (error) {
-        console.error("Failed to fetch cart:", error);
-      }
-    };
+  // useEffect(() => {
+  //   const fetchCartAndSync = async () => {
+  //     try {
+  //       const res = await axiosInstance.get("/cart");
+  //       dispatch(setCartFromAPI(res.data.data));
+  //     } catch (error) {
+  //       console.error("Failed to fetch cart:", error);
+  //     }
+  //   };
 
-    fetchCartAndSync();
-  }, [dispatch]);
+  //   fetchCartAndSync();
+  // }, [dispatch]);
 
   console.log(totalItems);
 
