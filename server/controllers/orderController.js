@@ -46,6 +46,52 @@ const calculateShippingCharge = ({
   return config.charges.restOfIndia;
 };
 
+export const checkoutSummary = asyncHandler(async (req, res) => {
+  const userId = req.user?.userId;
+  const { shippingAddress } = req.body;
+
+  if (!shippingAddress?.city || !shippingAddress?.state) {
+    return res.status(200).json({
+      success: true,
+      data: {
+        shippingCharge: 0,
+        message: "Enter city/state to calculate shipping",
+      },
+    });
+  }
+
+  const [cart, config, warehouse] = await Promise.all([
+    Cart.findOne({ userId, status: "active" }),
+    Shipping.findOne({ isActive: true }).lean(),
+    Warehouse.findOne({ isActive: true }).lean(),
+  ]);
+
+  if (!cart) throw new Error("Cart not found");
+
+  const shippingCharge = calculateShippingCharge({
+    userCity: shippingAddress.city,
+    userState: shippingAddress.state,
+    warehouseCity: warehouse.address.city,
+    warehouseState: warehouse.address.state,
+    config,
+    cartTotal: cart.subtotal,
+  });
+
+  const platformFee = config.platformFee || 0;
+
+  const total = cart.grandTotal + shippingCharge + platformFee;
+
+  res.json({
+    success: true,
+    data: {
+      subtotal: cart.subtotal,
+      shippingCharge,
+      platformFee,
+      total,
+    },
+  });
+});
+
 export const checkout = asyncHandler(async (req, res) => {
   const userId = req.user?.userId;
   const { paymentMethod, shippingAddress } = req.body;

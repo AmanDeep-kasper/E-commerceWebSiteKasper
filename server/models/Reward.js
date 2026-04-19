@@ -7,32 +7,29 @@ const rewardSchema = new mongoose.Schema(
       required: true,
     },
 
-    // EARN CONFIG
+    // ✅ EARN CONFIG (SLAB BASED)
     earn: {
       minOrderValue: {
         type: Number,
         default: 0,
       },
-      rule: {
-        amount: {
-          type: Number,
-          required: true,
-          // ₹100 = 1 point OR 5%
-        },
 
-        points: {
-          type: Number,
-          required: true,
+      rules: [
+        {
+          minOrder: {
+            type: Number,
+            required: true,
+          },
+          points: {
+            type: Number,
+            required: true,
+          },
         },
-      },
+      ],
     },
 
-    // REDEEM CONFIG
+    // ✅ REDEEM CONFIG
     redeem: {
-      points: {
-        type: Number,
-        required: true,
-      },
       pointValue: {
         type: Number,
         required: true, // 1 point = ₹X
@@ -49,16 +46,14 @@ const rewardSchema = new mongoose.Schema(
       },
     },
 
-    // VALIDITY
+    // ✅ VALIDITY
     validity: {
       startDate: Date,
       endDate: Date,
-
       expiryDays: Number,
-      // e.g. points expire in 30 days after earning
     },
 
-    // CONTROL
+    // ✅ CONTROL
     isActive: {
       type: Boolean,
       default: true,
@@ -66,6 +61,11 @@ const rewardSchema = new mongoose.Schema(
     },
   },
   { timestamps: true, versionKey: false },
+);
+
+rewardSchema.index(
+  { isActive: 1 },
+  { unique: true, partialFilterExpression: { isActive: true } },
 );
 
 const Reward = mongoose.model("Reward", rewardSchema);

@@ -122,6 +122,13 @@ const OrderSchema = new mongoose.Schema(
       trackingUrl: String,
     },
 
+    reward: {
+      earnedPoints: Number,
+      usedPoints: Number,
+      redeemValue: Number,
+      pointValue: Number,
+    },
+
     // Timestamps
     placedAt: { type: Date, default: Date.now },
     deliveredAt: Date,
