@@ -1,0 +1,22 @@
+version: "3.9"
+
+services:
+  backend:
+    build:
+      context: ./server
+    container_name: backend
+    ports:
+      - "5000:5000"
+    env_file:
+      - ./server/.env
+
+  frontend:
+    build:
+      context: ./client
+      args:
+        VITE_BASE_URL: http://localhost:5000/api/v1
+    container_name: frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
