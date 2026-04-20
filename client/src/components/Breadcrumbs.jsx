@@ -11,7 +11,7 @@ function Breadcrumbs({ category, subcategory, title }) {
   // console.log("Breadcrumbs received:", { category, subcategory, title });
   return (
     <nav
-      className="flex lg:px-20 md:px-[60px] px-3 py-3 bg-gray-100 border-b border-gray-200"
+      className="flex lg:px-20 md:px-[60px] px-3 py-3 bg-gray-100 border-b border-gray-200 mt-5 pt-24"
       aria-label="Breadcrumb"
     >
       <ol className="inline-flex items-center text-sm space-x-2">

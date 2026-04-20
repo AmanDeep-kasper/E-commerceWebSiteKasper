@@ -42,7 +42,7 @@ function UserProfile({ setIsProfileOpen }) {
       {/* Top section: user icon and welcome message */}
       <div className="flex gap-4 items-center px-4 py-5 border-b border-gray-200 cursor-default">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-[#D5E5F5] flex items-center justify-center">
+          <div className="w-10 h-10 rounded-full bg-[#F0EEFF] flex items-center justify-center">
             {user ? (
               <img
                 src={user?.user?.profileImage?.url}

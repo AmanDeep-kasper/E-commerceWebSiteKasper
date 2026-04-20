@@ -395,7 +395,8 @@ useEffect(() => {
             className="flex gap-6 overflow-hidden"
           >
             {categories.slice(startIndex, startIndex + visibleCount).map((category) => (
-              <Link to="/products/second">
+              <Link to={`/products/${encodeURIComponent(category.name)}`}
+  state={{ category: category.name }}>
               <div
                 key={category._id}
                 className=""

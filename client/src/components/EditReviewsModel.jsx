@@ -216,7 +216,7 @@ function EditReviewModal({ open, review, onClose, onSave }) {
             <button
               type="button"
               onClick={handleSave}
-              className="min-w-[140px] rounded-lg bg-[#1C3753] px-6 py-3 text-white text-sm font-medium hover:opacity-95"
+              className="min-w-[140px] rounded-lg bg-[#1800AC] px-6 py-3 text-white text-sm font-medium hover:opacity-95"
             >
               Save
             </button>
@@ -224,7 +224,7 @@ function EditReviewModal({ open, review, onClose, onSave }) {
             <button
               type="button"
               onClick={onClose}
-              className="min-w-[140px] rounded-lg border border-[#1C3753] px-6 py-3 text-[#1C3753] text-sm font-medium hover:bg-[#1C3753]/5"
+              className="min-w-[140px] rounded-lg border border-[#1800AC] px-6 py-3 text-[#1800AC] text-sm font-medium hover:bg-[#1C3753]/5"
             >
               Cancel
             </button>
