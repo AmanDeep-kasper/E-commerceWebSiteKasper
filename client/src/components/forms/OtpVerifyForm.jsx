@@ -103,7 +103,10 @@ function OtpVerifyForm({ onSuccess, onBack }) {
     setError(null);
 
     try {
-      await userService.resendOtp({ email });
+      const tempUserId = localStorage.getItem("tempUserId");
+
+      await userService.resendOtp({ tempUserId });
+
       startResendCountdown();
       setOtp(["", "", "", "", "", ""]);
       inputRefs.current[0].focus();
