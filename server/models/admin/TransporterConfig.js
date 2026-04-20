@@ -25,7 +25,7 @@ const transporterSchema = new mongoose.Schema(
     },
 
     contactDetails: {
-      PersonName: {
+      personName: {
         type: String,
         required: true,
         trim: true,
