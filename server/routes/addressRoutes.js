@@ -66,4 +66,21 @@ router.patch(
   updateAddressStatus,
 );
 
+// add this two new route
+// Add these admin routes after your existing routes
+// Admin routes
+router.get(
+  "/admin/all-addresses/:userId",
+  authenticate,
+  authorize("admin"),
+  getAddressesByUserId
+);
+
+router.get(
+  "/admin/address-detail/:addressId",
+  authenticate,
+  authorize("admin"),
+  getAddressById
+);
+
 export default router;

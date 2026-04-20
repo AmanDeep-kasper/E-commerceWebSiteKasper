@@ -57,6 +57,7 @@ import {
 } from "lucide-react";
 import { Link, useOutletContext } from "react-router-dom";
 
+
 const Card = ({ children, className = "" }) => (
   <div
     className={`bg-white  rounded-xl shadow-sm overflow-hidden ${className}`}>
@@ -97,7 +98,7 @@ const StatusBadge = ({ status }) => {
 
 function Information() {
   // Format dates for better display
-  const { customer } = useOutletContext();
+  const { customer, defaultAddress, addresses } = useOutletContext();
 const formatDate = (dateString) => {
   if (!dateString || dateString === "NA") return "Not specified";
   const date = new Date(dateString);
@@ -107,6 +108,14 @@ const formatDate = (dateString) => {
     year: 'numeric'
   });
 };
+
+const maskEmail = (email) => {
+  if (!email || email === "N/A") return "N/A";
+  const [user, domain] = email.split("@");
+  // show first 10 characters of username, then mask 
+  const maskedUser = user.length > 10 ? user.slice(0, 10) + "..." : user;
+  return maskedUser + "@" + domain;
+}
 
   return (
     <>
@@ -127,19 +136,19 @@ const formatDate = (dateString) => {
             <InfoRow label="Full Name" value={customer?.name} icon={User} />
             <InfoRow
               label="Email"
-              value={customer?.email}
+              value={<span title={customer?.email}>{maskEmail(customer?.email)}</span>}
               icon={Mail}
               // verified={customer.email_verified}
             />
             <InfoRow
               label="Phone Number"
-              value={customer?.phone || customer?.phoneNumber || "N/A"}
+              value={customer?.phoneNumber || "N/A"}
               icon={Phone}
               // verified={customer.phone_verified}
             />
             <InfoRow
               label="Gender"
-              value={customer?.gender || "Not specified"}
+              value={customer?.gender ? customer.gender.charAt(0).toUpperCase() + customer.gender.slice(1) : "Not specified"}
               icon={VenusAndMars}
             />
             <InfoRow
@@ -233,32 +242,41 @@ const formatDate = (dateString) => {
           <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
             {/* <User className="w-5 h-5" /> */}
             Address Details
+            {addresses?.length > 1 && <span className="text-sm ml-2 text-gray-500">({addresses.length}addresses)</span>}
           </h2>
           {/* <StatusBadge status={customer.status} /> */}
         </div>
+        {defaultAddress ? (
         <div className="flex-1 border p-2 rounded-lg mt-2">
-          <div className="flex  items-center justify-between">
+          <div className="flex  items-center justify-between mb-2">
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium">{customer?.name || "N/A"}</span>
-              <span className="px-2 py-0.5 rounded-md text-xs bg-[#D5E5F5] text-[#1C3753] border border-[#1C3753]">
-               {customer?.addressType || "Work"}
+              <span className="text-sm font-medium">{defaultAddress?.fullName || customer?.name || "N/A"}</span>
+              <span className="px-2 py-0.5 rounded-md text-xs bg-[#D5E5F5] text-[#1C3753] border border-[#1C3753] capitalize">
+               {defaultAddress?.addressType || "Work"}
               </span>
             </div>
+            {defaultAddress?.isDefault &&  (
             <div>
               <span className="px-2 py-1 rounded-lg text-xs bg-[#EFEFEF] text-[#1C1C1C]">
                 Default
               </span>
             </div>
+            )}
           </div>
-          <div className="text-[14px] font-medium mt-1">
-            <p>
-              {customer?.address ? 
-                `${customer.address}, ${customer?.state || ""}, ${customer?.city || ""}, ${customer?.zip_code || ""}, ${customer?.country || ""}` 
-                : "No address available"}
-            </p>
-            <p>Phone Number: {customer?.phone || customer?.phoneNumber || "N/A"}</p>
+          <div className="text-[14px] font-medium mt-2">
+              <p>
+                {defaultAddress?.address ? 
+                  `${defaultAddress.address}, ${defaultAddress?.city || ""}, ${defaultAddress?.state || ""}, ${defaultAddress?.pinCode || ""}, ${defaultAddress?.country || ""}` 
+                  : "No address available"}
+              </p>
+              <p className="mt-1">Phone Number: {defaultAddress?.phone || customer?.phoneNumber || "N/A"}</p>
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className="text-center py-8 text-gray-500">
+            No address added yet
+          </div>
+        )}
       </Card>
     </>
   );

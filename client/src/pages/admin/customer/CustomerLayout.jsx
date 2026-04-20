@@ -12,14 +12,9 @@ function CustomerLayout() {
   const navigate = useNavigate();
 
     const [customer, setCustomer] = useState(null);
+    const [addresses, setAddresses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-
-  // const customer = useMemo(
-  //   () => customers.find((c) => String(c.id) === String(id)),
-  //   [id],
-  // );
 
   const isEditPage = location.pathname.endsWith("/edit");
 
@@ -31,29 +26,30 @@ function CustomerLayout() {
     dob: "NA",
   });
 
-  const [addressUpdate, setAddressUpdate] = React.useState({
-    fullName: "",
-    phoneNumber: "",
-    address: "",
-    pinCode: "",
-    landMark: "",
-    city: "",
-    state: "",
-    addressType: "",
-  });
 
-
-   // Fetch customer from API
+  // Fetch customer and addresses from API
   useEffect(() => {
-    const fetchCustomer = async () => {
+    const fetchCustomerData = async () => {
       try {
         setLoading(true);
-        const response = await axiosInstance.get(`/user/admin/detail/${id}`);
-        console.log("Fetched customer:", response.data);
         
-        // Adjust based on your API response structure
-        const customerData = response.data?.user || response.data?.data || response.data;
-        setCustomer(customerData);
+        // Fetch user details
+        const userResponse = await axiosInstance.get(`/user/admin/detail/${id}`);
+        console.log("Fetched user:", userResponse.data);
+        const userData = userResponse.data?.user || userResponse.data?.data || userResponse.data;
+        
+        // Fetch user's addresses using admin endpoint
+        try {
+          const addressResponse = await axiosInstance.get(`/address/admin/all-addresses/${id}`);
+          console.log("Fetched addresses:", addressResponse.data);
+          const addressesData = addressResponse.data?.data?.addresses || addressResponse.data?.addresses || [];
+          setAddresses(addressesData);
+        } catch (addressErr) {
+          console.log("No addresses found:", addressErr);
+          setAddresses([]);
+        }
+        
+        setCustomer(userData);
         setError(null);
       } catch (err) {
         console.error("Error fetching customer:", err);
@@ -64,30 +60,28 @@ function CustomerLayout() {
     };
 
     if (id) {
-      fetchCustomer();
+      fetchCustomerData();
     }
   }, [id]);
 
-  // if (!customer) return <div>Customer not found</div>;
+  const defaultAddress = addresses.find(addr => addr.isDefault === true) || addresses[0] || null;
+// Merge customer and address data for display
+const mergedCustomerData = {
+    ...customer,
+    // Address fields from default address
+    addressFullName: defaultAddress?.fullName,
+    addressPhone: defaultAddress?.phone,
+    addressLine: defaultAddress?.address,
+    city: defaultAddress?.city,
+    state: defaultAddress?.state,
+    pinCode: defaultAddress?.pinCode,
+    country: defaultAddress?.country,
+    addressType: defaultAddress?.addressType,
+    isDefaultAddress: defaultAddress?.isDefault || false,
+    allAddresses: addresses,
+  };
 
-  // const [form, setForm] = React.useState({
-  //   fullName: customer?.name || "",
-  //   email: customer?.email || "",
-  //   phone: customer?.phone || "",
-  //   gender: customer?.gender || "NA",
-  //   dob: customer?.dob || "NA",
-  // });
-
-  // const [addressUpdate, setAddressUpdate] = React.useState({
-  //   fullName: customer?.name || "",
-  //   phoneNumber: customer?.phone || "",
-  //   address: customer?.address || "",
-  //   pinCode: customer?.zip_code || "",
-  //   landMark: customer?.landMark || "",
-  //   city: customer?.city || "",
-  //   state: customer?.state || "",
-  //   addressType: customer?.addressType || "",
-  // });
+  console.log("Merged customer data:", mergedCustomerData);
 
 
     // Update forms when customer data loads
@@ -96,47 +90,14 @@ function CustomerLayout() {
       setForm({
         fullName: customer?.name || "",
         email: customer?.email || "",
-        phone: customer?.phoneNumber ||customer?.phone || "",
+        phone: customer?.phoneNumber || "",
         gender: customer?.gender || "NA",
-        dob: customer?.dateOfBirth || customer?.dob || "NA",
-      });
-
- setAddressUpdate({
-        fullName: customer?.name || "",
-        phoneNumber: customer?.phoneNumber || customer?.phone || "",
-        address: customer?.address || "",
-        pinCode: customer?.zip_code || "",
-        landMark: customer?.landMark || "",
-        city: customer?.city || "",
-        state: customer?.state || "",
-        addressType: customer?.addressType || "",
+        dob: customer?.dateOfBirth || "NA",
       });
     }
   }, [customer]);
 
 
-  const handleSave = async(e) => {
-    e.preventDefault();
-
-    const payload = {
-      personal: form,
-      address: addressUpdate,
-    };
-
-    console.log("SAVE DATA 👉", payload);
-
-    try {
-      // Send update to API
-     const response = await axiosInstance.patch(`/user/admin/status/${id}`, payload);
-      console.log("Update response:", response.data);
-      
-      // Redirect after successful save
-      navigate("/admin/customers");
-    } catch (err) {
-      console.error("Error updating customer:", err);
-      alert("Failed to update customer");
-    }
-  };
 
     if (loading) {
     return (
@@ -173,7 +134,7 @@ function CustomerLayout() {
           <h1 className="text-xl font-semibold">Customer Details</h1>
         </div>
 
-        {!isEditPage ? (
+        {/* {!isEditPage ? (
           <Link to="edit">
             <button className="border px-4 py-2 rounded-lg text-sm">
               Edit Customer
@@ -192,7 +153,7 @@ function CustomerLayout() {
               Save
             </button>
           </div>
-        )}
+        )} */}
       </div>
 
       {/* BODY */}
@@ -207,12 +168,12 @@ function CustomerLayout() {
           <ProfileSidebar isEditPage={isEditPage} customer={customer} />
           <Outlet
             context={{
-              customer,
+              customer: mergedCustomerData,
+              originalCustomer: customer,
+              addresses: addresses,
+              defaultAddress: defaultAddress,
               form,
               setForm,
-              addressUpdate,
-              setAddressUpdate,
-              handleSave,
             }}
           />
         </div>
