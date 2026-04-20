@@ -125,8 +125,6 @@ const OrderSchema = new mongoose.Schema(
     reward: {
       earnedPoints: Number,
       usedPoints: Number,
-      redeemValue: Number,
-      pointValue: Number,
     },
 
     // Timestamps
