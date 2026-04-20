@@ -35,24 +35,24 @@ function CustomerLayout() {
         
         // Fetch user details
         const userResponse = await axiosInstance.get(`/user/admin/detail/${id}`);
-        console.log("Fetched user:", userResponse.data);
+        // console.log("Fetched user:", userResponse.data);
         const userData = userResponse.data?.user || userResponse.data?.data || userResponse.data;
         
         // Fetch user's addresses using admin endpoint
         try {
           const addressResponse = await axiosInstance.get(`/address/admin/all-addresses/${id}`);
-          console.log("Fetched addresses:", addressResponse.data);
+          // console.log("Fetched addresses:", addressResponse.data);
           const addressesData = addressResponse.data?.data?.addresses || addressResponse.data?.addresses || [];
           setAddresses(addressesData);
         } catch (addressErr) {
-          console.log("No addresses found:", addressErr);
+          // console.log("No addresses found:", addressErr);
           setAddresses([]);
         }
         
         setCustomer(userData);
         setError(null);
       } catch (err) {
-        console.error("Error fetching customer:", err);
+        // console.error("Error fetching customer:", err);
         setError(err.response?.data?.message || "Failed to load customer");
       } finally {
         setLoading(false);
@@ -81,7 +81,7 @@ const mergedCustomerData = {
     allAddresses: addresses,
   };
 
-  console.log("Merged customer data:", mergedCustomerData);
+  // console.log("Merged customer data:", mergedCustomerData);
 
 
     // Update forms when customer data loads
