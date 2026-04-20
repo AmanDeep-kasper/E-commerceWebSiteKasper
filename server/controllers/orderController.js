@@ -103,7 +103,7 @@ const calculateOrderSummary = ({
   // 4. TOTAL BEFORE EARNING
   // ======================
   const totalBeforeEarning =
-    cart.subtotal + shippingCharge + platformFee - discount;
+    cart.grandTotal + shippingCharge + platformFee - discount;
 
   // ======================
   // 5. REWARD EARNING
@@ -125,6 +125,7 @@ const calculateOrderSummary = ({
     shippingCharge,
     platformFee,
     discount,
+    gst: cart.totalGST,
     total: totalBeforeEarning,
     earnedPoints,
   };
@@ -132,7 +133,7 @@ const calculateOrderSummary = ({
 
 export const checkoutSummary = asyncHandler(async (req, res) => {
   const userId = req.user?.userId;
-  const { shippingAddress, appliedPoints = 0 } = req.body;
+  const { shippingAddress, appliedPoints } = req.body;
 
   const [cart, config, warehouse, rewardConfig, user] = await Promise.all([
     Cart.findOne({ userId, status: "active" }),
@@ -166,7 +167,7 @@ export const checkout = asyncHandler(async (req, res) => {
   const userId = req.user?.userId;
   const { paymentMethod, shippingAddress, appliedPoints = 0 } = req.body;
 
-  // ✅ Only Razorpay supported
+  // Only Razorpay supported
   if (paymentMethod !== "razorpay") {
     throw AppError.badRequest(
       "Only Razorpay is supported currently",
@@ -181,9 +182,6 @@ export const checkout = asyncHandler(async (req, res) => {
     );
   }
 
-  // =========================
-  // 1. FETCH DATA
-  // =========================
   const [cart, config, warehouse, rewardConfig, user] = await Promise.all([
     Cart.findOne({ userId, status: "active" }),
     Shipping.findOne({ isActive: true }).lean(),
@@ -200,9 +198,6 @@ export const checkout = asyncHandler(async (req, res) => {
     throw AppError.internal("Shipping config missing", "CONFIG_ERROR");
   }
 
-  // =========================
-  // 2. RE-CALCULATE EVERYTHING
-  // =========================
   const summary = calculateOrderSummary({
     cart,
     shippingAddress,
@@ -226,16 +221,10 @@ export const checkout = asyncHandler(async (req, res) => {
     throw AppError.internal("Invalid total calculation", "TOTAL_ERROR");
   }
 
-  // =========================
-  // 3. CREATE RAZORPAY ORDER
-  // =========================
   const razorpayOrder = await createRazorpayOrder(total, {
     userId,
   });
 
-  // =========================
-  // 4. CREATE ORDER
-  // =========================
   const order = await Order.create({
     user: userId,
     items: cart.items,
@@ -258,9 +247,6 @@ export const checkout = asyncHandler(async (req, res) => {
     },
   });
 
-  // =========================
-  // 5. CREATE PAYMENT
-  // =========================
   const payment = await Payment.create({
     order: order._id,
     user: userId,
@@ -272,9 +258,6 @@ export const checkout = asyncHandler(async (req, res) => {
   order.payment = payment._id;
   await order.save();
 
-  // =========================
-  // 6. RESPONSE
-  // =========================
   res.status(200).json({
     success: true,
     message: "Payment initiated",
@@ -292,30 +275,151 @@ export const checkout = asyncHandler(async (req, res) => {
 
 export const verifyPayment = asyncHandler(async (req, res) => {
   const userId = req.user?.userId;
-
   const { razorpayOrderId, razorpayPaymentId, razorpaySignature } = req.body;
 
-  const user = await User.findById(userId);
-
-  if (!user) {
-    throw AppError.notFound("User not found", "USER_NOT_FOUND");
-  }
-
-  if (!razorpayOrderId || !razorpayPaymentId || !razorpaySignature) {
-    throw AppError.badRequest(
-      "All payment fields required",
-      "PAYMENT_DATA_MISSING",
-    );
-  }
-
-  // ✅ Verify signature
+  // VERIFY SIGNATURE
   const isValid = verifyPaymentSignature({
     razorpayOrderId,
     razorpayPaymentId,
     razorpaySignature,
   });
 
-  // ✅ Find payment
+  if (!isValid) {
+    throw AppError.badRequest("Invalid signature", "INVALID_SIGNATURE");
+  }
+
+  // FETCH FROM RAZORPAY
+  let razorpayPayment;
+
+  try {
+    razorpayPayment = await razorpay.payments.fetch(razorpayPaymentId);
+  } catch (err) {
+    throw AppError.badRequest(
+      err?.error?.description || "Failed to fetch payment",
+      "RAZORPAY_FETCH_FAILED",
+    );
+  }
+
+  // VALIDATE PAYMENT
+  if (razorpayPayment.status !== "captured") {
+    throw AppError.badRequest("Payment not captured", "PAYMENT_NOT_CAPTURED");
+  }
+
+  if (razorpayPayment.order_id !== razorpayOrderId) {
+    throw AppError.badRequest("Order mismatch", "ORDER_MISMATCH");
+  }
+
+  // FIND PAYMENT (IMPORTANT FIX)
+  const payment = await Payment.findOne({
+    razorpayOrderId,
+  });
+
+  if (!payment) {
+    throw AppError.notFound("Payment not found", "PAYMENT_NOT_FOUND");
+  }
+
+  // ✅ Idempotency check
+  if (payment.status === "captured") {
+    return res.json({
+      success: true,
+      message: "Payment already verified",
+      data: { orderId: payment.order },
+    });
+  }
+
+  // VALIDATE AMOUNT
+  if (razorpayPayment.amount !== payment.amount * 100) {
+    throw AppError.badRequest("Amount mismatch", "AMOUNT_MISMATCH");
+  }
+
+  const order = await Order.findById(payment.order);
+
+  if (!order) {
+    throw AppError.notFound("Order not found", "ORDER_NOT_FOUND");
+  }
+
+  // START TRANSACTION
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    // PAYMENT UPDATE
+    payment.status = "captured";
+    payment.razorpayPaymentId = razorpayPaymentId;
+    payment.razorpaySignature = razorpaySignature;
+    payment.isVerified = true;
+    payment.capturedAt = new Date();
+
+    payment.method = razorpayPayment.method;
+    payment.bank = razorpayPayment.bank || null;
+    payment.wallet = razorpayPayment.wallet || null;
+    payment.vpa = razorpayPayment.vpa || null;
+
+    payment.card = {
+      last4: razorpayPayment.card?.last4 || null,
+      network: razorpayPayment.card?.network || null,
+      issuer: razorpayPayment.card?.issuer || null,
+    };
+
+    payment.razorpayRawResponse = razorpayPayment;
+
+    await payment.save({ session });
+
+    // ORDER UPDATE
+    order.paymentStatus = "paid";
+    order.status = "confirmed";
+    order.confirmedAt = new Date();
+
+    await order.save({ session });
+
+    // USER UPDATE (ATOMIC)
+    const used = order.reward?.usedPoints || 0;
+    const earned = order.reward?.earnedPoints || 0;
+
+    await User.updateOne(
+      { _id: userId },
+      {
+        $inc: {
+          points: earned - used,
+          totalOrders: 1,
+          totalSpend: order.grandTotal,
+        },
+        $set: {
+          lastOrderAt: new Date(),
+        },
+      },
+      { session },
+    );
+
+    // CART UPDATE
+    await Cart.updateOne(
+      { userId, status: "active" },
+      { status: "checked_out" },
+      { session },
+    );
+
+    await session.commitTransaction();
+    session.endSession();
+
+    // RESPONSE
+    res.status(200).json({
+      success: true,
+      message: "Payment verified successfully",
+      data: {
+        orderId: order._id,
+      },
+    });
+  } catch (err) {
+    await session.abortTransaction();
+    session.endSession();
+    throw err;
+  }
+});
+
+export const paymentFailed = asyncHandler(async (req, res) => {
+  const { razorpayPaymentId, razorpayOrderId, error } = req.body;
+
+  // ✅ Find order using razorpayOrderId
   const payment = await Payment.findOne({ razorpayOrderId });
 
   if (!payment) {
@@ -328,61 +432,40 @@ export const verifyPayment = asyncHandler(async (req, res) => {
     throw AppError.notFound("Order not found", "ORDER_NOT_FOUND");
   }
 
-  // ❌ PAYMENT FAILED
-  if (!isValid) {
-    payment.status = "failed";
-    payment.failedAt = new Date();
-
-    order.paymentStatus = "failed";
-    order.status = "cancelled";
-    order.cancelledAt = new Date();
-
-    await payment.save();
-    await order.save();
-
-    return res.status(400).json({
-      success: false,
-      message: "Payment verification failed",
+  // ✅ Idempotency (avoid duplicate updates)
+  if (
+    payment.status === "failed" &&
+    payment.razorpayPaymentId === razorpayPaymentId
+  ) {
+    return res.json({
+      success: true,
+      message: "Already recorded",
     });
   }
 
-  // ✅ PAYMENT SUCCESS
-  payment.status = "captured";
+  // =========================
+  // UPDATE PAYMENT
+  // =========================
+  payment.status = "failed";
+  payment.failedAt = new Date();
   payment.razorpayPaymentId = razorpayPaymentId;
-  payment.razorpaySignature = razorpaySignature;
-  payment.isVerified = true;
-  payment.capturedAt = new Date();
 
-  order.paymentStatus = "paid";
-  order.status = "confirmed";
-  order.confirmedAt = new Date();
+  payment.errorCode = error?.code || null;
+  payment.errorDescription = error?.description || null;
+  payment.errorSource = error?.source || null;
+  payment.errorReason = error?.reason || null;
+
+  payment.razorpayRawResponse = error || null;
 
   await payment.save();
+
+  // Instead:
+  order.paymentStatus = "failed";
+
   await order.save();
-  const used = order.reward?.usedPoints || 0;
-  const earned = order.reward?.earnedPoints || 0;
 
-  // Deduct first
-  user.points -= used;
-  // Then add earned
-  user.points += earned;
-
-  if (user.points < 0) {
-    user.points = 0;
-  }
-  user.totalOrders += 1;
-  user.totalSpend += order.grandTotal;
-  user.lastOrderAt = new Date();
-  await user.save();
-
-  // 🧹 Clear cart
-  await Cart.updateOne({ userId, status: "active" }, { status: "checked_out" });
-
-  res.status(200).json({
+  res.json({
     success: true,
-    message: "Payment verified successfully",
-    data: {
-      orderId: order._id,
-    },
+    message: "Payment failed please retry...",
   });
 });

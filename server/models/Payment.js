@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const RefundSchema = new mongoose.Schema(
   {
     razorpayRefundId: { type: String, index: true },
-    amount: { type: Number, required: true }, // in paise
+    amount: { type: Number, required: true },
     reason: {
       type: String,
       enum: [
@@ -43,14 +43,11 @@ const PaymentSchema = new mongoose.Schema(
     },
 
     // Amount
-    amount: { type: Number, required: true }, // paise  e.g. 49900 = ₹499
+    amount: { type: Number, required: true },
     currency: { type: String, default: "INR" },
 
-    // Razorpay IDs
-    // Step 1: backend creates an order → razorpayOrderId
     razorpayOrderId: { type: String, index: true },
 
-    // Step 2: user pays → razorpayPaymentId + signature returned
     razorpayPaymentId: {
       type: String,
       sparse: true,
@@ -58,20 +55,18 @@ const PaymentSchema = new mongoose.Schema(
     },
     razorpaySignature: { type: String },
 
-    // Payment method details (from Razorpay webhook)
     method: {
       type: String,
       enum: ["card", "upi", "netbanking", "wallet", "emi", "cod", ""],
       default: "",
     },
-    bank: String, // for netbanking / EMI
-    wallet: String, // "paytm", "phonepe", etc.
-    vpa: String, // UPI VPA
+    bank: String,
+    wallet: String,
+    vpa: String,
 
-    // Card details (partial — never store full card number)
     card: {
       last4: String,
-      network: String, // "Visa", "Mastercard"
+      network: String,
       issuer: String,
       international: Boolean,
       emiBankCode: String,
@@ -81,36 +76,32 @@ const PaymentSchema = new mongoose.Schema(
     status: {
       type: String,
       enum: [
-        "created", // Razorpay order created, user hasn't paid yet
-        "authorized", // authorized but not captured (rare)
-        "captured", // payment captured successfully
-        "failed", // payment failed
-        "refunded", // full refund done
+        "created",
+        "authorized",
+        "captured",
+        "failed",
+        "refunded",
         "partially_refunded",
       ],
       default: "created",
       index: true,
     },
 
-    // Razorpay error details on failure
     errorCode: String,
     errorDescription: String,
-    errorSource: String, // "customer", "business", "bank", "gateway"
+    errorSource: String,
     errorReason: String,
 
     // Refunds
     refunds: [RefundSchema],
-    totalRefunded: { type: Number, default: 0 }, // paise, sum of processed refunds
+    totalRefunded: { type: Number, default: 0 },
 
-    // ── Webhook / verification flags ──────────────────────────
-    isVerified: { type: Boolean, default: false }, // signature verified
+    isVerified: { type: Boolean, default: false },
     capturedAt: Date,
     failedAt: Date,
 
-    // Raw Razorpay payment object (from webhook) — for debugging
     razorpayRawResponse: { type: mongoose.Schema.Types.Mixed },
 
-    // Notes passed to Razorpay (visible in dashboard)
     notes: {
       orderNumber: String,
       customerName: String,
@@ -154,49 +145,3 @@ PaymentSchema.methods.addRefund = async function ({
 
 const Payment = mongoose.model("Payment", PaymentSchema);
 export default Payment;
-
-const RazorpayEventSchema = new mongoose.Schema(
-  {
-    // Razorpay's unique event ID — used for deduplication
-    eventId: {
-      type: String,
-      required: true,
-      unique: true,
-      index: true,
-    },
-
-    event: {
-      type: String,
-      required: true,
-      index: true,
-      // e.g. "payment.captured", "payment.failed", "refund.processed"
-    },
-
-    payload: { type: mongoose.Schema.Types.Mixed, required: true },
-
-    // Which Payment/Order this event relates to
-    razorpayOrderId: { type: String, index: true },
-    razorpayPaymentId: { type: String, index: true },
-
-    status: {
-      type: String,
-      enum: ["received", "processed", "failed", "ignored"],
-      default: "received",
-    },
-
-    processedAt: Date,
-    errorMessage: String,
-  },
-  { timestamps: true, versionKey: false },
-);
-
-// TTL — auto-delete old webhook logs after 90 days
-RazorpayEventSchema.index(
-  { createdAt: 1 },
-  { expireAfterSeconds: 90 * 24 * 60 * 60 },
-);
-
-export const RazorpayEvent = mongoose.model(
-  "RazorpayEvent",
-  RazorpayEventSchema,
-);
