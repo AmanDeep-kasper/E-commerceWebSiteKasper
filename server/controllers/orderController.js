@@ -6,6 +6,7 @@ import Shipping from "../models/admin/ShippingConfig.js";
 import Warehouse from "../models/admin/WarehouseConfig.js";
 import Payment from "../models/Payment.js";
 import Reward from "../models/admin/RewardConfig.js";
+import RewardLedger from "../models/RewardLedger.js";
 import User from "../models/User.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import AppError from "../utils/AppError.js";
@@ -14,6 +15,7 @@ import razorpay, {
   createRazorpayOrder,
   verifyPaymentSignature,
 } from "../service/razorpayService.js";
+import mongoose from "mongoose";
 
 // Helper function
 const calculateShippingCharge = ({
@@ -277,6 +279,8 @@ export const verifyPayment = asyncHandler(async (req, res) => {
   const userId = req.user?.userId;
   const { razorpayOrderId, razorpayPaymentId, razorpaySignature } = req.body;
 
+  const rewardConfig = await Reward.findOne({ isActive: true }).lean();
+
   // VERIFY SIGNATURE
   const isValid = verifyPaymentSignature({
     razorpayOrderId,
@@ -376,11 +380,89 @@ export const verifyPayment = asyncHandler(async (req, res) => {
     const used = order.reward?.usedPoints || 0;
     const earned = order.reward?.earnedPoints || 0;
 
+    const used = order.reward?.usedPoints || 0;
+
+    if (used > 0) {
+      let remainingToUse = used;
+
+      const ledgerEntries = await RewardLedger.find({
+        user: userId,
+        type: "earn",
+        remainingPoints: { $gt: 0 },
+        expiresAt: { $gt: new Date() },
+      })
+        .sort({ createdAt: 1 }) // FIFO
+        .session(session);
+
+      for (const entry of ledgerEntries) {
+        if (remainingToUse <= 0) break;
+
+        const deduct = Math.min(entry.remainingPoints, remainingToUse);
+
+        entry.remainingPoints -= deduct;
+        remainingToUse -= deduct;
+
+        await entry.save({ session });
+      }
+
+      // Create redeem log
+      await RewardLedger.create(
+        [
+          {
+            user: userId,
+            type: "redeem",
+            points: used,
+            orderId: order._id,
+          },
+        ],
+        { session },
+      );
+
+      // Update user points
+      await User.updateOne(
+        { _id: userId },
+        {
+          $inc: {
+            points: -used,
+          },
+        },
+        { session },
+      );
+    }
+
+    if (earned > 0 && rewardConfig) {
+      const expiresAt = new Date();
+      expiresAt.setDate(expiresAt.getDate() + rewardConfig.validity);
+
+      await RewardLedger.create(
+        [
+          {
+            user: userId,
+            type: "earn",
+            points: earned,
+            remainingPoints: earned,
+            orderId: order._id,
+            expiresAt,
+          },
+        ],
+        { session },
+      );
+
+      await User.updateOne(
+        { _id: userId },
+        {
+          $inc: {
+            points: earned,
+          },
+        },
+        { session },
+      );
+    }
+
     await User.updateOne(
       { _id: userId },
       {
         $inc: {
-          points: earned - used,
           totalOrders: 1,
           totalSpend: order.grandTotal,
         },
@@ -461,6 +543,8 @@ export const paymentFailed = asyncHandler(async (req, res) => {
 
   // Instead:
   order.paymentStatus = "failed";
+  order.status = "cancelled";
+  order.cancelledAt = new Date();
 
   await order.save();
 

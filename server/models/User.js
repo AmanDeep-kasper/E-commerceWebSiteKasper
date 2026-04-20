@@ -51,8 +51,6 @@ const userSchema = new mongoose.Schema(
       default: 0,
     },
 
-    pointsExpireAt: Date,
-
     totalOrders: {
       type: Number,
       default: 0,

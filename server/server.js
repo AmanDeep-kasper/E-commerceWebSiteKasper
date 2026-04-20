@@ -11,6 +11,9 @@ import env from "./config/env.js";
 import { connectDB } from "./config/db.js";
 import setupUnhandledErrorHandlers from "./utils/unhandledErrorHandler.js";
 
+// cron jobs
+import "./cron/scheduler.js";
+
 // ================== ROUTES ==================
 import authRouter from "./routes/authRoutes.js";
 import userRouter from "./routes/userRoutes.js";
