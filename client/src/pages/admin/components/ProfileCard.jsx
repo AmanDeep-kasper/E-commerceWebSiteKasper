@@ -63,6 +63,7 @@ import AccountActivityRow from "./AccountActivityRow";
 import AccountActivityVerfiy from "./AccountActivityVerfiy";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import axiosInstance from "../../../api/axiosInstance";
 
 const Card = ({ children, className = "" }) => (
   <div className={`bg-white rounded-xl shadow-sm overflow-hidden ${className}`}>
@@ -71,13 +72,49 @@ const Card = ({ children, className = "" }) => (
 );
 
 function ProfileCard({ customer }) {
-  console.log(customer);
 
   const [openStatus, setOpenStatus] = useState(false);
   const [status, setStatus] = useState(customer.status);
   const [showPopup, setShowPopup] = useState(false);
   const [reVerfiy, setReVerfiy] = useState(false);
   const [cashDelivery, setCashDelivery] = useState("Disable Cash on Delivery");
+
+  const formatDate = (dateString) => {
+    if (!dateString) return "N/A";
+   const date = new Date(dateString);
+   return date.toLocaleDateString("en-US", {
+    day:"2-digit",
+    month:"short",
+    year:"numeric",
+    hour:"2-digit",
+    minute:"2-digit",
+   });
+  }
+
+  const maskEmail = (email) => {
+  if (!email || email === "N/A") return "N/A";
+  const [user, domain] = email.split("@");
+  // show first 10 characters of username, then mask 
+  const maskedUser = user.length > 10 ? user.slice(0, 10) + "..." : user;
+  return maskedUser + "@" + domain;
+}
+
+const handleStatusChange = async() => {
+  try {
+    const newStatus = !customer?.isActive;
+    const response = await axiosInstance.patch(`/user/admin/status/${customer._id}`);
+    if (response.data.success) {
+      setStatus(newStatus ? "Active" :"Blocked");
+      toast.success(`Customer ${newStatus ? "unblocked" : "blocked"} successfully`, {
+        className: `bg-[#E0F4DE] text-[#00A63E] border-l-4 border-[#00A63E] rounded-xl text-sm`,
+        hideProgressBar: true,
+      });
+      window.location.reload();
+    }
+  }catch(err) {
+    toast.error(err.response?.data?.message || "Failed to update status");
+  }
+}
 
   return (
     <div className="col-span-3 relative">
@@ -192,7 +229,7 @@ function ProfileCard({ customer }) {
                 Cancel
               </button>
 
-              <button
+              {/* <button
                 onClick={() => {
                   setStatus(status === "Unblock" ? "Block" : "Unblock");
                   setOpenStatus(false);
@@ -215,7 +252,16 @@ function ProfileCard({ customer }) {
                 }}
                 className="px-7 py-1.5 bg-[#1C3753] text-white rounded-md text-sm">
                 Confirm
-              </button>
+              </button> */}
+
+              <button
+  onClick={() => {
+    setOpenStatus(false);
+    handleStatusChange();
+  }}
+  className="px-7 py-1.5 bg-[#1C3753] text-white rounded-md text-sm">
+  Confirm
+</button>
             </div>
           </div>
         </div>
@@ -257,18 +303,18 @@ function ProfileCard({ customer }) {
         <div className="flex flex-col items-center w-full gap-5">
           <div className="">
             <img
-              src={customer?.profile_image || "/name1.jpg"}
+              src={customer?.profileImage?.url || "/name1.jpg"}
               alt="avatar"
               className="w-32 h-32  rounded-full object-cover shadow-md"
             />
-            <div
-              className={`absolute top-3 right-3 ${
-                status === "Unblock"
-                  ? `bg-[#E0F4DE] text-[#00A63E] px-2 font-medium py-0.5 text-sm rounded-md`
-                  : `bg-[#FFEAE9] text-[#D53B35] px-2 font-medium py-0.5 text-sm rounded-md`
-              }`}>
-              {status}
-            </div>
+<div
+  className={`absolute top-3 right-3 px-2 font-medium py-0.5 text-sm rounded-md ${
+    customer?.isActive 
+      ? "bg-[#E0F4DE] text-[#00A63E]" 
+      : "bg-[#FFEAE9] text-[#D53B35]"
+  }`}>
+  {customer?.isActive ? "Active" : "Blocked"}
+</div>
           </div>
 
           <div className="text-center">
@@ -277,8 +323,8 @@ function ProfileCard({ customer }) {
             </div>
             {/* <div className="text-sm text-gray-500 mt-1">ID: {customer.id}</div> */}
             {/* <div className="text-sm text-gray-500 mt-1"> {customer.id}</div> */}
-            <div className="text-sm text-gray-500 mt-1">{customer.phone}</div>
-            <div className="text-sm text-gray-500 mt-1">{customer.email}</div>
+            <div className="text-sm text-gray-500 mt-1">{customer.phoneNumber}</div>
+            <div className="text-sm text-gray-500 mt-1"><span title={customer.email}>{maskEmail(customer.email)}</span></div>
           </div>
         </div>
 
@@ -360,12 +406,11 @@ function ProfileCard({ customer }) {
           />
           <AccountActivityRow
             lable={"Last Login"}
-            // value={customer.total_orders ?? "-"}
-            value={"Today"}
+            value={customer?.lastLogin ? formatDate(customer.lastLogin) : "Never"}
           />
           <AccountActivityRow
             lable={"Signup Date"}
-            value={customer.joined_date ?? "-"}
+            value={customer?.createdAt ? formatDate(customer.createdAt) : "-"}
           />
 
           {/* <AccountActivityRow
@@ -420,41 +465,23 @@ function ProfileCard({ customer }) {
                 Re-Verification of User
               </span>
             </button> */}
-            <button
-              // onClick={() => {
-              //   setStatus(status === "Unblock" ? "Block" : "Unblock");
-              // }}
-              onClick={() => setOpenStatus(true)}
-              className={`flex items-center justify-start gap-2 border px-2 py-2 rounded-lg
-    ${
-      status === "Unblock"
-        ? "bg-[#E0F4DE] text-[#00A63E]"
-        : "bg-[#FFEAE9] text-[#D53B35]"
-    }`}>
-              {status === "Unblock" ? (
-                <>
-                  <Shield
-                    width={16.5}
-                    height={16.5}
-                    className={
-                      status === "Unblock" ? "text-[#00A63E]" : "text-[#D53B35]"
-                    }
-                  />
-                  <span className="text-sm font-medium">{status} User</span>
-                </>
-              ) : (
-                <>
-                  <UserLock
-                    width={16.5}
-                    height={16.5}
-                    className={
-                      status === "Unblock" ? "text-[#00A63E]" : "text-[#D53B35]"
-                    }
-                  />
-                  <span className="text-sm font-medium">{status} User</span>
-                </>
-              )}
-            </button>
+           <button
+  onClick={() => setOpenStatus(true)}
+  className={`flex items-center justify-start gap-2 border px-2 py-2 rounded-lg
+    ${customer?.isActive ? "bg-[#FFEAE9] text-[#D53B35]" : "bg-[#E0F4DE] text-[#00A63E]"}`}>
+  {customer?.isActive ? (
+    <>
+      <UserLock width={16.5} height={16.5} className="text-[#D53B35]" />
+      <span className="text-sm font-medium">Block User</span>
+    </>
+  ) : (
+    <>
+      <Shield width={16.5} height={16.5} className="text-[#00A63E]" />
+      <span className="text-sm font-medium">Unblock User</span>
+    </>
+  )}
+</button>
+
           </div>
         </div>
       </Card>
