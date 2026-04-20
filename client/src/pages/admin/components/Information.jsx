@@ -71,7 +71,7 @@ const InfoRow = ({ label, value, icon: Icon, verified }) => (
       <span>{label}</span>
     </div>
     <div className="flex items-center gap-2">
-      <span className="text-sm font-medium text-gray-900">{value}</span>
+      <span className="text-sm font-medium text-gray-900">{value || "N/A"}</span>
       {verified && <CheckCircle className="w-4 h-4 text-green-500" />}
     </div>
   </div>
@@ -98,11 +98,15 @@ const StatusBadge = ({ status }) => {
 function Information() {
   // Format dates for better display
   const { customer } = useOutletContext();
-  const formatDate = (dateString) => {
-    if (!dateString) return "N/A";
-    const options = { year: "numeric", month: "short", day: "numeric" };
-    return new Date(dateString).toLocaleDateString(undefined, options);
-  };
+const formatDate = (dateString) => {
+  if (!dateString || dateString === "NA") return "Not specified";
+  const date = new Date(dateString);
+  return date.toLocaleDateString('en-GB', { 
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric'
+  });
+};
 
   return (
     <>
@@ -120,27 +124,27 @@ function Information() {
               Personal Details
             </h3> */}
             {/* <InfoRow label="Customer ID" value={customer.id} icon={User} /> */}
-            <InfoRow label="Full Name" value={customer.name} icon={User} />
+            <InfoRow label="Full Name" value={customer?.name} icon={User} />
             <InfoRow
               label="Email"
-              value={customer.email}
+              value={customer?.email}
               icon={Mail}
               // verified={customer.email_verified}
             />
             <InfoRow
               label="Phone Number"
-              value={customer.phone}
+              value={customer?.phone || customer?.phoneNumber || "N/A"}
               icon={Phone}
               // verified={customer.phone_verified}
             />
             <InfoRow
               label="Gender"
-              value={customer?.gender || "Male"}
+              value={customer?.gender || "Not specified"}
               icon={VenusAndMars}
             />
             <InfoRow
               label="Date of Birth(DOB)"
-              value={customer?.dob ? formatDate(customer.dob) : "01/03/1998"}
+              value={customer?.dateOfBirth  ? formatDate(customer?.dateOfBirth) : "Not speicified"}
               icon={Calendar}
             />
           </div>
@@ -235,9 +239,9 @@ function Information() {
         <div className="flex-1 border p-2 rounded-lg mt-2">
           <div className="flex  items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium">{customer.name}</span>
+              <span className="text-sm font-medium">{customer?.name || "N/A"}</span>
               <span className="px-2 py-0.5 rounded-md text-xs bg-[#D5E5F5] text-[#1C3753] border border-[#1C3753]">
-                Work
+               {customer?.addressType || "Work"}
               </span>
             </div>
             <div>
@@ -247,8 +251,12 @@ function Information() {
             </div>
           </div>
           <div className="text-[14px] font-medium mt-1">
-            <p>{`${customer.address}, ${customer.state}, ${customer.city}, ${customer.zip_code}, ${customer.country}`}</p>
-            <p>Phone Number: {customer.phone}</p>
+            <p>
+              {customer?.address ? 
+                `${customer.address}, ${customer?.state || ""}, ${customer?.city || ""}, ${customer?.zip_code || ""}, ${customer?.country || ""}` 
+                : "No address available"}
+            </p>
+            <p>Phone Number: {customer?.phone || customer?.phoneNumber || "N/A"}</p>
           </div>
         </div>
       </Card>
