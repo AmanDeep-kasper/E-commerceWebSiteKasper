@@ -17,39 +17,25 @@ import {
   FunnelX,
 } from "lucide-react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import productData from "../../../data/products.json";
-// import axiosInstance from "../../../api/axiosInstance";
+import axiosInstance from "../../../api/axiosInstance";
+import { toast } from "react-toastify";
 // import kpiCards from "./KpiCardProductlist";
 // import Active_product from "../../../assets/icons/Icon.png";
 
 const Transporter = () => {
   const [product, setProduct] = useState([]);
   const [loading, setLoading] = useState(true);
-  // const navigate = useNavigate();
-
-  // useEffect(() => {
-  //   const fetchProduct = async () => {
-  //     try {
-  //       const res = await axiosInstance.get("/products/all");
-  //       setProduct(res.data);
-  //     } catch (error) {
-  //       console.error("Error fetching products:", error);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-  //   fetchProduct();
-  // }, []);
+  const [errors, setErrors] = useState({});
 
   const { uuid } = useParams();
 
   const Editproduct = useMemo(() => {
-    if (!uuid || !productData?.length) return null;
+    if (!uuid || !product?.length) return null;
 
-    return productData.find(
+    return product.find(
       (p) => p.uuid && p.uuid.toLowerCase() === uuid.toLowerCase(),
     );
-  }, [productData, uuid]);
+  }, [product, uuid]);
 
   //  Delete button + selected items
   const [selectedItems, setSelectedItems] = useState([]);
@@ -57,7 +43,7 @@ const Transporter = () => {
 
   // Select all checkboxes
   const handleSelectAll = (e) => {
-    const visibleIds = currentItems.map((item) => item.id || item.uuid);
+    const visibleIds = currentItems.map((item) => getId(item));
 
     if (e.target.checked) {
       setSelectedItems((prev) => [...new Set([...prev, ...visibleIds])]);
@@ -75,11 +61,10 @@ const Transporter = () => {
   //  Single checkbox toggle
 
   const handleCheckboxChange = (id) => {
-    setSelectedItems(
-      (prev) =>
-        prev.includes(id)
-          ? prev.filter((x) => x !== id) // unselect
-          : [...prev, id], // select
+    setSelectedItems((prev) =>
+      prev.includes(id)
+        ? prev.filter((x) => x !== id) // unselect
+        : [...prev, id],
     );
   };
 
@@ -104,20 +89,24 @@ const Transporter = () => {
   const [selectedCategory, setSelectedCategory] = useState("Category");
 
   // 🔹 Filter products by debouncedSearch
-  let filteredProducts = productData.filter((p) => {
-    //  Search filter
-    const searchMatch = (p.title || "").toLowerCase().includes(debouncedSearch);
+  let filteredProducts = Array.isArray(product)
+    ? product.filter((p) => {
+        const searchMatch =
+          (p.transporterName || "").toLowerCase().includes(debouncedSearch) ||
+          (p.registrationNumber || "").toLowerCase().includes(debouncedSearch);
 
-    //  Status filter
-    const statusMatch =
-      selectedStatus === "Status" || p.status === selectedStatus;
+        const statusMatch =
+          selectedStatus === "All Status" ||
+          selectedStatus === "Status" || // optional (default)
+          (selectedStatus === "Active" && p.isActive) ||
+          (selectedStatus === "Inactive" && !p.isActive);
 
-    //  Category filter
-    const categoryMatch =
-      selectedCategory === "Category" || p.category === selectedCategory;
+        const categoryMatch =
+          selectedCategory === "Category" || p.category === selectedCategory;
 
-    return searchMatch && statusMatch && categoryMatch;
-  });
+        return searchMatch && statusMatch && categoryMatch;
+      })
+    : [];
 
   const [selectedSort, setSelectedSort] = useState("Latest");
   // Apply category filter
@@ -134,31 +123,63 @@ const Transporter = () => {
 
   // Apply sorting
   if (selectedSort === "Latest") {
-    filteredProducts.sort((a, b) => (a.costPrice || 0) - (b.costPrice || 0));
+    filteredProducts.sort(
+      (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
+    );
   } else if (selectedSort === "Oldest") {
-    filteredProducts.sort((a, b) => (b.costPrice || 0) - (a.costPrice || 0));
+    filteredProducts.sort(
+      (a, b) => new Date(a.createdAt) - new Date(b.createdAt),
+    );
   } else if (selectedSort === "Alphabetical (A–Z)") {
-    filteredProducts.sort((a, b) => a.title.localeCompare(b.title));
+    filteredProducts.sort((a, b) =>
+      (a.transporterName || "").localeCompare(b.transporterName || ""),
+    );
   } else if (selectedSort === "Alphabetical (Z–A)") {
-    filteredProducts.sort((a, b) => b.title.localeCompare(a.title));
+    filteredProducts.sort((a, b) =>
+      (b.transporterName || "").localeCompare(a.transporterName || ""),
+    );
   }
 
-  // console.log(filteredProducts);
-
   /////////////////////////////////
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
-
   // 🔹 Then paginate filtered list
-  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentItems = filteredProducts.slice(startIndex, endIndex);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
+  const itemsPerPage = 10;
+  const currentItems = product;
+
+  // useEffect(() => {
+  const fetchProduct = async () => {
+    try {
+      setLoading(true);
+
+      const res = await axiosInstance.get(
+        `/dashboard/transport?page=${currentPage}&limit=${itemsPerPage}`,
+      );
+
+      const response = res.data;
+
+      setProduct(response?.data || []);
+
+      // 👇 pagination from backend
+      setTotalPages(response?.pagination?.totalPages || 1);
+      setTotalItems(response?.pagination?.total || 0);
+    } catch (error) {
+      console.error("Error fetching transporters:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  // }, []);
+
+  useEffect(() => {
+    fetchProduct();
+  }, [currentPage]);
 
   //  Check if all visible rows are selected
   const allVisibleSelected =
     currentItems.length > 0 &&
-    currentItems.every((item) => selectedItems.includes(item.id));
+    currentItems.every((item) => selectedItems.includes(item._id));
 
   // navigate the section in product detlis page
 
@@ -220,26 +241,98 @@ const Transporter = () => {
     phone: "",
     email: "",
     status: "Active",
-
-    // Delivery toggles
-    deliveryOptions: {
-      forward: false,
-      return: false,
-      rto: false,
-      fast: false,
-      oneDay: false,
-    },
-
-    // SLA
-    slaForwardDays: "",
-    slaReturnDays: "",
-    slaRtoDays: "",
-    slaFastDays: "",
-
-    // COD
-    codEnabled: false,
-    codFlatRate: "",
   });
+
+  const validate = () => {
+    let newErrors = {};
+
+    if (!formdata.transporterName.trim()) {
+      newErrors.transporterName = "Transporter name is required";
+    }
+
+    if (!formdata.registrationNumber.trim()) {
+      newErrors.registrationNumber = "Registration number is required";
+    }
+
+    if (!formdata.contactName.trim()) {
+      newErrors.contactName = "Contact person name is required";
+    }
+
+    if (!formdata.phone.trim()) {
+      newErrors.phone = "Phone number is required";
+    } else if (!/^[0-9]{10}$/.test(formdata.phone)) {
+      newErrors.phone = "Enter valid 10 digit phone number";
+    }
+
+    if (!formdata.email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!/^\S+@\S+\.\S+$/.test(formdata.email)) {
+      newErrors.email = "Invalid email format";
+    }
+
+    if (formdata.trackingUrl && !/^https?:\/\/.+/.test(formdata.trackingUrl)) {
+      newErrors.trackingUrl = "Enter valid URL (http/https)";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  // const
+
+  const handleSubmit = async () => {
+    if (!validate()) return;
+
+    const payload = {
+      transporterName: formdata.transporterName,
+      registrationNumber: formdata.registrationNumber,
+      trackingUrl: formdata.trackingUrl,
+      contactDetails: {
+        personName: formdata.contactName,
+        phone: formdata.phone,
+        email: formdata.email,
+      },
+      isActive: formdata.status === "Active",
+    };
+
+    try {
+      await toast.promise(
+        axiosInstance.post(
+          `/dashboard/transport/add-transporter?page=${currentPage}&limit=10`,
+          payload,
+        ),
+        {
+          pending: "Adding transporter...",
+          success: "Transporter added successfully ✅",
+          error: {
+            render({ data }) {
+              return (
+                data?.response?.data?.message || "Failed to add transporter ❌"
+              );
+            },
+          },
+        },
+      );
+
+      resetForm();
+      setIsAddModalOpen(false);
+    } catch (error) {
+      console.error("Error:", error.response?.data || error.message);
+    }
+  };
+
+  const resetForm = () => {
+    setFormData({
+      transporterName: "",
+      registrationNumber: "",
+      trackingUrl: "",
+      contactName: "",
+      phone: "",
+      email: "",
+      status: "Active",
+    });
+    setErrors({});
+  };
 
   return (
     <>
@@ -335,8 +428,8 @@ const Transporter = () => {
 
               {activeFilter === "status" && (
                 <div className="absolute left-0 top-11 ml-2 w-36 z-30">
-                  <ul className=" bg-white border rounded-lg shadow">
-                    {["Active", "Paused", "Inactive"].map((status) => (
+                  <ul className="bg-white border rounded-lg shadow">
+                    {["All Status", "Active", "Inactive"].map((status) => (
                       <li
                         key={status}
                         onClick={() => {
@@ -438,9 +531,9 @@ const Transporter = () => {
               <tbody>
                 {currentItems.map((item) => (
                   <tr
-                    key={item.uuid || item.id || item.route}
+                    key={item.uuid || item._id || item.route}
                     className={`border-t hover:bg-gray-50 transition ${
-                      selectedItems.includes(item.id) ? "bg-red-50" : ""
+                      selectedItems.includes(item._id) ? "bg-red-50" : ""
                     }`}
                     onClick={(e) => {
                       if (
@@ -453,11 +546,11 @@ const Transporter = () => {
                     }}
                   >
                     <td className="px-4 py-3 text-[16px] text-[#1F2937]">
-                      Blue Dart
+                      {item.name || item.transporterName}
                     </td>
 
                     <td className="px-4 py-3 text-[16px] text-[#1F2937]">
-                      27AADCD3196Q1ZL
+                      {item.registrationNumber}
                     </td>
                     {/* <td className="px-4 py-3 text-[16px] text-[#1F2937]">
                       <div className="bg-[#EFEFEF] p-[6px] w-[90px] text-center rounded-lg font-medium">
@@ -465,25 +558,26 @@ const Transporter = () => {
                       </div>
                     </td> */}
                     <td className="px-4 py-3 text-[16px] text-[#1F2937]">
-                      (20)
+                      {item.activeShipment || 0}
                     </td>
                     <td className="px-4 py-3 text-[16px]  text-[#1F2937]">
-                      {item.status === "Active" ? (
-                        <div className="flex items-center w-[100px] justify-center gap-2 bg-[#E0F4DE] py-1.5 px-2 rounded-lg text-sm text-[#00A63E]">
+                      {item.isActive ? (
+                        <div className="flex items-center w-[100px] justify-center bg-[#E0F4DE] py-1.5 px-2 rounded-lg text-sm text-[#00A63E]">
                           Active
                         </div>
-                      ) : item.status === "Inactive" ? (
-                        <div className="flex items-center w-[100px]  justify-center gap-2 bg-[#FFEAE9] py-1.5 px-3 rounded-lg text-sm text-[#D53B35]">
-                          Inactive
-                        </div>
                       ) : (
-                        <div className="flex items-center w-[100px]  justify-center gap-2 bg-[#EFEFEF] py-1.5 px-3 rounded-lg text-sm text-[#686868]">
-                          Paused
+                        <div className="flex items-center w-[100px] justify-center bg-[#FFEAE9] py-1.5 px-3 rounded-lg text-sm text-[#D53B35]">
+                          Inactive
                         </div>
                       )}
                     </td>
-                    <td className="px-4 py-3 text-[16px] ">
-                      <button  onClick={() => navigate(`/admin/transporter/detail`)}  className="text-[#2C87E2] hover:underline">
+                    <td className="px-4 py-3 text-[16px]">
+                      <button
+                        onClick={() =>
+                          navigate(`/admin/transporter/detail/${item._id}`)
+                        }
+                        className="text-[#2C87E2] hover:underline"
+                      >
                         view
                       </button>
                     </td>
@@ -496,7 +590,7 @@ const Transporter = () => {
             <div className="flex justify-end items-center gap-2 px-6 py-4 border-t">
               <button
                 className="px-3 py-1 border rounded"
-                onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                onClick={() => setCurrentPage((p) => p - 1)}
                 disabled={currentPage === 1}
               >
                 ‹
@@ -520,9 +614,7 @@ const Transporter = () => {
 
               <button
                 className="px-3 py-1 border rounded"
-                onClick={() =>
-                  setCurrentPage((p) => Math.min(p + 1, totalPages))
-                }
+                onClick={() => setCurrentPage((p) => p + 1)}
                 disabled={currentPage === totalPages}
               >
                 ›
@@ -569,15 +661,19 @@ const Transporter = () => {
               <p className="font-medium text-[14px] mb-2">Basic Information</p>
 
               <form className="space-y-4">
-                
-
                 <div>
                   <label className="text-sm text-gray-600">Status</label>
                   <select
                     name="status"
                     value={formdata.status}
-                    onChange={(e) => setFormData(e.target.value)}
-                    className="w-full mt-1 border rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-200"
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        [e.target.name]: e.target.value,
+                      }))
+                    }
+                    className={`w-full mt-1 border rounded-lg px-3 py-2 outline-none 
+    `}
                   >
                     <option value="Active">Active</option>
                     <option value="Inactive">Inactive</option>
@@ -590,9 +686,17 @@ const Transporter = () => {
                   <input
                     name="transporterName"
                     value={formdata.transporterName}
-                    onChange={(e) => setFormData(e.target.value)}
+                    required
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        [e.target.name]: e.target.value,
+                      }))
+                    }
                     placeholder="Enter transporter name"
-                    className="w-full mt-1 border rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-200"
+                    className={`w-full mt-1 border rounded-lg px-3 py-2 outline-none 
+    ${errors.transporterName ? "border-red-500" : "border-gray-300"}
+  `}
                   />
                 </div>
 
@@ -603,10 +707,22 @@ const Transporter = () => {
                   <input
                     name="registrationNumber"
                     value={formdata.registrationNumber}
-                    onChange={(e) => setFormData(e.target.value)}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        [e.target.name]: e.target.value,
+                      }))
+                    }
                     placeholder="Enter registration number"
-                    className="w-full mt-1 border rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-200"
+                    className={`w-full mt-1 border rounded-lg px-3 py-2 outline-none 
+    ${errors.transporterName ? "border-red-500" : "border-gray-300"}
+  `}
                   />
+                  {errors.registrationNumber && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.registrationNumber}
+                    </p>
+                  )}
                 </div>
 
                 <div>
@@ -616,10 +732,22 @@ const Transporter = () => {
                   <input
                     name="trackingUrl"
                     value={formdata.trackingUrl}
-                    onChange={(e) => setFormData(e.target.value)}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        [e.target.name]: e.target.value,
+                      }))
+                    }
                     placeholder="Enter tracking id url"
-                    className="w-full mt-1 border rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-200"
+                    className={`w-full mt-1 border rounded-lg px-3 py-2 outline-none 
+    ${errors.transporterName ? "border-red-500" : "border-gray-300"}
+  `}
                   />
+                  {errors.trackingUrl && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.trackingUrl}
+                    </p>
+                  )}
                 </div>
 
                 <p className="font-medium text-[14px] mb-2">Contact Details</p>
@@ -631,10 +759,22 @@ const Transporter = () => {
                   <input
                     name="contactName"
                     value={formdata.contactName}
-                    onChange={(e) => setFormData(e.target.value)}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        [e.target.name]: e.target.value,
+                      }))
+                    }
                     placeholder="Enter contact person name"
-                    className="w-full mt-1 border rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-200"
+                    className={`w-full mt-1 border rounded-lg px-3 py-2 outline-none 
+    ${errors.transporterName ? "border-red-500" : "border-gray-300"}
+  `}
                   />
+                  {errors.contactName && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.contactName}
+                    </p>
+                  )}
                 </div>
 
                 <div>
@@ -642,10 +782,23 @@ const Transporter = () => {
                   <input
                     name="phone"
                     value={formdata.phone}
-                    onChange={(e) => setFormData(e.target.value)}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/\D/g, ""); // remove non-digits
+                      if (value.length <= 10) {
+                        setFormData((prev) => ({
+                          ...prev,
+                          phone: value,
+                        }));
+                      }
+                    }}
                     placeholder="Enter phone number"
-                    className="w-full mt-1 border rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-200"
+                    className={`w-full mt-1 border rounded-lg px-3 py-2 outline-none 
+    ${errors.transporterName ? "border-red-500" : "border-gray-300"}
+  `}
                   />
+                  {errors.phone && (
+                    <p className="text-red-500 text-xs mt-1">{errors.phone}</p>
+                  )}
                 </div>
 
                 <div>
@@ -653,16 +806,26 @@ const Transporter = () => {
                   <input
                     name="email"
                     value={formdata.email}
-                    onChange={(e) => setFormData(e.target.value)}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        [e.target.name]: e.target.value,
+                      }))
+                    }
                     placeholder="Enter email address"
-                    className="w-full mt-1 border rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-200"
+                    className={`w-full mt-1 border rounded-lg px-3 py-2 outline-none 
+    ${errors.transporterName ? "border-red-500" : "border-gray-300"}
+  `}
                   />
+                  {errors.email && (
+                    <p className="text-red-500 text-xs mt-1">{errors.email}</p>
+                  )}
                 </div>
 
                 {/* <p className="font-medium text-[14px] mb-2">Delivery Type</p> */}
                 {/* <div className="border p-4 rounded-lg space-y-3"> */}
-                  {/* Forward Delivery */}
-                  {/* <div className="flex items-center justify-between border-b pb-2">
+                {/* Forward Delivery */}
+                {/* <div className="flex items-center justify-between border-b pb-2">
                     <span>Forward Delivery</span>
                     <button
                       type="button"
@@ -681,8 +844,8 @@ const Transporter = () => {
                     </button>
                   </div> */}
 
-                  {/* Return Delivery */}
-                  {/* <div className="flex items-center justify-between border-b pb-2">
+                {/* Return Delivery */}
+                {/* <div className="flex items-center justify-between border-b pb-2">
                     <span>Return Delivery</span>
                     <button
                       type="button"
@@ -701,8 +864,8 @@ const Transporter = () => {
                     </button>
                   </div> */}
 
-                  {/* RTO */}
-                  {/* <div className="flex items-center justify-between border-b pb-2">
+                {/* RTO */}
+                {/* <div className="flex items-center justify-between border-b pb-2">
                     <span>RTO</span>
                     <button
                       type="button"
@@ -721,8 +884,8 @@ const Transporter = () => {
                     </button>
                   </div> */}
 
-                  {/* Fast Delivery */}
-                  {/* <div className="flex items-center justify-between border-b pb-2">
+                {/* Fast Delivery */}
+                {/* <div className="flex items-center justify-between border-b pb-2">
                     <span>Fast Delivery</span>
                     <button
                       type="button"
@@ -741,8 +904,8 @@ const Transporter = () => {
                     </button>
                   </div> */}
 
-                  {/* One Day Delivery */}
-                  {/* <div className="flex items-center justify-between">
+                {/* One Day Delivery */}
+                {/* <div className="flex items-center justify-between">
                     <span>One Day Delivery</span>
                     <button
                       type="button"
@@ -778,7 +941,9 @@ const Transporter = () => {
                     }}
                     min={0}
                     placeholder="Enter expected delivery time in days"
-                    className="w-full mt-1 border rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-200"
+                   className={`w-full mt-1 border rounded-lg px-3 py-2 outline-none 
+    ${errors.transporterName ? "border-red-500" : "border-gray-300"}
+  `}
                   />
                 </div>
                 <div>
@@ -789,10 +954,17 @@ const Transporter = () => {
                     type="number"
                     name="slaReturnDays"
                     value={formdata.slaReturnDays}
-                    onChange={(e) => setFormData(e.target.value)}
+                  onChange={(e) =>
+  setFormData((prev) => ({
+    ...prev,
+    [e.target.name]: e.target.value,
+  }))
+}
                     min={0}
                     placeholder="Enter expected delivery time in days"
-                    className="w-full mt-1 border rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-200"
+                   className={`w-full mt-1 border rounded-lg px-3 py-2 outline-none 
+    ${errors.transporterName ? "border-red-500" : "border-gray-300"}
+  `}
                   />
                 </div>
                 <div>
@@ -804,10 +976,17 @@ const Transporter = () => {
                     name="slaRtoDays"
                     na
                     value={formdata.slaRtoDays}
-                    onChange={(e) => setFormData(e.target.value)}
+                  onChange={(e) =>
+  setFormData((prev) => ({
+    ...prev,
+    [e.target.name]: e.target.value,
+  }))
+}
                     min={0}
                     placeholder="Enter expected delivery time in days"
-                    className="w-full mt-1 border rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-200"
+                   className={`w-full mt-1 border rounded-lg px-3 py-2 outline-none 
+    ${errors.transporterName ? "border-red-500" : "border-gray-300"}
+  `}
                   />
                 </div>
                 <div>
@@ -818,10 +997,17 @@ const Transporter = () => {
                     type="number"
                     name="slaFastDays"
                     value={formdata.slaFastDays}
-                    onChange={(e) => setFormData(e.target.value)}
+                  onChange={(e) =>
+  setFormData((prev) => ({
+    ...prev,
+    [e.target.name]: e.target.value,
+  }))
+}
                     min={0}
                     placeholder="Expected Fast Delivery Time"
-                    className="w-full mt-1 border rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-200"
+                   className={`w-full mt-1 border rounded-lg px-3 py-2 outline-none 
+    ${errors.transporterName ? "border-red-500" : "border-gray-300"}
+  `}
                   />
                 </div>
 
@@ -855,39 +1041,46 @@ const Transporter = () => {
                       type="number"
                       name="codFlatRate"
                       value={formdata.codFlatRate}
-                      onChange={(e) => setFormData(e.target.value)}
+                    onChange={(e) =>
+  setFormData((prev) => ({
+    ...prev,
+    [e.target.name]: e.target.value,
+  }))
+}
                       min={0}
                       placeholder="Enter COD charge in rupees(₹)"
-                      className="w-full mt-1 border rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-200"
+                     className={`w-full mt-1 border rounded-lg px-3 py-2 outline-none 
+    ${errors.transporterName ? "border-red-500" : "border-gray-300"}
+  `}
                     />
                   </div>
                 </div> */}
+                <div className="flex justify-end gap-2 px-6 py-4 border-t bg-white">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsAddModalOpen(false);
+                      // resetForm();
+                    }}
+                    className="px-4 py-2 rounded-lg border text-gray-700 hover:bg-gray-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-2 rounded-lg bg-[#1C3753] text-white hover:bg-[#344558]"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleSubmit();
+                    }}
+                  >
+                    Save Transporter
+                  </button>
+                </div>
               </form>
             </div>
 
             {/* Footer (sticky) */}
-            <div className="flex justify-end gap-2 px-6 py-4 border-t bg-white">
-              <button
-                type="button"
-                onClick={() => {
-                  setIsAddModalOpen(false);
-                  // resetForm();
-                }}
-                className="px-4 py-2 rounded-lg border text-gray-700 hover:bg-gray-50"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="px-4 py-2 rounded-lg bg-[#1C3753] text-white hover:bg-[#344558]"
-                onClick={(e) => {
-                  e.preventDefault();
-                  // handleSubmit()
-                }}
-              >
-                Save Transporter
-              </button>
-            </div>
           </div>
         </div>
       )}

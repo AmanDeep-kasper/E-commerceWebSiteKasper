@@ -108,6 +108,7 @@ import ProtectedRoute from "../pages/user/ProtectedRoute";
 import GuestRoute from "../pages/user/GuestRoute";
 import Reward from "../pages/user/reward";
 import CollectionProducts from "../pages/admin/Collection/CollectionProducts";
+import { useParams } from "react-router-dom";
 
 const PageRouter = () => {
   return (
@@ -321,7 +322,10 @@ const PageRouter = () => {
           {/* Add transporters */}
           <Route path="transporter" element={<Transporter />} />
 
-          <Route path="transporter/detail" element={<TransporterDetail />} />
+          <Route
+            path="transporter/detail/:transporterId"
+            element={<TransporterDetail />}
+          />
 
           {/* payment */}
           <Route path="payment" element={<PaymentPage />}>
