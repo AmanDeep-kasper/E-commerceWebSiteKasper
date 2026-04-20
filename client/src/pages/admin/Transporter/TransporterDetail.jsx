@@ -1,79 +1,32 @@
+import { tr } from "framer-motion/m";
 import { ChevronLeft } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import axiosInstance from "../../../api/axiosInstance";
 
 const TransporterDetail = () => {
   const navigate = useNavigate();
-  const { uuid } = useParams();
+  const { transporterId } = useParams();
 
-  // temporary static detail data
-  const transporterData = useMemo(
-    () => [
-      {
-        uuid: "blue-dart-001",
-        transporterName: "Blue Dart",
-        registrationNumber: "27AADCD3196Q1ZL",
-        trackingUrl: "https://www.bluedart.com/tracking",
-        contactName: "Amit Iyer",
-        phone: "+91 9876543210",
-        email: "support@transporter.com",
-        status: "Active",
+  const [transporter, setTransporter] = useState(null);
 
-        deliveryOptions: {
-          forward: true,
-          return: false,
-          rto: true,
-          fast: true,
-          oneDay: false,
-        },
+  useEffect(() => {
+    const fetchTransporter = async () => {
+      try {
+        const res = await axiosInstance.get(
+          `/dashboard/transport/details/${transporterId}`,
+        );
 
-        slaForwardDays: "7",
-        slaReturnDays: "",
-        slaRtoDays: "10",
-        slaFastDays: "3",
+        console.log("API RESPONSE:", res.data);
 
-        codEnabled: true,
-        codFlatRate: "40",
-      },
-      {
-        uuid: "dtdc-002",
-        transporterName: "DTDC",
-        registrationNumber: "09AAACT1234A1Z5",
-        trackingUrl: "https://www.dtdc.in/tracking",
-        contactName: "Rohit Sharma",
-        phone: "+91 9999999999",
-        email: "help@dtdc.com",
-        status: "Paused",
+        setTransporter(res.data?.transporter);
+      } catch (error) {
+        console.error(error);
+      }
+    };
 
-        deliveryOptions: {
-          forward: true,
-          return: true,
-          rto: true,
-          fast: false,
-          oneDay: false,
-        },
-
-        slaForwardDays: "5",
-        slaReturnDays: "6",
-        slaRtoDays: "8",
-        slaFastDays: "",
-
-        codEnabled: false,
-        codFlatRate: "0",
-      },
-    ],
-    [],
-  );
-
-  const transporter = useMemo(() => {
-    if (!uuid) return transporterData[0] || null;
-
-    return (
-      transporterData.find(
-        (item) => item.uuid?.toLowerCase() === uuid.toLowerCase(),
-      ) || null
-    );
-  }, [uuid, transporterData]);
+    if (transporterId) fetchTransporter();
+  }, [transporterId]);
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
@@ -86,21 +39,21 @@ const TransporterDetail = () => {
     email: "",
     status: "Active",
 
-    deliveryOptions: {
-      forward: false,
-      return: false,
-      rto: false,
-      fast: false,
-      oneDay: false,
-    },
+    // deliveryOptions: {
+    //   forward: false,
+    //   return: false,
+    //   rto: false,
+    //   fast: false,
+    //   oneDay: false,
+    // },
 
-    slaForwardDays: "",
-    slaReturnDays: "",
-    slaRtoDays: "",
-    slaFastDays: "",
+    // slaForwardDays: "",
+    // slaReturnDays: "",
+    // slaRtoDays: "",
+    // slaFastDays: "",
 
-    codEnabled: false,
-    codFlatRate: "",
+    // codEnabled: false,
+    // codFlatRate: "",
   });
 
   useEffect(() => {
@@ -110,18 +63,14 @@ const TransporterDetail = () => {
       transporterName: transporter.transporterName || "",
       registrationNumber: transporter.registrationNumber || "",
       trackingUrl: transporter.trackingUrl || "",
-      contactName: transporter.contactName || "",
-      phone: transporter.phone || "",
-      email: transporter.email || "",
-      status: transporter.status || "Active",
 
-      deliveryOptions: {
-        forward: transporter.deliveryOptions?.forward || false,
-        return: transporter.deliveryOptions?.return || false,
-        rto: transporter.deliveryOptions?.rto || false,
-        fast: transporter.deliveryOptions?.fast || false,
-        oneDay: transporter.deliveryOptions?.oneDay || false,
-      },
+      contactName: transporter.contactDetails?.personName || "",
+      phone: transporter.contactDetails?.phone || "",
+      email: transporter.contactDetails?.email || "",
+
+      status: transporter.isActive ? "Active" : "Inactive",
+
+      deliveryOptions: transporter.deliveryOptions || {},
 
       slaForwardDays: transporter.slaForwardDays || "",
       slaReturnDays: transporter.slaReturnDays || "",
@@ -159,9 +108,48 @@ const TransporterDetail = () => {
     }));
   };
 
-  const handleSaveChanges = () => {
-    console.log("Updated Transporter Data:", formData);
-    setIsEditModalOpen(false);
+  const handleSaveChanges = async () => {
+    try {
+      const payload = {
+        transporterName: formData.transporterName,
+        trackingUrl: formData.trackingUrl,
+        isActive: formData.status === "Active",
+
+        contactDetails: {
+          personName: formData.contactName,
+          phone: formData.phone,
+          email: formData.email,
+        },
+
+        deliveryOptions: formData.deliveryOptions,
+
+        slaForwardDays: formData.slaForwardDays,
+        slaReturnDays: formData.slaReturnDays,
+        slaRtoDays: formData.slaRtoDays,
+        slaFastDays: formData.slaFastDays,
+
+        codEnabled: formData.codEnabled,
+        codFlatRate: formData.codFlatRate,
+      };
+
+      const res = await axiosInstance.put(
+        `/dashboard/transport/update-transporter/${transporterId}`,
+        payload,
+      );
+
+      console.log("Updated:", res.data);
+
+      // ✅ Update UI instantly
+      setTransporter((prev) => ({
+        ...prev,
+        ...payload,
+        contactDetails: payload.contactDetails,
+      }));
+
+      setIsEditModalOpen(false);
+    } catch (error) {
+      console.error("Update Error:", error.response?.data || error.message);
+    }
   };
 
   const renderSupportText = (isSupported) => {
@@ -180,7 +168,7 @@ const TransporterDetail = () => {
             Transporter not found
           </h2>
           <button
-            onClick={() => navigate("/transporter")}
+            onClick={() => navigate("/admin/transporter")}
             className="bg-[#1C3753] text-white px-4 py-2 rounded-lg"
           >
             Back
@@ -209,19 +197,16 @@ const TransporterDetail = () => {
               <div className="">
                 {/* <p className="text-[#686868] text-[14px]">Status</p> */}
                 <span
-                  className={`font-medium  ${
-                    transporter.status === "Active"
+                  className={`font-medium ${
+                    transporter.isActive
                       ? "text-[#00A63E] bg-[#E0F4DE] py-1 px-4 rounded-lg"
-                      : transporter.status === "Inactive"
-                        ? "text-[#D53B35] py-1 px-4 rounded-lg"
-                        : "text-[#686868] py-1 px-4 rounded-lg"
+                      : "text-[#D53B35] bg-[#FFEAE9] py-1 px-4 rounded-lg"
                   }`}
                 >
-                  {transporter.status || "--"}
+                  {transporter.isActive ? "Active" : "Inactive"}
                 </span>
               </div>
             </div>
-            
 
             <button
               onClick={() => setIsEditModalOpen(true)}
@@ -241,9 +226,7 @@ const TransporterDetail = () => {
 
               <div className="flex items-center justify-between gap-4">
                 <div>
-                  <p className="text-[#686868] text-[14px]">
-                    Transporter Name
-                  </p>
+                  <p className="text-[#686868] text-[14px]">Transporter Name</p>
                   <span>{transporter.transporterName || "--"}</span>
                 </div>
 
@@ -259,11 +242,9 @@ const TransporterDetail = () => {
                 <p className="text-[#686868] text-[14px]">Tracking ID URL</p>
                 <span>{transporter.trackingUrl || "--"}</span>
               </div>
-
-              
             </div>
 
-            <div className="flex flex-col space-y-3 bg-[#FFFFFF] px-3 py-3 rounded-xl">
+            {/* <div className="flex flex-col space-y-3 bg-[#FFFFFF] px-3 py-3 rounded-xl">
               <h1 className="font-medium">SLA Configuration</h1>
 
               <div className="flex items-center justify-between">
@@ -313,9 +294,9 @@ const TransporterDetail = () => {
                   </span>
                 </div>
               </div>
-            </div>
+            </div> */}
 
-            <div className="flex flex-col space-y-3 bg-[#FFFFFF] px-3 py-3 rounded-xl">
+            {/* <div className="flex flex-col space-y-3 bg-[#FFFFFF] px-3 py-3 rounded-xl">
               <h1 className="font-medium">COD Charges</h1>
 
               <div className="flex items-center justify-between">
@@ -341,7 +322,7 @@ const TransporterDetail = () => {
                   <span>₹{transporter.codFlatRate || 0}</span>
                 </div>
               </div>
-            </div>
+            </div> */}
           </div>
 
           {/* Right */}
@@ -354,22 +335,22 @@ const TransporterDetail = () => {
                   <p className="text-[#686868] text-[14px]">
                     Contact Person Name
                   </p>
-                  <span>{transporter.contactName || "--"}</span>
+                  <span>{transporter.contactDetails?.personName || "--"}</span>
                 </div>
 
                 <div className="flex items-center justify-between border-b pb-2">
                   <p className="text-[#686868] text-[14px]">Phone Number</p>
-                  <span>{transporter.phone || "--"}</span>
+                  <span>{transporter.contactDetails?.phone || "--"}</span>
                 </div>
 
                 <div className="flex items-center justify-between border-b pb-2">
                   <p className="text-[#686868] text-[14px]">Email Address</p>
-                  <span>{transporter.email || "--"}</span>
+                  <span>{transporter.contactDetails?.email || "--"}</span>
                 </div>
               </div>
             </div>
 
-            <div className="flex flex-col space-y-3 bg-[#FFFFFF] px-3 py-3 rounded-xl">
+            {/* <div className="flex flex-col space-y-3 bg-[#FFFFFF] px-3 py-3 rounded-xl">
               <h1 className="font-medium">Delivery Type</h1>
 
               <div className="flex flex-col gap-4">
@@ -398,7 +379,7 @@ const TransporterDetail = () => {
                   {renderSupportText(transporter.deliveryOptions?.oneDay)}
                 </div>
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>
@@ -439,6 +420,19 @@ const TransporterDetail = () => {
                 </p>
 
                 <div>
+                  <label className="text-sm text-gray-600">Status</label>
+                  <select
+                    name="status"
+                    value={formData.status}
+                    onChange={handleInputChange}
+                    className="w-full mt-1 border rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-200"
+                  >
+                    <option value="Active">Active</option>
+                    <option value="Paused">Paused</option>
+                    <option value="Inactive">Inactive</option>
+                  </select>
+                </div>
+                <div>
                   <label className="text-sm text-gray-600">
                     Transporter Name
                   </label>
@@ -456,7 +450,7 @@ const TransporterDetail = () => {
                     Registration Number
                   </label>
                   <input
-                  readOnly
+                    readOnly
                     name="registrationNumber"
                     value={formData.registrationNumber}
                     onChange={handleInputChange}
@@ -488,6 +482,7 @@ const TransporterDetail = () => {
                     name="contactName"
                     value={formData.contactName}
                     onChange={handleInputChange}
+                     maxLength={10}
                     placeholder="Enter contact person name"
                     className="w-full mt-1 border rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-200"
                   />
@@ -515,23 +510,9 @@ const TransporterDetail = () => {
                   />
                 </div>
 
-                <div>
-                  <label className="text-sm text-gray-600">Status</label>
-                  <select
-                    name="status"
-                    value={formData.status}
-                    onChange={handleInputChange}
-                    className="w-full mt-1 border rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-200"
-                  >
-                    <option value="Active">Active</option>
-                    <option value="Paused">Paused</option>
-                    <option value="Inactive">Inactive</option>
-                  </select>
-                </div>
+                {/* <p className="font-medium text-[14px] mb-2">Delivery Type</p> */}
 
-                <p className="font-medium text-[14px] mb-2">Delivery Type</p>
-
-                <div className="border p-4 rounded-lg space-y-3">
+                {/* <div className="border p-4 rounded-lg space-y-3">
                   {[
                     { key: "forward", label: "Forward Delivery" },
                     { key: "return", label: "Return Delivery" },
@@ -563,13 +544,13 @@ const TransporterDetail = () => {
                       </button>
                     </div>
                   ))}
-                </div>
-
+                </div> */}
+                {/* 
                 <p className="font-medium text-[14px] mb-2">
                   SLA Configuration
-                </p>
+                </p> */}
 
-                <div>
+                {/* <div>
                   <label className="text-sm text-gray-600">
                     Expected Forward Delivery Time
                   </label>
@@ -581,9 +562,9 @@ const TransporterDetail = () => {
                     placeholder="Enter expected delivery time in days"
                     className="w-full mt-1 border rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-200"
                   />
-                </div>
+                </div> */}
 
-                <div>
+                {/* <div>
                   <label className="text-sm text-gray-600">
                     Expected Return Delivery Time
                   </label>
@@ -625,9 +606,9 @@ const TransporterDetail = () => {
                   />
                 </div>
 
-                <p className="font-medium text-[14px] mb-2">COD Charges</p>
+                <p className="font-medium text-[14px] mb-2">COD Charges</p> */}
 
-                <div className="border p-4 rounded-lg space-y-3">
+                {/* <div className="border p-4 rounded-lg space-y-3">
                   <div className="flex items-center justify-between border-b pb-2">
                     <span className="text-gray-600 text-sm">
                       Cash On Delivery (COD)
@@ -641,7 +622,9 @@ const TransporterDetail = () => {
                     >
                       <span
                         className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-300 ${
-                          formData.codEnabled ? "translate-x-6" : "translate-x-1"
+                          formData.codEnabled
+                            ? "translate-x-6"
+                            : "translate-x-1"
                         }`}
                       />
                     </button>
@@ -660,7 +643,7 @@ const TransporterDetail = () => {
                       className="w-full mt-1 border rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-200"
                     />
                   </div>
-                </div>
+                </div> */}
               </form>
             </div>
 

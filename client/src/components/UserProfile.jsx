@@ -75,7 +75,7 @@ function UserProfile({ setIsProfileOpen }) {
               to={`/accounts${path}`}
               onClick={() => {
                 setTimeout(() => {
-                  setIsProfileOpen(false);
+                  // setIsProfileOpen(false);
                 }, 0);
               }}
               className={({ isActive }) =>

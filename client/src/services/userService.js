@@ -11,6 +11,11 @@ const verifyEmail = async (data) => {
   return res.data;
 };
 
+const resendOtp = async (data) => {
+  const res = await axiosInstance.post("/auth/resend-otp", data); // ✅ ADD THIS
+  return res.data;
+};
+
 const login = async (credentials) => {
   const res = await axiosInstance.post("/auth/login", credentials);
   return res.data;
@@ -37,7 +42,7 @@ const resetPassword = async ({
   return res.data;
 };
 
-// User axiosInstances
+// User APIs
 const getUser = async () => {
   const res = await axiosInstance.get("/auth/me");
   return res.data;
@@ -66,6 +71,7 @@ const logout = async () => {
 export default {
   register,
   verifyEmail,
+  resendOtp, 
   login,
   forgotPassword,
   resetPassword,
