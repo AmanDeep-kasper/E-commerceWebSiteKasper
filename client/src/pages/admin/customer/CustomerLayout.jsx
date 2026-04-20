@@ -1,76 +1,127 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { useParams, Outlet, Link, useLocation, useNavigate } from "react-router-dom";
 import customers from "../data/customer.json";
 import ProfileCard from "../components/ProfileCard";
 import ProfileSidebar from "../components/ProfileSidebar";
 import { ChevronLeft } from "lucide-react";
+import axiosInstance from "../../../api/axiosInstance";
 
 function CustomerLayout() {
   const { id } = useParams();
   const location = useLocation();
+  const navigate = useNavigate();
 
-  const customer = useMemo(
-    () => customers.find((c) => String(c.id) === String(id)),
-    [id],
-  );
+    const [customer, setCustomer] = useState(null);
+    const [addresses, setAddresses] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const isEditPage = location.pathname.endsWith("/edit");
 
-  if (!customer) return <div>Customer not found</div>;
-  const navigate = useNavigate();
-
   const [form, setForm] = React.useState({
-    fullName: customer?.name || "",
-    email: customer?.email || "",
-    phone: customer?.phone || "",
-    gender: customer?.gender || "NA",
-    dob: customer?.dob || "NA",
+    fullName: "",
+    email: "",
+    phone: "",
+    gender: "NA",
+    dob: "NA",
   });
 
-  const [addressUpdate, setAddressUpdate] = React.useState({
-    fullName: customer?.name || "",
-    phoneNumber: customer?.phone || "",
-    address: customer?.address || "",
-    pinCode: customer?.zip_code || "",
-    landMark: customer?.landMark || "",
-    city: customer?.city || "",
-    state: customer?.state || "",
-    addressType: customer?.addressType || "",
-  });
 
-  const handleSave = (e) => {
-    e.preventDefault();
-
-    const payload = {
-      personal: form,
-      address: addressUpdate,
+  // Fetch customer and addresses from API
+  useEffect(() => {
+    const fetchCustomerData = async () => {
+      try {
+        setLoading(true);
+        
+        // Fetch user details
+        const userResponse = await axiosInstance.get(`/user/admin/detail/${id}`);
+        console.log("Fetched user:", userResponse.data);
+        const userData = userResponse.data?.user || userResponse.data?.data || userResponse.data;
+        
+        // Fetch user's addresses using admin endpoint
+        try {
+          const addressResponse = await axiosInstance.get(`/address/admin/all-addresses/${id}`);
+          console.log("Fetched addresses:", addressResponse.data);
+          const addressesData = addressResponse.data?.data?.addresses || addressResponse.data?.addresses || [];
+          setAddresses(addressesData);
+        } catch (addressErr) {
+          console.log("No addresses found:", addressErr);
+          setAddresses([]);
+        }
+        
+        setCustomer(userData);
+        setError(null);
+      } catch (err) {
+        console.error("Error fetching customer:", err);
+        setError(err.response?.data?.message || "Failed to load customer");
+      } finally {
+        setLoading(false);
+      }
     };
 
-    console.log("SAVE DATA 👉", payload);
+    if (id) {
+      fetchCustomerData();
+    }
+  }, [id]);
 
-    // ✅ RESET FORM
-    setForm({
-      fullName: "",
-      email: "",
-      phone: "",
-      gender: "NA",
-      dob: "NA",
-    });
-
-    setAddressUpdate({
-      fullName: "",
-      phoneNumber: "",
-      address: "",
-      pinCode: "",
-      landMark: "",
-      city: "",
-      state: "",
-      addressType: "",
-    });
-
-    // ✅ REDIRECT
-    navigate("/admin/customers/");
+  const defaultAddress = addresses.find(addr => addr.isDefault === true) || addresses[0] || null;
+// Merge customer and address data for display
+const mergedCustomerData = {
+    ...customer,
+    // Address fields from default address
+    addressFullName: defaultAddress?.fullName,
+    addressPhone: defaultAddress?.phone,
+    addressLine: defaultAddress?.address,
+    city: defaultAddress?.city,
+    state: defaultAddress?.state,
+    pinCode: defaultAddress?.pinCode,
+    country: defaultAddress?.country,
+    addressType: defaultAddress?.addressType,
+    isDefaultAddress: defaultAddress?.isDefault || false,
+    allAddresses: addresses,
   };
+
+  console.log("Merged customer data:", mergedCustomerData);
+
+
+    // Update forms when customer data loads
+  useEffect(() => {
+    if (customer) {
+      setForm({
+        fullName: customer?.name || "",
+        email: customer?.email || "",
+        phone: customer?.phoneNumber || "",
+        gender: customer?.gender || "NA",
+        dob: customer?.dateOfBirth || "NA",
+      });
+    }
+  }, [customer]);
+
+
+
+    if (loading) {
+    return (
+      <div className="p-6 bg-[#F6F8F9] min-h-screen flex justify-center items-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1C3753] mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading customer details...</p>
+        </div>
+      </div>
+    );
+  }
+
+    if (error || !customer) {
+    return (
+      <div className="p-6 bg-[#F6F8F9] min-h-screen">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">
+          <p>Error: {error || "Customer not found"}</p>
+          <Link to="/admin/customers" className="text-blue-600 hover:underline mt-2 inline-block">
+            Back to Customers
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 bg-[#F6F8F9] min-h-screen">
@@ -83,11 +134,11 @@ function CustomerLayout() {
           <h1 className="text-xl font-semibold">Customer Details</h1>
         </div>
 
-        {!isEditPage ? (
+        {/* {!isEditPage ? (
           <Link to="edit">
-            {/* <button className="border px-4 py-2 rounded-lg text-sm">
+            <button className="border px-4 py-2 rounded-lg text-sm">
               Edit Customer
-            </button> */}
+            </button>
           </Link>
         ) : (
           <div className="flex gap-2">
@@ -102,7 +153,7 @@ function CustomerLayout() {
               Save
             </button>
           </div>
-        )}
+        )} */}
       </div>
 
       {/* BODY */}
@@ -117,12 +168,12 @@ function CustomerLayout() {
           <ProfileSidebar isEditPage={isEditPage} customer={customer} />
           <Outlet
             context={{
-              customer,
+              customer: mergedCustomerData,
+              originalCustomer: customer,
+              addresses: addresses,
+              defaultAddress: defaultAddress,
               form,
               setForm,
-              addressUpdate,
-              setAddressUpdate,
-              handleSave,
             }}
           />
         </div>

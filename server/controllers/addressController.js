@@ -270,3 +270,55 @@ export const updateAddressStatus = asyncHandler(async (req, res) => {
     address,
   });
 });
+
+
+// adding this two new api for admin get all address of user and get address by id
+// Admin: Get all addresses for a specific user
+export const getAddressesByUserId = asyncHandler(async (req, res) => {
+  const { userId } = req.params;
+  
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 20;
+  const skip = (page - 1) * limit;
+
+  const filter = { userId };
+  
+  const addresses = await Address.find(filter)
+    .sort({ isDefault: -1, createdAt: -1 })
+    .skip(skip)
+    .limit(limit)
+    .lean();
+
+  const total = await Address.countDocuments(filter);
+
+  res.status(200).json({
+    success: true,
+    message: "Addresses fetched successfully",
+    data: {
+      addresses,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    },
+  });
+});
+
+// Admin: Get single address by ID
+export const getAddressById = asyncHandler(async (req, res) => {
+  const { addressId } = req.params;
+  
+  const address = await Address.findById(addressId);
+  
+  if (!address) {
+    throw AppError.notFound("Address not found", "NOT_FOUND");
+  }
+
+  res.status(200).json({
+    success: true,
+    message: "Address fetched successfully",
+    data: address,
+  });
+});

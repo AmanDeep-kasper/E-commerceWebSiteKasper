@@ -82,7 +82,7 @@ function TopProducts() {
         setItems(sortedProducts);
         setError("");
       } catch (err) {
-        console.error("Error fetching collections:", err);
+        // console.error("Error fetching collections:", err);
         setError(err.response?.data?.message || "Failed to load products");
         toast.error("Failed to load products");
       } finally {
