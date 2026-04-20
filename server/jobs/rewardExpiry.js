@@ -32,3 +32,30 @@ export const runRewardExpiryJob = async () => {
 
   console.log(`Expired entries processed: ${expiredEntries.length}`);
 };
+
+// export const expireRewardsJob = async () => {
+//   const expiredEntries = await RewardLedger.find({
+//     type: "earn",
+//     remainingPoints: { $gt: 0 },
+//     expiresAt: { $lt: new Date() },
+//   });
+
+//   for (const entry of expiredEntries) {
+//     const expiredPoints = entry.remainingPoints;
+
+//     entry.remainingPoints = 0;
+//     await entry.save();
+
+//     await RewardLedger.create({
+//       user: entry.user,
+//       type: "expire",
+//       points: expiredPoints,
+//       orderId: entry.orderId,
+//     });
+
+//     await User.updateOne(
+//       { _id: entry.user },
+//       { $inc: { points: -expiredPoints } },
+//     );
+//   }
+// };
