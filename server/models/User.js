@@ -46,19 +46,22 @@ const userSchema = new mongoose.Schema(
       ref: "Address",
     },
 
-    resetPasswordToken: {
-      type: String,
-      index: true,
-      select: false,
+    points: {
+      type: Number,
+      default: 0,
     },
-    resetPasswordExpires: { type: Date, select: false },
-    resetPasswordAttempts: { type: Number, default: 0, min: 0 },
-    lastResetRequest: { type: Date },
-    lastResetRequestIP: { type: String },
-    lastResetRequestDevice: { type: String },
-    lastPasswordChange: { type: Date },
-    lastPasswordChangeIP: { type: String },
-    lastPasswordChangeDevice: { type: String },
+
+    totalOrders: {
+      type: Number,
+      default: 0,
+    },
+
+    totalSpend: {
+      type: Number,
+      default: 0,
+    },
+
+    lastOrderAt: Date,
 
     isVerified: {
       type: Boolean,
@@ -85,6 +88,20 @@ const userSchema = new mongoose.Schema(
       type: String,
       enum: ["male", "female", "other"],
     },
+
+    resetPasswordToken: {
+      type: String,
+      index: true,
+      select: false,
+    },
+    resetPasswordExpires: { type: Date, select: false },
+    resetPasswordAttempts: { type: Number, default: 0, min: 0 },
+    lastResetRequest: { type: Date },
+    lastResetRequestIP: { type: String },
+    lastResetRequestDevice: { type: String },
+    lastPasswordChange: { type: Date },
+    lastPasswordChangeIP: { type: String },
+    lastPasswordChangeDevice: { type: String },
 
     lastLogin: { type: Date },
     loginAttempts: { type: Number, default: 0, min: 0 },

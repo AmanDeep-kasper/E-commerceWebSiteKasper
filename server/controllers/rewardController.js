@@ -1,144 +1,166 @@
 import Reward from "../models/Reward.js";
+import AppError from "../utils/AppError.js";
+import asyncHandler from "../utils/asyncHandler.js";
 
-/* ================= CREATE REWARD ================= */
-export const createReward = async (req, res) => {
-  try {
-    const {
-      name,
-      amount,
-      minPurchase,
-      deadline,
-      redeemPoints,
-      redeemPercent,
-      redeemAmount,
-    } = req.body;
+export const addOrUpdateReward = asyncHandler(async (req, res) => {
+  const { name, earn, redeem, validity, isActive = true } = req.body;
 
-    // Status logic (same as your frontend)
-    const today = new Date();
-    const selectedDate = new Date(deadline);
+  // 🔒 basic validation
+  if (!earn?.rules || earn.rules.length === 0) {
+    throw AppError.badRequest("Earn rules are required");
+  }
 
-    today.setHours(0, 0, 0, 0);
-    selectedDate.setHours(0, 0, 0, 0);
+  if (!redeem?.pointValue) {
+    throw AppError.badRequest("Redeem config invalid");
+  }
 
-    const isActive = selectedDate >= today;
+  // 🔥 sanitize rules (remove duplicates)
+  const uniqueRulesMap = new Map();
 
-    const reward = await Reward.create({
-      name,
-      amount,
-      minPurchase,
-      deadline,
-      redeemPoints,
-      redeemPercent,
-      redeemAmount,
+  for (const rule of earn.rules) {
+    if (!rule.minOrder || !rule.points) continue;
+
+    uniqueRulesMap.set(rule.minOrder, rule.points);
+  }
+
+  const cleanedRules = Array.from(uniqueRulesMap.entries()).map(
+    ([minOrder, points]) => ({
+      minOrder,
+      points,
+    }),
+  );
+
+  // 🔥 sort rules (important for calculation)
+  cleanedRules.sort((a, b) => a.minOrder - b.minOrder);
+
+  // 🔥 check existing reward
+  let reward = await Reward.findOne();
+
+  // =========================
+  // 🆕 CREATE
+  // =========================
+  if (!reward) {
+    reward = await Reward.create({
+      name: name || "Default Reward",
+      earn: {
+        minOrderValue: earn.minOrderValue || 0,
+        rules: cleanedRules,
+      },
+      redeem,
+      validity,
       isActive,
     });
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
-      message: "Reward created successfully",
+      message: "Reward created",
       data: reward,
     });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
   }
-};
 
-/* ================= GET ALL ================= */
-export const getAllRewards = async (req, res) => {
-  try {
-    const rewards = await Reward.find().sort({ createdAt: -1 });
+  // =========================
+  // 🔄 UPDATE
+  // =========================
 
-    res.status(200).json({
+  // merge rules
+  const existingMap = new Map();
+
+  for (const rule of reward.earn.rules) {
+    existingMap.set(rule.minOrder, rule.points);
+  }
+
+  for (const rule of cleanedRules) {
+    existingMap.set(rule.minOrder, rule.points); // overwrite if exists
+  }
+
+  const mergedRules = Array.from(existingMap.entries()).map(
+    ([minOrder, points]) => ({
+      minOrder,
+      points,
+    }),
+  );
+
+  mergedRules.sort((a, b) => a.minOrder - b.minOrder);
+
+  // update fields
+  reward.name = name || reward.name;
+
+  reward.earn = {
+    minOrderValue: earn.minOrderValue ?? reward.earn.minOrderValue,
+    rules: mergedRules,
+  };
+
+  reward.redeem = {
+    ...reward.redeem,
+    ...redeem,
+  };
+
+  reward.validity = {
+    ...reward.validity,
+    ...validity,
+  };
+
+  reward.isActive = isActive;
+
+  await reward.save();
+
+  return res.json({
+    success: true,
+    message: "Reward updated",
+    data: reward,
+  });
+});
+
+export const getReward = asyncHandler(async (req, res) => {
+  // 🔥 fast query (only active reward + lean)
+  const reward = await Reward.findOne({ isActive: true })
+    .select("name earn redeem validity isActive")
+    .lean();
+
+  // ❗ no reward case (safe fallback)
+  if (!reward) {
+    return res.status(200).json({
       success: true,
-      data: rewards,
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
+      data: null,
+      message: "No active reward found",
     });
   }
-};
 
-/* ================= GET SINGLE ================= */
-export const getRewardById = async (req, res) => {
-  try {
-    const reward = await Reward.findById(req.params.id);
-
-    if (!reward) {
-      return res.status(404).json({
-        success: false,
-        message: "Reward not found",
-      });
-    }
-
-    res.status(200).json({
-      success: true,
-      data: reward,
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+  // 🔥 ensure rules are sorted (extra safety)
+  if (reward?.earn?.rules?.length) {
+    reward.earn.rules.sort((a, b) => a.minOrder - b.minOrder);
   }
-};
 
-/* ================= UPDATE ================= */
-export const updateReward = async (req, res) => {
-  try {
-    const { deadline } = req.body;
+  // 🔥 response
+  return res.status(200).json({
+    success: true,
+    data: reward,
+  });
+});
 
-    let isActive;
-
-    // recalculate status if deadline updated
-    if (deadline) {
-      const today = new Date();
-      const selectedDate = new Date(deadline);
-
-      today.setHours(0, 0, 0, 0);
-      selectedDate.setHours(0, 0, 0, 0);
-
-      isActive = selectedDate >= today;
-    }
-
-    const updatedReward = await Reward.findByIdAndUpdate(
-      req.params.id,
+export const toggleRewardStatus = asyncHandler(async (req, res) => {
+  // 🔥 atomic toggle (no payload needed)
+  const updated = await Reward.findOneAndUpdate(
+    {},
+    [
       {
-        ...req.body,
-        ...(isActive !== undefined && { isActive }),
+        $set: {
+          isActive: { $not: "$isActive" },
+        },
       },
-      { new: true }
-    );
+    ],
+    {
+      new: true,
+    },
+  ).lean();
 
-    res.status(200).json({
-      success: true,
-      data: updatedReward,
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+  if (!updated) {
+    throw AppError.notFound("Reward not found");
   }
-};
 
-/* ================= DELETE ================= */
-export const deleteReward = async (req, res) => {
-  try {
-    await Reward.findByIdAndDelete(req.params.id);
-
-    res.status(200).json({
-      success: true,
-      message: "Reward deleted successfully",
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
-};
+  return res.json({
+    success: true,
+    message: `Reward ${updated.isActive ? "enabled" : "disabled"}`,
+    data: updated,
+  });
+});
