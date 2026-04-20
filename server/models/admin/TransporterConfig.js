@@ -19,6 +19,11 @@ const transporterSchema = new mongoose.Schema(
       required: true,
     },
 
+    activeShipment: {
+      type: Number,
+      default: 0,
+    },
+
     contactDetails: {
       PersonName: {
         type: String,

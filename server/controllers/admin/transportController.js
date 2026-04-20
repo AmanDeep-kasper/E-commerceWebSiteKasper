@@ -3,8 +3,13 @@ import AppError from "../../utils/AppError.js";
 import asyncHandler from "../../utils/asyncHandler.js";
 
 export const addTransporter = asyncHandler(async (req, res) => {
-  let { transporterName, registrationNumber, trackingUrl, contactDetails } =
-    req.body;
+  let {
+    transporterName,
+    registrationNumber,
+    trackingUrl,
+    contactDetails,
+    isActive,
+  } = req.body;
 
   // check contact details type must be object
   if (typeof contactDetails === "string") {
@@ -27,7 +32,7 @@ export const addTransporter = asyncHandler(async (req, res) => {
     registrationNumber,
     trackingUrl,
     contactDetails,
-    isActive: true,
+    isActive: isActive === undefined ? true : isActive,
   });
 
   res.status(201).json({
