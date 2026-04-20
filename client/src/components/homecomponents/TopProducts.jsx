@@ -184,18 +184,21 @@ import { LuMinus, LuPlus } from "react-icons/lu";
 import { toast } from "react-toastify";
 
 function TopProducts() {
-  const {collectionId} = useParams();
   const dispatch = useDispatch();
   const [visibleCount, setVisibleCount] = useState(4);
-     const [collection, setCollection] = useState(null);
+     const [collections, setCollections] = useState([]);
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
   const [topproduct, setTopProduct] = useState([]);
   const [addedItems, setAddedItems] = useState({});
 
+  const MIN_PRODUCTS = 4; // Minimum products to show
+  const MAX_PRODUCTS = 5; // Maximum products to show
+  const MAX_COLLECTIONS = 4;
+
     // Fetch collection products
     useEffect(() => {
-        const fetchCollectionProducts = async () => {
+        const fetchCollections = async () => {
             try {
                 setLoading(true);
                 // Use the public endpoint for users
@@ -210,55 +213,48 @@ function TopProducts() {
                 } else if (response.data?.collections) {
                     collectionsData = response.data.collections;
                 }
-                
-                // If collectionId is provided, find that specific collection
-                if (collectionId) {
-                    const foundCollection = collectionsData.find(c => c._id === collectionId);
-                    setCollection(foundCollection);
-                    setProducts(foundCollection?.products || []);
-                } else {
-                    // Show first collection or all products from all collections
-                    const allProducts = collectionsData.flatMap(c => c.products || []);
-                    setProducts(allProducts);
-                }
+
+                // filter: only active collections with at least Min products 
+                const validCollections = collectionsData.filter(c => c.isActive  === true && c.products?.length >= MIN_PRODUCTS).slice(0, MAX_COLLECTIONS);
+                setCollections(validCollections);
             } catch (error) {
                 console.error("Error fetching collections:", error);
                 toast.error("Failed to load products");
-                setProducts([]);
+                setCollections([]);
             } finally {
                 setLoading(false);
             }
         };
         
-        fetchCollectionProducts();
-    }, [collectionId]);
+        fetchCollections();
+    }, []);
 
      // Calculate average rating for each product
-    const productsWithRating = useMemo(() => {
-        return (products || []).map((item) => {
-            const avgRating = item.reviews && item.reviews.length > 0
-                ? item.reviews.reduce((sum, r) => sum + (r.rating || 0), 0) / item.reviews.length
-                : 0;
-            return { ...item, avgRating };
-        });
-    }, [products]);
+    // const productsWithRating = useMemo(() => {
+    //     return (products || []).map((item) => {
+    //         const avgRating = item.reviews && item.reviews.length > 0
+    //             ? item.reviews.reduce((sum, r) => sum + (r.rating || 0), 0) / item.reviews.length
+    //             : 0;
+    //         return { ...item, avgRating };
+    //     });
+    // }, [products]);
 
-    // Responsive grid count
-    useEffect(() => {
-        const updateCount = () => {
-            if (window.innerWidth >= 1280) {
-                setVisibleCount(5);
-            } else if (window.innerWidth >= 640) {
-                setVisibleCount(6);
-            } else {
-                setVisibleCount(4);
-            }
-        };
+    // // Responsive grid count
+    // useEffect(() => {
+    //     const updateCount = () => {
+    //         if (window.innerWidth >= 1280) {
+    //             setVisibleCount(5);
+    //         } else if (window.innerWidth >= 640) {
+    //             setVisibleCount(6);
+    //         } else {
+    //             setVisibleCount(4);
+    //         }
+    //     };
         
-        updateCount();
-        window.addEventListener("resize", updateCount);
-        return () => window.removeEventListener("resize", updateCount);
-    }, []);
+    //     updateCount();
+    //     window.addEventListener("resize", updateCount);
+    //     return () => window.removeEventListener("resize", updateCount);
+    // }, []);
 
     // Add to cart handler
     const handleAddToCart = (product) => {
@@ -310,6 +306,111 @@ function TopProducts() {
         dispatch(decreaseQty({ uuid: id }));
     };
 
+      // Product Card Component
+  const ProductCard = ({ product }) => {
+    const defaultVariant = product.variants?.[0];
+    const productImage = defaultVariant?.variantImage?.[0]?.url || product.image || "/placeholder.png";
+    const mrp = defaultVariant?.variantMrp || 0;
+    const sellingPrice = defaultVariant?.variantSellingPrice || 0;
+    const discountPercent = mrp > 0 && sellingPrice > 0 
+      ? Math.round(((mrp - sellingPrice) / mrp) * 100) 
+      : 0;
+
+    return (
+      <Link
+        key={product._id}
+        className="bg-white p-2 group rounded-lg block transition-shadow duration-300 hover:shadow-lg"
+        to={`/product/${product.slug || product._id}`}
+      >
+        <div className="relative w-full overflow-hidden rounded-md">
+          <img
+            className="w-full aspect-square object-contain transition-transform duration-300 group-hover:scale-110"
+            src={productImage}
+            alt={product.productTittle}
+            loading="lazy"
+            onError={(e) => { e.target.src = "/placeholder.png"; }}
+          />
+          {/* {ratingAvg > 0 && (
+            <div className="absolute top-2 right-2 bg-yellow-400 shadow-md text-gray-800 text-xs font-semibold px-2 py-1 rounded-full flex items-center">
+              <span>{ratingAvg.toFixed(1)} ★</span>
+            </div>
+          )} */}
+        </div>
+
+        <div className="mt-3">
+          <h3 className="text-sm font-serif text-gray-800 font-normal line-clamp-1 mb-2">
+            {product.productTittle}
+          </h3>
+
+          <div className="flex items-center flex-wrap gap-2">
+            <span className="text-gray-900 font-medium">
+              ₹{sellingPrice || mrp || "--"}
+            </span>
+            {mrp > 0 && sellingPrice > 0 && mrp !== sellingPrice && (
+              <span className="text-gray-400 text-xs line-through font-light">
+                ₹{mrp}
+              </span>
+            )}
+            {discountPercent > 0 && (
+              <>
+                <div className="border-l border-[#DBDBDB] h-3"></div>
+                <span className="text-[#168408] text-xs">
+                  {discountPercent}% Off
+                </span>
+              </>
+            )}
+          </div>
+
+          <div
+            className={`w-full rounded-md flex justify-center items-center gap-4 p-2 mt-2 transition-all duration-300 cursor-pointer ${
+              addedItems[product._id]
+                ? "bg-white border border-[#252525]"
+                : "bg-[#252525] border border-[#252525]"
+            }`}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              if (!addedItems[product._id]) {
+                handleAddToCart(product);
+              }
+            }}
+          >
+            {addedItems[product._id] > 0 ? (
+              <div className="w-full flex items-center justify-between text-black">
+                <span
+                  className="cursor-pointer"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    decreaseQty(product._id);
+                  }}
+                >
+                  <LuMinus />
+                </span>
+                <span>{addedItems[product._id]}</span>
+                <span
+                  className="cursor-pointer"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    increaseQty(product._id);
+                  }}
+                >
+                  <LuPlus />
+                </span>
+              </div>
+            ) : (
+              <>
+                <span className="text-white text-[12px]">Add To Cart</span>
+                <span className="text-white"><FaBagShopping /></span>
+              </>
+            )}
+          </div>
+        </div>
+      </Link>
+    );
+  };
+
     // Loading state
     if (loading) {
         return (
@@ -323,170 +424,50 @@ function TopProducts() {
             </div>
         );
     }
-
-    // Get products to display (top rated or featured)
-    const displayProducts = productsWithRating
-        .sort((a, b) => b.avgRating - a.avgRating)
-        .slice(0, visibleCount);
-
-  return (
-    <div className="lg:px-20 md:px-[60px] px-4 py-[23px]  bg-white shadow-sm rounded-lg">
-      <div className="flex items-center">
+ return (
+    <div className="lg:px-20 md:px-[60px] px-4 py-[23px] bg-white shadow-sm rounded-lg">
+      {/* Main Header */}
+      <div className="flex items-center mb-6">
         <Title className="md:items-start px-2">
           Featured Collection
-        {/* {collection?.collectionName || "Featured Collection"} */}
         </Title>
         <Link
           className="whitespace-nowrap text-[#2C87E2] hover:text-blue-950 px-2 text-sm underline cursor-pointer"
           to="/products/top-products"
-          // to="/products"
         >
           explore more
         </Link>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4 relative p-4">
-         {displayProducts.length > 0 ? (
-                    displayProducts.map((p) => {
-                        const defaultVariant = p.variants?.[0];
-                        const productImage = defaultVariant?.variantImage?.[0]?.url || p.image || "/placeholder.png";
-                        const mrp = defaultVariant?.variantMrp || 0;
-                        const sellingPrice = defaultVariant?.variantSellingPrice || 0;
-                        const discountPercent = mrp > 0 && sellingPrice > 0 
-                            ? Math.round(((mrp - sellingPrice) / mrp) * 100) 
-                            : 0;
-                        const ratingAvg = p.avgRating || 0;
-
-            return (
+      {/* Loop through each collection */}
+      {collections.map((collection) => (
+        <div key={collection._id} className="mb-12 last:mb-0">
+          {/* Collection Name Header */}
+          <div className="flex items-center justify-between mb-4 px-2">
+            <h2 className="text-lg font-semibold text-gray-800">
+              {collection.collectionName}
+            </h2>
+            {collection.products?.length > MAX_PRODUCTS && (
               <Link
-                key={p._id}
-                className="bg-white p-2 group  rounded-lg block transition-shadow duration-300 hover:shadow-lg"
-                to={`/product/${p.slug || p._id}`}
+                className="text-[#2C87E2] hover:text-blue-950 text-sm underline cursor-pointer"
+                to={`/collection/${collection._id}/products`}
               >
-                <div className="relative w-full overflow-hidden rounded-md">
-                  <img
-                    className="w-full aspect-square object-contain transition-transform duration-300 group-hover:scale-110"
-                     src={productImage}
-                                        alt={p.productTittle}
-                                        loading="lazy"
-                                        onError={(e) => { e.target.src = "/placeholder.png"; }}
-                  />
-
-                  {ratingAvg > 0 && (
-                    <div className="absolute top-2 right-2 bg-yellow-400 shadow-md text-gray-800 text-xs font-semibold px-2 py-1 rounded-full flex items-center">
-                      <span>{ratingAvg.toFixed(1)} ★</span>
-                    </div>
-                  )}
-                </div>
-
-                <div className="mt-3">
-                  <h3 className="text-sm font-serif text-gray-800 font-normal line-clamp-1 mb-2">
-                    {p.productTittle}
-                  </h3>
-
-                  <div className="flex items-center flex-wrap gap-2">
-                    <span className="text-gray-900 font-medium">
-                      ₹{sellingPrice || mrp || "--"}
-                    </span>
-                    {mrp > 0 && sellingPrice > 0 && mrp !== sellingPrice && (
-                      <span className="text-gray-400 text-xs line-through font-light">
-                        ₹{mrp}
-                      </span>
-                    )}
-                     {discountPercent > 0 && (
-                      <>
-                    <div className="border-l border-[#DBDBDB] h-3"></div>
-                      <span className="text-[#168408] text-xs ">
-                        {discountPercent}% Off
-                      </span>
-                      </>
-                    )}
-                  </div>
-
-                  <div className="flex flex-col items-start">
-                    {/* <div className="flex gap-1">
-                      <Stack spacing={1}>
-                        <Rating
-                          name="size-small"
-                          value={ratingAvg}
-                          readOnly
-                          precision={0.5}
-                          size="small"
-                        />
-                      </Stack>
-                      <span className="text-[12px] text-[#686868]">
-                        ({p?.reviews?.length || 0})
-                      </span>
-                    </div> */}
-                    
-                  </div>
-                  <div
-                    className={`w-full rounded-md flex justify-center items-center gap-4 p-2 mt-2 transition-all duration-300 cursor-pointer ${
-                      addedItems[p._id]
-                        ? "bg-white border border-[#252525]"
-                        : "bg-[#252525] border border-[#252525]"
-                    }`}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-
-                      if (!addedItems[p._id]) {
-                         handleAddToCart(p);
-                      }
-                    }}
-                  >
-                    {addedItems[p._id] > 0 ? (
-                      <div className="w-full flex items-center justify-between text-black">
-                        {/* MINUS */}
-                        <span
-                          className="cursor-pointer"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            decreaseQty(p._id);
-                          }}
-                        >
-                          <LuMinus />
-                        </span>
-
-                        {/* COUNT */}
-                        <span>{addedItems[p._id]}</span>
-
-                        {/* PLUS */}
-                        <span
-                          className="cursor-pointer"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            increaseQty(p._id);
-                          }}
-                        >
-                          <LuPlus />
-                        </span>
-                      </div>
-                    ) : (
-                      <>
-                        <span className="text-white text-[12px]">
-                          Add To Cart
-                        </span>
-                        <span className="text-white">
-                          <FaBagShopping />
-                        </span>
-                      </>
-                    )}
-                  </div>
-                </div>
+                View All ({collection.products.length})
               </Link>
-            );
-          })
-        ) : (
-          <div className="col-span-full text-center text-gray-500 py-10">
-            No products found in this collection
+            )}
           </div>
-        )}
-      </div>
+
+          {/* Products Grid - 5 columns for max 5 products */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4 p-4">
+            {collection.products.slice(0, MAX_PRODUCTS).map((product) => (
+              <ProductCard key={product._id} product={product} />
+            ))}
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
+
 
 export default TopProducts;
