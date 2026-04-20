@@ -165,7 +165,7 @@ function Footer() {
           </div>
           <div className="flex justify-between py-[20px] border-t-[1px] border-[#ACACAC] mt-4">
             <p className="lg:text-sm text-xs text-[#2D2F31]">
-              © 2026 Kasper Infotech. All rights reserved.
+              © 2026 HAPPY ART SUPPLIES. All rights reserved.
             </p>
             <ul className="flex md:gap-4 gap-1 font-[400] lg:text-[16px] text-[11.5px]">
               <li className="lg:text-sm text-xs text-[#2D2F31]">

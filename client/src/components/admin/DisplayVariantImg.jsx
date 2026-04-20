@@ -18,7 +18,7 @@ const DisplayVariantImg = ({
       onClick={() => setIsModalOpen(false)}
     >
       <div
-        className="relative  bg-black/30  rounded-xl p-6 w-[90%] max-w-[700px] shadow-2xl"
+        className="relative  bg-black/10  rounded-xl p-6 w-[90%] max-w-[700px] shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         {/* ✕ Main close */}

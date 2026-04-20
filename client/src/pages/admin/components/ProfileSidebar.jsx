@@ -39,10 +39,12 @@ function ProfileSidebar({ customer, isEditPage }) {
             return (
               <Link
                 key={label}
-                to={`/admin/customers/${customer.id}${path}`}
+                to={`/admin/customers/${id}/${path}`}
                 className={`relative py-2 text-md font-medium transition-colors flex items-center gap-2 ${
-                  isActive ? " text-[#1C3753] font-medium" : "text-gray-600"
-                } `}>
+                  isActive ? "text-[#1C3753] font-semibold border-b-2 border-[#1C3753]" : "text-gray-600 hover:text-[#1C3753]"
+                }`}
+                >
+                  <Icon className="w-4 h-4" />
                 {label}
 
                 {isActive && (

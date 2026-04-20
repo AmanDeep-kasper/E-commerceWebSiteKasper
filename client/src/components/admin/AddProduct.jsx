@@ -1138,9 +1138,9 @@ const AddProduct = () => {
 
         <div className="flex items-center justify-between h-16 w-full rounded-lg">
           <div className="flex items-center justify-between">
-            <Link to={`/admin/products`}>
+            {/* <Link to={`/admin/products`}>
               <ChevronLeft className="w-8 h-8 text-[#686868]" />
-            </Link>
+            </Link> */}
             <h1 className="text-[#1C1C1C] text-[20px] font-medium font-['Inter']">
               {isEditing ? "Edit Product" : "Add Product"}
             </h1>
@@ -1148,35 +1148,35 @@ const AddProduct = () => {
 
           <div className="flex items-center gap-4 px-2">
             <button
-        type="button"
-        onClick={() => {
-            if (isEditing) {
-                // In edit mode, just navigate back without clearing
-                navigate("/admin/products");
-            } else {
-                // In add mode, clear draft and reset form
-                localStorage.removeItem("addProductDraft");
-                setFormData(createInitialState());
-                toast.info("Draft cleared");
-                navigate("/admin/products");
-            }
-        }}
-        className="py-1 px-3 rounded border border-[#737373] text-[#737373] hover:bg-[#706f6f] hover:text-white bg-[#F6F8F9] font-medium"
-    >
-        Cancel
-    </button>
-    {!isEditing && (
-            <button
               type="button"
-              onClick={handleSaveDraft}
-              disabled={isSubmitting}
-              className={`py-1 px-3 rounded border font-medium
+              onClick={() => {
+                if (isEditing) {
+                  // In edit mode, just navigate back without clearing
+                  navigate("/admin/products");
+                } else {
+                  // In add mode, clear draft and reset form
+                  localStorage.removeItem("addProductDraft");
+                  setFormData(createInitialState());
+                  toast.info("Draft cleared");
+                  navigate("/admin/products");
+                }
+              }}
+              className="py-1 px-3 rounded border border-[#737373] text-[#737373] hover:bg-[#706f6f] hover:text-white bg-[#F6F8F9] font-medium"
+            >
+              Cancel
+            </button>
+            {!isEditing && (
+              <button
+                type="button"
+                onClick={handleSaveDraft}
+                disabled={isSubmitting}
+                className={`py-1 px-3 rounded border font-medium
     ${isSubmitting ? "cursor-not-allowed opacity-60" : ""}
     border-[#737373] text-[#737373] hover:bg-[#706f6f] hover:text-white bg-[#F6F8F9]`}
-            >
-              Save Draft
-            </button>
-    )}
+              >
+                Save Draft
+              </button>
+            )}
             <button
               type="submit"
               disabled={isSubmitting}
@@ -1247,58 +1247,58 @@ const AddProduct = () => {
               <div className="flex flex-col space-y-3">
                 {/* for status editing */}
                 {isEditing && (
-  <div
-      style={{
-        width: "100%",
-        padding: "16px",
-        background: "white",
-        borderRadius: "12px",
-        fontFamily: "Arial, sans-serif",
-      }}
-    >
-      <h2 className="text-black text-[18px] font-medium mb-4">
-        Product Status
-      </h2>
+                  <div
+                    style={{
+                      width: "100%",
+                      padding: "16px",
+                      background: "white",
+                      borderRadius: "12px",
+                      fontFamily: "Arial, sans-serif",
+                    }}
+                  >
+                    <h2 className="text-black text-[18px] font-medium mb-4">
+                      Product Status
+                    </h2>
 
-      <div style={{ display: "flex", gap: "30px", alignItems: "center" }}>
-        {/* Active */}
-        <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", color: "#1d4ed8" }}>
-          <input
-            type="radio"
-            name="status"
-            value="active"
-            checked={status === "active"}
-            onChange={() => setStatus("active")}
-            style={{
-              width: "18px",
-              height: "18px",
-              accentColor: "#1d4ed8",
-              cursor: "pointer",
-            }}
-          />
-          Active
-        </label>
+                    <div style={{ display: "flex", gap: "30px", alignItems: "center" }}>
+                      {/* Active */}
+                      <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", color: "#1d4ed8" }}>
+                        <input
+                          type="radio"
+                          name="status"
+                          value="active"
+                          checked={status === "active"}
+                          onChange={() => setStatus("active")}
+                          style={{
+                            width: "18px",
+                            height: "18px",
+                            accentColor: "#1d4ed8",
+                            cursor: "pointer",
+                          }}
+                        />
+                        Active
+                      </label>
 
-        {/* Inactive */}
-        <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", color: "#1d4ed8" }}>
-          <input
-            type="radio"
-            name="status"
-            value="inactive"
-            checked={status === "inactive"}
-            onChange={() => setStatus("inactive")}
-            style={{
-              width: "18px",
-              height: "18px",
-              accentColor: "#1d4ed8",
-              cursor: "pointer",
-            }}
-          />
-          Inactive
-        </label>
-      </div>
-    </div>
-)}
+                      {/* Inactive */}
+                      <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", color: "#1d4ed8" }}>
+                        <input
+                          type="radio"
+                          name="status"
+                          value="inactive"
+                          checked={status === "inactive"}
+                          onChange={() => setStatus("inactive")}
+                          style={{
+                            width: "18px",
+                            height: "18px",
+                            accentColor: "#1d4ed8",
+                            cursor: "pointer",
+                          }}
+                        />
+                        Inactive
+                      </label>
+                    </div>
+                  </div>
+                )}
                 <div className="bg-white rounded-2xl p-4 border">
                   <h2 className="text-black text-[18px] font-medium mb-4">
                     Product Classification
@@ -1312,46 +1312,42 @@ const AddProduct = () => {
 
                       <div className="relative w-full">
                         {isEditing ? (
-    <div className="w-full h-[48px] px-4 rounded-xl bg-gray-100 text-gray-600 flex items-center border border-gray-200">
-        {categories.find(cat => cat._id === formData.category)?.name || "Not selected"}
-    </div>
-) : (
-                        <select
-                          name="category"
-                          value={formData.category}
-                          onChange={(e) => {
-                            const selectedCategoryId = e.target.value;
+                          <div className="w-full h-[48px] px-4 rounded-xl bg-gray-500 text-gray-600 flex items-center border border-gray-200">
+                            {categories.find(cat => cat._id === formData.category)?.name || "Not selected"}
+                          </div>
+                        ) : (
+                          <select
+                            name="category"
+                            value={formData.category}
+                            onChange={(e) => {
+                              const selectedCategoryId = e.target.value;
 
-                            const selectedCategory = categories.find(
-                              (cat) => cat._id === selectedCategoryId,
-                            );
+                              const selectedCategory = categories.find(
+                                (cat) => cat._id === selectedCategoryId,
+                              );
 
-                            setFormData((prev) => ({
-                              ...prev,
-                              category: selectedCategoryId,
-                              subcategory: "",
-                            }));
+                              setFormData((prev) => ({
+                                ...prev,
+                                category: selectedCategoryId,
+                                subcategory: "",
+                              }));
 
-                            setSubCategories(
-                              selectedCategory?.subCategories || [],
-                            );
-                          }}
-                          className="w-full h-[48px] px-4 pr-10 rounded-xl 
-    bg-[#F2F4F5] text-[#6B7280] text-sm 
-    border border-transparent 
-    appearance-none outline-none 
-    focus:ring-2 focus:ring-[#1C3753]"
-                        >
-                          <option value="">Select category</option>
+                              setSubCategories(
+                                selectedCategory?.subCategories || [],
+                              );
+                            }}
+                            className="w-full h-[48px] px-4 pr-10 rounded-xl bg-[#F8FBFC] border border-[#DEDEDE] text-[#6B7280] text-sm appearance-none outline-none focus:ring-2 focus:ring-[#1C3753]"
+                          >
+                            <option value="">Select category</option>
 
-                          {categories.map((cat) => (
-                            <option key={cat._id} value={cat._id}>
-                              {cat.name}
-                              {/* {console.log(cat.name)} */}
-                            </option>
-                          ))}
-                        </select>
-)}
+                            {categories.map((cat) => (
+                              <option key={cat._id} value={cat._id}>
+                                {cat.name}
+                                {/* {console.log(cat.name)} */}
+                              </option>
+                            ))}
+                          </select>
+                        )}
 
                         <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center">
                           <svg
@@ -1373,21 +1369,29 @@ const AddProduct = () => {
 
                       <div className="relative w-full">
                         {isEditing ? (
-    <div className="w-full h-[48px] px-4 rounded-xl bg-gray-100 text-gray-600 flex items-center border border-gray-200">
-        {subCategories.find(sub => sub._id === formData.subcategory)?.name || "Not selected"}
-    </div>
-) : (
-                        <select
-                          name="subcategory"
-                          value={formData.subcategory}
-                          onChange={(e) => {
-                            const selectedSubCategoryId = e.target.value;
+                          <div className="w-full h-[48px] px-4 rounded-xl bg-gray-100 text-gray-600 flex items-center border border-gray-200">
+                            {subCategories.find(sub => sub._id === formData.subcategory)?.name || "Not selected"}
+                          </div>
+                        ) : (
+                          <select
+                            name="subcategory"
+                            value={formData.subcategory}
+                            onChange={(e) => {
+                              const selectedSubCategoryId = e.target.value;
 
-                            if (
-                              selectedSubCategoryId === "__add_subcategory__"
-                            ) {
-                              if (!formData.category) {
-                                toast.error("Select category first!");
+                              if (
+                                selectedSubCategoryId === "__add_subcategory__"
+                              ) {
+                                if (!formData.category) {
+                                  toast.error("Select category first!");
+                                  setFormData((prev) => ({
+                                    ...prev,
+                                    subcategory: "",
+                                  }));
+                                  return;
+                                }
+
+                                setShowSubCategoryModal(true);
                                 setFormData((prev) => ({
                                   ...prev,
                                   subcategory: "",
@@ -1395,35 +1399,22 @@ const AddProduct = () => {
                                 return;
                               }
 
-                              setShowSubCategoryModal(true);
                               setFormData((prev) => ({
                                 ...prev,
-                                subcategory: "",
+                                subcategory: selectedSubCategoryId, // save _id
                               }));
-                              return;
-                            }
+                            }}
+                            className="w-full h-[48px] px-4 pr-10 rounded-xl bg-[#F8FBFC] border border-[#DEDEDE] text-[#6B7280] text-sm appearance-none outline-none focus:ring-2 focus:ring-[#1C3753]"
+                          >
+                            <option value="">Select sub-category</option>
 
-                            setFormData((prev) => ({
-                              ...prev,
-                              subcategory: selectedSubCategoryId, // save _id
-                            }));
-                          }}
-                          className="w-full h-[48px] px-4 pr-10 rounded-xl 
-    bg-[#F2F4F5] text-[#6B7280] text-sm 
-    border border-transparent 
-    appearance-none outline-none 
-    hover:bg-[#EAEDEE]
-    focus:ring-2 focus:ring-[#1C3753]"
-                        >
-                          <option value="">Select sub-category</option>
-
-                          {subCategories.map((sub) => (
-                            <option key={sub._id} value={sub._id}>
-                              {sub.name}
-                            </option>
-                          ))}
-                        </select>
-)}
+                            {subCategories.map((sub) => (
+                              <option key={sub._id} value={sub._id}>
+                                {sub.name}
+                              </option>
+                            ))}
+                          </select>
+                        )}
 
                         <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center">
                           <svg
@@ -1439,18 +1430,18 @@ const AddProduct = () => {
                       </div>
                     </div>
                     {!isEditing && (
-                    <div className="flex flex-col items-start gap-1">
-                      <button
-                        type="button"
-                        onClick={() => setShowCategoryModal(true)}
-                        className="text-[#1C3753] font-medium text-sm"
-                      >
-                        + Add Category
-                      </button>
-                      <span className="text-[#686868] text-xs">
-                        Can’t find a category? Create one here
-                      </span>
-                    </div>
+                      <div className="flex flex-col items-start gap-1">
+                        <button
+                          type="button"
+                          onClick={() => setShowCategoryModal(true)}
+                          className="text-[#1C3753] font-medium text-sm"
+                        >
+                          + Add Category
+                        </button>
+                        <span className="text-[#686868] text-xs">
+                          Can’t find a category? Create one here
+                        </span>
+                      </div>
                     )}
                   </div>
                 </div>
@@ -1550,247 +1541,247 @@ const AddProduct = () => {
                           <td className="px-3 py-1">
                             {isEditing ? (
                               <div className="w-[140px] rounded-md border px-3 py-1 text-sm bg-gray-100 text-gray-600 min-h-[36px]">
-        {variant.variantColor || "-"}
-    </div>
-) : (
-                            <div className="flex flex-wrap items-center gap-2 rounded-lg p-2 w-[140px]">
-                              <select
-                                value={variant.variantColor || ""}
-                                onChange={(e) =>
-                                  handleVariantChange(
-                                    index,
-                                    "variantColor",
-                                    e.target.value,
-                                  )
-                                }
-                                className="w-[140px] rounded-md border px-3 py-1 text-sm focus:outline-none "
-                                defaultValue=""
-                              >
-                                <option value="" disabled>
-                                  Select color
-                                </option>
-                                {colors.map((color, index) => (
-                                  <option key={index} value={color}>
-                                    {color}
+                                {variant.variantColor || "-"}
+                              </div>
+                            ) : (
+                              <div className="flex flex-wrap items-center gap-2 rounded-lg p-2 w-[140px]">
+                                <select
+                                  value={variant.variantColor || ""}
+                                  onChange={(e) =>
+                                    handleVariantChange(
+                                      index,
+                                      "variantColor",
+                                      e.target.value,
+                                    )
+                                  }
+                                  className="w-[140px] rounded-md border px-3 py-1 text-sm focus:outline-none "
+                                  defaultValue=""
+                                >
+                                  <option value="" disabled>
+                                    Select color
                                   </option>
-                                ))}
-                              </select>
-                            </div>
-)}
+                                  {colors.map((color, index) => (
+                                    <option key={index} value={color}>
+                                      {color}
+                                    </option>
+                                  ))}
+                                </select>
+                              </div>
+                            )}
                           </td>
 
                           <td className="px-3 py-1">
                             {isEditing ? (
-                               <div className="border px-3 py-2 rounded bg-gray-100 text-gray-600 min-w-[120px]">
-        {variant.variantName || "-"}
-    </div>
-) : (
-                            <div className="flex gap-2 border px-3 py-2 rounded">
-                              <input
-                                type="text"
-                                value={variant.variantName || ""}
-                                onChange={(e) =>
-                                  handleVariantChange(
-                                    index,
-                                    "variantName",
-                                    e.target.value,
-                                  )
-                                }
-                                placeholder="Enter Variant"
-                                className="outline-none placeholder:text-[#6B6B6B]"
-                              />
-                            </div>
-)}
+                              <div className="border px-3 py-2 rounded bg-gray-100 text-gray-600 min-w-[120px]">
+                                {variant.variantName || "-"}
+                              </div>
+                            ) : (
+                              <div className="flex gap-2 border px-3 py-2 rounded">
+                                <input
+                                  type="text"
+                                  value={variant.variantName || ""}
+                                  onChange={(e) =>
+                                    handleVariantChange(
+                                      index,
+                                      "variantName",
+                                      e.target.value,
+                                    )
+                                  }
+                                  placeholder="Enter Variant"
+                                  className="outline-none placeholder:text-[#6B6B6B]"
+                                />
+                              </div>
+                            )}
                           </td>
 
                           <td className="px-3 py-1">
                             {isEditing ? (
-                               <div className="flex items-center gap-2 border rounded px-3 py-1 bg-gray-100 text-gray-600 min-w-[140px]">
-        <span>{variant.variantWeight || "-"} {variant.variantWeightUnit || "kg"}</span>
-    </div>
-) : (
-                            <div className="flex items-center justify-center gap-2 border rounded px-3 py-1">
-                              {" "}
-                              <input
-                                type="number"
-                                min="0"
-                                step="0.01"
-                                value={variant.variantWeight || ""}
-                                onChange={(e) =>
-                                  handleVariantChange(
-                                    index,
-                                    "variantWeight",
-                                    e.target.value,
-                                  )
-                                }
-                                placeholder="Enter Weight"
-                                className="px-2 py-1 placeholder:text-[#6B6B6B] outline-none"
-                              />
-                              <select
-                                value={variant.variantWeightUnit || "kg"}
-                                onChange={(e) =>
-                                  handleVariantChange(
-                                    index,
-                                    "variantWeightUnit",
-                                    e.target.value,
-                                  )
-                                }
-                                className="border rounded-lg px-3 bg-[#264464] text-white text-sm"
-                              >
-                                <option value="kg">kg</option>
-                                <option value="gm">g</option>
-                              </select>
-                            </div>
-)}
+                              <div className="flex items-center gap-2 border rounded px-3 py-1 bg-gray-100 text-gray-600 min-w-[140px]">
+                                <span>{variant.variantWeight || "-"} {variant.variantWeightUnit || "kg"}</span>
+                              </div>
+                            ) : (
+                              <div className="flex items-center justify-center gap-2 border rounded px-3 py-1">
+                                {" "}
+                                <input
+                                  type="number"
+                                  min="0"
+                                  step="0.01"
+                                  value={variant.variantWeight || ""}
+                                  onChange={(e) =>
+                                    handleVariantChange(
+                                      index,
+                                      "variantWeight",
+                                      e.target.value,
+                                    )
+                                  }
+                                  placeholder="Enter Weight"
+                                  className="px-2 py-1 placeholder:text-[#6B6B6B] outline-none"
+                                />
+                                <select
+                                  value={variant.variantWeightUnit || "kg"}
+                                  onChange={(e) =>
+                                    handleVariantChange(
+                                      index,
+                                      "variantWeightUnit",
+                                      e.target.value,
+                                    )
+                                  }
+                                  className="border rounded-lg px-3 bg-[#264464] text-white text-sm"
+                                >
+                                  <option value="kg">kg</option>
+                                  <option value="gm">g</option>
+                                </select>
+                              </div>
+                            )}
                           </td>
 
                           <td className="px-3 py-2">
                             <div>
                               {isEditing ? (
-                                 <div className="w-[274px] h-[28px] border rounded px-3 bg-gray-100 text-gray-600 flex items-center">
-        {variant.variantSkuId || "N/A"}
-    </div>
+                                <div className="w-[274px] h-[28px] border rounded px-3 bg-gray-100 text-gray-600 flex items-center">
+                                  {variant.variantSkuId || "N/A"}
+                                </div>
                               ) : (
-                              <div className="relative">
-                                <input
-                                  type="text"
-                                  name="SKU"
-                                  readOnly
-                                  value={variant.variantSkuId || ""}
-                                  onChange={(e) =>
-                                    handleVariantChange(
-                                      index,
-                                      "variantSkuId",
-                                      e.target.value,
-                                    )
-                                  }
-                                  placeholder="Generate Variant SKU ID"
-                                  className="w-[274px] h-[28px] border border-[#D0D0D0] rounded px-3 pr-28
+                                <div className="relative">
+                                  <input
+                                    type="text"
+                                    name="SKU"
+                                    readOnly
+                                    value={variant.variantSkuId || ""}
+                                    onChange={(e) =>
+                                      handleVariantChange(
+                                        index,
+                                        "variantSkuId",
+                                        e.target.value,
+                                      )
+                                    }
+                                    placeholder="Generate Variant SKU ID"
+                                    className="w-[274px] h-[28px] border border-[#D0D0D0] rounded px-3 pr-28
               bg-[#F8FAFB] text-sm text-[#6B6B6B] placeholder-[#494848]
               "
-                                />
-                                {index !== 0 && (
-                                  <button
-                                    type="button"
-                                    onClick={() => generateVariantSKU(index)}
-                                    className="absolute right-2 top-1/2 -translate-y-1/2
+                                  />
+                                  {index !== 0 && (
+                                    <button
+                                      type="button"
+                                      onClick={() => generateVariantSKU(index)}
+                                      className="absolute right-2 top-1/2 -translate-y-1/2
               h-[24px] px-4 bg-[#1C3753] text-white text-sm font-normal
               rounded-md hover:bg-[#264464] transition"
-                                  >
-                                    Generate
-                                  </button>
-                                )}
-                              </div>
+                                    >
+                                      Generate
+                                    </button>
+                                  )}
+                                </div>
                               )}
                             </div>
                           </td>
                           {/* images */}
                           <td className="px-3 py-2">
                             {isEditing ? (
-        // ✅ VIEW-ONLY MODE FOR EDIT
-        <div className="flex items-center gap-3">
-            {variant.variantImage && variant.variantImage.length > 0 ? (
-                <div className="flex items-center gap-2">
-                    <div className="h-9 w-9 rounded-md overflow-hidden border bg-gray-100">
-                        <img 
-                            src={variant.variantImage[0]?.url || "/placeholder.png"} 
-                            className="h-full w-full object-cover"
-                            alt="product"
-                        />
-                    </div>
-                    <span className="text-sm text-gray-500">
-                        {variant.variantImage.length} image{variant.variantImage.length !== 1 ? 's' : ''}
-                    </span>
-                </div>
-            ) : (
-                <div className="text-sm text-gray-400">No images</div>
-            )}
-        </div>
-    ) : (
-                            (() => {
-                              const imgs =
-                                formData.variants[index].variantImage || [];
+                              // ✅ VIEW-ONLY MODE FOR EDIT
+                              <div className="flex items-center gap-3">
+                                {variant.variantImage && variant.variantImage.length > 0 ? (
+                                  <div className="flex items-center gap-2">
+                                    <div className="h-9 w-9 rounded-md overflow-hidden border bg-gray-100">
+                                      <img
+                                        src={variant.variantImage[0]?.url || "/placeholder.png"}
+                                        className="h-full w-full object-cover"
+                                        alt="product"
+                                      />
+                                    </div>
+                                    <span className="text-sm text-gray-500">
+                                      {variant.variantImage.length} image{variant.variantImage.length !== 1 ? 's' : ''}
+                                    </span>
+                                  </div>
+                                ) : (
+                                  <div className="text-sm text-gray-400">No images</div>
+                                )}
+                              </div>
+                            ) : (
+                              (() => {
+                                const imgs =
+                                  formData.variants[index].variantImage || [];
 
-                              const count = imgs.length;
-                              const firstImg = imgs[0];
+                                const count = imgs.length;
+                                const firstImg = imgs[0];
 
-                              const thumbSrc = firstImg
-                                ? typeof firstImg === "string"
-                                  ? firstImg
-                                  : firstImg.url || firstImg.preview || ""
-                                : "";
+                                const thumbSrc = firstImg
+                                  ? typeof firstImg === "string"
+                                    ? firstImg
+                                    : firstImg.url || firstImg.preview || ""
+                                  : "";
 
-                              return (
-                                <div className="flex items-center gap-4 whitespace-nowrap">
-                                  {count === 0 && (
-                                    <button
-                                      type="button"
-                                      onClick={() =>
-                                        triggerVariantUpload(index)
-                                      }
-                                      disabled={uploadingVariantIndex === index}
-                                      className="flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
-                                    >
-                                      <div className="h-9 w-9 rounded-md border bg-[#EFEFEF] flex items-center justify-center">
-                                        {uploadingVariantIndex === index ? (
-                                          <div className="h-5 w-5 rounded-full border-2 border-gray-300 border-t-[#1C3753] animate-spin" />
-                                        ) : (
-                                          <FiUpload className="h-5 w-5 text-[#1C3753]" />
-                                        )}
-                                      </div>
-                                      <span className="text-sm text-[#1C3753]">
-                                        {uploadingVariantIndex === index
-                                          ? "Uploading..."
-                                          : "Add Images"}
-                                      </span>
-                                    </button>
-                                  )}
-
-                                  {count > 0 && (
-                                    <div className="flex items-center gap-3">
+                                return (
+                                  <div className="flex items-center gap-4 whitespace-nowrap">
+                                    {count === 0 && (
                                       <button
                                         type="button"
-                                        onClick={() => openVariantImages(index)}
-                                        className="flex items-center gap-2"
+                                        onClick={() =>
+                                          triggerVariantUpload(index)
+                                        }
+                                        disabled={uploadingVariantIndex === index}
+                                        className="flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
                                       >
-                                        <div className="h-9 w-9 rounded-md overflow-hidden border bg-gray-100">
-                                          <img
-                                            src={thumbSrc}
-                                            alt=""
-                                            className="h-full w-full object-cover"
-                                          />
+                                        <div className="h-9 w-9 rounded-md border bg-[#EFEFEF] flex items-center justify-center">
+                                          {uploadingVariantIndex === index ? (
+                                            <div className="h-5 w-5 rounded-full border-2 border-gray-300 border-t-[#1C3753] animate-spin" />
+                                          ) : (
+                                            <FiUpload className="h-5 w-5 text-[#1C3753]" />
+                                          )}
                                         </div>
-
                                         <span className="text-sm text-[#1C3753]">
-                                          +{count} Images
+                                          {uploadingVariantIndex === index
+                                            ? "Uploading..."
+                                            : "Add Images"}
                                         </span>
                                       </button>
+                                    )}
 
-                                      {uploadingVariantIndex === index && (
-                                        <div className="flex items-center gap-2 text-sm text-[#1C3753]">
-                                          <div className="h-4 w-4 rounded-full border-2 border-gray-300 border-t-[#1C3753] animate-spin" />
-                                          Uploading...
-                                        </div>
-                                      )}
-                                    </div>
-                                  )}
+                                    {count > 0 && (
+                                      <div className="flex items-center gap-3">
+                                        <button
+                                          type="button"
+                                          onClick={() => openVariantImages(index)}
+                                          className="flex items-center gap-2"
+                                        >
+                                          <div className="h-9 w-9 rounded-md overflow-hidden border bg-gray-100">
+                                            <img
+                                              src={thumbSrc}
+                                              alt=""
+                                              className="h-full w-full object-cover"
+                                            />
+                                          </div>
 
-                                  <input
-                                    type="file"
-                                    multiple
-                                    accept=".png,.jpg,.jpeg,.webp,.svg"
-                                    className="hidden"
-                                    ref={(el) =>
-                                      (variantFileRefs.current[index] = el)
-                                    }
-                                    onChange={(e) =>
-                                      handleVariantImageChange(e, index)
-                                    }
-                                  />
-                                </div>
-                              );
-                            })()
-                          )}
+                                          <span className="text-sm text-[#1C3753]">
+                                            +{count} Images
+                                          </span>
+                                        </button>
+
+                                        {uploadingVariantIndex === index && (
+                                          <div className="flex items-center gap-2 text-sm text-[#1C3753]">
+                                            <div className="h-4 w-4 rounded-full border-2 border-gray-300 border-t-[#1C3753] animate-spin" />
+                                            Uploading...
+                                          </div>
+                                        )}
+                                      </div>
+                                    )}
+
+                                    <input
+                                      type="file"
+                                      multiple
+                                      accept=".png,.jpg,.jpeg,.webp,.svg"
+                                      className="hidden"
+                                      ref={(el) =>
+                                        (variantFileRefs.current[index] = el)
+                                      }
+                                      onChange={(e) =>
+                                        handleVariantImageChange(e, index)
+                                      }
+                                    />
+                                  </div>
+                                );
+                              })()
+                            )}
                           </td>
 
                           <td className="px-3 py-2">
@@ -1892,24 +1883,24 @@ const AddProduct = () => {
 
                           <td className=" px-3 py-2">
                             {isEditing ? (
-                               <div className="rounded border px-2 py-1 bg-gray-100 text-gray-600  min-w-[200px]">
-        {variant.variantAvailableStock || 0}
-    </div>
-) : (
-                            <input
-                              type="number"
-                              value={variant.variantAvailableStock || ""}
-                              onChange={(e) =>
-                                handleVariantChange(
-                                  index,
-                                  "variantAvailableStock",
-                                  e.target.value,
-                                )
-                              }
-                              className="rounded border px-2 py-1 placeholder:text-[#6B6B6B]"
-                              placeholder="Enter Available Stock"
-                            />
-   )}
+                              <div className="rounded border px-2 py-1 bg-gray-100 text-gray-600  min-w-[200px]">
+                                {variant.variantAvailableStock || 0}
+                              </div>
+                            ) : (
+                              <input
+                                type="number"
+                                value={variant.variantAvailableStock || ""}
+                                onChange={(e) =>
+                                  handleVariantChange(
+                                    index,
+                                    "variantAvailableStock",
+                                    e.target.value,
+                                  )
+                                }
+                                className="rounded border px-2 py-1 placeholder:text-[#6B6B6B]"
+                                placeholder="Enter Available Stock"
+                              />
+                            )}
                           </td>
                           <td className="px-3 py-2">
                             <input
