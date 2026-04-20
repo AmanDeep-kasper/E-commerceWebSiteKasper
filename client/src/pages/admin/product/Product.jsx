@@ -919,8 +919,8 @@ const Products = () => {
                           Active
                         </div>
                       ) : (
-                        <div className="flex items-center justify-center gap-2 bg-[#EFEFEF] py-1.5 px-3 rounded-lg text-sm text-[#686868]">
-                          <Circle fill="#686868" color="#686868" size={"12px"} />
+                        <div className="flex items-center justify-center gap-2 bg-[#FFFBEB] py-1.5 px-3 rounded-lg text-sm text-[#F8A14A]">
+                          <Circle fill="#F8A14A" color="#F8A14A" size={"12px"} />
                           Inactive
                         </div>
                       )}

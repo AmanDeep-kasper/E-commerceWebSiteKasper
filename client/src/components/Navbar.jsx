@@ -454,7 +454,7 @@ function Navbar() {
                 <div className="border border-gray-200 mt-4">
                   <UserProfile isAuthenticated={isAuthenticated} />
 
-                  <div className="pt-4 border-t border-gray-200 bg-white">
+                  <div className="pt-2 border-t border-gray-200 bg-white">
                     {isAuthenticated ? (
                       <>
                         {/* Logout Button */}
@@ -478,7 +478,7 @@ function Navbar() {
                         to="/login"
                         className="flex items-center gap-4 px-7 pb-6 rounded-lg cursor-pointer transition-colors duration-200 group"
                       >
-                        <div className="p-2 rounded-lg bg-gray-100 group-hover:bg-[#D5E5F5] transition-colors duration-200">
+                        <div className="p-2 rounded-lg bg-gray-100 group-hover:bg-[#F0EEFF] transition-colors duration-200">
                           <LogIn className="w-5 h-5 text-gray-600 group-hover:text-[#1C3753]" />
                         </div>
                         <div className="flex-1">

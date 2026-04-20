@@ -200,53 +200,62 @@ function Product() {
     ? decodeURIComponent(subcategoryName)
     : "";
 
-    console.log("breadcrumbssds34rer", displayCategory);
-    console.log("displaysubcategorysder44", displaySubcategory)
+  console.log("breadcrumbssds34rer", displayCategory);
+  console.log("displaysubcategorysder44", displaySubcategory)
 
   return (
     <>
       <Navbar />
-              <div style={{ background: 'red', padding: '10px', margin: '10px', color: 'white' }}>
-            DEBUG: Breadcrumbs should be here. Category: {displayCategory}
-        </div>
+
 
       <Breadcrumbs
         category={displayCategory}
         subcategory={displaySubcategory}
       />
 
-      <div
-        className="lg:px-20 md:px-[60px] px-4 pb-[23px] lg:flex gap-4 bg-gray-50"
-        style={{ paddingTop: "100px" }}
-      >
-        <Filter
-          setParam={setParam}
-          val={val}
-          colors={colors}
-          setColor={setColor}
-          sort={sort}
-        />
+      {/* <div style={{ background: 'red', padding: '10px', margin: '10px', color: 'white' }}>
+            DEBUG: Breadcrumbs should be here. Category: {displayCategory}
+        </div> */}
 
-        <div className="flex-1 lg:gap-6 items-start">
-          {loading ? (
-            <p>Loading products...</p>
-          ) : error ? (
-            <p className="text-red-500">{error}</p>
-          ) : filteredArts.length === 0 ? (
-            <EmptyState
-              heading="No Products Found"
-              description="We couldn’t find any products matching your filters. Try adjusting your search or explore all products."
-              icon={PackageOpen}
-              ctaLabel="Reset Filters"
-              onClick={() => {
-                setParam("");
-                setColor([]);
-                setItems(originalItems);
-              }}
-            />
-          ) : (
-            <Card cardData={filteredArts} />
-          )}
+      <div
+        className=" flex flex-col lg:px-20 md:px-[60px] px-4 pb-[23px] lg:flex gap-4 bg-gray-50"
+      >
+        <div className="mt-5">
+          <span className="text-xl font-semibold capitalize font-marcellus text-[#1800AC]">
+            {state?.category || displayCategory || "All Products"}
+          </span>
+        </div>
+        <div className="flex gap-4">
+          <Filter
+            setParam={setParam}
+            val={val}
+            colors={colors}
+            setColor={setColor}
+            sort={sort}
+          />
+
+
+          <div className="flex-1 lg:gap-6 items-start">
+            {loading ? (
+              <p>Loading products...</p>
+            ) : error ? (
+              <p className="text-red-500">{error}</p>
+            ) : filteredArts.length === 0 ? (
+              <EmptyState
+                heading="No Products Found"
+                description="We couldn’t find any products matching your filters. Try adjusting your search or explore all products."
+                icon={PackageOpen}
+                ctaLabel="Reset Filters"
+                onClick={() => {
+                  setParam("");
+                  setColor([]);
+                  setItems(originalItems);
+                }}
+              />
+            ) : (
+              <Card cardData={filteredArts} />
+            )}
+          </div>
         </div>
       </div>
 

@@ -170,7 +170,7 @@ function ProductInformation() {
               onChange={(e) => {
                 setSearchData(e.target.value);
               }}
-              placeholder="Search by SKU, color, size"
+              placeholder="Search by SKU ID, and Variant Value"
               className="outline-none flex-1 bg-transparent text-sm"
             />
           </div>

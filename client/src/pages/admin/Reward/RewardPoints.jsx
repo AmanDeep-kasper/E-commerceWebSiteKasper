@@ -115,14 +115,14 @@ function RewardPoints() {
                             </div>
 
                             {/* BADGE */}
-                            <span
+                            {/* <span
                                 className={`px-2 py-1 text-[12px] sm:text-[13px] rounded-full whitespace-nowrap ${item.badge === "Active"
                                     ? "text-[#01774B] bg-[#D4F7C7]"
                                     : "text-[#A80205] bg-[#F7C7C9]"
                                     }`}
                             >
                                 {item.badge}
-                            </span>
+                            </span> */}
                         </div>
 
                         {/* BOTTOM */}
@@ -310,12 +310,11 @@ function RewardPoints() {
                                     <span className="text-[#686868] text-[12px] font-normal">Enter conversion for redemption.</span>
                                 </div>
 
-                                <div className="flex flex-col gap-1 mt-3">
+                                {/* <div className="flex flex-col gap-1 mt-3">
                                     <div className="flex gap-1">
                                         <label className="text-[#1C1C1C] font-normal text-[14px] ">
                                             Enter Maximum amount (%) eligible for points
                                         </label>
-                                        {/* <span className="text-[#DC2626] text-[14px]">*</span> */}
                                     </div>
                                     <input
                                         type="number"
@@ -326,7 +325,7 @@ function RewardPoints() {
                                         }
                                         className="w-full border border-[#DEDEDE] bg-[#F8FBFC] rounded-md px-2 py-2 sm:px-3 sm:py-2 md:px-4 md:py-2.5 outline-none placeholder:text-[#686868] text-[#1C1C1C]"
                                     />
-                                </div>
+                                </div> */}
 
                                 <div className="flex flex-col gap-1 mt-3">
                                     <div className="flex gap-1">
