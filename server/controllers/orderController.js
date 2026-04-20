@@ -5,6 +5,8 @@ import Product from "../models/Product.js";
 import Shipping from "../models/admin/ShippingConfig.js";
 import Warehouse from "../models/admin/WarehouseConfig.js";
 import Payment from "../models/Payment.js";
+import Reward from "../models/admin/RewardConfig.js";
+import User from "../models/User.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import AppError from "../utils/AppError.js";
 import env from "../config/env.js";
@@ -46,55 +48,123 @@ const calculateShippingCharge = ({
   return config.charges.restOfIndia;
 };
 
-export const checkoutSummary = asyncHandler(async (req, res) => {
-  const userId = req.user?.userId;
-  const { shippingAddress } = req.body;
+const calculateOrderSummary = ({
+  cart,
+  shippingAddress,
+  warehouse,
+  config,
+  rewardConfig,
+  appliedPoints = 0,
+  userAvailablePoints = 0,
+}) => {
+  let shippingCharge = 0;
+  let discount = 0;
+  let earnedPoints = 0;
 
-  if (!shippingAddress?.city || !shippingAddress?.state) {
-    return res.status(200).json({
-      success: true,
-      data: {
-        shippingCharge: 0,
-        message: "Enter city/state to calculate shipping",
-      },
+  // ======================
+  // 1. SHIPPING
+  // ======================
+  if (shippingAddress?.city && shippingAddress?.state) {
+    shippingCharge = calculateShippingCharge({
+      userCity: shippingAddress.city,
+      userState: shippingAddress.state,
+      warehouseCity: warehouse.address.city,
+      warehouseState: warehouse.address.state,
+      config,
+      cartTotal: cart.subtotal,
     });
   }
 
-  const [cart, config, warehouse] = await Promise.all([
+  // ======================
+  // 2. PLATFORM FEE
+  // ======================
+  const platformFee = config.platformFee || 0;
+
+  // ======================
+  // 3. REWARD REDEEM
+  // ======================
+  if (
+    rewardConfig &&
+    rewardConfig.isActive &&
+    cart.subtotal >= rewardConfig.minOrderValueForRedeem
+  ) {
+    const maxUsablePoints = Math.min(appliedPoints, userAvailablePoints);
+
+    // 1 point = ₹1
+    discount = maxUsablePoints;
+
+    // Prevent over discount
+    if (discount > cart.subtotal) {
+      discount = cart.subtotal;
+    }
+  }
+
+  // ======================
+  // 4. TOTAL BEFORE EARNING
+  // ======================
+  const totalBeforeEarning =
+    cart.subtotal + shippingCharge + platformFee - discount;
+
+  // ======================
+  // 5. REWARD EARNING
+  // ======================
+  if (
+    rewardConfig &&
+    rewardConfig.isActive &&
+    cart.subtotal >= rewardConfig.earn.minOrderValue
+  ) {
+    const { PriceForPoints, points } = rewardConfig.earn.rules;
+
+    if (PriceForPoints > 0 && points > 0) {
+      earnedPoints = Math.floor(cart.subtotal / PriceForPoints) * points;
+    }
+  }
+
+  return {
+    subtotal: cart.subtotal,
+    shippingCharge,
+    platformFee,
+    discount,
+    total: totalBeforeEarning,
+    earnedPoints,
+  };
+};
+
+export const checkoutSummary = asyncHandler(async (req, res) => {
+  const userId = req.user?.userId;
+  const { shippingAddress, appliedPoints = 0 } = req.body;
+
+  const [cart, config, warehouse, rewardConfig, user] = await Promise.all([
     Cart.findOne({ userId, status: "active" }),
     Shipping.findOne({ isActive: true }).lean(),
     Warehouse.findOne({ isActive: true }).lean(),
+    Reward.findOne({ isActive: true }).lean(),
+    User.findById(userId).lean(),
   ]);
 
-  if (!cart) throw new Error("Cart not found");
+  if (!cart || cart.items.length === 0) {
+    throw AppError.badRequest("Cart is empty", "CART_EMPTY");
+  }
 
-  const shippingCharge = calculateShippingCharge({
-    userCity: shippingAddress.city,
-    userState: shippingAddress.state,
-    warehouseCity: warehouse.address.city,
-    warehouseState: warehouse.address.state,
+  const summary = calculateOrderSummary({
+    cart,
+    shippingAddress,
+    warehouse,
     config,
-    cartTotal: cart.subtotal,
+    rewardConfig,
+    appliedPoints,
+    userAvailablePoints: user.points || 0,
   });
-
-  const platformFee = config.platformFee || 0;
-
-  const total = cart.grandTotal + shippingCharge + platformFee;
 
   res.json({
     success: true,
-    data: {
-      subtotal: cart.subtotal,
-      shippingCharge,
-      platformFee,
-      total,
-    },
+    data: summary,
   });
 });
 
 export const checkout = asyncHandler(async (req, res) => {
   const userId = req.user?.userId;
-  const { paymentMethod, shippingAddress } = req.body;
+  const { paymentMethod, shippingAddress, appliedPoints = 0 } = req.body;
 
   // ✅ Only Razorpay supported
   if (paymentMethod !== "razorpay") {
@@ -104,17 +174,22 @@ export const checkout = asyncHandler(async (req, res) => {
     );
   }
 
-  if (!shippingAddress) {
+  if (!shippingAddress?.city || !shippingAddress?.state) {
     throw AppError.badRequest(
-      "Shipping address is required",
+      "Complete shipping address required",
       "ADDRESS_REQUIRED",
     );
   }
-  // ⚡ Parallel queries (FAST)
-  const [cart, config, warehouse] = await Promise.all([
+
+  // =========================
+  // 1. FETCH DATA
+  // =========================
+  const [cart, config, warehouse, rewardConfig, user] = await Promise.all([
     Cart.findOne({ userId, status: "active" }),
     Shipping.findOne({ isActive: true }).lean(),
     Warehouse.findOne({ isActive: true }).lean(),
+    Reward.findOne({ isActive: true }).lean(),
+    User.findById(userId),
   ]);
 
   if (!cart || cart.items.length === 0) {
@@ -122,58 +197,84 @@ export const checkout = asyncHandler(async (req, res) => {
   }
 
   if (!config || !warehouse) {
-    throw AppError.internal("Config missing", "CONFIG_ERROR");
+    throw AppError.internal("Shipping config missing", "CONFIG_ERROR");
   }
 
-  // ✅ Shipping
-  const shippingCharge = calculateShippingCharge({
-    userCity: shippingAddress.city,
-    userState: shippingAddress.state,
-    warehouseCity: warehouse.address.city,
-    warehouseState: warehouse.address.state,
+  // =========================
+  // 2. RE-CALCULATE EVERYTHING
+  // =========================
+  const summary = calculateOrderSummary({
+    cart,
+    shippingAddress,
+    warehouse,
     config,
-    cartTotal: cart.subtotal,
+    rewardConfig,
+    appliedPoints,
+    userAvailablePoints: user.points || 0,
   });
 
-  const platformFee = config.platformFee || 0;
-  const grandTotal = cart.grandTotal + shippingCharge + platformFee;
+  const {
+    subtotal,
+    shippingCharge,
+    platformFee,
+    discount,
+    total,
+    earnedPoints,
+  } = summary;
 
-  if (isNaN(grandTotal)) {
+  if (isNaN(total)) {
     throw AppError.internal("Invalid total calculation", "TOTAL_ERROR");
   }
 
-  // Razorpay order
-  const razorpayOrder = await createRazorpayOrder(grandTotal, {
+  // =========================
+  // 3. CREATE RAZORPAY ORDER
+  // =========================
+  const razorpayOrder = await createRazorpayOrder(total, {
     userId,
   });
 
-  // ✅ Create ORDER (IMPORTANT FIRST)
+  // =========================
+  // 4. CREATE ORDER
+  // =========================
   const order = await Order.create({
     user: userId,
     items: cart.items,
     shippingAddress,
+
     paymentMethod,
-    subtotal: cart.subtotal,
-    totalGST: cart.totalGST,
-    shippingCharge,
-    grandTotal,
     paymentStatus: "pending",
     status: "placed",
+
+    subtotal,
+    totalGST: cart.totalGST,
+    shippingCharge,
+    platformFee,
+    discount,
+    grandTotal: total,
+
+    reward: {
+      usedPoints: discount,
+      earnedPoints,
+    },
   });
 
-  // ✅ Create PAYMENT
+  // =========================
+  // 5. CREATE PAYMENT
+  // =========================
   const payment = await Payment.create({
     order: order._id,
     user: userId,
-    amount: grandTotal,
+    amount: total,
     razorpayOrderId: razorpayOrder.id,
     status: "created",
   });
 
-  // link payment to order
   order.payment = payment._id;
   await order.save();
 
+  // =========================
+  // 6. RESPONSE
+  // =========================
   res.status(200).json({
     success: true,
     message: "Payment initiated",
@@ -183,7 +284,7 @@ export const checkout = asyncHandler(async (req, res) => {
         rzOrderId: razorpayOrder.id,
         amount: razorpayOrder.amount,
         currency: razorpayOrder.currency,
-        key: env.RAZORPAY_API_KEY, // ✅ correct
+        key: env.RAZORPAY_API_KEY,
       },
     },
   });
@@ -193,6 +294,12 @@ export const verifyPayment = asyncHandler(async (req, res) => {
   const userId = req.user?.userId;
 
   const { razorpayOrderId, razorpayPaymentId, razorpaySignature } = req.body;
+
+  const user = await User.findById(userId);
+
+  if (!user) {
+    throw AppError.notFound("User not found", "USER_NOT_FOUND");
+  }
 
   if (!razorpayOrderId || !razorpayPaymentId || !razorpaySignature) {
     throw AppError.badRequest(
@@ -252,6 +359,15 @@ export const verifyPayment = asyncHandler(async (req, res) => {
 
   await payment.save();
   await order.save();
+  if (order.reward.earnedPoints > 0) {
+    user.points += order.reward.earnedPoints;
+  } else if (order.reward.usedPoints > 0) {
+    user.points -= order.reward.usedPoints;
+  }
+  user.totalOrders += 1;
+  user.totalSpend += order.grandTotal;
+  user.lastOrderAt = new Date();
+  await user.save();
 
   // 🧹 Clear cart
   await Cart.updateOne({ userId, status: "active" }, { status: "checked_out" });
