@@ -13,51 +13,34 @@ const rewardSchema = new mongoose.Schema(
         type: Number,
         default: 0,
       },
-
-      rules: [
-        {
-          minOrder: {
-            type: Number,
-            required: true,
-          },
-          points: {
-            type: Number,
-            required: true,
-          },
+      rules: {
+        PriceForPoints: {
+          type: Number,
+          default: 0,
         },
-      ],
+        points: {
+          type: Number,
+          default: 0,
+        },
+      },
     },
 
     // ✅ REDEEM CONFIG
-    redeem: {
-      pointValue: {
-        type: Number,
-        required: true, // 1 point = ₹X
-      },
-
-      maxRedeemPercent: {
-        type: Number,
-        default: 10,
-      },
-
-      minOrderValueForRedeem: {
-        type: Number,
-        default: 0,
-      },
+    minOrderValueForRedeem: {
+      type: Number,
+      default: 0,
     },
 
     // ✅ VALIDITY
     validity: {
-      startDate: Date,
-      endDate: Date,
-      expiryDays: Number,
+      type: Number,
+      default: 30,
     },
 
     // ✅ CONTROL
     isActive: {
       type: Boolean,
       default: true,
-      index: true,
     },
   },
   { timestamps: true, versionKey: false },
