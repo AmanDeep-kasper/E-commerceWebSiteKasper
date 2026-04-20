@@ -359,10 +359,16 @@ export const verifyPayment = asyncHandler(async (req, res) => {
 
   await payment.save();
   await order.save();
-  if (order.reward.earnedPoints > 0) {
-    user.points += order.reward.earnedPoints;
-  } else if (order.reward.usedPoints > 0) {
-    user.points -= order.reward.usedPoints;
+  const used = order.reward?.usedPoints || 0;
+  const earned = order.reward?.earnedPoints || 0;
+
+  // Deduct first
+  user.points -= used;
+  // Then add earned
+  user.points += earned;
+
+  if (user.points < 0) {
+    user.points = 0;
   }
   user.totalOrders += 1;
   user.totalSpend += order.grandTotal;
