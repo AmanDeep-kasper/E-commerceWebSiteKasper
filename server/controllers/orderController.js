@@ -1267,3 +1267,66 @@ export const paymentFailed = asyncHandler(async (req, res) => {
     message: "Payment failed please retry...",
   });
 });
+
+// export const paymentFailed = asyncHandler(async (req, res) => {
+//   const { razorpayPaymentId, razorpayOrderId, error } = req.body;
+
+//   const payment = await Payment.findOne({ razorpayOrderId });
+//   if (!payment) {
+//     throw AppError.notFound("Payment not found", "PAYMENT_NOT_FOUND");
+//   }
+
+//   const order = await Order.findById(payment.order);
+//   if (!order) {
+//     throw AppError.notFound("Order not found", "ORDER_NOT_FOUND");
+//   }
+
+//   // ✅ Idempotency
+//   if (
+//     payment.status === "failed" &&
+//     payment.razorpayPaymentId === razorpayPaymentId
+//   ) {
+//     return res.json({
+//       success: true,
+//       message: "Already recorded",
+//     });
+//   }
+
+//   // =========================
+//   // UPDATE PAYMENT
+//   // =========================
+//   payment.status = "failed";
+//   payment.failedAt = new Date();
+//   payment.razorpayPaymentId = razorpayPaymentId;
+
+//   payment.errorCode = error?.code || null;
+//   payment.errorDescription = error?.description || null;
+//   payment.errorSource = error?.source || null;
+//   payment.errorReason = error?.reason || null;
+
+//   payment.razorpayRawResponse = error || null;
+
+//   await payment.save();
+
+//   // =========================
+//   // ORDER UPDATE (NO CANCEL)
+//   // =========================
+//   order.paymentStatus = "failed";
+
+//   // Keep order alive for retry
+//   order.status = "placed";
+
+//   // Optional tracking
+//   order.lastPaymentAttemptAt = new Date();
+//   order.paymentFailureReason = error?.description || null;
+
+//   await order.save();
+
+//   res.json({
+//     success: true,
+//     message: "Payment failed, you can retry",
+//     data: {
+//       orderId: order._id,
+//     },
+//   });
+// });
