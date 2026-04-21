@@ -187,7 +187,7 @@ import { addToWishlist, removeFromWishlist } from "../../redux/cart/wishlistSlic
 function TopProducts() {
   const dispatch = useDispatch();
   const {cartItems} = useSelector((state) => state.cart);
-  console.log("cartItems in TopProducts:", cartItems);
+  // console.log("cartItems in TopProducts:", cartItems);
   const {wishlistItems} = useSelector((state) => state.wishlist);
   const {isAuthenticated} = useSelector((state) => state.user);
      const [collections, setCollections] = useState([]);
@@ -204,7 +204,7 @@ function TopProducts() {
                 setLoading(true);
                 // Use the public endpoint for users
                 const response = await axiosInstance.get(`/collection/get-all-collections`);
-                console.log("Collections response:", response.data);
+                // console.log("Collections response:", response.data);
                 
                 let collectionsData = [];
                 if (response.data?.success && response.data?.data?.collections) {
@@ -219,7 +219,7 @@ function TopProducts() {
                 const validCollections = collectionsData.filter(c => c.isActive  === true && c.products?.length >= MIN_PRODUCTS).slice(0, MAX_COLLECTIONS);
                 setCollections(validCollections);
             } catch (error) {
-                console.error("Error fetching collections:", error);
+                // console.error("Error fetching collections:", error);
                 toast.error("Failed to load products");
                 setCollections([]);
             } finally {
@@ -238,7 +238,7 @@ const syncCartFromBackend = async () => {
       dispatch(setCartFromAPI(res.data.data));
     }
   } catch (err) {
-    console.error("Cart sync failed:", err);
+    // console.error("Cart sync failed:", err);
   }
 };
 
@@ -294,7 +294,7 @@ const handleAddToCart = async (product) => {
     dispatch(setCartFromAPI(response.data.data));
     toast.success("Added to cart!");
   } catch (err) {
-    console.error("Error adding to cart:", err);
+    // console.error("Error adding to cart:", err);
     toast.error(err.response?.data?.message || "Failed to add to cart");
   }
 };
@@ -421,7 +421,7 @@ const handleUpdateQty = async (productId, action) => {
       dispatch(setCartFromAPI(res.data.data));
     }
   } catch (err) {
-    console.error("Error updating quantity:", err);
+    // console.error("Error updating quantity:", err);
     toast.error("Failed to update quantity");
      // Refresh cart from API on error to ensure consistency
      const refreshRes = await axiosInstance.get("/cart");
