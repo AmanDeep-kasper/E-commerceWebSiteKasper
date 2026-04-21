@@ -3,12 +3,14 @@ import { ChevronLeft } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axiosInstance from "../../../api/axiosInstance";
+import { toast } from "react-toastify";
 
 const TransporterDetail = () => {
   const navigate = useNavigate();
   const { transporterId } = useParams();
 
   const [transporter, setTransporter] = useState(null);
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
     const fetchTransporter = async () => {
@@ -27,6 +29,37 @@ const TransporterDetail = () => {
 
     if (transporterId) fetchTransporter();
   }, [transporterId]);
+
+  const validate = () => {
+    let newErrors = {};
+
+    // Transporter Name
+    if (!formData.transporterName.trim()) {
+      newErrors.transporterName = "Transporter name is required";
+    }
+
+    // Phone (10 digits only)
+    if (!formData.phone.trim()) {
+      newErrors.phone = "Phone number is required";
+    } else if (!/^[0-9]{10}$/.test(formData.phone)) {
+      newErrors.phone = "Enter valid 10 digit number";
+    }
+
+    // Email
+    if (!formData.email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!/^\S+@\S+\.\S+$/.test(formData.email)) {
+      newErrors.email = "Enter valid email";
+    }
+
+    // Tracking URL (optional but must be valid if entered)
+    if (formData.trackingUrl && !/^https?:\/\/.+/.test(formData.trackingUrl)) {
+      newErrors.trackingUrl = "Enter valid URL (http/https)";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
@@ -109,37 +142,45 @@ const TransporterDetail = () => {
   };
 
   const handleSaveChanges = async () => {
+    if (!validate()) return;
+
     try {
       const payload = {
         transporterName: formData.transporterName,
         trackingUrl: formData.trackingUrl,
         isActive: formData.status === "Active",
-
         contactDetails: {
           personName: formData.contactName,
           phone: formData.phone,
           email: formData.email,
         },
-
         deliveryOptions: formData.deliveryOptions,
-
         slaForwardDays: formData.slaForwardDays,
         slaReturnDays: formData.slaReturnDays,
         slaRtoDays: formData.slaRtoDays,
         slaFastDays: formData.slaFastDays,
-
         codEnabled: formData.codEnabled,
         codFlatRate: formData.codFlatRate,
       };
 
-      const res = await axiosInstance.put(
+      const updatePromise = axiosInstance.put(
         `/dashboard/transport/update-transporter/${transporterId}`,
         payload,
       );
 
-      console.log("Updated:", res.data);
+      const res = await toast.promise(
+        updatePromise,
+        {
+          pending: "Updating transporter...",
+          success: "Transporter updated successfully!",
+          error: "Failed to update transporter",
+        },
+        {
+          position: "top-right",
+          autoClose: 3000,
+        },
+      );
 
-      // ✅ Update UI instantly
       setTransporter((prev) => ({
         ...prev,
         ...payload,
@@ -147,6 +188,7 @@ const TransporterDetail = () => {
       }));
 
       setIsEditModalOpen(false);
+      setErrors({});
     } catch (error) {
       console.error("Update Error:", error.response?.data || error.message);
     }
@@ -440,9 +482,15 @@ const TransporterDetail = () => {
                     name="transporterName"
                     value={formData.transporterName}
                     onChange={handleInputChange}
-                    placeholder="Enter transporter name"
-                    className="w-full mt-1 border rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-200"
+                    className={`w-full mt-1 border rounded-lg px-3 py-2 outline-none focus:ring-2 
+  ${errors.transporterName ? "border-red-500" : "border-gray-300"}`}
                   />
+
+                  {errors.transporterName && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.transporterName}
+                    </p>
+                  )}
                 </div>
 
                 <div>
@@ -467,9 +515,15 @@ const TransporterDetail = () => {
                     name="trackingUrl"
                     value={formData.trackingUrl}
                     onChange={handleInputChange}
-                    placeholder="Enter tracking id url"
-                    className="w-full mt-1 border rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-200"
+                    className={`w-full mt-1 border rounded-lg px-3 py-2 outline-none focus:ring-2 
+  ${errors.trackingUrl ? "border-red-500" : "border-gray-300"}`}
                   />
+
+                  {errors.trackingUrl && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.trackingUrl}
+                    </p>
+                  )}
                 </div>
 
                 <p className="font-medium text-[14px] mb-2">Contact Details</p>
@@ -482,7 +536,7 @@ const TransporterDetail = () => {
                     name="contactName"
                     value={formData.contactName}
                     onChange={handleInputChange}
-                     maxLength={10}
+                    maxLength={30}
                     placeholder="Enter contact person name"
                     className="w-full mt-1 border rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-200"
                   />
@@ -494,9 +548,13 @@ const TransporterDetail = () => {
                     name="phone"
                     value={formData.phone}
                     onChange={handleInputChange}
-                    placeholder="Enter phone number"
-                    className="w-full mt-1 border rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-200"
+                    className={`w-full mt-1 border rounded-lg px-3 py-2 outline-none focus:ring-2 
+  ${errors.phone ? "border-red-500" : "border-gray-300"}`}
                   />
+
+                  {errors.phone && (
+                    <p className="text-red-500 text-xs mt-1">{errors.phone}</p>
+                  )}
                 </div>
 
                 <div>
@@ -505,9 +563,13 @@ const TransporterDetail = () => {
                     name="email"
                     value={formData.email}
                     onChange={handleInputChange}
-                    placeholder="Enter email address"
-                    className="w-full mt-1 border rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-200"
+                    className={`w-full mt-1 border rounded-lg px-3 py-2 outline-none focus:ring-2 
+  ${errors.email ? "border-red-500" : "border-gray-300"}`}
                   />
+
+                  {errors.email && (
+                    <p className="text-red-500 text-xs mt-1">{errors.email}</p>
+                  )}
                 </div>
 
                 {/* <p className="font-medium text-[14px] mb-2">Delivery Type</p> */}
@@ -651,7 +713,10 @@ const TransporterDetail = () => {
             <div className="flex justify-end gap-2 px-6 py-4 border-t bg-white">
               <button
                 type="button"
-                onClick={() => setIsEditModalOpen(false)}
+                onClick={() => {
+                  setIsEditModalOpen(false);
+                  setErrors({});
+                }}
                 className="px-4 py-2 rounded-lg border text-gray-700 hover:bg-gray-50"
               >
                 Cancel
