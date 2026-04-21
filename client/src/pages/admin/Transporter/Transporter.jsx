@@ -97,7 +97,7 @@ const Transporter = () => {
 
         const statusMatch =
           selectedStatus === "All Status" ||
-          selectedStatus === "Status" || // optional (default)
+          selectedStatus === "Status" ||
           (selectedStatus === "Active" && p.isActive) ||
           (selectedStatus === "Inactive" && !p.isActive);
 
@@ -110,7 +110,7 @@ const Transporter = () => {
 
   const [selectedSort, setSelectedSort] = useState("Latest");
   // Apply category filter
-  const categories = ["Forward", "Return", "Both"];
+  // const categories = ["Forward", "Return", "Both"];
 
   ///////////////////////////////////
   // Sorting options
@@ -146,7 +146,7 @@ const Transporter = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
   const itemsPerPage = 10;
-  const currentItems = product;
+  const currentItems = filteredProducts;
 
   // useEffect(() => {
   const fetchProduct = async () => {
@@ -246,32 +246,40 @@ const Transporter = () => {
   const validate = () => {
     let newErrors = {};
 
+    // Transporter Name
     if (!formdata.transporterName.trim()) {
       newErrors.transporterName = "Transporter name is required";
     }
 
+    // Registration Number
     if (!formdata.registrationNumber.trim()) {
       newErrors.registrationNumber = "Registration number is required";
     }
 
+    // Contact Name
     if (!formdata.contactName.trim()) {
       newErrors.contactName = "Contact person name is required";
     }
 
+    // Phone validation (10 digits)
     if (!formdata.phone.trim()) {
       newErrors.phone = "Phone number is required";
     } else if (!/^[0-9]{10}$/.test(formdata.phone)) {
       newErrors.phone = "Enter valid 10 digit phone number";
     }
 
+    // Email validation
     if (!formdata.email.trim()) {
       newErrors.email = "Email is required";
-    } else if (!/^\S+@\S+\.\S+$/.test(formdata.email)) {
-      newErrors.email = "Invalid email format";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formdata.email)) {
+      newErrors.email = "Enter valid email address";
     }
 
-    if (formdata.trackingUrl && !/^https?:\/\/.+/.test(formdata.trackingUrl)) {
-      newErrors.trackingUrl = "Enter valid URL (http/https)";
+    // Tracking URL (optional but if filled must be valid)
+    if (formdata.trackingUrl.trim()) {
+      if (!/^https?:\/\/.+/.test(formdata.trackingUrl)) {
+        newErrors.trackingUrl = "Enter valid URL (http/https)";
+      }
     }
 
     setErrors(newErrors);
@@ -715,7 +723,7 @@ const Transporter = () => {
                     }
                     placeholder="Enter registration number"
                     className={`w-full mt-1 border rounded-lg px-3 py-2 outline-none 
-    ${errors.transporterName ? "border-red-500" : "border-gray-300"}
+    ${errors.registrationNumber ? "border-red-500" : "border-gray-300"}
   `}
                   />
                   {errors.registrationNumber && (
@@ -821,246 +829,12 @@ const Transporter = () => {
                     <p className="text-red-500 text-xs mt-1">{errors.email}</p>
                   )}
                 </div>
-
-                {/* <p className="font-medium text-[14px] mb-2">Delivery Type</p> */}
-                {/* <div className="border p-4 rounded-lg space-y-3"> */}
-                {/* Forward Delivery */}
-                {/* <div className="flex items-center justify-between border-b pb-2">
-                    <span>Forward Delivery</span>
-                    <button
-                      type="button"
-                      onClick={() => handleToggle("forward")}
-                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 ${
-                        deliveryOptions.forward ? "bg-[#1C3753]" : "bg-gray-300"
-                      }`}
-                    >
-                      <span
-                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-300 ${
-                          deliveryOptions.forward
-                            ? "translate-x-6"
-                            : "translate-x-1"
-                        }`}
-                      />
-                    </button>
-                  </div> */}
-
-                {/* Return Delivery */}
-                {/* <div className="flex items-center justify-between border-b pb-2">
-                    <span>Return Delivery</span>
-                    <button
-                      type="button"
-                      onClick={() => handleToggle("return")}
-                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 ${
-                        deliveryOptions.return ? "bg-[#1C3753]" : "bg-gray-300"
-                      }`}
-                    >
-                      <span
-                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-300 ${
-                          deliveryOptions.return
-                            ? "translate-x-6"
-                            : "translate-x-1"
-                        }`}
-                      />
-                    </button>
-                  </div> */}
-
-                {/* RTO */}
-                {/* <div className="flex items-center justify-between border-b pb-2">
-                    <span>RTO</span>
-                    <button
-                      type="button"
-                      onClick={() => handleToggle("rto")}
-                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 ${
-                        deliveryOptions.rto ? "bg-[#1C3753]" : "bg-gray-300"
-                      }`}
-                    >
-                      <span
-                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-300 ${
-                          deliveryOptions.rto
-                            ? "translate-x-6"
-                            : "translate-x-1"
-                        }`}
-                      />
-                    </button>
-                  </div> */}
-
-                {/* Fast Delivery */}
-                {/* <div className="flex items-center justify-between border-b pb-2">
-                    <span>Fast Delivery</span>
-                    <button
-                      type="button"
-                      onClick={() => handleToggle("fast")}
-                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 ${
-                        deliveryOptions.fast ? "bg-[#1C3753]" : "bg-gray-300"
-                      }`}
-                    >
-                      <span
-                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-300 ${
-                          deliveryOptions.fast
-                            ? "translate-x-6"
-                            : "translate-x-1"
-                        }`}
-                      />
-                    </button>
-                  </div> */}
-
-                {/* One Day Delivery */}
-                {/* <div className="flex items-center justify-between">
-                    <span>One Day Delivery</span>
-                    <button
-                      type="button"
-                      onClick={() => handleToggle("oneDay")}
-                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 ${
-                        deliveryOptions.oneDay ? "bg-[#1C3753]" : "bg-gray-300"
-                      }`}
-                    >
-                      <span
-                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-300 ${
-                          deliveryOptions.oneDay
-                            ? "translate-x-6"
-                            : "translate-x-1"
-                        }`}
-                      />
-                    </button>
-                  </div> */}
-                {/* </div> */}
-
-                {/* <p className="font-medium text-[14px] mb-2">
-                  SLA Configuration
-                </p>
-                <div>
-                  <label className="text-sm text-gray-600">
-                    Expected Forward Delivery Time
-                  </label>
-                  <input
-                    type="number"
-                    name="slaForwardDays"
-                    value={formdata.slaForwardDays}
-                    onChange={(e) => {
-                      setFormData(e.target.value);
-                    }}
-                    min={0}
-                    placeholder="Enter expected delivery time in days"
-                   className={`w-full mt-1 border rounded-lg px-3 py-2 outline-none 
-    ${errors.transporterName ? "border-red-500" : "border-gray-300"}
-  `}
-                  />
-                </div>
-                <div>
-                  <label className="text-sm text-gray-600">
-                    Expected Return Delivery Time
-                  </label>
-                  <input
-                    type="number"
-                    name="slaReturnDays"
-                    value={formdata.slaReturnDays}
-                  onChange={(e) =>
-  setFormData((prev) => ({
-    ...prev,
-    [e.target.name]: e.target.value,
-  }))
-}
-                    min={0}
-                    placeholder="Enter expected delivery time in days"
-                   className={`w-full mt-1 border rounded-lg px-3 py-2 outline-none 
-    ${errors.transporterName ? "border-red-500" : "border-gray-300"}
-  `}
-                  />
-                </div>
-                <div>
-                  <label className="text-sm text-gray-600">
-                    Expected RTO Delivery Time
-                  </label>
-                  <input
-                    type="number"
-                    name="slaRtoDays"
-                    na
-                    value={formdata.slaRtoDays}
-                  onChange={(e) =>
-  setFormData((prev) => ({
-    ...prev,
-    [e.target.name]: e.target.value,
-  }))
-}
-                    min={0}
-                    placeholder="Enter expected delivery time in days"
-                   className={`w-full mt-1 border rounded-lg px-3 py-2 outline-none 
-    ${errors.transporterName ? "border-red-500" : "border-gray-300"}
-  `}
-                  />
-                </div>
-                <div>
-                  <label className="text-sm text-gray-600">
-                    Expected Fast Delivery Time
-                  </label>
-                  <input
-                    type="number"
-                    name="slaFastDays"
-                    value={formdata.slaFastDays}
-                  onChange={(e) =>
-  setFormData((prev) => ({
-    ...prev,
-    [e.target.name]: e.target.value,
-  }))
-}
-                    min={0}
-                    placeholder="Expected Fast Delivery Time"
-                   className={`w-full mt-1 border rounded-lg px-3 py-2 outline-none 
-    ${errors.transporterName ? "border-red-500" : "border-gray-300"}
-  `}
-                  />
-                </div>
-
-                <p className="font-medium text-[14px] mb-2">COD Charges</p>
-                <div className="border p-4 rounded-lg space-y-3">
-                  <div className="flex items-center justify-between border-b pb-2">
-                    <span className="text-gray-600 text-sm">
-                      Cash On Delivery (COD)
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => handleToggle("return")}
-                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 ${
-                        deliveryOptions.return ? "bg-[#1C3753]" : "bg-gray-300"
-                      }`}
-                    >
-                      <span
-                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-300 ${
-                          deliveryOptions.return
-                            ? "translate-x-6"
-                            : "translate-x-1"
-                        }`}
-                      />
-                    </button>
-                  </div>
-                  <div>
-                    <label className="text-sm text-gray-600">
-                      COD Charge Flat Rate
-                    </label>
-                    <input
-                      type="number"
-                      name="codFlatRate"
-                      value={formdata.codFlatRate}
-                    onChange={(e) =>
-  setFormData((prev) => ({
-    ...prev,
-    [e.target.name]: e.target.value,
-  }))
-}
-                      min={0}
-                      placeholder="Enter COD charge in rupees(₹)"
-                     className={`w-full mt-1 border rounded-lg px-3 py-2 outline-none 
-    ${errors.transporterName ? "border-red-500" : "border-gray-300"}
-  `}
-                    />
-                  </div>
-                </div> */}
                 <div className="flex justify-end gap-2 px-6 py-4 border-t bg-white">
                   <button
                     type="button"
                     onClick={() => {
                       setIsAddModalOpen(false);
-                      // resetForm();
+                      resetForm();
                     }}
                     className="px-4 py-2 rounded-lg border text-gray-700 hover:bg-gray-50"
                   >
