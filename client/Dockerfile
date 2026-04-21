@@ -7,7 +7,7 @@ RUN npm install
 
 COPY . .
 
-RUN npm run build
+RUN node --max-old-space-size=2048 node_modules/.bin/vite build
 
 FROM nginx:alpine
 
