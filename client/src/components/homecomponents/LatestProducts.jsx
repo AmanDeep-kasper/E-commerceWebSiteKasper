@@ -38,7 +38,7 @@ function LatestProducts() {
       setLoading(true);
 
       const res = await axiosInstance.get(
-        `/product/${slugOrId}`, // ✅ YOUR NEW API
+        `/product/${slugOrId}`, 
       );
 
       setMainProduct(res.data.data);
@@ -148,7 +148,7 @@ function LatestProducts() {
   };
 
   return (
-    <div className="lg:px-20 md:px-[60px] px-4 py-[23px] relative bg-[#EEFDFF]  shadow-sm rounded-lg">
+    <div className="lg:px-20 md:px-[60px] px-4 py-[23px] relative bg-[#EEFDFF] shadow-sm rounded-lg">
       <div className="flex items-center">
         <Title className="md:items-start px-2 font-marcellus text-[#1800AC]">
           Best Selling Products
