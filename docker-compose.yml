@@ -14,7 +14,7 @@ services:
     build:
       context: ./client
       args:
-        VITE_BASE_URL: http://localhost:5000/api/v1
+        VITE_BASE_URL: https://api.happyartsupplies.moidalam.in/api/v1
     container_name: frontend
     ports:
       - "3000:80"
