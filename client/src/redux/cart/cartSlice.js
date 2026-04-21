@@ -75,7 +75,8 @@ const cartSlice = createSlice({
         variantAttributes: item.variantAttributes,
       }));
 
-      state.totalItems = Number(cart.totalQuantity) || 0;
+      // state.totalItems = Number(cart.totalQuantity) || 0;
+      state.totalItems = (cart.items || []).length;
       state.totalPrice = Number(cart.subtotal) || 0;
       state.totalDiscount = 0;
 
