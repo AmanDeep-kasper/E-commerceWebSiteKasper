@@ -50,25 +50,45 @@ const ProductSchema = new mongoose.Schema(
       index: true,
     },
 
-    variants: [VariantSchema],
+    variants: {
+      type: [VariantSchema],
+      default: [],
+      validate: {
+        validator: function (v) {
+          if (this.isDraft) return true;
+          return v.length > 0;
+        },
+        message: "At least one variant is required",
+      },
+    },
 
     category: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Category",
-      required: true,
+      required: function () {
+        return !this.isDraft;
+      },
       index: true,
     },
 
     subcategory: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "SubCategory",
-      required: true,
+      required: function () {
+        return !this.isDraft;
+      },
       index: true,
     },
 
     isActive: {
       type: Boolean,
       default: true,
+      index: true,
+    },
+
+    isDraft: {
+      type: Boolean,
+      default: false,
       index: true,
     },
 
