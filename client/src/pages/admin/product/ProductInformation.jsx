@@ -279,12 +279,12 @@ function ProductInformation() {
 
               <div>
                 {product?.isActive ? (
-                  <div className="flex items-center justify-center gap-2 bg-[#E0F4DE] py-1 px-3 rounded-lg text-sm text-[#00A63E]">
+                  <div className="flex items-center justify-center gap-2 bg-[#E0F4DE] py-1px-3 rounded-lg text-sm text-[#00A63E]">
                     <Circle fill="#00A63E" color="#00A63E" size={"12px"} />
                     Active
                   </div>
                 ) : (
-                  <div className="flex items-center justify-center gap-2 bg-[#FFFBEB] py-1 px-3 rounded-lg text-sm text-[#F8A14A]">
+                  <div className="flex items-center justify-center gap-2 bg-[#FFFBEB] py-1.5 px-3 rounded-lg text-sm text-[#F8A14A]">
                     <Circle fill="#F8A14A" color="#F8A14A" size={"12px"} />
                     Inactive
                   </div>
