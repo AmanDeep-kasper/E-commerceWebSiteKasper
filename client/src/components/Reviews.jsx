@@ -32,7 +32,7 @@ function Reviews({ reviews = [], onAddReview }) {
   if (!reviews || reviews.length === 0) {
     return (
       <div className="w-full">
-        <div className="flex flex-col items-start space-y-2">
+        {/* <div className="flex flex-col items-start space-y-2">
           <div>
             <p className="text-lg font-medium">Review This Product</p>
             <span className="text-[#686868] text-xs">
@@ -47,7 +47,7 @@ function Reviews({ reviews = [], onAddReview }) {
           >
             Write a product review
           </button>
-        </div>
+        </div> */}
       </div>
     );
   }

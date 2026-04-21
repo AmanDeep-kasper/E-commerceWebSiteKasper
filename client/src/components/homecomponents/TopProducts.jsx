@@ -10,7 +10,6 @@
 //   formatPrice,
 // } from "../../utils/homePageUtils";
 // import { useEffect, useState } from "react";
-import { useSelector } from 'react-redux';
 // import axiosInstance from "../../api/axiosInstance";
 
 // function TopProducts() {
@@ -178,19 +177,21 @@ import Stack from "@mui/material/Stack";
 import { useEffect, useMemo, useState } from "react";
 import axiosInstance from "../../api/axiosInstance";
 import { FaBagShopping } from "react-icons/fa6";
-import {useDispatch} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import { addToCart, decreaseQty, increaseQty } from "../../redux/cart/cartSlice";
 import { LuMinus, LuPlus } from "react-icons/lu";
 import { toast } from "react-toastify";
+import { Heart } from "lucide-react";
+import { addToWishlist, removeFromWishlist } from "../../redux/cart/wishlistSlice";
 
 function TopProducts() {
   const dispatch = useDispatch();
-  const [visibleCount, setVisibleCount] = useState(4);
+  const {cartItems} = useSelector((state) => state.cart);
+  console.log("cartItems in TopProducts:", cartItems);
+  const {wishlistItems} = useSelector((state) => state.wishlist);
+  const {isAuthenticated} = useSelector((state) => state.user);
      const [collections, setCollections] = useState([]);
-    const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
-  const [topproduct, setTopProduct] = useState([]);
-  const [addedItems, setAddedItems] = useState({});
 
   const MIN_PRODUCTS = 4; // Minimum products to show
   const MAX_PRODUCTS = 5; // Maximum products to show
@@ -266,150 +267,136 @@ function TopProducts() {
         
         dispatch(addToCart({
             uuid: product._id,
-            variantId: defaultVariant._id,
-            title: product.productTittle,
-            basePrice: defaultVariant.variantMrp || 0,
-            effectivePrice: defaultVariant.variantSellingPrice || 0,
-            discountPercent: defaultVariant.variantDiscount || 0,
-            stockQuantity: defaultVariant.variantAvailableStock || 0,
-            image: defaultVariant.variantImage?.[0]?.url || "/placeholder.png",
-            deliverBy: "7-10 business days",
-            selectedOptions: {
-                color: defaultVariant.variantColor || "Default",
-                dimension: "Standard",
-            },
-        }));
-        
-        setAddedItems(prev => ({ ...prev, [product._id]: 1 }));
-        toast.success("Added to cart!");
-    };
+    variantId: defaultVariant._id,
+    title: product.productTittle,
+    basePrice: defaultVariant.variantMrp || 0,
+    effectivePrice: defaultVariant.variantSellingPrice || 0,
+    discountPercent: defaultVariant.variantDiscount || 0,
+    stockQuantity: defaultVariant.variantAvailableStock || 0,
+    image: defaultVariant.variantImage?.[0]?.url || "/placeholder.png",
+    deliverBy: "7-10 business days",
+    selectedOptions: {
+      color: defaultVariant.variantColor || "Default",
+      dimension: "Standard",
+    },
+  }));
+  
+  toast.success("Added to cart!");
+};
 
-    const increaseQty = (id) => {
-        setAddedItems((prev) => ({
-            ...prev,
-            [id]: (prev[id] || 1) + 1,
-        }));
-        // Also update Redux cart
-        dispatch(increaseQty({ uuid: id }));
-    };
+// Product Card Component
+const ProductCard = ({ product }) => {
+  const defaultVariant = product.variants?.[0];
+  const variantId = defaultVariant?._id;
+  
+  // Check if product is in cart
+  const inCart = cartItems.some(
+    (i) => String(i.productId || i.uuid) === String(product._id) &&
+            String(i.variantId) === String(variantId)
+  );
+  
+  // Get quantity from cart
+  const qtyInCart = cartItems.find(
+    (i) => String(i.productId || i.uuid) === String(product._id) &&
+           String(i.variantId) === String(variantId)
+  )?.quantity || 0;
 
-    const decreaseQty = (id) => {
-        setAddedItems((prev) => {
-            const current = prev[id] || 0;
-            if (current <= 1) {
-                const updated = { ...prev };
-                delete updated[id];
-                return updated;
-            }
-            return { ...prev, [id]: current - 1 };
-        });
-        dispatch(decreaseQty({ uuid: id }));
-    };
+  const productImage = defaultVariant?.variantImage?.[0]?.url || product.image || "/placeholder.png";
+  const mrp = defaultVariant?.variantMrp || 0;
+  const sellingPrice = defaultVariant?.variantSellingPrice || 0;
+  const discountPercent = mrp > 0 && sellingPrice > 0 
+    ? Math.round(((mrp - sellingPrice) / mrp) * 100) 
+    : 0;
 
-      // Product Card Component
-  const ProductCard = ({ product }) => {
-    const defaultVariant = product.variants?.[0];
-    const productImage = defaultVariant?.variantImage?.[0]?.url || product.image || "/placeholder.png";
-    const mrp = defaultVariant?.variantMrp || 0;
-    const sellingPrice = defaultVariant?.variantSellingPrice || 0;
-    const discountPercent = mrp > 0 && sellingPrice > 0 
-      ? Math.round(((mrp - sellingPrice) / mrp) * 100) 
-      : 0;
-
-    return (
-      <Link
-        key={product._id}
-        className="bg-white p-2 group rounded-lg block transition-shadow duration-300 hover:shadow-lg"
-        to={`/product/${product.slug || product._id}`}
-      >
-        <div className="relative w-full overflow-hidden rounded-md">
-          <img
-            className="w-full aspect-square object-contain transition-transform duration-300 group-hover:scale-110"
-            src={productImage}
-            alt={product.productTittle}
-            loading="lazy"
-            onError={(e) => { e.target.src = "/placeholder.png"; }}
-          />
-          {/* {ratingAvg > 0 && (
-            <div className="absolute top-2 right-2 bg-yellow-400 shadow-md text-gray-800 text-xs font-semibold px-2 py-1 rounded-full flex items-center">
-              <span>{ratingAvg.toFixed(1)} ★</span>
-            </div>
-          )} */}
-        </div>
-
-        <div className="mt-3">
-          <h3 className="text-sm font-serif text-gray-800 font-normal line-clamp-1 mb-2">
-            {product.productTittle}
-          </h3>
-
-          <div className="flex items-center flex-wrap gap-2">
-            <span className="text-gray-900 font-medium">
-              ₹{sellingPrice || mrp || "--"}
-            </span>
-            {mrp > 0 && sellingPrice > 0 && mrp !== sellingPrice && (
-              <span className="text-gray-400 text-xs line-through font-light">
-                ₹{mrp}
-              </span>
-            )}
-            {discountPercent > 0 && (
-              <>
-                <div className="border-l border-[#DBDBDB] h-3"></div>
-                <span className="text-[#168408] text-xs">
-                  {discountPercent}% Off
-                </span>
-              </>
-            )}
-          </div>
-
-          <div
-            className={`w-full rounded-md flex justify-center items-center gap-4 p-2 mt-2 transition-all duration-300 cursor-pointer ${
-              addedItems[product._id]
-                ? "bg-white border border-[#252525]"
-                : "bg-[#252525] border border-[#252525]"
-            }`}
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              if (!addedItems[product._id]) {
-                handleAddToCart(product);
-              }
-            }}
-          >
-            {addedItems[product._id] > 0 ? (
-              <div className="w-full flex items-center justify-between text-black">
-                <span
-                  className="cursor-pointer"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    decreaseQty(product._id);
-                  }}
-                >
-                  <LuMinus />
-                </span>
-                <span>{addedItems[product._id]}</span>
-                <span
-                  className="cursor-pointer"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    increaseQty(product._id);
-                  }}
-                >
-                  <LuPlus />
-                </span>
-              </div>
-            ) : (
-              <>
-                <span className="text-white text-[12px]">Add To Cart</span>
-                <span className="text-white"><FaBagShopping /></span>
-              </>
-            )}
-          </div>
-        </div>
-      </Link>
-    );
+  const handleAddToCartClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!inCart) {
+      handleAddToCart(product);
+    }
   };
+
+  const handleIncreaseQty = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    increaseQty(product._id);
+  };
+
+  const handleDecreaseQty = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    decreaseQty(product._id);
+  };
+
+  return (
+    <Link
+      key={product._id}
+      className="bg-white p-2 group rounded-lg block transition-shadow duration-300 hover:shadow-lg"
+      to={`/product/${product.slug || product._id}`}
+    >
+      <div className="relative w-full overflow-hidden rounded-md">
+        <img
+          className="w-full aspect-square object-contain transition-transform duration-300 group-hover:scale-110"
+          src={productImage}
+          alt={product.productTittle}
+          loading="lazy"
+          onError={(e) => { e.target.src = "/placeholder.png"; }}
+        />
+      </div>
+
+      <div className="mt-3">
+        <h3 className="text-sm font-serif text-gray-800 font-normal line-clamp-1 mb-2">
+          {product.productTittle}
+        </h3>
+
+        <div className="flex items-center flex-wrap gap-2">
+          <span className="text-gray-900 font-medium">
+            ₹{sellingPrice || mrp || "--"}
+          </span>
+          {mrp > 0 && sellingPrice > 0 && mrp !== sellingPrice && (
+            <span className="text-gray-400 text-xs line-through font-light">
+              ₹{mrp}
+            </span>
+          )}
+          {discountPercent > 0 && (
+            <>
+              <div className="border-l border-[#DBDBDB] h-3"></div>
+              <span className="text-[#168408] text-xs">
+                {discountPercent}% Off
+              </span>
+            </>
+          )}
+        </div>
+
+        <div
+          className={`w-full rounded-md flex justify-center items-center gap-4 p-2 mt-2 transition-all duration-300 cursor-pointer ${
+            inCart && qtyInCart > 0
+              ? "bg-white border border-[#252525]"
+              : "bg-[#252525] border border-[#252525]"
+          }`}
+          onClick={!inCart ? handleAddToCartClick : undefined}
+        >
+          {inCart && qtyInCart > 0 ? (
+            <div className="w-full flex items-center justify-between text-black">
+              <span className="cursor-pointer" onClick={handleDecreaseQty}>
+                <LuMinus />
+              </span>
+              <span>{qtyInCart}</span>
+              <span className="cursor-pointer" onClick={handleIncreaseQty}>
+                <LuPlus />
+              </span>
+            </div>
+          ) : (
+            <>
+              <span className="text-white text-[12px]">Add To Cart</span>
+              <span className="text-white"><FaBagShopping /></span>
+            </>
+          )}
+        </div>
+      </div>
+    </Link>
+  );
+};
 
     // Loading state
     if (loading) {
@@ -447,7 +434,7 @@ function TopProducts() {
             <h2 className="text-lg font-semibold text-gray-800">
               {collection.collectionName}
             </h2>
-            {collection.products?.length > MAX_PRODUCTS && (
+            {collection.products?.length >= MAX_PRODUCTS && (
               <Link
                 className="text-[#2C87E2] hover:text-blue-950 text-sm underline cursor-pointer"
                 to={`/collection/${collection._id}/products`}
