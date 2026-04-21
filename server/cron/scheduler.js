@@ -11,8 +11,8 @@ cron.schedule("0 2 * * *", async () => {
   }
 });
 
-// every 10 minutes
-cron.schedule("*/10 * * * *", async () => {
+// every 15 minutes
+cron.schedule("*/15 * * * *", async () => {
   await autoCancelOrdersJob();
 });
 
