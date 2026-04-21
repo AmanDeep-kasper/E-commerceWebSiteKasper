@@ -12,7 +12,7 @@ import { connectDB } from "./config/db.js";
 import setupUnhandledErrorHandlers from "./utils/unhandledErrorHandler.js";
 
 // cron jobs
-import "./cron/scheduler.js";
+// import "./cron/scheduler.js";
 
 // ================== ROUTES ==================
 import authRouter from "./routes/authRoutes.js";
@@ -24,7 +24,7 @@ import collectionRouter from "./routes/collectionRoutes.js";
 import reviewRouter from "./routes/reviewRoutes.js";
 import wishlistRouter from "./routes/wishlistRouter.js";
 import cartRouter from "./routes/cartRoutes.js";
-import checkoutRouter from "./routes/checkoutRoutes.js";
+import orderRoutes from "./routes/orderRoutes.js";
 
 // =========== admin dashboard setting routes ==============
 import businessRouter from "./routes/admin/businessRoutes.js";
@@ -114,7 +114,7 @@ app.use("/api/v1/collection", collectionRouter);
 app.use("/api/v1/review", reviewRouter);
 app.use("/api/v1/wishlist", wishlistRouter);
 app.use("/api/v1/cart", cartRouter);
-app.use("/api/v1/checkout", checkoutRouter);
+app.use("/api/v1/order", orderRoutes);
 
 // ============= Dashboard Setting Routes =============
 app.use("/api/v1/dashboard/business", businessRouter);
