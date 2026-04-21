@@ -360,6 +360,11 @@ export const adminGetAllProducts = asyncHandler(async (req, res) => {
     Product.countDocuments(filter),
   ]);
 
+  const [activeCount, inactiveCount] = await Promise.all([
+  Product.countDocuments({ ...filter, isActive: true }),
+  Product.countDocuments({ ...filter, isActive: false }),
+]);
+
   // ✅ PROCESS DATA (same structure as userGetAllProducts)
   const processedProducts = products.map((product) => {
     const variants = product.variants || [];
@@ -404,6 +409,11 @@ export const adminGetAllProducts = asyncHandler(async (req, res) => {
       total,
       pages: Math.ceil(total / limitNum),
     },
+    stats: {
+      total: total || 0,
+      active: activeCount || 0,
+      inactive: inactiveCount || 0,
+    }
   });
 });
 
