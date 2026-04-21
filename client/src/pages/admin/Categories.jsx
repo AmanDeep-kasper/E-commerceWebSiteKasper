@@ -554,7 +554,11 @@ const Products = () => {
             </table>
 
             {/* Pagination */}
-            <div className="flex justify-end items-center gap-2 px-6 py-4 border-t">
+            <div className="flex justify-between items-center gap-2 px-6 py-4 border-t">
+               <div className="text-sm text-gray-600">
+    Showing {categories.length} of {totalItems} results
+  </div>
+   <div className="flex items-center gap-2">
               <button
                 className="px-3 py-1 border rounded disabled:opacity-50"
                 onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
@@ -577,6 +581,7 @@ const Products = () => {
               >
                 ›
               </button>
+              </div>
             </div>
           </div>
         </div>
