@@ -407,6 +407,7 @@ export const adminGetAllProducts = asyncHandler(async (req, res) => {
       subcategory: product.subcategory,
       subcategoryName: product.subcategory?.name || "N/A",
       isActive: product.isActive,
+      isDraft: product.isDraft,
       skuId: defaultVariant?.variantSkuId || "N/A",
       priceRange: {
         min: lowestPrice,
