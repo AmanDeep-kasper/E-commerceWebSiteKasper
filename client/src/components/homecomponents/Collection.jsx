@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useSelector } from 'react-redux';
+import { useSelector } from "react-redux";
 import { motion, useAnimation } from "framer-motion";
 import Rating from "@mui/material/Rating";
 import Stack from "@mui/material/Stack";
@@ -17,13 +17,20 @@ import {
   formatPrice,
 } from "../../utils/homePageUtils";
 
-{/* <================--------- icons ----------=====================> */ }
+{
+  /* <================--------- icons ----------=====================> */
+}
 import { IoDiamond } from "react-icons/io5";
 import { GoStarFill } from "react-icons/go";
 import { IoEarthSharp } from "react-icons/io5";
-import { MdOutlineKeyboardArrowLeft, MdOutlineKeyboardArrowRight } from "react-icons/md";
+import {
+  MdOutlineKeyboardArrowLeft,
+  MdOutlineKeyboardArrowRight,
+} from "react-icons/md";
 
-{/* <================--------- Images ----------=====================> */ }
+{
+  /* <================--------- Images ----------=====================> */
+}
 import resin from "../../assets/img/1.png";
 import mold from "../../assets/img/2.jpg";
 import pigment from "../../assets/img/3.jpg";
@@ -41,7 +48,7 @@ function Collection() {
   const [isHovered, setIsHovered] = useState(false);
   const controls = useAnimation();
 
-    const [categories, setCategories] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -100,30 +107,29 @@ function Collection() {
   function actualPrice(price, discountPercent) {
     return price - (price * discountPercent) / 100;
   }
-// for categories fetch
-useEffect(() => {
+  // for categories fetch
+  useEffect(() => {
     const fetchCategories = async () => {
       try {
         setLoading(true);
-        
+
         const response = await axiosInstance.get("/category/all-categories", {
           params: {
             page: 1,
             limit: 20,
-          }
+          },
         });
-        
+
         let fetchedCategories = [];
-        
+
         if (response.data?.success && response.data?.data) {
           fetchedCategories = response.data.data;
         } else if (Array.isArray(response.data)) {
           fetchedCategories = response.data;
         }
-        
+
         setCategories(fetchedCategories);
         setError(null);
-        
       } catch (err) {
         console.error("Error fetching categories:", err);
         setError(err.response?.data?.message || "Failed to load categories");
@@ -383,48 +389,50 @@ useEffect(() => {
           </button>
         </div> */}
         {/* <========-------- Category --------=========> */}
-        
-        <div className="flex justify-center items-center mt-6">
-          {categories.length > visibleCount && (
-          <span onClick={scrollLeft} className="cursor-pointer p-2">
-            <MdOutlineKeyboardArrowLeft size={28} />
-          </span>
-          )}
-          <div
-            ref={sliderRef}
-            className="flex gap-6 overflow-hidden"
+
+        <div className="flex justify-center items-center mt-6 px-36">
+          <Swiper
+            modules={[Navigation]}
+            spaceBetween={0}
+            slidesPerView={6}
+            navigation
+            breakpoints={{
+              320: { slidesPerView: 2 },
+              640: { slidesPerView: 3 },
+              768: { slidesPerView: 4 },
+              1024: { slidesPerView: 6 },
+            }}
+            className="w-full"
           >
-            {categories.slice(startIndex, startIndex + visibleCount).map((category) => (
-              <Link to={`/products/${encodeURIComponent(category.name)}`}
-  state={{ category: category.name }}>
-              <div
-                key={category._id}
-                className=""
-              >
+            {categories.map((category) => (
+              <SwiperSlide key={category._id}>
+                <Link
+                  to={`/products/${encodeURIComponent(category.name)}`}
+                  state={{ category: category.name }}
+                >
                   <div className="flex flex-col items-center gap-3">
-                    <div className="w-[150px] h-[150px] rounded overflow-hidden transition-all duration-1000">
+                    <div className="w-[150px] h-[150px] rounded overflow-hidden">
                       <img
-                         src={category.categoryImage?.url || "/placeholder-category.jpg"}
-  alt="categoryname"
+                        src={
+                          category.categoryImage?.url ||
+                          "/placeholder-category.jpg"
+                        }
+                        alt={category.name}
                         className="w-full h-full object-cover hover:scale-110 transition duration-300 cursor-pointer"
                       />
                     </div>
+
                     <span className="text-[14px] sm:text-[16px] text-center capitalize">
                       {category.name}
                     </span>
                   </div>
-              </div>
-              
-        </Link>
+                </Link>
+              </SwiperSlide>
             ))}
-          </div>
-          {categories.length > visibleCount && (
-            <span onClick={scrollRight} className="cursor-pointer p-2">
-              <MdOutlineKeyboardArrowRight size={28} />
-            </span>
-          )}
+          </Swiper>
         </div>
-          {categories.length === 0 && !loading && !error && (
+
+        {categories.length === 0 && !loading && !error && (
           <div className="text-center text-gray-500 py-8">
             No categories available at the moment.
           </div>
