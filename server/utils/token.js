@@ -169,8 +169,11 @@ export const rotateTokens = async (userId, role, oldRefreshToken, req) => {
   if (tokenData.isRevoked) {
     const isSameDevice = tokenData.deviceInfo?.ipAddress === currentIP;
 
+    // ✅ Allow ONLY within small time window (race condition fix)
+    const isRecent = new Date() - new Date(tokenData.createdAt) < 5000; // 5 sec
+
     // ✅ Same device → allow but KEEP SAME SESSION
-    if (isSameDevice) {
+    if (isSameDevice && isRecent) {
       const accessToken = generateAccessToken(userId, role, decoded.sessionId);
       const refreshToken = await generateRefreshToken(
         userId,
@@ -183,9 +186,12 @@ export const rotateTokens = async (userId, role, oldRefreshToken, req) => {
         refreshToken,
         sessionId: decoded.sessionId,
       };
+
+      // Otherwise BLOCK
+      throw new Error("Refresh token already used (possible replay attack)");
     }
 
-    // 🔴 suspicious → revoke all
+    // suspicious → revoke all
     await User.updateOne(
       { _id: userId },
       {

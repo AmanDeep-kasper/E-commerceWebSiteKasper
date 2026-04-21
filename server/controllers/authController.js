@@ -715,12 +715,12 @@ export const refreshAccessToken = asyncHandler(async (req, res) => {
   );
 
   // Swap old sessionId with new sessionId in activeSessions array
-  await User.updateOne(
-    { _id: decoded.userId },
-    {
-      $addToSet: { activeSessions: decoded.sessionId },
-    },
-  );
+  // await User.updateOne(
+  //   { _id: decoded.userId },
+  //   {
+  //     $addToSet: { activeSessions: decoded.sessionId },
+  //   },
+  // );
 
   const isProduction = env.NODE_ENV === "production";
 
