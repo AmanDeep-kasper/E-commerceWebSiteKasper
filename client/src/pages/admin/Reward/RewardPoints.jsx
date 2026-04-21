@@ -1,4 +1,3 @@
-import { div } from "framer-motion/m";
 import React, { useState, useEffect } from "react";
 import axiosInstance from "../../../api/axiosInstance.js";
 import axios from "axios";
@@ -15,6 +14,15 @@ function RewardPoints() {
   const [rewardCard, setRewardCard] = useState([]);
   const [showConfirm, setShowConfirm] = useState(false);
   const [selectedCard, setSelectedCard] = useState(null);
+  const [formData, setFormData] = useState({
+    name: "",
+    price: "",
+    Points: "", // Added this
+    PriceForPoints: "",
+    minOrderValue: "",
+    minOrderValueForRedeem: "",
+    date: "",
+  });
 
   useEffect(() => {
     fetchRewards();
@@ -22,11 +30,7 @@ function RewardPoints() {
 
   const fetchRewards = async () => {
     try {
-      const res = await axiosInstance.get("/dashboard/reward", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
+      const res = await axiosInstance.get("/dashboard/reward");
 
       console.log("API Response:", res.data);
 
@@ -35,17 +39,26 @@ function RewardPoints() {
         return;
       }
 
-      const item = res.data.data;
+      const data = res.data.data;
 
-      const formatted = [
-        {
-          _id: item._id,
-          title: item.name,
-          description: `Get ${item.earn?.rules?.points} points for every ₹${item.earn?.rules?.PriceForPoints} purchase.`,
-          badge: item.isActive ? "Active" : "Inactive",
-          deadline: item.validity,
-        },
-      ];
+      if (!data) {
+        setRewardCard([]);
+        return;
+      }
+
+      // Handle both array and single object
+      const items = Array.isArray(data) ? data : [data];
+
+      const formatted = items.map((item) => ({
+         _id: item._id,
+         title: item.name || "Reward Offer",
+         description: `Get ${item.earn?.rules?.points || 0} points for every ₹${item.earn?.rules?.PriceForPoints || 0} purchase.`,
+         badge: item.isActive ? "Active" : "Inactive",
+         deadline: item.validity || 30,
+         earn: item.earn,
+         minOrderValueForRedeem: item.minOrderValueForRedeem,
+         pointValue: item.pointValue,
+       }));
 
       setRewardCard(formatted);
     } catch (error) {
@@ -66,25 +79,9 @@ function RewardPoints() {
   //     },
   // ]
 
-  const [formData, setFormData] = useState({
-    name: "",
-    PriceForPoints: "",
-    minOrderValue: "",
-    date: "",
-    status: "Active",
-  });
-
   const toggleStatus = async () => {
     try {
-      await axiosInstance.patch(
-        "/dashboard/reward/toggle-status",
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        },
-      );
+      await axiosInstance.patch("/dashboard/reward/toggle-status", {});
 
       fetchRewards();
     } catch (error) {
@@ -201,6 +198,8 @@ function RewardPoints() {
                 Redeem Setup
               </span>
             </div>
+
+
             {activeTab === "reward" && (
               <div>
                 <div className="mt-4">
@@ -241,11 +240,11 @@ function RewardPoints() {
                       <input
                         type="number"
                         placeholder="₹ 0"
-                        value={formData.amount}
+                        value={formData.Points}
                         onChange={(e) =>
                           setFormData({
                             ...formData,
-                            amount: e.target.value,
+                            Points: e.target.value,
                           })
                         }
                         className="w-full border border-[#DEDEDE] bg-[#F8FBFC] rounded-md px-2 py-2 sm:px-3 sm:py-2 md:px-4 md:py-2.5 outline-none placeholder:text-[#686868] text-[#1C1C1C]"
@@ -256,8 +255,6 @@ function RewardPoints() {
                       </span>
                     </div>
 
-
-                    
                     <span className="text-[#686868] text-[12px] font-normal">
                       How much do they need to spend to earn 1 Reward Point ?
                     </span>
@@ -275,7 +272,10 @@ function RewardPoints() {
                       placeholder="₹ 0"
                       value={formData.minOrderValue}
                       onChange={(e) =>
-                        setFormData({ ...formData, minOrderValue: e.target.value })
+                        setFormData({
+                          ...formData,
+                          minOrderValue: e.target.value,
+                        })
                       }
                       className="w-full border border-[#DEDEDE] bg-[#F8FBFC] rounded-md px-2 py-2 sm:px-3 sm:py-2 md:px-4 md:py-2.5 outline-none placeholder:text-[#686868] text-[#1C1C1C]"
                     />
@@ -331,11 +331,15 @@ function RewardPoints() {
                       placeholder="₹ 0 "
                       value={formData.PriceForPoints}
                       onChange={(e) =>
-                        setFormData({ ...formData, PriceForPoints: e.target.value })
+                        setFormData({
+                          ...formData,
+                          PriceForPoints: e.target.value,
+                        })
                       }
                       className="w-full border border-[#DEDEDE] bg-white rounded-md px-2 py-2 sm:px-3 sm:py-2 md:px-4 md:py-2.5 outline-none placeholder:text-[#686868] text-[#1C1C1C]"
                     />
                   </div>
+                  
                   <span className="text-[#686868] text-[12px] font-normal">
                     Enter conversion for redemption.
                   </span>
@@ -369,7 +373,10 @@ function RewardPoints() {
                     placeholder="₹ 0"
                     value={formData.minOrderValueForRedeem}
                     onChange={(e) =>
-                      setFormData({ ...formData, minOrderValueForRedeem: e.target.value })
+                      setFormData({
+                        ...formData,
+                        minOrderValueForRedeem: e.target.value,
+                      })
                     }
                     className="w-full border border-[#DEDEDE] bg-[#F8FBFC] rounded-md px-2 py-2 sm:px-3 sm:py-2 md:px-4 md:py-2.5 outline-none placeholder:text-[#686868] text-[#1C1C1C]"
                   />
@@ -413,17 +420,21 @@ function RewardPoints() {
                       await axiosInstance.post(
                         "/dashboard/reward/createOrUpdate",
                         {
-                          name: formData.title,
+                          name: formData.name,
 
                           earn: {
-                            minOrderValue: Number(formData.minPurchase),
+                            minOrderValue: Number(formData.minOrderValue),
                             rules: {
-                              PriceForPoints: Number(formData.amount),
+                              PriceForPoints: Number(formData.Points), // Use formData.Points for earning rules
                               points: 1,
                             },
                           },
 
-                          minOrderValueForRedeem: Number(formData.minPurchase),
+                          minOrderValueForRedeem: Number(
+                            formData.minOrderValueForRedeem,
+                          ),
+
+                          pointValue: Number(formData.PriceForPoints), // Redemption value
 
                           validity: validity,
                           isActive: true,
@@ -439,11 +450,13 @@ function RewardPoints() {
 
                       // reset form
                       setFormData({
-                        title: "",
-                        amount: "",
-                        minPurchase: "",
+                        name: "",
+                        price: "",
+                        Points: "",
+                        PriceForPoints: "",
+                        minOrderValue: "",
+                        minOrderValueForRedeem: "",
                         date: "",
-                        status: "Active",
                       });
 
                       setActiveTab("reward");
@@ -514,14 +527,14 @@ function RewardPoints() {
             </div>
             <div className="flex flex-col gap-1">
               <span className="text-[#0E101A] text-[14px] font-normal">
-                ⚡ Customer earn 1 points for every ₹ 500 spent.
+                ⚡ Customer earn {selectedCard?.earn?.rules?.points || 1} points for every ₹ {selectedCard?.earn?.rules?.PriceForPoints || 500} spent.
               </span>
               <span className="text-[#0E101A] text-[14px] font-normal">
-                💰 Points are applicable only on purchases above ₹100 minimum
+                💰 Points are applicable only on purchases above ₹{selectedCard?.earn?.minOrderValue || 0} minimum
                 value
               </span>
               <span className="text-[#0E101A] text-[14px] font-normal">
-                ⏳ Reward offer is valid till 31 Dec, 2025
+                ⏳ Reward offer validity: {selectedCard?.deadline || 30} days
               </span>
             </div>
             <div className="mt-3">
@@ -531,13 +544,10 @@ function RewardPoints() {
             </div>
             <div className="flex flex-col gap-1">
               <span className="text-[#0E101A] text-[14px] font-normal">
-                🎁 1 point = ₹50 value during redemption
+                🎁 1 point value: ₹{selectedCard?.pointValue || 0} during redemption
               </span>
               <span className="text-[#0E101A] text-[14px] font-normal">
-                💰 Customers can redeem up to 10% of the total invoice value
-              </span>
-              <span className="text-[#0E101A] text-[14px] font-normal">
-                🧾 Minimum invoice value required for redemption: ₹0
+                💰 Customers can redeem if order value is above ₹{selectedCard?.minOrderValueForRedeem || 0}
               </span>
             </div>
             <div className="mt-4">
