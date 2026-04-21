@@ -192,7 +192,7 @@ export const checkoutSummary = asyncHandler(async (req, res) => {
     success: true,
     data: {
       ...summary,
-      availablePoints, // ✅ send real usable points
+      availablePoints,
     },
   });
 });
