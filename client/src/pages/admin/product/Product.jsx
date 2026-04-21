@@ -247,6 +247,7 @@ import {
 import { Link, useNavigate, useParams } from "react-router-dom";
 import axiosInstance from "../../../api/axiosInstance";
 import productData from "../../../data/products.json";
+import { data } from "framer-motion/m";
 // import axiosInstance from "../../../api/axiosInstance";
 // import kpiCards from "./KpiCardProductlist";
 // import Active_product from "../../../assets/icons/Icon.png";
@@ -256,15 +257,39 @@ const Products = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { uuid } = useParams();
-  const navigate = useNavigate();
 
-  useEffect(() => {
+  const [currentPage, setCurrentPage] = useState(1); // ✅ MOVE HERE
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
+
+  const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  const [selectedStatus, setSelectedStatus] = useState("Status");
+  const [selectedCategory, setSelectedCategory] = useState("Category");
+  const [isFirstLoad, setIsFirstLoad] = useState(true);
+  const [stats, setStats] = useState({
+  total: 0,
+  active: 0,
+  inactive: 0
+});
+
+  const navigate = useNavigate();
+ 
     const fetchProducts = async() => {
       try {
-        setLoading(true);
+        if(isFirstLoad) setLoading(true);
         // const response = await axiosInstance.get("/product/all");
-         const response = await axiosInstance.get("/product/admin/get-all-products");
-        // console.log("Products API Response:", response.data);
+         const response = await axiosInstance.get(`/product/admin/get-all-products`, {
+          params: {
+            page:currentPage,
+            limit: 10,
+            search:debouncedSearch || undefined,
+            status: selectedStatus ===  "Active" ? "active" : selectedStatus === "Inactive" ? "inactive" : undefined,
+            category: selectedCategory !== "Category" ? selectedCategory : undefined,
+          }
+         });
+        console.log("Products API Response:", response.data);
 
         let products =[];
         if (response.data?.success && response.data?.data) {
@@ -275,16 +300,25 @@ const Products = () => {
           products = response.data.products;
         }
         setProduct(products);
+        setTotalPages(response.data?.pagination?.pages);
+setTotalItems(response.data?.pagination?.total);
+ setStats({
+      total: response.data?.stats?.total || 0,
+      active: response.data?.stats?.active || 0,
+      inactive: response.data?.stats?.inactive || 0
+    });
         setError(null);
       }catch (error) {
         console.error("Error fetching products:", error);
         setError(error.response?.data?.message || "Failed to load products");
       } finally {
         setLoading(false);
+        setIsFirstLoad(false);
       }
     };
+     useEffect(() => {
     fetchProducts();
-  },[]);
+  },[currentPage, debouncedSearch, selectedStatus, selectedCategory]);
 
 
   // const Editproduct = useMemo(() => {
@@ -302,7 +336,7 @@ const Products = () => {
 
   // Select all checkboxes
   const handleSelectAll = (e) => {
-    const visibleIds = currentItems.map((item) => item._id || item.id);
+    const visibleIds = product.map((item) => item._id || item.id);
 
     if (e.target.checked) {
       // Add only visible product IDs
@@ -333,9 +367,6 @@ const Products = () => {
     );
   };
 
-  const [search, setSearch] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
-
   // Debounce logic usestate
 
   useEffect(() => {
@@ -350,27 +381,6 @@ const Products = () => {
   const [filterOpen, setFilterOpen] = useState(false); // main filter
   const [activeFilter, setActiveFilter] = useState(null); // "status" | "category"
 
-  const [selectedStatus, setSelectedStatus] = useState("Status");
-  const [selectedCategory, setSelectedCategory] = useState("Category");
-
-  // 🔹 Filter products by debouncedSearch
-  let filteredProducts = product.filter((p) => {
-    //  Search filter
-    const searchMatch = (p.name || p.productTitle || "").toLowerCase().includes(debouncedSearch);
-
-    //  Status filter
-    const statusMatch = 
-      selectedStatus === "Status" || 
-      (selectedStatus === "Active" && p.isActive === true) ||
-      (selectedStatus === "Inactive" && p.isActive === false);
-
-
-    //  Category filter
-    const categoryMatch =
-      selectedCategory === "Category" || (p.categoryName || p.category?.name || "") === selectedCategory;
-
-    return searchMatch && statusMatch && categoryMatch;
-  });
 
   const [selectedSort, setSelectedSort] = useState("Price: Low → High");
 
@@ -409,32 +419,26 @@ const Products = () => {
   ];
 
   // Apply sorting
+  const sortedProducts = [...product];
   if (selectedSort === "Price: Low → High") {
-    filteredProducts.sort((a, b) => (a.defaultPrice || 0) - (b.defaultPrice || 0));
+    sortedProducts.sort((a, b) => (a.defaultPrice || 0) - (b.defaultPrice || 0));
   } else if (selectedSort === "Price: High → Low") {
-    filteredProducts.sort((a, b) => (b.defaultPrice || 0) - (a.defaultPrice || 0));
+    sortedProducts.sort((a, b) => (b.defaultPrice || 0) - (a.defaultPrice || 0));
   } else if (selectedSort === "Alphabetical (A–Z)") {
-    filteredProducts.sort((a, b) => (a.name || a.productTittle || "").localeCompare(b.name || b.productTittle || ""));
+    sortedProducts.sort((a, b) => (a.name || a.productTittle || "").localeCompare(b.name || b.productTittle || ""));
   } else if (selectedSort === "Alphabetical (Z–A)") {
-    filteredProducts.sort((a, b) => (b.name || b.productTittle || "").localeCompare(a.name || a.productTittle || ""));
+    sortedProducts.sort((a, b) => (b.name || b.productTittle || "").localeCompare(a.name || a.productTittle || ""));
   }
 
-  // console.log(filteredProducts);
+  // console.log(sortedProducts);
 
   /////////////////////////////////
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
 
-  // 🔹 Then paginate filtered list
-  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentItems = filteredProducts.slice(startIndex, endIndex);
 
   //  Check if all visible rows are selected
   const allVisibleSelected =
-    currentItems.length > 0 &&
-    currentItems.every((item) => selectedItems.includes(item._id || item.id));
+    product.length > 0 &&
+    product.every((item) => selectedItems.includes(item._id || item.id));
 
   // navigate the section in product detlis page
   //////////////////////////
@@ -469,7 +473,7 @@ const Products = () => {
   const kpicardData = [
     {
       name: "Total Products",
-      data: product.length,
+      data: totalItems,
       icon: <Package />,
       iconbg: "bg-[#D5E5F5]",
       iconColor: "text-[#1C3753]",
@@ -483,7 +487,7 @@ const Products = () => {
     },
     {
       name: "Active Products",
-      data: product.filter((p) => p.isActive === true).length,
+      data: stats?.active || 0,
       icon: <PackageCheck />,
       iconbg: "bg-[#F0FDF4]",
       iconColor: "text-[#00A63E]",
@@ -498,7 +502,8 @@ const Products = () => {
     },
     {
       name: "Inactive",
-      data: product.filter((p) => p.isActive === false).length,
+      // data: product.filter((p) => p.isActive === false).length,
+      data: stats?.inactive || 0,
       icon: <Archive />,
       iconbg: "bg-[#FFFBEB]",
       iconColor: "text-[#F8A14A]",
@@ -514,7 +519,7 @@ const Products = () => {
     selectedCategory !== "Category" || 
     search !== "";
 
-     if (loading) {
+     if (loading && isFirstLoad) {
     return (
       <div className="p-[24px] bg-[#F6F8F9] rounded-md min-h-screen flex justify-center items-center">
         <div className="text-center">
@@ -784,7 +789,7 @@ const Products = () => {
               </thead>
 
               <tbody>
-                {currentItems.map((item) => (
+                {sortedProducts.map((item) => (
                   <tr
                     key={item._id}
                     className={`border-t hover:bg-gray-50 transition ${
@@ -976,9 +981,7 @@ const Products = () => {
 <div className="flex justify-between items-center gap-2 px-6 py-4 border-t">
     {/* Showing X of Y results */}
     <div className="text-sm text-gray-600">
-        Showing <span className="font-medium">{startIndex + 1}</span> to{" "}
-        <span className="font-medium">{Math.min(endIndex, filteredProducts.length)}</span> of{" "}
-        <span className="font-medium">{filteredProducts.length}</span> results
+       Showing {product.length} of {totalItems} results
     </div>
 
     {/* Pagination controls */}

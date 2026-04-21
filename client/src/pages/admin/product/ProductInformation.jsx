@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import products from "../../../data/products.json";
-import { ChevronLeft, Search, Eye, Pin } from "lucide-react";
+import { ChevronLeft, Search, Eye, Pin, Circle } from "lucide-react";
 import ReviewIcon from "../../../assets/review.svg";
 import Ratings from "../../../components/Ratings";
 import Reviews from "../../../components/Reviews";
@@ -11,17 +11,19 @@ function ProductInformation() {
   const { uuid } = useParams();
   const navigate = useNavigate();
 
-   const [product, setProduct] = useState(null);
+  const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-    // Fetch product from API
+  // Fetch product from API
   useEffect(() => {
     const fetchProduct = async () => {
       try {
         setLoading(true);
         // const response = await axiosInstance.get(`/product/${uuid}`);
-        const response = await axiosInstance.get(`/product/admin/get-product-details/${uuid}`);
+        const response = await axiosInstance.get(
+          `/product/admin/get-product-details/${uuid}`,
+        );
         // console.log("Product Details Response from admin:", response.data);
 
         let productData = null;
@@ -46,14 +48,12 @@ function ProductInformation() {
     }
   }, [uuid]);
 
-    // Get default variant
+  // Get default variant
   const defaultVariant = useMemo(() => {
     if (!product?.variants || product.variants.length === 0) return null;
-    return product.variants.find(v => v.isSelected) || product.variants[0];
+    return product.variants.find((v) => v.isSelected) || product.variants[0];
   }, [product]);
 
-  
-  
   // console.log(product)
 
   /////////////////////////
@@ -70,7 +70,6 @@ function ProductInformation() {
   //     : 0;
 
   /////////////////////////
-
 
   // console.log(product)
 
@@ -89,10 +88,13 @@ function ProductInformation() {
     return () => clearTimeout(timer);
   }, [searchData]);
 
-    // Calculate average rating
+  // Calculate average rating
   const avgRating = useMemo(() => {
     if (!product?.reviews || product.reviews.length === 0) return 0;
-    const total = product.reviews.reduce((sum, review) => sum + (review.rating || 0), 0);
+    const total = product.reviews.reduce(
+      (sum, review) => sum + (review.rating || 0),
+      0,
+    );
     return total / product.reviews.length;
   }, [product?.reviews]);
 
@@ -100,7 +102,7 @@ function ProductInformation() {
   const text = debouncedSearch?.toLowerCase() || "";
 
   // main
- const mainProductMatch = 
+  const mainProductMatch =
     (defaultVariant?.variantSkuId || "").toLowerCase().includes(text) ||
     (product?.productTittle || "").toLowerCase().includes(text) ||
     (defaultVariant?.variantColor || "").toLowerCase().includes(text);
@@ -109,7 +111,7 @@ function ProductInformation() {
 
   // varinats
 
-   const filterVariants = (product?.variants || []).filter((v) => {
+  const filterVariants = (product?.variants || []).filter((v) => {
     return (
       (v.variantSkuId || "").toLowerCase().includes(text) ||
       (v.variantName || "").toLowerCase().includes(text) ||
@@ -121,7 +123,7 @@ function ProductInformation() {
     navigate(`/admin/add-product/${product?._id || uuid}`);
   };
 
-    if (loading) {
+  if (loading) {
     return (
       <div className="p-[24px] bg-[#F6F8F9] rounded-md min-h-screen flex justify-center items-center">
         <div className="text-center">
@@ -132,11 +134,12 @@ function ProductInformation() {
     );
   }
 
-
-   const currentVariant = selectedType === "product" ? defaultVariant : selectedVariant;
-  const currentImages = selectedType === "product" 
-    ? currentVariant?.variantImage?.map(img => img.url) || []
-    : currentVariant?.variantImage?.map(img => img.url) || [];
+  const currentVariant =
+    selectedType === "product" ? defaultVariant : selectedVariant;
+  const currentImages =
+    selectedType === "product"
+      ? currentVariant?.variantImage?.map((img) => img.url) || []
+      : currentVariant?.variantImage?.map((img) => img.url) || [];
 
   return (
     <div className="p-[24px] bg-[#F6F8F9] rounded-md min-h-screen">
@@ -192,28 +195,30 @@ function ProductInformation() {
               >
                 <img
                   className="w-10 h-10 rounded-md object-cover"
-                 src={defaultVariant?.variantImage?.[0]?.url || "/placeholder.png"}
+                  src={
+                    defaultVariant?.variantImage?.[0]?.url || "/placeholder.png"
+                  }
                   alt={product.productTittle}
                 />
 
                 <div className="flex-1">
                   <div className="flex justify-between text-sm font-medium">
-                   <p>{defaultVariant?.variantSkuId || "N/A"}</p>
-                   <p>₹ {defaultVariant?.variantSellingPrice || 0}</p>
+                    <p>{defaultVariant?.variantSkuId || "N/A"}</p>
+                    <p>₹ {defaultVariant?.variantSellingPrice || 0}</p>
                   </div>
 
                   <div className="flex justify-between text-xs text-gray-600 mt-0.5">
                     <div className="flex gap-2">
-                       {defaultVariant?.variantColor && (
-                      <p className="border border-[#495F75] px-1 rounded-md">
-                       {defaultVariant.variantColor}
-                      </p>
-                       )}
+                      {defaultVariant?.variantColor && (
+                        <p className="border border-[#495F75] px-1 rounded-md">
+                          {defaultVariant.variantColor}
+                        </p>
+                      )}
                       <p className="border border-[#495F75] px-1 rounded-md">
                         20×20
                       </p>
                     </div>
-                     <p>{defaultVariant?.variantAvailableStock || 0} in stock</p>
+                    <p>{defaultVariant?.variantAvailableStock || 0} in stock</p>
                   </div>
                 </div>
               </div>
@@ -228,7 +233,8 @@ function ProductInformation() {
                   setSelectedVariant(item);
                 }}
                 className={`flex items-center gap-4 bg-[#F5F8FA] border rounded-xl p-3 hover:border-gray-400 cursor-pointer transition${
-                  selectedType === "variant" && selectedVariant?._id === item._id
+                  selectedType === "variant" &&
+                  selectedVariant?._id === item._id
                     ? "bg-blue-50 border-blue-400"
                     : "bg-[#F5F8FA]"
                 }`}
@@ -247,7 +253,7 @@ function ProductInformation() {
 
                   <div className="flex justify-between text-xs text-gray-600 mt-0.5">
                     <div className="flex gap-2">
-                       {item.variantColor && (
+                      {item.variantColor && (
                         <p className="border border-[#495F75] px-1 rounded-md">
                           {item.variantColor}
                         </p>
@@ -257,7 +263,7 @@ function ProductInformation() {
                         20×20
                       </p>
                     </div>
-                     <p>{item.variantAvailableStock || 0} in stock</p>
+                    <p>{item.variantAvailableStock || 0} in stock</p>
                   </div>
                 </div>
               </div>
@@ -268,13 +274,28 @@ function ProductInformation() {
         {/* Basic Information */}
         <div className="flex flex-col gap-6">
           <div className="bg-white rounded-2xl p-4">
-            <h3 className="text-lg font-semibold mb-2">Basic Details</h3>
+            <div className="flex gap-4 items-center">
+              <h3 className="text-lg font-semibold mb-2">Basic Details</h3>
 
+              <div>
+                {product?.isActive ? (
+                  <div className="flex items-center justify-center gap-2 bg-[#E0F4DE] py-1 px-3 rounded-lg text-sm text-[#00A63E]">
+                    <Circle fill="#00A63E" color="#00A63E" size={"12px"} />
+                    Active
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center gap-2 bg-[#FFFBEB] py-1 px-3 rounded-lg text-sm text-[#F8A14A]">
+                    <Circle fill="#F8A14A" color="#F8A14A" size={"12px"} />
+                    Inactive
+                  </div>
+                )}
+              </div>
+            </div>
             <div>
               <p className="">Product Name</p>
               <span className="text-[#686868] text-sm">
-                {selectedType === "product" 
-                  ? product.productTittle 
+                {selectedType === "product"
+                  ? product.productTittle
                   : selectedVariant?.variantName || "-"}
               </span>
             </div>
@@ -293,14 +314,16 @@ function ProductInformation() {
             <div>
               <p className="text-[14px] text-[#686868] text-sm mb-2">Images</p>
               <div className="flex flex-wrap gap-3 items-start">
-               {currentImages.length > 0 ? (
+                {currentImages.length > 0 ? (
                   currentImages.map((img, i) => (
                     <img
                       key={i}
                       src={img}
                       alt={`preview-${i}`}
                       className="w-[80px] h-[80px] object-cover rounded-lg border border-neutral-200"
-                      onError={(e) => { e.target.src = "/placeholder.png"; }}
+                      onError={(e) => {
+                        e.target.src = "/placeholder.png";
+                      }}
                     />
                   ))
                 ) : (
@@ -312,7 +335,7 @@ function ProductInformation() {
                   <div>
                     <p className="text-sm text-[#686868] font-medium">SKU-ID</p>
                     <span className="text-base text-[#2C2C2C] font-medium">
-                     {currentVariant?.variantSkuId || "N/A"}
+                      {currentVariant?.variantSkuId || "N/A"}
                     </span>
                   </div>
                   {/* <div className="text-start">
@@ -334,7 +357,7 @@ function ProductInformation() {
                       Product Color
                     </p>
                     <span className="text-base text-[#2C2C2C] font-medium">
-                     {currentVariant?.variantColor || "N/A"}
+                      {currentVariant?.variantColor || "N/A"}
                     </span>
                   </div>
                 </div>
@@ -381,7 +404,7 @@ function ProductInformation() {
                   </div> */}
                 </div>
                 <div className="flex flex-col flex-wrap items-start text-start justify-start space-y-[10px]">
-                <div>
+                  <div>
                     <p className="text-sm text-[#686868] font-medium">
                       Category
                     </p>
@@ -426,7 +449,7 @@ function ProductInformation() {
                 <div>
                   <p className="text-sm text-[#797979] font-medium">MRP</p>
                   <span className="text-base text-[#2C2C2C] font-medium">
-                   ₹{currentVariant?.variantMrp || 0}
+                    ₹{currentVariant?.variantMrp || 0}
                   </span>
                 </div>
                 {/* <div>
@@ -438,19 +461,24 @@ function ProductInformation() {
                 <div className="text-start">
                   <p className="text-sm text-[#797979] font-medium">Discount</p>
                   <span className="text-base text-[#2C2C2C] font-medium">
-                    <span>  {currentVariant?.variantDiscount || 0}%</span>
+                    <span> {currentVariant?.variantDiscount || 0}%</span>
                   </span>
                 </div>
-
-                <div></div>
               </div>
-              <div className="flex flex-col flex-wrap   justify-start space-y-[10px]">
+              <div className="flex flex-col flex-wrap justify-start space-y-[10px]">
                 <div>
                   <p className="text-sm text-[#797979] font-medium">
                     Selling Price
                   </p>
                   <span className="text-base text-[#2C2C2C] font-medium">
-                     ₹{currentVariant?.variantSellingPrice || 0}
+                    ₹{currentVariant?.variantSellingPrice || 0}
+                  </span>
+                </div>
+
+                <div>
+                  <p className="text-sm text-[#797979] font-medium">GST</p>
+                  <span className="text-base text-[#2C2C2C] font-medium">
+                    {currentVariant?.variantGST || 0}%
                   </span>
                 </div>
               </div>
@@ -460,13 +488,7 @@ function ProductInformation() {
                     Cost Price
                   </p>
                   <span className="text-base text-[#2C2C2C] font-medium">
-                     ₹{currentVariant?.variantCostPrice || 0}
-                  </span>
-                </div>
-                <div>
-                  <p className="text-sm text-[#797979] font-medium">GST</p>
-                  <span className="text-base text-[#2C2C2C] font-medium">
-                    {currentVariant?.variantGST || 0}%
+                    ₹{currentVariant?.variantCostPrice || 0}
                   </span>
                 </div>
               </div>
@@ -476,79 +498,88 @@ function ProductInformation() {
       </div>
 
       {/* Customer Reviews */}
-<div className="mt-6 bg-white rounded-xl p-4">
-  <h2 className="text-lg font-medium mb-2">Rating & Reviews</h2>
+      <div className="mt-6 bg-white rounded-xl p-4">
+        <h2 className="text-lg font-medium mb-2">Rating & Reviews</h2>
 
-  <Reviews reviews={product?.reviews} avgRating={avgRating} />
-  
-  {product?.reviews && product.reviews.length > 0 ? (
-    <div className="max-h-[450px] overflow-y-auto pr-2">
-      {product.reviews.map((review, index) => (
-        <div
-          key={index}
-          className="py-4 flex gap-3 flex-col border border-[#CBCACA] px-4 rounded-xl mb-4"
-        >
-          <div className="flex justify-between">
-            <div className="flex gap-4">
-              {review.userImage ? (
-                <img
-                  className="w-11 h-11 rounded-full"
-                  src={review.userImage}
-                  alt={`${review.user}'s avatar`}
-                />
-              ) : (
-                <div className="w-11 h-11 rounded-full bg-gray-400 flex items-center justify-center text-white font-bold">
-                  <h1 className="text-white">
-                    {review.user?.charAt(0).toUpperCase() || "U"}
-                  </h1>
+        <Reviews reviews={product?.reviews} avgRating={avgRating} />
+
+        {product?.reviews && product.reviews.length > 0 ? (
+          <div className="max-h-[450px] overflow-y-auto pr-2">
+            {product.reviews.map((review, index) => (
+              <div
+                key={index}
+                className="py-4 flex gap-3 flex-col border border-[#CBCACA] px-4 rounded-xl mb-4"
+              >
+                <div className="flex justify-between">
+                  <div className="flex gap-4">
+                    {review.userImage ? (
+                      <img
+                        className="w-11 h-11 rounded-full"
+                        src={review.userImage}
+                        alt={`${review.user}'s avatar`}
+                      />
+                    ) : (
+                      <div className="w-11 h-11 rounded-full bg-gray-400 flex items-center justify-center text-white font-bold">
+                        <h1 className="text-white">
+                          {review.user?.charAt(0).toUpperCase() || "U"}
+                        </h1>
+                      </div>
+                    )}
+                    <div className="flex flex-col">
+                      <h1 className="text-[14px]">
+                        {review.user || "Anonymous"}
+                      </h1>
+                      <div className="flex items-center gap-1">
+                        <Ratings
+                          reviews={product.reviews}
+                          avgRating={review.rating}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-center gap-2">
+                    <button className="bg-gray-200 p-1 rounded-lg">
+                      <Eye size={20} color="#1C1C1C" />
+                    </button>
+                    <button className="bg-gray-200 p-1 rounded-lg">
+                      <Pin size={20} color="#1C1C1C" />
+                    </button>
+                  </div>
                 </div>
-              )}
-              <div className="flex flex-col">
-                <h1 className="text-[14px]">{review.user || "Anonymous"}</h1>
-                <div className="flex items-center gap-1">
-                  <Ratings reviews={product.reviews} avgRating={review.rating} />
+                <p className="text-sm">{review.comment || "No comment"}</p>
+                {review.images && review.images.length > 0 && (
+                  <div className="flex gap-3">
+                    {review.images.map((img, imgIndex) => (
+                      <img
+                        className="w-[60px] h-[60px] rounded-md"
+                        src={img}
+                        alt="product"
+                        key={imgIndex}
+                      />
+                    ))}
+                  </div>
+                )}
+                <div className="flex items-end justify-end gap-2 text-[#6C6B6B] text-[14px]">
+                  <span className="text-[#6C6B6B] text-[12px]">
+                    {review.createdAt
+                      ? `Reviewed ${new Date(review.createdAt).toISOString().split("T")[0]}`
+                      : ""}
+                  </span>
                 </div>
               </div>
-            </div>
-            <div className="flex items-center justify-center gap-2">
-              <button className="bg-gray-200 p-1 rounded-lg">
-                <Eye size={20} color="#1C1C1C" />
-              </button>
-              <button className="bg-gray-200 p-1 rounded-lg">
-                <Pin size={20} color="#1C1C1C" />
-              </button>
-            </div>
+            ))}
           </div>
-          <p className="text-sm">{review.comment || "No comment"}</p>
-          {review.images && review.images.length > 0 && (
-            <div className="flex gap-3">
-              {review.images.map((img, imgIndex) => (
-                <img
-                  className="w-[60px] h-[60px] rounded-md"
-                  src={img}
-                  alt="product"
-                  key={imgIndex}
-                />
-              ))}
+        ) : (
+          <div className="flex flex-col items-center justify-center text-center">
+            <div className="w-20 h-20 bg-[#FFF4EB] rounded-full flex items-center justify-center mb-4">
+              <img src={ReviewIcon} alt="" />
             </div>
-          )}
-          <div className="flex items-end justify-end gap-2 text-[#6C6B6B] text-[14px]">
-            <span className="text-[#6C6B6B] text-[12px]">
-              {review.createdAt ? `Reviewed ${new Date(review.createdAt).toISOString().split("T")[0]}` : ""}
-            </span>
+            <h3 className="text-lg font-medium text-gray-700 mb-1">
+              No Reviews Yet
+            </h3>
           </div>
-        </div>
-      ))}
-    </div>
-  ) : (
-    <div className="flex flex-col items-center justify-center text-center">
-      <div className="w-20 h-20 bg-[#FFF4EB] rounded-full flex items-center justify-center mb-4">
-        <img src={ReviewIcon} alt="" />
+        )}
       </div>
-      <h3 className="text-lg font-medium text-gray-700 mb-1">No Reviews Yet</h3>
-    </div>
-  )}
-</div>
     </div>
   );
 }
