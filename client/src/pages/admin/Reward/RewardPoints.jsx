@@ -115,14 +115,14 @@ function RewardPoints() {
                             </div>
 
                             {/* BADGE */}
-                            {/* <span
+                            <span
                                 className={`px-2 py-1 text-[12px] sm:text-[13px] rounded-full whitespace-nowrap ${item.badge === "Active"
                                     ? "text-[#01774B] bg-[#D4F7C7]"
                                     : "text-[#A80205] bg-[#F7C7C9]"
                                     }`}
                             >
                                 {item.badge}
-                            </span> */}
+                            </span>
                         </div>
 
                         {/* BOTTOM */}

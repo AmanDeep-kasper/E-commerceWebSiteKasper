@@ -593,7 +593,7 @@ function Collection() {
                             </button>
 
                             {activeFilter === "sort" && (
-                                <div className="absolute mt-2 bg-white border rounded shadow w-40 z-20">
+                                <div className="absolute right-0 top-full mt-2 bg-white border rounded shadow w-full z-50">
                                     {["Latest", "A-Z", "Z-A"].map((s) => (
                                         <div
                                             key={s}
@@ -631,7 +631,7 @@ function Collection() {
                             </button> */}
 
                             {activeFilter === "status" && (
-                                <div className="absolute mt-2 bg-white border rounded shadow w-40 z-20">
+                                <div className="absolute right-0 top-full mt-2 bg-white border rounded shadow w-full z-50">
                                     {["", "Active", "Inactive"].map((s) => (
                                         <div
                                             key={s}

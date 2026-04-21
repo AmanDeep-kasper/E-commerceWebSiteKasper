@@ -489,7 +489,7 @@ const Transporter = () => {
 
                 {/* Price Dropdown Menu */}
                 {open && (
-                  <ul className="absolute z-10 mt-1 w-48 border rounded-lg bg-white shadow-md max-h-60 overflow-y-auto text-[15px]">
+                  <ul className="absolute z-10 mt-1 w-full border rounded-lg bg-white shadow-md max-h-60 overflow-y-auto text-[15px]">
                     {priceOptions.map((p, i) => (
                       <li
                         key={i}
@@ -669,7 +669,7 @@ const Transporter = () => {
               <p className="font-medium text-[14px] mb-2">Basic Information</p>
 
               <form className="space-y-4">
-                <div>
+                {/* <div>
                   <label className="text-sm text-gray-600">Status</label>
                   <select
                     name="status"
@@ -686,7 +686,7 @@ const Transporter = () => {
                     <option value="Active">Active</option>
                     <option value="Inactive">Inactive</option>
                   </select>
-                </div>
+                </div> */}
                 <div>
                   <label className="text-sm text-gray-600">
                     Transporter Name
