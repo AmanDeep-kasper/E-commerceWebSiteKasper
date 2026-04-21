@@ -176,9 +176,9 @@ export const errorHandler = (err, req, res, next) => {
  * Should be placed after all route definitions
  */
 export const notFoundHandler = (req, res, next) => {
-  const error = AppError.notAllowed(
-    `Route ${req.method} ${req.path} not found or not allowed`,
-    "ROUTE_NOT_FOUND OR NOT ALLOWED",
+  const error = AppError.notFound(
+    `Route ${req.method} ${req.path} not found`,
+    "ROUTE_NOT_FOUND",
   );
   next(error);
 };
