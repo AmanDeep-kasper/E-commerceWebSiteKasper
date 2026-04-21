@@ -13,7 +13,7 @@ const EmptyState = ({
      text-white rounded-lg md:px-8 md:py-3 px-4 py-2 text-sm md:text-base font-medium transition-all shadow-md hover:shadow-lg";
 
   return (
-    <div className="h-[70vh] flex flex-col justify-center items-center text-center px-4 bg-white">
+    <div className="flex flex-col justify-center items-center text-center px-4 bg-white mb-5 py-10">
       {/* Icon Circle */}
       {Icon && (
         <div className="mx-auto md:w-28 md:h-28 w-16 h-16 bg-[#CFC7FF] rounded-full flex items-center justify-center mb-6 shadow-inner">

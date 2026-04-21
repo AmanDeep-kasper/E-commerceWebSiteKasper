@@ -174,7 +174,7 @@ function Product() {
   };
 
   const filterArts = items.filter((p) => {
-    if (!param.trim()) return true;
+    if (typeof param !== "string" || !param.trim()) return true;
 
     const search = param.toLowerCase();
 
@@ -201,12 +201,11 @@ function Product() {
     : "";
 
   console.log("breadcrumbssds34rer", displayCategory);
-  console.log("displaysubcategorysder44", displaySubcategory)
+  console.log("displaysubcategorysder44", displaySubcategory);
 
   return (
     <>
       <Navbar />
-
 
       <Breadcrumbs
         category={displayCategory}
@@ -217,9 +216,7 @@ function Product() {
             DEBUG: Breadcrumbs should be here. Category: {displayCategory}
         </div> */}
 
-      <div
-        className=" flex flex-col lg:px-20 md:px-[60px] px-4 pb-[23px] lg:flex gap-4 bg-gray-50"
-      >
+      <div className=" flex flex-col lg:px-20 md:px-[60px] px-4 pb-[23px] lg:flex gap-4 bg-gray-50">
         <div className="mt-5">
           <span className="text-xl font-semibold capitalize font-marcellus text-[#1800AC]">
             {state?.category || displayCategory || "All Products"}
@@ -233,7 +230,6 @@ function Product() {
             setColor={setColor}
             sort={sort}
           />
-
 
           <div className="flex-1 lg:gap-6 items-start">
             {loading ? (
