@@ -12,7 +12,7 @@ import { connectDB } from "./config/db.js";
 import setupUnhandledErrorHandlers from "./utils/unhandledErrorHandler.js";
 
 // cron jobs
-// import "./cron/scheduler.js";
+import "./cron/scheduler.js";
 
 // ================== ROUTES ==================
 import authRouter from "./routes/authRoutes.js";

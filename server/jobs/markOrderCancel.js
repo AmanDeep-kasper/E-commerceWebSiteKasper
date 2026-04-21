@@ -6,7 +6,7 @@ export const autoCancelOrdersJob = async () => {
 
     const result = await Order.updateMany(
       {
-        status: "placed",
+        status: { $in: ["placed", "pending"] },
         paymentStatus: { $in: ["pending", "failed"] },
         createdAt: { $lt: cutoff },
       },
