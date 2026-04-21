@@ -1,6 +1,6 @@
 import cron from "node-cron";
-import { runRewardExpiryJob } from "../jobs/rewardExpiry.job.js";
-import { autoCancelOrdersJob } from "./jobs/orderCancel.job.js";
+import { autoCancelOrdersJob } from "../jobs/markOrderCancel.js";
+import { runRewardExpiryJob } from "../jobs/rewardExpiry.js";
 
 // Run daily at 2 AM
 cron.schedule("0 2 * * *", async () => {

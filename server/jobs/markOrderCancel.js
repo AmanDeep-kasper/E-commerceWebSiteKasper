@@ -2,7 +2,7 @@ import Order from "../models/Order.js";
 
 export const autoCancelOrdersJob = async () => {
   try {
-    const cutoff = new Date(Date.now() - 30 * 60 * 1000); // 30 min
+    const cutoff = new Date(Date.now() - 10 * 60 * 1000); // 10 min
 
     const result = await Order.updateMany(
       {
