@@ -178,7 +178,7 @@ import { useEffect, useMemo, useState } from "react";
 import axiosInstance from "../../api/axiosInstance";
 import { FaBagShopping } from "react-icons/fa6";
 import {useDispatch, useSelector} from "react-redux";
-import { addToCart, decreaseQty, increaseQty } from "../../redux/cart/cartSlice";
+import { addToCart, decreaseQty, increaseQty, setCartFromAPI  } from "../../redux/cart/cartSlice";
 import { LuMinus, LuPlus } from "react-icons/lu";
 import { toast } from "react-toastify";
 import { Heart } from "lucide-react";
@@ -230,60 +230,206 @@ function TopProducts() {
         fetchCollections();
     }, []);
 
-     // Calculate average rating for each product
-    // const productsWithRating = useMemo(() => {
-    //     return (products || []).map((item) => {
-    //         const avgRating = item.reviews && item.reviews.length > 0
-    //             ? item.reviews.reduce((sum, r) => sum + (r.rating || 0), 0) / item.reviews.length
-    //             : 0;
-    //         return { ...item, avgRating };
-    //     });
-    // }, [products]);
-
-    // // Responsive grid count
-    // useEffect(() => {
-    //     const updateCount = () => {
-    //         if (window.innerWidth >= 1280) {
-    //             setVisibleCount(5);
-    //         } else if (window.innerWidth >= 640) {
-    //             setVisibleCount(6);
-    //         } else {
-    //             setVisibleCount(4);
-    //         }
-    //     };
-        
-    //     updateCount();
-    //     window.addEventListener("resize", updateCount);
-    //     return () => window.removeEventListener("resize", updateCount);
-    // }, []);
-
-    // Add to cart handler
-    const handleAddToCart = (product) => {
-        const defaultVariant = product.variants?.[0];
-        if (!defaultVariant) {
-            toast.error("No variant available");
-            return;
-        }
-        
-        dispatch(addToCart({
-            uuid: product._id,
-    variantId: defaultVariant._id,
-    title: product.productTittle,
-    basePrice: defaultVariant.variantMrp || 0,
-    effectivePrice: defaultVariant.variantSellingPrice || 0,
-    discountPercent: defaultVariant.variantDiscount || 0,
-    stockQuantity: defaultVariant.variantAvailableStock || 0,
-    image: defaultVariant.variantImage?.[0]?.url || "/placeholder.png",
-    deliverBy: "7-10 business days",
-    selectedOptions: {
-      color: defaultVariant.variantColor || "Default",
-      dimension: "Standard",
-    },
-  }));
-  
-  toast.success("Added to cart!");
+    // Add this after your useSelector declarations
+const syncCartFromBackend = async () => {
+  try {
+    const res = await axiosInstance.get("/cart");
+    if (res.data?.data) {
+      dispatch(setCartFromAPI(res.data.data));
+    }
+  } catch (err) {
+    console.error("Cart sync failed:", err);
+  }
 };
 
+// Add this useEffect
+useEffect(() => {
+  if (isAuthenticated) {
+    syncCartFromBackend();
+  }
+}, [isAuthenticated]);
+
+    // Add to cart handler
+// Add to cart handler
+const handleAddToCart = async (product) => {
+  const defaultVariant = product.variants?.[0];
+  if (!defaultVariant) {
+    toast.error("No variant available");
+    return;
+  }
+  
+  const variantId = defaultVariant._id;
+  const productId = product._id;
+
+  // Guest user
+  if (!isAuthenticated) {
+    dispatch(addToCart({
+      uuid: productId,
+      variantId: variantId,
+      title: product.productTittle,
+      basePrice: defaultVariant.variantMrp || 0,
+      effectivePrice: defaultVariant.variantSellingPrice || 0,
+      discountPercent: defaultVariant.variantDiscount || 0,
+      stockQuantity: defaultVariant.variantAvailableStock || 0,
+      image: defaultVariant.variantImage?.[0]?.url || "/placeholder.png",
+      deliverBy: "7-10 business days",
+      selectedOptions: {
+        color: defaultVariant.variantColor || "Default",
+        dimension: "Standard",
+      },
+    }));
+    toast.success("Added to cart!");
+    return;
+  }
+
+  // Authenticated user - make API call
+  try {
+    const response = await axiosInstance.post("/cart/add-to-cart", {
+      productId: productId,
+      variantId: variantId,
+      quantity: 1,
+    });
+    
+    // Update Redux with API response
+    dispatch(setCartFromAPI(response.data.data));
+    toast.success("Added to cart!");
+  } catch (err) {
+    console.error("Error adding to cart:", err);
+    toast.error(err.response?.data?.message || "Failed to add to cart");
+  }
+};
+
+const handleWishlistToggle = async (e, product) => {
+  e.preventDefault();
+  e.stopPropagation();
+  
+  const defaultVariant = product.variants?.[0];
+  const variantId = defaultVariant?._id;
+  const productId = product._id; // Use product._id as productId
+  
+  const isInWishlist = wishlistItems.some(
+    (i) => String(i.uuid || i.product || i.productId) === String(productId) &&
+           String(i.variantId) === String(variantId)
+  );
+
+  if (!isAuthenticated) {
+    if (isInWishlist) {
+      dispatch(removeFromWishlist({ uuid: productId, variantId }));
+      toast.success("Removed from wishlist");
+    } else {
+      dispatch(
+        addToWishlist({
+          uuid: productId,
+          product: productId,
+          productId: productId,
+          variantId,
+          title: product.productTittle,
+          image: defaultVariant?.variantImage?.[0]?.url || "/placeholder.png",
+          basePrice: Number(defaultVariant?.variantMrp || 0),
+          discountPercent: Number(defaultVariant?.variantDiscount || 0),
+          stockQuantity: Number(defaultVariant?.variantAvailableStock || 0),
+          variantName: defaultVariant?.variantName,
+          variantColor: defaultVariant?.variantColor,
+          variantAttributes: {
+            weight: `${defaultVariant?.variantWeight || ""}${defaultVariant?.variantWeightUnit || ""}`,
+            mrp: Number(defaultVariant?.variantMrp || 0),
+            sellingPrice: Number(defaultVariant?.variantSellingPrice || 0),
+            discount: Number(defaultVariant?.variantDiscount || 0),
+          },
+        })
+      );
+      toast.success("Added to wishlist");
+    }
+    return;
+  }
+
+  try {
+    if (isInWishlist) {
+      await toast.promise(
+        axiosInstance.delete("/wishlist/remove-item", {
+          data: { productId: productId, variantId }, // Use productId here
+        }),
+        {
+          pending: "Removing from wishlist...",
+          success: "Removed from wishlist",
+          error: "Failed to remove from wishlist",
+        }
+      );
+      dispatch(removeFromWishlist({ uuid: productId, variantId }));
+    } else {
+      await toast.promise(
+        axiosInstance.post("/wishlist/add-to-wishlist", {
+          productId: productId, // Send productId, not product._id
+          variantId,
+        }),
+        {
+          pending: "Adding to wishlist...",
+          success: "Added to wishlist",
+          error: "Failed to add to wishlist",
+        }
+      );
+      dispatch(
+        addToWishlist({
+          uuid: productId,
+          product: productId,
+          productId: productId,
+          variantId,
+          title: product.productTittle,
+          image: defaultVariant?.variantImage?.[0]?.url || "/placeholder.png",
+          basePrice: Number(defaultVariant?.variantMrp || 0),
+          discountPercent: Number(defaultVariant?.variantDiscount || 0),
+          stockQuantity: Number(defaultVariant?.variantAvailableStock || 0),
+          variantName: defaultVariant?.variantName,
+          variantColor: defaultVariant?.variantColor,
+          variantAttributes: {
+            weight: `${defaultVariant?.variantWeight || ""}${defaultVariant?.variantWeightUnit || ""}`,
+            mrp: Number(defaultVariant?.variantMrp || 0),
+            sellingPrice: Number(defaultVariant?.variantSellingPrice || 0),
+            discount: Number(defaultVariant?.variantDiscount || 0),
+          },
+        })
+      );
+    }
+  } catch (err) {
+    console.error(err);
+  }
+};
+const handleUpdateQty = async (productId, action) => {
+  if (!isAuthenticated) {
+    if (action === 'inc') {
+      dispatch(increaseQty({ uuid: productId }));
+    } else {
+      dispatch(decreaseQty({ uuid: productId }));
+    }
+    return;
+  }
+
+  // Find the cart item
+  const cartItem = cartItems.find(
+    (i) => String(i.productId || i.uuid) === String(productId)
+  );
+  
+  if (!cartItem?._id) return;
+
+  try {
+    const res = await axiosInstance.patch("/cart/update-item", {
+      itemId: cartItem._id,
+      action: action === 'inc' ? 'inc' : 'dec',
+    });
+    
+     if (res.data?.data) {
+      dispatch(setCartFromAPI(res.data.data));
+    }
+  } catch (err) {
+    console.error("Error updating quantity:", err);
+    toast.error("Failed to update quantity");
+     // Refresh cart from API on error to ensure consistency
+     const refreshRes = await axiosInstance.get("/cart");
+    if (refreshRes.data?.data) {
+      dispatch(setCartFromAPI(refreshRes.data.data));
+    }
+  }
+};
 // Product Card Component
 const ProductCard = ({ product }) => {
   const defaultVariant = product.variants?.[0];
@@ -316,17 +462,17 @@ const ProductCard = ({ product }) => {
     }
   };
 
-  const handleIncreaseQty = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    increaseQty(product._id);
-  };
+const handleIncreaseQty = (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+  handleUpdateQty(product._id, 'inc');
+};
 
-  const handleDecreaseQty = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    decreaseQty(product._id);
-  };
+const handleDecreaseQty = (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+  handleUpdateQty(product._id, 'dec');
+};
 
   return (
     <Link
@@ -335,6 +481,24 @@ const ProductCard = ({ product }) => {
       to={`/product/${product.slug || product._id}`}
     >
       <div className="relative w-full overflow-hidden rounded-md">
+        <button
+  type="button"
+  className="absolute top-2 right-2 bg-white shadow-md rounded-full p-1.5 z-10 hover:scale-110 transition-transform"
+  onClick={(e) => handleWishlistToggle(e, product)}
+>
+  <Heart
+    className="w-4 h-4"
+    fill={wishlistItems.some(
+      (i) => String(i.uuid || i.product || i.productId) === String(product._id) &&
+             String(i.variantId) === String(defaultVariant?._id)
+    ) ? "red" : "white"}
+    stroke={wishlistItems.some(
+      (i) => String(i.uuid || i.product || i.productId) === String(product._id) &&
+             String(i.variantId) === String(defaultVariant?._id)
+    ) ? "red" : "black"}
+    strokeWidth={1.5}
+  />
+</button>
         <img
           className="w-full aspect-square object-contain transition-transform duration-300 group-hover:scale-110"
           src={productImage}
@@ -437,7 +601,7 @@ const ProductCard = ({ product }) => {
             {collection.products?.length >= MAX_PRODUCTS && (
               <Link
                 className="text-[#2C87E2] hover:text-blue-950 text-sm underline cursor-pointer"
-                to={`/collection/${collection._id}/products`}
+                to={`/admin/collection/${collection._id}/products`}
               >
                 View All ({collection.products.length})
               </Link>
