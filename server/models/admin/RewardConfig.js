@@ -7,7 +7,7 @@ const rewardSchema = new mongoose.Schema(
       required: true,
     },
 
-    // ✅ EARN CONFIG (SLAB BASED)
+    // EARN CONFIG (SLAB BASED)
     earn: {
       minOrderValue: {
         type: Number,
@@ -25,19 +25,19 @@ const rewardSchema = new mongoose.Schema(
       },
     },
 
-    // ✅ REDEEM CONFIG
+    // REDEEM CONFIG
     minOrderValueForRedeem: {
       type: Number,
       default: 0,
     },
 
-    // ✅ VALIDITY
+    // VALIDITY
     validity: {
       type: Number,
       default: 30,
     },
 
-    // ✅ CONTROL
+    // CONTROL
     isActive: {
       type: Boolean,
       default: true,
