@@ -427,8 +427,33 @@ export const verifyPayment = asyncHandler(async (req, res) => {
 
     await order.save({ session });
 
+    // STOCK UPDATE (CRITICAL)
+    for (const item of order.items) {
+      const result = await Product.updateOne(
+        {
+          _id: item.product,
+          "variants._id": item.variantId,
+          "variants.variantAvailableStock": { $gte: item.quantity },
+        },
+        {
+          $inc: {
+            "variants.$.variantAvailableStock": -item.quantity,
+            "variants.$.totalSold": item.quantity,
+          },
+        },
+        { session },
+      );
+
+      if (result.modifiedCount === 0) {
+        throw AppError.badRequest(
+          `Insufficient stock for product ${item.product}`,
+          "OUT_OF_STOCK",
+        );
+      }
+    }
+
     // USER UPDATE (ATOMIC)
-    const used = order.reward?.usedPoints || 0;
+    let used = order.reward?.usedPoints || 0;
     const earned = order.reward?.earnedPoints || 0;
 
     if (used > 0) {
@@ -440,7 +465,7 @@ export const verifyPayment = asyncHandler(async (req, res) => {
         remainingPoints: { $gt: 0 },
         expiresAt: { $gt: new Date() },
       })
-        .sort({ createdAt: 1 }) // FIFO
+        .sort({ createdAt: 1 })
         .session(session);
 
       for (const entry of ledgerEntries) {
