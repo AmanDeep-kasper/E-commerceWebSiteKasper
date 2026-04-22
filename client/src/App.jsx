@@ -26,9 +26,9 @@ function App() {
     initializeUser();
   }, [dispatch]);
 
-  useEffect(() => {
-    dispatch(syncCart());
-  }, [dispatch]);
+  // useEffect(() => {
+  //   dispatch(syncCart());
+  // }, [dispatch]);
 
   useEffect(() => {
     if (!isAuthenticated) return;
