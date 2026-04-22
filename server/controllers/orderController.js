@@ -133,6 +133,7 @@ const calculateOrderSummary = ({
   };
 };
 
+// user controllers
 export const checkoutSummary = asyncHandler(async (req, res) => {
   const userId = req.user?.userId;
   const { shippingAddress, appliedPoints = 0 } = req.body;
@@ -621,6 +622,139 @@ export const paymentFailed = asyncHandler(async (req, res) => {
     message: "Payment failed, you can retry",
     data: {
       orderId: order._id,
+    },
+  });
+});
+
+export const getOrders = asyncHandler(async (req, res) => {
+  const userId = req.user?.userId;
+  const { page = 1, limit = 10, search, range, year, sortBy } = req.query;
+
+  const skip = (Number(page) - 1) * Number(limit);
+
+  const query = { user: userId };
+
+  // search by product name and orderId
+  if (search) {
+    query.$or = [
+      { productTitle: { $regex: search, $options: "i" } },
+      { orderNumber: { $regex: search, $options: "i" } },
+    ];
+  }
+
+  // filter by date like last 30 days, 6 month, and 1 year
+  if (range) {
+    const today = new Date();
+    let fromDate;
+
+    if (range === "30d") {
+      fromDate = new Date(today.setDate(today.getDate() - 30));
+    }
+    if (range === "6m") {
+      fromDate = new Date(today.setMonth(today.getMonth() - 6));
+    }
+    if (range === "1y") {
+      fromDate = new Date(today.setFullYear(today.getFullYear() - 1));
+    }
+    if (fromDate) {
+      query.placedAt = { $gte: fromDate };
+    }
+  }
+
+  // filter by years like - 2025, 2026 etc...
+  if (year) {
+    const fromDate = new Date(`${year}-01-01`);
+    const toDate = new Date(`${year}-12-31`);
+
+    query.placedAt = {
+      ...(query.placedAt || {}),
+      $gte: fromDate,
+      $lte: toDate,
+    };
+  }
+
+  let sortOptions = { createdAt: -1 };
+  if (sortBy === "oldest") sortOptions = { createdAt: 1 };
+  if (sortBy === "latest") sortOptions = { createdAt: -1 };
+  if (sortBy === "price-high") sortOptions = { grandTotal: -1 };
+  if (sortBy === "price-low") sortOptions = { grandTotal: 1 };
+
+  const orders = await Order.find(query)
+    .skip(skip)
+    .limit(Number(limit))
+    .sort(sortOptions)
+    .lean();
+
+  const total = await Order.countDocuments(query);
+
+  res.status(200).json({
+    success: true,
+    message: "Orders fetched successfully",
+    orders,
+    pagination: {
+      total,
+      page: Number(page),
+      limit: Number(limit),
+      pages: Math.ceil(total / Number(limit)),
+    },
+  });
+});
+
+// admin controllers
+export const getOrdersAdmin = asyncHandler(async (req, res) => {
+  const { page = 1, limit = 10, search, range, sortBy } = req.query;
+
+  const skip = (Number(page) - 1) * Number(limit);
+
+  const query = {};
+
+  // search by product name and orderId
+  if (search) {
+    query.$or = [
+      { productTitle: { $regex: search, $options: "i" } },
+      { orderNumber: { $regex: search, $options: "i" } },
+    ];
+  }
+
+  // filter by date like last 30 days, 6 month, and custom date
+  if (range) {
+    const today = new Date();
+    let fromDate;
+
+    if (range === "30d") {
+      fromDate = new Date(today.setDate(today.getDate() - 30));
+    }
+    if (range === "6m") {
+      fromDate = new Date(today.setMonth(today.getMonth() - 6));
+    }
+    if (fromDate) {
+      query.placedAt = { $gte: fromDate };
+    }
+  }
+
+  let sortOptions = { createdAt: -1 };
+  if (sortBy === "oldest") sortOptions = { createdAt: 1 };
+  if (sortBy === "latest") sortOptions = { createdAt: -1 };
+  if (sortBy === "price-high") sortOptions = { grandTotal: -1 };
+  if (sortBy === "price-low") sortOptions = { grandTotal: 1 };
+
+  const orders = await Order.find(query)
+    .skip(skip)
+    .limit(Number(limit))
+    .sort(sortOptions)
+    .lean();
+
+  const total = await Order.countDocuments(query);
+
+  res.status(200).json({
+    success: true,
+    message: "Orders fetched successfully",
+    orders,
+    pagination: {
+      total,
+      page: Number(page),
+      limit: Number(limit),
+      pages: Math.ceil(total / Number(limit)),
     },
   });
 });

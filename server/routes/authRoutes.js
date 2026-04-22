@@ -22,11 +22,11 @@ import {
 import { validateRequest } from "../validation/validator.js";
 import { upload } from "../middlewares/multer.js";
 import { authenticate, authorize } from "../middlewares/authMiddleware.js";
-import {
-  loginLimiter,
-  sensitiveLimiter,
-  generalLimiter,
-} from "../middlewares/rateLimit.js";
+// import {
+//   loginLimiter,
+//   sensitiveLimiter,
+//   generalLimiter,
+// } from "../middlewares/rateLimit.js";
 
 const router = express.Router();
 
@@ -38,10 +38,10 @@ router.post(
   registerUser,
 );
 
-router.post("/resend-otp", sensitiveLimiter, resendOTP);
+router.post("/resend-otp", /*sensitiveLimiter,*/ resendOTP);
 router.post(
   "/verify",
-  sensitiveLimiter,
+  // sensitiveLimiter,
   otpValidation,
   validateRequest,
   verifyOTP,
@@ -53,12 +53,12 @@ router.post(
   validateRequest,
   loginUser,
 );
-router.post("/logout", generalLimiter, authenticate, logoutUser);
-router.get("/me", generalLimiter, authenticate, me);
+router.post("/logout", /*generalLimiter,*/ authenticate, logoutUser);
+router.get("/me", /*generalLimiter,*/ authenticate, me);
 
 router.patch(
   "/change-password",
-  generalLimiter,
+  // generalLimiter,
   authenticate,
   authorize("user"),
   changePasswordValidation,
@@ -75,12 +75,12 @@ router.post(
 );
 router.post(
   "/reset-password/:token",
-  sensitiveLimiter,
+  // sensitiveLimiter,
   resetPasswordValidation,
   validateRequest,
   resetPassword,
 );
 
-router.post("/refresh-token", generalLimiter, refreshAccessToken);
+router.post("/refresh-token", /*generalLimiter,*/ refreshAccessToken);
 
 export default router;
