@@ -14,6 +14,7 @@ function RewardPoints() {
   const [rewardCard, setRewardCard] = useState([]);
   const [showConfirm, setShowConfirm] = useState(false);
   const [selectedCard, setSelectedCard] = useState(null);
+  const [isEditMode, setIsEditMode] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     price: "",
@@ -50,15 +51,15 @@ function RewardPoints() {
       const items = Array.isArray(data) ? data : [data];
 
       const formatted = items.map((item) => ({
-         _id: item._id,
-         title: item.name || "Reward Offer",
-         description: `Get ${item.earn?.rules?.points || 0} points for every ₹${item.earn?.rules?.PriceForPoints || 0} purchase.`,
-         badge: item.isActive ? "Active" : "Inactive",
-         deadline: item.validity || 30,
-         earn: item.earn,
-         minOrderValueForRedeem: item.minOrderValueForRedeem,
-         pointValue: item.pointValue,
-       }));
+        _id: item._id,
+        title: item.name || "Reward Offer",
+        description: `Get ${item.earn?.rules?.points || 0} points for every ₹${item.earn?.rules?.PriceForPoints || 0} purchase.`,
+        badge: item.isActive ? "Active" : "Inactive",
+        deadline: item.validity || 30,
+        earn: item.earn,
+        minOrderValueForRedeem: item.minOrderValueForRedeem,
+        pointValue: item.pointValue,
+      }));
 
       setRewardCard(formatted);
     } catch (error) {
@@ -143,7 +144,7 @@ function RewardPoints() {
                     : "text-[#A80205] bg-[#F7C7C9]"
                 }`}
               >
-                {item.badge === "Active" ? "Activate" : "Inactivate"}
+                {item.badge === "Active" ? "Active" : "Inactive"}
               </button>
             </div>
 
@@ -198,7 +199,6 @@ function RewardPoints() {
                 Redeem Setup
               </span>
             </div>
-
 
             {activeTab === "reward" && (
               <div>
@@ -339,7 +339,7 @@ function RewardPoints() {
                       className="w-full border border-[#DEDEDE] bg-white rounded-md px-2 py-2 sm:px-3 sm:py-2 md:px-4 md:py-2.5 outline-none placeholder:text-[#686868] text-[#1C1C1C]"
                     />
                   </div>
-                  
+
                   <span className="text-[#686868] text-[12px] font-normal">
                     Enter conversion for redemption.
                   </span>
@@ -420,6 +420,7 @@ function RewardPoints() {
                       await axiosInstance.post(
                         "/dashboard/reward/createOrUpdate",
                         {
+                          _id: isEditMode ? selectedCard?._id : undefined,
                           name: formData.name,
 
                           earn: {
@@ -487,7 +488,7 @@ function RewardPoints() {
           }}
         >
           <div
-            className="bg-white rounded-xl shadow-lg relative p-4 sm:p-6 overflow-y-auto"
+            className="bg-gradient-to-br from-[#FFFFFF] to-[#B2FF00]/30 rounded-xl shadow-lg relative p-4 sm:p-6 overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex flex-col gap-1">
@@ -503,19 +504,37 @@ function RewardPoints() {
                   >
                     {selectedCard?.badge}
                   </span>
-                  <span>
+                  <span
+                    onClick={() => {
+                      setIsEditMode(true);
+
+                      setFormData({
+                        name: selectedCard?.title || "",
+                        Points: selectedCard?.earn?.rules?.PriceForPoints || "",
+                        minOrderValue: selectedCard?.earn?.minOrderValue || "",
+                        PriceForPoints: selectedCard?.pointValue || "",
+                        minOrderValueForRedeem:
+                          selectedCard?.minOrderValueForRedeem || "",
+                        date: "", // optional (you don’t store exact date, only validity)
+                      });
+
+                      setShowReward(true);
+                      setShowCard(false);
+                    }}
+                    className="text-[#727681] cursor-pointer"
+                  >
                     <MdEdit />
                   </span>
                 </div>
               </div>
               <div className="mt-2"></div>
-              <div className="mt-2">
+              {/* <div className="mt-2">
                 <button onClick={toggleStatus}>
                   <MdEdit />
                 </button>
-              </div>
+              </div> */}
             </div>
-            <div className="mt-5">
+            <div className="mt-3">
               <span className="text-[14px] text-[#0E101A] font-medium">
                 How it works:
               </span>
@@ -527,11 +546,13 @@ function RewardPoints() {
             </div>
             <div className="flex flex-col gap-1">
               <span className="text-[#0E101A] text-[14px] font-normal">
-                ⚡ Customer earn {selectedCard?.earn?.rules?.points || 1} points for every ₹ {selectedCard?.earn?.rules?.PriceForPoints || 500} spent.
+                ⚡ Customer earn {selectedCard?.earn?.rules?.points || 1} points
+                for every ₹ {selectedCard?.earn?.rules?.PriceForPoints || 500}
+                spent.
               </span>
               <span className="text-[#0E101A] text-[14px] font-normal">
-                💰 Points are applicable only on purchases above ₹{selectedCard?.earn?.minOrderValue || 0} minimum
-                value
+                💰 Points are applicable only on purchases above ₹
+                {selectedCard?.earn?.minOrderValue || 0} minimum value
               </span>
               <span className="text-[#0E101A] text-[14px] font-normal">
                 ⏳ Reward offer validity: {selectedCard?.deadline || 30} days
@@ -544,10 +565,12 @@ function RewardPoints() {
             </div>
             <div className="flex flex-col gap-1">
               <span className="text-[#0E101A] text-[14px] font-normal">
-                🎁 1 point value: ₹{selectedCard?.pointValue || 0} during redemption
+                🎁 1 point value: ₹{selectedCard?.pointValue || selectedCard?.earn?.rules?.PriceForPoints || 0} during
+                redemption
               </span>
               <span className="text-[#0E101A] text-[14px] font-normal">
-                💰 Customers can redeem if order value is above ₹{selectedCard?.minOrderValueForRedeem || 0}
+                💰 Customers can redeem if order value is above ₹
+                {selectedCard?.minOrderValueForRedeem || 0}
               </span>
             </div>
             <div className="mt-4">
