@@ -829,7 +829,7 @@ function ProductDetails() {
 
               <button
                 type="button"
-                className="px-6 py-2 bg-[#0C0057] text-white border border-[#1C3753] rounded-md"
+                className="px-6 py-2 bg-[#1800AC] text-white border border-[#1C3753] rounded-md"
                 onClick={() => handleBuyNow(product, selectedVariant)}
                 disabled={outOfStock || cartUpdating}
               >

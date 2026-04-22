@@ -6,7 +6,7 @@ function AboutUs() {
   return (
     <>
       <Navbar></Navbar>
-      <section className="px-4 sm:px-8 md:px-16 lg:px-32 xl:px-[240px] py-10 sm:py-12 md:py-16 lg:py-20 mt-10">
+      <section className="px-4 sm:px-6 md:px-10 lg:px-20 xl:px-32 py-10 sm:py-12 md:py-16 lg:py-20 mt-16">
         <div className="flex flex-col items-center gap-4">
           <h1 className="text-2xl sm:text-3xl md:text-4xl text-start font-semibold">
             About Us
