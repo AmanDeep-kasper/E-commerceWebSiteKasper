@@ -314,9 +314,36 @@ function ProductDetails() {
   const avgRating = Number(product?.stats?.averageRating || 0);
   // console.log(avgRating)
 
-  const handleBuyNow = (product) => {
-    dispatch(buyNow(product));
-    navigate("/checkout/payment");
+  const handleBuyNow = async (product, selectedVariant) => {
+    try {
+      if (!selectedVariant?._id && !selectedVariant?.variantId) {
+        toast.error("Please select a variant");
+        return;
+      }
+
+      const payload = {
+        productId: product._id,
+        variantId: selectedVariant._id || selectedVariant.variantId,
+        qty: 1,
+      };
+
+      await axiosInstance.post("/cart/add-to-cart", payload);
+
+      dispatch(
+        buyNow({
+          ...product,
+          selectedVariant,
+          qty: 1,
+        }),
+      );
+
+      navigate("/checkout/payment");
+    } catch (error) {
+      console.error("Buy now error:", error);
+      toast.error(
+        error?.response?.data?.message || "Failed to process Buy Now",
+      );
+    }
   };
 
   const handleWishlistToggle = async (e) => {
@@ -795,7 +822,7 @@ function ProductDetails() {
                   {cartUpdating
                     ? "Adding..."
                     : inCart
-                      ? "Added"
+                      ? "Go to Cart"
                       : "Add to Cart"}
                 </button>
               )}

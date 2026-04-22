@@ -292,7 +292,9 @@ const Products = () => {
                 ? "active"
                 : selectedStatus === "Inactive"
                   ? "inactive"
-                  : undefined,
+                  : selectedStatus === "Draft"
+                    ? "draft"
+                    : undefined,
             category:
               selectedCategory !== "Category" ? selectedCategory : undefined,
           },
@@ -401,21 +403,7 @@ const Products = () => {
     });
     return [...uniqueCategories];
   }, [product]);
-  // Apply category filter
-  // const categories = [
-  //   "Spiritual & Religious Art",
-  //   "Nature & Wildlife",
-  //   "Geometric & Abstract",
-  //   "Wall Arts",
-  //   "Typography & Symbols",
-  //   "Clones",
-  //   "Festival & Occasion",
-  //   "Reflection Art",
-  // ];
 
-  //
-
-  ///////////////////////////////////
   // Sorting options
   const priceOptions = [
     "Price: Low → High",
@@ -825,32 +813,14 @@ const Products = () => {
                     className={`border-t hover:bg-gray-50 transition ${
                       selectedItems.includes(item._id) ? "bg-red-50" : ""
                     }`}
-                    // onClick={(e) => {
-                    //   if (
-                    //     e.target.tagName !== "INPUT" &&
-                    //     e.target.tagName !== "BUTTON" &&
-                    //     e.target.tagName !== "svg" &&
-                    //     e.target.tagName !== "path"
-                    //   ) {
-                    //     // navigate(`/admin/product-info/:uuid${item.sku}`);
-                    //     // navigate(`/admin/product-info/${item.uuid}`);
-                    //   }
-                    // }}
                     onClick={() =>
-                      navigate(`/admin/product-info/${item.slug || item._id}`)
+                      item.isDraft
+                        ? navigate(`/admin/add-product/${item._id}`)
+                        : navigate(
+                            `/admin/product-info/${item.slug || item._id}`,
+                          )
                     }
                   >
-                    {/* <td className="px-4 py-3"> */}
-                    {/* <input
-                        type="checkbox"
-                        checked={selectedItems.includes(item.id || item.uuid)}
-                        onChange={() =>
-                          handleCheckboxChange(item.id || item.uuid)
-                        }
-                        className="w-4 h-4"
-                      /> */}
-                    {/* </td> */}
-
                     <td className="px-0 py-4">
                       <div className="flex items-center justify-start gap-2">
                         <div className="h-[50px] w-[50px] ml-2 bg-[#EFEFEF] p-1 rounded-md overflow-hidden">
@@ -877,20 +847,6 @@ const Products = () => {
                                 item.productTittle ||
                                 "Untitled Product"}
                           </span>
-                          {/* <div>
-                            <p className="text-[14px] text-[#5D5D5D]">
-                              {item.variants
-                                .slice(0, 2) // show only first 2
-                                .map((v) => v.variantValue)
-                                .join(", ")}
-                              {item.variants.length > 2 && (
-                                <span className="text-[#5D5D5D]">
-                                  {" "}
-                                  +{item.variants.length - 2} more
-                                </span>
-                              )}
-                            </p>
-                          </div> */}
                         </div>
                       </div>
                     </td>
@@ -1003,21 +959,17 @@ const Products = () => {
                             e.stopPropagation();
 
                             if (item.isDraft) {
-                              navigate(`/admin/add-product/${item._id}`); // 👉 edit draft
+                              navigate(`/admin/add-product/${item._id}`);
                             } else {
                               navigate(
                                 `/admin/product-info/${item.slug || item._id}`,
-                              ); // 👉 view product
+                              );
                             }
                           }}
                           className="relative p-2 rounded group text-[#2C87E2] hover:underline"
                         >
                           {item.isDraft ? "Edit" : "View"}
                         </button>
-
-                        {/* <button className="p-2 rounded">
-                          <CopyCheck className="w-5 h-5 text-[#1C1C1C]" />
-                        </button> */}
                       </div>
                     </td>
                   </tr>
@@ -1025,7 +977,6 @@ const Products = () => {
               </tbody>
             </table>
 
-            {/* Pagination */}
             {/* Pagination */}
             <div className="flex justify-between items-center gap-2 px-6 py-4 border-t">
               {/* Showing X of Y results */}

@@ -212,9 +212,6 @@ function Product() {
         subcategory={displaySubcategory}
       />
 
-      {/* <div style={{ background: 'red', padding: '10px', margin: '10px', color: 'white' }}>
-            DEBUG: Breadcrumbs should be here. Category: {displayCategory}
-        </div> */}
 
       <div className=" flex flex-col lg:px-20 md:px-[60px] px-4 pb-[23px] lg:flex gap-4 bg-gray-50">
         <div className="mt-5">

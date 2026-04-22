@@ -17,7 +17,7 @@ export const fetchAddresses = createAsyncThunk(
     try {
       const res = await addressService.getUserAddresses();
       // localStorage.setItem("addresses", JSON.stringify(res));
-      return res;
+      return res.data?.data?.addresses || [];
     } catch (error) {
       return thunkAPI.rejectWithValue(
         error.response?.data?.message || "Failed to fetch addresses",
@@ -32,7 +32,7 @@ export const createAddress = createAsyncThunk(
     try {
       const res = await addressService.addAddress(data);
       const all = await addressService.getUserAddresses();
-      return all;
+      return all.data?.data?.addresses || [];
     } catch (error) {
       return thunkAPI.rejectWithValue(
         error.response?.data?.message || "Failed to add address",
@@ -47,7 +47,7 @@ export const setDefaultAddress = createAsyncThunk(
     try {
       await addressService.setDefaultAddress(id);
       const all = await addressService.getUserAddresses();
-      return all;
+      return all.data?.data?.addresses || [];
     } catch (error) {
       return thunkAPI.rejectWithValue(
         error.response?.data?.message || "Failed to set default address",
@@ -63,7 +63,7 @@ export const editAddress = createAsyncThunk(
       await addressService.updateAddress(id, data);
       const all = await addressService.getUserAddresses();
       // localStorage.setItem("addresses", JSON.stringify(all));
-      return all;
+      return all.data?.data?.addresses || [];
     } catch (error) {
       return thunkAPI.rejectWithValue(
         error.response?.data?.message || "Failed to update address",
@@ -80,7 +80,7 @@ export const removeAddress = createAsyncThunk(
 
       const all = await addressService.getUserAddresses();
       // localStorage.setItem("addresses", JSON.stringify(all));
-      return all;
+      return all.data?.data?.addresses || [];
     } catch (error) {
       return thunkAPI.rejectWithValue(
         error.response?.data?.message || "Failed to delete address",
