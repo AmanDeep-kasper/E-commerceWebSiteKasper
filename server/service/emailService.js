@@ -212,8 +212,10 @@ export const sendEmailChangeOTP = async (email, otp, name = "User") => {
 // SUPPORT EMAIL (Professional & Minimal)
 export const sendSupportEmail = async (email, name, message, requestId) => {
   const mailOptions = {
-    from: `"${name}" <${email}>`,
+    // from: `"${name}" <${email}>`,
+    from: `"${env.SMTP_FROM_NAME}" <${env.SMTP_FROM_EMAIL}>`, // 
     to: env.SMTP_FROM_EMAIL,
+     replyTo: email, // Add reply-to with user's email so admin can reply directly
     subject: `Support Request (#${requestId}) - HappyArtSupplies`,
 
     html: `
