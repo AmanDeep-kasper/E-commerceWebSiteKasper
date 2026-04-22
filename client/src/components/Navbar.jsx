@@ -124,7 +124,7 @@ function Navbar() {
   //   fetchCartAndSync();
   // }, [dispatch]);
 
-  console.log(totalItems);
+  // console.log(totalItems);
 
   // disable background scroll when mobile nav is open
   useEffect(() => {
