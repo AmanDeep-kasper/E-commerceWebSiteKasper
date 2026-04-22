@@ -171,7 +171,7 @@
 
 //////////////////////////
 import Title from "../Title";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useNavigate  } from "react-router-dom";
 import Rating from "@mui/material/Rating";
 import Stack from "@mui/material/Stack";
 import { useEffect, useMemo, useState } from "react";
@@ -183,6 +183,7 @@ import { LuMinus, LuPlus } from "react-icons/lu";
 import { toast } from "react-toastify";
 import { Heart } from "lucide-react";
 import { addToWishlist, removeFromWishlist } from "../../redux/cart/wishlistSlice";
+import { ShoppingCart } from "lucide-react";
 
 function TopProducts() {
   const dispatch = useDispatch();
@@ -431,7 +432,9 @@ const handleUpdateQty = async (productId, action) => {
   }
 };
 // Product Card Component
+// Product Card Component
 const ProductCard = ({ product }) => {
+  const navigate = useNavigate();
   const defaultVariant = product.variants?.[0];
   const variantId = defaultVariant?._id;
   
@@ -440,12 +443,6 @@ const ProductCard = ({ product }) => {
     (i) => String(i.productId || i.uuid) === String(product._id) &&
             String(i.variantId) === String(variantId)
   );
-  
-  // Get quantity from cart
-  const qtyInCart = cartItems.find(
-    (i) => String(i.productId || i.uuid) === String(product._id) &&
-           String(i.variantId) === String(variantId)
-  )?.quantity || 0;
 
   const productImage = defaultVariant?.variantImage?.[0]?.url || product.image || "/placeholder.png";
   const mrp = defaultVariant?.variantMrp || 0;
@@ -454,131 +451,121 @@ const ProductCard = ({ product }) => {
     ? Math.round(((mrp - sellingPrice) / mrp) * 100) 
     : 0;
 
-  const handleAddToCartClick = (e) => {
+  const handleAddToCartClick = async (e) => {
     e.preventDefault();
     e.stopPropagation();
     if (!inCart) {
-      handleAddToCart(product);
+      await handleAddToCart(product);
     }
   };
 
-const handleIncreaseQty = (e) => {
-  e.preventDefault();
-  e.stopPropagation();
-  handleUpdateQty(product._id, 'inc');
-};
-
-const handleDecreaseQty = (e) => {
-  e.preventDefault();
-  e.stopPropagation();
-  handleUpdateQty(product._id, 'dec');
-};
+  const handleGoToCart = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    navigate("/bag");
+  };
 
   return (
-    <Link
-      key={product._id}
-      className="bg-white p-2 group rounded-lg block transition-shadow duration-300 hover:shadow-lg"
-      to={`/product/${product.slug || product._id}`}
-    >
-      <div className="relative w-full overflow-hidden rounded-md">
-        <button
-  type="button"
-  className="absolute top-2 right-2 bg-white shadow-md rounded-full p-1.5 z-10 hover:scale-110 transition-transform"
-  onClick={(e) => handleWishlistToggle(e, product)}
->
-  <Heart
-    className="w-4 h-4"
-    fill={wishlistItems.some(
-      (i) => String(i.uuid || i.product || i.productId) === String(product._id) &&
-             String(i.variantId) === String(defaultVariant?._id)
-    ) ? "red" : "white"}
-    stroke={wishlistItems.some(
-      (i) => String(i.uuid || i.product || i.productId) === String(product._id) &&
-             String(i.variantId) === String(defaultVariant?._id)
-    ) ? "red" : "black"}
-    strokeWidth={1.5}
-  />
-</button>
-        <img
-          className="w-full aspect-square object-contain transition-transform duration-300 group-hover:scale-110"
-          src={productImage}
-          alt={product.productTittle}
-          loading="lazy"
-          onError={(e) => { e.target.src = "/placeholder.png"; }}
-        />
-      </div>
+    <div className="bg-white p-2 group rounded-lg block transition-shadow duration-300 hover:shadow-lg">
+      <Link
+        to={`/product/${product.slug || product._id}`}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="relative w-full overflow-hidden rounded-md">
+          <button
+            type="button"
+            className="absolute top-2 right-2 bg-white shadow-md rounded-full p-1.5 z-10 hover:scale-110 transition-transform"
+            onClick={(e) => handleWishlistToggle(e, product)}
+          >
+            <Heart
+              className="w-4 h-4"
+              fill={wishlistItems.some(
+                (i) => String(i.uuid || i.product || i.productId) === String(product._id) &&
+                       String(i.variantId) === String(defaultVariant?._id)
+              ) ? "red" : "white"}
+              stroke={wishlistItems.some(
+                (i) => String(i.uuid || i.product || i.productId) === String(product._id) &&
+                       String(i.variantId) === String(defaultVariant?._id)
+              ) ? "red" : "black"}
+              strokeWidth={1.5}
+            />
+          </button>
+          <img
+            className="w-full aspect-square object-contain transition-transform duration-300 group-hover:scale-110"
+            src={productImage}
+            alt={product.productTittle}
+            loading="lazy"
+            onError={(e) => { e.target.src = "/placeholder.png"; }}
+          />
+        </div>
 
-      <div className="mt-3">
-        <h3 className="text-sm font-serif text-gray-800 font-normal line-clamp-1 mb-2">
-          {product.productTittle}
-        </h3>
+        <div className="mt-3">
+          <h3 className="text-sm font-serif text-gray-800 font-normal line-clamp-1 mb-2">
+            {product.productTittle}
+          </h3>
 
-        <div className="flex items-center flex-wrap gap-2">
-          <span className="text-gray-900 font-medium">
-            ₹{sellingPrice || mrp || "--"}
-          </span>
-          {mrp > 0 && sellingPrice > 0 && mrp !== sellingPrice && (
-            <span className="text-gray-400 text-xs line-through font-light">
-              ₹{mrp}
+          <div className="flex items-center flex-wrap gap-2">
+            <span className="text-gray-900 font-medium">
+              ₹{sellingPrice || mrp || "--"}
             </span>
-          )}
-          {discountPercent > 0 && (
-            <>
-              <div className="border-l border-[#DBDBDB] h-3"></div>
-              <span className="text-[#168408] text-xs">
-                {discountPercent}% Off
+            {mrp > 0 && sellingPrice > 0 && mrp !== sellingPrice && (
+              <span className="text-gray-400 text-xs line-through font-light">
+                ₹{mrp}
               </span>
-            </>
-          )}
+            )}
+            {discountPercent > 0 && (
+              <>
+                <div className="border-l border-[#DBDBDB] h-3"></div>
+                <span className="text-[#168408] text-xs">
+                  {discountPercent}% Off
+                </span>
+              </>
+            )}
+          </div>
         </div>
+      </Link>
 
-        <div
-          className={`w-full rounded-md flex justify-center items-center gap-4 p-2 mt-2 transition-all duration-300 cursor-pointer ${
-            inCart && qtyInCart > 0
-              ? "bg-white border border-[#252525]"
-              : "bg-[#252525] border border-[#252525]"
-          }`}
-          onClick={!inCart ? handleAddToCartClick : undefined}
-        >
-          {inCart && qtyInCart > 0 ? (
-            <div className="w-full flex items-center justify-between text-black">
-              <span className="cursor-pointer" onClick={handleDecreaseQty}>
-                <LuMinus />
-              </span>
-              <span>{qtyInCart}</span>
-              <span className="cursor-pointer" onClick={handleIncreaseQty}>
-                <LuPlus />
-              </span>
-            </div>
-          ) : (
-            <>
-              <span className="text-white text-[12px]">Add To Cart</span>
-              <span className="text-white"><FaBagShopping /></span>
-            </>
-          )}
-        </div>
-      </div>
-    </Link>
+      {/* Button placed OUTSIDE the Link to prevent navigation */}
+      <button
+        className={`w-full rounded-md flex justify-center items-center gap-4 p-2 mt-2 transition-all duration-300 cursor-pointer ${
+          inCart
+            ? "bg-white border border-[#252525] text-black"
+            : "bg-[#252525] border border-[#252525] text-white"
+        }`}
+        onClick={inCart ? handleGoToCart : handleAddToCartClick}
+      >
+        {inCart ? (
+          <>
+            <ShoppingCart className="w-4 h-4" />
+            <span className="text-[12px]">Go to Cart</span>
+          </>
+        ) : (
+          <>
+            <FaBagShopping className="w-3 h-3" />
+            <span className="text-[12px]">Add To Cart</span>
+          </>
+        )}
+      </button>
+    </div>
   );
 };
-
-    // Loading state
-    if (loading) {
-        return (
-            <div className="lg:px-20 md:px-[60px] px-4 py-[23px] bg-white shadow-sm rounded-lg">
-                <div className="flex justify-center items-center h-64">
-                    <div className="text-center">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1C3753] mx-auto"></div>
-                        <p className="mt-4 text-gray-600">Loading products...</p>
-                    </div>
-                </div>
-            </div>
-        );
-    }
+    // // Loading state
+    // if (loading) {
+    //     return (
+    //         <div className="lg:px-20 md:px-[60px] px-4 py-[23px] bg-white shadow-sm rounded-lg">
+    //             <div className="flex justify-center items-center h-64">
+    //                 <div className="text-center">
+    //                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1C3753] mx-auto"></div>
+    //                     <p className="mt-4 text-gray-600">Loading products...</p>
+    //                 </div>
+    //             </div>
+    //         </div>
+    //     );
+    // }
  return (
     <div className="lg:px-20 md:px-[60px] px-4 py-[23px] bg-white shadow-sm rounded-lg">
       {/* Main Header */}
-      <div className="flex items-center mb-6">
+      <div className="flex items-center mb-6" style={{color:"rgb(24, 0, 172)", fontFamily: "'Marcellus SC', cursive"}}>
         <Title className="md:items-start px-2">
           Featured Collection
         </Title>
@@ -595,7 +582,7 @@ const handleDecreaseQty = (e) => {
         <div key={collection._id} className="mb-12 last:mb-0">
           {/* Collection Name Header */}
           <div className="flex items-center justify-between mb-4 px-2">
-            <h2 className="text-lg font-semibold text-gray-800">
+            <h2 className="text-lg" style={{color:"rgb(24, 0, 172)", fontFamily: "'Marcellus SC', cursive"}}>
               {collection.collectionName}
             </h2>
             {collection.products?.length >= MAX_PRODUCTS && (
