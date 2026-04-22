@@ -37,7 +37,7 @@ import rewardRouter from "./routes/admin/rewardRoutes.js";
 
 // ================== MIDDLEWARES ==================
 import { errorHandler, notFoundHandler } from "./middlewares/errorHandler.js";
-import { globalLimiter, speedLimiter } from "./middlewares/rateLimit.js";
+// import { globalLimiter, speedLimiter } from "./middlewares/rateLimit.js";
 
 // ================== INIT ==================
 dns.setServers(["1.1.1.1", "1.0.0.1", "8.8.8.8", "8.8.4.4"]);
@@ -86,7 +86,7 @@ if (env.NODE_ENV === "production") {
   app.set("trust proxy", 1);
 }
 // app.use(globalLimiter);
-app.use(speedLimiter);
+// app.use(speedLimiter);
 
 // ================== BODY PARSING ==================
 app.use(express.json({ limit: "16kb" }));
