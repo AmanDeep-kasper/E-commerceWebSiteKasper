@@ -143,7 +143,7 @@ function RewardPoints() {
                     : "text-[#A80205] bg-[#F7C7C9]"
                 }`}
               >
-                {item.badge === "Active" ? "Deactivate" : "Activate"}
+                {item.badge === "Active" ? "Activate" : "Inactivate"}
               </button>
             </div>
 
