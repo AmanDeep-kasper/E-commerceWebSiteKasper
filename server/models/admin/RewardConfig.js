@@ -31,6 +31,11 @@ const rewardSchema = new mongoose.Schema(
       default: 0,
     },
 
+    pointValue: {
+      type: Number,
+      default: 0,
+    },
+
     // VALIDITY
     validity: {
       type: Number,

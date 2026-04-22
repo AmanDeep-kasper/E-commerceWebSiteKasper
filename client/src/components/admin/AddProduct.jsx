@@ -504,6 +504,7 @@ const AddProduct = () => {
       category: formData.category,
       subcategory: formData.subcategory,
       isActive: status === "active",
+      action: "add", // Ensure action is sent as expected by the backend
       action: "add",
       variants: formData.variants.map((v) => ({
         variantColor: v.variantColor,
