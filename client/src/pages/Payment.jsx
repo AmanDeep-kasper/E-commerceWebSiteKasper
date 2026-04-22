@@ -254,7 +254,7 @@ function Payment() {
   return (
     <>
       <Navbar />
-      <section className="lg:px-20 md:px-[60px] px-0 lg:py-4 bg-gray-50">
+      <section className="lg:px-20 md:px-[60px] px-0 lg:py-4 bg-gray-50 mt-24">
         <div className="flex flex-col lg:flex-row justify-between md:gap-6">
           <div className="p-4 md:p-6 md:shadow-sm bg-white md:rounded-md w-full lg:w-2/3">
             <div className="text-lg sm:text-xl flex gap-2 items-center font-light text-gray-800 mb-2">
@@ -303,12 +303,12 @@ function Payment() {
                   icon: Razorpay,
                   type: "image",
                 },
-                {
-                  key: "cod",
-                  label: "Pay on Delivery",
-                  icon: Banknote,
-                  type: "component",
-                },
+                // {
+                //   key: "cod",
+                //   label: "Pay on Delivery",
+                //   icon: Banknote,
+                //   type: "component",
+                // },
               ].map((option) => {
                 const Icon = option.icon;
 
