@@ -390,7 +390,7 @@ function Collection() {
         </div> */}
         {/* <========-------- Category --------=========> */}
 
-        <div className="flex justify-center items-center mt-6 px-36">
+        <div className="flex justify-center items-center mt-6 px-4 sm:px-8 md:px-16 lg:px-24">
           <Swiper
             modules={[Navigation]}
             spaceBetween={0}

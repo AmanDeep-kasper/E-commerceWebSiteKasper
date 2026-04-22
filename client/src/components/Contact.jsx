@@ -180,13 +180,16 @@ function ContactSection() {
             </div>
 
             <div className="w-full bg-[#F6F8F9] rounded-lg p-5 border border-gray-200 shadow-sm space-y-3">
-              <div className="flex items-center gap-4 p-3 bg-white rounded-lg">
-                <div className="p-2 bg-[#F0EEFF] rounded-lg">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 p-3 bg-white rounded-lg">
+                <div className="p-2 bg-[#F0EEFF] rounded-lg flex-shrink-0">
                   <Mail className="w-5 h-5 text-[#1800AC]" />
                 </div>
-                <div>
+
+                <div className="flex flex-col">
                   <p className="text-sm font-medium text-gray-700">Email</p>
-                  <p className="text-sm text-gray-500">happyartsupplies@gmail.com</p>
+                  <p className="text-sm text-gray-500 break-all">
+                    happyartsupplies@gmail.com
+                  </p>
                 </div>
               </div>
 
@@ -206,7 +209,10 @@ function ContactSection() {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-700">Address</p>
-                  <p className="text-sm text-gray-500">B402, Unites Crossandra, Hormavu Agara Lake Road Horamavu, Bengaluru 560043, Karnataka, India</p>
+                  <p className="text-sm text-gray-500">
+                    B402, Unites Crossandra, Hormavu Agara Lake Road Horamavu,
+                    Bengaluru 560043, Karnataka, India
+                  </p>
                 </div>
               </div>
 
@@ -222,7 +228,7 @@ function ContactSection() {
                 </div>
               </div> */}
             </div>
-{/* 
+            {/* 
             <div className="text-xs text-[#686868] mt-4 text-center">
               We typically respond within 24 hours
             </div> */}
