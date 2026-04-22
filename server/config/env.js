@@ -50,7 +50,7 @@ export default {
   RAZORPAY_API_KEY: process.env.RAZORPAY_API_KEY,
   RAZORPAY_API_SECRET: process.env.RAZORPAY_API_SECRET,
 
-  REDIS_URL: process.env.REDIS_URL,
+  // REDIS_URL: process.env.REDIS_URL,
 
   ADMIN_EMAIL: process.env.ADMIN_EMAIL,
   ADMIN_PASSWORD: process.env.ADMIN_PASSWORD,
