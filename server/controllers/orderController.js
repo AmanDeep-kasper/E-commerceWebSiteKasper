@@ -745,6 +745,10 @@ export const getOrdersAdmin = asyncHandler(async (req, res) => {
     .lean();
 
   const total = await Order.countDocuments(query);
+  const newOrders = order.countDocuments({ status: "placed" });
+  const processingOrders = order.countDocuments({ status: "processing" });
+  const shippedOrders = order.countDocuments({ status: "shipped" });
+  const deliveredOrders = order.countDocuments({ status: "delivered" });
 
   res.status(200).json({
     success: true,
@@ -756,5 +760,130 @@ export const getOrdersAdmin = asyncHandler(async (req, res) => {
       limit: Number(limit),
       pages: Math.ceil(total / Number(limit)),
     },
+    stats: {
+      newOrders,
+      processingOrders,
+      shippedOrders,
+      deliveredOrders,
+    },
+  });
+});
+
+export const acceptOrder = asyncHandler(async (req, res) => {
+  const { orderId } = req.params;
+
+  const order = await Order.findById(orderId);
+  if (!order) {
+    throw AppError.notFound("Order not found", "NOT_FOUND");
+  }
+  if (order.status !== "placed") {
+    throw AppError.badRequest("Order already accepted", "ALREADY_ACCEPTED");
+  }
+
+  order.status = "processing";
+  await order.save();
+
+  res.status(200).json({
+    success: true,
+    message: "Order accepted successfully",
+  });
+});
+
+export const readyToShip = asyncHandler(async (req, res) => {
+  const { orderId } = req.params;
+  const { carrier, trackingNumber, trackingUrl } = req.body;
+
+  const order = await Order.findById(orderId);
+  if (!order) {
+    throw AppError.notFound("Order not found", "NOT_FOUND");
+  }
+
+  if (order.status !== "processing") {
+    throw AppError.badRequest("Order not accepted yet", "NOT_ACCEPTED");
+  }
+
+  if (["ready_to_ship", "shipped", "delivered"].includes(order.status)) {
+    throw AppError.badRequest("Order already shipped", "ALREADY_SHIPPED");
+  }
+
+  order.status = "ready_to_ship";
+  order.tracking = {
+    carrier,
+    trackingNumber,
+    trackingUrl,
+  };
+  await order.save();
+
+  res.status(200).json({
+    success: true,
+    message: "Order ready to ship successfully",
+  });
+});
+
+export const shipOrder = asyncHandler(async (req, res) => {
+  const { orderId } = req.params;
+
+  const order = await Order.findById(orderId);
+  if (!order) {
+    throw AppError.notFound("Order not found", "NOT_FOUND");
+  }
+
+  if (order.status !== "ready_to_ship") {
+    throw AppError.badRequest("Order not ready to ship yet", "NOT_READY");
+  }
+
+  if (["shipped", "delivered"].includes(order.status)) {
+    throw AppError.badRequest("Order already shipped", "ALREADY_SHIPPED");
+  }
+
+  order.status = "shipped";
+  await order.save();
+
+  res.status(200).json({
+    success: true,
+    message: "Order shipped successfully",
+  });
+});
+
+export const deliverOrder = asyncHandler(async (req, res) => {
+  const { orderId } = req.params;
+
+  const order = await Order.findById(orderId);
+  if (!order) {
+    throw AppError.notFound("Order not found", "NOT_FOUND");
+  }
+
+  if (order.status !== "shipped") {
+    throw AppError.badRequest("Order not shipped yet", "NOT_SHIPPED");
+  }
+
+  if (["delivered"].includes(order.status)) {
+    throw AppError.badRequest("Order already delivered", "ALREADY_DELIVERED");
+  }
+
+  order.status = "delivered";
+  order.deliveredAt = new Date();
+  await order.save();
+
+  res.status(200).json({
+    success: true,
+    message: "Order delivered successfully",
+  });
+});
+
+// common controllers
+export const getOrderDetails = asyncHandler(async (req, res) => {
+  const { orderId } = req.params;
+
+  const order = await Order.findById(orderId).lean();
+
+  if (!order) {
+    throw AppError.notFound("Order not found", "NOT_FOUND");
+  }
+
+  res.status(200).json({
+    success: true,
+    message: "Order details fetched successfully",
+    order,
   });
 });
