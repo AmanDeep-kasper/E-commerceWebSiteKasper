@@ -6,6 +6,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import PageRouter from "./Router/PageRouter";
 import { getUserDetails } from "./redux/cart/userSlice";
+import axiosInstance from "./api/axiosInstance";
 
 function App() {
   const dispatch = useDispatch();
@@ -18,6 +19,7 @@ function App() {
       } catch (err) {
         // Cookie expired ya user not logged in
         // console.log("User not authenticated check");
+        throw new Error(err);
       }
     };
 
@@ -27,6 +29,17 @@ function App() {
   useEffect(() => {
     dispatch(syncCart());
   }, [dispatch]);
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    const interval = setInterval(
+      () => {
+        axiosInstance.post("/auth/refresh-token").catch(() => {});
+      },
+      2 * 60 * 1000,
+    );
+    return () => clearInterval(interval);
+  }, [isAuthenticated]);
 
   return (
     <>

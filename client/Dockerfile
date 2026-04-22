@@ -3,14 +3,11 @@ FROM node:20-alpine as build
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm ci
+RUN npm install
 
 COPY . .
 
-ARG VITE_BASE_URL
-ENV VITE_BASE_URL=$VITE_BASE_URL
-
-RUN npm run build
+RUN node --max-old-space-size=2048 node_modules/.bin/vite build
 
 FROM nginx:alpine
 
