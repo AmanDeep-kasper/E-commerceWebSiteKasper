@@ -871,6 +871,8 @@ export const deliverOrder = asyncHandler(async (req, res) => {
   });
 });
 
+export const getPayments = asyncHandler(async (req, res) => {});
+
 // common controllers
 export const getOrderDetails = asyncHandler(async (req, res) => {
   const { orderId } = req.params;
