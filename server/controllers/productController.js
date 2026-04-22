@@ -42,7 +42,117 @@ const cloudDelete = (images = []) =>
   );
 
 //  Admin controllers
-l
+export const addProduct = asyncHandler(async (req, res) => {
+  const {
+    productTittle,
+    description,
+    category,
+    subcategory,
+    variants,
+    action,
+  } = req.body;
+
+  if (!action || !["draft", "add"].includes(action)) {
+    throw AppError.badRequest("Invalid action", "INVALID_ACTION");
+  }
+
+  const isDraft = action === "draft";
+
+  if (!isDraft) {
+    if (!variants || variants.length === 0) {
+      throw AppError.badRequest(
+        "At least one variant is required",
+        "NO_VARIANTS",
+      );
+    }
+
+    const skuIds = variants.map((v) => v.variantSkuId);
+    if (new Set(skuIds).size !== skuIds.length) {
+      throw AppError.badRequest(
+        "Duplicate variantSkuId found in request",
+        "DUPLICATE_SKU",
+      );
+    }
+
+    const existingSku = await Product.aggregate([
+      { $unwind: "$variants" },
+      { $match: { "variants.variantSkuId": { $in: skuIds } } },
+      { $project: { sku: "$variants.variantSkuId", _id: 0 } },
+    ]);
+
+    if (existingSku.length > 0) {
+      throw AppError.conflict(
+        `SKU(s) already exist: ${existingSku.map((s) => s.sku).join(", ")}`,
+        "SKU_ALREADY_EXISTS",
+      );
+    }
+  }
+
+  let finalVariants = [];
+
+  if (!isDraft) {
+    const cleanVariants = variants.map((v) => {
+      const mrp = Number(v.variantMrp);
+      const selling = Number(v.variantSellingPrice);
+
+      // ✅ Discount calculation
+      let discountPercent = 0;
+
+      if (mrp > 0 && selling <= mrp) {
+        discountPercent = ((mrp - selling) / mrp) * 100;
+      }
+
+      // ✅ Round to 2 decimal (optional but recommended)
+      discountPercent = Number(discountPercent.toFixed(2));
+
+      return {
+        ...v,
+        variantMrp: mrp,
+        variantSellingPrice: selling,
+        variantDiscount: discountPercent,
+      };
+    });
+
+    // Ensure only one isSelected variant
+    let selectedSet = false;
+
+    finalVariants = cleanVariants.map((v) => {
+      if (v.isSelected && !selectedSet) {
+        selectedSet = true;
+        return { ...v, isSelected: true };
+      }
+      return { ...v, isSelected: false };
+    });
+
+    if (!selectedSet && finalVariants.length > 0) {
+      finalVariants[0].isSelected = true;
+    }
+  }
+
+  // ✅ Create product
+  const product = new Product({
+    productTittle,
+    description,
+    category,
+    subcategory,
+    variants: finalVariants,
+    isDraft,
+    isActive: !isDraft,
+  });
+
+  if (isDraft) {
+    await product.save({ validateBeforeSave: false });
+  } else {
+    await product.validate();
+    await product.save();
+  }
+
+  res.status(201).json({
+    success: true,
+    message: isDraft ? "Product saved as draft" : "Product added successfully",
+    data: product,
+  });
+});
 
 // export const adminGetAllProducts = asyncHandler(async (req, res) => {
 //   const {
@@ -280,9 +390,9 @@ export const adminGetAllProducts = asyncHandler(async (req, res) => {
   ]);
 
   const [activeCount, inactiveCount] = await Promise.all([
-  Product.countDocuments({ ...filter, isActive: true }),
-  Product.countDocuments({ ...filter, isActive: false }),
-]);
+    Product.countDocuments({ ...filter, isActive: true }),
+    Product.countDocuments({ ...filter, isActive: false }),
+  ]);
 
   // ✅ PROCESS DATA (same structure as userGetAllProducts)
   const processedProducts = products.map((product) => {
@@ -333,7 +443,7 @@ export const adminGetAllProducts = asyncHandler(async (req, res) => {
       total: total || 0,
       active: activeCount || 0,
       inactive: inactiveCount || 0,
-    }
+    },
   });
 });
 
