@@ -45,7 +45,6 @@ function Navbar() {
     }
   }, [user]);
 
-
   // add by aman
   useEffect(() => {
     const syncData = async () => {
@@ -223,7 +222,7 @@ function Navbar() {
           <div className="flex items-center gap-4 md:gap-8">
             {/* Mobile menu button */}
             <div
-              className="lg:hidden flex items-center justify-center w-10 h-10 rounded-lg hover:bg-amber-50 transition-colors cursor-pointer"
+              className="lg:hidden flex items-center justify-center w-10 h-10 rounded-lg hover:bg-[#F0EEFF] transition-colors cursor-pointer"
               onClick={() => {
                 // setDropdown(!dropdown);
                 setIsMobileMenuOpen((p) => !p);
@@ -328,7 +327,7 @@ function Navbar() {
 
               {/* Mobile Search Icon */}
               <button
-                className="lg:hidden p-2 rounded-lg hover:bg-amber-50 transition-colors"
+                className="lg:hidden p-2 rounded-lg hover:bg-[#F0EEFF] transition-colors"
                 onClick={() => setIsOpen(true)}
               >
                 <Search size={20} className="text-gray-600" />
@@ -550,7 +549,7 @@ function Navbar() {
               animate={{ x: "0%" }}
               exit={{ x: "-100%" }}
               transition={{ duration: 0.4, ease: "easeInOut" }}
-              className="fixed top-16 left-0 bottom-0 bg-white shadow-lg z-50 flex flex-col overflow-y-auto
+              className="fixed top-0 left-0 bottom-0 bg-white shadow-lg z-50 flex flex-col overflow-y-auto
                    w-3/4 md:w-1/2 lg:hidden"
             >
               {/* Header */}
@@ -705,7 +704,7 @@ function Navbar() {
                 duration: 0.35,
               }}
               className="
-          fixed top-16 bottom-0 left-0 bg-white shadow-lg z-50 flex flex-col overflow-y-auto
+          fixed top-0 bottom-0 left-0 bg-white shadow-lg z-50 flex flex-col overflow-y-auto
           w-3/4 md:w-1/2 lg:w-1/4 lg:hidden
         "
               role="menu"

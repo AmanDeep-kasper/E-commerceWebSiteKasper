@@ -15,7 +15,7 @@ function Footer() {
       />
       <div className="relative z-10 flex justify-between lg:flex-nowrap flex-wrap gap-4">
         <div className="flex flex-col w-full">
-          <div className="grid lg:grid-cols-4 md:grid-cols-2 sm:grid-cols-1 flex justify-between sm:gap-10 lg:gap-20 md:gap-15">
+          <div className="grid lg:grid-cols-4 md:grid-cols-2 sm:grid-cols-1 gap-6 lg:gap-16">
 
             <div className="flex flex-col gap-2">
               <Link to="/home">
