@@ -3,7 +3,7 @@ import AppError from "../../utils/AppError.js";
 import asyncHandler from "../../utils/asyncHandler.js";
 
 export const addOrUpdateReward = asyncHandler(async (req, res) => {
-  let { name, earn, minOrderValueForRedeem, validity, isActive } = req.body;
+  let { name, earn, minOrderValueForRedeem, validity, isActive, pointValue } = req.body;
 
   // basic validation
   if (earn && typeof earn === "string") {
@@ -20,6 +20,7 @@ export const addOrUpdateReward = asyncHandler(async (req, res) => {
       earn,
       minOrderValueForRedeem,
       validity,
+      pointValue,
       isActive: isActive === undefined ? true : isActive,
     });
 
@@ -36,6 +37,7 @@ export const addOrUpdateReward = asyncHandler(async (req, res) => {
   reward.minOrderValueForRedeem =
     minOrderValueForRedeem || reward.minOrderValueForRedeem;
   reward.validity = validity || reward.validity;
+  reward.pointValue = pointValue !== undefined ? pointValue : reward.pointValue;
   reward.isActive = isActive;
 
   await reward.save();

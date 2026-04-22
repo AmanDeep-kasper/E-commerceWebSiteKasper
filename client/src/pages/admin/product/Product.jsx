@@ -269,57 +269,65 @@ const Products = () => {
   const [selectedCategory, setSelectedCategory] = useState("Category");
   const [isFirstLoad, setIsFirstLoad] = useState(true);
   const [stats, setStats] = useState({
-  total: 0,
-  active: 0,
-  inactive: 0
-});
+    total: 0,
+    active: 0,
+    inactive: 0,
+  });
 
   const navigate = useNavigate();
- 
-    const fetchProducts = async() => {
-      try {
-        if(isFirstLoad) setLoading(true);
-        // const response = await axiosInstance.get("/product/all");
-         const response = await axiosInstance.get(`/product/admin/get-all-products`, {
+
+  const fetchProducts = async () => {
+    try {
+      if (isFirstLoad) setLoading(true);
+      // const response = await axiosInstance.get("/product/all");
+      const response = await axiosInstance.get(
+        `/product/admin/get-all-products`,
+        {
           params: {
-            page:currentPage,
+            page: currentPage,
             limit: 10,
-            search:debouncedSearch || undefined,
-            status: selectedStatus ===  "Active" ? "active" : selectedStatus === "Inactive" ? "inactive" : undefined,
-            category: selectedCategory !== "Category" ? selectedCategory : undefined,
-          }
-         });
-        console.log("Products API Response:", response.data);
+            search: debouncedSearch || undefined,
+            status:
+              selectedStatus === "Active"
+                ? "active"
+                : selectedStatus === "Inactive"
+                  ? "inactive"
+                  : undefined,
+            category:
+              selectedCategory !== "Category" ? selectedCategory : undefined,
+          },
+        },
+      );
+      console.log("Products API Response:", response.data);
 
-        let products =[];
-        if (response.data?.success && response.data?.data) {
-          products = response.data.data;
-        } else if (Array.isArray(response.data)) {
-          products = response.data;
-        } else if (response.data?.products) {
-          products = response.data.products;
-        }
-        setProduct(products);
-        setTotalPages(response.data?.pagination?.pages);
-setTotalItems(response.data?.pagination?.total);
- setStats({
-      total: response.data?.stats?.total || 0,
-      active: response.data?.stats?.active || 0,
-      inactive: response.data?.stats?.inactive || 0
-    });
-        setError(null);
-      }catch (error) {
-        console.error("Error fetching products:", error);
-        setError(error.response?.data?.message || "Failed to load products");
-      } finally {
-        setLoading(false);
-        setIsFirstLoad(false);
+      let products = [];
+      if (response.data?.success && response.data?.data) {
+        products = response.data.data;
+      } else if (Array.isArray(response.data)) {
+        products = response.data;
+      } else if (response.data?.products) {
+        products = response.data.products;
       }
-    };
-     useEffect(() => {
+      setProduct(products);
+      setTotalPages(response.data?.pagination?.pages);
+      setTotalItems(response.data?.pagination?.total);
+      setStats({
+        total: response.data?.stats?.total || 0,
+        active: response.data?.stats?.active || 0,
+        inactive: response.data?.stats?.inactive || 0,
+      });
+      setError(null);
+    } catch (error) {
+      console.error("Error fetching products:", error);
+      setError(error.response?.data?.message || "Failed to load products");
+    } finally {
+      setLoading(false);
+      setIsFirstLoad(false);
+    }
+  };
+  useEffect(() => {
     fetchProducts();
-  },[currentPage, debouncedSearch, selectedStatus, selectedCategory]);
-
+  }, [currentPage, debouncedSearch, selectedStatus, selectedCategory]);
 
   // const Editproduct = useMemo(() => {
   //   if (!uuid || !productData?.length) return null;
@@ -328,7 +336,6 @@ setTotalItems(response.data?.pagination?.total);
   //     (p) => p.uuid && p.uuid.toLowerCase() === uuid.toLowerCase()
   //   );
   // }, [productData, uuid]);
-
 
   //  Delete button + selected items
   const [selectedItems, setSelectedItems] = useState([]);
@@ -363,7 +370,7 @@ setTotalItems(response.data?.pagination?.total);
       (prev) =>
         prev.includes(id)
           ? prev.filter((x) => x !== id) // unselect
-          : [...prev, id] // select
+          : [...prev, id], // select
     );
   };
 
@@ -381,18 +388,17 @@ setTotalItems(response.data?.pagination?.total);
   const [filterOpen, setFilterOpen] = useState(false); // main filter
   const [activeFilter, setActiveFilter] = useState(null); // "status" | "category"
 
-
   const [selectedSort, setSelectedSort] = useState("Price: Low → High");
 
-// extract unique categories from actual product data
+  // extract unique categories from actual product data
   const categories = useMemo(() => {
     const uniqueCategories = new Set();
     product.forEach((p) => {
       const catName = p.categoryName || p.category?.name;
-      if(catName) {
+      if (catName) {
         uniqueCategories.add(catName);
       }
-    })
+    });
     return [...uniqueCategories];
   }, [product]);
   // Apply category filter
@@ -407,7 +413,7 @@ setTotalItems(response.data?.pagination?.total);
   //   "Reflection Art",
   // ];
 
-  // 
+  //
 
   ///////////////////////////////////
   // Sorting options
@@ -421,19 +427,30 @@ setTotalItems(response.data?.pagination?.total);
   // Apply sorting
   const sortedProducts = [...product];
   if (selectedSort === "Price: Low → High") {
-    sortedProducts.sort((a, b) => (a.defaultPrice || 0) - (b.defaultPrice || 0));
+    sortedProducts.sort(
+      (a, b) => (a.defaultPrice || 0) - (b.defaultPrice || 0),
+    );
   } else if (selectedSort === "Price: High → Low") {
-    sortedProducts.sort((a, b) => (b.defaultPrice || 0) - (a.defaultPrice || 0));
+    sortedProducts.sort(
+      (a, b) => (b.defaultPrice || 0) - (a.defaultPrice || 0),
+    );
   } else if (selectedSort === "Alphabetical (A–Z)") {
-    sortedProducts.sort((a, b) => (a.name || a.productTittle || "").localeCompare(b.name || b.productTittle || ""));
+    sortedProducts.sort((a, b) =>
+      (a.name || a.productTittle || "").localeCompare(
+        b.name || b.productTittle || "",
+      ),
+    );
   } else if (selectedSort === "Alphabetical (Z–A)") {
-    sortedProducts.sort((a, b) => (b.name || b.productTittle || "").localeCompare(a.name || a.productTittle || ""));
+    sortedProducts.sort((a, b) =>
+      (b.name || b.productTittle || "").localeCompare(
+        a.name || a.productTittle || "",
+      ),
+    );
   }
 
   // console.log(sortedProducts);
 
   /////////////////////////////////
-
 
   //  Check if all visible rows are selected
   const allVisibleSelected =
@@ -494,7 +511,7 @@ setTotalItems(response.data?.pagination?.total);
     },
     {
       name: "Draft",
-      data:0,
+      data: 0,
       //  product.filter((p) => p.isActive === false).length,
       icon: <FileText />,
       iconbg: "bg-[#EFEFEF]",
@@ -514,12 +531,12 @@ setTotalItems(response.data?.pagination?.total);
   //   navigate(`/admin/add-product/${Editproduct.uuid}`);
   // };
 
- const isFilterActive = 
-    selectedStatus !== "Status" || 
-    selectedCategory !== "Category" || 
+  const isFilterActive =
+    selectedStatus !== "Status" ||
+    selectedCategory !== "Category" ||
     search !== "";
 
-     if (loading && isFirstLoad) {
+  if (loading && isFirstLoad) {
     return (
       <div className="p-[24px] bg-[#F6F8F9] rounded-md min-h-screen flex justify-center items-center">
         <div className="text-center">
@@ -538,7 +555,7 @@ setTotalItems(response.data?.pagination?.total);
           <div className="flex items-center justify-between">
             <div className="flex items-center justify-between  16px px-2 rounded-md">
               <h2 className="text-[20px] font-semibold text-gray-800">
-                All Products  
+                All Products
               </h2>
             </div>
 
@@ -557,7 +574,8 @@ setTotalItems(response.data?.pagination?.total);
                 <div
                   key={index}
                   className="relative flex items-center justify-between gap-9
-  p-4 border rounded-2xl bg-white shadow-sm">
+  p-4 border rounded-2xl bg-white shadow-sm"
+                >
                   <span
                     className="absolute left-0 top-1/2 -translate-y-1/2
                     w-[4px] h-10 bg-blue-500 rounded-r"
@@ -569,7 +587,8 @@ setTotalItems(response.data?.pagination?.total);
                   </div>
 
                   <div
-                    className={`${item.iconbg} ${item.iconColor} p-[12px] rounded-lg`}>
+                    className={`${item.iconbg} ${item.iconColor} p-[12px] rounded-lg`}
+                  >
                     {item.icon}
                   </div>
                 </div>
@@ -603,37 +622,44 @@ setTotalItems(response.data?.pagination?.total);
 
             <div
               ref={filterRef}
-              className=" relative flex flex-wrap justify-center items-center gap-2 text-[#000000]">
+              className=" relative flex flex-wrap justify-center items-center gap-2 text-[#000000]"
+            >
               <button
                 onClick={() =>
                   setActiveFilter((prev) =>
-                    prev === "status" ? null : "status"
+                    prev === "status" ? null : "status",
                   )
                 }
-                className=" border rounded-lg px-4 py-2 flex items-center justify-center gap-6 text-[#686868] bg-[#F8F8F8]">
+                className=" border rounded-lg px-4 py-2 flex items-center justify-center gap-6 text-[#686868] bg-[#F8F8F8]"
+              >
                 {/* All Status */}
-                 {selectedStatus === "Status" ? "All Status" : selectedStatus}
+                {selectedStatus === "Status" ? "All Status" : selectedStatus}
                 <ChevronDown />
               </button>
               <button
                 onClick={() =>
                   setActiveFilter((prev) =>
-                    prev === "category" ? null : "category"
+                    prev === "category" ? null : "category",
                   )
                 }
-                className=" border rounded-lg px-4 py-2 flex items-center justify-center gap-6 text-[#686868] bg-[#F8F8F8]">
+                className=" border rounded-lg px-4 py-2 flex items-center justify-center gap-6 text-[#686868] bg-[#F8F8F8]"
+              >
                 {/* All Categories */}
-                 {selectedCategory === "Category" ? "All Categories" : selectedCategory}
+                {selectedCategory === "Category"
+                  ? "All Categories"
+                  : selectedCategory}
                 <ChevronDown />
               </button>
               <div className="relative inline-block">
                 {filterOpen && (
                   <div
                     className="absolute mt-2 right-16 top-9 w-40 bg-white border rounded-lg shadow"
-                    onClick={(e) => e.stopPropagation()}>
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     <div
                       className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center justify-between"
-                      onClick={() => setActiveFilter("status")}>
+                      onClick={() => setActiveFilter("status")}
+                    >
                       {selectedStatus === "Status"
                         ? "All Status"
                         : selectedStatus}
@@ -642,7 +668,8 @@ setTotalItems(response.data?.pagination?.total);
 
                     <div
                       className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center justify-between"
-                      onClick={() => setActiveFilter("category")}>
+                      onClick={() => setActiveFilter("category")}
+                    >
                       {selectedCategory === "Category"
                         ? "All Categories"
                         : selectedCategory}
@@ -655,14 +682,15 @@ setTotalItems(response.data?.pagination?.total);
               {activeFilter === "status" && (
                 <div className="absolute left-0 top-11 ml-2 w-36 z-30">
                   <ul className=" bg-white border rounded-lg shadow">
-                    {["Active", "Inactive"].map((status) => (
+                    {["Active", "Inactive", "Draft"].map((status) => (
                       <li
                         key={status}
                         onClick={() => {
                           setSelectedStatus(status);
                           setActiveFilter(null);
                         }}
-                        className="px-4 py-2 cursor-pointer hover:bg-[#F5F8FA]">
+                        className="px-4 py-2 cursor-pointer hover:bg-[#F5F8FA]"
+                      >
                         {status}
                       </li>
                     ))}
@@ -680,7 +708,8 @@ setTotalItems(response.data?.pagination?.total);
                           setSelectedCategory(cat);
                           setActiveFilter(null);
                         }}
-                        className="px-4 py-2 cursor-pointer hover:bg-[#F5F8FA]">
+                        className="px-4 py-2 cursor-pointer hover:bg-[#F5F8FA]"
+                      >
                         {cat}
                       </li>
                     ))}
@@ -722,18 +751,19 @@ setTotalItems(response.data?.pagination?.total);
                 )}
               </div> */}
               {isFilterActive && (
-              <button
-                onClick={() => {
-                  setSelectedSort("Price: Low → High");
-                  setSelectedCategory("Category");
-                  setSelectedStatus("Status");
-                  setSearch("");
-                  setCurrentPage(1)
-                }}
-                className="text-[#1C3753] flex items-center justify-between gap-2">
-                {/* <FunnelX size={18} /> */}
-                Clear Filter
-              </button>
+                <button
+                  onClick={() => {
+                    setSelectedSort("Price: Low → High");
+                    setSelectedCategory("Category");
+                    setSelectedStatus("Status");
+                    setSearch("");
+                    setCurrentPage(1);
+                  }}
+                  className="text-[#1C3753] flex items-center justify-between gap-2"
+                >
+                  {/* <FunnelX size={18} /> */}
+                  Clear Filter
+                </button>
               )}
             </div>
           </div>
@@ -806,8 +836,10 @@ setTotalItems(response.data?.pagination?.total);
                     //     // navigate(`/admin/product-info/${item.uuid}`);
                     //   }
                     // }}
-                     onClick={() => navigate(`/admin/product-info/${item.slug || item._id}`)}
-                    >
+                    onClick={() =>
+                      navigate(`/admin/product-info/${item.slug || item._id}`)
+                    }
+                  >
                     {/* <td className="px-4 py-3"> */}
                     {/* <input
                         type="checkbox"
@@ -824,9 +856,15 @@ setTotalItems(response.data?.pagination?.total);
                         <div className="h-[50px] w-[50px] ml-2 bg-[#EFEFEF] p-1 rounded-md overflow-hidden">
                           <img
                             className="h-full w-full object-cover object-center"
-                           src={item.image || "/placeholder.png"}
+                            src={
+                              item.image ||
+                              "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTF8fHByb2R1Y3R8ZW58MHx8MHx8fDA%3D"
+                            }
                             alt={item.name || item.productTittle}
-                            onError={(e) => { e.target.src = "/placeholder.png"; }}
+                            onError={(e) => {
+                              e.target.src =
+                                "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTF8fHByb2R1Y3R8ZW58MHx8MHx8fDA%3D";
+                            }}
                           />
                         </div>
 
@@ -835,7 +873,9 @@ setTotalItems(response.data?.pagination?.total);
                             {item.name && item.name.split(" ").length > 3
                               ? item.name.split(" ").slice(0, 3).join(" ") +
                                 "..."
-                              : (item.name || item.productTittle || "Untitled Product")}
+                              : item.name ||
+                                item.productTittle ||
+                                "Untitled Product"}
                           </span>
                           {/* <div>
                             <p className="text-[14px] text-[#5D5D5D]">
@@ -856,14 +896,14 @@ setTotalItems(response.data?.pagination?.total);
                     </td>
 
                     <td className="px-4 py-3 text-[16px] text-[#1F2937]">
-                       {/* {item.variants?.[0]?.variantSkuId || "N/A"} */}
-                       {item.skuId || item.variants?.[0]?.variantSkuId || "N/A"}
+                      {/* {item.variants?.[0]?.variantSkuId || "N/A"} */}
+                      {item.skuId || item.variants?.[0]?.variantSkuId || "N/A"}
                     </td>
                     <td className="px-4 py-3 text-[16px] text-[#1F2937]">
                       {item.categoryName || item.category?.name || "N/A"}
                     </td>
                     <td className="px-4 py-3 text-[16px] text-[#1F2937]">
-                       ₹{item.defaultPrice || 0}
+                      ₹{item.defaultPrice || 0}
                     </td>
                     {/* <td className="px-4 py-3 text-[16px] text-[#1F2937]">
                       {item.sellingPrice === 0 ? (
@@ -880,8 +920,8 @@ setTotalItems(response.data?.pagination?.total);
                         </div>
                       )}
                     </td> */}
-                     <td className="px-4 py-3 text-[16px] text-[#1F2937] text-center">
-                    {item.variantCount || item.variants?.length || 1}
+                    <td className="px-4 py-3 text-[16px] text-[#1F2937] text-center">
+                      {item.variantCount || item.variants?.length || 1}
                     </td>
                     {/* <td className="px-4 py-3 text-[16px] text-[#1F2937]">
                       {item.status === "Active" ? (
@@ -918,19 +958,35 @@ setTotalItems(response.data?.pagination?.total);
                     </td> */}
 
                     <td className="px-4 py-3 text-center">
-                      {item.isActive === true ? (
+                      {item.isDraft ? (
+                        <div className="flex items-center justify-center gap-2 bg-[#EFEFEF] py-1.5 px-3 rounded-lg text-sm text-[#686868]">
+                          <Circle
+                            fill="#686868"
+                            color="#686868"
+                            size={"12px"}
+                          />
+                          Draft
+                        </div>
+                      ) : item.isActive ? (
                         <div className="flex items-center justify-center gap-2 bg-[#E0F4DE] py-1.5 px-2 rounded-lg text-sm text-[#00A63E]">
-                          <Circle fill="#00A63E" color="#00A63E" size={"12px"} />
+                          <Circle
+                            fill="#00A63E"
+                            color="#00A63E"
+                            size={"12px"}
+                          />
                           Active
                         </div>
                       ) : (
                         <div className="flex items-center justify-center gap-2 bg-[#FFFBEB] py-1.5 px-3 rounded-lg text-sm text-[#F8A14A]">
-                          <Circle fill="#F8A14A" color="#F8A14A" size={"12px"} />
+                          <Circle
+                            fill="#F8A14A"
+                            color="#F8A14A"
+                            size={"12px"}
+                          />
                           Inactive
                         </div>
                       )}
                     </td>
-
 
                     {/* <td className="px-4 py-3 text-[16px] text-[#1F2937]">
                       ₹{item.sellingPrice}
@@ -944,26 +1000,19 @@ setTotalItems(response.data?.pagination?.total);
                       <div className="flex items-center justify-center gap-2 ">
                         <button
                           onClick={(e) => {
-                           e.stopPropagation();
-                            navigate(`/admin/product-info/${item.slug || item._id}`);
-                          }}
-                          className="relative p-2 rounded group text-[#2C87E2] hover:underline">
-                          {/* <PencilLine className="w-5 h-5 text-gray-900" /> */}
-                          view
+                            e.stopPropagation();
 
-                          {/* <div
-                            className="
-      absolute left-1/2 top-10 -translate-x-1/2
-      bg-[#F5F8FA] py-1 px-3 rounded-lg
-      text-xs font-medium
-      opacity-0
-      group-hover:opacity-100
-      transition-opacity duration-200
-      whitespace-nowrap
-      pointer-events-none
-    ">
-                            Edit
-                          </div> */}
+                            if (item.isDraft) {
+                              navigate(`/admin/add-product/${item._id}`); // 👉 edit draft
+                            } else {
+                              navigate(
+                                `/admin/product-info/${item.slug || item._id}`,
+                              ); // 👉 view product
+                            }
+                          }}
+                          className="relative p-2 rounded group text-[#2C87E2] hover:underline"
+                        >
+                          {item.isDraft ? "Edit" : "View"}
                         </button>
 
                         {/* <button className="p-2 rounded">
@@ -977,37 +1026,39 @@ setTotalItems(response.data?.pagination?.total);
             </table>
 
             {/* Pagination */}
-           {/* Pagination */}
-<div className="flex justify-between items-center gap-2 px-6 py-4 border-t">
-    {/* Showing X of Y results */}
-    <div className="text-sm text-gray-600">
-       Showing {product.length} of {totalItems} results
-    </div>
+            {/* Pagination */}
+            <div className="flex justify-between items-center gap-2 px-6 py-4 border-t">
+              {/* Showing X of Y results */}
+              <div className="text-sm text-gray-600">
+                Showing {product.length} of {totalItems} results
+              </div>
 
-    {/* Pagination controls */}
-    <div className="flex items-center gap-2">
-        <button
-            className="px-3 py-1 border rounded disabled:opacity-40"
-            onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-            disabled={currentPage === 1}
-        >
-            ‹
-        </button>
+              {/* Pagination controls */}
+              <div className="flex items-center gap-2">
+                <button
+                  className="px-3 py-1 border rounded disabled:opacity-40"
+                  onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                  disabled={currentPage === 1}
+                >
+                  ‹
+                </button>
 
-        <div className="px-4 py-1 border rounded text-sm text-gray-700">
-            Page {String(currentPage).padStart(2, "0")} of{" "}
-            {String(totalPages).padStart(2, "0")}
-        </div>
+                <div className="px-4 py-1 border rounded text-sm text-gray-700">
+                  Page {String(currentPage).padStart(2, "0")} of{" "}
+                  {String(totalPages).padStart(2, "0")}
+                </div>
 
-        <button
-            className="px-3 py-1 border rounded disabled:opacity-40"
-            onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
-            disabled={currentPage === totalPages}
-        >
-            ›
-        </button>
-    </div>
-</div>
+                <button
+                  className="px-3 py-1 border rounded disabled:opacity-40"
+                  onClick={() =>
+                    setCurrentPage((p) => Math.min(p + 1, totalPages))
+                  }
+                  disabled={currentPage === totalPages}
+                >
+                  ›
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
