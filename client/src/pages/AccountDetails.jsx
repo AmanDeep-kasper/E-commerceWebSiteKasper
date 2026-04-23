@@ -202,7 +202,7 @@ function AccountDetails() {
                         type="button"
                         onClick={handleSave}
                         disabled={isSaving}
-                        className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium bg-[#1C3753] text-white rounded-lg shadow-sm hover:bg-[#1C3753]/90 transition flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium bg-[#1800AC] text-white rounded-lg shadow-sm hover:bg-[#1C3753]/90 transition flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         {isSaving ? (
                           <>

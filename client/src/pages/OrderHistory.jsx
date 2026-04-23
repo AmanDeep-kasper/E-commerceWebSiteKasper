@@ -80,14 +80,11 @@ function OrderHistory() {
       <div className="md:mb-6 relative flex flex-row justify-between items-center border border-gray-200 bg-white md:rounded-lg p-3 gap-3 sm:gap-4">
         <div>
           <p className="text-lg font-semibold">Your Orders</p>
-          <span className="text-sm text-[#686868]">
-            Manage your personal information
-          </span>
+          <span className="text-sm text-[#686868]">Manage your Orders</span>
         </div>
         {/* Search Input */}
-
-        <div className="flex items-center justify-between gap-4">
-          <div className="flex items-center w-full sm:w-auto px-3 py-2 bg-gray-50 border rounded-md focus-within:ring-2 focus-within:ring-[#212121] transition-all">
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="flex items-center w-fit sm:w-auto px-3 py-2 bg-gray-50 border rounded-md focus-within:ring-2 focus-within:ring-[#212121] transition-all">
             <Search className="text-gray-500 w-4 h-4" />
             <input
               type="text"
@@ -99,24 +96,28 @@ function OrderHistory() {
           </div>
 
           {/* Filter Button - Desktop */}
-          <button
-            className="hidden sm:flex items-center justify-center py-2 px-5 text-xs sm:text-sm bg-[#1800AC] rounded-full transition-colors shadow-sm text-white"
-            onClick={() => setIsFilterOpen(!isFilterOpen)}
-          >
-            <ListFilter className="w-4 h-4 mr-2" />
-            Filters
-          </button>
-
-          {isFilterOpen && (
-            <div className="absolute top-16 z-30 right-0 w-64 max-w-[90vw]">
-              <OrderFilter
-                setStatus={setStatus}
-                status={status}
-                setTime={setTime}
-                time={time}
-              />
+          <div>
+            <div className="flex items-center gap-2 justify-end w-full">
+              <button
+                className="flex items-center justify-center py-2 px-5 text-xs sm:text-sm bg-[#1800AC] rounded-full text-white"
+                onClick={() => setIsFilterOpen(!isFilterOpen)}
+              >
+                <ListFilter className="w-4 h-4 mr-2" />
+                Filters
+              </button>
             </div>
-          )}
+
+            {isFilterOpen && (
+              <div className="absolute top-16 z-30 right-0 w-64 max-w-[90vw]">
+                <OrderFilter
+                  setStatus={setStatus}
+                  status={status}
+                  setTime={setTime}
+                  time={time}
+                />
+              </div>
+            )}
+          </div>
         </div>
       </div>
 

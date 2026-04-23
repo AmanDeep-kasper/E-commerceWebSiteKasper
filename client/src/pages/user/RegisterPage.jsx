@@ -81,7 +81,7 @@ function RegisterPage() {
         </div>
 
         {/* Right Side - Registration Form */}
-        <div className="flex-1 p-8 md:p-12 md:flex justify-center items-center">
+        <div className="flex-1 p-6 md:p-12 flex justify-center items-start md:items-center">
           <div className="lg:w-lvw max-w-md mx-auto ">
             {/* Mobile Header */}
             <div className="md:hidden text-center mb-8">
@@ -159,8 +159,8 @@ function RegisterPage() {
                    Sign up to get started with Happy Art Supplies
                   </p>
                 </div>
-                <div className="flex items-center justify-between mt-8 px-4 mb-4">
-                  {/* STEP 1 */}
+                {/* <div className=" sm:hidden flex items-center justify-between mt-8 px-4 mb-4">
+                  
                   <div className="flex items-center flex-1">
                     <div className="flex flex-col items-center text-center">
                       <div
@@ -181,11 +181,11 @@ function RegisterPage() {
                       <span className="text-xs mt-2 text-[#1800AC]">Create Account</span>
                     </div>
 
-                    {/* Line */}
+                  
                     <div className="flex-1 h-[1px] bg-gray-300 mb-4"></div>
                   </div>
 
-                  {/* STEP 2 */}
+                  
                   <div className="flex items-center flex-1">
                     <div className="flex flex-col items-center text-center">
                       <div
@@ -208,11 +208,11 @@ function RegisterPage() {
                       </span>
                     </div>
 
-                    {/* Line */}
+                   
                     <div className="flex-1 h-[1px] bg-gray-300 mb-4"></div>
                   </div>
 
-                  {/* STEP 3 */}
+
                   <div className="flex flex-col items-center text-center">
                     <div
                       className={`w-7 h-7 rounded-full flex items-center justify-center border-2 ${
@@ -231,7 +231,7 @@ function RegisterPage() {
                       Complete
                     </span>
                   </div>
-                </div>
+                </div> */}
                 <RegisterForm
                   onOtpSent={(email) => {
                     setEmail(email);

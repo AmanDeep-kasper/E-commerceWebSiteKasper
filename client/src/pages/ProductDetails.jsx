@@ -123,13 +123,11 @@ function ProductDetails() {
 
         if (found?.variants?.length > 0) {
           const v0 = found.variants[0];
-
           setSelectedVariant(v0);
           // setSelectedColor(v0?.variantColor || null);
           setSelectedSize(normalizeSize(v0));
         }
 
-        // ❌ REMOVE similarProducts logic here (you don't have list API)
       } catch (err) {
         console.error(err);
         setProduct(null);
@@ -314,9 +312,36 @@ function ProductDetails() {
   const avgRating = Number(product?.stats?.averageRating || 0);
   // console.log(avgRating)
 
-  const handleBuyNow = (product) => {
-    dispatch(buyNow(product));
-    navigate("/checkout/payment");
+  const handleBuyNow = async (product, selectedVariant) => {
+    try {
+      if (!selectedVariant?._id && !selectedVariant?.variantId) {
+        toast.error("Please select a variant");
+        return;
+      }
+
+      const payload = {
+        productId: product._id,
+        variantId: selectedVariant._id || selectedVariant.variantId,
+        qty: 1,
+      };
+
+      await axiosInstance.post("/cart/add-to-cart", payload);
+
+      dispatch(
+        buyNow({
+          ...product,
+          selectedVariant,
+          qty: 1,
+        }),
+      );
+
+      navigate("/checkout/payment");
+    } catch (error) {
+      console.error("Buy now error:", error);
+      toast.error(
+        error?.response?.data?.message || "Failed to process Buy Now",
+      );
+    }
   };
 
   const handleWishlistToggle = async (e) => {
@@ -795,14 +820,14 @@ function ProductDetails() {
                   {cartUpdating
                     ? "Adding..."
                     : inCart
-                      ? "Added"
+                      ? "Go to Cart"
                       : "Add to Cart"}
                 </button>
               )}
 
               <button
                 type="button"
-                className="px-6 py-2 bg-[#0C0057] text-white border border-[#1C3753] rounded-md"
+                className="px-6 py-2 bg-[#1800AC] text-white border border-[#1C3753] rounded-md"
                 onClick={() => handleBuyNow(product, selectedVariant)}
                 disabled={outOfStock || cartUpdating}
               >

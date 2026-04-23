@@ -79,7 +79,7 @@ function UserProfile({ setIsProfileOpen }) {
                 }, 0);
               }}
               className={({ isActive }) =>
-                `flex items-center gap-4 p-3 my-1 rounded-lg duration-200 group ${
+                `flex items-center gap-4 p-1.5 my-1 rounded-lg duration-200 group ${
                   isActive ? "bg-[#F0EEFF]" : "hover:bg-[#F8FBFC]"
                 }`
               }
@@ -87,7 +87,7 @@ function UserProfile({ setIsProfileOpen }) {
               {({ isActive }) => (
                 <>
                   <div
-                    className={`p-2 rounded-lg ${
+                    className={`p-1 rounded-lg ${
                       isActive ? "bg-[#]" : "bg-[#F0EEFF]"
                     }`}
                   >
