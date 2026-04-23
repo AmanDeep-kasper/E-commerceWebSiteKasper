@@ -52,7 +52,6 @@ router.patch(
   authorize("admin"),
   deliverOrder,
 );
-
 router.get("/payments", authenticate, authorize("admin"), getPayments);
 
 // common routes
