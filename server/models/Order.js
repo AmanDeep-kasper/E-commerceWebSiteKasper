@@ -75,6 +75,10 @@ const OrderSchema = new mongoose.Schema(
     shippingAddress: { type: ShippingAddressSchema, required: true },
 
     // Financial (all in INR paise-safe floats)
+    mrpTotal: { type: Number, default: 0 },
+    totalDiscount: { type: Number, default: 0 },
+    platformFee: { type: Number, default: 0 },
+    discount: { type: Number, default: 0 },
     subtotal: { type: Number, required: true },
     totalGST: { type: Number, default: 0 },
     shippingCharge: { type: Number, default: 0 },

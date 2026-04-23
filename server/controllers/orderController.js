@@ -125,6 +125,8 @@ const calculateOrderSummary = ({
   return {
     mrpTotal: cart.mrpsubtotal,
     totalDiscount: cart.discount,
+    subtotal: cart.subtotal,
+    totalGST: cart.totalGST,
     shippingCharge,
     platformFee,
     discount,
@@ -270,7 +272,10 @@ export const checkout = asyncHandler(async (req, res) => {
   });
 
   const {
+    mrpTotal,
+    totalDiscount,
     subtotal,
+    totalGST,
     shippingCharge,
     platformFee,
     discount,
@@ -289,10 +294,12 @@ export const checkout = asyncHandler(async (req, res) => {
     paymentStatus: "pending",
     status: "placed",
 
-    subtotal,
-    totalGST: cart.totalGST,
-    shippingCharge,
+    mrpTotal,
+    totalDiscount,
     platformFee,
+    totalGST,
+    subtotal,
+    shippingCharge,
     discount,
     grandTotal: total,
 
@@ -424,7 +431,7 @@ export const verifyPayment = asyncHandler(async (req, res) => {
 
     // ORDER UPDATE
     order.paymentStatus = "paid";
-    order.status = "confirmed";
+    order.status = "placed";
     order.confirmedAt = new Date();
 
     await order.save({ session });
@@ -564,7 +571,23 @@ export const verifyPayment = asyncHandler(async (req, res) => {
       success: true,
       message: "Payment verified successfully",
       data: {
-        orderId: order._id,
+        orderId: order.orderNumber,
+        shippingAddress: order.shippingAddress,
+        placedAt: order.placedAt,
+        paymentStatus: order.paymentStatus,
+        paymentMethod: order.paymentMethod,
+        items: order.items,
+        reward: order.reward,
+        orderSummary: {
+          mrpTotal: order.mrpTotal,
+          totalDiscount: order.totalDiscount,
+          subtotal: order.subtotal,
+          totalGST: order.totalGST,
+          shippingCharge: order.shippingCharge,
+          platformFee: order.platformFee,
+          discount: order.discount,
+          grandTotal: order.grandTotal,
+        },
       },
     });
   } catch (err) {
