@@ -42,6 +42,12 @@ const PaymentSchema = new mongoose.Schema(
       index: true,
     },
 
+    orderId: {
+      type: String,
+      required: true,
+      index: true,
+    },
+
     // Amount
     amount: { type: Number, required: true },
     currency: { type: String, default: "INR" },

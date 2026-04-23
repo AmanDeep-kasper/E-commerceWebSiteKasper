@@ -304,6 +304,7 @@ export const checkout = asyncHandler(async (req, res) => {
 
   const payment = await Payment.create({
     order: order._id,
+    orderId: order.orderNumber,
     user: userId,
     amount: total,
     razorpayOrderId: razorpayOrder.id,
@@ -700,6 +701,30 @@ export const getOrders = asyncHandler(async (req, res) => {
   });
 });
 
+export const getUserAvailablePoints = asyncHandler(async (req, res) => {
+  const userId = req.user?.userId;
+
+  const user = await User.findById(userId);
+  if (!user) {
+    throw AppError.notFound("User not found", "USER_NOT_FOUND");
+  }
+
+  // get reward rules
+  const reward = await Reward.findOne({ isActive: true }).lean();
+  if (!reward) {
+    throw AppError.notFound("Reward config not found", "REWARD_NOT_FOUND");
+  }
+
+  res.status(200).json({
+    success: true,
+    message: "User points fetched successfully",
+    data: {
+      availablePoints: user.points,
+      reward,
+    },
+  });
+});
+
 // admin controllers
 export const getOrdersAdmin = asyncHandler(async (req, res) => {
   const { page = 1, limit = 10, search, range, sortBy } = req.query;
@@ -744,11 +769,21 @@ export const getOrdersAdmin = asyncHandler(async (req, res) => {
     .sort(sortOptions)
     .lean();
 
+  const [
+    totalOrders,
+    newOrders,
+    processingOrders,
+    shippedOrders,
+    deliveredOrders,
+  ] = await Promise.all([
+    Order.countDocuments(),
+    Order.countDocuments({ status: "placed" }),
+    Order.countDocuments({ status: "processing" }),
+    Order.countDocuments({ status: "shipped" }),
+    Order.countDocuments({ status: "delivered" }),
+  ]);
+
   const total = await Order.countDocuments(query);
-  const newOrders = order.countDocuments({ status: "placed" });
-  const processingOrders = order.countDocuments({ status: "processing" });
-  const shippedOrders = order.countDocuments({ status: "shipped" });
-  const deliveredOrders = order.countDocuments({ status: "delivered" });
 
   res.status(200).json({
     success: true,
@@ -761,6 +796,7 @@ export const getOrdersAdmin = asyncHandler(async (req, res) => {
       pages: Math.ceil(total / Number(limit)),
     },
     stats: {
+      totalOrders,
       newOrders,
       processingOrders,
       shippedOrders,
@@ -871,7 +907,98 @@ export const deliverOrder = asyncHandler(async (req, res) => {
   });
 });
 
-export const getPayments = asyncHandler(async (req, res) => {});
+export const getPayments = asyncHandler(async (req, res) => {
+  const {
+    page = 1,
+    limit = 10,
+    search,
+    range,
+    sortByMethod,
+    sortByStatus,
+  } = req.query;
+
+  const skip = (Number(page) - 1) * Number(limit);
+
+  let query = {};
+
+  // search by order id
+  if (search) {
+    query.$or = [{ orderId: { $regex: search, $options: "i" } }];
+  }
+
+  // filter by date like last 30 days,
+  if (range) {
+    const today = new Date();
+    let fromDate;
+
+    if (range === "7d") {
+      fromDate = new Date(today.setDate(today.getDate() - 7));
+    }
+
+    if (range === "30d") {
+      fromDate = new Date(today.setDate(today.getDate() - 30));
+    }
+
+    if (range === "today") {
+      fromDate = new Date(today.setHours(0, 0, 0, 0));
+    }
+
+    if (fromDate) {
+      query.createdAt = { $gte: fromDate };
+    }
+  }
+
+  // sort by payment Method
+  let sortOptions = { createdAt: -1 };
+
+  if (sortByMethod === "card") sortOptions = { method: "card" };
+  if (sortByMethod === "upi") sortOptions = { method: "upi" };
+  if (sortByMethod === "netbanking") sortOptions = { method: "netbanking" };
+  if (sortByMethod === "wallet") sortOptions = { method: "wallet" };
+  if (sortByMethod === "emi") sortOptions = { method: "emi" };
+  if (sortByMethod === "bank") sortOptions = { method: "bank" };
+
+  // sort by payment status
+  if (sortByStatus === "pending") sortOptions = { status: "pending" };
+  if (sortByStatus === "success") sortOptions = { status: "captured" };
+  if (sortByStatus === "failed") sortOptions = { status: "failed" };
+
+  const payments = await Payment.find(query)
+    .skip(skip)
+    .limit(Number(limit))
+    .sort(sortOptions)
+    .lean();
+
+  const total = await Payment.countDocuments(query);
+  const totalRevenue = await Payment.aggregate([
+    {
+      $match: {
+        status: "captured",
+      },
+    },
+    {
+      $group: {
+        _id: null,
+        total: { $sum: "$amount" },
+      },
+    },
+  ]);
+
+  res.status(200).json({
+    success: true,
+    message: "Payments fetched successfully",
+    payments,
+    stats: {
+      totalRevenue: totalRevenue[0]?.total || 0,
+    },
+    pagination: {
+      total,
+      page: Number(page),
+      limit: Number(limit),
+      pages: Math.ceil(total / Number(limit)),
+    },
+  });
+});
 
 // common controllers
 export const getOrderDetails = asyncHandler(async (req, res) => {

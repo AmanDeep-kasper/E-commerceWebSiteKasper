@@ -7,6 +7,7 @@ import {
   getOrderDetails,
   getOrders,
   getOrdersAdmin,
+  getUserAvailablePoints,
   paymentFailed,
   readyToShip,
   shipOrder,
@@ -22,6 +23,7 @@ router.post("/checkout-summary", authenticate, checkoutSummary);
 router.post("/verify-payment", authenticate, verifyPayment);
 router.post("/payment-failed", authenticate, paymentFailed);
 router.get("/", authenticate, authorize("user"), getOrders);
+router.get("/available-points", authenticate, getUserAvailablePoints);
 
 // admin routes
 router.get("/admin", authenticate, authorize("admin"), getOrdersAdmin);
