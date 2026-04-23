@@ -2,9 +2,6 @@ import React, { useEffect, useState } from "react";
 import PriceDetails from "../components/PriceDetails";
 import Navbar from "../components/Navbar";
 import Footer from "../sections/Footer";
-// import upi from "../assets/upi.png";
-// import googlePay from "../assets/googlePay.svg";
-// import phonePe from "../assets/phonepe.svg";
 import paytm from "../assets/paytm.svg";
 import { useSelector, useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
@@ -269,12 +266,18 @@ function Payment() {
             {selectedAddress ? (
               <div className="border border-gray-200 rounded-lg p-4">
                 <p className="font-medium text-gray-800">
-                  {selectedAddress.fullName}
+                  {selectedAddress.fullName}{" "}
+                  {selectedAddress.addressType && (
+                    <span className="bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded-md border-[#1C3753] border">
+                      {selectedAddress.addressType}
+                    </span>
+                  )}
                 </p>
                 <p className="text-gray-600 text-sm">{selectedAddress.email}</p>
-                <p className="text-gray-600 text-sm">
+                <p className="text-gray-600">
+                  {selectedAddress.address},{selectedAddress.country},{" "}
                   {selectedAddress.street}, {selectedAddress.city},{" "}
-                  {selectedAddress.state} - {selectedAddress.pincode}
+                  {selectedAddress.state} - {selectedAddress.pinCode}
                 </p>
                 <button
                   onClick={() => navigate("/checkout/delivery")}
