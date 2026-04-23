@@ -125,6 +125,8 @@ const calculateOrderSummary = ({
   return {
     mrpTotal: cart.mrpsubtotal,
     totalDiscount: cart.discount,
+    subtotal: cart.subtotal,
+    totalGST: cart.totalGST,
     shippingCharge,
     platformFee,
     discount,
@@ -270,7 +272,10 @@ export const checkout = asyncHandler(async (req, res) => {
   });
 
   const {
+    mrpTotal,
+    totalDiscount,
     subtotal,
+    totalGST,
     shippingCharge,
     platformFee,
     discount,
