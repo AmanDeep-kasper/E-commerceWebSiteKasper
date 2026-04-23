@@ -17,6 +17,8 @@ function PriceDetails({
   totalDiscount,
   product,
   hasOutOfStock,
+  sellingPrice,
+  totalGST,
   step = "cart",
   canProceed = true,
   handlePlaceOrder,
@@ -24,14 +26,15 @@ function PriceDetails({
   goToPayment,
   deliveryCharge = 60,
   deliveryLimit = 2000,
+  PlatformFee,
 }) {
   const [showPrice, setShowPrice] = useState(false);
 
-  const safeTotalPrice = Number(totalPrice) || 0;
+  const safeTotalPrice = Number(sellingPrice) || 0;
   const safeTotalDiscount = Number(totalDiscount) || 0;
   const finalAmount = safeTotalPrice - safeTotalDiscount;
 
-  const isFreeDelivery = finalAmount >= deliveryLimit;
+  const isFreeDelivery = Number(deliveryCharge) === 0;
 
   const [showCoupon, setShowCoupon] = useState(false);
 
@@ -69,7 +72,7 @@ function PriceDetails({
               <div className="space-y-4 bg-[#F8F8F8] rounded-lg px-2 py-1">
                 <div className="flex justify-between border-t border-gray-200 pt-4 mt-4">
                   <span className="text-gray-600 font-medium">
-                    Price ({totalItems} {totalItems > 1 ? "items" : "item"})
+                    MRP Price ({totalItems} {totalItems > 1 ? "items" : "item"})
                   </span>
                   <span className="font-medium">
                     {formatPrice(safeTotalPrice)}
@@ -82,33 +85,45 @@ function PriceDetails({
                     - {formatPrice(totalDiscount)}
                   </span>
                 </div>
-
-                <div className="flex justify-between">
-                  <span className="text-gray-600 font-medium">
-                    Platform Fee
+                {/* <div className="flex justify-between">
+                  <span className="text-[#00A63E] font-medium">GST</span>
+                  <span className="text-green-600 font-medium">
+                    + {formatPrice(totalGST)}
                   </span>
-                  <span className="font-medium">₹6</span>
-                </div>
+                </div> */}
 
-                <div className="flex justify-between">
-                  <span className="text-gray-600 font-medium">
-                    Delivery Charges
-                  </span>
-
-                  <span
-                    className={`font-medium ${
-                      isFreeDelivery ? "text-green-600" : "text-gray-800"
-                    }`}
-                  >
-                    {isFreeDelivery ? (
-                      <span className="flex items-center gap-1">
-                        <BadgeCheck className="w-4 h-4" /> FREE
+                {step === "payment" && (
+                  <>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600 font-medium">
+                        Platform Fee
                       </span>
-                    ) : (
-                      formatPrice(deliveryCharge)
-                    )}
-                  </span>
-                </div>
+                      <span className="font-medium">
+                        ₹{PlatformFee.toFixed(2)}
+                      </span>
+                    </div>
+
+                    <div className="flex justify-between">
+                      <span className="text-gray-600 font-medium">
+                        Delivery Charges
+                      </span>
+
+                      <span
+                        className={`font-medium ${
+                          isFreeDelivery ? "text-green-600" : "text-gray-800"
+                        }`}
+                      >
+                        {isFreeDelivery ? (
+                          <span className="flex items-center gap-1">
+                            <BadgeCheck className="w-4 h-4" /> FREE
+                          </span>
+                        ) : (
+                          formatPrice(deliveryCharge)
+                        )}
+                      </span>
+                    </div>
+                  </>
+                )}
               </div>
             </motion.div>
 
@@ -224,34 +239,40 @@ function PriceDetails({
 
               <div className="mt-4 bg-gradient-to-r from-[#FFFFFF] to-[#B2FF00]/20 p-3 border-b-dashed border-[#727681] rounded-xl">
                 <div className="flex justify-between p-2 gap-8 items-center">
-                  <span className="text-[#0E101A] text-[16px] font-medium">
+                 <div>
+                   <span className="text-[#0E101A] text-[16px] font-medium">
                     Earn points on Every 500 Purchase
                   </span>
+                  <div>
+                  <span>Available points:</span>
+                </div>
+                 </div>
                   <button className="bg-[#1C3753] text-white px-4 py-2 rounded-md font-medium">
                     Apply
                   </button>
                 </div>
+                
                 <div className="flex flex-col gap-1">
-                  <span className="text-[#727681] text-[14px] font-medium">
+                  {/* <span className="text-[#727681] text-[14px] font-medium">
                     Get points for every ₹500+ purchase.
-                  </span>
+                  </span> */}
                   <span className="text-[#727681] text-[14px] font-medium">
-                    Reedeem Next Time
+                   Redemption Rules
                   </span>
                 </div>
               </div>
               <div className="bg-gradient-to-r from-[#FFFFFF] to-[#B2FF00]/20 p-3 border-t-dashed border-[#727681] rounded-xl">
                 <div className="flex flex-col gap-2">
                   <span className="text-[#0E101A] text-[14px] font-medium">
-                    • 1 point = ₹50 value during redemption
+                    • 1 point = ₹1 value during redemption
                   </span>
-                  <span className="text-[#0E101A] text-[14px] font-medium">
+                  {/* <span className="text-[#0E101A] text-[14px] font-medium">
                     • 1 point = Customers can redeem up to 10% of the total
                     invoice valuen
-                  </span>
+                  </span> */}
                   <span className="text-[#0E101A] text-[14px] font-medium">
-                    • 1 point = Minimum invoice value required for redemption:
-                    ₹0
+                    •  Minimum invoice value required for redemption:
+                    ₹5000
                   </span>
                 </div>
               </div>

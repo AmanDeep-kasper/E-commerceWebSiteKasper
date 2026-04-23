@@ -8,6 +8,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import EmptyState from "../components/EmptyState";
 import axios from "axios";
+import { useLocation } from "react-router-dom";
+import axiosInstance from "../api/axiosInstance";
 import { placeOrder } from "../redux/cart/orderSlice";
 import { clearCart, resetBuyNow } from "../redux/cart/cartSlice";
 import BASEURL from "../api/axiosInstance";
@@ -24,7 +26,7 @@ function Payment() {
     buyNowMode,
   } = useSelector((s) => s.cart || {});
 
-  const selectedAddress = useSelector((s) => s.address.selectedAddress);
+  // const selectedAddress = useSelector((s) => s.address.selectedAddress);
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -32,6 +34,52 @@ function Payment() {
   const [showStripe, setShowStripe] = useState(false);
   const [upiId, setUpiId] = useState("");
   const [clientSecret, setClientSecret] = useState("");
+
+  // add by aman
+  const location = useLocation();
+  const selectedAddress =
+    location.state?.selectedAddress ||
+    useSelector((s) => s.address.selectedAddress);
+
+  const [checkoutSummary, setCheckoutSummary] = useState(null);
+  const [summaryLoading, setSummaryLoading] = useState(false);
+  const [appliedPoints, setAppliedPoints] = useState(0);
+
+  const fetchCheckoutSummary = async (points = 0) => {
+    try {
+      if (!selectedAddress) return;
+
+      setSummaryLoading(true);
+
+      const res = await axiosInstance.post("/order/checkout-summary", {
+        shippingAddress: selectedAddress,
+        appliedPoints: points,
+      });
+
+      setCheckoutSummary(res.data?.data || null);
+    } catch (error) {
+      console.error("Checkout summary error:", error);
+      toast.error(
+        error?.response?.data?.message || "Failed to load checkout summary",
+      );
+    } finally {
+      setSummaryLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (selectedAddress) {
+      fetchCheckoutSummary(appliedPoints);
+    }
+  }, [selectedAddress]);
+
+  console.log(checkoutSummary);
+
+  // handleApplyPoints is called from PriceDetails when user applies reward points. It updates the appliedPoints state and refetches the checkout summary with the new points value to get updated pricing details.
+  const handleApplyPoints = async (points) => {
+    setAppliedPoints(points);
+    await fetchCheckoutSummary(points);
+  };
 
   function generateOrderId() {
     const datePart = new Date().toISOString().slice(0, 10).replace(/-/g, "");
@@ -361,13 +409,18 @@ function Payment() {
           </div>
 
           <PriceDetails
-            totalItems={totalItems}
-            totalDiscount={totalDiscount}
-            totalPrice={totalPrice}
+            totalItems={cartItems?.length || totalItems}
+            sellingPrice={checkoutSummary?.mrpTotal}
+            totalPrice={checkoutSummary?.total || 0}
+            totalDiscount={checkoutSummary?.totalDiscount || 0}
+            totalGST={checkoutSummary?.totalGST || 0}
             product={cartItems}
             step="payment"
             handlePlaceOrder={handlePlaceOrder}
             buyNowMode={buyNowMode}
+            deliveryCharge={checkoutSummary?.shippingCharge || 0}
+            PlatformFee={checkoutSummary?.platformFee || 0}
+            
           />
         </div>
       </section>
