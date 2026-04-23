@@ -3,18 +3,21 @@ import { twMerge } from "tailwind-merge";
 import Ratings from "./Ratings";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { addToCart, decreaseQty, increaseQty } from "../redux/cart/cartSlice";
+import { addToCart, decreaseQty, increaseQty, setCartFromAPI  } from "../redux/cart/cartSlice";
 import { useNavigate } from "react-router-dom";
 import { Heart, Minus, Plus, ShoppingCart, Trash2 } from "lucide-react";
-import { addToWishlist, removeFromWishlist } from "../redux/cart/wishlistSlice";
+import { addToWishlist, removeFromWishlist, setWishlistFromAPI  } from "../redux/cart/wishlistSlice";
 import { formatPrice, getPrices } from "../utils/homePageUtils";
 import { FaBagShopping } from "react-icons/fa6";
+import { toast } from "react-toastify";
+import axiosInstance from "../api/axiosInstance";
 
 function Card({ cardData = [] }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { cartItems } = useSelector((c) => c.cart);
   const { wishlistItems } = useSelector((w) => w.wishlist);
+  const {isAuthenticated} = useSelector((s) => s.user);
   const [loadingIds, setLoadingIds] = useState([]);
 
   const calcAvgRating = (reviews = []) => {
@@ -53,6 +56,34 @@ function Card({ cardData = [] }) {
     }
     return null;
   };
+  useEffect(() => {
+  if (isAuthenticated) {
+    syncCartFromBackend();
+    syncWishlistFromBackend();
+  }
+}, [isAuthenticated]);
+
+  const syncCartFromBackend = async () => {
+  try {
+    const res = await axiosInstance.get("/cart");
+    if (res.data?.data) {
+      dispatch(setCartFromAPI(res.data.data));
+    }
+  } catch (err) {
+    console.error("Cart sync failed:", err);
+  }
+};
+
+const syncWishlistFromBackend = async () => {
+  try {
+    const res = await axiosInstance.get("/wishlist");
+    if (res.data?.data) {
+      dispatch(setWishlistFromAPI(res.data.data));
+    }
+  } catch (err) {
+    console.error("Wishlist sync failed:", err);
+  }
+};
 
   // const handleAddToCart = (item, defaultVariant) => {
   //   // Mark this item as loading
@@ -104,25 +135,27 @@ function Card({ cardData = [] }) {
   //     setLoadingIds((prev) => prev.filter((id) => id !== item.uuid));
   //   }, 200);
   // };
+const handleAddToCart = async (item) => {
+  const productId = getProductId(item);
+  const defaultVariant = getDefaultVariant(item);
 
-  const handleAddToCart = (item) => {
-    const productId = getProductId(item);
-    const defaultVariant = getDefaultVariant(item);
+  if (!defaultVariant) {
+    toast.error("No variant available");
+    return;
+  }
 
-    if (!defaultVariant) {
-      // console.error("No variant available for product:", item);
-      return;
-    }
+  const variantId = defaultVariant._id || defaultVariant.variantId;
 
-    setLoadingIds((prev) => [...prev, productId]);
+  setLoadingIds((prev) => [...prev, productId]);
 
+  // Guest user
+  if (!isAuthenticated) {
     const payload = {
       uuid: productId,
-      variantId: defaultVariant._id || defaultVariant.variantId,
+      variantId: variantId,
       title: getProductName(item),
       basePrice: defaultVariant.variantMrp || item.mrp || 0,
-      effectivePrice:
-        defaultVariant.variantSellingPrice || item.defaultPrice || 0,
+      effectivePrice: defaultVariant.variantSellingPrice || item.defaultPrice || 0,
       discountPercent: defaultVariant.variantDiscount || item.discount || 0,
       stockQuantity: defaultVariant.variantAvailableStock || 10,
       image: getProductImage(item),
@@ -134,12 +167,29 @@ function Card({ cardData = [] }) {
           : "Standard",
       },
     };
+    dispatch(addToCart(payload));
+    toast.success("Added to cart!");
+    setLoadingIds((prev) => prev.filter((id) => id !== productId));
+    return;
+  }
 
-    setTimeout(() => {
-      dispatch(addToCart(payload));
-      setLoadingIds((prev) => prev.filter((id) => id !== productId));
-    }, 200);
-  };
+  // Authenticated user - make API call
+  try {
+    const response = await axiosInstance.post("/cart/add-to-cart", {
+      productId: productId,
+      variantId: variantId,
+      quantity: 1,
+    });
+    
+    dispatch(setCartFromAPI(response.data.data));
+    toast.success("Added to cart!");
+  } catch (err) {
+    console.error("Error adding to cart:", err);
+    toast.error(err.response?.data?.message || "Failed to add to cart");
+  } finally {
+    setLoadingIds((prev) => prev.filter((id) => id !== productId));
+  }
+};
 
   // const getSafeImage = (variant, product) => {
   //   let img = null;
@@ -280,15 +330,16 @@ function Card({ cardData = [] }) {
               </button> */}
               <button
                 className="absolute bg-white shadow-md md:shadow-lg md:bg-white active:scale-110 transition-all duration-300 md:p-2 p-2 rounded-full text-xs top-1 right-1 z-20"
-                onClick={(e) => {
+                onClick={async (e) => {
                   e.stopPropagation();
+                  if(!isAuthenticated){
                   if (inWishlist) {
                     dispatch(
                       removeFromWishlist({
                         uuid: productId,
                         variantId: defaultVariant?._id,
-                      }),
-                    );
+                      }));
+                      toast.success("Removed from wishlist!");
                   } else {
                     dispatch(
                       addToWishlist({
@@ -307,11 +358,50 @@ function Card({ cardData = [] }) {
                             ? `${defaultVariant.variantWeight} ${defaultVariant.variantWeightUnit}`
                             : "Standard",
                         },
-                      }),
-                    );
+                      }));
+                      toast.success("Added to wishlist!");      
                   }
-                }}
-              >
+                  return;
+                }
+
+               // Authenticated user
+    try {
+      if (inWishlist) {
+        await axiosInstance.delete("/wishlist/remove-item", {
+          data: { productId: productId, variantId: defaultVariant?._id },
+        });
+        dispatch(removeFromWishlist({ uuid: productId, variantId: defaultVariant?._id }));
+        toast.success("Removed from wishlist");
+      } else {
+        await axiosInstance.post("/wishlist/add-to-wishlist", {
+          productId: productId,
+          variantId: defaultVariant?._id,
+        });
+        dispatch(addToWishlist({
+          uuid: productId,
+          variantId: defaultVariant?._id,
+          title: productName,
+          basePrice: basePrice,
+          discountPercent: discountPercent,
+          stockQuantity: variantStock,
+          image: productImage,
+          deliverBy: item.deliverBy || "7-10 business days",
+          selectedOptions: {
+            color: defaultVariant?.variantColor || "Default",
+            type: defaultVariant?.variantName || "Standard",
+            dimension: defaultVariant?.variantWeight
+              ? `${defaultVariant.variantWeight} ${defaultVariant.variantWeightUnit}`
+              : "Standard",
+          },
+        }));
+        toast.success("Added to wishlist");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Something went wrong");
+    }
+  }}
+>
                 <Heart
                   className="w-5 h-5 cursor-pointer"
                   fill={inWishlist ? "red" : "white"}
