@@ -4,6 +4,7 @@ import "react-quill-new/dist/quill.snow.css";
 import { Link } from "react-router-dom";
 
 const PoliciesSettings = () => {
+  
   const [refundCancellationValue, setRefundCancellationValue] = useState(`
     <p><strong>Example:</strong></p>
     <p>Returns are accepted within {{return_window}} days of delivery.</p>
