@@ -285,3 +285,7 @@ select,
   background-color: #FDC700; /* filled in Firefox */
   border-radius: 9999px;
 }
+
+.ql-editor ol {
+  list-style-type: upper-roman;
+}

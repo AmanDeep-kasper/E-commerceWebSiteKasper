@@ -90,7 +90,8 @@ export const addProduct = asyncHandler(async (req, res) => {
 
   let finalVariants = [];
 
-  if (!isDraft) {
+  // if (!isDraft) {
+   if (variants && variants.length > 0) {
     const cleanVariants = variants.map((v) => {
       const mrp = Number(v.variantMrp);
       const selling = Number(v.variantSellingPrice);
@@ -479,6 +480,8 @@ export const adminUpdateProduct = asyncHandler(async (req, res) => {
     "category",
     "subcategory",
     "isActive",
+    "isDraft",
+    "variants",
   ];
 
   const updateData = {};
@@ -491,8 +494,8 @@ export const adminUpdateProduct = asyncHandler(async (req, res) => {
   }
 
   // Find existing product
-  const product = await Product.findOneAndUpdate(
-    { _id: productId },
+  const product = await Product.findByIdAndUpdate(
+    productId,
     { $set: updateData },
     { new: true, runValidators: true },
   )

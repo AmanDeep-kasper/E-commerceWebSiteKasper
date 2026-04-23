@@ -13,6 +13,8 @@ function ConfirmOrder() {
   const { state: orderDetails } = useLocation();
   const { state } = useLocation();
 
+  console.log(state);
+
   if (!orderDetails) return <>None</>;
 
   return (
@@ -47,13 +49,13 @@ function ConfirmOrder() {
               <h2 className="font-semibold text-lg mb-1">
                 Delivery Information
               </h2>
-              <p className="text-gray-600">
+              {/* <p className="text-gray-600">
                 Expected delivery:{" "}
                 <span className="font-medium">{orderDetails.deliveryDate}</span>
-              </p>
+              </p> */}
               <p className="text-gray-600 mt-2">
-                Shipping to:{" "}
-                {`${orderDetails.deliveryAddress.fullName}, ${orderDetails.deliveryAddress.street}, ${orderDetails.deliveryAddress.city}, ${orderDetails.deliveryAddress.state} - ${orderDetails.deliveryAddress.pincode}`}
+                Delivered to:{" "}
+                <span className="text-black">{`${orderDetails.shippingAddress?.address}, ${orderDetails.shippingAddress?.city}, ${orderDetails.shippingAddress?.state}, ${orderDetails.shippingAddress?.pinCode}`}</span>
               </p>
             </div>
           </div>
@@ -82,8 +84,8 @@ function ConfirmOrder() {
                 {/* Product Image */}
                 <div className="w-20 h-20 flex-shrink-0 rounded-md overflow-hidden border bg-gray-50">
                   <img
-                    src={item.img}
-                    alt={item.name}
+                    src={item.image.url}
+                    alt={item.image.altText || item.name}
                     className="w-full h-full object-cover"
                   />
                 </div>
@@ -121,7 +123,9 @@ function ConfirmOrder() {
           <h2 className="font-semibold text-lg mb-2">Payment Information</h2>
           <p className="text-gray-600">
             Payment Method::{" "}
-            <span className="font-medium text-[#1C1C1C]">{orderDetails.paymentMethod}</span>
+            <span className="font-medium text-[#1C1C1C]">
+              {orderDetails.paymentMethod}
+            </span>
           </p>
           {/* <p className="text-gray-600">
             Payment Status:{" "}
