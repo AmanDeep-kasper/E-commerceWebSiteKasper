@@ -16,8 +16,6 @@ function PriceDetails({
   handlePlaceOrder,
   buyNowMode,
   goToPayment,
-
-  // ✅ admin side values
   deliveryCharge = 60,
   deliveryLimit = 2000,
 }) {

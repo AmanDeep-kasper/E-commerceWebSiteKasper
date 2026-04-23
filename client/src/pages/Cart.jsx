@@ -28,9 +28,9 @@ function Cart() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [cartLoading, setCartLoading] = useState(true);
 
-  const { cartItems, totalPrice, totalItems, totalDiscount } = useSelector(
-    (s) => s.cart,
-  );
+  // const { cartItems, totalPrice, totalItems, totalDiscount } = useSelector(
+  //   (s) => s.cart,
+  // );
 
   const dispatch = useDispatch();
   const closeDialog = () => setOpen(false);
@@ -86,7 +86,9 @@ function Cart() {
 
   // detect out of stock
   const hasOutOfStock = cart?.items?.some(
-    (item) => !item.stockQuantity || item.quantity > item.stockQuantity,
+    (item) =>
+      item.variantAvailableStock <= 0 ||
+      item.quantity > item.variantAvailableStock,
   );
 
   // fetch cart details from api
@@ -107,6 +109,8 @@ function Cart() {
   useEffect(() => {
     fetchCartItem();
   }, []);
+
+  // console.log()
 
   const handleClearCart = async () => {
     try {
@@ -230,7 +234,7 @@ function Cart() {
       <section className="lg:px-20 md:px-[60px] md:py-4 bg-gray-50 mt-24">
         <div className="flex flex-col lg:flex-row justify-between lg:gap-6 font-inter">
           {/* Main Cart Content */}
-          <div className={`w-full ${totalItems > 0 ? "lg:w-2/3" : "w-full "}`}>
+          <div className={`w-full ${cart?.totalQuantity > 0 ? "lg:w-2/3" : "w-full "}`}>
             {/* Cart Items Section */}
             <div className=" bg-white md:rounded-lg shadow-sm">
               <div className="p-4 md:p-6 flex items-center justify-between border-b border-gray-200">
@@ -280,7 +284,7 @@ function Cart() {
                             <div className="flex flex-col  items-center gap-2">
                               <Link
                                 className="sm:w-36 sm:h-36 w-20 h-20 rounded-md overflow-hidden border border-gray-200"
-                                to={`/product/${item.uuid}`}
+                                to={`/product/${item._id}`}
                               >
                                 <img
                                   className="sm:w-36 sm:h-36 w-20 h-20 object-contain"
@@ -431,24 +435,24 @@ function Cart() {
                                     </button>
                                   </div>
                                 </div>
-                                  {/* Actions */}
-                                  <div className="flex w-[20%] items-center gap-2 text-sm font-medium">
-                                    <button
-                                      className="text-[#0C0057]"
-                                      onClick={() => handleRemoveItem(item)}
-                                    >
-                                      Remove
-                                    </button>
+                                {/* Actions */}
+                                <div className="flex w-[20%] items-center gap-2 text-sm font-medium">
+                                  <button
+                                    className="text-[#0C0057]"
+                                    onClick={() => handleRemoveItem(item)}
+                                  >
+                                    Remove
+                                  </button>
 
-                                    <span className="hidden sm:inline">|</span>
+                                  <span className="hidden sm:inline">|</span>
 
-                                    <button
-                                      className="text-[#0C0057]"
-                                      onClick={() => moveToWishlist(item)}
-                                    >
-                                      Save later
-                                    </button>
-                                  </div>
+                                  <button
+                                    className="text-[#0C0057]"
+                                    onClick={() => moveToWishlist(item)}
+                                  >
+                                    Save later
+                                  </button>
+                                </div>
                               </div>
                             </div>
                           </div>
@@ -467,8 +471,8 @@ function Cart() {
            Section */}
           {cart?.totalQuantity > 0 && (
             <PriceDetails
-              totalItems={cart?.totalQuantity}
-              totalDiscount={totalDiscount}
+              totalItems={cart.totalQuantity}
+              totalDiscount={cart?.items?.discount}
               totalPrice={cart?.grandTotal}
               product={cart?.items}
               step="cart"

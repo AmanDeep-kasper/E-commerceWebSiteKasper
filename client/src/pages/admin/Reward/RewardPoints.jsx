@@ -22,7 +22,7 @@ function RewardPoints() {
     PriceForPoints: "",
     minOrderValue: "",
     minOrderValueForRedeem: "",
-    date: "",
+    validityDays: "",
   });
 
   useEffect(() => {
@@ -292,11 +292,14 @@ function RewardPoints() {
                       {/* <span className="text-[#DC2626] text-[14px]">*</span> */}
                     </div>
                     <input
-                      type="date"
-                      placeholder="Select Date"
-                      value={formData.date}
+                      type="number"
+                      placeholder="Valid for how many days?"
+                      value={formData.validityDays}
                       onChange={(e) =>
-                        setFormData({ ...formData, date: e.target.value })
+                        setFormData({
+                          ...formData,
+                          validityDays: e.target.value,
+                        })
                       }
                       className="w-full border border-[#DEDEDE] bg-[#F8FBFC] rounded-md px-2 py-2 sm:px-3 sm:py-2 md:px-4 md:py-2.5 outline-none placeholder:text-[#686868] text-[#1C1C1C]"
                     />
@@ -406,16 +409,17 @@ function RewardPoints() {
                     // console.log("SAVE CLICKED");
 
                     try {
-                      let validity = 30;
+                      // let validity = 30;
 
-                      if (formData.date) {
-                        const today = new Date();
-                        const selected = new Date(formData.date);
+                      // if (formData.date) {
+                      //   const today = new Date();
+                      //   const selected = new Date(formData.date);
 
-                        validity = Math.ceil(
-                          (selected - today) / (1000 * 60 * 60 * 24),
-                        );
-                      }
+                      //   validity = Math.ceil(
+                      //     (selected - today) / (1000 * 60 * 60 * 24),
+                      //   );
+                      // }
+                      const validity = Number(formData.validityDays) || 30;
 
                       await axiosInstance.post(
                         "/dashboard/reward/createOrUpdate",
@@ -457,7 +461,7 @@ function RewardPoints() {
                         PriceForPoints: "",
                         minOrderValue: "",
                         minOrderValueForRedeem: "",
-                        date: "",
+                        validityDays: "",
                       });
 
                       setActiveTab("reward");
@@ -515,7 +519,7 @@ function RewardPoints() {
                         PriceForPoints: selectedCard?.pointValue || "",
                         minOrderValueForRedeem:
                           selectedCard?.minOrderValueForRedeem || "",
-                        date: "", // optional (you don’t store exact date, only validity)
+                        validityDays: selectedCard?.deadline || "", //
                       });
 
                       setShowReward(true);
@@ -547,8 +551,7 @@ function RewardPoints() {
             <div className="flex flex-col gap-1">
               <span className="text-[#0E101A] text-[14px] font-normal">
                 ⚡ Customer earn {selectedCard?.earn?.rules?.points || 1} points
-                for every ₹ {selectedCard?.earn?.rules?.PriceForPoints || 500}
-                spent.
+                for every ₹ {selectedCard?.earn?.rules?.PriceForPoints || 500} spent.
               </span>
               <span className="text-[#0E101A] text-[14px] font-normal">
                 💰 Points are applicable only on purchases above ₹
@@ -565,8 +568,11 @@ function RewardPoints() {
             </div>
             <div className="flex flex-col gap-1">
               <span className="text-[#0E101A] text-[14px] font-normal">
-                🎁 1 point value: ₹{selectedCard?.pointValue || selectedCard?.earn?.rules?.PriceForPoints || 0} during
-                redemption
+                🎁 1 point value: ₹
+                {selectedCard?.pointValue ||
+                  selectedCard?.earn?.rules?.PriceForPoints ||
+                  0}{" "}
+                during redemption
               </span>
               <span className="text-[#0E101A] text-[14px] font-normal">
                 💰 Customers can redeem if order value is above ₹

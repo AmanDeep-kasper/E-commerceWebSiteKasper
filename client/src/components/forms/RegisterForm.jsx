@@ -251,7 +251,7 @@ function RegisterForm({ onOtpSent }) {
         </form>
 
         {/* Login Link */}
-        <div className="text-center mt-4 pt-3 border-t border-gray-200">
+        <div className="text-center mt-4 py-3 border-t border-gray-200">
           <p className="text-gray-600 text-sm">
             Already have an account?{" "}
             <Link

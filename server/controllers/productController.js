@@ -840,17 +840,44 @@ export const userGetAllProducts = asyncHandler(async (req, res) => {
   const limitNum = parseInt(limit);
   const skip = (pageNum - 1) * limitNum;
 
-  // ✅ FILTER (ONLY ACTIVE PRODUCTS)
+
   const filter = {};
 
-  // ✅ CATEGORY FILTER (ObjectId)
-  if (category && mongoose.Types.ObjectId.isValid(category)) {
-    filter.category = category;
+  // // ✅ CATEGORY FILTER (ObjectId)
+  // if (category && mongoose.Types.ObjectId.isValid(category)) {
+  //   filter.category = category;
+  // }
+
+  // // ✅ SUBCATEGORY FILTER
+  // if (subcategory && mongoose.Types.ObjectId.isValid(subcategory)) {
+  //   filter.subcategory = subcategory;
+  // }
+
+    // ✅ CATEGORY FILTER (by ID or by name from URL)
+  if (category) {
+    // Check if category is an ID or a name
+    if (mongoose.Types.ObjectId.isValid(category)) {
+      filter.category = category;
+    } else {
+      // Find category by name (for URL like /products/writing instrument art c)
+      const categoryDoc = await Category.findOne({ 
+        name: { $regex: `^${category}$`, $options: "i" } 
+      });
+      if (categoryDoc) {
+        filter.category = categoryDoc._id;
+      }
+    }
   }
 
-  // ✅ SUBCATEGORY FILTER
-  if (subcategory && mongoose.Types.ObjectId.isValid(subcategory)) {
-    filter.subcategory = subcategory;
+  // ✅ SUBCATEGORY FILTER - FIXED
+  if (subcategory) {
+    // Find subcategory by name
+    const subcategoryDoc = await SubCategory.findOne({ 
+      name: { $regex: `^${subcategory}$`, $options: "i" } 
+    });
+    if (subcategoryDoc) {
+      filter.subcategory = subcategoryDoc._id;
+    }
   }
 
   // ✅ SEARCH (name + SKU)
@@ -931,6 +958,11 @@ export const userGetAllProducts = asyncHandler(async (req, res) => {
 
     const image = defaultVariant?.variantImage?.[0]?.url || null;
 
+      // ✅ Extract unique colors from variants
+    const availableColors = [...new Set(
+      variants.map(v => v.variantColor).filter(Boolean)
+    )];
+
     return {
       _id: product._id,
       name: product.productTittle,
@@ -950,11 +982,16 @@ export const userGetAllProducts = asyncHandler(async (req, res) => {
       mrp: defaultVariant?.variantMrp || 0,
       defaultPrice: defaultVariant?.variantSellingPrice || 0,
       discount: defaultVariant?.variantDiscount || 0,
-
-      image,
-
+      image:image,
       inStock: inStockVariants.length > 0,
       variantCount: variants.length,
+      availableColors:availableColors,
+      variants: variants.map((v) => ({
+        variantColor:v.variantColor,
+        variantName:v.variantName,
+        variantSellingPrice:v.variantSellingPrice,
+        _id:v._id,
+      })),
 
       stats: product.stats,
       createdAt: product.createdAt,

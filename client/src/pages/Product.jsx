@@ -32,8 +32,7 @@ function Product() {
         const res = await axiosInstance.get("/product/all");
 
         let fetchedProducts = [];
-
-        if (res.data?.success && res.data?.data) {
+ if (res.data?.success && res.data?.data) {
           fetchedProducts = res.data.data;
         } else if (Array.isArray(res.data)) {
           fetchedProducts = res.data;
@@ -41,25 +40,25 @@ function Product() {
           fetchedProducts = res.data.products;
         }
 
-        // console.log("Fetched products:", fetchedProducts);
+        console.log("Extracted products:", fetchedProducts);
+        console.log("First product structure:", fetchedProducts[0]);
+
         let filteredProducts = fetchedProducts;
 
         if (categoryName) {
           const decodedCategory =
             decodeURIComponent(categoryName).toLowerCase();
+            console.log("Looking for category:", decodedCategory);
           filteredProducts = fetchedProducts.filter((p) => {
             const productCategory = (
               p.categoryName ||
               p.category?.name ||
               ""
             ).toLowerCase();
+             console.log(`Product "${p.name}" category:`, productCategory);
             return productCategory === decodedCategory;
           });
-          // console.log(
-          //   `Filtered by category "${decodedCategory}":`,
-          //   filteredProducts.length,
-          //   "products",
-          // );
+         console.log(`Found ${filteredProducts.length} products in category "${decodedCategory}"`);
         }
 
         if (subcategoryName && filteredProducts.length > 0) {
@@ -73,12 +72,9 @@ function Product() {
             ).toLowerCase();
             return productSubcategory === decodedSubcategory;
           });
-          console.log(
-            `Filtered by subcategory "${decodedSubcategory}":`,
-            filteredProducts.length,
-            "products",
-          );
+          console.log(`Found ${filteredProducts.length} products in subcategory "${decodedSubcategory}"`);
         }
+
 
         setItems(filteredProducts);
         setOriginalItems(filteredProducts);
@@ -212,9 +208,6 @@ function Product() {
         subcategory={displaySubcategory}
       />
 
-      {/* <div style={{ background: 'red', padding: '10px', margin: '10px', color: 'white' }}>
-            DEBUG: Breadcrumbs should be here. Category: {displayCategory}
-        </div> */}
 
       <div className=" flex flex-col lg:px-20 md:px-[60px] px-4 pb-[23px] lg:flex gap-4 bg-gray-50">
         <div className="mt-5">

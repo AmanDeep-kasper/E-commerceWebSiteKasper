@@ -6,9 +6,14 @@ import Navbar from "../components/Navbar";
 import Footer from "../sections/Footer";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { selectAddress, removeAddress } from "../redux/cart/addressSlice";
 import AddressForm from "../components/forms/AddressForm";
 import EmptyState from "../components/EmptyState";
+import axiosInstance from "../api/axiosInstance";
+import {
+  fetchAddresses,
+  selectAddress,
+  removeAddress,
+} from "../redux/cart/addressSlice";
 
 function Delivery() {
   const { cartItems, totalPrice, totalItems, totalDiscount } = useSelector(
@@ -16,22 +21,67 @@ function Delivery() {
   );
 
   const { addresses, selectedAddress } = useSelector((s) => s.address);
+  const safeAddresses = Array.isArray(addresses) ? addresses : [];
+
+  // console.log(safeAddresses);
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const [open, setOpen] = useState(false);
   const [editingAddress, setEditingAddress] = useState(null);
+  const [loadingAddresses, setLoadingAddresses] = useState(false);
+  const [addressData, setAddressData] = useState(null);
 
   // Select existing saved address
   const handleSelectAddress = (addr) => {
     dispatch(selectAddress(addr));
   };
 
+  const fetchAddresses = async () => {
+    try {
+      setLoadingAddresses(true);
+
+      const res = await axiosInstance.get("/address/all-addresses");
+      console.log("Address API response:", res.data);
+      setAddressData(res.data);
+
+      const allAddresses = Array.isArray(res?.data?.data?.addresses)
+        ? res.data.data.addresses
+        : Array.isArray(res?.data?.addresses)
+          ? res.data.addresses
+          : [];
+
+      dispatch({
+        type: "address/setAddresses",
+        payload: allAddresses,
+      });
+    } catch (error) {
+      console.error("Failed to fetch addresses:", error);
+      toast.error(error?.response?.data?.message || "Failed to load addresses");
+    } finally {
+      setLoadingAddresses(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAddresses();
+  }, []);
+
+  console.log(addressData?.data?.addresses);
+
   // Delete address
-  const handleDeleteAddress = (addr) => {
-    dispatch(removeAddress(addr._id)); // ✅ use _id
-    toast.success("Address removed successfully");
+  const handleDeleteAddress = async (addr) => {
+    try {
+      await axiosInstance.delete(`/address/delete-address/${addr._id}`);
+
+      await fetchAddresses();
+
+      toast.success("Address removed successfully");
+    } catch (error) {
+      console.error("Delete address error:", error);
+      toast.error(error?.response?.data?.message || "Failed to delete address");
+    }
   };
 
   // Proceed to payment
@@ -52,28 +102,34 @@ function Delivery() {
 
   // Auto-select default address or if only one address exists
   useEffect(() => {
-    if (addresses.length === 1) {
-      dispatch(selectAddress(addresses[0]));
+    if (safeAddresses.length === 1) {
+      dispatch(selectAddress(safeAddresses[0]));
     } else {
-      const defaultAddr = addresses.find((a) => a.isDefault);
+      const defaultAddr = safeAddresses.find((a) => a.isDefault);
       if (defaultAddr) {
         dispatch(selectAddress(defaultAddr));
       }
     }
-  }, [addresses, dispatch]);
+  }, [safeAddresses, dispatch]);
 
   const canProceed = Boolean(selectedAddress);
 
   return (
     <>
       <Navbar />
-      <section className="lg:px-20 md:px-[60px] md:py-4 bg-gray-50 min-h-screen">
+      <section className="lg:px-20 md:px-[60px] md:py-4 bg-gray-50 min-h-screen mt-20">
         <div className="flex flex-col lg:flex-row justify-between md:gap-6 ">
           {/* Address Section */}
           <div className="w-full lg:w-2/3 p-4 md:p-6 md:shadow-sm bg-white md:rounded-md">
             <div className="flex justify-between items-center mb-6">
               <div className="text-lg sm:text-xl flex gap-2 items-center font-light text-gray-800">
-              <Link to="/bag"><ChevronLeft className="w-8 h-8"/></Link> <span className="font-marcellus text-[#1800AC]"> Delivery Address</span>
+                <Link to="/bag">
+                  <ChevronLeft className="w-8 h-8" />
+                </Link>{" "}
+                <span className="font-marcellus text-[#1800AC]">
+                  {" "}
+                  Delivery Address
+                </span>
               </div>
               <button
                 onClick={() => setOpen(true)}
@@ -84,9 +140,9 @@ function Delivery() {
             </div>
 
             {/* Saved Addresses */}
-            {addresses.length > 0 ? (
+            {addressData?.data?.addresses?.length > 0 ? (
               <div className="space-y-3">
-                {addresses.map((addr) => (
+                {addressData.data?.addresses?.map((addr) => (
                   <div
                     key={addr._id}
                     className={`p-4 border rounded-lg cursor-pointer transition-all ${
@@ -100,25 +156,26 @@ function Delivery() {
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
                           <p className="font-medium text-gray-900">
-                            {addr.name} • {addr.phone}
+                            {addr.fullName} • {addr.phone}
                           </p>
 
                           {/* Address type tag */}
-                          {addr.tag && (
+                          {addr.addressType && (
                             <span className="text-xs px-2 py-0.5 bg-white rounded-md border-[#1C3753] border text-[#1C3753]">
-                              {addr.tag}
+                              {addr.addressType}
                             </span>
                           )}
 
                           {/* Default badge */}
-                          {addr.isDefault && (
+                          {addr.isDefault === true && (
                             <span className="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded-md border-[#1C3753] border">
                               Default
                             </span>
                           )}
                         </div>
                         <p className="text-gray-600">
-                          {addr.street}, {addr.city}, {addr.state} - {addr.zip}
+                          {addr.address},{addr.country}, {addr.street},{" "}
+                          {addr.city}, {addr.state} - {addr.pinCode}
                         </p>
                         {addr.email && (
                           <p className="text-sm text-gray-500">{addr.email}</p>
@@ -164,7 +221,7 @@ function Delivery() {
                   </div>
                 ))}
 
-                <div className="flex justify-between items-start ">
+                {/* <div className="flex justify-between items-start ">
                   <div className="space-y-1  w-full">
                     <p className="font-medium text-gray-900 text-lg mt-2">
                       Select a delivery type
@@ -186,7 +243,7 @@ function Delivery() {
                       </div>
                     </div>
                   </div>
-                </div>
+                </div> */}
               </div>
             ) : (
               <EmptyState
@@ -218,6 +275,7 @@ function Delivery() {
           onClose={() => {
             setOpen(false);
             setEditingAddress(null);
+            fetchAddresses();
           }}
           initialData={editingAddress}
         />
