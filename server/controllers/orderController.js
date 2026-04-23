@@ -123,11 +123,11 @@ const calculateOrderSummary = ({
   }
 
   return {
-    subtotal: cart.subtotal,
+    mrpTotal: cart.mrpsubtotal,
+    totalDiscount: cart.discount,
     shippingCharge,
     platformFee,
     discount,
-    gst: cart.totalGST,
     total: totalBeforeEarning,
     earnedPoints,
   };
@@ -1013,10 +1013,7 @@ export const getPayments = asyncHandler(async (req, res) => {
         {
           $addFields: {
             bucketStart: {
-              $subtract: [
-                "$day",
-                { $mod: [{ $subtract: ["$day", 1] }, 5] },
-              ],
+              $subtract: ["$day", { $mod: [{ $subtract: ["$day", 1] }, 5] }],
             },
           },
         },
@@ -1037,11 +1034,7 @@ export const getPayments = asyncHandler(async (req, res) => {
                 "-",
                 {
                   $toString: {
-                    $cond: [
-                      { $gt: ["$bucketEnd", 31] },
-                      31,
-                      "$bucketEnd",
-                    ],
+                    $cond: [{ $gt: ["$bucketEnd", 31] }, 31, "$bucketEnd"],
                   },
                 },
               ],
@@ -1094,8 +1087,18 @@ export const getPayments = asyncHandler(async (req, res) => {
   });
 
   const monthsMap = [
-    "Jan","Feb","Mar","Apr","May","Jun",
-    "Jul","Aug","Sep","Oct","Nov","Dec",
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
   ];
 
   const yearlyData = monthsMap.map((m, i) => {
