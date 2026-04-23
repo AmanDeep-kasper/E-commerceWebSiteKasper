@@ -123,13 +123,11 @@ function ProductDetails() {
 
         if (found?.variants?.length > 0) {
           const v0 = found.variants[0];
-
           setSelectedVariant(v0);
           // setSelectedColor(v0?.variantColor || null);
           setSelectedSize(normalizeSize(v0));
         }
 
-        // ❌ REMOVE similarProducts logic here (you don't have list API)
       } catch (err) {
         console.error(err);
         setProduct(null);

@@ -380,7 +380,7 @@ function ProductInformation() {
           //     Be the first to share your thoughts about this product.
           //   </p>
           // </div>
-          "'lks;sks"
+          ""
         )}
 
         {/* <h2 className="text-lg font-medium mb-2">Rating Breakdown</h2> */}

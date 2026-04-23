@@ -23,7 +23,7 @@ function Delivery() {
   const { addresses, selectedAddress } = useSelector((s) => s.address);
   const safeAddresses = Array.isArray(addresses) ? addresses : [];
 
-  console.log(safeAddresses);
+  // console.log(safeAddresses);
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -75,7 +75,7 @@ function Delivery() {
     try {
       await axiosInstance.delete(`/address/delete-address/${addr._id}`);
 
-      await fetchAddresses(); // 🔥 refresh from API
+      await fetchAddresses();
 
       toast.success("Address removed successfully");
     } catch (error) {
@@ -160,21 +160,22 @@ function Delivery() {
                           </p>
 
                           {/* Address type tag */}
-                          {addr.tag && (
+                          {addr.addressType && (
                             <span className="text-xs px-2 py-0.5 bg-white rounded-md border-[#1C3753] border text-[#1C3753]">
-                              {addr.tag}
+                              {addr.addressType}
                             </span>
                           )}
 
                           {/* Default badge */}
-                          {addr.isDefault && (
+                          {addr.isDefault === true && (
                             <span className="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded-md border-[#1C3753] border">
                               Default
                             </span>
                           )}
                         </div>
                         <p className="text-gray-600">
-                          {addr.street}, {addr.city}, {addr.state} - {addr.zip}
+                          {addr.address},{addr.country}, {addr.street},{" "}
+                          {addr.city}, {addr.state} - {addr.pinCode}
                         </p>
                         {addr.email && (
                           <p className="text-sm text-gray-500">{addr.email}</p>
