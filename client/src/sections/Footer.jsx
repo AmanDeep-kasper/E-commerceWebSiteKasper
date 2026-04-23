@@ -62,7 +62,7 @@ function Footer() {
                     <li>Shipping Policy</li>
                   </Link>
                   <Link to="/returnrefundpolicy">
-                    <li>Return & Refund Policy</li>
+                    <li>Refund & Cancellatioon Policy</li>
                   </Link>
                   <Link to="/policy">
                     <li>Privacy Policy</li>
@@ -70,9 +70,9 @@ function Footer() {
                   <Link to="/accounts/support">
                     <li>Contact Us</li>
                   </Link>
-                  <Link to="/faqs">
+                  {/* <Link to="/faqs">
                     <li>FAQs</li>
-                  </Link>
+                  </Link> */}
                 </ul>
               </div>
             </div>
@@ -169,7 +169,7 @@ function Footer() {
             </p>
             <ul className="flex md:gap-4 gap-1 font-[400] lg:text-[16px] text-[11.5px]">
               <li className="lg:text-sm text-xs text-[#2D2F31]">
-                <Link to="/termsconditions">Terms & Conditions</Link>
+                <Link to="/termsconditions">Designed & Developed by Kasper Infotech Pvt. Ltd.</Link>
               </li>
             </ul>
           </div>

@@ -390,19 +390,19 @@ function Collection() {
         </div> */}
         {/* <========-------- Category --------=========> */}
 
-        <div className="flex justify-center items-center mt-6 px-4 sm:px-8 md:px-16 lg:px-24">
+        <div className="flex items-center mt-6">
           <Swiper
             modules={[Navigation]}
-            spaceBetween={0}
+            spaceBetween={-20}
             slidesPerView={6}
             navigation
             breakpoints={{
-              320: { slidesPerView: 2 },
-              640: { slidesPerView: 3 },
-              768: { slidesPerView: 4 },
+              320: { slidesPerView: 1 },
+              640: { slidesPerView: 2 },
+              768: { slidesPerView: 3 },
               1024: { slidesPerView: 6 },
             }}
-            className="w-full"
+            className="w-full px-6"
           >
             {categories.map((category) => (
               <SwiperSlide key={category._id}>
@@ -410,7 +410,7 @@ function Collection() {
                   to={`/products/${encodeURIComponent(category.name)}`}
                   state={{ category: category.name }}
                 >
-                  <div className="flex flex-col items-center gap-3">
+                  <div className="flex flex-col items-center">
                     <div className="w-[150px] h-[150px] rounded overflow-hidden">
                       <img
                         src={
@@ -418,7 +418,7 @@ function Collection() {
                           "/placeholder-category.jpg"
                         }
                         alt={category.name}
-                        className="w-full h-full object-cover hover:scale-110 transition duration-300 cursor-pointer"
+                        className="w-full aspect-square max-w-[150px] mx-auto rounded overflow-hidden"
                       />
                     </div>
 
