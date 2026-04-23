@@ -36,7 +36,7 @@ function App() {
       () => {
         axiosInstance.post("/auth/refresh-token").catch(() => {});
       },
-      2 * 60 * 1000,
+      14 * 60 * 1000,
     );
     return () => clearInterval(interval);
   }, [isAuthenticated]);
