@@ -89,8 +89,8 @@ if (env.NODE_ENV === "production") {
 // app.use(speedLimiter);
 
 // ================== BODY PARSING ==================
-app.use(express.json({ limit: "16kb" }));
-app.use(express.urlencoded({ extended: true, limit: "16kb" }));
+app.use(express.json({ limit: "5mb" }));
+app.use(express.urlencoded({ extended: true, limit: "5mb" }));
 
 // ================== COOKIES & STATIC ==================
 app.use(cookieParser());
