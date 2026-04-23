@@ -54,25 +54,25 @@ function Product() {
           fetchedProducts = res.data.products;
         }
 
-        console.log("Extracted products:", fetchedProducts);
-        console.log("First product structure:", fetchedProducts[0]);
+        // console.log("Extracted products:", fetchedProducts);
+        // console.log("First product structure:", fetchedProducts[0]);
 
         let filteredProducts = fetchedProducts;
 
         if (categoryName) {
           const decodedCategory =
             decodeURIComponent(categoryName).toLowerCase();
-            console.log("Looking for category:", decodedCategory);
+            // console.log("Looking for category:", decodedCategory);
           filteredProducts = fetchedProducts.filter((p) => {
             const productCategory = (
               p.categoryName ||
               p.category?.name ||
               ""
             ).toLowerCase();
-             console.log(`Product "${p.name}" category:`, productCategory);
+            //  console.log(`Product "${p.name}" category:`, productCategory);
             return productCategory === decodedCategory;
           });
-         console.log(`Found ${filteredProducts.length} products in category "${decodedCategory}"`);
+        //  console.log(`Found ${filteredProducts.length} products in category "${decodedCategory}"`);
         }
 
         if (subcategoryName && filteredProducts.length > 0) {
@@ -86,7 +86,7 @@ function Product() {
             ).toLowerCase();
             return productSubcategory === decodedSubcategory;
           });
-          console.log(`Found ${filteredProducts.length} products in subcategory "${decodedSubcategory}"`);
+          // console.log(`Found ${filteredProducts.length} products in subcategory "${decodedSubcategory}"`);
         }
 
  // Apply subcategory filter (client-side)
@@ -95,7 +95,7 @@ function Product() {
         setItems(filteredProducts);
         setOriginalItems(filteredProducts);
       } catch (err) {
-        console.error("API Error:", err);
+        // console.error("API Error:", err);
         setError(err.response?.data?.message || "Failed to load products");
       } finally {
         setLoading(false);
@@ -212,8 +212,8 @@ function Product() {
     ? decodeURIComponent(subcategoryName)
     : "";
 
-  console.log("breadcrumbssds34rer", displayCategory);
-  console.log("displaysubcategorysder44", displaySubcategory);
+//  console .log("breadcrumbssds34rer", displayCategory);
+//   console.log("displaysubcategorysder44", displaySubcategory);
 
   return (
     <>

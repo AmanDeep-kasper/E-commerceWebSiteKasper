@@ -1,4 +1,10 @@
-import { ArrowRight, BadgeCheck, ChevronDown, Info, ShieldCheck } from "lucide-react";
+import {
+  ArrowRight,
+  BadgeCheck,
+  ChevronDown,
+  Info,
+  ShieldCheck,
+} from "lucide-react";
 import { IoCloseCircleOutline } from "react-icons/io5";
 import React, { useState } from "react";
 import { formatPrice } from "../utils/homePageUtils";
@@ -21,7 +27,10 @@ function PriceDetails({
 }) {
   const [showPrice, setShowPrice] = useState(false);
 
-  const finalAmount = totalPrice - totalDiscount;
+  const safeTotalPrice = Number(totalPrice) || 0;
+  const safeTotalDiscount = Number(totalDiscount) || 0;
+  const finalAmount = safeTotalPrice - safeTotalDiscount;
+
   const isFreeDelivery = finalAmount >= deliveryLimit;
 
   const [showCoupon, setShowCoupon] = useState(false);
@@ -40,8 +49,9 @@ function PriceDetails({
               aria-expanded={showPrice}
             >
               <ChevronDown
-                className={`transform transition-transform duration-300 ${showPrice ? "rotate-180" : "rotate-0"
-                  }`}
+                className={`transform transition-transform duration-300 ${
+                  showPrice ? "rotate-180" : "rotate-0"
+                }`}
               />
             </button>
           </div>
@@ -61,7 +71,9 @@ function PriceDetails({
                   <span className="text-gray-600 font-medium">
                     Price ({totalItems} {totalItems > 1 ? "items" : "item"})
                   </span>
-                  <span className="font-medium">{formatPrice(totalPrice)}</span>
+                  <span className="font-medium">
+                    {formatPrice(safeTotalPrice)}
+                  </span>
                 </div>
 
                 <div className="flex justify-between">
@@ -96,17 +108,13 @@ function PriceDetails({
                       formatPrice(deliveryCharge)
                     )}
                   </span>
-                </div> 
+                </div>
               </div>
             </motion.div>
 
             <div className="border-t border-gray-200 pt-4 mt-4 flex justify-between text-base sm:text-lg font-semibold text-gray-900">
               <span>Total Amount</span>
-              <span>
-                {formatPrice(
-                  finalAmount + (isFreeDelivery ? 0 : deliveryCharge) + 6
-                )}
-              </span>
+              <span>{totalPrice}</span>
             </div>
           </div>
 
@@ -114,8 +122,8 @@ function PriceDetails({
             <Info className="text-[#1C3753] mt-0.5 flex-shrink-0" size={16} />
             <div>
               <p className="text-[#1C3753] font-medium text-sm sm:text-base">
-                You're saving ₹{totalDiscount.toLocaleString("en-IN")} on this
-                order!
+                You're saving ₹{safeTotalDiscount.toLocaleString("en-IN")} on
+                this order!
               </p>
               {!isFreeDelivery && (
                 <p className="text-green-600 text-xs sm:text-sm mt-1">
@@ -126,13 +134,21 @@ function PriceDetails({
           </div>
 
           {/* <=============------------ Apply Coupon ------------=============> */}
-          <div className="flex justify-between items-center mt-5">
-            <span className="flex gap-4 items-center"><BadgeCheck />Apply Coupons</span>
-            <span className="border border-[#0C0057] px-3 py-2 rounded-md font-medium text-[14px] text-[#0C0057] cursor-pointer" onClick={() => setShowCoupon(!showCoupon)}>
-              Apply
-            </span>
-          </div>
-
+          {step === "payment" && (
+            <div className="flex justify-between items-center mt-5">
+              <span className="flex gap-4 items-center">
+                <BadgeCheck />
+                Apply Coupons
+              </span>
+              <button
+                type="button"
+                className="border border-[#0C0057] px-3 py-2 rounded-md font-medium text-[14px] text-[#0C0057] cursor-pointer"
+                onClick={() => setShowCoupon(true)}
+              >
+                Apply
+              </button>
+            </div>
+          )}
 
           {/* Payment Security */}
           <div className="mt-2 pt-4 border-t border-gray-200 flex items-center justify-between gap-2 text-xs sm:text-sm text-gray-500">
@@ -169,7 +185,8 @@ function PriceDetails({
                   onClick={handlePlaceOrder}
                   className="bg-[#0C0057] rounded-lg hover:bg-black text-white md:px-8 md:py-3 px-4 py-2 text-base font-medium transition-colors flex items-center gap-2 whitespace-nowrap"
                 >
-                  {buyNowMode ? "Buy Now & Pay" : "Place Order"} <ArrowRight size={16}></ArrowRight>
+                  {buyNowMode ? "Buy Now & Pay" : "Place Order"}{" "}
+                  <ArrowRight size={16}></ArrowRight>
                 </button>
               )}
             </div>
@@ -177,10 +194,9 @@ function PriceDetails({
         </>
       </div>
 
-
       {/* <=============------------ Coupon ------------=============> */}
 
-      {showCoupon && (
+      {step === "payment" && showCoupon && (
         <>
           <div
             className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-3 sm:p-6"
@@ -194,8 +210,6 @@ function PriceDetails({
               className="bg-white rounded-xl shadow-lg relative p-4 sm:p-6 overflow-y-auto"
               onClick={(e) => e.stopPropagation()}
             >
-
-
               <div className="flex items-center justify-between w-full gap-5">
                 <span className="text-[18px] text-[#1c1c1c] font-semibold">
                   Apply Coupon
@@ -210,20 +224,36 @@ function PriceDetails({
 
               <div className="mt-4 bg-gradient-to-r from-[#FFFFFF] to-[#B2FF00]/20 p-3 border-b-dashed border-[#727681] rounded-xl">
                 <div className="flex justify-between p-2 gap-8 items-center">
-                  <span className="text-[#0E101A] text-[16px] font-medium">Earn points on Every 500 Purchase</span>
-                  <button className="bg-[#1C3753] text-white px-4 py-2 rounded-md font-medium">Apply</button>
+                  <span className="text-[#0E101A] text-[16px] font-medium">
+                    Earn points on Every 500 Purchase
+                  </span>
+                  <button className="bg-[#1C3753] text-white px-4 py-2 rounded-md font-medium">
+                    Apply
+                  </button>
                 </div>
                 <div className="flex flex-col gap-1">
-                  <span className="text-[#727681] text-[14px] font-medium">Get points for every ₹500+ purchase.</span>
-                  <span className="text-[#727681] text-[14px] font-medium">Reedeem Next Time</span>
+                  <span className="text-[#727681] text-[14px] font-medium">
+                    Get points for every ₹500+ purchase.
+                  </span>
+                  <span className="text-[#727681] text-[14px] font-medium">
+                    Reedeem Next Time
+                  </span>
                 </div>
               </div>
               <div className="bg-gradient-to-r from-[#FFFFFF] to-[#B2FF00]/20 p-3 border-t-dashed border-[#727681] rounded-xl">
-              <div className="flex flex-col gap-2">
-                <span className="text-[#0E101A] text-[14px] font-medium">• 1 point = ₹50 value during redemption</span>
-                <span className="text-[#0E101A] text-[14px] font-medium">• 1 point = Customers can redeem up to 10% of the total invoice valuen</span>
-                <span className="text-[#0E101A] text-[14px] font-medium">• 1 point = Minimum invoice value required for redemption: ₹0</span>
-              </div>
+                <div className="flex flex-col gap-2">
+                  <span className="text-[#0E101A] text-[14px] font-medium">
+                    • 1 point = ₹50 value during redemption
+                  </span>
+                  <span className="text-[#0E101A] text-[14px] font-medium">
+                    • 1 point = Customers can redeem up to 10% of the total
+                    invoice valuen
+                  </span>
+                  <span className="text-[#0E101A] text-[14px] font-medium">
+                    • 1 point = Minimum invoice value required for redemption:
+                    ₹0
+                  </span>
+                </div>
               </div>
             </div>
           </div>

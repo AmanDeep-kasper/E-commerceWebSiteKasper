@@ -234,7 +234,9 @@ function Cart() {
       <section className="lg:px-20 md:px-[60px] md:py-4 bg-gray-50 mt-24">
         <div className="flex flex-col lg:flex-row justify-between lg:gap-6 font-inter">
           {/* Main Cart Content */}
-          <div className={`w-full ${cart?.totalQuantity > 0 ? "lg:w-2/3" : "w-full "}`}>
+          <div
+            className={`w-full ${cart?.totalQuantity > 0 ? "lg:w-2/3" : "w-full "}`}
+          >
             {/* Cart Items Section */}
             <div className=" bg-white md:rounded-lg shadow-sm">
               <div className="p-4 md:p-6 flex items-center justify-between border-b border-gray-200">
@@ -436,7 +438,7 @@ function Cart() {
                                   </div>
                                 </div>
                                 {/* Actions */}
-                                <div className="flex w-[20%] items-center gap-2 text-sm font-medium">
+                                <div className="flex w-[30%] items-center gap-2 text-sm font-medium">
                                   <button
                                     className="text-[#0C0057]"
                                     onClick={() => handleRemoveItem(item)}
@@ -471,10 +473,16 @@ function Cart() {
            Section */}
           {cart?.totalQuantity > 0 && (
             <PriceDetails
-              totalItems={cart.totalQuantity}
-              totalDiscount={cart?.items?.discount}
-              totalPrice={cart?.grandTotal}
-              product={cart?.items}
+              totalItems={cart?.totalQuantity || 0}
+              totalDiscount={
+                cart?.items?.reduce(
+                  (sum, item) =>
+                    sum + (item.mrp - item.sellingPrice) * item.quantity,
+                  0,
+                ) || 0
+              }
+              totalPrice={cart?.grandTotal || 0}
+              product={cart?.items || []}
               step="cart"
               hasOutOfStock={hasOutOfStock}
             />

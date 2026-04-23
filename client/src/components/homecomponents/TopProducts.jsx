@@ -576,6 +576,16 @@ const ProductCard = ({ product }) => {
           explore more
         </Link>
       </div>
+       {!loading && collections.length === 0 && (
+  <div className="text-center py-10">
+    <p className="text-gray-500 text-sm">
+      No featured collections available right now.
+    </p>
+    <p className="text-gray-400 text-xs mt-1">
+      Check back later for new arrivals!
+    </p>
+  </div>
+)}
 
       {/* Loop through each collection */}
       {collections.map((collection) => (
