@@ -1,7 +1,7 @@
 // App.jsx
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { syncCart } from "./redux/cart/cartSlice";
+// import { syncCart } from "./redux/cart/cartSlice";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import PageRouter from "./Router/PageRouter";
