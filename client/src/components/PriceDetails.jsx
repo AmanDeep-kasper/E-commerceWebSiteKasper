@@ -27,6 +27,10 @@ function PriceDetails({
   deliveryCharge = 60,
   deliveryLimit = 2000,
   PlatformFee,
+  availablePoints,
+  rewardConfig,
+  onApplyPoints,
+  appliedPoints,
 }) {
   const [showPrice, setShowPrice] = useState(false);
 
@@ -122,6 +126,17 @@ function PriceDetails({
                         )}
                       </span>
                     </div>
+
+                    {step === "payment" && Number(appliedPoints) > 0 && (
+                      <div className="flex justify-between">
+                        <span className="text-[#00A63E] font-medium">
+                          Reward Points Applied
+                        </span>
+                        <span className="text-green-600 font-medium">
+                          - {formatPrice(appliedPoints)}
+                        </span>
+                      </div>
+                    )}
                   </>
                 )}
               </div>
@@ -150,18 +165,54 @@ function PriceDetails({
 
           {/* <=============------------ Apply Coupon ------------=============> */}
           {step === "payment" && (
-            <div className="flex justify-between items-center mt-5">
-              <span className="flex gap-4 items-center">
-                <BadgeCheck />
-                Apply Coupons
-              </span>
-              <button
-                type="button"
-                className="border border-[#0C0057] px-3 py-2 rounded-md font-medium text-[14px] text-[#0C0057] cursor-pointer"
-                onClick={() => setShowCoupon(true)}
-              >
-                Apply
-              </button>
+            <div className="mt-5 rounded-xl border border-[#E6E6E6] bg-white p-4">
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex items-start gap-3">
+                  <div className="mt-1">
+                    <BadgeCheck className="w-6 h-6 text-[#2E1065]" />
+                  </div>
+
+                  <div className="flex flex-col">
+                    {Number(appliedPoints) > 0 ? (
+                      <>
+                        <span className="text-[16px] font-semibold text-[#1C1C1C]">
+                          Use Points. Pay Less.
+                        </span>
+                        <span className="text-[13px] text-[#00A63E] font-medium">
+                          You saved additional {formatPrice(appliedPoints)}
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <span className="text-[16px] font-semibold text-[#1C1C1C]">
+                          Apply Reward Points
+                        </span>
+                        <span className="text-[13px] text-gray-500">
+                          Available points: {availablePoints || 0}
+                        </span>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                {Number(appliedPoints) > 0 ? (
+                  <button
+                    type="button"
+                    onClick={() => onApplyPoints(0)} // 🔥 REMOVE
+                    className="min-w-[100px] rounded-lg border border-[#2E1065] px-4 py-2 text-[14px] font-medium text-[#2E1065] hover:bg-[#F7F5FF]"
+                  >
+                    Remove
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setShowCoupon(true)} // 🔥 OPEN POPUP
+                    className="min-w-[100px] rounded-lg border border-[#2E1065] px-4 py-2 text-[14px] font-medium text-[#2E1065] hover:bg-[#F7F5FF]"
+                  >
+                    Apply
+                  </button>
+                )}
+              </div>
             </div>
           )}
 
@@ -217,7 +268,8 @@ function PriceDetails({
             className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-3 sm:p-6"
             onClick={(e) => {
               if (e.target === e.currentTarget) {
-                setShowCard(false);
+                // setShowCard(false);
+                setShowCoupon(false);
               }
             }}
           >
@@ -239,25 +291,31 @@ function PriceDetails({
 
               <div className="mt-4 bg-gradient-to-r from-[#FFFFFF] to-[#B2FF00]/20 p-3 border-b-dashed border-[#727681] rounded-xl">
                 <div className="flex justify-between p-2 gap-8 items-center">
-                 <div>
-                   <span className="text-[#0E101A] text-[16px] font-medium">
-                    Earn points on Every 500 Purchase
-                  </span>
                   <div>
-                  <span>Available points:</span>
-                </div>
-                 </div>
-                  <button className="bg-[#1C3753] text-white px-4 py-2 rounded-md font-medium">
+                    <span className="text-[#0E101A] text-[16px] font-medium">
+                      Earn points on Every 500 Purchase
+                    </span>
+                    <div>
+                      <span>Available points: {availablePoints}</span>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => {
+                      onApplyPoints(availablePoints);
+                      setShowCoupon(false);
+                    }}
+                    className="bg-[#1C3753] text-white px-4 py-2 rounded-md font-medium"
+                  >
                     Apply
                   </button>
                 </div>
-                
+
                 <div className="flex flex-col gap-1">
                   {/* <span className="text-[#727681] text-[14px] font-medium">
                     Get points for every ₹500+ purchase.
                   </span> */}
                   <span className="text-[#727681] text-[14px] font-medium">
-                   Redemption Rules
+                    Redemption Rules
                   </span>
                 </div>
               </div>
@@ -271,8 +329,7 @@ function PriceDetails({
                     invoice valuen
                   </span> */}
                   <span className="text-[#0E101A] text-[14px] font-medium">
-                    •  Minimum invoice value required for redemption:
-                    ₹5000
+                    • Minimum invoice value required for redemption: ₹5000
                   </span>
                 </div>
               </div>
