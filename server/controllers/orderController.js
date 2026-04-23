@@ -429,7 +429,7 @@ export const verifyPayment = asyncHandler(async (req, res) => {
 
     // ORDER UPDATE
     order.paymentStatus = "paid";
-    order.status = "confirmed";
+    order.status = "placed";
     order.confirmedAt = new Date();
 
     await order.save({ session });
