@@ -505,7 +505,6 @@ const AddProduct = () => {
       subcategory: formData.subcategory,
       isActive: status === "active",
       action: "add", // Ensure action is sent as expected by the backend
-      action: "add",
       variants: formData.variants.map((v) => ({
         variantColor: v.variantColor,
         variantName: v.variantName,
@@ -526,7 +525,20 @@ const AddProduct = () => {
 
     try {
       let response;
-      if (isEditing && productId) {
+      // check if we have a draft id from previous save
+      if(draftId) {
+        // update the existing draft prodcut
+        response = await axiosInstance.patch(
+          `/product/admin/update-product/${draftId}`,
+          {
+            ...payload,
+            isDraft:false,
+            isActive: true,
+          }
+        );
+        toast.success("Draft published successfully!");
+      }
+    else  if (isEditing && productId) {
         // UPDATE existing product
         response = await axiosInstance.patch(
           `/product/admin/update-product/${productId}`,
@@ -545,6 +557,7 @@ const AddProduct = () => {
       setIsDraftEnabled(false);
       localStorage.removeItem("addProductDraft");
       setFormData(createInitialState());
+      setDraftId(null);
 
       setTimeout(() => {
         navigate("/admin/products");
@@ -736,6 +749,7 @@ const AddProduct = () => {
   const [itemsOpenvar, setItemsOpenVar] = useState(false);
   const [editingVariant, setEditingVariant] = useState(null);
   const [savedVariants, setSavedVariants] = useState([]);
+  const [draftId, setDraftId] = useState(null);
 
   const handleSaveVariant = (index) => {
     const variant = formData.variants[index];
@@ -763,24 +777,169 @@ const AddProduct = () => {
 
   const [isDraftEnabled, setIsDraftEnabled] = useState(true);
 
-  const handleSaveDraft = async () => {
-    try {
-      const payload = {
-        ...formData,
-        action: "draft",
-        variants: formData.variants.map((v) => ({
-          ...v,
-          variantImage: [],
-        })),
-      };
+  // const handleSaveDraft = async () => {
+  //   try {
+  //     const payload = {
+  //       ...formData,
+  //       action: "draft",
+  //       variants: formData.variants.map((v) => ({
+  //         ...v,
+  //         variantImage: [],
+  //       })),
+  //     };
 
-      await axiosInstance.post("product/admin/add-product", payload);
+  //     await axiosInstance.post("product/admin/add-product", payload);
 
-      toast.success("Draft saved to server!");
-    } catch (err) {
-      toast.error(err?.response?.data?.message || "Failed to save draft");
+  //     toast.success("Draft saved to server!");
+  //   } catch (err) {
+  //     toast.error(err?.response?.data?.message || "Failed to save draft");
+  //   }
+  // };
+
+  // FIXED handleSaveDraft - Keep images!
+const handleSaveDraft = async () => {
+  if (!formData.productTittle.trim()) {
+    toast.error("Please enter product name before saving draft");
+    return;
+  }
+
+  try {
+    const payload = {
+      productTittle: formData.productTittle,
+      description: formData.description,
+      category: formData.category,
+      subcategory: formData.subcategory,
+      variants: formData.variants.map((v) => ({
+        variantColor: v.variantColor,
+        variantName: v.variantName,
+        variantWeight: v.variantWeight,
+        variantWeightUnit: v.variantWeightUnit,
+        variantSkuId: v.variantSkuId,
+        variantImage: v.variantImage || [],
+        variantMrp: Number(v.variantMrp) || 0,
+        variantCostPrice: Number(v.variantCostPrice) || 0,
+        variantSellingPrice: Number(v.variantSellingPrice) || 0,
+        variantGST: Number(v.variantGST) || 0,
+        variantDiscount: Number(v.variantDiscount) || 0,
+        variantAvailableStock: Number(v.variantAvailableStock) || 0,
+        variantLowStockAlertStock: Number(v.variantLowStockAlertStock) || 0,
+        isSelected: v.isSelected || false,
+      })),
+      action: "draft",
+      isDraft: true,
+      isActive: false,
+    };
+
+    let response;
+    if (draftId) {
+      // UPDATE existing draft
+      response = await axiosInstance.patch(
+        `/product/admin/update-product/${draftId}`,
+        payload
+      );
+      toast.success("Draft updated successfully!");
+    } else {
+      // CREATE new draft
+      response = await axiosInstance.post("/product/admin/add-product", payload);
+      setDraftId(response.data.data._id);
+      toast.success("Draft saved successfully!");
     }
-  };
+    
+    // localStorage.removeItem("addProductDraft");
+  } catch (err) {
+    toast.error(err?.response?.data?.message || "Failed to save draft");
+  }
+};
+
+// Publish Draft - Update the same draft to published
+const handlePublishDraft = async () => {
+  // Add validation for required fields
+  if (!formData.category.trim()) {
+    toast.error("Category is required");
+    return;
+  }
+
+  // Validate variants
+  for (let i = 0; i < formData.variants.length; i++) {
+    const variant = formData.variants[i];
+    if (variant.variantSkuId && !variant.variantImage?.length) {
+      toast.error(`Variant ${i + 1}: Images required if SKU is provided`);
+      return;
+    }
+  }
+
+  setIsSubmitting(true);
+
+  try {
+    const payload = {
+      productTittle: formData.productTittle,
+      description: formData.description,
+      category: formData.category,
+      subcategory: formData.subcategory,
+      variants: formData.variants.map((v) => ({
+        variantColor: v.variantColor,
+        variantName: v.variantName,
+        variantWeight: v.variantWeight,
+        variantWeightUnit: v.variantWeightUnit,
+        variantSkuId: v.variantSkuId,
+        variantImage: v.variantImage || [],
+        variantMrp: Number(v.variantMrp) || 0,
+        variantCostPrice: Number(v.variantCostPrice) || 0,
+        variantSellingPrice: Number(v.variantSellingPrice) || 0,
+        variantGST: Number(v.variantGST) || 0,
+        variantDiscount: Number(v.variantDiscount) || 0,
+        variantAvailableStock: Number(v.variantAvailableStock) || 0,
+        variantLowStockAlertStock: Number(v.variantLowStockAlertStock) || 0,
+        isSelected: v.isSelected || false,
+      })),
+      action: "add",
+      isDraft: false,
+      isActive: true,
+    };
+
+    let response;
+    if (draftId) {
+      // UPDATE existing draft to published
+      response = await axiosInstance.patch(
+        `/product/admin/update-product/${draftId}`,
+        payload
+      );
+      toast.success("Product published successfully!");
+    } else if (isEditing && productId) {
+      response = await axiosInstance.patch(
+        `/product/admin/update-product/${productId}`,
+        payload
+      );
+      toast.success("Product updated successfully!");
+    } else {
+      response = await axiosInstance.post("/product/admin/add-product", payload);
+      toast.success("Product added successfully!");
+    }
+
+    localStorage.removeItem("addProductDraft");
+    setFormData(createInitialState());
+    setDraftId(null);
+
+    setTimeout(() => {
+      navigate("/admin/products");
+    }, 800);
+  } catch (err) {
+    toast.error(err?.response?.data?.message || "Error saving product!");
+  } finally {
+    setIsSubmitting(false);
+  }
+};
+
+useEffect(() => {
+  if (!isEditing && formData.productTittle) {
+    const timer = setTimeout(() => {
+      localStorage.setItem("addProductDraft", JSON.stringify(formData));
+      console.log("Draft auto-saved to localStorage");
+    }, 30000); // Save every 30 seconds
+    
+    return () => clearTimeout(timer);
+  }
+}, [formData, isEditing]);
 
   useEffect(() => {
     const savedDraft = localStorage.getItem("addProductDraft");
@@ -1127,31 +1286,34 @@ const AddProduct = () => {
             >
               Cancel
             </button>
-            {!isEditing && (
-              <button
-                type="button"
-                onClick={handleSaveDraft}
-                disabled={isSubmitting}
-                className={`py-1 px-3 rounded border font-medium
-    ${isSubmitting ? "cursor-not-allowed opacity-60" : ""}
-    border-[#737373] text-[#737373] hover:bg-[#706f6f] hover:text-white bg-[#F6F8F9]`}
-              >
-                Save Draft
-              </button>
-            )}
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className={`py-1 px-3 rounded-lg font-medium 
-    ${isSubmitting ? "bg-gray-400 cursor-not-allowed" : "bg-[#1C3753]"} 
-    text-[#FFFFFF]`}
-            >
-              {isSubmitting
-                ? "Uploading..."
-                : isEditing
-                  ? "Update Product"
-                  : "Add Product"}
-            </button>
+           {!isEditing && (
+    <button
+      type="button"
+      onClick={handleSaveDraft}
+      disabled={isSubmitting}
+      className={`py-1 px-3 rounded border font-medium
+        ${isSubmitting ? "cursor-not-allowed opacity-60" : ""}
+        border-[#737373] text-[#737373] hover:bg-[#706f6f] hover:text-white bg-[#F6F8F9]`}
+    >
+      Save Draft
+    </button>
+  )}
+             <button
+    type="submit"
+    onClick={draftId ? handlePublishDraft : handleSubmit}
+    disabled={isSubmitting}
+    className={`py-1 px-3 rounded-lg font-medium 
+      ${isSubmitting ? "bg-gray-400 cursor-not-allowed" : "bg-[#1C3753]"} 
+      text-[#FFFFFF]`}
+  >
+    {isSubmitting
+      ? "Uploading..."
+      : draftId
+        ? "Publish Product"
+        : isEditing
+          ? "Update Product"
+          : "Add Product"}
+  </button>
           </div>
         </div>
 
