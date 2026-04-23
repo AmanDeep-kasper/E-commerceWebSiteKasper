@@ -115,12 +115,12 @@ const AddProduct = () => {
   // Fetch product for editing from API
   useEffect(() => {
     const fetchProductForEdit = async () => {
-      if (!uuid) return;
+      if (!id) return;
 
       try {
         setLoadingProduct(true);
         const response = await axiosInstance.get(
-          `/product/admin/get-product-details/${uuid}`,
+          `/product/admin/get-product-details/${id}`,
         );
         console.log("Product to edit:", response.data);
 
@@ -197,7 +197,7 @@ const AddProduct = () => {
     };
 
     fetchProductForEdit();
-  }, [uuid]);
+  }, [id]);
 
   const handleButtonClick = () => {
     fileInputRef.current.click();
@@ -1462,7 +1462,7 @@ const AddProduct = () => {
                 <div className="overflow-x-auto rounded-t-xl">
                   <table className="w-full min-w-[1200px] text-sm">
                     <thead className="bg-[#F5F8FA]">
-                      <tr className="">
+                      <tr>
                         <th className="px-3 py-2 text-left">
                           <input
                             type="checkbox"
@@ -1489,7 +1489,7 @@ const AddProduct = () => {
                         </th>
                         <th className="px-3 py-2 text-left font-medium">
                           Images
-                        </th>{" "}
+                        </th>
                         <th className="px-3 py-2 text-left font-medium">MRP</th>
                         <th className="px-3 py-2 text-left font-medium">
                           Cost Price

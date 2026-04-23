@@ -68,7 +68,7 @@ function Delivery() {
     fetchAddresses();
   }, []);
 
-  console.log(addressData?.data?.addresses);
+  // console.log(addressData?.data?.addresses);
 
   // Delete address
   const handleDeleteAddress = async (addr) => {
