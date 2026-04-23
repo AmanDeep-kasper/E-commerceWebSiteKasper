@@ -7,6 +7,7 @@ import {
   getOrderDetails,
   getOrders,
   getOrdersAdmin,
+  getPayments,
   getUserAvailablePoints,
   paymentFailed,
   readyToShip,
@@ -51,6 +52,7 @@ router.patch(
   authorize("admin"),
   deliverOrder,
 );
+router.get("/payments", authenticate, authorize("admin"), getPayments);
 
 // common routes
 router.get("/:orderId", authenticate, getOrderDetails);
