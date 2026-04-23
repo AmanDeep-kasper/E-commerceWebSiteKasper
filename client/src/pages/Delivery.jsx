@@ -16,9 +16,9 @@ import {
 } from "../redux/cart/addressSlice";
 
 function Delivery() {
-  const { cartItems, totalPrice, totalItems, totalDiscount } = useSelector(
-    (s) => s.cart,
-  );
+  // const { cartItems, totalPrice, totalItems, totalDiscount } = useSelector(
+  //   (s) => s.cart,
+  // );
 
   const { addresses, selectedAddress } = useSelector((s) => s.address);
   const safeAddresses = Array.isArray(addresses) ? addresses : [];
@@ -33,17 +33,40 @@ function Delivery() {
   const [loadingAddresses, setLoadingAddresses] = useState(false);
   const [addressData, setAddressData] = useState(null);
 
+  const [cart, setCart] = useState(null);
+  const [cartLoading, setCartLoading] = useState(false);
+
   // Select existing saved address
   const handleSelectAddress = (addr) => {
     dispatch(selectAddress(addr));
   };
+
+  const fetchCartItem = async () => {
+    try {
+      // setCartLoading(true);
+
+      const res = await axiosInstance.get("/cart");
+      console.log("Address API response:", res.data);
+      setCart(res.data?.data);
+      // dispatch(setCartFromAPI(res.data?.data));
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setCartLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCartItem();
+    fetchAddresses();
+  }, []);
 
   const fetchAddresses = async () => {
     try {
       setLoadingAddresses(true);
 
       const res = await axiosInstance.get("/address/all-addresses");
-      console.log("Address API response:", res.data);
+      // console.log("Address API response:", res.data);
       setAddressData(res.data);
 
       const allAddresses = Array.isArray(res?.data?.data?.addresses)
@@ -95,10 +118,10 @@ function Delivery() {
 
   // Redirect if cart empty
   useEffect(() => {
-    if (cartItems.length === 0) {
+    if (cart && cart.items?.length === 0) {
       navigate("/bag", { replace: true });
     }
-  }, [cartItems, navigate]);
+  }, [cart, navigate]);
 
   // Auto-select default address or if only one address exists
   useEffect(() => {
@@ -257,12 +280,48 @@ function Delivery() {
           </div>
 
           {/* Price Details Section */}
-          <PriceDetails
-            totalItems={totalItems}
-            totalDiscount={totalDiscount}
-            totalPrice={totalPrice}
-            product={cartItems}
+          {/* <PriceDetails
+            totalItems={cart?.totalQuantity || 0}
+            totalDiscount={
+              cart?.items?.reduce(
+                (sum, item) =>
+                  sum +
+                  (Number(item.mrp) - Number(item.sellingPrice)) *
+                    Number(item.quantity || 1),
+                0,
+              ) || 0
+            }
+            totalPrice={
+              cart?.items?.reduce(
+                (sum, item) =>
+                  sum + Number(item.mrp) * Number(item.quantity || 1),
+                0,
+              ) || 0
+            }
+            totalGST={cart?.totalGST || 0}
+            product={cart?.items || []}
             canProceed={canProceed}
+            step="delivery"
+            goToPayment={goToPayment}
+          /> */}
+          <PriceDetails
+            totalItems={cart?.totalQuantity || 0}
+            totalDiscount={
+              cart?.items?.reduce(
+                (sum, item) =>
+                  sum + (item.mrp - item.sellingPrice) * item.quantity,
+                0,
+              ) || 0
+            }
+            sellingPrice={
+              cart?.items?.reduce(
+                (sum, item) => sum + item.mrp * item.quantity,
+                0,
+              ) || 0
+            }
+            totalPrice={cart?.grandTotal || 0}
+            totalGST={cart?.totalGST || 0}
+            product={cart?.items || []}
             step="delivery"
             goToPayment={goToPayment}
           />

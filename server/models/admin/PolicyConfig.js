@@ -4,7 +4,7 @@ const PolicySchema = new mongoose.Schema(
   {
     type: {
       type: String,
-      enum: ["return_refund", "shipping", "terms", "faq", "about", "privacy"],
+      enum: ["return_refund", "shipping", "terms", "about", "privacy"],
       required: true,
       unique: true,
     },
@@ -15,7 +15,7 @@ const PolicySchema = new mongoose.Schema(
     },
 
     content: {
-      type: String, // HTML / rich text editor content
+      type: String, // HTML rich text editor content
       default: "",
     },
 

@@ -1,8 +1,11 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
 import Footer from "../sections/Footer";
+import axiosInstance from "../api/axiosInstance";
 
 function Policy() {
+
+
   return (
     <>
       <Navbar></Navbar>
