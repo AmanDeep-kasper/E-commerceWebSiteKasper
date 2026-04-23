@@ -132,10 +132,145 @@ export const verifyAccessToken = async (token) => {
   }
 };
 
-/* ================================
-   ROTATE TOKENS (FINAL FIXED)
-================================ */
+//  ROTATE TOKENS (FINAL FIXED)
+// export const rotateTokens = async (userId, role, oldRefreshToken, req) => {
+//   const decoded = jwt.verify(oldRefreshToken, env.JWT_REFRESH_SECRET, {
+//     issuer: env.JWT_ISSUER,
+//     audience: env.JWT_AUDIENCE,
+//   });
+
+//   const hashedToken = crypto
+//     .createHash("sha256")
+//     .update(oldRefreshToken)
+//     .digest("hex");
+
+//   const user = await User.findById(userId).select("refreshTokens");
+//   if (!user) throw new Error("User not found");
+
+//   const tokenData = user.refreshTokens.find((t) => t.token === hashedToken);
+
+//   if (!tokenData) throw new Error("Invalid refresh token");
+
+//   // ✅ Expiry check
+//   if (tokenData.expiresAt < new Date()) {
+//     throw new Error("Refresh token expired");
+//   }
+
+//   const currentIP =
+//     req.headers["x-forwarded-for"]?.split(",")[0] ||
+//     req.ip ||
+//     req.connection?.remoteAddress;
+
+//   /* ========================
+//      REUSE DETECTION
+//   ======================== */
+//   // if (tokenData.isRevoked) {
+//   //   const isSameDevice = tokenData.deviceInfo?.ipAddress === currentIP;
+
+//   //   // ✅ Allow ONLY within small time window (race condition fix)
+//   //   const isRecent = new Date() - new Date(tokenData.createdAt) < 5000; // 5 sec
+
+//   //   // ✅ Same device → allow but KEEP SAME SESSION
+//   //   if (isSameDevice && isRecent) {
+//   //     const accessToken = generateAccessToken(userId, role, decoded.sessionId);
+//   //     const refreshToken = await generateRefreshToken(
+//   //       userId,
+//   //       decoded.sessionId,
+//   //       req,
+//   //     );
+
+//   //     return {
+//   //       accessToken,
+//   //       refreshToken,
+//   //       sessionId: decoded.sessionId,
+//   //     };
+
+//   //     // Otherwise BLOCK
+//   //     throw new Error("Refresh token already used (possible replay attack)");
+//   //   }
+
+//   //   // suspicious → revoke all
+//   //   await User.updateOne(
+//   //     { _id: userId },
+//   //     {
+//   //       $set: {
+//   //         "refreshTokens.$[].isRevoked": true,
+//   //         activeSessions: [],
+//   //       },
+//   //     },
+//   //   );
+
+//   //   throw new Error("Security alert: All sessions revoked.");
+//   // }
+
+//   if (tokenData.isRevoked) {
+//     const currentIP =
+//       req.headers["x-forwarded-for"]?.split(",")[0] ||
+//       req.ip ||
+//       req.connection?.remoteAddress;
+
+//     const isSameDevice = tokenData.deviceInfo?.ipAddress === currentIP;
+
+//     const isRecent = new Date() - new Date(tokenData.createdAt) < 10000; // 10 sec
+
+//     // ✅ SAFE CASE → allow (frontend duplicate call)
+//     if (isSameDevice && isRecent) {
+//       return {
+//         accessToken: generateAccessToken(userId, role, decoded.sessionId),
+//         refreshToken: oldRefreshToken, // 🔥 IMPORTANT: don't rotate again
+//         sessionId: decoded.sessionId,
+//       };
+//     }
+
+//     // ⚠️ REAL ATTACK → revoke all
+//     await User.updateOne(
+//       { _id: userId },
+//       {
+//         // $set: {
+//         //   "refreshTokens.$[].isRevoked": true,
+//         //   activeSessions: [],
+//         // },
+
+//         $set: {
+//           "refreshTokens.$.isRevoked": true,
+//         },
+//       },
+//     );
+
+//     throw new Error("Session expired. Please login again.");
+//   }
+
+//   /* ========================
+//      NORMAL ROTATION
+//   ======================== */
+//   const result = await User.updateOne(
+//     { _id: userId, "refreshTokens.token": hashedToken },
+//     {
+//       $set: { "refreshTokens.$.isRevoked": true },
+//     },
+//   );
+
+//   if (result.modifiedCount === 0) {
+//     throw new Error("Failed to revoke token");
+//   }
+
+//   // ✅ IMPORTANT: reuse sessionId
+//   const accessToken = generateAccessToken(userId, role, decoded.sessionId);
+//   const refreshToken = await generateRefreshToken(
+//     userId,
+//     decoded.sessionId,
+//     req,
+//   );
+
+//   return {
+//     accessToken,
+//     refreshToken,
+//     sessionId: decoded.sessionId,
+//   };
+// };
+
 export const rotateTokens = async (userId, role, oldRefreshToken, req) => {
+  // 1. Verify JWT signature first (cheap, no DB)
   const decoded = jwt.verify(oldRefreshToken, env.JWT_REFRESH_SECRET, {
     issuer: env.JWT_ISSUER,
     audience: env.JWT_AUDIENCE,
@@ -146,122 +281,104 @@ export const rotateTokens = async (userId, role, oldRefreshToken, req) => {
     .update(oldRefreshToken)
     .digest("hex");
 
-  const user = await User.findById(userId).select("refreshTokens");
-  if (!user) throw new Error("User not found");
+  // 2. ATOMIC: mark as revoked only if NOT already revoked
+  //    This is the key fix — single findOneAndUpdate instead of read+write
+  const user = await User.findOneAndUpdate(
+    {
+      _id: userId,
+      "refreshTokens.token": hashedToken,
+      "refreshTokens.isRevoked": false,   // only match if still valid
+    },
+    {
+      $set: {
+        "refreshTokens.$.isRevoked": true,
+        "refreshTokens.$.revokedAt": new Date(),
+      },
+    },
+    {
+      new: false, // return the ORIGINAL doc (before update)
+      select: "refreshTokens role",
+    }
+  );
 
+  // 3. If atomic update found nothing, token was already rotated
+  if (!user) {
+    // Could be: (a) concurrent rotation already happened, or (b) real attack
+    // Distinguish by checking if a recently-created successor token exists
+    const currentUser = await User.findById(userId).select("refreshTokens");
+    if (!currentUser) throw new Error("User not found");
+
+    const revokedToken = currentUser.refreshTokens.find(
+      (t) => t.token === hashedToken
+    );
+
+    if (!revokedToken) {
+      throw new Error("Refresh token not found");
+    }
+
+    if (revokedToken.expiresAt < new Date()) {
+      throw new Error("Refresh token expired");
+    }
+
+    // Check if this was very recently rotated (concurrent request race)
+    const rotatedAt = revokedToken.revokedAt;
+    const isRecentRotation =
+      rotatedAt && new Date() - new Date(rotatedAt) < 30_000; // 30s grace
+
+    if (isRecentRotation) {
+      // Find the successor token for this session (same sessionId, newer)
+      const successorToken = currentUser.refreshTokens
+        .filter(
+          (t) =>
+            t.sessionId === decoded.sessionId &&
+            t.token !== hashedToken &&
+            !t.isRevoked &&
+            t.createdAt > revokedToken.createdAt
+        )
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0];
+
+      if (successorToken) {
+        // Race condition: concurrent rotation won, reuse its access token
+        // Don't issue a new refresh token — the winner already did
+        const accessToken = generateAccessToken(
+          userId,
+          role,
+          decoded.sessionId
+        );
+        return {
+          accessToken,
+          // Return the OLD refresh token — the client already has the new one
+          // from the winning request. This losing request just needs an access token.
+          refreshToken: oldRefreshToken,
+          sessionId: decoded.sessionId,
+          _concurrentRotation: true, // optional debug flag
+        };
+      }
+    }
+
+    // If we get here: revoked but no recent rotation + no successor = attack
+    // Revoke ALL tokens for this user
+    await User.updateOne(
+      { _id: userId },
+      { $set: { "refreshTokens.$[].isRevoked": true, activeSessions: [] } }
+    );
+    throw new Error("Security alert: session revoked. Please login again.");
+  }
+
+  // 4. Normal path: atomic update succeeded, we own the rotation
   const tokenData = user.refreshTokens.find((t) => t.token === hashedToken);
 
-  if (!tokenData) throw new Error("Invalid refresh token");
-
-  // ✅ Expiry check
-  if (tokenData.expiresAt < new Date()) {
+  // Expiry check on the original token data
+  if (tokenData && tokenData.expiresAt < new Date()) {
     throw new Error("Refresh token expired");
   }
 
-  const currentIP =
-    req.headers["x-forwarded-for"]?.split(",")[0] ||
-    req.ip ||
-    req.connection?.remoteAddress;
-
-  /* ========================
-     REUSE DETECTION
-  ======================== */
-  // if (tokenData.isRevoked) {
-  //   const isSameDevice = tokenData.deviceInfo?.ipAddress === currentIP;
-
-  //   // ✅ Allow ONLY within small time window (race condition fix)
-  //   const isRecent = new Date() - new Date(tokenData.createdAt) < 5000; // 5 sec
-
-  //   // ✅ Same device → allow but KEEP SAME SESSION
-  //   if (isSameDevice && isRecent) {
-  //     const accessToken = generateAccessToken(userId, role, decoded.sessionId);
-  //     const refreshToken = await generateRefreshToken(
-  //       userId,
-  //       decoded.sessionId,
-  //       req,
-  //     );
-
-  //     return {
-  //       accessToken,
-  //       refreshToken,
-  //       sessionId: decoded.sessionId,
-  //     };
-
-  //     // Otherwise BLOCK
-  //     throw new Error("Refresh token already used (possible replay attack)");
-  //   }
-
-  //   // suspicious → revoke all
-  //   await User.updateOne(
-  //     { _id: userId },
-  //     {
-  //       $set: {
-  //         "refreshTokens.$[].isRevoked": true,
-  //         activeSessions: [],
-  //       },
-  //     },
-  //   );
-
-  //   throw new Error("Security alert: All sessions revoked.");
-  // }
-
-  if (tokenData.isRevoked) {
-    const currentIP =
-      req.headers["x-forwarded-for"]?.split(",")[0] ||
-      req.ip ||
-      req.connection?.remoteAddress;
-
-    const isSameDevice = tokenData.deviceInfo?.ipAddress === currentIP;
-
-    const isRecent = new Date() - new Date(tokenData.createdAt) < 10000; // 10 sec
-
-    // ✅ SAFE CASE → allow (frontend duplicate call)
-    if (isSameDevice && isRecent) {
-      return {
-        accessToken: generateAccessToken(userId, role, decoded.sessionId),
-        refreshToken: oldRefreshToken, // 🔥 IMPORTANT: don't rotate again
-        sessionId: decoded.sessionId,
-      };
-    }
-
-    // ⚠️ REAL ATTACK → revoke all
-    await User.updateOne(
-      { _id: userId },
-      {
-        // $set: {
-        //   "refreshTokens.$[].isRevoked": true,
-        //   activeSessions: [],
-        // },
-
-        $set: {
-          "refreshTokens.$.isRevoked": true,
-        },
-      },
-    );
-
-    throw new Error("Session expired. Please login again.");
-  }
-
-  /* ========================
-     NORMAL ROTATION
-  ======================== */
-  const result = await User.updateOne(
-    { _id: userId, "refreshTokens.token": hashedToken },
-    {
-      $set: { "refreshTokens.$.isRevoked": true },
-    },
-  );
-
-  if (result.modifiedCount === 0) {
-    throw new Error("Failed to revoke token");
-  }
-
-  // ✅ IMPORTANT: reuse sessionId
+  // Issue new tokens with the same sessionId
   const accessToken = generateAccessToken(userId, role, decoded.sessionId);
   const refreshToken = await generateRefreshToken(
     userId,
     decoded.sessionId,
-    req,
+    req
   );
 
   return {
@@ -271,9 +388,7 @@ export const rotateTokens = async (userId, role, oldRefreshToken, req) => {
   };
 };
 
-/* ================================
-   BLACKLIST
-================================ */
+//  BLACKLIST
 export const blacklistToken = async (token) => {
   const decoded = jwt.decode(token);
   if (!decoded) return false;
