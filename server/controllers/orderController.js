@@ -700,6 +700,30 @@ export const getOrders = asyncHandler(async (req, res) => {
   });
 });
 
+export const getUserAvailablePoints = asyncHandler(async (req, res) => {
+  const userId = req.user?.userId;
+
+  const user = await User.findById(userId);
+  if (!user) {
+    throw AppError.notFound("User not found", "USER_NOT_FOUND");
+  }
+
+  // get reward rules
+  const reward = await Reward.findOne({ isActive: true }).lean();
+  if (!reward) {
+    throw AppError.notFound("Reward config not found", "REWARD_NOT_FOUND");
+  }
+
+  res.status(200).json({
+    success: true,
+    message: "User points fetched successfully",
+    data: {
+      availablePoints: user.points,
+      reward,
+    },
+  });
+});
+
 // admin controllers
 export const getOrdersAdmin = asyncHandler(async (req, res) => {
   const { page = 1, limit = 10, search, range, sortBy } = req.query;
@@ -871,7 +895,9 @@ export const deliverOrder = asyncHandler(async (req, res) => {
   });
 });
 
-export const getPayments = asyncHandler(async (req, res) => {});
+export const getPayments = asyncHandler(async (req, res) => {
+  
+});
 
 // common controllers
 export const getOrderDetails = asyncHandler(async (req, res) => {
