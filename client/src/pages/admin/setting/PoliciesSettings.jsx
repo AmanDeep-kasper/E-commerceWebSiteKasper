@@ -1,54 +1,35 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ReactQuill from "react-quill-new";
 import "react-quill-new/dist/quill.snow.css";
 import { Link } from "react-router-dom";
+import axiosInstance from "../../../api/axiosInstance";
 
 const PoliciesSettings = () => {
-  
-  const [refundCancellationValue, setRefundCancellationValue] = useState(`
-    <p><strong>Example:</strong></p>
-    <p>Returns are accepted within {{return_window}} days of delivery.</p>
-    <p>Products must be unused, in original condition, and with all packaging intact.</p>
-    <p>Refunds will be processed to the {{refund_method}} after the return is approved.</p>
-  `);
+  const [refundCancellationValue, setRefundCancellationValue] = useState("");
+  const [shippingValue, setShippingValue] = useState("");
+  const [termsConditionsValue, setTermsConditionsValue] = useState("");
+  const [aboutUsValue, setAboutUsValue] = useState("");
+  const [privacyPolicyValue, setPrivacyPolicyValue] = useState("");
 
-  const [shippingValue, setShippingValue] = useState(`
-    <p><strong>Example:</strong></p>
-    <p>We offer free standard shipping on all orders over $50.</p>
-    <p>Orders are processed within 1-2 business days and delivered within 5-7 business days.</p>
-    <p>Expedited shipping options are available at checkout for an additional fee.</p>
-  `);
+  useEffect(() => {
+    const fetchPolicies = async () => {
+      try {
+        const res = await axiosInstance.get("/dashboard/policy/get-policy");
 
-  const [termsConditionsValue, setTermsConditionsValue] = useState(`
-    <p><strong>Example:</strong></p>
-    <p>By using our website, you agree to comply with our terms and conditions.</p>
-    <p>We reserve the right to modify these terms at any time without prior notice.</p>
-    <p>All content on this site is for informational purposes only and is subject to change without notice.</p>
-  `);
+        res.data.policy.forEach((p) => {
+          if (p.type === "return_refund") setRefundCancellationValue(p.content);
+          if (p.type === "shipping") setShippingValue(p.content);
+          if (p.type === "terms") setTermsConditionsValue(p.content);
+          if (p.type === "about") setAboutUsValue(p.content);
+          if (p.type === "privacy") setPrivacyPolicyValue(p.content);
+        });
+      } catch (err) {
+        console.error("Error fetching policies:", err);
+      }
+    };
 
-  // const [faqsValue, setFaqsValue] = useState(`
-  //   <p><strong>Example:</strong></p>
-  //   <p><strong>Q: What is your return policy?</strong></p>
-  //   <p>A: We accept returns within {{return_window}} days of delivery. Products must be unused and in original condition.</p>
-  //   <p><strong>Q: How long does shipping take?</strong></p>
-  //   <p>A: Standard shipping takes 5-7 business days. Expedited options are available at checkout.</p>
-  //   <p><strong>Q: Do you offer international shipping?</strong></p>
-  //   <p>A: Yes, we ship to select countries. Shipping times and fees vary by location.</p>
-  // `);
-
-  const [aboutUsValue, setAboutUsValue] = useState(`
-    <p><strong>Example:</strong></p>
-    <p>Welcome to our store! We are passionate about providing high-quality products and exceptional customer service.</p>
-    <p>Our mission is to offer a wide range of products that meet the needs of our customers while maintaining a commitment to sustainability and ethical sourcing.</p>
-    <p>Thank you for choosing us for your shopping needs. We look forward to serving you!</p>
-  `);
-
-  const [privacyPolicyValue, setPrivacyPolicyValue] = useState(`
-    <p><strong>Example:</strong></p>
-    <p>We value your privacy and are committed to protecting your personal information.</p>
-    <p>We collect only the necessary information to process your orders and provide a personalized shopping experience.</p>
-    <p>Your data is stored securely and will never be shared with third parties without your consent.</p>
-  `);
+    fetchPolicies();
+  }, []);
 
 
 

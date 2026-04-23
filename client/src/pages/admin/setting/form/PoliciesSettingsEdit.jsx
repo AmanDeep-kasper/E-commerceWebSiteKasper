@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import ReactQuill from "react-quill-new";
 import "react-quill-new/dist/quill.snow.css";
 import { Link } from "react-router-dom";
-
 import axiosInstance from "../../../../api//axiosInstance";
 
 const PoliciesSettingsEdit = () => {
@@ -45,7 +44,9 @@ const PoliciesSettingsEdit = () => {
         ],
       };
 
-      await axiosInstance.post("/api/upsert-policies", payload);
+      const size = JSON.stringify(payload).length / (1024 * 1024);
+      console.log("Payload size:", size.toFixed(2), "MB");
+      await axiosInstance.post("/dashboard/policy/upsert-policies", payload);
 
       alert("Saved successfully");
     } catch (error) {
@@ -54,27 +55,26 @@ const PoliciesSettingsEdit = () => {
     }
   };
 
+  useEffect(() => {
+    const fetchPolicies = async () => {
+      try {
+        const res = await axiosInstance.get("/dashboard/policy/get-policy");
 
-useEffect(() => {
-  const fetchPolicies = async () => {
-    try {
-      const res = await axiosInstance.get("/api/get-policy");
+        res.data.policy.forEach((p) => {
+          if (p.type === "return_refund") setRefundValue(p.content);
+          if (p.type === "shipping") setShippingValue(p.content);
+          if (p.type === "terms") setTermsValue(p.content);
+          if (p.type === "about") setAboutValue(p.content);
+          if (p.type === "privacy") setPrivacyValue(p.content);
+        });
 
-      res.data.policy.forEach((p) => {
-        if (p.type === "return_refund") setRefundValue(p.content);
-        if (p.type === "shipping") setShippingValue(p.content);
-        if (p.type === "terms") setTermsValue(p.content);
-        if (p.type === "about") setAboutValue(p.content);
-        if (p.type === "privacy") setPrivacyValue(p.content);
-      });
+      } catch (err) {
+        console.error(err);
+      }
+    };
 
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  fetchPolicies();
-}, []);
+    fetchPolicies();
+  }, []);
 
   return (
     <div className="p-5">
@@ -104,7 +104,7 @@ useEffect(() => {
 
       <div className="flex flex-col space-y-4">
         <div>
-          <h2 className="text-[18px] font-semibold text-[#1F2937] mb-4">
+          <h2 className="text-[18px] font-semibold text-[#1F2937] mb-4 px-5">
             Refund & Cancellation Policy
           </h2>
           <div className=" border-[#D1D5DB] rounded-md bg-white p-4">
@@ -127,7 +127,7 @@ useEffect(() => {
           </div>
         </div>
         <div>
-          <h2 className="text-[18px] font-semibold text-[#1F2937] mb-4">
+          <h2 className="text-[18px] font-semibold text-[#1F2937] mb-4 px-5">
             Shipping Policy
           </h2>
           <div className=" border-[#D1D5DB] rounded-md bg-white p-4">
@@ -150,7 +150,7 @@ useEffect(() => {
           </div>
         </div>
         <div>
-          <h2 className="text-[18px] font-semibold text-[#1F2937] mb-4">
+          <h2 className="text-[18px] font-semibold text-[#1F2937] mb-4 px-5">
             Terms & Conditions
           </h2>
           <div className=" border-[#D1D5DB] rounded-md bg-white p-4">
@@ -196,7 +196,7 @@ useEffect(() => {
           </div>
         </div> */}
         <div>
-          <h2 className="text-[18px] font-semibold text-[#1F2937] mb-4">
+          <h2 className="text-[18px] font-semibold text-[#1F2937] mb-4 px-5">
             About Us
           </h2>
           <div className=" border-[#D1D5DB] rounded-md bg-white p-4">
@@ -219,7 +219,7 @@ useEffect(() => {
           </div>
         </div>
         <div>
-          <h2 className="text-[18px] font-semibold text-[#1F2937] mb-4">
+          <h2 className="text-[18px] font-semibold text-[#1F2937] mb-4 px-5">
             Privacy Policy
           </h2>
           <div className=" border-[#D1D5DB] rounded-md bg-white p-4">
@@ -241,6 +241,7 @@ useEffect(() => {
             />
           </div>
         </div>
+
       </div>
     </div>
   );
