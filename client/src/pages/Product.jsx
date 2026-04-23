@@ -14,6 +14,7 @@ import axiosInstance from "../api/axiosInstance";
 function Product() {
   const [param, setParam] = useState("");
   const [color, setColor] = useState([]);
+  const [selectedSubcategory, setSelectedSubcategory] = useState("All");
   const [items, setItems] = useState([]);
   const [originalItems, setOriginalItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -22,6 +23,19 @@ function Product() {
   const { categoryName, subcategoryName } = useParams();
   const { state } = useLocation();
   const val = state;
+
+  const applySubcategoryFilter = (products, subcategory) => {
+    if (!subcategory || subcategory === "All") return products;
+    return products.filter((p) => {
+      const productSubcategory = (
+        p.subcategoryName ||
+        p.subcategory?.name ||
+        ""
+      ).toLowerCase();
+      return productSubcategory === subcategory.toLowerCase();
+    });
+  };
+
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -75,6 +89,8 @@ function Product() {
           console.log(`Found ${filteredProducts.length} products in subcategory "${decodedSubcategory}"`);
         }
 
+ // Apply subcategory filter (client-side)
+      filteredProducts = applySubcategoryFilter(filteredProducts, selectedSubcategory);
 
         setItems(filteredProducts);
         setOriginalItems(filteredProducts);
@@ -87,7 +103,7 @@ function Product() {
     };
 
     fetchProducts();
-  }, [categoryName, subcategoryName]);
+  }, [categoryName, selectedSubcategory]);
 
   const colors = useMemo(() => {
     const uniqueColors = new Set();
@@ -222,6 +238,8 @@ function Product() {
             colors={colors}
             setColor={setColor}
             sort={sort}
+            selectedSubcategory={selectedSubcategory}
+            setSelectedSubcategory={setSelectedSubcategory}
           />
 
           <div className="flex-1 lg:gap-6 items-start">
