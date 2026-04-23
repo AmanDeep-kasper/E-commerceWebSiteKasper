@@ -26,11 +26,19 @@ function Filter({
   const [selectedSort, setSelectedSort] = useState("Recommended");
   const [sortOpen, setSortOpen] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  // for show more
+  const [showAllSubcategories, setShowAllSubcategories] = useState(false);
+const [showAllColors, setShowAllColors] = useState(false);
+const [showAllSortOptions, setShowAllSortOptions] = useState(false);
 
   const [tempCategory, setTempCategory] = useState("All");
   const [tempColor, setTempColor] = useState("");
 
   const { categoryName } = useParams();
+
+  const INITIAL_SUBCATEGORIES_COUNT = 5;
+const INITIAL_COLORS_COUNT = 5;
+const INITIAL_SORT_COUNT = 5;
 
   // Fetch subcategories based on category
   useEffect(() => {
@@ -64,7 +72,7 @@ function Filter({
         
         setFilterSubcategories(matchedSubcategories);
       } catch (error) {
-        console.log("Subcategory fetch error:", error);
+        // console.log("Subcategory fetch error:", error);
         setFilterSubcategories(["All"]);
       }
     };
@@ -110,7 +118,10 @@ function Filter({
 
         {filteropen && (
           <div className="flex flex-wrap gap-2 mt-3">
-            {sortOptions.map(({ label, value }) => (
+            {(showAllSortOptions
+              ? sortOptions
+              : sortOptions.slice(0, INITIAL_SORT_COUNT)
+            ).map(({ label, value }) => (
               <button
                 key={value}
                 className={`px-3 py-1.5 whitespace-nowrap rounded-full text-sm transition ${
@@ -127,6 +138,15 @@ function Filter({
                 {label}
               </button>
             ))}
+            {/* show more and less */}
+            {sortOptions.length > INITIAL_SORT_COUNT && (
+              <button
+              onClick={() => setShowAllSortOptions(!showAllSortOptions)}
+                className="px-3 py-1.5 whitespace-nowrap rounded-full text-sm transition bg-transparent text-[#1800ac] hover:underline">
+                {showAllSortOptions ? "Show Less" : "Show More"}
+                {/* (${sortOptions.length - INITIAL_SORT_COUNT} */}
+                </button>
+            )}
           </div>
         )}
       </div>
@@ -148,7 +168,10 @@ function Filter({
 
         {subopen && (
           <div className="flex flex-wrap gap-2 mt-3">
-            {filterSubcategories.map((subcat, index) => (
+            {(showAllSubcategories
+              ? filterSubcategories
+              : filterSubcategories.slice(0, INITIAL_SUBCATEGORIES_COUNT)
+            ).map((subcat, index) => (
               <button
                 key={index}
                 className={`px-3 py-1.5 whitespace-nowrap rounded-full text-sm transition ${
@@ -165,6 +188,15 @@ function Filter({
                 {subcat}
               </button>
             ))}
+            {/* show more and less */}
+            {filterSubcategories.length > INITIAL_SUBCATEGORIES_COUNT && (
+              <button
+              onClick={() => setShowAllSubcategories(!showAllSubcategories)}
+                className="px-3 py-1.5 whitespace-nowrap rounded-full text-sm transition bg-transparent text-[#1800ac] hover:underline">
+                {showAllSubcategories ? "Show Less" : "Show More"}
+                 {/* (${filterSubcategories.length - INITIAL_SUBCATEGORIES_COUNT}  */}
+                </button>
+            )}
           </div>
         )}
       </div>
@@ -185,8 +217,12 @@ function Filter({
         </button>
 
         {open && (
-          <div className="flex flex-wrap gap-2 mt-3">
-            {colors.map(({ colorName }) => {
+          <div className="flex flex-wrap gap-2 mt-3" style={{display:"flex", flexDirection:"column"}}>
+            <div>
+            {(showAllColors
+              ? colors
+              : colors.slice(0, INITIAL_COLORS_COUNT)
+            ).map(({ colorName }) => {
               const isActive = isMobile 
                 ? tempColor === colorName 
                 : val === colorName;
@@ -217,6 +253,16 @@ function Filter({
                 </button>
               );
             })}
+            </div>
+            {/* show more and less */}
+            {colors.length > INITIAL_COLORS_COUNT && (
+              <button
+                onClick={() => setShowAllColors(!showAllColors)}
+                className="px-3 py-1.5 whitespace-nowrap rounded-full text-sm transition bg-transparent text-[#1800ac]" style={{fontSize:"12px"}}>
+                {showAllColors ? "Show Less" : "Show More"}
+                  {/* (${colors.length - INITIAL_COLORS_COUNT}  */}
+              </button>
+            )}
           </div>
         )}
       </div>

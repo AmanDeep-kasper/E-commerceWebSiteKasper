@@ -110,7 +110,7 @@ function Card({ cardData = [] }) {
     const defaultVariant = getDefaultVariant(item);
 
     if (!defaultVariant) {
-      console.error("No variant available for product:", item);
+      // console.error("No variant available for product:", item);
       return;
     }
 
