@@ -147,6 +147,9 @@ const userSchema = new mongoose.Schema(
 userSchema.index({ email: 1, isVerified: 1 });
 userSchema.index({ role: 1, isActive: 1 });
 userSchema.index({ resetPasswordToken: 1, resetPasswordExpires: 1 });
+// In your User schema
+userSchema.index({ "refreshTokens.token": 1 });
+userSchema.index({ "refreshTokens.sessionId": 1 });
 
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
