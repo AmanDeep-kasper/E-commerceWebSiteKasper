@@ -438,7 +438,7 @@ function Cart() {
                                   </div>
                                 </div>
                                 {/* Actions */}
-                                <div className="flex w-[30%] items-center gap-2 text-sm font-medium">
+                                <div className="flex w-[20%] items-center gap-2 text-sm font-medium">
                                   <button
                                     className="text-[#0C0057]"
                                     onClick={() => handleRemoveItem(item)}
@@ -481,7 +481,14 @@ function Cart() {
                   0,
                 ) || 0
               }
+              sellingPrice={
+                cart?.items?.reduce(
+                  (sum, item) => sum + item.mrp * item.quantity,
+                  0,
+                ) || 0
+              }
               totalPrice={cart?.grandTotal || 0}
+              totalGST={cart?.totalGST || 0}
               product={cart?.items || []}
               step="cart"
               hasOutOfStock={hasOutOfStock}
