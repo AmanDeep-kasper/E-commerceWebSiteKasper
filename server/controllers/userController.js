@@ -3,10 +3,7 @@ import User from "../models/User.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import AppError from "../utils/AppError.js";
 import { uploadToCloudinary, deleteFromCloudinary } from "../utils/uploader.js";
-import {
-  sendEmailChangeOTP,
-  sendSupportEmail,
-} from "../service/emailService.js";
+import { sendEmailChangeOTP } from "../service/emailService.js";
 import TempUser from "../models/TempUser.js";
 import { generateOTP } from "../utils/generateOTP.js";
 
@@ -396,12 +393,3 @@ export const updateStatus = asyncHandler(async (req, res) => {
     }`,
   });
 });
-
-// Helper function to generate unique request ID
-function generateRequestId() {
-  const timestamp = Date.now().toString().slice(-6);
-  const random = Math.floor(Math.random() * 10000)
-    .toString()
-    .padStart(4, "0");
-  return `${timestamp}${random}`;
-}
