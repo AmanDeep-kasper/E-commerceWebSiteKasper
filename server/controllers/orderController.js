@@ -294,10 +294,12 @@ export const checkout = asyncHandler(async (req, res) => {
     paymentStatus: "pending",
     status: "placed",
 
-    subtotal,
-    totalGST: cart.totalGST,
-    shippingCharge,
+    mrpTotal,
+    totalDiscount,
     platformFee,
+    totalGST,
+    subtotal,
+    shippingCharge,
     discount,
     grandTotal: total,
 
@@ -569,7 +571,23 @@ export const verifyPayment = asyncHandler(async (req, res) => {
       success: true,
       message: "Payment verified successfully",
       data: {
-        orderId: order._id,
+        orderId: order.orderNumber,
+        shippingAddress: order.shippingAddress,
+        placedAt: order.placedAt,
+        paymentStatus: order.paymentStatus,
+        paymentMethod: order.paymentMethod,
+        items: order.items,
+        reward: order.reward,
+        orderSummary: {
+          mrpTotal: order.mrpTotal,
+          totalDiscount: order.totalDiscount,
+          subtotal: order.subtotal,
+          totalGST: order.totalGST,
+          shippingCharge: order.shippingCharge,
+          platformFee: order.platformFee,
+          discount: order.discount,
+          grandTotal: order.grandTotal,
+        },
       },
     });
   } catch (err) {
