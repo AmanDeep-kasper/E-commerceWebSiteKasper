@@ -280,7 +280,8 @@ const PageRouter = () => {
           <Route index element={<Dashboard />} />
           {/* add product */}
           <Route path="add-product" element={<AddProduct />} />
-          <Route path="add-product/:uuid" element={<AddProduct />} />
+          {/* <Route path="add-product/:uuid" element={<AddProduct />} /> */}
+          <Route path="add-product/:id" element={<AddProduct />} />
           {/* customers */}
           <Route path="customers" element={<Customer />} />
           <Route path="products" element={<Products />} />

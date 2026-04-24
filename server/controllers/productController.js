@@ -474,6 +474,11 @@ export const adminGetProductDetails = asyncHandler(async (req, res) => {
 
 export const adminUpdateProduct = asyncHandler(async (req, res) => {
   const { productId } = req.params;
+   // ✅ Validate ID format first
+  if (!mongoose.Types.ObjectId.isValid(productId)) {
+    throw AppError.badRequest(`Invalid product ID: ${productId}`, "INVALID_ID");
+  }
+  
   const allowed = [
     "productTittle",
     "description",

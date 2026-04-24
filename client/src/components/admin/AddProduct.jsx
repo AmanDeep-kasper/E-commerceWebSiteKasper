@@ -114,8 +114,12 @@ const AddProduct = () => {
   const [status, setStatus] = useState("active");
   // Fetch product for editing from API
   useEffect(() => {
+    console.log("Fetching product for edit. ID:", id);
     const fetchProductForEdit = async () => {
-      if (!id) return;
+      if (!id) {
+        console.log("No ID provided, skipping fetch");
+        return;
+      } 
 
       try {
         setLoadingProduct(true);
@@ -186,7 +190,10 @@ const AddProduct = () => {
           }
 
           setProductId(productData._id);
-          setIsEditing(true);
+          if(productData.isDraft) {
+            setDraftId(productData._id);
+          }
+          // setIsEditing(true);
         }
       } catch (error) {
         console.error("Error fetching product:", error);
@@ -525,36 +532,53 @@ const AddProduct = () => {
 
     try {
       let response;
-      // check if we have a draft id from previous save
-      if(draftId) {
-        // update the existing draft prodcut
-        response = await axiosInstance.patch(
-          `/product/admin/update-product/${draftId}`,
-          {
-            ...payload,
-            isDraft:false,
-            isActive: true,
-          }
-        );
-        toast.success("Draft published successfully!");
-      }
+       // If we have a draftId and we're NOT publishing (just updating draft)
+    if (draftId) {
+      response = await axiosInstance.patch(
+        `/product/admin/update-product/${draftId}`,
+        {
+          ...payload,
+          action: "draft",
+        }
+      );
+      toast.success("Draft updated successfully!");
+    }
+    // If we're publishing a draft
+    else if (draftId) {
+      response = await axiosInstance.patch(
+        `/product/admin/update-product/${draftId}`,
+        {
+          ...payload,
+          action: "add",
+          isDraft: false,
+          isActive: true,
+        }
+      );
+      toast.success("Product published successfully!");
+    }
     else  if (isEditing && productId) {
         // UPDATE existing product
         response = await axiosInstance.patch(
           `/product/admin/update-product/${productId}`,
-          payload,
+           {
+          ...payload,
+          action: "add",
+        }
         );
         toast.success("Product updated successfully!");
       } else {
         // CREATE new product
         response = await axiosInstance.post(
           "/product/admin/add-product",
-          payload,
+         {
+        ...payload,
+        action: "add",
+      }
         );
         toast.success("Product added successfully!");
       }
 
-      setIsDraftEnabled(false);
+      // setIsDraftEnabled(false);
       localStorage.removeItem("addProductDraft");
       setFormData(createInitialState());
       setDraftId(null);
@@ -826,8 +850,8 @@ const handleSaveDraft = async () => {
         isSelected: v.isSelected || false,
       })),
       action: "draft",
-      isDraft: true,
-      isActive: false,
+      // isDraft: true,
+      // isActive: false,
     };
 
     let response;
@@ -965,6 +989,7 @@ useEffect(() => {
       setHasDraft(true); // only mark, don't restore
     }
   }, []);
+
 
   const handleRestoreDraft = () => {
     const savedDraft = localStorage.getItem("addProductDraft");
