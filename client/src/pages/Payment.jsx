@@ -225,7 +225,7 @@ function Payment() {
               },
             );
 
-            console.log("verifyRes:", verifyRes.data);
+            // console.log("verifyRes:", verifyRes.data);
 
             if (verifyRes.data.success) {
               const confirmedOrder = verifyRes.data.data;
