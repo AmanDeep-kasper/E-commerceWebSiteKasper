@@ -110,14 +110,15 @@ function ProductInformation() {
   // add kar ha size bhi
 
   // varinats
-
-  const filterVariants = (product?.variants || []).filter((v) => {
-    return (
-      (v.variantSkuId || "").toLowerCase().includes(text) ||
-      (v.variantName || "").toLowerCase().includes(text) ||
-      (v.variantColor || "").toLowerCase().includes(text)
-    );
-  });
+  const filterVariants = (product?.variants || [])
+    .filter((v) => v._id !== defaultVariant?._id) // remove duplicate
+    .filter((v) => {
+      return (
+        (v.variantSkuId || "").toLowerCase().includes(text) ||
+        (v.variantName || "").toLowerCase().includes(text) ||
+        (v.variantColor || "").toLowerCase().includes(text)
+      );
+    });
 
   const handleEdit = () => {
     navigate(`/admin/add-product/${product?._id || uuid}`);
@@ -187,11 +188,10 @@ function ProductInformation() {
                   setSelectedType("product");
                   setSelectedVariant(null);
                 }}
-                className={`flex items-center gap-4 bg-[#F5F8FA] border rounded-xl p-3 hover:border-gray-400 cursor-pointer transition ${
-                  selectedType === "product"
-                    ? "bg-blue-50 border-blue-400"
-                    : "bg-blue-50 border-blue-400"
-                }`}
+                className={`flex items-center gap-4 bg-[#F5F8FA] border rounded-xl p-3 hover:border-gray-400 cursor-pointer transition ${selectedType === "product"
+                  ? "bg-blue-50 border-blue-400"
+                  : "bg-blue-50 border-blue-400"
+                  }`}
               >
                 <img
                   className="w-10 h-10 rounded-md object-cover"
@@ -232,12 +232,11 @@ function ProductInformation() {
                   setSelectedType("variant");
                   setSelectedVariant(item);
                 }}
-                className={`flex items-center gap-4 bg-[#F5F8FA] border rounded-xl p-3 hover:border-gray-400 cursor-pointer transition${
-                  selectedType === "variant" &&
+                className={`flex items-center gap-4 bg-[#F5F8FA] border rounded-xl p-3 hover:border-gray-400 cursor-pointer transition${selectedType === "variant" &&
                   selectedVariant?._id === item._id
-                    ? "bg-blue-50 border-blue-400"
-                    : "bg-[#F5F8FA]"
-                }`}
+                  ? "bg-blue-50 border-blue-400"
+                  : "bg-[#F5F8FA]"
+                  }`}
               >
                 <img
                   className="w-10 h-10 rounded-md object-cover"
@@ -279,7 +278,7 @@ function ProductInformation() {
 
               <div>
                 {product?.isActive ? (
-                  <div className="flex items-center justify-center gap-2 bg-[#E0F4DE] py-1px-3 rounded-lg text-sm text-[#00A63E]">
+                  <div className="flex items-center justify-center gap-2 bg-[#E0F4DE] py-1 px-3 rounded-lg text-sm text-[#00A63E]">
                     <Circle fill="#00A63E" color="#00A63E" size={"12px"} />
                     Active
                   </div>
@@ -501,7 +500,7 @@ function ProductInformation() {
       <div className="mt-6 bg-white rounded-xl p-4">
         <h2 className="text-lg font-medium mb-2">Rating & Reviews</h2>
 
-        <Reviews reviews={product?.reviews} avgRating={avgRating} />
+        {/* <Reviews reviews={product?.reviews} avgRating={avgRating} /> */}
 
         {product?.reviews && product.reviews.length > 0 ? (
           <div className="max-h-[450px] overflow-y-auto pr-2">
@@ -537,14 +536,14 @@ function ProductInformation() {
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center justify-center gap-2">
+                  {/* <div className="flex items-center justify-center gap-2">
                     <button className="bg-gray-200 p-1 rounded-lg">
                       <Eye size={20} color="#1C1C1C" />
                     </button>
                     <button className="bg-gray-200 p-1 rounded-lg">
                       <Pin size={20} color="#1C1C1C" />
                     </button>
-                  </div>
+                  </div> */}
                 </div>
                 <p className="text-sm">{review.comment || "No comment"}</p>
                 {review.images && review.images.length > 0 && (

@@ -238,7 +238,12 @@ const CategoriesPopOnClick = ({
             </div>
 
             {subcategories.length > 0 && (
-              <div className="mt-3 flex flex-col gap-2">
+              <div
+                className={`mt-3 flex flex-col gap-2 ${subcategories.length > 5
+                    ? "max-h-[180px] overflow-y-auto pr-1"
+                    : ""
+                  }`}
+              >
                 {subcategories.map((sub, idx) => (
                   <span
                     key={`${sub}-${idx}`}

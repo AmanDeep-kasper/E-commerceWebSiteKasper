@@ -13,6 +13,7 @@ import {
 import { useSelector, useDispatch } from "react-redux";
 import { updateUserDetails } from "../redux/cart/userSlice";
 import ChangePassword from "./ChangePassword";
+import { toast } from "react-toastify";
 
 // Skeleton Loader for Account Details
 const AccountDetailsSkeleton = () => (
@@ -90,6 +91,7 @@ function AccountDetails() {
   const [tempData, setTempData] = useState(null);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
     if (user) {
@@ -109,14 +111,58 @@ function AccountDetails() {
     setTempData((prev) => ({ ...prev, [field]: value }));
   };
 
+
+
   const handleSave = async () => {
     if (!tempData) return;
-    setIsSaving(true);
-    try {
-      const res = await dispatch(updateUserDetails(tempData));
-      if (!res.error) {
-        setIsEditing(false);
+    const newErrors = {};
+
+    // Name
+    if (!tempData.name.trim()) {
+      newErrors.name = "Name is required";
+    } else if (!/^[A-Za-z\s]+$/.test(tempData.name)) {
+      newErrors.name = "Only letters allowed";
+    }
+
+    // Phone
+    if (!tempData.phoneNumber) {
+      newErrors.phoneNumber = "Phone number is required";
+    } else if (tempData.phoneNumber.length !== 10) {
+      newErrors.phoneNumber = "Must be 10 digits";
+    }
+
+    // DOB
+    if (tempData.dateOfBirth) {
+      const selected = new Date(tempData.dateOfBirth);
+      const today = new Date();
+      if (selected > today) {
+        newErrors.dateOfBirth = "Future date not allowed";
       }
+    }
+
+    // Gender
+    if (!tempData.gender) {
+      newErrors.gender = "Please select gender";
+    }
+
+    // ❌ stop if errors
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    setErrors({}); // clear errors
+
+    setIsSaving(true);
+
+    try {
+      await dispatch(updateUserDetails(tempData)).unwrap(); // ✅ important
+
+      toast.success("Profile updated successfully ✅");
+      setIsEditing(false);
+    } catch (err) {
+      console.log(err);
+      toast.error(err?.message || "Failed to update profile ❌");
     } finally {
       setIsSaving(false);
     }
@@ -252,26 +298,43 @@ function AccountDetails() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Full Name
-                </label>
-                {isEditing ? (
-                  <input
-                    type="text"
-                    value={tempData?.name || ""}
-                    onChange={(e) => handleInputChange("name", e.target.value)}
-                    className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition"
-                    placeholder="Enter your full name"
-                    disabled={isSaving}
-                  />
-                ) : (
-                  <div className="px-3 sm:px-4 py-2 sm:py-3 bg-gray-50 rounded-lg border border-gray-200">
-                    <p className="text-gray-800 text-sm sm:text-base">
-                      {user?.user?.name || "Not provided"}
-                    </p>
-                  </div>
-                )}
-              </div>
+  <label className="block text-sm font-medium text-gray-700 mb-2">
+    Full Name
+  </label>
+
+  {isEditing ? (
+    <>
+      <input
+        type="text"
+        value={tempData?.name || ""}
+        onChange={(e) =>
+          handleInputChange("name", e.target.value)
+        }
+        className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg text-sm outline-none transition
+          ${
+            errors.name
+              ? "border-red-500 focus:ring-red-400 focus:border-red-500"
+              : "border-gray-300 focus:ring-yellow-500 focus:border-yellow-500"
+          }`}
+        placeholder="Enter your full name"
+        disabled={isSaving}
+      />
+
+      {/* 🔴 Error Message */}
+      {errors.name && (
+        <p className="text-red-500 text-xs mt-1">
+          {errors.name}
+        </p>
+      )}
+    </>
+  ) : (
+    <div className="px-3 sm:px-4 py-2 sm:py-3 bg-gray-50 rounded-lg border border-gray-200">
+      <p className="text-gray-800 text-sm sm:text-base">
+        {user?.user?.name || "Not provided"}
+      </p>
+    </div>
+  )}
+</div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -284,6 +347,7 @@ function AccountDetails() {
                     onChange={(e) =>
                       handleInputChange("dateOfBirth", e.target.value)
                     }
+                    max={new Date().toISOString().split("T")[0]}
                     className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition"
                     disabled={isSaving}
                   />
@@ -292,8 +356,8 @@ function AccountDetails() {
                     <p className="text-gray-800 text-sm sm:text-base">
                       {user?.user?.dateOfBirth
                         ? new Date(user.user.dateOfBirth).toLocaleDateString(
-                            "en-GB",
-                          )
+                          "en-GB",
+                        )
                         : "Not provided"}
                     </p>
                   </div>
@@ -312,11 +376,10 @@ function AccountDetails() {
                         type="button"
                         onClick={() => handleInputChange("gender", g)}
                         disabled={isSaving}
-                        className={`flex-1 py-2 sm:py-3 text-sm flex items-center justify-center gap-2 transition-colors ${
-                          tempData?.gender === g
-                            ? "bg-[#CFC7FF] text-black font-medium"
-                            : "hover:bg-gray-50 text-gray-600"
-                        } disabled:opacity-50 disabled:cursor-not-allowed`}
+                        className={`flex-1 py-2 sm:py-3 text-sm flex items-center justify-center gap-2 transition-colors ${tempData?.gender === g
+                          ? "bg-[#CFC7FF] text-black font-medium"
+                          : "hover:bg-gray-50 text-gray-600"
+                          } disabled:opacity-50 disabled:cursor-not-allowed`}
                       >
                         {tempData?.gender === g && (
                           <Check className="w-4 h-4 text-[#1C3753]" />
@@ -382,7 +445,7 @@ function AccountDetails() {
                   //   placeholder="Enter your password"
                   //   disabled={isSaving}
                   // />
-                   <div className="px-3 sm:px-4 py-2 sm:py-3 bg-gray-50 rounded-lg border border-gray-200">
+                  <div className="px-3 sm:px-4 py-2 sm:py-3 bg-gray-50 rounded-lg border border-gray-200">
                     <p className="text-gray-800 text-sm sm:text-base">
                       ***********
                     </p>
@@ -407,7 +470,7 @@ function AccountDetails() {
                   >
                     Change Password
                   </button>
-                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -450,13 +513,13 @@ function AccountDetails() {
                     <p className="text-xs sm:text-sm text-gray-500">
                       {user?.user?.dateOfBirth
                         ? new Date(user.user.dateOfBirth).toLocaleDateString(
-                            "en-IN",
-                            {
-                              month: "short",
-                              day: "numeric",
-                              year: "numeric",
-                            },
-                          )
+                          "en-IN",
+                          {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                          },
+                        )
                         : "Not provided"}
                     </p>
                   </div>
@@ -489,7 +552,7 @@ function AccountDetails() {
                     <p className="text-xs sm:text-sm text-gray-500 capitalize">
                       {user?.user?.gender
                         ? user.user.gender.charAt(0).toUpperCase() +
-                          user.user.gender.slice(1)
+                        user.user.gender.slice(1)
                         : "Not provided"}
                     </p>
                   </div>

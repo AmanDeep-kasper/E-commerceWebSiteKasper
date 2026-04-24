@@ -3,13 +3,17 @@ import axiosInstance from "../../api/axiosInstance";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useDispatch, useSelector } from "react-redux";
+// import { addProduct, updateProduct } from "../../redux/cart/productSlice";
 import { v4 as uuidv4 } from "uuid";
+// import product from "../../data/products.json";
 import imageCompression from "browser-image-compression";
-
+// import { IoIosArrowForward } from "react-icons/io";
 import { FiUpload } from "react-icons/fi";
 
 import { ChevronLeft } from "lucide-react";
 import { Link } from "react-router-dom";
+// import AddCategoryPopUp from "./AddCategoryPopUp";
+// import AddSubCategoryPopup from "./AddSubCategoryPopup";
 import DisplayVariantImg from "./DisplayVariantImg";
 import CategoriesPopOnClick from "../../pages/admin/CategoriesPopOnClick";
 
@@ -17,8 +21,8 @@ const AddProduct = () => {
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { id } = useParams();
-  const isEditing = Boolean(id);
+  // const { loading, error } = useSelector((state) => state.product);
+  const { uuid } = useParams();
 
   const createInitialState = () => ({
     productTittle: "",
@@ -106,8 +110,31 @@ const AddProduct = () => {
     }));
   };
 
+  // const addVariantRow = () => {
+  //   const productSKU = formData.SKU?.trim();
+
+  //   if (!productSKU) {
+  //     toast.error("Generate Product SKU first!", {
+  //       position: "top-right",
+  //       autoClose: 2000,
+  //     });
+  //     return;
+  //   }
+
+  //   const randomNum = Math.floor(100 + Math.random() * 900);
+  //   const newVariant = {
+  //     ...emptyVariant(),
+  //     variantSkuId: `${productSKU}-V-${randomNum}`, // auto
+  //   };
+
+  //   setFormData((prev) => ({
+  //     ...prev,
+  //     variants: [...prev.variants, newVariant],
+  //   }));
+  // };
+
   // edit product added new here(akash)
-  // const [isEditing, setIsEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const [productId, setProductId] = useState(null);
   const [loadingProduct, setLoadingProduct] = useState(false);
   // for editning status
@@ -115,12 +142,12 @@ const AddProduct = () => {
   // Fetch product for editing from API
   useEffect(() => {
     const fetchProductForEdit = async () => {
-      if (!id) return;
+      if (!uuid) return;
 
       try {
         setLoadingProduct(true);
         const response = await axiosInstance.get(
-          `/product/admin/get-product-details/${id}`,
+          `/product/admin/get-product-details/${uuid}`,
         );
         console.log("Product to edit:", response.data);
 
@@ -197,7 +224,7 @@ const AddProduct = () => {
     };
 
     fetchProductForEdit();
-  }, [id]);
+  }, [uuid]);
 
   const handleButtonClick = () => {
     fileInputRef.current.click();
@@ -262,6 +289,19 @@ const AddProduct = () => {
       updated.discountAmount = "";
       updated.discountPercent = "";
     }
+
+    // Profit Amount
+    // if (sellingPrice > 0 && costPrice > 0) {
+    //   const profitAmount = sellingPrice - costPrice;
+    //   updated.profitAmount = profitAmount.toFixed(2);
+
+    //   // Profit Margin %
+    //   const profitMargin = (profitAmount / sellingPrice) * 100;
+    //   updated.profitMargin = profitMargin.toFixed(2);
+    // } else {
+    //   updated.profitAmount = "";
+    //   updated.profitMargin = "";
+    // }
 
     setFormData(updated);
   };
@@ -504,7 +544,6 @@ const AddProduct = () => {
       category: formData.category,
       subcategory: formData.subcategory,
       isActive: status === "active",
-      action: "add", // Ensure action is sent as expected by the backend
       variants: formData.variants.map((v) => ({
         variantColor: v.variantColor,
         variantName: v.variantName,
@@ -525,20 +564,7 @@ const AddProduct = () => {
 
     try {
       let response;
-      // check if we have a draft id from previous save
-      if(draftId) {
-        // update the existing draft prodcut
-        response = await axiosInstance.patch(
-          `/product/admin/update-product/${draftId}`,
-          {
-            ...payload,
-            isDraft:false,
-            isActive: true,
-          }
-        );
-        toast.success("Draft published successfully!");
-      }
-    else  if (isEditing && productId) {
+      if (isEditing && productId) {
         // UPDATE existing product
         response = await axiosInstance.patch(
           `/product/admin/update-product/${productId}`,
@@ -557,7 +583,6 @@ const AddProduct = () => {
       setIsDraftEnabled(false);
       localStorage.removeItem("addProductDraft");
       setFormData(createInitialState());
-      setDraftId(null);
 
       setTimeout(() => {
         navigate("/admin/products");
@@ -749,7 +774,6 @@ const AddProduct = () => {
   const [itemsOpenvar, setItemsOpenVar] = useState(false);
   const [editingVariant, setEditingVariant] = useState(null);
   const [savedVariants, setSavedVariants] = useState([]);
-  const [draftId, setDraftId] = useState(null);
 
   const handleSaveVariant = (index) => {
     const variant = formData.variants[index];
@@ -777,169 +801,24 @@ const AddProduct = () => {
 
   const [isDraftEnabled, setIsDraftEnabled] = useState(true);
 
-  // const handleSaveDraft = async () => {
-  //   try {
-  //     const payload = {
-  //       ...formData,
-  //       action: "draft",
-  //       variants: formData.variants.map((v) => ({
-  //         ...v,
-  //         variantImage: [],
-  //       })),
-  //     };
+  const handleSaveDraft = () => {
+    try {
+      const draftData = {
+        ...formData,
+        variants: formData.variants.map((v) => ({
+          ...v,
+          variantImage: [], // remove images
+        })),
+      };
 
-  //     await axiosInstance.post("product/admin/add-product", payload);
+      localStorage.setItem("addProductDraft", JSON.stringify(draftData));
+      setHasDraft(true);
 
-  //     toast.success("Draft saved to server!");
-  //   } catch (err) {
-  //     toast.error(err?.response?.data?.message || "Failed to save draft");
-  //   }
-  // };
-
-  // FIXED handleSaveDraft - Keep images!
-const handleSaveDraft = async () => {
-  if (!formData.productTittle.trim()) {
-    toast.error("Please enter product name before saving draft");
-    return;
-  }
-
-  try {
-    const payload = {
-      productTittle: formData.productTittle,
-      description: formData.description,
-      category: formData.category,
-      subcategory: formData.subcategory,
-      variants: formData.variants.map((v) => ({
-        variantColor: v.variantColor,
-        variantName: v.variantName,
-        variantWeight: v.variantWeight,
-        variantWeightUnit: v.variantWeightUnit,
-        variantSkuId: v.variantSkuId,
-        variantImage: v.variantImage || [],
-        variantMrp: Number(v.variantMrp) || 0,
-        variantCostPrice: Number(v.variantCostPrice) || 0,
-        variantSellingPrice: Number(v.variantSellingPrice) || 0,
-        variantGST: Number(v.variantGST) || 0,
-        variantDiscount: Number(v.variantDiscount) || 0,
-        variantAvailableStock: Number(v.variantAvailableStock) || 0,
-        variantLowStockAlertStock: Number(v.variantLowStockAlertStock) || 0,
-        isSelected: v.isSelected || false,
-      })),
-      action: "draft",
-      isDraft: true,
-      isActive: false,
-    };
-
-    let response;
-    if (draftId) {
-      // UPDATE existing draft
-      response = await axiosInstance.patch(
-        `/product/admin/update-product/${draftId}`,
-        payload
-      );
-      toast.success("Draft updated successfully!");
-    } else {
-      // CREATE new draft
-      response = await axiosInstance.post("/product/admin/add-product", payload);
-      setDraftId(response.data.data._id);
       toast.success("Draft saved successfully!");
+    } catch (err) {
+      toast.error("Failed to save draft");
     }
-    
-    // localStorage.removeItem("addProductDraft");
-  } catch (err) {
-    toast.error(err?.response?.data?.message || "Failed to save draft");
-  }
-};
-
-// Publish Draft - Update the same draft to published
-const handlePublishDraft = async () => {
-  // Add validation for required fields
-  if (!formData.category.trim()) {
-    toast.error("Category is required");
-    return;
-  }
-
-  // Validate variants
-  for (let i = 0; i < formData.variants.length; i++) {
-    const variant = formData.variants[i];
-    if (variant.variantSkuId && !variant.variantImage?.length) {
-      toast.error(`Variant ${i + 1}: Images required if SKU is provided`);
-      return;
-    }
-  }
-
-  setIsSubmitting(true);
-
-  try {
-    const payload = {
-      productTittle: formData.productTittle,
-      description: formData.description,
-      category: formData.category,
-      subcategory: formData.subcategory,
-      variants: formData.variants.map((v) => ({
-        variantColor: v.variantColor,
-        variantName: v.variantName,
-        variantWeight: v.variantWeight,
-        variantWeightUnit: v.variantWeightUnit,
-        variantSkuId: v.variantSkuId,
-        variantImage: v.variantImage || [],
-        variantMrp: Number(v.variantMrp) || 0,
-        variantCostPrice: Number(v.variantCostPrice) || 0,
-        variantSellingPrice: Number(v.variantSellingPrice) || 0,
-        variantGST: Number(v.variantGST) || 0,
-        variantDiscount: Number(v.variantDiscount) || 0,
-        variantAvailableStock: Number(v.variantAvailableStock) || 0,
-        variantLowStockAlertStock: Number(v.variantLowStockAlertStock) || 0,
-        isSelected: v.isSelected || false,
-      })),
-      action: "add",
-      isDraft: false,
-      isActive: true,
-    };
-
-    let response;
-    if (draftId) {
-      // UPDATE existing draft to published
-      response = await axiosInstance.patch(
-        `/product/admin/update-product/${draftId}`,
-        payload
-      );
-      toast.success("Product published successfully!");
-    } else if (isEditing && productId) {
-      response = await axiosInstance.patch(
-        `/product/admin/update-product/${productId}`,
-        payload
-      );
-      toast.success("Product updated successfully!");
-    } else {
-      response = await axiosInstance.post("/product/admin/add-product", payload);
-      toast.success("Product added successfully!");
-    }
-
-    localStorage.removeItem("addProductDraft");
-    setFormData(createInitialState());
-    setDraftId(null);
-
-    setTimeout(() => {
-      navigate("/admin/products");
-    }, 800);
-  } catch (err) {
-    toast.error(err?.response?.data?.message || "Error saving product!");
-  } finally {
-    setIsSubmitting(false);
-  }
-};
-
-useEffect(() => {
-  if (!isEditing && formData.productTittle) {
-    const timer = setTimeout(() => {
-      localStorage.setItem("addProductDraft", JSON.stringify(formData));
-      console.log("Draft auto-saved to localStorage");
-    }, 30000); // Save every 30 seconds
-    
-    return () => clearTimeout(timer);
-  }
-}, [formData, isEditing]);
+  };
 
   useEffect(() => {
     const savedDraft = localStorage.getItem("addProductDraft");
@@ -1286,34 +1165,31 @@ useEffect(() => {
             >
               Cancel
             </button>
-           {!isEditing && (
-    <button
-      type="button"
-      onClick={handleSaveDraft}
-      disabled={isSubmitting}
-      className={`py-1 px-3 rounded border font-medium
-        ${isSubmitting ? "cursor-not-allowed opacity-60" : ""}
-        border-[#737373] text-[#737373] hover:bg-[#706f6f] hover:text-white bg-[#F6F8F9]`}
-    >
-      Save Draft
-    </button>
-  )}
-             <button
-    type="submit"
-    onClick={draftId ? handlePublishDraft : handleSubmit}
-    disabled={isSubmitting}
-    className={`py-1 px-3 rounded-lg font-medium 
-      ${isSubmitting ? "bg-gray-400 cursor-not-allowed" : "bg-[#1C3753]"} 
-      text-[#FFFFFF]`}
-  >
-    {isSubmitting
-      ? "Uploading..."
-      : draftId
-        ? "Publish Product"
-        : isEditing
-          ? "Update Product"
-          : "Add Product"}
-  </button>
+            {!isEditing && (
+              <button
+                type="button"
+                onClick={handleSaveDraft}
+                disabled={isSubmitting}
+                className={`py-1 px-3 rounded border font-medium
+    ${isSubmitting ? "cursor-not-allowed opacity-60" : ""}
+    border-[#737373] text-[#737373] hover:bg-[#706f6f] hover:text-white bg-[#F6F8F9]`}
+              >
+                Save Draft
+              </button>
+            )}
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className={`py-1 px-3 rounded-lg font-medium 
+    ${isSubmitting ? "bg-gray-400 cursor-not-allowed" : "bg-[#1C3753]"} 
+    text-[#FFFFFF]`}
+            >
+              {isSubmitting
+                ? "Uploading..."
+                : isEditing
+                  ? "Update Product"
+                  : "Add Product"}
+            </button>
           </div>
         </div>
 
@@ -1327,6 +1203,7 @@ useEffect(() => {
                 <h2 className="text-[18px] font-medium font-['Inter'] mb-4">
                   Basic Details
                 </h2>
+
                 <div className="flex flex-col gap-5 flex-1">
                   <div>
                     <div className="flex items-start gap-1">
@@ -1343,7 +1220,7 @@ useEffect(() => {
                       onChange={handleChange}
                       placeholder="Enter product name"
                       className="w-full h-[45px] border border-[#D0D0D0] rounded-lg px-3
-            text-[#686868] text-sm bg-[#F8FAFB] placeholder-[#686868]
+            text-[#686868] text-sm bg-[#F8FBFC] placeholder-[#686868]
             focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-[#686868]"
                     />
                   </div>
@@ -1383,23 +1260,9 @@ useEffect(() => {
                       Product Status
                     </h2>
 
-                    <div
-                      style={{
-                        display: "flex",
-                        gap: "30px",
-                        alignItems: "center",
-                      }}
-                    >
+                    <div style={{ display: "flex", gap: "30px", alignItems: "center" }}>
                       {/* Active */}
-                      <label
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "8px",
-                          cursor: "pointer",
-                          color: "#1d4ed8",
-                        }}
-                      >
+                      <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", color: "#1d4ed8" }}>
                         <input
                           type="radio"
                           name="status"
@@ -1417,15 +1280,7 @@ useEffect(() => {
                       </label>
 
                       {/* Inactive */}
-                      <label
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "8px",
-                          cursor: "pointer",
-                          color: "#1d4ed8",
-                        }}
-                      >
+                      <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", color: "#1d4ed8" }}>
                         <input
                           type="radio"
                           name="status"
@@ -1457,10 +1312,8 @@ useEffect(() => {
 
                       <div className="relative w-full">
                         {isEditing ? (
-                          <div className="w-full h-[48px] px-4 rounded-xl bg-gray-500 text-gray-600 flex items-center border border-gray-200">
-                            {categories.find(
-                              (cat) => cat._id === formData.category,
-                            )?.name || "Not selected"}
+                          <div className="w-full h-[48px] px-4 rounded-xl bg-gray-100 text-gray-600 flex items-center border border-gray-200">
+                            {categories.find(cat => cat._id === formData.category)?.name || "Not selected"}
                           </div>
                         ) : (
                           <select
@@ -1488,7 +1341,7 @@ useEffect(() => {
                             <option value="">Select category</option>
 
                             {categories.map((cat) => (
-                              <option key={cat._id} value={cat._id}>
+                              <option key={cat._id} value={cat._id} className="bg-white">
                                 {cat.name}
                                 {/* {console.log(cat.name)} */}
                               </option>
@@ -1517,9 +1370,7 @@ useEffect(() => {
                       <div className="relative w-full">
                         {isEditing ? (
                           <div className="w-full h-[48px] px-4 rounded-xl bg-gray-100 text-gray-600 flex items-center border border-gray-200">
-                            {subCategories.find(
-                              (sub) => sub._id === formData.subcategory,
-                            )?.name || "Not selected"}
+                            {subCategories.find(sub => sub._id === formData.subcategory)?.name || "Not selected"}
                           </div>
                         ) : (
                           <select
@@ -1558,7 +1409,7 @@ useEffect(() => {
                             <option value="">Select sub-category</option>
 
                             {subCategories.map((sub) => (
-                              <option key={sub._id} value={sub._id}>
+                              <option key={sub._id} value={sub._id} className="bg-white">
                                 {sub.name}
                               </option>
                             ))}
@@ -1624,7 +1475,7 @@ useEffect(() => {
                 <div className="overflow-x-auto rounded-t-xl">
                   <table className="w-full min-w-[1200px] text-sm">
                     <thead className="bg-[#F5F8FA]">
-                      <tr>
+                      <tr className="">
                         <th className="px-3 py-2 text-left">
                           <input
                             type="checkbox"
@@ -1651,7 +1502,7 @@ useEffect(() => {
                         </th>
                         <th className="px-3 py-2 text-left font-medium">
                           Images
-                        </th>
+                        </th>{" "}
                         <th className="px-3 py-2 text-left font-medium">MRP</th>
                         <th className="px-3 py-2 text-left font-medium">
                           Cost Price
@@ -1746,10 +1597,7 @@ useEffect(() => {
                           <td className="px-3 py-1">
                             {isEditing ? (
                               <div className="flex items-center gap-2 border rounded px-3 py-1 bg-gray-100 text-gray-600 min-w-[140px]">
-                                <span>
-                                  {variant.variantWeight || "-"}{" "}
-                                  {variant.variantWeightUnit || "kg"}
-                                </span>
+                                <span>{variant.variantWeight || "-"} {variant.variantWeightUnit || "kg"}</span>
                               </div>
                             ) : (
                               <div className="flex items-center justify-center gap-2 border rounded px-3 py-1">
@@ -1832,30 +1680,21 @@ useEffect(() => {
                             {isEditing ? (
                               // ✅ VIEW-ONLY MODE FOR EDIT
                               <div className="flex items-center gap-3">
-                                {variant.variantImage &&
-                                variant.variantImage.length > 0 ? (
+                                {variant.variantImage && variant.variantImage.length > 0 ? (
                                   <div className="flex items-center gap-2">
                                     <div className="h-9 w-9 rounded-md overflow-hidden border bg-gray-100">
                                       <img
-                                        src={
-                                          variant.variantImage[0]?.url ||
-                                          "/placeholder.png"
-                                        }
+                                        src={variant.variantImage[0]?.url || "/placeholder.png"}
                                         className="h-full w-full object-cover"
                                         alt="product"
                                       />
                                     </div>
                                     <span className="text-sm text-gray-500">
-                                      {variant.variantImage.length} image
-                                      {variant.variantImage.length !== 1
-                                        ? "s"
-                                        : ""}
+                                      {variant.variantImage.length} image{variant.variantImage.length !== 1 ? 's' : ''}
                                     </span>
                                   </div>
                                 ) : (
-                                  <div className="text-sm text-gray-400">
-                                    No images
-                                  </div>
+                                  <div className="text-sm text-gray-400">No images</div>
                                 )}
                               </div>
                             ) : (
@@ -1880,9 +1719,7 @@ useEffect(() => {
                                         onClick={() =>
                                           triggerVariantUpload(index)
                                         }
-                                        disabled={
-                                          uploadingVariantIndex === index
-                                        }
+                                        disabled={uploadingVariantIndex === index}
                                         className="flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
                                       >
                                         <div className="h-9 w-9 rounded-md border bg-[#EFEFEF] flex items-center justify-center">
@@ -1904,9 +1741,7 @@ useEffect(() => {
                                       <div className="flex items-center gap-3">
                                         <button
                                           type="button"
-                                          onClick={() =>
-                                            openVariantImages(index)
-                                          }
+                                          onClick={() => openVariantImages(index)}
                                           className="flex items-center gap-2"
                                         >
                                           <div className="h-9 w-9 rounded-md overflow-hidden border bg-gray-100">
