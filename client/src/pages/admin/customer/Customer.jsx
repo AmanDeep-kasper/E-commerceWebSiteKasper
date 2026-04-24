@@ -31,11 +31,12 @@ function Customer() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
 
   // search filter
   const [search, setSearch] = useState("");
   const [debouncedValue, setDebouncedValue] = useState("");
-  // console.log(search);
 
   // latest filter
   const [filterOne, setfilterOne] = useState("Latest");
@@ -44,42 +45,46 @@ function Customer() {
   const [statusOpen, setStatusOpen] = useState(false);
   const [status, setStatus] = useState("All Status");
 
-   const navigate = useNavigate(null);
-   useEffect(() => {
-    const fetchUsers = async() => {
-      try{
-        setLoading(true);
-        const response = await axiosInstance.get("/user/admin/all-users");
-        console.log("Users response:", response.data);
-          
-        let usersData = [];
-        if (response.data?.success && response.data?.users) {
-          usersData = response.data.users;
-        } else if (Array.isArray(response.data)) {
-          usersData = response.data;
-        } else if (response.data?.data) {
-          usersData = response.data.data;
-        }
+  const navigate = useNavigate();
 
-        // filter out admin users only show customers (role === "user")
-        const customerUsers = usersData.filter((user) => user.role !== "admin");
-        
-        setUsers(customerUsers);
-        setError(null);
-      } catch (err) {
-        console.error("Error fetching users:", err);
-        setError(err.response?.data?.message || "Failed to load users");
-        setUsers([]);
-      } finally {
-        setLoading(false);
+  const fetchUsers = async () => {
+    try {
+      setLoading(true);
+
+      // Build query parameters
+      let queryParams = `?page=${page}&limit=${rowsPerPage}&search=${debouncedValue}&role=user`;
+
+      if (status === "Active") {
+        queryParams += "&isActive=true";
+      } else if (status === "Blocked") {
+        queryParams += "&isActive=false";
       }
-    };
-    
-    fetchUsers();
-  }, []);
-  // const allRows = [...customers];
 
-  // debouncce filter
+      const response = await axiosInstance.get(`/user/admin/all-users${queryParams}`);
+      
+      if (response.data?.success) {
+        setUsers(response.data.users || []);
+        setTotalPages(response.data.pagination?.totalPages || 1);
+        setTotalItems(response.data.pagination?.totalUsers || 0);
+      }
+      setError(null);
+    } catch (err) {
+      console.error("Error fetching users:", err);
+      setError(err.response?.data?.message || "Failed to load users");
+      setUsers([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchUsers();
+  }, [page, debouncedValue, status]);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedValue, status]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -89,55 +94,10 @@ function Customer() {
     return () => clearTimeout(timer);
   }, [search]);
 
-  // all filter logic
-
-  const filterUsers = useMemo(() => {
+  // Sorting logic (if backend doesn't support sorting yet, we can do it on the current page's data)
+  const sortedUsers = useMemo(() => {
     let result = [...users];
 
-    // Search logic filter
-    if (debouncedValue.trim() !== "") {
-      result = result.filter((item) => {
-        return (
-          item?.name?.toLowerCase().includes(debouncedValue.toLowerCase()) ||
-          item?.email?.toLowerCase().includes(debouncedValue.toLowerCase()) ||
-          item?.phoneNumber?.includes(debouncedValue)
-        );
-      });
-    }
-    // STATUS FILTER
-  if (status !== "All Status") {
-      if (status === "Active") {
-        result = result.filter((item) => item.isActive === true);
-      } else if (status === "Blocked") {
-        result = result.filter((item) => item.isActive === false);
-      }
-    }
-
-
-    // if (filterOne === "Latest") {
-    //   result.sort(
-    //     (a, b) => new Date(b.last_order_date) - new Date(a.last_order_date),
-    //   );
-    // }
-
-    // if (filterOne === "Oldest") {
-    //   result.sort((a, b) => {
-    //     return new Date(a.last_order_date) - new Date(b.last_order_date);
-    //   });
-    // }
-
-    // if (filterOne === "Alphabetical (A-Z)") {
-    //   result.sort((a, b) => {
-    //     return a.name.localeCompare(b.name);
-    //   });
-    // }
-
-    // if (filterOne === "Alphabetical (Z-A)") {
-    //   result.sort((a, b) => {
-    //     return b.name.localeCompare(a.name);
-    //   });
-    // }
-    // Sorting
     if (filterOne === "Latest") {
       result.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     } else if (filterOne === "Oldest") {
@@ -148,39 +108,20 @@ function Customer() {
       result.sort((a, b) => (b.name || "").localeCompare(a.name || ""));
     }
 
-
     if (filterOne === "Spend (Low-High)") {
-      result.sort((a, b) => {
-        return a.total_spent - b.total_spent;
-      });
-    }
-
-    if (filterOne === "Spend (High-Low)") {
-      result.sort((a, b) => {
-        return b.total_spent - a.total_spent;
-      });
-    }
-    if (filterOne === "Most Orders") {
-      result.sort((a, b) => {
-        return b.total_orders - a.total_orders;
-      });
-    }
-    if (filterOne === "Least Orders") {
-      result.sort((a, b) => {
-        return a.total_orders - b.total_orders;
-      });
+      result.sort((a, b) => (a.totalSpend || 0) - (b.totalSpend || 0));
+    } else if (filterOne === "Spend (High-Low)") {
+      result.sort((a, b) => (b.totalSpend || 0) - (a.totalSpend || 0));
+    } else if (filterOne === "Most Orders") {
+      result.sort((a, b) => (b.totalOrders || 0) - (a.totalOrders || 0));
+    } else if (filterOne === "Least Orders") {
+      result.sort((a, b) => (a.totalOrders || 0) - (b.totalOrders || 0));
     }
 
     return result;
-  }, [users, debouncedValue, status, filterOne]);
+  }, [users, filterOne]);
 
-  const totalPages = Math.ceil(filterUsers.length / rowsPerPage);
-  const rows = filterUsers.slice(
-    (page - 1) * rowsPerPage,
-    page * rowsPerPage,
-  );
-
-  // store the Latest filter status
+  const rows = sortedUsers;
 
   const filterOneItems = [
     "Latest",
@@ -193,15 +134,11 @@ function Customer() {
     "Least Orders",
   ];
 
-  // Filter two status
-
   const statuses = ["All Status", "Active", "Blocked"];
 
-  //  pagination side logic
-
-  const start = (page - 1) * rowsPerPage + 1;
-  const end = Math.min(page * rowsPerPage, filterUsers.length);
-  const total = filterUsers.length;
+  const start = totalItems === 0 ? 0 : (page - 1) * rowsPerPage + 1;
+  const end = Math.min(page * rowsPerPage, totalItems);
+  const total = totalItems;
 
   // Loading state
    if (loading) {
@@ -405,45 +342,45 @@ function Customer() {
           </div>
 
           {/* Pagination */}
- {filterUsers.length > 0 && (
-          <div className="flex items-center justify-between px-6 py-3  text-sm text-gray-600">
-            {/* Showing text */}
-            <div>
-              Showing <span className="font-medium">{start}</span>–
-              <span className="font-medium">{end}</span> of{" "}
-              <span className="font-medium">{total}</span> results
-            </div>
-
-            {/* Pagination controls */}
-            <div className="flex items-center gap-2">
-              <button
-                className="px-3 py-1 border rounded disabled:opacity-40"
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page === 1}
-              >
-                ‹
-              </button>
-
-              <div className="px-4 py-1 border rounded">
-                Page {String(page).padStart(2, "0")} of{" "}
-                {String(totalPages).padStart(2, "0")}
+          {users.length > 0 && (
+            <div className="flex items-center justify-between px-6 py-3  text-sm text-gray-600">
+              {/* Showing text */}
+              <div>
+                Showing <span className="font-medium">{start}</span>–
+                <span className="font-medium">{end}</span> of{" "}
+                <span className="font-medium">{total}</span> results
               </div>
 
-              <button
-                className="px-3 py-1 border rounded disabled:opacity-40"
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                disabled={page === totalPages}
-              >
-                ›
-              </button>
+              {/* Pagination controls */}
+              <div className="flex items-center gap-2">
+                <button
+                  className="px-3 py-1 border rounded disabled:opacity-40"
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  disabled={page === 1}
+                >
+                  ‹
+                </button>
+
+                <div className="px-4 py-1 border rounded">
+                  Page {String(page).padStart(2, "0")} of{" "}
+                  {String(totalPages).padStart(2, "0")}
+                </div>
+
+                <button
+                  className="px-3 py-1 border rounded disabled:opacity-40"
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={page === totalPages}
+                >
+                  ›
+                </button>
+              </div>
             </div>
-          </div>
- )}
- {filterUsers.length === 0 && !loading && (
-  <div className="text-center py-8 text-gray-500">
+          )}
+          {users.length === 0 && !loading && (
+            <div className="text-center py-8 text-gray-500">
               No customers found
             </div>
- )}
+          )}
         </div>
       </div>
     </div>
