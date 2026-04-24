@@ -16,10 +16,10 @@ import { useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { MapPin } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
-// import orders from "../data/orders.json";
 import Navbar from "../components/Navbar";
 import Footer from "../sections/Footer";
 import { useSelector } from "react-redux";
+import axiosInstance from "../api/axiosInstance";
 
 const steps = [
   "Order Placed",
@@ -32,11 +32,48 @@ const steps = [
 function OrderTracking() {
   const [active, setActive] = useState(0);
   const { orderId } = useParams();
-  const orders = useSelector((state) => state.order.list); //  from Redux
-  const order = orders?.find((val) => val.orderId.slice(1) == orderId);
-  console.log(order);
-  const [trackOrder, setTrackOrder] = useState(order.orderStatus);
+  const [trackOrder, setTrackOrder] = useState("");
+  const [order, setOrder] = useState(null);
 
+  // ✅ Hook 1
+  useEffect(() => {
+    const fetchOrder = async () => {
+      try {
+        const res = await axiosInstance.get(`/order/${orderId}`);
+        setOrder(res.data.order);
+        setTrackOrder(res.data.order.status);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchOrder();
+  }, [orderId]);
+
+  // ✅ Hook 2
+  useEffect(() => {
+    if (!trackOrder) return;
+
+    const status = trackOrder.toLowerCase().replace(/\s/g, "");
+
+    if (status === "cancelled") setActive(-1);
+    else if (status === "placed") setActive(0);
+    else if (status === "processing") setActive(33.33);
+    else if (status === "shipped") setActive(66.66);
+    else if (status === "delivered") setActive(100);
+    else setActive(0);
+  }, [trackOrder]);
+
+  // ✅ Hook 3
+  useEffect(() => {
+    if (trackOrder === "Order Placed") {
+      const timer = setTimeout(() => {
+        setTrackOrder("Processing");
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [trackOrder]);
+
+  // ❗ AFTER all hooks → conditional rendering
   if (!order) {
     return (
       <>
@@ -50,64 +87,7 @@ function OrderTracking() {
       </>
     );
   }
-
-  // useEffect(() => {
-  //   const status = trackOrder.toLowerCase();
-  //   console.log(status);
-
-  //   if (
-  //     steps[1].replace(/\s/g, "").toLowerCase() === status.replace(/\s/g, "")
-  //   ) {
-  //     setActive(25);
-  //   } else if (
-  //     steps[2].replace(/\s/g, "").toLowerCase() === status.replace(/\s/g, "")
-  //   ) {
-  //     setActive(50);
-  //   } else if (
-  //     steps[3].replace(/\s/g, "").toLowerCase() === status.replace(/\s/g, "")
-  //   ) {
-  //     setActive(75);
-  //   } else if (
-  //     steps[4].replace(/\s/g, "").toLowerCase() === status.replace(/\s/g, "")
-  //   ) {
-  //     setActive(100);
-  //   } else if (
-  //     steps[0].replace(/\s/g, "").toLowerCase() === status.replace(/\s/g, "")
-  //   ) {
-  //     setActive(1);
-  //   } else setActive(0);
-  // }, [trackOrder]); //  depends on trackOrder
-
-  useEffect(() => {
-    const status = trackOrder.toLowerCase().replace(/\s/g, "");
-
-    if (status === "cancelled") {
-      setActive(-1); // special flag for cancelled
-    } else if (status === steps[1].replace(/\s/g, "").toLowerCase()) {
-      setActive(25);
-    } else if (status === steps[2].replace(/\s/g, "").toLowerCase()) {
-      setActive(50);
-    } else if (status === steps[3].replace(/\s/g, "").toLowerCase()) {
-      setActive(75);
-    } else if (status === steps[4].replace(/\s/g, "").toLowerCase()) {
-      setActive(100);
-    } else if (status === steps[0].replace(/\s/g, "").toLowerCase()) {
-      setActive(1);
-    } else {
-      setActive(0);
-    }
-  }, [trackOrder]);
-
-  //   useEffect(() => {
-  //   if (trackOrder === "Order Placed") {
-  //     const timer = setTimeout(() => {
-  //       setTrackOrder("Processing"); // move to shipped in 5 sec
-  //     }, 5000);
-
-  //     return () => clearTimeout(timer);
-  //   }
-  // }, [trackOrder]);
-
+  
   return (
     <>
       <Navbar />
@@ -119,10 +99,10 @@ function OrderTracking() {
           </div>
 
           {/* Main Content */}
-          <div className="w-full">
+          <div className="w-full mt-14">
             {/* Order Tracking Header */}
             <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 ">
-              <h2 className="text-lg flex flex-col space-y-2  sm:text-xl fontd-semibold text-gray-800 mb-6 text-center sm:text-left">
+              <h2 className="text-lg flex flex-col space-y-2  sm:text-xl fontd-semibold text-gray-800 mb-6 text-center sm:text-left border-b border-gray-200 pb-4">
                 <span className="flex items-center font-semibold gap-2">
                   {" "}
                   <Link to="/accounts/order-history">
@@ -131,11 +111,19 @@ function OrderTracking() {
                   </Link>{" "}
                   Track Order
                 </span>
-                <span className="text-sm"> Order {order.orderId} </span>
+                <div>
+                  <span className="text-sm">
+                    {" "}
+                    Order placed -{" "}
+                    {new Date(order.createdAt).toLocaleDateString()}{" "}
+                  </span>
+                  <span className="text-sm">| </span>
+                  <span className="text-sm">{order.orderNumber}</span>
+                </div>
               </h2>
-              <div className="mb-2">
+              {/* <div className="mb-2">
                 <span className="text-sm font-medium">Order Status</span>
-              </div>
+              </div> */}
 
               {/* Progress Tracker */}
               <div className="relative w-full">
@@ -143,22 +131,20 @@ function OrderTracking() {
                 <div className="hidden lg:block">
                   {/* Labels */}
                   <div className="flex justify-between mb-4">
-                    {[
-                      "Order Placed",
-                      "Processing",
-                      "Shipped",
-                      "Out for Delivery",
-                      "Delivered",
-                    ].map((label, idx) => (
-                      <span
-                        key={idx}
-                        className={`text-sm ${
-                          active >= idx * 25 ? "text-[#0A63E]" : "text-gray-400"
-                        }`}
-                      >
-                        {label}
-                      </span>
-                    ))}
+                    {["Order Placed", "Processing", "Shipped", "Delivered"].map(
+                      (label, idx) => (
+                        <span
+                          key={idx}
+                          className={`text-sm ${
+                            active >= idx * (100 / (4 - 1))
+                              ? "text-[#0A63E]"
+                              : "text-gray-400"
+                          }`}
+                        >
+                          {label}
+                        </span>
+                      ),
+                    )}
                   </div>
 
                   {/* Progress bar */}
@@ -173,7 +159,7 @@ function OrderTracking() {
                           : "bg-gradient-to-r from-[#00A63E] to-[#00A63E]"
                       }`}
                     />
-                    {[0, 25, 50, 75, 100].map((pos) => (
+                    {[0, 33.33, 66.66, 100].map((pos) => (
                       <div
                         key={pos}
                         className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2"
@@ -197,52 +183,53 @@ function OrderTracking() {
 
                 {/* Mobile (vertical) */}
                 <div className="flex flex-col gap-6 lg:hidden relative pl-6">
-                  {[
-                    "Order Placed",
-                    "Processing",
-                    "Shipped",
-                    "Out for Delivery",
-                    "Delivered",
-                  ].map((label, idx) => (
-                    <div key={idx} className="relative flex items-center gap-3">
-                      {/* Circle */}
+                  {["Order Placed", "Processing", "Shipped", "Delivered"].map(
+                    (label, idx) => (
                       <div
-                        className={`w-5 h-5 flex items-center justify-center rounded-full z-10 ${
-                          active >= idx * 25 ? "bg-[#19A971]" : "bg-gray-300"
-                        }`}
+                        key={idx}
+                        className="relative flex items-center gap-3"
                       >
-                        <Check size={12} className="text-white" />
-                      </div>
-
-                      {/* Line connector */}
-                      {idx < 4 && (
+                        {/* Circle */}
                         <div
-                          className={`absolute left-[9px] top-5 w-[2px] h-10 ${
-                            active >= (idx + 1) * 25
+                          className={`w-5 h-5 flex items-center justify-center rounded-full z-10 ${
+                            active >= idx * (100 / 3)
                               ? "bg-[#19A971]"
                               : "bg-gray-300"
                           }`}
-                        />
-                      )}
+                        >
+                          <Check size={12} className="text-white" />
+                        </div>
 
-                      {/* Label */}
-                      <span
-                        className={`text-sm ${
-                          active >= idx * 25
-                            ? "text-[#19A971]"
-                            : "text-gray-400"
-                        }`}
-                      >
-                        {label}
-                      </span>
-                    </div>
-                  ))}
+                        {/* Line connector */}
+                        {idx < 4 && (
+                          <div
+                            className={`absolute left-[9px] top-5 w-[2px] h-10 ${
+                              active >= (idx + 1) * 25
+                                ? "bg-[#19A971]"
+                                : "bg-gray-300"
+                            }`}
+                          />
+                        )}
+
+                        {/* Label */}
+                        <span
+                          className={`text-sm ${
+                            active >= idx * 25
+                              ? "text-[#19A971]"
+                              : "text-gray-400"
+                          }`}
+                        >
+                          {label}
+                        </span>
+                      </div>
+                    ),
+                  )}
                 </div>
               </div>
             </div>
 
             {/* Order Details */}
-            <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
               {/* Shipping Info */}
               <div className="bg-[#F6F8F9] p-5 rounded-lg shadow-sm">
                 <h2 className="text-lg font-medium text-gray-800 mb-4 flex items-center gap-2">
@@ -252,13 +239,16 @@ function OrderTracking() {
                 <div className="space-y-3 text-sm">
                   <div>
                     <p className="text-gray-500">Carrier:</p>
-                    <p className="font-medium">FedEx Ground</p>
+                    <p className="font-medium">{order?.tracking?.carrier}</p>
                   </div>
                   <div>
                     <p className="text-gray-500">Shipping Address</p>
                     <p className="font-medium">
-                      {order.deliveryAddress.street},{" "}
-                      {order.deliveryAddress.city}
+                      {order?.shippingAddress?.address}
+                      {order?.shippingAddress?.street},{" "}
+                      {order?.shippingAddress?.city},
+                      {order?.shippingAddress?.state},
+                      {order?.shippingAddress?.pinCode}
                     </p>
                   </div>
                   {/* <div>
@@ -269,7 +259,7 @@ function OrderTracking() {
               </div>
 
               {/* Delivery Estimate */}
-              <div className="bg-[#F6F8F9] p-5 rounded-lg shadow-sm">
+              {/* <div className="bg-[#F6F8F9] p-5 rounded-lg shadow-sm">
                 <h2 className="text-lg font-medium text-gray-800 mb-4 flex items-center gap-2">
                   <Calendar className="text-[#1C3753]" size={18} /> Delivery
                   Estimate
@@ -277,26 +267,26 @@ function OrderTracking() {
                 <div className="space-y-3 text-sm">
                   <div>
                     <p className="text-gray-500">Estimated Date</p>
-                    {/* <p className="font-medium">September 12–14, 2024</p> */}
+                    <p className="font-medium">September 12–14, 2024</p>
                     <p className="font-medium">{order.deliveryDate}</p>
                   </div>
                   <div>
                     <p className="text-gray-500">Current Status</p>
                     <p
                       className={`font-medium flex items-center gap-1 ${
-                        trackOrder === "Cancelled" ? "text-red-500" : ""
+                        order.status === "Cancelled" ? "text-red-500" : ""
                       }`}
                     >
                       <span className="w-2 h-2 rounded-full bg-[#1C3753] animate-pulse"></span>
-                      {order.orderStatus}
+                      {order.status}
                     </p>
                   </div>
-                  {/* <button className="mt-4 w-full flex items-center justify-center py-2 group bg-[#EBB100] hover:bg-[#EBA100] text-white">
+                  <button className="mt-4 w-full flex items-center justify-center py-2 group bg-[#EBB100] hover:bg-[#EBA100] text-white">
                     <MapPin className="mr-2 group-hover:text-white" size={16} />
                     Track Package
-                  </button> */}
+                  </button>
                 </div>
-              </div>
+              </div> */}
 
               {/* Recent Updates */}
               <div className="bg-[#F6F8F9] p-5 rounded-lg shadow-sm">
@@ -310,11 +300,22 @@ function OrderTracking() {
                       <div className="w-px h-full bg-gray-300"></div>
                     </div> */}
                     <div>
-                      <p className="text-sm text-gray-500 font-medium">Tracking Link:</p>
-                      {/* <p className="text-xs text-gray-500">Today, 9:42 AM</p> */}
-                      <p className="text-xs mt-1 ">
-                      {order.tracklink?order.tracklink:" htps://www.xyz.com/en-us/tracking.html"}
+                      <p className="text-sm text-gray-500 font-medium">
+                        Tracking Link:
                       </p>
+                      {/* <p className="text-xs text-gray-500">Today, 9:42 AM</p> */}
+                      <a
+                        href={
+                          order.tracking?.trackingUrl ||
+                          " https://www.xyz.com/en-us/tracking.html"
+                        }
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs mt-1 text-blue-600"
+                      >
+                        {order.tracking?.trackingUrl ||
+                          " https://www.xyz.com/en-us/tracking.html"}
+                      </a>
                     </div>
                   </div>
                   <div className="flex gap-3">
@@ -323,12 +324,15 @@ function OrderTracking() {
                       <div className="w-px h-full bg-gray-300"></div>
                     </div> */}
                     <div>
-                      <p className="text-sm text-gray-500 font-medium">Tracking No.: </p>
+                      <p className="text-sm text-gray-500 font-medium">
+                        Tracking No.:{" "}
+                      </p>
                       <p className="text-xs ">
-                        {order.trackingId}
+                        {order?.tracking?.trackingNumber}
                       </p>
                       <p className="text-sm text-gray-500 mt-2">
-                        *Please copy this link and paste it in your browser and then paste this tracking number to track your order.
+                        *Please click this link and paste it in your browser and
+                        then paste this tracking number to track your order.
                       </p>
                       {/* <p className="text-xs mt-1 text-gray-600">
                         Dallas, TX distribution center
@@ -344,8 +348,7 @@ function OrderTracking() {
               <div className="flex flex-col lg:flex-row">
                 <div className="p-6 lg:w-1/2">
                   <h2 className="text-xl font-medium text-gray-800 mb-4 flex items-center gap-2">
-                     Need Help
-                    With Your Order?
+                    Need Help With Your Order?
                   </h2>
                   <p className="text-sm text-gray-600 mb-6">
                     Our customer support team is available 24/7 to assist you
@@ -372,7 +375,7 @@ function OrderTracking() {
                       <div>
                         <h3 className="font-medium text-gray-800">Email Us</h3>
                         <p className="text-xs text-gray-500">
-                          support@lasercutmetal.com
+                          happyartsupplies@gmail.com
                         </p>
                       </div>
                     </div>
@@ -384,26 +387,26 @@ function OrderTracking() {
                       <div>
                         <h3 className="font-medium text-gray-800">Call Us</h3>
                         <p className="text-xs text-gray-500">
-                          +1 (800) 555-1234
+                          (+91) 98868 94723
                         </p>
                       </div>
                     </div>
                   </div>
 
-                  <button className="mt-6 flex items-center px-4 justify-center py-2.5 rounded-xl group border border-[#1C3753] text-[#1C3753] hover:bg-[#1C3753] hover:text-white transition-colors">
+                  {/* <button  className="mt-6 flex items-center px-4 justify-center py-2.5 rounded-xl group border border-[#1C3753] text-[#1C3753] hover:bg-[#1C3753] hover:text-white transition-colors">
                     <Headset
                       className="mr-2 group-hover:text-white"
                       size={16}
                     />
                     Contact Support
-                  </button>
+                  </button> */}
                 </div>
 
                 {/* Map */}
                 <div className="lg:w-1/2 h-64 lg:h-auto">
                   <iframe
                     className="w-full h-full"
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d4192.038583228666!2d77.3822129!3d28.5923125!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390cef91f5153683%3A0x5a196bf40461160d!2siThums%2073%2C%20Noida!5e1!3m2!1sen!2sin!4v1748350042204!5m2!1sen!2sin"
+                    src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d3887.0217826101434!2d77.6578157!3d13.0342848!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bae10c942e33ce1%3A0xc15ab53a3914eb10!2sUnited%E2%80%99s%20Crossandra!5e0!3m2!1sen!2sin!4v1777034300221!5m2!1sen!2sin"
                     loading="lazy"
                     referrerPolicy="no-referrer-when-downgrade"
                     style={{ border: 0 }}
