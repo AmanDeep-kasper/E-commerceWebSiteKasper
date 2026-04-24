@@ -390,9 +390,10 @@ export const adminGetAllProducts = asyncHandler(async (req, res) => {
     Product.countDocuments(filter),
   ]);
 
-  const [activeCount, inactiveCount] = await Promise.all([
+  const [activeCount, inactiveCount, draftCount] = await Promise.all([
     Product.countDocuments({ ...filter, isActive: true }),
     Product.countDocuments({ ...filter, isActive: false }),
+    Product.countDocuments({ ...filter, isDraft: true }),
   ]);
 
   // ✅ PROCESS DATA (same structure as userGetAllProducts)
@@ -444,6 +445,7 @@ export const adminGetAllProducts = asyncHandler(async (req, res) => {
       total: total || 0,
       active: activeCount || 0,
       inactive: inactiveCount || 0,
+      draft: draftCount || 0,
     },
   });
 });
