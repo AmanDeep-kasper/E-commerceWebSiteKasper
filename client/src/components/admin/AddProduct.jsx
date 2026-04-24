@@ -141,8 +141,13 @@ const AddProduct = () => {
   const [status, setStatus] = useState("active");
   // Fetch product for editing from API
   useEffect(() => {
+    console.log("Fetching product for edit. ID:", id);
     const fetchProductForEdit = async () => {
       if (!uuid) return;
+      if (!id) {
+        console.log("No ID provided, skipping fetch");
+        return;
+      } 
 
       try {
         setLoadingProduct(true);
@@ -213,7 +218,10 @@ const AddProduct = () => {
           }
 
           setProductId(productData._id);
-          setIsEditing(true);
+          if(productData.isDraft) {
+            setDraftId(productData._id);
+          }
+          // setIsEditing(true);
         }
       } catch (error) {
         console.error("Error fetching product:", error);
@@ -565,22 +573,53 @@ const AddProduct = () => {
     try {
       let response;
       if (isEditing && productId) {
+       // If we have a draftId and we're NOT publishing (just updating draft)
+    if (draftId) {
+      response = await axiosInstance.patch(
+        `/product/admin/update-product/${draftId}`,
+        {
+          ...payload,
+          action: "draft",
+        }
+      );
+      toast.success("Draft updated successfully!");
+    }
+    // If we're publishing a draft
+    else if (draftId) {
+      response = await axiosInstance.patch(
+        `/product/admin/update-product/${draftId}`,
+        {
+          ...payload,
+          action: "add",
+          isDraft: false,
+          isActive: true,
+        }
+      );
+      toast.success("Product published successfully!");
+    }
+    else  if (isEditing && productId) {
         // UPDATE existing product
         response = await axiosInstance.patch(
           `/product/admin/update-product/${productId}`,
-          payload,
+           {
+          ...payload,
+          action: "add",
+        }
         );
         toast.success("Product updated successfully!");
       } else {
         // CREATE new product
         response = await axiosInstance.post(
           "/product/admin/add-product",
-          payload,
+         {
+        ...payload,
+        action: "add",
+      }
         );
         toast.success("Product added successfully!");
       }
 
-      setIsDraftEnabled(false);
+      // setIsDraftEnabled(false);
       localStorage.removeItem("addProductDraft");
       setFormData(createInitialState());
 
@@ -813,6 +852,32 @@ const AddProduct = () => {
 
       localStorage.setItem("addProductDraft", JSON.stringify(draftData));
       setHasDraft(true);
+  try {
+    const payload = {
+      productTittle: formData.productTittle,
+      description: formData.description,
+      category: formData.category,
+      subcategory: formData.subcategory,
+      variants: formData.variants.map((v) => ({
+        variantColor: v.variantColor,
+        variantName: v.variantName,
+        variantWeight: v.variantWeight,
+        variantWeightUnit: v.variantWeightUnit,
+        variantSkuId: v.variantSkuId,
+        variantImage: v.variantImage || [],
+        variantMrp: Number(v.variantMrp) || 0,
+        variantCostPrice: Number(v.variantCostPrice) || 0,
+        variantSellingPrice: Number(v.variantSellingPrice) || 0,
+        variantGST: Number(v.variantGST) || 0,
+        variantDiscount: Number(v.variantDiscount) || 0,
+        variantAvailableStock: Number(v.variantAvailableStock) || 0,
+        variantLowStockAlertStock: Number(v.variantLowStockAlertStock) || 0,
+        isSelected: v.isSelected || false,
+      })),
+      action: "draft",
+      // isDraft: true,
+      // isActive: false,
+    };
 
       toast.success("Draft saved successfully!");
     } catch (err) {
@@ -844,6 +909,7 @@ const AddProduct = () => {
       setHasDraft(true); // only mark, don't restore
     }
   }, []);
+
 
   const handleRestoreDraft = () => {
     const savedDraft = localStorage.getItem("addProductDraft");

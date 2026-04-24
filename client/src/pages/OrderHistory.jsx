@@ -8,19 +8,19 @@ import { buyNow } from "../redux/cart/cartSlice";
 import OrderFilter from "../components/OrderFilter";
 import { ListFilter, Package } from "lucide-react";
 import EmptyState from "../components/EmptyState";
-// import orders from "../data/orders.json"
+import axiosInstance from "../api/axiosInstance";
 
 function OrderHistory() {
   const orders = useSelector((s) => s.order.list); //  from Redux
   const [param, setParam] = useState("");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [expanded, setExpanded] = useState(false);
-  const [orderA, setOrderA] = useState([...orders].reverse());
-  // console.log(orderA)
+  const [order, setOrder] = useState([]);
   const [status, setStatus] = useState("");
   const [time, setTime] = useState("");
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [loading, setLoading] = useState(true);
 
   const formatDate = (dateString) => {
     const options = { day: "numeric", month: "short", year: "numeric" };
@@ -29,51 +29,58 @@ function OrderHistory() {
 
   useEffect(() => {
     const handler = setTimeout(() => {
-      let filtered = [...orders].reverse();
+      let filtered = [...order];
 
-      // Status filter
       if (status.trim()) {
-        filtered = filtered.filter((order) =>
-          order.orderStatus.toLowerCase().includes(status.toLowerCase()),
+        filtered = filtered.filter((o) =>
+          o.orderStatus.toLowerCase().includes(status.toLowerCase()),
         );
       }
 
-      // Time filter
       if (time) {
         const now = new Date();
+
         if (time === "last30Days") {
-          filtered = filtered.filter((order) => {
-            const orderDate = new Date(order.orderDate);
+          filtered = filtered.filter((o) => {
+            const orderDate = new Date(o.orderDate);
             const diffDays = (now - orderDate) / (1000 * 60 * 60 * 24);
             return diffDays <= 30;
           });
-        } else if (time.startsWith("year")) {
-          const year = parseInt(time.replace("year", ""), 10);
-          filtered = filtered.filter(
-            (order) => new Date(order.orderDate).getFullYear() === year,
-          );
-        } else if (time === "older") {
-          const cutoffYear = new Date().getFullYear() - 2;
-          filtered = filtered.filter(
-            (order) => new Date(order.orderDate).getFullYear() < cutoffYear,
-          );
         }
       }
 
-      // Search filter
       if (param.trim()) {
-        filtered = filtered.filter((order) =>
-          order.items.some((item) =>
+        filtered = filtered.filter((o) =>
+          o.items.some((item) =>
             item.name.toLowerCase().includes(param.toLowerCase()),
           ),
         );
       }
 
-      setOrderA(filtered);
+      setOrder(filtered);
     }, 300);
 
     return () => clearTimeout(handler);
-  }, [param, status, orders, time]);
+  }, [param, status, time]);
+
+  // fetch the latest orders on component mount
+  const handleOrder = async () => {
+    try {
+      setLoading(true);
+      const res = await axiosInstance.get("/order");
+      // console.log("fetchOrders response:", res.data);
+      setOrder(res.data.orders.reverse());
+      setLoading(false);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  useEffect(() => {
+    handleOrder();
+  }, []);
+
+  console.log(order);
 
   return (
     <div className="w-full mt-5">
@@ -123,7 +130,7 @@ function OrderHistory() {
 
       {/* Order Cards */}
       <div className="flex flex-col gap-6 rounded-md">
-        {orderA.length === 0 ? (
+        {order.length === 0 ? (
           <EmptyState
             heading="No Orders Yet"
             description="You haven’t placed any orders yet. Start shopping to see your
@@ -133,47 +140,51 @@ function OrderHistory() {
             ctaLink="/products"
           />
         ) : (
-          orderA.map((order, index) => {
+          order.map((order, index) => {
             return (
               <div
                 key={index}
                 className="bg-white md:rounded-lg md:shadow-sm text-xs sm:text-sm md:text-base"
               >
                 {/* Order Header */}
-                <div className="flex flex-wrap sm:flex-row justify-between gap-3 bg-[#EFEFEF] sm:gap-0 items-start sm:items-center px-4 sm:px-6 py-4 border-b">
+                <div className="flex flex-wrap sm:flex-row justify-between gap-3 bg-[#F0EEFF] sm:gap-0 items-start sm:items-center px-4 sm:px-6 py-4 border-b">
                   <div>
                     <span className="text-gray-500 block">Order Placed</span>
-                    <p className="font-medium">{formatDate(order.orderDate)}</p>
+                    <p className="font-medium">{formatDate(order.placedAt)}</p>
                   </div>
                   <div>
                     <span className="text-gray-500 block">Total</span>
                     <p className="font-medium">
-                      ₹{order.totalAmount.toLocaleString()}
+                      ₹{order.grandTotal.toLocaleString()}
                     </p>
                   </div>
                   <div>
-                    <span className="text-gray-500 block">{order.orderId}</span>
+                    <span className="text-gray-500 block">
+                      {order.orderNumber}
+                    </span>
                     <p className="text-green-600 font-medium capitalize">
-                      {order.orderStatus}
+                      {order.status}
                     </p>
                   </div>
-                  <div className="flex flex-col justify-end max-sm:w-full">
+                  <div className="flex items-end flex-col justify-end max-sm:w-full">
                     <Link
-                      className="border border-[#1C3753] text-[#1C3753] text-center mb-1 px-3 py-1 rounded-md text-xs sm:text-sm"
-                      to={`/accounts/order-detail/${order.orderId.slice(1)}`}
+                      className="border border-[#0C0057] text-[#0C0057] w-[50%] bg-white text-center mb-1 px-3 py-1 rounded-md text-xs sm:text-sm"
+                      to={`/accounts/order-detail/${order._id}`}
                     >
                       Order Details
                     </Link>
-                    <div className="flex items-center gap-4 text-[#1C3753]">
+                    <div className="flex items-center gap-4 text-[#0C0057]">
                       <p
                         onClick={() =>
-                          navigate(`/order-history/${order.orderId.slice(1)}`)
+                          navigate(
+                            `/order-history/${order?._id?.slice(1) || ""}`,
+                          )
                         }
                         className="cursor-pointer"
                       >
                         Track Order
                       </p>
-                      |<p className="">Invoice</p>
+                      |<p className="cursor-pointer">Download Invoice</p>
                     </div>
                   </div>
                 </div>
@@ -186,25 +197,29 @@ function OrderHistory() {
                         key={idx}
                         className="flex flex-col-reverse sm:flex-row justify-between gap-4 mb-6 last:mb-0"
                       >
-                        {/* {console.log(item)} */}
                         {/* Product Info */}
                         <div className="flex flex-row gap-4">
                           <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-md overflow-hidden border border-gray-200">
                             <img
                               className="w-full h-full object-cover"
-                              src={item.img}
-                              alt={item.name}
+                              src={item?.image?.url}
+                              alt={item?.image?.altText}
                             />
                           </div>
                           <div>
                             <h3 className="font-medium text-sm sm:text-base">
-                              {item.name}
+                              {item.productTitle}
                             </h3>
                             <p className="text-gray-600 text-xs sm:text-sm">
-                              Color: {item.color ? item.color : "Gold"}
+                              Color:{" "}
+                              {item.variantColor ? item.variantColor : ""}
                             </p>
                             <p className="text-gray-600 text-xs sm:text-sm">
-                              Quantity: {item.size ? item.size : "40X25 Inches"}
+                              Style Name:{" "}
+                              {item.variantName ? item.variantName : ""}
+                            </p>
+                            <p className="text-gray-600 text-xs sm:text-sm">
+                              Quantity: {item.quantity ? item.quantity : ""}
                             </p>
                             {/* <button className="mt-2 text-[#212121] text-xs flex items-center gap-1">
                               <StarIcon className="w-4 h-4 text-[#ebb100]" />
@@ -235,7 +250,7 @@ function OrderHistory() {
                                     order.deliveryDate,
                                   )}`}
                             </p> */}
-                            <p className="mt-2">Quantity: {item.quantity}</p>
+                            {/* <p className="mt-2">Quantity: {item.quantity}</p> */}
                             {/* <button
                               className="mt-3 text-blue-600 hover:underline text-xs sm:text-sm"
                               onClick={() =>
