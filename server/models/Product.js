@@ -74,9 +74,9 @@ const ProductSchema = new mongoose.Schema(
     subcategory: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "SubCategory",
-      required: function () {
-        return !this.isDraft;
-      },
+      // required: function () {
+      //   return !this.isDraft;
+      // },
       index: true,
     },
 
