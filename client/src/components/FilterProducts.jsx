@@ -60,7 +60,7 @@ function FilterProducts({ text = "Best Selling Products", sort }) {
               <button
                 type="button"
                 key={opt.value}
-                className="w-full text-left hover:bg-[#D5E5F5]  border-[#7C7C7C] last:border-b-0 px-[15px] py-2"
+                className="w-full text-left hover:bg-[#F0EEFF]  border-[#7C7C7C] last:border-b-0 px-[15px] py-2"
                 onClick={() => {
                   setSelected(opt);
                   sort?.(opt.value); // safe call

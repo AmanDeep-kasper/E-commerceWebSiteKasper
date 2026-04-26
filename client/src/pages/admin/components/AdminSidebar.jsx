@@ -12,6 +12,7 @@ import {
   Ticket,
   SquareDashedKanban,
   Component,
+  Shapes ,
 } from "lucide-react";
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
@@ -25,7 +26,7 @@ const dashboard = [
   { name: "Orders", path: "/orders/all", icon: ShoppingBag },
   // { name: "Returns", path: "/returns/ReturnRequested", icon: CalendarSync },
   { name: "Categories", path: "/categories", icon: Layers },
-  { name: "Collection", path: "/collection", icon: Ticket },
+  { name: "Collection", path: "/collection", icon: Shapes  },
   { name: "Customers", path: "/customers", icon: Contact },
   { name: "Transporter", path: "/transporter", icon: ClipboardCheck },
  { name: "Payments", path: "/payment", icon: Wallet },
