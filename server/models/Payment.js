@@ -120,6 +120,7 @@ PaymentSchema.index({ status: 1, createdAt: -1 });
 PaymentSchema.index({ method: 1 });
 PaymentSchema.index({ razorpayPaymentId: 1 });
 PaymentSchema.index({ razorpayOrderId: 1 });
+PaymentSchema.index({ status: 1, createdAt: -1 });
 
 // Instance method: add a refund
 PaymentSchema.methods.addRefund = async function ({
