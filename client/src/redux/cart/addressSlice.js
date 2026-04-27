@@ -16,8 +16,8 @@ export const fetchAddresses = createAsyncThunk(
   async (_, thunkAPI) => {
     try {
       const res = await addressService.getUserAddresses();
-      // localStorage.setItem("addresses", JSON.stringify(res));
-      return res.data?.data?.addresses || [];
+
+      return res?.data?.addresses || [];
     } catch (error) {
       return thunkAPI.rejectWithValue(
         error.response?.data?.message || "Failed to fetch addresses",
