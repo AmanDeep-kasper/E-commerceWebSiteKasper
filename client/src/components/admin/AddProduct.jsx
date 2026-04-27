@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import axiosInstance from "../../api/axiosInstance";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -27,6 +27,7 @@ const AddProduct = () => {
     status: "ACTIVE",
     category: "",
     subcategory: "",
+    SKU: "",
     variants: [
       {
         variantColor: "",
@@ -68,7 +69,9 @@ const AddProduct = () => {
     variantDiscountUnit: "%", // default
     variantAvailableStock: "",
     variantLowStockAlertStock: "",
+    variantGST: "",
     isSelected: false,
+    isNew: true, // flag to identify new variants
   });
   const addVariantRow = () => {
     let productSKU = formData.SKU?.trim();
@@ -178,8 +181,8 @@ if(isEditing) {
             variantAvailableStock: variant.variantAvailableStock || "",
             variantLowStockAlertStock: variant.variantLowStockAlertStock || "",
             isSelected: variant.isSelected || false,
-            isNew: false, // Mark existing variants(read only)
             isExisting: true, // flag for exisitng variant
+            isNew: false, // Mark existing variants(read only)
           }));
 
           setFormData({
@@ -188,14 +191,15 @@ if(isEditing) {
             status: productData.isActive ? "ACTIVE" : "INACTIVE",
             category: categoryId,
             subcategory: subcategoryId,
+            SKU:productData.SKU || "",
             variants: mappedVariants,
           });
 
           setStatus(productData.isActive ? "active" : "inactive");
 
-          if (productData.SKU) {
-            setFormData((prev) => ({ ...prev, SKU: productData.SKU }));
-          }
+          // if (productData.SKU) {
+          //   setFormData((prev) => ({ ...prev, SKU: productData.SKU }));
+          // }
 
           setProductId(productData._id);
           if(productData.isDraft) {
@@ -302,8 +306,35 @@ if(isEditing) {
     }
   };
 
-  //  Handle field change for a specific variant
-  const handleVariantChange = (index, field, value) => {
+const handleVariantChange = (index, field, value) => {
+  // For add mode (not editing), variants are in formData.variants
+  // For edit mode, variants beyond formData.variants.length are in newVariants
+  const isNewVariant = isEditing ? (index >= formData.variants.length) : false;
+  
+  if (isNewVariant && isEditing) {
+    // Update newVariants array (edit mode only)
+    const newVariantIndex = index - formData.variants.length;
+    const updated = [...newVariants];
+    updated[newVariantIndex] = {
+      ...updated[newVariantIndex],
+      [field]: value,
+    };
+    
+    // Auto-calculate selling price if discount or MRP changes
+    const mrp = Number(field === "variantMrp" ? value : updated[newVariantIndex].variantMrp);
+    const discount = Number(field === "variantDiscount" ? value : updated[newVariantIndex].variantDiscount);
+    
+    if (field === "variantDiscount" && mrp > 0) {
+      updated[newVariantIndex].variantSellingPrice = (mrp * (1 - discount / 100)).toFixed(2);
+    }
+    if (field === "variantSellingPrice" && mrp > 0) {
+      const selling = Number(value);
+      updated[newVariantIndex].variantDiscount = (((mrp - selling) / mrp) * 100).toFixed(2);
+    }
+    
+    setNewVariants(updated);
+  } else {
+    // Update formData.variants (works for both add mode and existing variants in edit mode)
     setFormData((prev) => {
       const variants = [...prev.variants];
       const v = { ...variants[index], [field]: value };
@@ -311,26 +342,21 @@ if(isEditing) {
       const mrp = Number(v.variantMrp) || 0;
       const cost = Number(v.variantCostPrice) || 0;
 
-      // 🟢 USER TYPES DISCOUNT → UPDATE SELLING PRICE
       if (field === "variantDiscount") {
         const discount = Number(value);
-
         if (mrp > 0 && discount >= 0 && discount <= 100) {
           v.variantSellingPrice = (mrp * (1 - discount / 100)).toFixed(2);
           v.variantDiscount = discount.toFixed(2);
         }
       }
 
-      // 🟢 USER TYPES SELLING PRICE → UPDATE DISCOUNT
       if (field === "variantSellingPrice") {
         const selling = Number(value);
-
         if (mrp > 0 && selling > 0 && selling <= mrp) {
           v.variantDiscount = (((mrp - selling) / mrp) * 100).toFixed(2);
         }
       }
 
-      // 🟢 PROFIT AUTO CALC
       const selling = Number(v.variantSellingPrice) || 0;
       if (selling > 0 && cost > 0) {
         v.variantProfit = (selling - cost).toFixed(2);
@@ -339,120 +365,184 @@ if(isEditing) {
       }
 
       variants[index] = v;
-
       return { ...prev, variants };
     });
-  };
-  const allVariants = [...formData.variants, ...newVariants];
+  }
+};
+  const allVariants = useMemo(() => [...formData.variants, ...newVariants], [
+    formData.variants,
+    newVariants
+  ]);
 
   //  Handle image upload per variant
-  const handleVariantImageChange = async (e, index) => {
-    let files = Array.from(e.target.files);
+const handleVariantImageChange = async (e, index) => {
+  let files = Array.from(e.target.files);
+  if (!files.length) return;
 
-    if (!files.length) return;
+  setUploadingVariantIndex(index);
 
-    setUploadingVariantIndex(index);
+  try {
+    const formData = new FormData();
 
-    try {
-      const formData = new FormData();
+    for (let file of files) {
+      const compressedBlob = await imageCompression(file, {
+        maxSizeMB: 2,
+        maxWidthOrHeight: 2000,
+        useWebWorker: true,
+      });
 
-      for (let file of files) {
-        const compressedBlob = await imageCompression(file, {
-          maxSizeMB: 2,
-          maxWidthOrHeight: 2000,
-          useWebWorker: true,
-        });
+      const compressed = blobToFile(compressedBlob, file.name);
+      formData.append("productImages", compressed);
+    }
 
-        const compressed = blobToFile(compressedBlob, file.name);
-        formData.append("productImages", compressed);
-      }
+    const res = await axiosInstance.post(
+      "/product/admin/add-product-images",
+      formData,
+    );
 
-      const res = await axiosInstance.post(
-        "/product/admin/add-product-images",
-        formData,
-      );
-
-      const uploadedImages = res.data.data;
-      // Get the variant at this index from allVariants
+    const uploadedImages = res.data.data;
+    
+    // Get the variant at this index from allVariants
     const variantAtIndex = allVariants[index];
     const isNewVariantAtIndex = variantAtIndex?.isNew === true;
 
     if (isNewVariantAtIndex) {
-      // Update the newVariants array
-      const newVariantIndex = index - formData.variants.length;
-      const updated = [...newVariants];
-      const existingImages = updated[newVariantIndex]?.variantImage || [];
-      updated[newVariantIndex] = {
-        ...updated[newVariantIndex],
-        variantImage: [...existingImages, ...uploadedImages].slice(0, 10),
-      };
-      setNewVariants(updated);
+      // For new variants, find the correct index in newVariants array
+      // Option 1: Find by variantId or variantSkuId
+      const variantId = variantAtIndex.variantId || variantAtIndex.variantSkuId;
+      const newVariantIndex = newVariants.findIndex(
+        v => v.variantId === variantId || v.variantSkuId === variantId
+      );
+      
+      if (newVariantIndex !== -1) {
+        const updated = [...newVariants];
+        const existingImages = updated[newVariantIndex]?.variantImage || [];
+        updated[newVariantIndex] = {
+          ...updated[newVariantIndex],
+          variantImage: [...existingImages, ...uploadedImages].slice(0, 10),
+        };
+        setNewVariants(updated);
+      } else {
+        console.error("New variant not found in newVariants array");
+        toast.error("Failed to find variant for image upload");
+      }
     } else {
-
+      // Update existing variant in formData
       setFormData((prev) => {
         const updatedVariants = [...prev.variants];
         const existingImages = updatedVariants[index]?.variantImage || [];
-
         updatedVariants[index] = {
           ...updatedVariants[index],
           variantImage: [...existingImages, ...uploadedImages].slice(0, 10),
         };
-
         return { ...prev, variants: updatedVariants };
       });
     }
 
-      toast.success("Images uploaded successfully!");
-    } catch (err) {
-      console.error(err);
-      toast.error("Image upload failed");
-    } finally {
-      setUploadingVariantIndex(null);
-      e.target.value = "";
+    toast.success("Images uploaded successfully!");
+  } catch (err) {
+    console.error("Upload error:", err);
+    if (err.code === "ECONNABORTED") {
+      toast.error("Upload timeout - please try again with smaller images");
+    } else if (err.response?.status === 413) {
+      toast.error("Images too large - please use smaller images");
+    } else {
+      toast.error("Image upload failed - please try again");
     }
-  };
+  } finally {
+    setUploadingVariantIndex(null);
+    e.target.value = "";
+  }
+};
 
   //  Remove a specific image from a specific variant
-  const removeVariantImage = (variantIndex, imgIndex) => {
+  // const removeVariantImage = (variantIndex, imgIndex) => {
+  //   setFormData((prev) => {
+  //     const updatedVariants = [...prev.variants];
+
+  //     if (!updatedVariants[variantIndex]) return prev;
+
+  //     const updatedImages = [...updatedVariants[variantIndex].variantImage];
+  //     updatedImages.splice(imgIndex, 1);
+
+  //     updatedVariants[variantIndex].variantImage = updatedImages;
+
+  //     return { ...prev, variants: updatedVariants };
+  //   });
+
+  //   setSelectedImages((prev) => {
+  //     const newImages = prev.filter((_, i) => i !== imgIndex);
+
+  //     if (newImages.length > 0) {
+  //       const nextIndex =
+  //         imgIndex < newImages.length ? imgIndex : newImages.length - 1;
+
+  //       const img = newImages[nextIndex];
+
+  //       const nextImage =
+  //         typeof img === "string"
+  //           ? img
+  //           : img.url
+  //             ? img.url
+  //             : img.preview
+  //               ? img.preview
+  //               : "";
+
+  //       setCurrentImage(nextImage);
+  //     } else {
+  //       setIsModalOpen(false);
+  //     }
+
+  //     return newImages;
+  //   });
+  // };
+const removeVariantImage = (variantIndex, imgIndex) => {
+  const variant = allVariants[variantIndex];
+  const isNewVariant = variant?.isNew === true;
+  
+  if (isNewVariant) {
+    // Find by variantId or variantSkuId
+    const variantId = variant.variantId || variant.variantSkuId;
+    const newVariantIndex = newVariants.findIndex(
+      v => v.variantId === variantId || v.variantSkuId === variantId
+    );
+    
+    if (newVariantIndex !== -1) {
+      const updated = [...newVariants];
+      const updatedImages = [...updated[newVariantIndex].variantImage];
+      updatedImages.splice(imgIndex, 1);
+      updated[newVariantIndex] = {
+        ...updated[newVariantIndex],
+        variantImage: updatedImages,
+      };
+      setNewVariants(updated);
+    }
+  } else {
     setFormData((prev) => {
       const updatedVariants = [...prev.variants];
-
-      if (!updatedVariants[variantIndex]) return prev;
-
       const updatedImages = [...updatedVariants[variantIndex].variantImage];
       updatedImages.splice(imgIndex, 1);
-
-      updatedVariants[variantIndex].variantImage = updatedImages;
-
+      updatedVariants[variantIndex] = {
+        ...updatedVariants[variantIndex],
+        variantImage: updatedImages,
+      };
       return { ...prev, variants: updatedVariants };
     });
+  }
 
-    setSelectedImages((prev) => {
-      const newImages = prev.filter((_, i) => i !== imgIndex);
-
-      if (newImages.length > 0) {
-        const nextIndex =
-          imgIndex < newImages.length ? imgIndex : newImages.length - 1;
-
-        const img = newImages[nextIndex];
-
-        const nextImage =
-          typeof img === "string"
-            ? img
-            : img.url
-              ? img.url
-              : img.preview
-                ? img.preview
-                : "";
-
-        setCurrentImage(nextImage);
-      } else {
-        setIsModalOpen(false);
-      }
-
-      return newImages;
-    });
-  };
+  setSelectedImages((prev) => {
+    const newImages = prev.filter((_, i) => i !== imgIndex);
+    if (newImages.length > 0) {
+      const nextIndex = imgIndex < newImages.length ? imgIndex : newImages.length - 1;
+      const img = newImages[nextIndex];
+      const nextImage = typeof img === "string" ? img : img.url || img.preview || "";
+      setCurrentImage(nextImage);
+    } else {
+      setIsModalOpen(false);
+    }
+    return newImages;
+  });
+};
 
   //  Add new variant section dynamically
   const addVariant = () => {
@@ -473,91 +563,94 @@ if(isEditing) {
     setItemsOpenVar(true);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    if (!formData.productTittle.trim()) {
-      toast.error("Product name is required");
-      return;
-    }
+  if (!formData.productTittle.trim()) {
+    toast.error("Product name is required");
+    return;
+  }
 
-    if (!formData.category.trim()) {
-      toast.error("Category is required");
-      return;
-    }
+  if (!formData.category.trim()) {
+    toast.error("Category is required");
+    return;
+  }
 
-    for (let i = 0; i < formData.variants.length; i++) {
-      const variant = formData.variants[i];
+  // Combine existing variants with new variants
+  const allVariantsToSubmit = [...formData.variants, ...newVariants];
 
-      const hasAnyVariantInput =
-        variant.variantColor?.trim() ||
-        variant.variantName?.trim() ||
-        String(variant.variantWeight || "").trim() ||
-        variant.variantSkuId?.trim() ||
-        String(variant.variantMrp || "").trim() ||
-        String(variant.variantSellingPrice || "").trim() ||
-        String(variant.variantLowStockAlertStock || "").trim() ||
-        (variant.variantImage && variant.variantImage.length > 0);
+  for (let i = 0; i < allVariantsToSubmit.length; i++) {
+    const variant = allVariantsToSubmit[i];
 
-      if (hasAnyVariantInput) {
-        if (!variant.variantSkuId?.trim()) {
-          toast.error(`Variant ${i + 1}: Variant SKU ID is required`);
-          return;
-        }
+    const hasAnyVariantInput =
+      variant.variantColor?.trim() ||
+      variant.variantName?.trim() ||
+      String(variant.variantWeight || "").trim() ||
+      variant.variantSkuId?.trim() ||
+      String(variant.variantMrp || "").trim() ||
+      String(variant.variantSellingPrice || "").trim() ||
+      String(variant.variantLowStockAlertStock || "").trim() ||
+      (variant.variantImage && variant.variantImage.length > 0);
 
-        if (!variant.variantImage || variant.variantImage.length === 0) {
-          toast.error(`Variant ${i + 1}: At least one image is required`);
-          return;
-        }
+    if (hasAnyVariantInput) {
+      if (!variant.variantSkuId?.trim()) {
+        toast.error(`Variant ${i + 1}: Variant SKU ID is required`);
+        return;
+      }
 
-        if (!String(variant.variantMrp || "").trim()) {
-          toast.error(`Variant ${i + 1}: MRP is required`);
-          return;
-        }
+      if (!variant.variantImage || variant.variantImage.length === 0) {
+        toast.error(`Variant ${i + 1}: At least one image is required`);
+        return;
+      }
 
-        if (!String(variant.variantSellingPrice || "").trim()) {
-          toast.error(`Variant ${i + 1}: Selling Price is required`);
-          return;
-        }
+      if (!String(variant.variantMrp || "").trim()) {
+        toast.error(`Variant ${i + 1}: MRP is required`);
+        return;
+      }
 
-        if (!String(variant.variantLowStockAlertStock || "").trim()) {
-          toast.error(`Variant ${i + 1}: Low Stock Alert is required`);
-          return;
-        }
+      if (!String(variant.variantSellingPrice || "").trim()) {
+        toast.error(`Variant ${i + 1}: Selling Price is required`);
+        return;
+      }
+
+      if (!String(variant.variantLowStockAlertStock || "").trim()) {
+        toast.error(`Variant ${i + 1}: Low Stock Alert is required`);
+        return;
       }
     }
+  }
 
-    setIsSubmitting(true);
+  setIsSubmitting(true);
 
-    // Prepare payload - same structure for both add and edit
-    const payload = {
-      productTittle: formData.productTittle,
-      description: formData.description,
-      category: formData.category,
-      subcategory: formData.subcategory,
-      isActive: status === "active",
-      action: "add", // Ensure action is sent as expected by the backend
-      variants: formData.variants.map((v) => ({
-        variantColor: v.variantColor,
-        variantName: v.variantName,
-        variantWeight: v.variantWeight,
-        variantWeightUnit: v.variantWeightUnit,
-        variantSkuId: v.variantSkuId,
-        variantImage: v.variantImage,
-        variantMrp: Number(v.variantMrp) || 0,
-        variantCostPrice: Number(v.variantCostPrice) || 0,
-        variantSellingPrice: Number(v.variantSellingPrice) || 0,
-        variantGST: Number(v.variantGST) || 0,
-        variantDiscount: Number(v.variantDiscount) || 0,
-        variantAvailableStock: Number(v.variantAvailableStock) || 0,
-        variantLowStockAlertStock: Number(v.variantLowStockAlertStock) || 0,
-        isSelected: v.isSelected || false,
-      })),
-    };
+  // Prepare payload - include ALL variants
+  const payload = {
+    productTittle: formData.productTittle,
+    description: formData.description,
+    category: formData.category,
+    subcategory: formData.subcategory,
+    isActive: status === "active",
+    action: "add",
+    variants: allVariantsToSubmit.map((v) => ({
+      variantColor: v.variantColor,
+      variantName: v.variantName,
+      variantWeight: v.variantWeight,
+      variantWeightUnit: v.variantWeightUnit,
+      variantSkuId: v.variantSkuId,
+      variantImage: v.variantImage || [],
+      variantMrp: Number(v.variantMrp) || 0,
+      variantCostPrice: Number(v.variantCostPrice) || 0,
+      variantSellingPrice: Number(v.variantSellingPrice) || 0,
+      variantGST: Number(v.variantGST) || 0,
+      variantDiscount: Number(v.variantDiscount) || 0,
+      variantAvailableStock: Number(v.variantAvailableStock) || 0,
+      variantLowStockAlertStock: Number(v.variantLowStockAlertStock) || 0,
+      isSelected: v.isSelected || false,
+    })),
+  };
 
-    try {
-      let response;
-       // If we have a draftId and we're NOT publishing (just updating draft)
+  try {
+    let response;
+    
     if (draftId) {
       response = await axiosInstance.patch(
         `/product/admin/update-product/${draftId}`,
@@ -567,57 +660,34 @@ if(isEditing) {
         }
       );
       toast.success("Draft updated successfully!");
-    }
-    // If we're publishing a draft
-    else if (draftId) {
+    } else if (isEditing && productId) {
+      // UPDATE existing product - include all variants
       response = await axiosInstance.patch(
-        `/product/admin/update-product/${draftId}`,
-        {
-          ...payload,
-          action: "add",
-          isDraft: false,
-          isActive: true,
-        }
+        `/product/admin/update-product/${productId}`,
+        payload
       );
-      toast.success("Product published successfully!");
+      toast.success("Product updated successfully!");
+    } else {
+      // CREATE new product
+      response = await axiosInstance.post("/product/admin/add-product", payload);
+      toast.success("Product added successfully!");
     }
-    else  if (isEditing && productId) {
-        // UPDATE existing product
-        response = await axiosInstance.patch(
-          `/product/admin/update-product/${productId}`,
-           {
-          ...payload,
-          action: "add",
-        }
-        );
-        toast.success("Product updated successfully!");
-      } else {
-        // CREATE new product
-        response = await axiosInstance.post(
-          "/product/admin/add-product",
-         {
-        ...payload,
-        action: "add",
-      }
-        );
-        toast.success("Product added successfully!");
-      }
 
-      // setIsDraftEnabled(false);
-      localStorage.removeItem("addProductDraft");
-      setFormData(createInitialState());
-      setDraftId(null);
+    localStorage.removeItem("addProductDraft");
+    setFormData(createInitialState());
+    setNewVariants([]);
+    setDraftId(null);
 
-      setTimeout(() => {
-        navigate("/admin/products");
-      }, 800);
-    } catch (err) {
-      console.log(err);
-      toast.error(err?.response?.data?.message || "Error saving product!");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+    setTimeout(() => {
+      navigate("/admin/products");
+    }, 800);
+  } catch (err) {
+    console.log(err);
+    toast.error(err?.response?.data?.message || "Error saving product!");
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
   // const generateVariantSKU = (variantIndex) => {
   //   const productSKU = formData.SKU?.trim();
@@ -852,13 +922,15 @@ const handleSaveDraft = async () => {
     return;
   }
 
+  const allVariantsToSubmit = [...formData.variants, ...newVariants];
+
   try {
     const payload = {
       productTittle: formData.productTittle,
       description: formData.description,
       category: formData.category,
       subcategory: formData.subcategory,
-      variants: formData.variants.map((v) => ({
+      variants: allVariantsToSubmit.map((v) => ({
         variantColor: v.variantColor,
         variantName: v.variantName,
         variantWeight: v.variantWeight,
@@ -875,26 +947,17 @@ const handleSaveDraft = async () => {
         isSelected: v.isSelected || false,
       })),
       action: "draft",
-      // isDraft: true,
-      // isActive: false,
     };
 
     let response;
     if (draftId) {
-      // UPDATE existing draft
-      response = await axiosInstance.patch(
-        `/product/admin/update-product/${draftId}`,
-        payload
-      );
+      response = await axiosInstance.patch(`/product/admin/update-product/${draftId}`, payload);
       toast.success("Draft updated successfully!");
     } else {
-      // CREATE new draft
       response = await axiosInstance.post("/product/admin/add-product", payload);
       setDraftId(response.data.data._id);
       toast.success("Draft saved successfully!");
     }
-    
-    // localStorage.removeItem("addProductDraft");
   } catch (err) {
     toast.error(err?.response?.data?.message || "Failed to save draft");
   }
@@ -2116,7 +2179,7 @@ useEffect(() => {
                           </td>
                         </tr>
                             );
-  })}
+                        })}
                     </tbody>
                   </table>
                 </div>
