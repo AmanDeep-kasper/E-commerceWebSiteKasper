@@ -624,7 +624,8 @@ function Navbar() {
                 </h3>
 
                 {shopCategories.map((item, index) => (
-                  <div key={item.name || index} className="py-2">
+                  <div key={item._id || item.name || index} className="py-2">
+                    {/* Category */}
                     <div
                       className="flex items-center justify-between py-3 px-3 text-gray-700 font-medium rounded-lg hover:bg-[#D5E5F5] hover:text-[#1C3753] cursor-pointer"
                       onClick={() =>
@@ -643,12 +644,13 @@ function Navbar() {
                       )}
                     </div>
 
+                    {/* Subcategories */}
                     <div
                       className={`pl-6 flex flex-col gap-1 overflow-hidden transition-[max-height] duration-300 ease-in-out ${
                         subDropdown === index ? "max-h-96" : "max-h-0"
                       }`}
                     >
-                      {/* All */}
+                      {/* ALL */}
                       <div
                         className="py-2 px-3 text-sm rounded-md text-gray-600 hover:bg-[#D5E5F5] hover:text-[#1C3753] cursor-pointer"
                         onClick={() => {
@@ -661,21 +663,23 @@ function Navbar() {
                         All
                       </div>
 
-                      {/* Subcategories */}
+                      {/* SUBCATEGORY LIST */}
                       {(item.subcategories || [])
-                        .filter((s) => s && s.toLowerCase() !== "all")
-                        .map((sub) => (
+                        .filter(
+                          (s) => s?.name && s.name.toLowerCase() !== "all",
+                        )
+                        .map((sub, i) => (
                           <div
-                            key={sub}
+                            key={sub._id || sub.name || i}
                             className="py-2 px-3 text-sm text-gray-600 rounded-md hover:bg-[#D5E5F5] hover:text-[#1C3753] cursor-pointer"
                             onClick={() => {
                               navigate(
-                                `/products/${encodeURIComponent(item.name)}/${encodeURIComponent(sub)}`,
+                                `/products/${encodeURIComponent(item.name)}/${encodeURIComponent(sub.name)}`,
                               );
                               setIsMobileMenuOpen(false);
                             }}
                           >
-                            {sub}
+                            {sub.name}
                           </div>
                         ))}
                     </div>
