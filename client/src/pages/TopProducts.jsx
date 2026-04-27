@@ -36,8 +36,10 @@ function TopProducts() {
     const fetchCollections = async () => {
       try {
         setLoading(true);
-        const response = await axiosInstance.get("/collection/get-all-collections");
-        // console.log("Collections response:", response.data);
+        const response = await axiosInstance.get(
+          "/collection/get-all-collections",
+        );
+        console.log("Collections response:", response.data);
 
         let collectionsData = [];
         if (response.data?.success && response.data?.data?.collections) {
@@ -50,33 +52,41 @@ function TopProducts() {
 
         // Extract all products from all collections
         const allCollectionProducts = [];
-        collectionsData.forEach(collection => {
+        collectionsData.forEach((collection) => {
           if (collection.products && collection.products.length > 0) {
-            collection.products.forEach(product => {
+            collection.products.forEach((product) => {
               // Add collection name to product for reference
               allCollectionProducts.push({
                 ...product,
                 collectionName: collection.collectionName,
-                collectionId: collection._id
+                collectionId: collection._id,
               });
             });
           }
         });
 
         // Calculate average rating for each product
-        const productsWithRating = allCollectionProducts.map(product => {
+        const productsWithRating = allCollectionProducts.map((product) => {
           let avgRating = 0;
           if (product.reviews && product.reviews.length > 0) {
-            avgRating = product.reviews.reduce((sum, review) => sum + (review.rating || 0), 0) / product.reviews.length;
+            avgRating =
+              product.reviews.reduce(
+                (sum, review) => sum + (review.rating || 0),
+                0,
+              ) / product.reviews.length;
           }
           return { ...product, avgRating };
         });
 
         // Filter products with rating >= 4 (top products)
-        const topRatedProducts = productsWithRating.filter(product => product.avgRating >= 0);
+        const topRatedProducts = productsWithRating.filter(
+          (product) => product.avgRating >= 0,
+        );
 
         // Sort by highest rating
-        const sortedProducts = topRatedProducts.sort((a, b) => b.avgRating - a.avgRating);
+        const sortedProducts = topRatedProducts.sort(
+          (a, b) => b.avgRating - a.avgRating,
+        );
 
         setAllProducts(sortedProducts);
         setItems(sortedProducts);
@@ -111,20 +121,28 @@ function TopProducts() {
         });
         break;
       case "atoz":
-        sortedItems.sort((a, b) => (a.productTittle || "").localeCompare(b.productTittle || ""));
+        sortedItems.sort((a, b) =>
+          (a.productTittle || "").localeCompare(b.productTittle || ""),
+        );
         break;
       case "ztoa":
-        sortedItems.sort((a, b) => (b.productTittle || "").localeCompare(a.productTittle || ""));
+        sortedItems.sort((a, b) =>
+          (b.productTittle || "").localeCompare(a.productTittle || ""),
+        );
         break;
 
       case "rating":
         sortedItems.sort((a, b) => b.avgRating - a.avgRating);
         break;
       case "latest":
-        sortedItems.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        sortedItems.sort(
+          (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
+        );
         break;
       case "oldest":
-        sortedItems.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+        sortedItems.sort(
+          (a, b) => new Date(a.createdAt) - new Date(b.createdAt),
+        );
         break;
 
       default:
@@ -138,8 +156,14 @@ function TopProducts() {
   return (
     <>
       <Navbar />
-      {/* <Breadcrumbs category={product?.category} subcategory={product?.subcategory} title={product?.productTittle}/> */}
-      <section className="lg:px-20 md:px-[60px] px-4 pb-[23px] bg-gray-50" style={{ paddingTop: "100px" }}>
+      <Breadcrumbs
+        // category={"Home"}
+        // subcategory="Collections"
+        title="Top Products"
+      />
+      <section
+        className="lg:px-20 md:px-[60px] px-4 pb-[23px] bg-gray-50"
+      >
         <FilterProducts text={"Feature Collection"} sort={sort} />
 
         <div className="flex lg:gap-6 items-start">

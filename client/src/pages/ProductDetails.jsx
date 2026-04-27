@@ -78,34 +78,38 @@ function ProductDetails() {
   const getSimilarProducts = (all, found, uuid) => {
     if (!found) return [];
 
-    const normalize = (str) =>
-      str
-        ?.toLowerCase()
+    const normalize = (str) => {
+      if (!str) return "";
+      if (typeof str !== "string") return ""; 
+      return str
+        .toLowerCase()
         .replace(/[^a-z0-9 ]/g, " ")
-        .trim() || "";
+        .trim();
+    };
 
-    const foundTitleWords = normalize(found.title).split(" ");
+    const foundTitleWords = normalize(found.productTittle).split(" ");
 
     const sameCategoryList = all.filter(
       (p) =>
-        p.uuid !== uuid && normalize(p.category) === normalize(found.category),
+        p._id !== uuid &&
+        normalize(p.category?.name) === normalize(found.category?.name),
     );
 
-    const list = sameCategoryList;
-
-    const sameSub = list.filter(
-      (p) => normalize(p.subcategory) === normalize(found.subcategory),
+    const sameSub = sameCategoryList.filter(
+      (p) =>
+        normalize(p.subcategory?.name) === normalize(found.subcategory?.name),
     );
+
     if (sameSub.length > 0) return sameSub.slice(0, 10);
 
-    const similarByTitle = list.filter((p) => {
-      const title = normalize(p.title);
+    const similarByTitle = sameCategoryList.filter((p) => {
+      const title = normalize(p.productTittle);
       return foundTitleWords.some((w) => title.includes(w));
     });
 
     if (similarByTitle.length > 0) return similarByTitle.slice(0, 10);
 
-    return list.slice(0, 10);
+    return sameCategoryList.slice(0, 10);
   };
 
   // FETCH PRODUCT + SIMILAR PRODUCTS
@@ -114,21 +118,26 @@ function ProductDetails() {
       try {
         setPageLoading(true);
 
+        // 1️⃣ Fetch current product
         const res = await axiosInstance.get(`/product/${slugOrId}`);
-        console.log("API:", res.data);
-
-        const found = res.data.data; // DIRECT OBJECT
+        const found = res.data.data;
 
         setProduct(found);
 
         if (found?.variants?.length > 0) {
           const v0 = found.variants[0];
           setSelectedVariant(v0);
-          // setSelectedColor(v0?.variantColor || null);
           setSelectedSize(normalizeSize(v0));
         }
 
-        // ❌ REMOVE similarProducts logic here (you don't have list API)
+        // 2️⃣ Fetch ALL products
+        const allRes = await axiosInstance.get("/product/all");
+        const allProducts = allRes?.data?.data || allRes?.data?.products || [];
+
+        // 3️⃣ Filter similar
+        const similar = getSimilarProducts(allProducts, found, found._id);
+
+        setSimilarProducts(similar);
       } catch (err) {
         console.error(err);
         setProduct(null);

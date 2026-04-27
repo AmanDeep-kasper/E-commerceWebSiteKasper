@@ -1,5 +1,3 @@
-// import design from "../../assets/Design.png";
-// import design2 from "../../assets/Design2.png";
 import Title from "../Title";
 import products from "../../data/products.json";
 import banner from "../../data/banner.json";

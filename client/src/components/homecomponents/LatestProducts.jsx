@@ -5,7 +5,10 @@ import { FaBagShopping } from "react-icons/fa6";
 import { Heart, ShoppingCart } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart, setCartFromAPI } from "../../redux/cart/cartSlice";
-import { addToWishlist, removeFromWishlist } from "../../redux/cart/wishlistSlice";
+import {
+  addToWishlist,
+  removeFromWishlist,
+} from "../../redux/cart/wishlistSlice";
 import axiosInstance from "../../api/axiosInstance";
 import { toast } from "react-toastify";
 
@@ -15,7 +18,7 @@ function LatestProducts() {
   const { cartItems } = useSelector((s) => s.cart);
   const { wishlistItems } = useSelector((s) => s.wishlist);
   const { isAuthenticated } = useSelector((s) => s.user);
-  
+
   const [latestProduct, setLatestProduct] = useState([]);
   const [loading, setLoading] = useState(true);
   const [visibleCount, setVisibleCount] = useState(4);
@@ -83,26 +86,31 @@ function LatestProducts() {
       toast.error("No variant available");
       return;
     }
-    
+
     const variantId = defaultVariant._id;
     const productId = product._id;
 
     if (!isAuthenticated) {
-      dispatch(addToCart({
-        uuid: productId,
-        variantId: variantId,
-        title: product.name || product.productTittle,
-        basePrice: defaultVariant.variantMrp || 0,
-        effectivePrice: defaultVariant.variantSellingPrice || 0,
-        discountPercent: defaultVariant.variantDiscount || 0,
-        stockQuantity: defaultVariant.variantAvailableStock || 0,
-        image: defaultVariant.variantImage?.[0]?.url || product.image || "/placeholder.png",
-        deliverBy: "7-10 business days",
-        selectedOptions: {
-          color: defaultVariant.variantColor || "Default",
-          dimension: "Standard",
-        },
-      }));
+      dispatch(
+        addToCart({
+          uuid: productId,
+          variantId: variantId,
+          title: product.name || product.productTittle,
+          basePrice: defaultVariant.variantMrp || 0,
+          effectivePrice: defaultVariant.variantSellingPrice || 0,
+          discountPercent: defaultVariant.variantDiscount || 0,
+          stockQuantity: defaultVariant.variantAvailableStock || 0,
+          image:
+            defaultVariant.variantImage?.[0]?.url ||
+            product.image ||
+            "/placeholder.png",
+          deliverBy: "7-10 business days",
+          selectedOptions: {
+            color: defaultVariant.variantColor || "Default",
+            dimension: "Standard",
+          },
+        }),
+      );
       toast.success("Added to cart!");
       return;
     }
@@ -125,14 +133,15 @@ function LatestProducts() {
   const handleWishlistToggle = async (e, product) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     const defaultVariant = product.variants?.[0];
     const variantId = defaultVariant?._id;
     const productId = product._id;
-    
+
     const isInWishlist = wishlistItems.some(
-      (i) => String(i.uuid || i.product || i.productId) === String(productId) &&
-             String(i.variantId) === String(variantId)
+      (i) =>
+        String(i.uuid || i.product || i.productId) === String(productId) &&
+        String(i.variantId) === String(variantId),
     );
 
     if (!isAuthenticated) {
@@ -140,25 +149,30 @@ function LatestProducts() {
         dispatch(removeFromWishlist({ uuid: productId, variantId }));
         toast.success("Removed from wishlist");
       } else {
-        dispatch(addToWishlist({
-          uuid: productId,
-          product: productId,
-          productId: productId,
-          variantId,
-          title: product.name || product.productTittle,
-          image: defaultVariant?.variantImage?.[0]?.url || product.image || "/placeholder.png",
-          basePrice: Number(defaultVariant?.variantMrp || 0),
-          discountPercent: Number(defaultVariant?.variantDiscount || 0),
-          stockQuantity: Number(defaultVariant?.variantAvailableStock || 0),
-          variantName: defaultVariant?.variantName,
-          variantColor: defaultVariant?.variantColor,
-          variantAttributes: {
-            weight: `${defaultVariant?.variantWeight || ""}${defaultVariant?.variantWeightUnit || ""}`,
-            mrp: Number(defaultVariant?.variantMrp || 0),
-            sellingPrice: Number(defaultVariant?.variantSellingPrice || 0),
-            discount: Number(defaultVariant?.variantDiscount || 0),
-          },
-        }));
+        dispatch(
+          addToWishlist({
+            uuid: productId,
+            product: productId,
+            productId: productId,
+            variantId,
+            title: product.name || product.productTittle,
+            image:
+              defaultVariant?.variantImage?.[0]?.url ||
+              product.image ||
+              "/placeholder.png",
+            basePrice: Number(defaultVariant?.variantMrp || 0),
+            discountPercent: Number(defaultVariant?.variantDiscount || 0),
+            stockQuantity: Number(defaultVariant?.variantAvailableStock || 0),
+            variantName: defaultVariant?.variantName,
+            variantColor: defaultVariant?.variantColor,
+            variantAttributes: {
+              weight: `${defaultVariant?.variantWeight || ""}${defaultVariant?.variantWeightUnit || ""}`,
+              mrp: Number(defaultVariant?.variantMrp || 0),
+              sellingPrice: Number(defaultVariant?.variantSellingPrice || 0),
+              discount: Number(defaultVariant?.variantDiscount || 0),
+            },
+          }),
+        );
         toast.success("Added to wishlist");
       }
       return;
@@ -176,25 +190,30 @@ function LatestProducts() {
           productId: productId,
           variantId,
         });
-        dispatch(addToWishlist({
-          uuid: productId,
-          product: productId,
-          productId: productId,
-          variantId,
-          title: product.name || product.productTittle,
-          image: defaultVariant?.variantImage?.[0]?.url || product.image || "/placeholder.png",
-          basePrice: Number(defaultVariant?.variantMrp || 0),
-          discountPercent: Number(defaultVariant?.variantDiscount || 0),
-          stockQuantity: Number(defaultVariant?.variantAvailableStock || 0),
-          variantName: defaultVariant?.variantName,
-          variantColor: defaultVariant?.variantColor,
-          variantAttributes: {
-            weight: `${defaultVariant?.variantWeight || ""}${defaultVariant?.variantWeightUnit || ""}`,
-            mrp: Number(defaultVariant?.variantMrp || 0),
-            sellingPrice: Number(defaultVariant?.variantSellingPrice || 0),
-            discount: Number(defaultVariant?.variantDiscount || 0),
-          },
-        }));
+        dispatch(
+          addToWishlist({
+            uuid: productId,
+            product: productId,
+            productId: productId,
+            variantId,
+            title: product.name || product.productTittle,
+            image:
+              defaultVariant?.variantImage?.[0]?.url ||
+              product.image ||
+              "/placeholder.png",
+            basePrice: Number(defaultVariant?.variantMrp || 0),
+            discountPercent: Number(defaultVariant?.variantDiscount || 0),
+            stockQuantity: Number(defaultVariant?.variantAvailableStock || 0),
+            variantName: defaultVariant?.variantName,
+            variantColor: defaultVariant?.variantColor,
+            variantAttributes: {
+              weight: `${defaultVariant?.variantWeight || ""}${defaultVariant?.variantWeightUnit || ""}`,
+              mrp: Number(defaultVariant?.variantMrp || 0),
+              sellingPrice: Number(defaultVariant?.variantSellingPrice || 0),
+              discount: Number(defaultVariant?.variantDiscount || 0),
+            },
+          }),
+        );
         toast.success("Added to wishlist");
       }
     } catch (err) {
@@ -207,18 +226,24 @@ function LatestProducts() {
   const ProductCard = ({ product }) => {
     const defaultVariant = product.variants?.[0];
     const variantId = defaultVariant?._id;
-    
+
     const inCart = cartItems.some(
-      (i) => String(i.productId || i.uuid) === String(product._id) &&
-              String(i.variantId) === String(variantId)
+      (i) =>
+        String(i.productId || i.uuid) === String(product._id) &&
+        String(i.variantId) === String(variantId),
     );
 
-    const productImage = defaultVariant?.variantImage?.[0]?.url || product.image || "/placeholder.png";
+    const productImage =
+      defaultVariant?.variantImage?.[0]?.url ||
+      product.image ||
+      "/placeholder.png";
     const mrp = defaultVariant?.variantMrp || product.mrp || 0;
-    const sellingPrice = defaultVariant?.variantSellingPrice || product.defaultPrice || 0;
-    const discountPercent = mrp > 0 && sellingPrice > 0 && mrp !== sellingPrice
-      ? Math.round(((mrp - sellingPrice) / mrp) * 100)
-      : product.discount || 0;
+    const sellingPrice =
+      defaultVariant?.variantSellingPrice || product.defaultPrice || 0;
+    const discountPercent =
+      mrp > 0 && sellingPrice > 0 && mrp !== sellingPrice
+        ? Math.round(((mrp - sellingPrice) / mrp) * 100)
+        : product.discount || 0;
 
     const handleAddToCartClick = async (e) => {
       e.preventDefault();
@@ -236,7 +261,10 @@ function LatestProducts() {
 
     return (
       <div className="bg-white p-2 rounded-lg group block transition-shadow duration-300 hover:shadow-lg">
-        <Link to={`/product/${product.slug || product._id}`} onClick={(e) => e.stopPropagation()}>
+        <Link
+          to={`/product/${product.slug || product._id}`}
+          onClick={(e) => e.stopPropagation()}
+        >
           <div className="relative w-full overflow-hidden rounded-md">
             <button
               type="button"
@@ -245,14 +273,26 @@ function LatestProducts() {
             >
               <Heart
                 className="w-4 h-4"
-                fill={wishlistItems.some(
-                  (i) => String(i.uuid || i.product || i.productId) === String(product._id) &&
-                         String(i.variantId) === String(variantId)
-                ) ? "red" : "white"}
-                stroke={wishlistItems.some(
-                  (i) => String(i.uuid || i.product || i.productId) === String(product._id) &&
-                         String(i.variantId) === String(variantId)
-                ) ? "red" : "black"}
+                fill={
+                  wishlistItems.some(
+                    (i) =>
+                      String(i.uuid || i.product || i.productId) ===
+                        String(product._id) &&
+                      String(i.variantId) === String(variantId),
+                  )
+                    ? "red"
+                    : "white"
+                }
+                stroke={
+                  wishlistItems.some(
+                    (i) =>
+                      String(i.uuid || i.product || i.productId) ===
+                        String(product._id) &&
+                      String(i.variantId) === String(variantId),
+                  )
+                    ? "red"
+                    : "black"
+                }
                 strokeWidth={1.5}
               />
             </button>
@@ -261,7 +301,9 @@ function LatestProducts() {
               src={productImage}
               alt={product.name || product.productTittle}
               loading="lazy"
-              onError={(e) => { e.target.src = "/placeholder.png"; }}
+              onError={(e) => {
+                e.target.src = "/placeholder.png";
+              }}
             />
           </div>
 
@@ -316,15 +358,15 @@ function LatestProducts() {
     );
   };
 
-  // if (loading) {
-  //   return (
-  //     <div className="lg:px-20 md:px-[60px] px-4 py-[23px] bg-[#EEFDFF] shadow-sm rounded-lg">
-  //       <div className="flex justify-center items-center h-64">
-  //         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1C3753] mx-auto"></div>
-  //       </div>
-  //     </div>
-  //   );
-  // }
+  if (loading) {
+    return (
+      <div className="lg:px-20 md:px-[60px] px-4 py-[23px] bg-[#EEFDFF] shadow-sm rounded-lg">
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1C3753] mx-auto"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="lg:px-20 md:px-[60px] px-4 py-[23px] relative bg-[#EEFDFF] shadow-sm rounded-lg">
@@ -333,8 +375,9 @@ function LatestProducts() {
           Best Selling Products
         </Title>
         <Link
-          className="whitespace-nowrap text-[#2C87E2] hover:text-blue-950 px-2 text-sm underline cursor-pointer"
           to="/products"
+          onClick={(e) => e.stopPropagation()}
+          className="whitespace-nowrap text-[#2C87E2] hover:text-blue-950 px-2 text-sm underline cursor-pointer"
         >
           explore more
         </Link>
@@ -390,7 +433,7 @@ export default LatestProducts;
 //       setLoading(true);
 
 //       const res = await axiosInstance.get(
-//         `/product/${slugOrId}`, 
+//         `/product/${slugOrId}`,
 //       );
 
 //       setMainProduct(res.data.data);

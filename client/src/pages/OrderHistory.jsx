@@ -80,7 +80,7 @@ function OrderHistory() {
     handleOrder();
   }, []);
 
-  console.log(order);
+  // console.log(order);
 
   return (
     <div className="w-full mt-5">
@@ -168,23 +168,19 @@ function OrderHistory() {
                   </div>
                   <div className="flex items-end flex-col justify-end max-sm:w-full">
                     <Link
-                      className="border border-[#0C0057] text-[#0C0057] w-[50%] bg-white text-center mb-1 px-3 py-1 rounded-md text-xs sm:text-sm"
+                      className="border border-[#0C0057]  text-[#0C0057]  bg-white text-center mb-1 px-3 py-1 rounded-md text-xs sm:text-sm"
                       to={`/accounts/order-detail/${order._id}`}
                     >
                       Order Details
                     </Link>
-                    <div className="flex items-center gap-4 text-[#0C0057]">
+                    <div className="flex items-center justify-center gap-4 text-[#0C0057]">
                       <p
-                        onClick={() =>
-                          navigate(
-                            `/order-history/${order?._id?.slice(1) || ""}`,
-                          )
-                        }
+                        onClick={() => navigate(`/order-history/${order?._id}`)}
                         className="cursor-pointer"
                       >
                         Track Order
                       </p>
-                      |<p className="cursor-pointer">Download Invoice</p>
+                      {/* |<p className="cursor-pointer">Download Invoice</p> */}
                     </div>
                   </div>
                 </div>

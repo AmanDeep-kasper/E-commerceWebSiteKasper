@@ -573,48 +573,23 @@ const AddProduct = () => {
     try {
       let response;
       if (isEditing && productId) {
-       // If we have a draftId and we're NOT publishing (just updating draft)
-    if (draftId) {
-      response = await axiosInstance.patch(
-        `/product/admin/update-product/${draftId}`,
-        {
-          ...payload,
-          action: "draft",
-        }
-      );
-      toast.success("Draft updated successfully!");
-    }
-    // If we're publishing a draft
-    else if (draftId) {
-      response = await axiosInstance.patch(
-        `/product/admin/update-product/${draftId}`,
-        {
-          ...payload,
-          action: "add",
-          isDraft: false,
-          isActive: true,
-        }
-      );
-      toast.success("Product published successfully!");
-    }
-    else  if (isEditing && productId) {
         // UPDATE existing product
         response = await axiosInstance.patch(
           `/product/admin/update-product/${productId}`,
-           {
-          ...payload,
-          action: "add",
-        }
+          {
+            ...payload,
+            action: "add",
+          }
         );
         toast.success("Product updated successfully!");
       } else {
         // CREATE new product
         response = await axiosInstance.post(
           "/product/admin/add-product",
-         {
-        ...payload,
-        action: "add",
-      }
+          {
+            ...payload,
+            action: "add",
+          }
         );
         toast.success("Product added successfully!");
       }
@@ -852,32 +827,32 @@ const AddProduct = () => {
 
       localStorage.setItem("addProductDraft", JSON.stringify(draftData));
       setHasDraft(true);
-  try {
-    const payload = {
-      productTittle: formData.productTittle,
-      description: formData.description,
-      category: formData.category,
-      subcategory: formData.subcategory,
-      variants: formData.variants.map((v) => ({
-        variantColor: v.variantColor,
-        variantName: v.variantName,
-        variantWeight: v.variantWeight,
-        variantWeightUnit: v.variantWeightUnit,
-        variantSkuId: v.variantSkuId,
-        variantImage: v.variantImage || [],
-        variantMrp: Number(v.variantMrp) || 0,
-        variantCostPrice: Number(v.variantCostPrice) || 0,
-        variantSellingPrice: Number(v.variantSellingPrice) || 0,
-        variantGST: Number(v.variantGST) || 0,
-        variantDiscount: Number(v.variantDiscount) || 0,
-        variantAvailableStock: Number(v.variantAvailableStock) || 0,
-        variantLowStockAlertStock: Number(v.variantLowStockAlertStock) || 0,
-        isSelected: v.isSelected || false,
-      })),
-      action: "draft",
-      // isDraft: true,
-      // isActive: false,
-    };
+
+      const payload = {
+        productTittle: formData.productTittle,
+        description: formData.description,
+        category: formData.category,
+        subcategory: formData.subcategory,
+        variants: formData.variants.map((v) => ({
+          variantColor: v.variantColor,
+          variantName: v.variantName,
+          variantWeight: v.variantWeight,
+          variantWeightUnit: v.variantWeightUnit,
+          variantSkuId: v.variantSkuId,
+          variantImage: v.variantImage || [],
+          variantMrp: Number(v.variantMrp) || 0,
+          variantCostPrice: Number(v.variantCostPrice) || 0,
+          variantSellingPrice: Number(v.variantSellingPrice) || 0,
+          variantGST: Number(v.variantGST) || 0,
+          variantDiscount: Number(v.variantDiscount) || 0,
+          variantAvailableStock: Number(v.variantAvailableStock) || 0,
+          variantLowStockAlertStock: Number(v.variantLowStockAlertStock) || 0,
+          isSelected: v.isSelected || false,
+        })),
+        action: "draft",
+        // isDraft: true,
+        // isActive: false,
+      };
 
       toast.success("Draft saved successfully!");
     } catch (err) {
