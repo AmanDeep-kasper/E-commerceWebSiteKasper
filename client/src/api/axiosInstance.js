@@ -162,14 +162,11 @@ axiosInstance.interceptors.response.use(
       originalRequest.url.includes("/auth/register") ||
       originalRequest.url.includes("/auth/refresh-token");
 
-      const hasSession = document.cookie.includes("refreshToken");
-
     // ================== HANDLE 401 ==================
     if (
       error.response?.status === 401 &&
       !originalRequest._retry && // ✅ FIX 2: infinite loop guard
-      !isAuthRoute &&
-      hasSession
+      !isAuthRoute
     ) {
       originalRequest._retry = true;
 

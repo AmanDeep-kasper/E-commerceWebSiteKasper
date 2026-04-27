@@ -38,7 +38,6 @@ function MyReviews({ totalItems = 0 }) {
       setLoading(true);
 
       const res = await reviewService.getUserReviews();
-      console.log("API RESPONSE:", res.data);
 
       setReviews(res.data || res.reviews || []);
     } catch (error) {
@@ -69,8 +68,6 @@ function MyReviews({ totalItems = 0 }) {
       setDeleting(false);
     }
   };
-
-  console.log("Deleting ID:", selectedReviewId);
 
   return (
     <div className="w-full font-inter rounded-md overflow-hidden mt-5">
@@ -125,11 +122,11 @@ function MyReviews({ totalItems = 0 }) {
             // Preserve the existing productId data from the old review
             setReviews((prev) =>
               prev.map((r) =>
-                r._id === updatedReview._id 
-                  ? { 
-                      ...updatedReview, 
-                      productId: r.productId // Keep the original product data
-                    } 
+                r._id === updatedReview._id
+                  ? {
+                      ...updatedReview,
+                      productId: r.productId, // Keep the original product data
+                    }
                   : r,
               ),
             );
@@ -184,8 +181,8 @@ function MyReviews({ totalItems = 0 }) {
                     className="w-full h-full md:h-32 object-contain rounded-lg"
                     src={item.productId?.image}
                     alt={item.productId?.productTittle || "Product Image"}
-                     crossOrigin="anonymous"
-  referrerPolicy="no-referrer"
+                    crossOrigin="anonymous"
+                    referrerPolicy="no-referrer"
                   />
                 </div>
 
@@ -240,8 +237,8 @@ function MyReviews({ totalItems = 0 }) {
                           <img
                             key={idx}
                             src={img.url}
-                             crossOrigin="anonymous"
-  referrerPolicy="no-referrer"
+                            crossOrigin="anonymous"
+                            referrerPolicy="no-referrer"
                             alt="review"
                             className="w-16 h-16 object-cover rounded-md border hover:scale-105 transition"
                           />
