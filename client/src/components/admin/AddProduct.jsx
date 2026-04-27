@@ -22,7 +22,7 @@ const AddProduct = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { id } = useParams();
-  const isEditing = Boolean(id);
+  // const isEditing = Boolean(id);
   const [newVariants, setNewVariants] = useState([]);
   // const { loading, error } = useSelector((state) => state.product);
   const { uuid } = useParams();
