@@ -6,20 +6,36 @@ import AppError from "../utils/AppError.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import mongoose from "mongoose";
 
+// Helper function to get relative time (e.g., "2 hours ago")
+const getRelativeTime = (date) => {
+  const seconds = Math.floor((Date.now() - new Date(date)) / 1000);
+
+  if (seconds < 60) return "Just now";
+
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes} minutes ago`;
+
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours} hour${hours > 1 ? "s" : ""} ago`;
+
+  const days = Math.floor(hours / 24);
+  if (days < 30) return `${days} day${days > 1 ? "s" : ""} ago`;
+
+  const months = Math.floor(days / 30);
+  return `${months} month${months > 1 ? "s" : ""} ago`;
+};
+
 export const kpiCardController = asyncHandler(async (req, res) => {
   const now = new Date();
 
-  // current week
-  const startOfWeek = new Date(now);
-  startOfWeek.setDate(now.getDate() - now.getDay());
-  startOfWeek.setHours(0, 0, 0, 0);
+  // Start = 7 days ago from now
+  const startOfLast7Days = new Date(now);
+  startOfLast7Days.setDate(now.getDate() - 6); // include today
 
-  // previous week
-  const startOfLastWeek = new Date(startOfWeek);
-  startOfLastWeek.setDate(startOfWeek.getDate() - 7);
+  startOfLast7Days.setHours(0, 0, 0, 0);
 
-  const endOfLastWeek = new Date(startOfWeek);
-  endOfLastWeek.setMilliseconds(-1);
+  // End = now
+  const endOfLast7Days = new Date(now);
 
   const [
     revenueAgg,
@@ -49,7 +65,7 @@ export const kpiCardController = asyncHandler(async (req, res) => {
       {
         $match: {
           status: "captured",
-          createdAt: { $gte: startOfWeek },
+          createdAt: { $gte: startOfLast7Days },
         },
       },
       {
@@ -66,8 +82,8 @@ export const kpiCardController = asyncHandler(async (req, res) => {
         $match: {
           status: "captured",
           createdAt: {
-            $gte: startOfLastWeek,
-            $lte: endOfLastWeek,
+            $gte: startOfLast7Days,
+            $lte: endOfLast7Days,
           },
         },
       },
@@ -84,14 +100,14 @@ export const kpiCardController = asyncHandler(async (req, res) => {
 
     // weekly orders
     Order.countDocuments({
-      createdAt: { $gte: startOfWeek },
+      createdAt: { $gte: startOfLast7Days },
     }),
 
     // last week orders
     Order.countDocuments({
       createdAt: {
-        $gte: startOfLastWeek,
-        $lte: endOfLastWeek,
+        $gte: startOfLast7Days,
+        $lte: endOfLast7Days,
       },
     }),
 
@@ -152,14 +168,6 @@ export const kpiCardController = asyncHandler(async (req, res) => {
     },
   });
 });
-
-// GET /api/v1/admin/sales-overview?type=orders&range=weekly
-// GET /api/v1/admin/sales-overview?type=revenue&range=weekly
-
-// GET /api/v1/admin/sales-overview?type=orders&range=monthly
-// GET /api/v1/admin/sales-overview?type=orders&range=monthly
-
-// GET /api/v1/admin/sales-overview?type=revenue&range=yearly
 
 export const salesOverviewController = asyncHandler(async (req, res) => {
   const {
@@ -307,9 +315,14 @@ export const salesOverviewController = asyncHandler(async (req, res) => {
 });
 
 export const dashboardSummaryController = asyncHandler(async (req, res) => {
-  const startOfWeek = new Date();
-  startOfWeek.setHours(0, 0, 0, 0);
-  startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
+  const now = new Date();
+
+  const startOfLast7Days = new Date(now);
+  startOfLast7Days.setDate(now.getDate() - 6);
+  startOfLast7Days.setHours(0, 0, 0, 0);
+
+  // const endOfToday = new Date(now);
+  // endOfToday.setHours(23, 59, 59, 999);
 
   const [
     // TOP CATEGORIES
@@ -356,7 +369,7 @@ export const dashboardSummaryController = asyncHandler(async (req, res) => {
         $group: {
           _id: "$category.name",
           sales: {
-            $sum: "$items.itemTotal",
+            $sum: "$grandTotal",
           },
         },
       },
@@ -377,7 +390,7 @@ export const dashboardSummaryController = asyncHandler(async (req, res) => {
       {
         $match: {
           createdAt: {
-            $gte: startOfWeek,
+            $gte: startOfLast7Days,
           },
         },
       },
@@ -489,7 +502,7 @@ export const dashboardSummaryController = asyncHandler(async (req, res) => {
   // FORMAT ORDER OVERVIEW
   // =========================
   const orderMap = {
-    pending: 0,
+    placed: 0,
     processing: 0,
     shipped: 0,
     delivered: 0,
@@ -502,7 +515,7 @@ export const dashboardSummaryController = asyncHandler(async (req, res) => {
   });
 
   const totalOrders =
-    orderMap.pending +
+    orderMap.placed +
     orderMap.processing +
     orderMap.shipped +
     orderMap.delivered;
@@ -510,14 +523,14 @@ export const dashboardSummaryController = asyncHandler(async (req, res) => {
   const ordersOverview = {
     totalOrders,
     thisWeek: {
-      newOrder: orderMap.pending,
+      newOrder: orderMap.placed,
       processing: orderMap.processing,
       shipped: orderMap.shipped,
       delivered: orderMap.delivered,
     },
     percentages: {
       newOrder: totalOrders
-        ? Number(((orderMap.pending / totalOrders) * 100).toFixed(0))
+        ? Number(((orderMap.placed / totalOrders) * 100).toFixed(0))
         : 0,
 
       processing: totalOrders
@@ -565,9 +578,6 @@ export const dashboardSummaryController = asyncHandler(async (req, res) => {
   });
 });
 
-// GET /api/v1/admin/dashboard/top-selling-products?range=weekly&page=1&limit=5
-// GET /api/v1/admin/dashboard/top-selling-products?range=monthly&page=1&limit=10
-// GET /api/v1/admin/dashboard/top-selling-products?range=yearly&page=2&limit=5
 export const topSellingProducts = asyncHandler(async (req, res) => {
   const {
     range = "weekly", // weekly | monthly | yearly
@@ -628,7 +638,7 @@ export const topSellingProducts = asyncHandler(async (req, res) => {
           },
 
           totalSales: {
-            $sum: "$items.itemTotal",
+            $sum: "$grandTotal",
           },
 
           totalOrders: {
@@ -667,7 +677,7 @@ export const topSellingProducts = asyncHandler(async (req, res) => {
         $group: {
           _id: null,
           totalRevenue: {
-            $sum: "$items.itemTotal",
+            $sum: "$grandTotal",
           },
           totalUnitsSold: {
             $sum: "$items.quantity",
@@ -714,18 +724,14 @@ export const recentActivitiesController = asyncHandler(async (req, res) => {
   const skip = (pageNumber - 1) * pageSize;
 
   const [orders, customers, stockAlerts] = await Promise.all([
-    // =========================
     // NEW ORDERS
-    // =========================
     Order.find({})
       .select("orderNumber shippingAddress.fullName createdAt")
       .sort({ createdAt: -1 })
       .limit(20)
       .lean(),
 
-    // =========================
     // NEW CUSTOMERS
-    // =========================
     User.find({
       role: "user",
     })
@@ -734,9 +740,7 @@ export const recentActivitiesController = asyncHandler(async (req, res) => {
       .limit(20)
       .lean(),
 
-    // =========================
     // STOCK ALERTS
-    // =========================
     Product.aggregate([
       {
         $match: {
@@ -772,6 +776,7 @@ export const recentActivitiesController = asyncHandler(async (req, res) => {
           },
           stock: "$variants.variantAvailableStock",
           createdAt: "$updatedAt",
+          timeAgo: getRelativeTime("$updatedAt"),
         },
       },
       {
@@ -785,40 +790,37 @@ export const recentActivitiesController = asyncHandler(async (req, res) => {
     ]),
   ]);
 
-  // =========================
   // FORMAT ORDERS
-  // =========================
   const orderActivities = orders.map((order) => ({
     type: "new_order",
     title: "New Order",
     description: `Order #${order.orderNumber} placed by ${order.shippingAddress?.fullName || "Customer"}`,
     createdAt: order.createdAt,
+    timeAgo: getRelativeTime(order.createdAt),
     meta: {
       orderId: order._id,
     },
   }));
 
-  // =========================
   // FORMAT CUSTOMERS
-  // =========================
   const customerActivities = customers.map((user) => ({
     type: "new_customer",
     title: "New Customer",
     description: `Account created by ${user.name}`,
     createdAt: user.createdAt,
+    timeAgo: getRelativeTime(user.createdAt),
     meta: {
       userId: user._id,
     },
   }));
 
-  // =========================
   // FORMAT STOCK
-  // =========================
   const stockActivities = stockAlerts.map((item) => ({
     type: item.stock === 0 ? "out_of_stock" : "low_stock",
     title: item.stock === 0 ? "Out of Stock" : "Low Stock",
     description: item.title,
     createdAt: item.createdAt,
+    timeAgo: getRelativeTime(item.createdAt),
     meta: {
       productId: item.productId,
       stock: item.stock,
@@ -826,9 +828,7 @@ export const recentActivitiesController = asyncHandler(async (req, res) => {
     },
   }));
 
-  // =========================
   // COMBINE + SORT
-  // =========================
   const activities = [
     ...orderActivities,
     ...customerActivities,
@@ -851,24 +851,6 @@ export const recentActivitiesController = asyncHandler(async (req, res) => {
     },
   });
 });
-
-const getRelativeTime = (date) => {
-  const seconds = Math.floor((Date.now() - new Date(date)) / 1000);
-
-  if (seconds < 60) return "Just now";
-
-  const minutes = Math.floor(seconds / 60);
-  if (minutes < 60) return `${minutes} minutes ago`;
-
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours} hour${hours > 1 ? "s" : ""} ago`;
-
-  const days = Math.floor(hours / 24);
-  if (days < 30) return `${days} day${days > 1 ? "s" : ""} ago`;
-
-  const months = Math.floor(days / 30);
-  return `${months} month${months > 1 ? "s" : ""} ago`;
-};
 
 export const recentOrdersController = asyncHandler(async (req, res) => {
   const { page = 1, limit = 7 } = req.query;
