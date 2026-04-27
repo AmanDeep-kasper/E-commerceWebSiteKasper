@@ -22,11 +22,10 @@ import { useSelector } from "react-redux";
 import axiosInstance from "../api/axiosInstance";
 
 const steps = [
-  "Order Placed",
-  "Processing",
-  "Shipped",
-  "Out for Delivery",
-  "Delivered",
+  { key: "placed", label: "Order Placed" },
+  { key: "processing", label: "Processing" },
+  { key: "shipped", label: "Shipped" },
+  { key: "delivered", label: "Delivered" },
 ];
 
 function OrderTracking() {
@@ -35,7 +34,6 @@ function OrderTracking() {
   const [trackOrder, setTrackOrder] = useState("");
   const [order, setOrder] = useState(null);
 
-  // ✅ Hook 1
   useEffect(() => {
     const fetchOrder = async () => {
       try {
@@ -49,21 +47,29 @@ function OrderTracking() {
     fetchOrder();
   }, [orderId]);
 
-  // ✅ Hook 2
   useEffect(() => {
     if (!trackOrder) return;
 
-    const status = trackOrder.toLowerCase().replace(/\s/g, "");
+    const currentIndex = steps.findIndex(
+      (step) => step.key === trackOrder.toLowerCase(),
+    );
 
-    if (status === "cancelled") setActive(-1);
-    else if (status === "placed") setActive(0);
-    else if (status === "processing") setActive(33.33);
-    else if (status === "shipped") setActive(66.66);
-    else if (status === "delivered") setActive(100);
-    else setActive(0);
+    if (trackOrder.toLowerCase() === "cancelled") {
+      setActive(-1);
+      return;
+    }
+
+    if (currentIndex === -1) {
+      setActive(0);
+      return;
+    }
+
+    const progress = (currentIndex / (steps.length - 1)) * 100;
+    setActive(progress);
   }, [trackOrder]);
 
-  // ✅ Hook 3
+  console.log(order);
+
   useEffect(() => {
     if (trackOrder === "Order Placed") {
       const timer = setTimeout(() => {
@@ -87,7 +93,7 @@ function OrderTracking() {
       </>
     );
   }
-  
+
   return (
     <>
       <Navbar />
@@ -131,20 +137,18 @@ function OrderTracking() {
                 <div className="hidden lg:block">
                   {/* Labels */}
                   <div className="flex justify-between mb-4">
-                    {["Order Placed", "Processing", "Shipped", "Delivered"].map(
-                      (label, idx) => (
-                        <span
-                          key={idx}
-                          className={`text-sm ${
-                            active >= idx * (100 / (4 - 1))
-                              ? "text-[#0A63E]"
-                              : "text-gray-400"
-                          }`}
-                        >
-                          {label}
-                        </span>
-                      ),
-                    )}
+                    {steps.map((step, idx) => (
+                      <span
+                        key={idx}
+                        className={`text-sm ${
+                          active >= idx * (100 / (steps.length - 1))
+                            ? "text-[#0A63E]"
+                            : "text-gray-400"
+                        }`}
+                      >
+                        {step.label}
+                      </span>
+                    ))}
                   </div>
 
                   {/* Progress bar */}
@@ -159,71 +163,70 @@ function OrderTracking() {
                           : "bg-gradient-to-r from-[#00A63E] to-[#00A63E]"
                       }`}
                     />
-                    {[0, 33.33, 66.66, 100].map((pos) => (
-                      <div
-                        key={pos}
-                        className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2"
-                        style={{ left: `${pos}%` }}
-                      >
+                    {steps.map((_, idx) => {
+                      const pos = (idx / (steps.length - 1)) * 100;
+
+                      return (
                         <div
-                          className={`w-5 h-5 flex items-center justify-center rounded-full ${
-                            active === -1
-                              ? "bg-red-500"
-                              : active >= pos
-                                ? "bg-[#19A971]"
-                                : "bg-gray-300"
-                          }`}
+                          key={idx}
+                          className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2"
+                          style={{ left: `${pos}%` }}
                         >
-                          <Check size={12} className="text-white" />
+                          <div
+                            className={`w-5 h-5 flex items-center justify-center rounded-full ${
+                              active === -1
+                                ? "bg-red-500"
+                                : active >= pos
+                                  ? "bg-[#19A971]"
+                                  : "bg-gray-300"
+                            }`}
+                          >
+                            <Check size={12} className="text-white" />
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
 
                 {/* Mobile (vertical) */}
                 <div className="flex flex-col gap-6 lg:hidden relative pl-6">
-                  {["Order Placed", "Processing", "Shipped", "Delivered"].map(
-                    (label, idx) => (
+                  {steps.map((step, idx) => {
+                    const progress = (idx / (steps.length - 1)) * 100;
+
+                    return (
                       <div
-                        key={idx}
+                        key={step.key}
                         className="relative flex items-center gap-3"
                       >
-                        {/* Circle */}
                         <div
-                          className={`w-5 h-5 flex items-center justify-center rounded-full z-10 ${
-                            active >= idx * (100 / 3)
-                              ? "bg-[#19A971]"
-                              : "bg-gray-300"
+                          className={`w-5 h-5 rounded-full ${
+                            active >= progress ? "bg-[#19A971]" : "bg-gray-300"
                           }`}
-                        >
-                          <Check size={12} className="text-white" />
-                        </div>
+                        />
 
-                        {/* Line connector */}
-                        {idx < 4 && (
+                        {idx < steps.length - 1 && (
                           <div
                             className={`absolute left-[9px] top-5 w-[2px] h-10 ${
-                              active >= (idx + 1) * 25
+                              active >= ((idx + 1) / (steps.length - 1)) * 100
                                 ? "bg-[#19A971]"
                                 : "bg-gray-300"
                             }`}
                           />
                         )}
 
-                        {/* Label */}
                         <span
                           className={`text-sm ${
-                            active >= idx * 25
+                            active >= progress
                               ? "text-[#19A971]"
                               : "text-gray-400"
                           }`}
                         >
-                          {label}
+                          {step.label}
                         </span>
                       </div>
-                    ),
-                  )}
+                    );
+                  })}
                 </div>
               </div>
             </div>

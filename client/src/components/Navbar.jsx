@@ -21,7 +21,7 @@ import {
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import UserProfile from "./UserProfile";
-import { setWishlistFromAPI } from "../redux/cart/wishlistSlice";
+import { clearWishlist, setWishlistFromAPI } from "../redux/cart/wishlistSlice";
 import Modal from "./Modal";
 import { logoutUser } from "../redux/cart/userSlice";
 import MainLog from "../assets/IconsUsed/HomeMainLogo.png";
@@ -30,7 +30,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay } from "swiper/modules";
 import "swiper/css";
 import { useRef } from "react";
-import { setCartFromAPI } from "../redux/cart/cartSlice";
+import { clearCart, setCartFromAPI } from "../redux/cart/cartSlice";
 
 function Navbar() {
   const { user, isAuthenticated } = useSelector((state) => state.user);
@@ -51,11 +51,18 @@ function Navbar() {
       try {
         if (!isAuthenticated) return;
 
-        // 🔹 Cart sync
+        //  Get guest cart from localStorage
+        const guestCart = JSON.parse(localStorage.getItem("cart") || "[]");
+
+        if (guestCart.length > 0) {
+          await axiosInstance.post("/cart/merge", { items: guestCart });
+          localStorage.removeItem("cart"); // clear guest after merge
+        }
+
+        // Fetch user cart
         const cartRes = await axiosInstance.get("/cart");
         dispatch(setCartFromAPI(cartRes.data.data));
 
-        // 🔹 Wishlist sync
         const wishRes = await axiosInstance.get("/wishlist");
         dispatch(setWishlistFromAPI(wishRes.data.data));
       } catch (error) {
@@ -75,10 +82,9 @@ function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  // const totalItems = useSelector((state) => state.cart.totalItems);
-  const totalWishlistItems = useSelector(
-    (state) => state?.wishlist?.totalItems,
-  );
+  // const totalWishlistItems = useSelector(
+  //   (state) => state?.wishlist?.totalItems,
+  // );
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const query = searchParams.get("q") || "";
   const [searchResults, setSearchResults] = useState([]);
@@ -93,7 +99,9 @@ function Navbar() {
     };
 
     if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
+      setTimeout(() => {
+        document.addEventListener("click", handleClickOutside);
+      }, 0);
       document.addEventListener("touchstart", handleClickOutside);
     }
 
@@ -103,27 +111,39 @@ function Navbar() {
     };
   }, [isOpen]);
 
+  // const handleLogout = () => {
+  //   dispatch(logoutUser());
+  //   navigate("/login", { replace: true });
+  // };
+
   const handleLogout = () => {
     dispatch(logoutUser());
+    dispatch(clearCart());
+    dispatch(clearWishlist());
+    // localStorage.removeItem("cart");
+    // localStorage.removeItem("wishlist");
     navigate("/login", { replace: true });
   };
 
-  const totalItems = useSelector((state) => state.cart.totalItems);
+  const totalItems = useSelector((state) => {
+    if (state.user.isAuthenticated) {
+      return state.cart.totalItems;
+    } else {
+      const guestCart = JSON.parse(localStorage.getItem("cart") || "[]");
+      return guestCart.reduce((sum, i) => sum + (i.quantity || 0), 0);
+    }
+  });
 
-  // useEffect(() => {
-  //   const fetchCartAndSync = async () => {
-  //     try {
-  //       const res = await axiosInstance.get("/cart");
-  //       dispatch(setCartFromAPI(res.data.data));
-  //     } catch (error) {
-  //       console.error("Failed to fetch cart:", error);
-  //     }
-  //   };
-
-  //   fetchCartAndSync();
-  // }, [dispatch]);
-
-  // console.log(totalItems);
+  const totalWishlistItems = useSelector((state) => {
+    if (state.user.isAuthenticated) {
+      return state.wishlist.totalItems;
+    } else {
+      const guestWishlist = JSON.parse(
+        localStorage.getItem("wishlist") || "[]",
+      );
+      return guestWishlist.length;
+    }
+  });
 
   // disable background scroll when mobile nav is open
   useEffect(() => {
@@ -286,15 +306,13 @@ function Navbar() {
                       <ul className="divide-y divide-gray-100">
                         {filteredResults.map((item, index) => (
                           <li
-                            key={index}
+                            key={item._id || index}
                             className="flex items-center gap-3 p-2 hover:bg-gray-50 cursor-pointer"
-                            onClick={() => {
+                            onClick={(e) => {
+                              e.stopPropagation();
                               setIsOpen(false);
                               setSearchParams({}, { replace: true });
-
-                              navigate(
-                                `/products/${encodeURIComponent(item.categoryName)}`,
-                              );
+                              navigate(`/product/${item._id}`);
                             }}
                           >
                             <img
@@ -381,15 +399,14 @@ function Navbar() {
                       <ul className="divide-y divide-gray-100">
                         {filteredResults.map((item, index) => (
                           <li
-                            key={index}
+                            key={item._id || index}
                             className="flex items-center gap-3 p-2 hover:bg-gray-50 cursor-pointer"
-                            onClick={() => {
+                            onClick={(e) => {
+                              e.stopPropagation();
                               setIsOpen(false);
                               setSearchParams({}, { replace: true });
 
-                              navigate(
-                                `/products/${encodeURIComponent(item.categoryName)}`,
-                              );
+                              navigate(`/product/${item._id}`);
                             }}
                           >
                             <img

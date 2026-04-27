@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-// import products from "../data/products.json";
 import Card from "../components/Card";
 import Navbar from "../components/Navbar";
 import Breadcrumbs from "../components/Breadcrumbs";
@@ -9,8 +8,7 @@ import Footer from "../sections/Footer";
 import Categories from "../components/Categories";
 import FilterProducts from "../components/FilterProducts";
 import axiosInstance from "../api/axiosInstance";
-
-// const newProducts = [...products].reverse();
+import { Skeleton } from "boneyard-js/react";
 
 function NewProducts() {
   const [items, setItems] = useState([]);
@@ -21,25 +19,49 @@ function NewProducts() {
 
   // const allProducts = useSelector((state) => state.products.product);
 
-  // useEffect(() => {
-  //   if (allProducts && allProducts.length > 0) {
-  //     setItems(allProducts);
-  //     setLoading(false);
-  //   }
-  // }, [allProducts]);
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
+
+        const res = await axiosInstance.get("/product/all");
+        const productData = res?.data?.data || res?.data?.products || [];
+
+        setItems(Array.isArray(productData) ? productData : []);
+        setError("");
+      } catch (err) {
+        console.error(err);
+        setError("Failed to load products");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
 
   const sort = (val) => {
     setItems((prev) => {
       const sorted = [...prev];
       switch (val) {
         case "high":
-          return sorted.sort((a, b) => b.sellingPrice - a.sellingPrice);
+          return sorted.sort(
+            (a, b) =>
+              b.variants[0].variantSellingPrice -
+              a.variants[0].variantSellingPrice,
+          );
 
         case "low":
-          return sorted.sort((a, b) => a.sellingPrice - b.sellingPrice);
+          return sorted.sort(
+            (a, b) =>
+              a.variants[0].variantSellingPrice -
+              b.variants[0].variantSellingPrice,
+          );
 
         case "atoz":
-          return sorted.sort((a, b) => a.title.localeCompare(b.title));
+          return sorted.sort((a, b) =>
+            (a.productTittle || "").localeCompare(b.productTittle || ""),
+          );
 
         case "rating":
           return sorted.sort((a, b) => {
@@ -54,7 +76,7 @@ function NewProducts() {
           });
 
         case "latest":
-          return sorted.reverse(); 
+          return sorted.reverse();
 
         default:
           return prev;
@@ -107,17 +129,15 @@ function NewProducts() {
         <FilterProducts text={"Best Selling Products"} sort={sort} />
 
         <div className="flex lg:gap-6 items-start">
-          {/* <div className="sticky top-4">
-          </div> */}
-          {loading ? (
-            <p>Loading products...</p>
-          ) : error ? (
-            <p className="text-red-500">{error}</p>
-          ) : items.length > 0 ? (
-            <Card cardData={items} />
-          ) : (
-            <p>No products found.</p>
-          )}
+          <Skeleton name="product-grid" loading={loading}>
+            {error ? (
+              <p className="text-red-500">{error}</p>
+            ) : items.length > 0 ? (
+              <Card cardData={items} />
+            ) : (
+              <p>No products found.</p>
+            )}
+          </Skeleton>
         </div>
       </section>
       <Footer />
