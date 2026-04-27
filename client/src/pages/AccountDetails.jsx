@@ -111,8 +111,6 @@ function AccountDetails() {
     setTempData((prev) => ({ ...prev, [field]: value }));
   };
 
-
-
   const handleSave = async () => {
     if (!tempData) return;
     const newErrors = {};
@@ -298,43 +296,41 @@ function AccountDetails() {
               </div>
 
               <div>
-  <label className="block text-sm font-medium text-gray-700 mb-2">
-    Full Name
-  </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Full Name
+                </label>
 
-  {isEditing ? (
-    <>
-      <input
-        type="text"
-        value={tempData?.name || ""}
-        onChange={(e) =>
-          handleInputChange("name", e.target.value)
-        }
-        className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg text-sm outline-none transition
+                {isEditing ? (
+                  <>
+                    <input
+                      type="text"
+                      value={tempData?.name || ""}
+                      onChange={(e) =>
+                        handleInputChange("name", e.target.value)
+                      }
+                      className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg text-sm outline-none transition
           ${
             errors.name
               ? "border-red-500 focus:ring-red-400 focus:border-red-500"
               : "border-gray-300 focus:ring-yellow-500 focus:border-yellow-500"
           }`}
-        placeholder="Enter your full name"
-        disabled={isSaving}
-      />
+                      placeholder="Enter your full name"
+                      disabled={isSaving}
+                    />
 
-      {/* 🔴 Error Message */}
-      {errors.name && (
-        <p className="text-red-500 text-xs mt-1">
-          {errors.name}
-        </p>
-      )}
-    </>
-  ) : (
-    <div className="px-3 sm:px-4 py-2 sm:py-3 bg-gray-50 rounded-lg border border-gray-200">
-      <p className="text-gray-800 text-sm sm:text-base">
-        {user?.user?.name || "Not provided"}
-      </p>
-    </div>
-  )}
-</div>
+                    {/* 🔴 Error Message */}
+                    {errors.name && (
+                      <p className="text-red-500 text-xs mt-1">{errors.name}</p>
+                    )}
+                  </>
+                ) : (
+                  <div className="px-3 sm:px-4 py-2 sm:py-3 bg-gray-50 rounded-lg border border-gray-200">
+                    <p className="text-gray-800 text-sm sm:text-base">
+                      {user?.user?.name || "Not provided"}
+                    </p>
+                  </div>
+                )}
+              </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -343,7 +339,13 @@ function AccountDetails() {
                 {isEditing ? (
                   <input
                     type="date"
-                    value={tempData?.dateOfBirth ? new Date(tempData.dateOfBirth).toISOString().split("T")[0] : ""}
+                    value={
+                      tempData?.dateOfBirth
+                        ? new Date(tempData.dateOfBirth)
+                            .toISOString()
+                            .split("T")[0]
+                        : ""
+                    }
                     onChange={(e) =>
                       handleInputChange("dateOfBirth", e.target.value)
                     }
@@ -356,8 +358,8 @@ function AccountDetails() {
                     <p className="text-gray-800 text-sm sm:text-base">
                       {user?.user?.dateOfBirth
                         ? new Date(user.user.dateOfBirth).toLocaleDateString(
-                          "en-GB",
-                        )
+                            "en-GB",
+                          )
                         : "Not provided"}
                     </p>
                   </div>
@@ -376,10 +378,11 @@ function AccountDetails() {
                         type="button"
                         onClick={() => handleInputChange("gender", g)}
                         disabled={isSaving}
-                        className={`flex-1 py-2 sm:py-3 text-sm flex items-center justify-center gap-2 transition-colors ${tempData?.gender === g
-                          ? "bg-[#CFC7FF] text-black font-medium"
-                          : "hover:bg-gray-50 text-gray-600"
-                          } disabled:opacity-50 disabled:cursor-not-allowed`}
+                        className={`flex-1 py-2 sm:py-3 text-sm flex items-center justify-center gap-2 transition-colors ${
+                          tempData?.gender === g
+                            ? "bg-[#CFC7FF] text-black font-medium"
+                            : "hover:bg-gray-50 text-gray-600"
+                        } disabled:opacity-50 disabled:cursor-not-allowed`}
                       >
                         {tempData?.gender === g && (
                           <Check className="w-4 h-4 text-[#1C3753]" />
@@ -513,13 +516,13 @@ function AccountDetails() {
                     <p className="text-xs sm:text-sm text-gray-500">
                       {user?.user?.dateOfBirth
                         ? new Date(user.user.dateOfBirth).toLocaleDateString(
-                          "en-IN",
-                          {
-                            month: "short",
-                            day: "numeric",
-                            year: "numeric",
-                          },
-                        )
+                            "en-IN",
+                            {
+                              month: "short",
+                              day: "numeric",
+                              year: "numeric",
+                            },
+                          )
                         : "Not provided"}
                     </p>
                   </div>
@@ -552,7 +555,7 @@ function AccountDetails() {
                     <p className="text-xs sm:text-sm text-gray-500 capitalize">
                       {user?.user?.gender
                         ? user.user.gender.charAt(0).toUpperCase() +
-                        user.user.gender.slice(1)
+                          user.user.gender.slice(1)
                         : "Not provided"}
                     </p>
                   </div>

@@ -31,26 +31,65 @@ const AddressForm = ({ initialData = null, onClose, inline = false }) => {
   }, [initialData]);
 
   const validateInputs = () => {
-    const { fullName, phone, pinCode, city, state, email, addressType, address } =
-      formData;
+    const { fullName, phone, pinCode, city, state, email, address } = formData;
 
-    if (!fullName || !phone || !pinCode || !city || !state) {
-      toast.error("Please fill all required fields");
+    if (!fullName.trim()) {
+      toast.error("Full name is required");
+      return false;
+    }
+
+    if (!phone.trim()) {
+      toast.error("Phone number is required");
       return false;
     }
 
     if (!/^\d{10}$/.test(phone)) {
-      toast.error("Enter a valid 10-digit phone number");
+      toast.error("Phone number must be exactly 10 digits");
+      return false;
+    }
+
+    if (!email.trim()) {
+      toast.error("Email is required");
+      return false;
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      toast.error("Enter a valid email address");
+      return false;
+    }
+
+    if (!pinCode.trim()) {
+      toast.error("Pincode is required");
       return false;
     }
 
     if (!/^\d{6}$/.test(pinCode)) {
-      toast.error("Enter a valid 6-digit pincode");
+      toast.error("Pincode must be exactly 6 digits");
       return false;
     }
 
-    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      toast.error("Enter a valid email address");
+    if (!address.trim()) {
+      toast.error("Address is required");
+      return false;
+    }
+
+    if (!city.trim()) {
+      toast.error("City is required");
+      return false;
+    }
+
+    if (!/^[A-Za-z ]+$/.test(city)) {
+      toast.error("City should contain only alphabets");
+      return false;
+    }
+
+    if (!state.trim()) {
+      toast.error("State is required");
+      return false;
+    }
+
+    if (!/^[A-Za-z ]+$/.test(state)) {
+      toast.error("State should contain only alphabets");
       return false;
     }
 
@@ -91,16 +130,18 @@ const AddressForm = ({ initialData = null, onClose, inline = false }) => {
 
   return (
     <div
-      className={`${inline
+      className={`${
+        inline
           ? "bg-white rounded-lg p-6 shadow-sm"
           : "fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
-        }`}
+      }`}
     >
       <div
-        className={`${inline
+        className={`${
+          inline
             ? "w-full"
             : "bg-white rounded-xl w-full max-w-md lg:max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl"
-          }`}
+        }`}
       >
         {/* Header */}
         {!inline && (
@@ -145,9 +186,18 @@ const AddressForm = ({ initialData = null, onClose, inline = false }) => {
                 type="tel"
                 name="phone"
                 value={formData.phone}
-                o onChange={(e) => {
-                  const value = e.target.value.replace(/[^0-9]/g, ""); // allow only numbers
-                  handleChange({ target: { name: "phone", value } });
+                onChange={(e) => {
+                  const value = e.target.value.replace(/[^0-9]/g, "");
+
+                  if (value.length > 10) {
+                    toast.error("Phone number cannot be more than 10 digits");
+                    return;
+                  }
+
+                  setFormData((prev) => ({
+                    ...prev,
+                    phone: value,
+                  }));
                 }}
                 required
                 maxLength={10}
@@ -249,10 +299,11 @@ const AddressForm = ({ initialData = null, onClose, inline = false }) => {
                       addressType: type.value,
                     }))
                   }
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-all ${formData.addressType === type.value
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-all ${
+                    formData.addressType === type.value
                       ? "border-[#1800AC] bg-white text-[#1800AC]"
                       : "border-gray-300 hover:border-gray-400 text-gray-700"
-                    }`}
+                  }`}
                 >
                   {type.icon}
                   {type.value}

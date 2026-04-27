@@ -61,24 +61,6 @@ function Address() {
     dispatch(fetchAddresses());
   }, [dispatch]);
 
-  // const handleMakeDefault = async (addressId) => {
-  //   await dispatch(setDefaultAddress(addressId));
-  //   await dispatch(fetchAddresses());
-  // if (addressId.isDefault || updatingDefaultId) return;
-
-  // setUpdatingDefaultId(addressId._id);
-  // try {
-  //   const updatedAddress = { ...addressId, isDefault: true };
-  //   const result = dispatch(
-  //     editAddress({ id: addressId._id, data: updatedAddress })
-  //   );
-  //   if (!result.error) {
-  //     toast.success("Default address updated");
-  //   }
-  // } finally {
-  //   setUpdatingDefaultId(null);
-  // }
-  // };
   
   const handleMakeDefault = async (addressId) => {
     if (updatingDefaultId) return;
@@ -90,6 +72,7 @@ function Address() {
 
       if (!result.error) {
         toast.success("Default address updated");
+         await dispatch(fetchAddresses());
       }
     } finally {
       setUpdatingDefaultId(null);
@@ -97,26 +80,28 @@ function Address() {
   };
 
   const handleRemoveAddress = async (addressId) => {
-    if (removingId) return;
+  if (removingId) return;
 
-    setRemovingId(addressId);
-    try {
-      const result = await dispatch(removeAddress(addressId));
-      if (!result.error) {
-        toast.success("Address removed successfully");
-      }
-    } finally {
-      setRemovingId(null);
+  setRemovingId(addressId);
+
+  try {
+    const result = await dispatch(removeAddress(addressId));
+
+    if (!result.error) {
+      toast.success("Address removed successfully");
+      await dispatch(fetchAddresses());
     }
-  };
+  } finally {
+    setRemovingId(null);
+  }
+};
 
   const getAddressTypeIcon = (type) => {
     return type === "home" ? <Home size={14} /> : <Building size={14} />;
   };
 
   // Get addresses array safely
-  const addressesList =
-    addresses?.data?.addresses || addresses?.addresses || [];
+ const addressesList = Array.isArray(addresses) ? addresses : [];
 
   // Show loading overlay while fetching addresses
   if (loading) {
@@ -318,6 +303,7 @@ function Address() {
             onClose={() => {
               setOpen(false);
               setEditingAddress(null);
+              dispatch(fetchAddresses());
             }}
             initialData={editingAddress}
           />
