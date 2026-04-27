@@ -113,11 +113,7 @@ export const generateInvoice = (order) => {
 
   doc.text("Name: Happy Art Supplies.", soldX, y);
   y += 5;
-  doc.text(
-    "B402, Unites Crossandra, Horamavu, Bengaluru ",
-    soldX,
-    y,
-  );
+  doc.text("B402, Unites Crossandra, Horamavu, Bengaluru ", soldX, y);
   y += 4.5;
   doc.text("5600 Horamavu,Sector-18, Karnataka,", soldX, y);
   y += 4.5;
@@ -152,11 +148,7 @@ export const generateInvoice = (order) => {
   y2 += 5;
   doc.text(`Order Date: ${formatDate(order?.placedAt)}`, invX, y2);
   y2 += 5;
-  doc.text(
-    `Payment Status: ${safeText(order?.paymentStatus, "--")}`,
-    invX,
-    y2,
-  );
+  doc.text(`Payment Status: ${safeText(order?.paymentStatus, "--")}`, invX, y2);
 
   // =========================
   // 3) BILLING + SHIPPING BOX (AUTO HEIGHT)
@@ -729,6 +721,11 @@ shippingAddress.landmark && (
               </span>
             </p>
           )}
+
+          {currentStatus === "shipped" && currentStatus !== "delivered" && (
+            <span className="text-gray-400 hidden sm:block">|</span>
+          )}
+
           {currentStatus === "shipped" && (
             <p className="text-gray-600 text-sm">
               Tracking URL:{" "}
@@ -736,7 +733,6 @@ shippingAddress.landmark && (
                 {order?.tracking?.trackingUrl
                   ? order?.tracking?.trackingUrl
                   : "--"}
-                  <span className="text-gray-400 hidden sm:block">|</span>
               </span>
             </p>
           )}
@@ -836,9 +832,9 @@ shippingAddress.landmark && (
           <p className="mt-2 text-xs">
             <b>Terms & Conditions</b>- No changes or cancellations after order
             confirmation. Delays/unavailability will be informed within 1–2
-            working days. <br /> <b>Delivery Policy</b>- Customer errors may incur
-            RTO/reshipment charges. Report wrong delivery within 24 hours. Extra
-            shipping charges apply above 10 kg.
+            working days. <br /> <b>Delivery Policy</b>- Customer errors may
+            incur RTO/reshipment charges. Report wrong delivery within 24 hours.
+            Extra shipping charges apply above 10 kg.
           </p>
         </div>
       )}

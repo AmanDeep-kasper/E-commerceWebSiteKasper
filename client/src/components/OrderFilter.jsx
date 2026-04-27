@@ -1,4 +1,3 @@
-
 function OrderFilter({ setStatus, status, setTime, time }) {
   const currentYear = new Date().getFullYear();
   const timeOptions = [
@@ -30,7 +29,8 @@ function OrderFilter({ setStatus, status, setTime, time }) {
         </h2>
         <div className="space-y-3">
           {[
-            { id: "onTheWay", label: "Out for Delivery" },
+            { id: "processing", label: "Processing" },
+            { id: "shipped", label: "Shipped" },
             { id: "delivered", label: "Delivered" },
             { id: "cancelled", label: "Cancelled" },
             { id: "returned", label: "Returned" },
@@ -39,17 +39,13 @@ function OrderFilter({ setStatus, status, setTime, time }) {
               <input
                 type="checkbox"
                 id={`status-${item.id}`}
-                checked={status === item.label}
-                onChange={() =>
-                  setStatus(status === item.label ? "" : item.label)
-                }
+                checked={status === item.id}
+                onChange={() => setStatus(status === item.id ? "" : item.id)}
                 className="w-4 h-4 text-[#EBB100] rounded border-gray-300 focus:ring-[#EBB100]"
               />
               <label
                 htmlFor={`status-${item.id}`}
-                className={`ml-2 text-sm ${
-                  status === item.label ? "text-gray-800" : "text-gray-600"
-                }`}
+                className="ml-2 text-sm text-gray-600"
               >
                 {item.label}
               </label>

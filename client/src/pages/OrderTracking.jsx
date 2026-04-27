@@ -242,7 +242,7 @@ function OrderTracking() {
                 <div className="space-y-3 text-sm">
                   <div>
                     <p className="text-gray-500">Carrier:</p>
-                    <p className="font-medium">{order?.tracking?.carrier}</p>
+                    <p className="font-medium">{order?.tracking?.carrier || "soon available"}</p>
                   </div>
                   <div>
                     <p className="text-gray-500">Shipping Address</p>
@@ -310,14 +310,14 @@ function OrderTracking() {
                       <a
                         href={
                           order.tracking?.trackingUrl ||
-                          " https://www.xyz.com/en-us/tracking.html"
+                          ""
                         }
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-xs mt-1 text-blue-600"
                       >
                         {order.tracking?.trackingUrl ||
-                          " https://www.xyz.com/en-us/tracking.html"}
+                          "soon available"}
                       </a>
                     </div>
                   </div>
@@ -331,7 +331,7 @@ function OrderTracking() {
                         Tracking No.:{" "}
                       </p>
                       <p className="text-xs ">
-                        {order?.tracking?.trackingNumber}
+                        {order?.tracking?.trackingNumber || "soon available"}
                       </p>
                       <p className="text-sm text-gray-500 mt-2">
                         *Please click this link and paste it in your browser and
