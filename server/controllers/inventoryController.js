@@ -12,7 +12,7 @@ export const getInventory = asyncHandler(async (req, res) => {
     filterBy = "all", // all | low_stock | out_of_stock
   } = req.query;
 
-  const skip = (page - 1) * limit;
+  const skip = Number(page - 1) * Number(limit);
 
   // 🔍 SEARCH REGEX (safe)
   const searchRegex = new RegExp(search, "i");
@@ -82,6 +82,7 @@ export const getInventory = asyncHandler(async (req, res) => {
         sku: "$variants.variantSkuId",
         productName: "$productTittle",
         category: "$category",
+        
         image: { $arrayElemAt: ["$variants.variantImage.url", 0] },
         sellingPrice: "$variants.variantSellingPrice",
         stock: "$variants.variantAvailableStock",
