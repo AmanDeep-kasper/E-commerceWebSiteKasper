@@ -272,6 +272,7 @@ const Products = () => {
     total: 0,
     active: 0,
     inactive: 0,
+    draft: 0,
   });
 
   const navigate = useNavigate();
@@ -317,6 +318,7 @@ const Products = () => {
         total: response.data?.stats?.total || 0,
         active: response.data?.stats?.active || 0,
         inactive: response.data?.stats?.inactive || 0,
+        draft: response.data?.stats?.draft || 0,
       });
       setError(null);
     } catch (error) {
@@ -499,7 +501,7 @@ const Products = () => {
     },
     {
       name: "Draft",
-      data: 0,
+      data: stats?.draft || 0,
       //  product.filter((p) => p.isActive === false).length,
       icon: <FileText />,
       iconbg: "bg-[#EFEFEF]",

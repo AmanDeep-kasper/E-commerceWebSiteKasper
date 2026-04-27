@@ -3,10 +3,7 @@ import User from "../models/User.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import AppError from "../utils/AppError.js";
 import { uploadToCloudinary, deleteFromCloudinary } from "../utils/uploader.js";
-import {
-  sendEmailChangeOTP,
-  sendSupportEmail,
-} from "../service/emailService.js";
+import { sendEmailChangeOTP } from "../service/emailService.js";
 import TempUser from "../models/TempUser.js";
 import { generateOTP } from "../utils/generateOTP.js";
 
@@ -305,7 +302,7 @@ export const getAllUsers = asyncHandler(async (req, res) => {
   const [users, totalUsers] = await Promise.all([
     User.find(query)
       .select(
-        "_id name email phoneNumber isVerified role profileImage dateOfBirth gender defaultAddress isActive lastLogin lastLoginDevice lastLoginIP loginAttempts",
+        "_id name email phoneNumber isVerified role profileImage dateOfBirth gender defaultAddress isActive totalOrders totalSpend lastOrderAt",
       )
       .sort({ createdAt: -1 })
       .skip(skip)
@@ -394,41 +391,5 @@ export const updateStatus = asyncHandler(async (req, res) => {
     message: `User ${
       user.isActive ? "activated successfully" : "deactivated successfully"
     }`,
-  });
-});
-
-// Helper function to generate unique request ID
-function generateRequestId() {
-  const timestamp = Date.now().toString().slice(-6);
-  const random = Math.floor(Math.random() * 10000)
-    .toString()
-    .padStart(4, "0");
-  return `${timestamp}${random}`;
-}
-
-export const sendSupportMessage = asyncHandler(async (req, res) => {
-  const userId = req.user?.userId;
-
-  const { message } = req.body;
-
-  if (!message) {
-    throw AppError.badRequest("Message is required", "MESSAGE_REQUIRED");
-  }
-
-  const user = await User.findById(userId);
-
-  if (!user) {
-    throw AppError.notFound("User not found", "USER_NOT_FOUND");
-  }
-
-  // generate request id
-  const requestId = generateRequestId();
-
-  await sendSupportEmail(user.email, user.name, message, requestId);
-
-  res.status(200).json({
-    success: true,
-    message: "Support request sent successfully",
-    requestId,
   });
 });

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import { cancelOrder, updateOrderStatus } from "../redux/cart/orderSlice";
@@ -9,6 +9,7 @@ import { div } from "framer-motion/m";
 import { ChevronLeft } from "lucide-react";
 import { toWords } from "number-to-words";
 import logo from "../assets/IconsUsed/HomeMainLogo.png";
+import axiosInstance from "../api/axiosInstance";
 
 // Helpers
 
@@ -110,19 +111,23 @@ export const generateInvoice = (order) => {
   let y = box1Y + 15;
   const soldX = left + 2;
 
-  doc.text("Name: LAZERCUT Pvt. Ltd", soldX, y);
+  doc.text("Name: Happy Art Supplies.", soldX, y);
   y += 5;
-  doc.text("Address: 123, Business Park,", soldX, y);
+  doc.text(
+    "B402, Unites Crossandra, Horamavu, Bengaluru ",
+    soldX,
+    y,
+  );
   y += 4.5;
-  doc.text("Sector-18, Gurugram,", soldX, y);
+  doc.text("5600 Horamavu,Sector-18, Karnataka,", soldX, y);
   y += 4.5;
-  doc.text("Haryana - 122015", soldX, y);
+  doc.text("Bengaluru 560043,Karnataka, India", soldX, y);
   y += 5;
-  doc.text("Phone No.: +91 5637573656", soldX, y);
+  doc.text("Phone No.: (+91) 98868 94723", soldX, y);
   y += 5;
-  doc.text("Email: support@lasercut.com", soldX, y);
+  doc.text("Email: happyartsupplies@gmail.com", soldX, y);
   y += 5;
-  doc.text("GSTIN: 06AAAAA0000A1Z5", soldX, y);
+  doc.text("GSTIN: ............", soldX, y);
 
   // Invoice details (right)
   const invX = midBox1 + 2;
@@ -143,12 +148,12 @@ export const generateInvoice = (order) => {
     y2,
   );
   y2 += 5;
-  doc.text(`Order ID: ${safeText(order?.orderId)}`, invX, y2);
+  doc.text(`Order ID: ${safeText(order?.orderNumber)}`, invX, y2);
   y2 += 5;
-  doc.text(`Order Date: ${formatDate(order?.orderDate)}`, invX, y2);
+  doc.text(`Order Date: ${formatDate(order?.placedAt)}`, invX, y2);
   y2 += 5;
   doc.text(
-    `Payment Status: ${safeText(order?.paymentStatus, "Paid")}`,
+    `Payment Status: ${safeText(order?.paymentStatus, "--")}`,
     invX,
     y2,
   );
@@ -362,11 +367,47 @@ export const generateInvoice = (order) => {
 
 const OrderDetail = () => {
   const dispatch = useDispatch();
-
   const navigate = useNavigate();
   const { orderId } = useParams();
-  const orders = useSelector((state) => state.order.list);
-  const order = orders?.find((val) => val.orderId.slice(1) === orderId);
+  // const orders = useSelector((state) => state.order.list);
+
+  const [order, setOrder] = useState(null); // original
+  const [filteredOrders, setFilteredOrders] = useState([]); // UI
+  const [openCancelModal, setOpenCancelModal] = useState(false);
+
+  // status in admin
+  const paidStatuses = ["paid", "success", "completed"];
+  const isPaid = paidStatuses.includes(
+    String(order?.paymentStatus || "").toLowerCase(),
+  );
+
+  const isCOD = String(order?.paymentMethod || "").toLowerCase() === "cod";
+
+  // item/order cancelled?
+  const hasAnyCancelledItem = (order?.items || []).some(
+    (it) => Number(it.cancelledQty || 0) > 0 || it.itemStatus === "Cancelled",
+  );
+
+  const isOrderCancelled =
+    String(order?.orderStatus || "").toLowerCase() === "cancelled";
+
+  useEffect(() => {
+    const fetchOrder = async () => {
+      try {
+        const res = await axiosInstance.get(`/order/${orderId}`);
+        console.log("order data", res.data.order);
+        setOrder(res.data.order);
+      } catch (err) {
+        console.error("Error fetching order:", err);
+      }
+    };
+
+    fetchOrder();
+  }, [orderId]);
+
+  const currentStatus = String(order?.status || "").toLowerCase();
+
+  // const order = orders?.find((val) => val._id === orderId);
 
   if (!order) {
     return (
@@ -375,23 +416,9 @@ const OrderDetail = () => {
       </div>
     );
   }
-  const [openCancelModal, setOpenCancelModal] = useState(false);
 
-  // status in admin
-  const paidStatuses = ["paid", "success", "completed"];
-  const isPaid = paidStatuses.includes(
-    String(order.paymentStatus || "").toLowerCase(),
-  );
-
-  const isCOD = String(order.paymentMethod || "").toLowerCase() === "cod";
-
-  // item/order cancelled?
-  const hasAnyCancelledItem = (order.items || []).some(
-    (it) => Number(it.cancelledQty || 0) > 0 || it.itemStatus === "Cancelled",
-  );
-
-  const isOrderCancelled =
-    String(order.orderStatus || "").toLowerCase() === "cancelled";
+  const steps = ["placed", "processing", "shipped", "delivered", "cancelled"];
+  const currentIndex = steps.indexOf(currentStatus);
 
   return (
     <div className="w-full p-6 sm:p-10 bg-white shadow rounded-lg font-inter">
@@ -419,7 +446,7 @@ const OrderDetail = () => {
                 onClick={() => {
                   // dispatch(cancelOrder(order.orderId));
                   setOpenCancelModal(false);
-                  navigate(`/accounts/order-detail/${orderId}/cancel`);
+                  navigate(`/accounts/order-detail/${order._id}/cancel`);
                 }}
                 className="px-4 py-2 rounded-lg bg-[#D53B35] text-white text-sm hover:bg-[#b92f2a]"
               >
@@ -442,9 +469,9 @@ const OrderDetail = () => {
           </h1>
 
           <div className="text-gray-600 mt-1 flex gap-2">
-            <span>Order Placed on {formatDate(order.orderDate)}</span>
+            <span>Order Placed on {formatDate(order.placedAt)}</span>
             <span>|</span>
-            <span>Order {order.orderId}</span>
+            <span>{order.orderNumber}</span>
           </div>
         </div>
         <button
@@ -456,7 +483,7 @@ const OrderDetail = () => {
       </div>
 
       {/* just change the status  */}
-      <div className="my-4 p-3 border rounded-lg bg-gray-50 flex items-center gap-3">
+      {/* <div className="my-4 p-3 border rounded-lg bg-gray-50 flex items-center gap-3">
         <p className="text-sm font-medium text-gray-700">
           DEV: Change Order Status
         </p>
@@ -479,22 +506,23 @@ const OrderDetail = () => {
           <option value="Delivered">Delivered</option>
           <option value="Cancelled">Cancelled</option>
         </select>
-      </div>
+      </div> */}
 
       {/* Customer & Shipping */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-8 mb-8 pb-4 border-b">
         <div>
           <h2 className="font-medium text-lg mb-3">Delivery Address</h2>
-          <p className="text-gray-800">{order.deliveryAddress.street}</p>
+          <p className="text-gray-800">{order.shippingAddress.address}</p>
           <p className="text-gray-600">
-            {order.deliveryAddress.city}, {order.deliveryAddress.state} -{" "}
-            {order.deliveryAddress.zip}
+            {order.shippingAddress.city}, {order.shippingAddress.state},
+            {order.shippingAddress.pinCode},{order.shippingAddress.country}
           </p>
-          {order.deliveryAddress.landmark && (
+          {/* {order.
+shippingAddress.landmark && (
             <p className="text-gray-500">
-              Landmark: {order.deliveryAddress.landmark}
+              Landmark: {order.shippingAddress.landmark}
             </p>
-          )}
+          )} */}
         </div>
         {/* Payment */}
         <div className="mb-8">
@@ -512,26 +540,31 @@ const OrderDetail = () => {
                 <li className="text-[#00A63E]">Discounts:</li>
                 <li>Platform Fee:</li>
                 <li>Delivery Charges:</li>
+                <li className="text-[#00A63E]">Applied Points:</li>
               </ul>
             </div>
             <div>
               <ul className="space-y-2">
-                <li>{order.items?.length > 0 && "--"}</li>
+                <li>{order.mrpTotal ? order.mrpTotal : "--"}</li>
                 <li className="text-[#00A63E]">
-                  {order.discount?.length > 0 && "--"}
+                  {order.totalDiscount ? order.totalDiscount : "--"}
                 </li>
-                <li>{order.fee ? order.fee : "--"}</li>
-                <li>{order.deliverycharges ? order.deliverycharges : "--"}</li>
+                <li>{order.platformFee ? order.platformFee : "--"}</li>
+                {/* <li>{order.platformFee ? order.platformFee : "--"}</li> */}
+                <li>{order.shippingCharge ? order.shippingCharge : "--"}</li>
+                <li className="text-[#00A63E]">
+                  -{order.discount ? order.discount : "--"}
+                </li>
               </ul>
             </div>
           </div>
           <div className="flex items-center justify-between border-t pt-3 text-[16px] font-medium">
             <p>Total Amount</p>
-            <span>{order.tatalAmout ? order.tatalAmout : "--"}</span>
+            <span>{order.grandTotal ? order.grandTotal : "--"}</span>
           </div>
         </div>
       </div>
-     
+
       {/* Items */}
       <div className="border p-3 rounded-lg">
         <h2 className="font-medium text-lg">Order Summary</h2>
@@ -585,26 +618,38 @@ const OrderDetail = () => {
               <div key={idx} className="flex items-start justify-between">
                 <div className="flex items-center gap-4 rounded-lg">
                   <img
-                    src={item.img}
-                    alt={item.name}
-                     crossOrigin="anonymous"
-  referrerPolicy="no-referrer"
+                    src={item.image?.url}
+                    alt={item?.image?.altText}
+                    crossOrigin="anonymous"
+                    referrerPolicy="no-referrer"
                     className="w-20 h-20 object-cover rounded border"
                   />
                   <div>
-                    <p className="font-medium text-gray-900">{item.name}</p>
-                    <p className="text-gray-600 text-sm">
-                      Color: {item.color || "--"}
+                    <p className="font-medium text-gray-900">
+                      {item.productTitle}
                     </p>
                     <p className="text-gray-600 text-sm">
-                      Size: {item.size || "--"}
+                      Color:{" "}
+                      <span className="text-black">
+                        {item.variantColor || "--"}
+                      </span>
+                    </p>
+                    <p className="text-gray-600 text-sm">
+                      Style Name:{" "}
+                      <span className="text-black">
+                        {item.variantName || "--"}
+                      </span>
+                    </p>
+                    <p className="text-[14px] text-gray-600">
+                      Quantity:{" "}
+                      <span className="text-black">{item.quantity}</span>
                     </p>
                   </div>
                 </div>
 
                 {/* ✅ Right side info */}
                 <div className="text-right">
-                  <p className="text-[14px]">Qty: {qty}</p>
+                  {/* <p className="text-[14px]">Qty: {item.quantity}</p> */}
 
                   {cancelled > 0 && (
                     <p className="text-[12px] text-red-600">
@@ -612,22 +657,22 @@ const OrderDetail = () => {
                     </p>
                   )}
 
-                  <p className="text-[12px] text-gray-600">
-                    Status: <span className="font-medium">{status}</span>
-                  </p>
+                  {/* <p className="text-[12px] text-gray-600">
+                    Status: <span className="font-medium">{item?.status}</span>
+                  </p> */}
                 </div>
 
                 {/* ✅ Badge */}
                 <span
                   className={`text-xs px-2 py-1 rounded ${
-                    status === "Cancelled"
+                    item?.status === "Cancelled"
                       ? "bg-red-50 text-red-600"
                       : status === "Partially Cancelled"
                         ? "bg-yellow-50 text-yellow-700"
                         : "bg-green-50 text-green-700"
                   }`}
                 >
-                  {status}
+                  {item?.status || status}
                 </span>
               </div>
             );
@@ -636,97 +681,107 @@ const OrderDetail = () => {
       </div>
 
       {/* Status Tracker */}
-      <div className="mt-8">
-        <h2 className="font-medium text-lg mb-4">Order Status</h2>
-        {/* Example tracker: Placed → Processing → Shipped → Delivered */}
-        <div className="flex items-center gap-4 text-sm">
-          {["Placed", "Processing", "Shipped", "Delivered", "Cancelled"].map(
-            (status, i) => (
-              <div key={i} className="flex items-center">
-                <span
-                  className={`w-4 h-4 rounded-full mr-2 
-    ${
-      order.orderStatus === "Cancelled"
-        ? "bg-red-600" // Cancelled → Red
-        : order.orderStatus === status ||
-            (order.orderStatus === "Delivered" &&
-              ["Placed", "Processing", "Shipped", "Delivered"].includes(status))
-          ? "bg-green-600"
-          : "bg-gray-300"
-    }
-  `}
-                ></span>
-                <span
-                  className={`${
-                    order.orderStatus === status
-                      ? "font-medium text-gray-900"
-                      : "text-gray-500"
-                  }`}
-                >
-                  {status}
-                </span>
-                {i < 3 && <span className="mx-3 text-gray-400">→</span>}
-              </div>
-            ),
-          )}
-        </div>
+
+      <div className="flex items-center gap-4 text-sm mt-4">
+        {["placed", "processing", "shipped", "delivered"].map((step, i) => (
+          <div key={i} className="flex items-center">
+            <span
+              className={`w-4 h-4 rounded-full mr-2 
+            ${
+              currentStatus === "cancelled"
+                ? "bg-red-600"
+                : currentStatus === step ||
+                    (currentStatus === "delivered" &&
+                      ["placed", "processing", "shipped", "delivered"].includes(
+                        step,
+                      ))
+                  ? "bg-green-600"
+                  : "bg-gray-300"
+            }
+          `}
+            ></span>
+
+            <span
+              className={`${
+                currentStatus === step
+                  ? "font-medium text-gray-900"
+                  : "text-gray-500"
+              }`}
+            >
+              {step.charAt(0).toUpperCase() + step.slice(1)}
+            </span>
+
+            {i < 3 && <span className="mx-3 text-gray-400">→</span>}
+          </div>
+        ))}
       </div>
 
       {/* Tracking Info */}
-      {order.orderStatus !== "Delivered" && (
+      {currentStatus !== "delivered" && (
         <div className="flex flex-col sm:flex-row gap-4 mt-6">
-          {order.orderStatus === "Shipped" && (
+          {currentStatus === "shipped" && (
             <p className="text-gray-600 text-sm">
               Tracking ID:{" "}
               <span className="font-medium text-[#1C1C1C]">
-                {order.trackingId ? order.trackingId : "--"}
+                {order?.tracking?.trackingNumber
+                  ? order?.tracking?.trackingNumber
+                  : "--"}
+              </span>
+            </p>
+          )}
+          <span className="text-gray-400 hidden sm:block">|</span>
+          {currentStatus === "shipped" && (
+            <p className="text-gray-600 text-sm">
+              Tracking URL:{" "}
+              <span className="font-medium text-[#1C1C1C]">
+                {order?.tracking?.trackingUrl
+                  ? order?.tracking?.trackingUrl
+                  : "--"}
               </span>
             </p>
           )}
 
-          <span className="text-gray-400 hidden sm:block">|</span>
-
-          <p className="text-gray-600 text-sm">
+          {/* <p className="text-gray-600 text-sm">
             Expected Delivery:{" "}
             <span className="font-medium text-[#1C1C1C]">
               {order.deliveryDate ? order.deliveryDate : "--"}
             </span>
-          </p>
+          </p> */}
         </div>
       )}
       <div className="mt-2">
-         {(isOrderCancelled || hasAnyCancelledItem) && (
-        <div
-          className={`mb-6 rounded-lg border p-4 text-sm ${
-            isPaid && !isCOD
-              ? "bg-green-50 border-green-200 text-green-800"
-              : "bg-yellow-50 border-yellow-200 text-yellow-800"
-          }`}
-        >
-          {isCOD ? (
-            <p>
-              Cancellation confirmed. Since this is <b>COD</b>, no refund is
-              required.
-            </p>
-          ) : isPaid ? (
-            <p>
-              Cancellation confirmed. Payment was already received, so a{" "}
-              <b>refund will be initiated</b>. Refund usually takes{" "}
-              <b>5–7 business days</b>.
-            </p>
-          ) : (
-            <p>
-              Cancellation confirmed. Payment is not completed yet, so no refund
-              is required.
-            </p>
-          )}
-        </div>
-      )}
+        {(isOrderCancelled || hasAnyCancelledItem) && (
+          <div
+            className={`mb-6 rounded-lg border p-4 text-sm ${
+              isPaid && !isCOD
+                ? "bg-green-50 border-green-200 text-green-800"
+                : "bg-yellow-50 border-yellow-200 text-yellow-800"
+            }`}
+          >
+            {isCOD ? (
+              <p>
+                Cancellation confirmed. Since this is <b>COD</b>, no refund is
+                required.
+              </p>
+            ) : isPaid ? (
+              <p>
+                Cancellation confirmed. Payment was already received, so a{" "}
+                <b>refund will be initiated</b>. Refund usually takes{" "}
+                <b>5–7 business days</b>.
+              </p>
+            ) : (
+              <p>
+                Cancellation confirmed. Payment is not completed yet, so no
+                refund is required.
+              </p>
+            )}
+          </div>
+        )}
       </div>
       {/* Actions */}
       <div className="flex flex-wrap gap-4 mt-6">
         {/* When Processing */}
-        {order.orderStatus === "Processing" && (
+        {currentStatus === "processing" && (
           <>
             {/* <button
               onClick={() => setOpenCancelModal(true)}
@@ -737,9 +792,7 @@ const OrderDetail = () => {
 
             <button
               className="bg-[#1C3753] text-white px-6 py-2 rounded-md text-sm hover:bg-[#15314f] transition-colors"
-              onClick={() =>
-                navigate(`/order-history/${order.orderId.slice(1)}`)
-              }
+              onClick={() => navigate(`/order-history/${order._id}`)}
             >
               Track Order
             </button>
@@ -747,7 +800,7 @@ const OrderDetail = () => {
         )}
 
         {/* When Shipped */}
-        {order.orderStatus === "Shipped" && (
+        {currentStatus === "shipped" && (
           <>
             <button
               onClick={() => generateInvoice(order)}
@@ -759,30 +812,33 @@ const OrderDetail = () => {
         )}
 
         {/* When Delivered */}
-        {order.orderStatus === "Delivered" && (
+        {currentStatus === "delivered" && (
           <>
-            <Link
-              to={`/accounts/order-detail/${orderId}/return`}
+            {/* <Link
+              to={`/accounts/_id/${orderId}/return`}
               className="bg-red-400 text-white px-6 py-2 rounded-md text-sm hover:bg-red-600 transition-colors"
             >
               Return / Replace
-            </Link>
+            </Link> */}
           </>
         )}
       </div>
 
       {/* Extra Info when Delivered */}
-      {order.orderStatus === "Delivered" && (
+      {currentStatus === "delivered" && (
         <div className="mt-6 text-sm text-gray-600">
           <p>
-            Delivered on{" "}
-            <span className="font-medium">{order.deliveryDate}</span>
+            Delivered on-{" "}
+            <span className="font-medium text-black">
+              {formatDate(order.deliveredAt)}
+            </span>
           </p>
-          <p>
-            *Refund will be initiated within 14 days after your return is picked
-            up. Once we initiate your refund, it takes up to 7 days for your
-            bank to credit the refund in your account.{" "}
-            <span className="font-medium">{order.returnEligibleDate}</span>
+          <p className="mt-2 text-xs">
+            <b>Terms & Conditions</b>- No changes or cancellations after order
+            confirmation. Delays/unavailability will be informed within 1–2
+            working days. <br /> <b>Delivery Policy</b>- Customer errors may incur
+            RTO/reshipment charges. Report wrong delivery within 24 hours. Extra
+            shipping charges apply above 10 kg.
           </p>
         </div>
       )}

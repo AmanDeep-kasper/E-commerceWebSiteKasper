@@ -75,6 +75,10 @@ const OrderSchema = new mongoose.Schema(
     shippingAddress: { type: ShippingAddressSchema, required: true },
 
     // Financial (all in INR paise-safe floats)
+    mrpTotal: { type: Number, default: 0 },
+    totalDiscount: { type: Number, default: 0 },
+    platformFee: { type: Number, default: 0 },
+    discount: { type: Number, default: 0 },
     subtotal: { type: Number, required: true },
     totalGST: { type: Number, default: 0 },
     shippingCharge: { type: Number, default: 0 },
@@ -141,6 +145,8 @@ const OrderSchema = new mongoose.Schema(
 OrderSchema.index({ user: 1, createdAt: -1 });
 OrderSchema.index({ status: 1, createdAt: -1 });
 OrderSchema.index({ paymentStatus: 1, status: 1 });
+OrderSchema.index({ createdAt: -1 });
+OrderSchema.index({ paymentStatus: 1, createdAt: -1 });
 
 // Auto-generate orderNumber before first save
 OrderSchema.pre("save", async function (next) {

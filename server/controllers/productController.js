@@ -155,163 +155,6 @@ export const addProduct = asyncHandler(async (req, res) => {
   });
 });
 
-// export const adminGetAllProducts = asyncHandler(async (req, res) => {
-//   const {
-//     page = 1,
-//     limit = 10,
-//     search,
-//     category,
-//     status,
-//     sortBy = "latest",
-//   } = req.query;
-
-//   const pageNum = parseInt(page);
-//   const limitNum = parseInt(limit);
-//   const skip = (pageNum - 1) * limitNum;
-
-//   // 🔍 MATCH STAGE
-//   const matchStage = {};
-
-//   // ✅ STATUS FILTER
-//   if (status === "active") matchStage.isActive = true;
-//   if (status === "inactive") matchStage.isActive = false;
-//   if (status === "draft") matchStage.isActive = false;
-
-//   // 🔍 SEARCH (name, slug, sku)
-//   if (search) {
-//     matchStage.$or = [
-//       { productTittle: { $regex: search, $options: "i" } },
-//       { slug: { $regex: search, $options: "i" } },
-//       { "variants.variantSkuId": { $regex: search, $options: "i" } },
-//     ];
-//   }
-
-//   // 🧠 SORT LOGIC
-//   let sortStage = {};
-
-//   switch (sortBy) {
-//     case "latest":
-//       sortStage = { createdAt: -1 };
-//       break;
-
-//     case "oldest":
-//       sortStage = { createdAt: 1 };
-//       break;
-
-//     case "atoz":
-//       sortStage = { productTittle: 1 };
-//       break;
-
-//     case "ztoa":
-//       sortStage = { productTittle: -1 };
-//       break;
-
-//     case "lowtohigh":
-//       sortStage = { "variants.variantSellingPrice": 1 };
-//       break;
-
-//     case "hightolow":
-//       sortStage = { "variants.variantSellingPrice": -1 };
-//       break;
-
-//     default:
-//       sortStage = { createdAt: -1 };
-//   }
-
-//   // 🚀 AGGREGATION
-//   const pipeline = [
-//     { $match: matchStage },
-
-//     // 🔗 Join category (for name search/filter)
-//     {
-//       $lookup: {
-//         from: "categories",
-//         localField: "category",
-//         foreignField: "_id",
-//         as: "categoryData",
-//       },
-//     },
-//     {
-//       $unwind: {
-//         path: "$categoryData",
-//         preserveNullAndEmptyArrays: true,
-//       },
-//     },
-//   ];
-
-//   // ✅ CATEGORY NAME FILTER
-//   if (category) {
-//     pipeline.push({
-//       $match: {
-//         "categoryData.name": { $regex: category, $options: "i" },
-//       },
-//     });
-//   }
-
-//   // ✅ SEARCH ALSO IN CATEGORY NAME
-//   if (search) {
-//     pipeline.push({
-//       $match: {
-//         $or: [
-//           { productTittle: { $regex: search, $options: "i" } },
-//           { slug: { $regex: search, $options: "i" } },
-//           { "variants.variantSkuId": { $regex: search, $options: "i" } },
-//           { "categoryData.name": { $regex: search, $options: "i" } },
-//         ],
-//       },
-//     });
-//   }
-
-//   // 📊 SORT
-//   pipeline.push({ $sort: sortStage });
-
-//   // 📄 PAGINATION
-//   pipeline.push({ $skip: skip });
-//   pipeline.push({ $limit: limitNum });
-
-//   // 🎯 CLEAN RESPONSE
-//   pipeline.push({
-//     $project: {
-//       productTittle: 1,
-//       slug: 1,
-//       isActive: 1,
-//       createdAt: 1,
-//       category: "$categoryData.name",
-//       firstImage: {
-//         $arrayElemAt: [{ $arrayElemAt: ["$variants.variantImage.url", 0] }, 0],
-//       },
-//       price: {
-//         $arrayElemAt: ["$variants.variantSellingPrice", 0],
-//       },
-//     },
-//   });
-
-//   // 🚀 EXECUTE
-//   const products = await Product.aggregate(pipeline);
-
-//   // ⚠️ TOTAL COUNT (important)
-//   const totalPipeline = [
-//     ...pipeline.filter(
-//       (stage) => !stage.$skip && !stage.$limit && !stage.$sort,
-//     ),
-//     { $count: "total" },
-//   ];
-//   const totalResult = await Product.aggregate(totalPipeline);
-//   const total = totalResult[0]?.total || 0;
-
-//   res.status(200).json({
-//     success: true,
-//     message: "Products fetched successfully",
-//     data: products,
-//     pagination: {
-//       total,
-//       page: pageNum,
-//       limit: limitNum,
-//       totalPages: Math.ceil(total / limitNum),
-//     },
-//   });
-// });
-
 export const adminGetAllProducts = asyncHandler(async (req, res) => {
   const {
     page = 1,
@@ -390,9 +233,10 @@ export const adminGetAllProducts = asyncHandler(async (req, res) => {
     Product.countDocuments(filter),
   ]);
 
-  const [activeCount, inactiveCount] = await Promise.all([
+  const [activeCount, inactiveCount, draftCount] = await Promise.all([
     Product.countDocuments({ ...filter, isActive: true }),
     Product.countDocuments({ ...filter, isActive: false }),
+    Product.countDocuments({ ...filter, isDraft: true }),
   ]);
 
   // ✅ PROCESS DATA (same structure as userGetAllProducts)
@@ -444,6 +288,7 @@ export const adminGetAllProducts = asyncHandler(async (req, res) => {
       total: total || 0,
       active: activeCount || 0,
       inactive: inactiveCount || 0,
+      draft: draftCount || 0,
     },
   });
 });
@@ -851,16 +696,6 @@ export const userGetAllProducts = asyncHandler(async (req, res) => {
 
   const filter = {};
 
-  // // ✅ CATEGORY FILTER (ObjectId)
-  // if (category && mongoose.Types.ObjectId.isValid(category)) {
-  //   filter.category = category;
-  // }
-
-  // // ✅ SUBCATEGORY FILTER
-  // if (subcategory && mongoose.Types.ObjectId.isValid(subcategory)) {
-  //   filter.subcategory = subcategory;
-  // }
-
     // ✅ CATEGORY FILTER (by ID or by name from URL)
   if (category) {
     // Check if category is an ID or a name
@@ -900,11 +735,11 @@ export const userGetAllProducts = asyncHandler(async (req, res) => {
   let sort = {};
 
   switch (sortBy) {
-    case "price_low":
+    case "lowtohigh":
       sort = { "variants.variantSellingPrice": 1 };
       break;
 
-    case "price_high":
+    case "hightolow":
       sort = { "variants.variantSellingPrice": -1 };
       break;
 
@@ -916,11 +751,11 @@ export const userGetAllProducts = asyncHandler(async (req, res) => {
       sort = { createdAt: 1 };
       break;
 
-    case "az":
+    case "atoz":
       sort = { productTittle: 1 };
       break;
 
-    case "za":
+    case "ztoa":
       sort = { productTittle: -1 };
       break;
 

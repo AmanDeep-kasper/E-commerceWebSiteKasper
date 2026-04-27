@@ -52,14 +52,9 @@ const PaymentSchema = new mongoose.Schema(
     amount: { type: Number, required: true },
     currency: { type: String, default: "INR" },
 
-    razorpayOrderId: { type: String, index: true },
-
-    razorpayPaymentId: {
-      type: String,
-      sparse: true,
-      index: true,
-    },
-    razorpaySignature: { type: String },
+    razorpayOrderId: String,
+    razorpayPaymentId: String,
+    razorpaySignature: String,
 
     method: {
       type: String,
@@ -120,6 +115,11 @@ const PaymentSchema = new mongoose.Schema(
 // Compound indexes
 PaymentSchema.index({ order: 1, status: 1 });
 PaymentSchema.index({ user: 1, createdAt: -1 });
+PaymentSchema.index({ createdAt: -1 });
+PaymentSchema.index({ status: 1, createdAt: -1 });
+PaymentSchema.index({ method: 1 });
+PaymentSchema.index({ razorpayPaymentId: 1 });
+PaymentSchema.index({ razorpayOrderId: 1 });
 
 // Instance method: add a refund
 PaymentSchema.methods.addRefund = async function ({

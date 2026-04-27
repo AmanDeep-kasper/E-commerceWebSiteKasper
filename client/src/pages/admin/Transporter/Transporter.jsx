@@ -43,7 +43,7 @@ const Transporter = () => {
 
   // Select all checkboxes
   const handleSelectAll = (e) => {
-    const visibleIds = currentItems.map((item) => getId(item));
+    const visibleIds = currentItems.map((item) => item._id);
 
     if (e.target.checked) {
       setSelectedItems((prev) => [...new Set([...prev, ...visibleIds])]);
@@ -72,11 +72,9 @@ const Transporter = () => {
   const [debouncedSearch, setDebouncedSearch] = useState("");
 
   // Debounce logic usestate
-
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(search.trim().toLowerCase());
-      setCurrentPage(1);
     }, 500);
 
     return () => clearTimeout(timer);
@@ -88,32 +86,8 @@ const Transporter = () => {
   const [selectedStatus, setSelectedStatus] = useState("Status");
   const [selectedCategory, setSelectedCategory] = useState("Category");
 
-  // 🔹 Filter products by debouncedSearch
-  let filteredProducts = Array.isArray(product)
-    ? product.filter((p) => {
-        const searchMatch =
-          (p.transporterName || "").toLowerCase().includes(debouncedSearch) ||
-          (p.registrationNumber || "").toLowerCase().includes(debouncedSearch);
+  const categories = ["Forward", "Return", "Both"];
 
-        const statusMatch =
-          selectedStatus === "All Status" ||
-          selectedStatus === "Status" ||
-          (selectedStatus === "Active" && p.isActive) ||
-          (selectedStatus === "Inactive" && !p.isActive);
-
-        const categoryMatch =
-          selectedCategory === "Category" || p.category === selectedCategory;
-
-        return searchMatch && statusMatch && categoryMatch;
-      })
-    : [];
-
-  const [selectedSort, setSelectedSort] = useState("Latest");
-  // Apply category filter
-  // const categories = ["Forward", "Return", "Both"];
-
-  ///////////////////////////////////
-  // Sorting options
   const priceOptions = [
     "Latest",
     "Oldest",
@@ -121,40 +95,30 @@ const Transporter = () => {
     "Alphabetical (Z–A)",
   ];
 
-  // Apply sorting
-  if (selectedSort === "Latest") {
-    filteredProducts.sort(
-      (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
-    );
-  } else if (selectedSort === "Oldest") {
-    filteredProducts.sort(
-      (a, b) => new Date(a.createdAt) - new Date(b.createdAt),
-    );
-  } else if (selectedSort === "Alphabetical (A–Z)") {
-    filteredProducts.sort((a, b) =>
-      (a.transporterName || "").localeCompare(b.transporterName || ""),
-    );
-  } else if (selectedSort === "Alphabetical (Z–A)") {
-    filteredProducts.sort((a, b) =>
-      (b.transporterName || "").localeCompare(a.transporterName || ""),
-    );
-  }
+  const [selectedSort, setSelectedSort] = useState("Latest");
 
-  /////////////////////////////////
-  // 🔹 Then paginate filtered list
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
   const itemsPerPage = 10;
-  const currentItems = filteredProducts;
+  const currentItems = product;
 
-  // useEffect(() => {
   const fetchProduct = async () => {
     try {
       setLoading(true);
 
+      // Map frontend filter values to backend parameters
+      let statusParam = "";
+      if (selectedStatus === "Active") statusParam = "active";
+      if (selectedStatus === "Inactive") statusParam = "inactive";
+
+      let sortByParam = "latest";
+      if (selectedSort === "Oldest") sortByParam = "oldest";
+      if (selectedSort === "Alphabetical (A–Z)") sortByParam = "az";
+      if (selectedSort === "Alphabetical (Z–A)") sortByParam = "za";
+
       const res = await axiosInstance.get(
-        `/dashboard/transport?page=${currentPage}&limit=${itemsPerPage}`,
+        `/dashboard/transport?page=${currentPage}&limit=${itemsPerPage}&search=${debouncedSearch}&status=${statusParam}&sortBy=${sortByParam}`,
       );
 
       const response = res.data;
@@ -170,11 +134,15 @@ const Transporter = () => {
       setLoading(false);
     }
   };
-  // }, []);
 
   useEffect(() => {
     fetchProduct();
-  }, [currentPage]);
+  }, [currentPage, debouncedSearch, selectedStatus, selectedSort]);
+
+  // Reset page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [debouncedSearch, selectedStatus, selectedSort]);
 
   //  Check if all visible rows are selected
   const allVisibleSelected =
@@ -306,7 +274,7 @@ const Transporter = () => {
     try {
       await toast.promise(
         axiosInstance.post(
-          `/dashboard/transport/add-transporter?page=${currentPage}&limit=10`,
+          "/dashboard/transport/add-transporter",
           payload,
         ),
         {
@@ -324,6 +292,7 @@ const Transporter = () => {
 
       resetForm();
       setIsAddModalOpen(false);
+      fetchProduct();
     } catch (error) {
       console.error("Error:", error.response?.data || error.message);
     }
@@ -595,38 +564,34 @@ const Transporter = () => {
             </table>
 
             {/* Pagination */}
-            <div className="flex justify-end items-center gap-2 px-6 py-4 border-t">
-              <button
-                className="px-3 py-1 border rounded"
-                onClick={() => setCurrentPage((p) => p - 1)}
-                disabled={currentPage === 1}
-              >
-                ‹
-              </button>
-              {/* {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                (page) => (
-                  <button
-                    key={page}
-                    className={`px-3 py-1 border rounded ${
-                      page === currentPage ? "bg-[#212121] text-white" : ""
-                    }`}
-                    onClick={() => setCurrentPage(page)}>
-                    {page}
-                  </button>
-                )
-              )} */}
-              <div className="px-4 py-1.5 border rounded text-sm text-gray-700">
-                Page {String(currentPage).padStart(2, "0")} of{" "}
-                {String(totalPages).padStart(2, "0")}
+            <div className="flex justify-between items-center px-6 py-4 border-t text-sm text-gray-600">
+              <div>
+                Showing <span className="font-medium">{(currentPage - 1) * itemsPerPage + 1}</span>–
+                <span className="font-medium">{Math.min(currentPage * itemsPerPage, totalItems)}</span> of{" "}
+                <span className="font-medium">{totalItems}</span> results
               </div>
 
-              <button
-                className="px-3 py-1 border rounded"
-                onClick={() => setCurrentPage((p) => p + 1)}
-                disabled={currentPage === totalPages}
-              >
-                ›
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  className="px-3 py-1 border rounded disabled:opacity-40"
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                >
+                  ‹
+                </button>
+                <div className="px-4 py-1.5 border rounded text-sm text-gray-700">
+                  Page {String(currentPage).padStart(2, "0")} of{" "}
+                  {String(totalPages).padStart(2, "0")}
+                </div>
+
+                <button
+                  className="px-3 py-1 border rounded disabled:opacity-40"
+                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                >
+                  ›
+                </button>
+              </div>
             </div>
           </div>
         </div>

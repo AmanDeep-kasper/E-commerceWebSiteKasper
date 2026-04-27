@@ -74,9 +74,9 @@ const ProductSchema = new mongoose.Schema(
     subcategory: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "SubCategory",
-      required: function () {
-        return !this.isDraft;
-      },
+      // required: function () {
+      //   return !this.isDraft;
+      // },
       index: true,
     },
 
@@ -124,6 +124,12 @@ ProductSchema.index({ category: 1, subcategory: 1 });
 ProductSchema.index({ status: 1, "stats.averageRating": -1 });
 ProductSchema.index({ "variants.variantSellingPrice": 1 });
 ProductSchema.index({ createdAt: -1 });
+ProductSchema.index({ isActive: 1, isDraft: 1 });
+ProductSchema.index({
+  isActive: 1,
+  isDraft: 1,
+  "variants.variantAvailableStock": 1,
+});
 
 // ✅ AUTO SLUG GENERATION (CREATE + UPDATE)
 ProductSchema.pre("save", function (next) {

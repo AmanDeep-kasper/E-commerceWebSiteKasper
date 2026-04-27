@@ -205,58 +205,125 @@ export const sendEmailChangeOTP = async (email, otp, name = "User") => {
     `,
   };
 
-  // const transporter = getTransporter();
   await transporter.sendMail(mailOptions);
 };
 
-// SUPPORT EMAIL (Professional & Minimal)
-export const sendSupportEmail = async (email, name, message, requestId) => {
+export const sendShippingConfirmationEmail = async (
+  email,
+  name,
+  orderId,
+  productDetails,
+) => {
   const mailOptions = {
-    from: `"${name}" <${email}>`,
-    to: env.SMTP_FROM_EMAIL,
-    subject: `Support Request (#${requestId}) - HappyArtSupplies`,
-
+    from: `"${env.SMTP_FROM_NAME}" <${env.SMTP_FROM_EMAIL}>`,
+    to: email,
+    subject: `Your order #${orderId} is on its way! 🚚`,
     html: `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; color: #333;">
-        
-        <p>Hello,</p>
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      </head>
+      <body style="margin: 0; padding: 0; background-color: #f4f6f9; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f6f9; padding: 40px 0;">
+          <tr>
+            <td align="center">
+              <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);">
+                
+                <!-- Header -->
+                <tr>
+                  <td style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 48px 40px; text-align: center;">
+                    <div style="font-size: 48px; margin-bottom: 16px;">📦</div>
+                    <h1 style="color: #ffffff; font-size: 28px; font-weight: 700; margin: 0 0 8px; letter-spacing: -0.5px;">Your Order Has Shipped!</h1>
+                    <p style="color: rgba(255, 255, 255, 0.9); font-size: 16px; margin: 0; line-height: 1.5;">Great news, ${name} — your package is on the way!</p>
+                  </td>
+                </tr>
 
-        <p>You have received a new support request from a user.</p>
+                <!-- Order Info -->
+                <tr>
+                  <td style="padding: 40px 40px 0;">
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color: #f8fafc; border-radius: 12px; padding: 24px;">
+                      <tr>
+                        <td>
+                          <p style="color: #64748b; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin: 0 0 8px;">Order Number</p>
+                          <p style="color: #1e293b; font-size: 18px; font-weight: 700; margin: 0; letter-spacing: -0.3px;">#${orderId}</p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
 
-        <p><strong>Request ID:</strong> #${requestId}</p>
+                <!-- Products Section -->
+                <tr>
+                  <td style="padding: 32px 40px 40px;">
+                    <h2 style="color: #1e293b; font-size: 18px; font-weight: 700; margin: 0 0 20px; letter-spacing: -0.3px;">Items in Your Shipment</h2>
+                    
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse: collapse;">
+                      ${productDetails
+                        .map(
+                          (product, index) => `
+                        <tr>
+                          <td style="padding: 16px 0; ${index !== productDetails.length - 1 ? "border-bottom: 1px solid #e2e8f0;" : ""}">
+                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                              <tr>
+                                <td width="48" style="vertical-align: top; padding-right: 16px;">
+                                  <div style="width: 48px; height: 48px; background-color: #f1f5f9; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px;">
+                                    📱
+                                  </div>
+                                </td>
+                                <td style="vertical-align: top;">
+                                  <p style="color: #1e293b; font-size: 15px; font-weight: 600; margin: 0 0 4px;">${product.name || "Product"}</p>
+                                  <p style="color: #64748b; font-size: 13px; margin: 0; line-height: 1.5;">
+                                    ${product.variant ? `Variant: ${product.variant} · ` : ""}
+                                    Qty: ${product.quantity || 1}
+                                  </p>
+                                </td>
+                                <td style="vertical-align: top; text-align: right;">
+                                  <p style="color: #1e293b; font-size: 15px; font-weight: 700; margin: 0; white-space: nowrap;">${product.price || ""}</p>
+                                </td>
+                              </tr>
+                            </table>
+                          </td>
+                        </tr>
+                      `,
+                        )
+                        .join("")}
+                    </table>
+                  </td>
+                </tr>
 
-        <hr style="margin: 16px 0;" />
+                <!-- CTA Button -->
+                <tr>
+                  <td style="padding: 0 40px 40px;">
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td align="center" style="background-color: #6366f1; border-radius: 12px; padding: 16px 32px;">
+                          <a href="${env.FRONTEND_URL || "#"}/orders/${orderId}" style="color: #ffffff; font-size: 16px; font-weight: 600; text-decoration: none; display: block; letter-spacing: -0.2px;">Track Your Package →</a>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
 
-        <p><strong>Name:</strong> ${name}</p>
-        <p><strong>Email:</strong> ${email}</p>
+                <!-- Footer -->
+                <tr>
+                  <td style="background-color: #f8fafc; padding: 32px 40px; text-align: center; border-top: 1px solid #e2e8f0;">
+                    <p style="color: #94a3b8; font-size: 13px; line-height: 1.6; margin: 0 0 8px;">
+                      Questions about your order? Simply reply to this email or contact our support team.
+                    </p>
+                    <p style="color: #cbd5e1; font-size: 12px; margin: 0;">
+                      © ${new Date().getFullYear()} ${env.COMPANY_NAME || "Company Name"}. All rights reserved.
+                    </p>
+                  </td>
+                </tr>
 
-        <p><strong>Message:</strong></p>
-        <p style="background:#f9f9f9; padding:12px; border-radius:6px;">
-          ${message || "No message provided"}
-        </p>
-
-        <br/>
-
-        <p>Regards,<br/>${name}</p>
-
-      </div>
-    `,
-
-    text: `
-Support Request (#${requestId}) - HappyArtSupplies
-
-Hello,
-
-You have received a new support request.
-
-Name: ${name}
-Email: ${email}
-
-Message:
-${message || "No message provided"}
-
-Regards,
-${name}
+              </table>
+            </td>
+          </tr>
+        </table>
+      </body>
+      </html>
     `,
   };
 
