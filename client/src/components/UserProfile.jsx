@@ -26,16 +26,12 @@ const accountDetails = [
   { listName: "Manage Addresses", listIcon: MapPinHouse, path: "/addresses" },
   { listName: "Support & Help", listIcon: Headset, path: "/support" },
   { listName: "Rating & Reviews", listIcon: Star, path: "/reviews" },
-  { listName: "Reward Points" ,listIcon: Component , path: "/reward"}
+  // { listName: "Reward Points" ,listIcon: Component , path: "/reward"}a
 ];
 
 function UserProfile({ setIsProfileOpen }) {
   //  Redux state
   const { user, isAuthenticated } = useSelector((state) => state.user);
-  // console.log("user", user);
-
-  // console.log(user);
-  // console.log(isAuthenticated);
 
   return (
     <div className="h-max md:w-[413px] sm:w-[350px] w-[280px] overflow-hidden mx-auto bg-white z-50 ">
