@@ -21,6 +21,9 @@ const AddProduct = () => {
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { id } = useParams();
+  const isEditing = Boolean(id);
+  const [newVariants, setNewVariants] = useState([]);
   // const { loading, error } = useSelector((state) => state.product);
   const { uuid } = useParams();
 
@@ -102,13 +105,18 @@ const AddProduct = () => {
     const newVariant = {
       ...emptyVariant(),
       variantSkuId: `${productSKU}-V-${randomNum}`,
+      isNew: true,
     };
-
+if(isEditing) {
+  // In edit mode, add to a seprate array or mark as 
+  setNewVariants((prev) => [...prev, newVariant]);
+} else {
     setFormData((prev) => ({
       ...prev,
       variants: [...prev.variants, newVariant],
     }));
-  };
+  }
+};
 
   // const addVariantRow = () => {
   //   const productSKU = formData.SKU?.trim();
@@ -200,6 +208,8 @@ const AddProduct = () => {
             variantAvailableStock: variant.variantAvailableStock || "",
             variantLowStockAlertStock: variant.variantLowStockAlertStock || "",
             isSelected: variant.isSelected || false,
+            isNew: false, // Mark existing variants(read only)
+            isExisting: true, // flag for exisitng variant
           }));
 
           setFormData({
@@ -376,6 +386,7 @@ const AddProduct = () => {
       return { ...prev, variants };
     });
   };
+  const allVariants = [...formData.variants, ...newVariants];
 
   //  Handle image upload per variant
   const handleVariantImageChange = async (e, index) => {
@@ -405,18 +416,34 @@ const AddProduct = () => {
       );
 
       const uploadedImages = res.data.data;
+      // Get the variant at this index from allVariants
+    const variantAtIndex = allVariants[index];
+    const isNewVariantAtIndex = variantAtIndex?.isNew === true;
+
+    if (isNewVariantAtIndex) {
+      // Update the newVariants array
+      const newVariantIndex = index - formData.variants.length;
+      const updated = [...newVariants];
+      const existingImages = updated[newVariantIndex]?.variantImage || [];
+      updated[newVariantIndex] = {
+        ...updated[newVariantIndex],
+        variantImage: [...existingImages, ...uploadedImages].slice(0, 10),
+      };
+      setNewVariants(updated);
+    } else {
 
       setFormData((prev) => {
         const updatedVariants = [...prev.variants];
-        const existingImages = updatedVariants[index].variantImage || [];
+        const existingImages = updatedVariants[index]?.variantImage || [];
 
-        updatedVariants[index].variantImage = [
-          ...existingImages,
-          ...uploadedImages,
-        ].slice(0, 10);
+        updatedVariants[index] = {
+          ...updatedVariants[index],
+          variantImage: [...existingImages, ...uploadedImages].slice(0, 10),
+        };
 
         return { ...prev, variants: updatedVariants };
       });
+    }
 
       toast.success("Images uploaded successfully!");
     } catch (err) {
@@ -1017,7 +1044,9 @@ const AddProduct = () => {
   };
 
   const openVariantImages = (variantIndex) => {
-    const imgs = formData.variants[variantIndex]?.variantImage || [];
+    // const imgs = formData.variants[variantIndex]?.variantImage || [];
+     const variant = allVariants[variantIndex];
+    const imgs = variant.variantImage || [];
 
     setActiveVariantIndex(variantIndex);
     setSelectedImages(imgs);
@@ -1151,6 +1180,7 @@ const AddProduct = () => {
 
     loadSubcategories();
   }, [formData.category, categories]);
+
 
   if (loadingProduct) {
     return (
@@ -1379,6 +1409,9 @@ const AddProduct = () => {
                       <div className="relative w-full">
                         {isEditing ? (
                           <div className="w-full h-[48px] px-4 rounded-xl bg-gray-100 text-gray-600 flex items-center border border-gray-200">
+                            {categories.find(
+                              (cat) => cat._id === formData.category,
+                            )?.name || "Not selected"}
                             {categories.find(cat => cat._id === formData.category)?.name || "Not selected"}
                           </div>
                         ) : (
@@ -1541,6 +1574,8 @@ const AddProduct = () => {
                 <div className="overflow-x-auto rounded-t-xl">
                   <table className="w-full min-w-[1200px] text-sm">
                     <thead className="bg-[#F5F8FA]">
+                      <tr>
+                        {/* <th className="px-3 py-2 text-left">
                       <tr className="">
                         <th className="px-3 py-2 text-left">
                           <input
@@ -1553,7 +1588,7 @@ const AddProduct = () => {
                               toggleSelectAllVariants(e.target.checked)
                             }
                           />
-                        </th>
+                        </th> */}
                         <th className="px-3 py-2 text-left font-medium">
                           Color
                         </th>
@@ -1590,39 +1625,48 @@ const AddProduct = () => {
                     </thead>
 
                     <tbody>
-                      {formData.variants.map((variant, index) => (
+                      {allVariants.map((variant, index) => {
+                        const isExisting = variant.isExisting === true;
+                        const isNewVariant = variant.isNew === true;
+                        const actualIndex = index;
+                        return (
                         <tr
-                          key={variant.variantSkuId}
+                          key={variant.variantSkuId || index}
                           className="hover:bg-gray-50 border-b"
                         >
                           {/* Checkbox */}
-                          <td className="px-3 py-2">
+                          {/* <td className="px-3 py-2">
                             <input
                               type="checkbox"
                               checked={!!variant.isSelected}
                               onChange={() => toggleVariantSelect(index)}
                             />
-                          </td>
+                          </td> */}
 
                           <td className="px-3 py-1">
-                            {isEditing ? (
+                            {isExisting ? (
                               <div className="w-[140px] rounded-md border px-3 py-1 text-sm bg-gray-100 text-gray-600 min-h-[36px]">
                                 {variant.variantColor || "-"}
                               </div>
                             ) : (
+                              // Editable for new variants
                               <div className="flex flex-wrap items-center gap-2 rounded-lg p-2 w-[140px]">
                                 <select
-                                  value={variant.variantColor || ""}
-                                  onChange={(e) =>
-                                    handleVariantChange(
-                                      index,
-                                      "variantColor",
-                                      e.target.value,
-                                    )
-                                  }
-                                  className="w-[140px] rounded-md border px-3 py-1 text-sm focus:outline-none "
-                                  defaultValue=""
-                                >
+  value={variant.variantColor || ""}
+  onChange={(e) => {
+    if (isNewVariant) {
+      const updated = [...newVariants];
+      updated[index - formData.variants.length] = {
+        ...updated[index - formData.variants.length],
+        variantColor: e.target.value,
+      };
+      setNewVariants(updated);
+    } else {
+      handleVariantChange(index, "variantColor", e.target.value);
+    }
+  }}
+  className="w-[140px] rounded-md border px-3 py-1 text-sm focus:outline-none "
+>
                                   <option value="" disabled>
                                     Select color
                                   </option>
@@ -1637,7 +1681,7 @@ const AddProduct = () => {
                           </td>
 
                           <td className="px-3 py-1">
-                            {isEditing ? (
+                            {isExisting ? (
                               <div className="border px-3 py-2 rounded bg-gray-100 text-gray-600 min-w-[120px]">
                                 {variant.variantName || "-"}
                               </div>
@@ -1646,13 +1690,14 @@ const AddProduct = () => {
                                 <input
                                   type="text"
                                   value={variant.variantName || ""}
-                                  onChange={(e) =>
-                                    handleVariantChange(
-                                      index,
-                                      "variantName",
-                                      e.target.value,
-                                    )
-                                  }
+                                  onChange={(e) => {
+                  const updated = [...newVariants];
+                  updated[index - formData.variants.length] = {
+                    ...updated[index - formData.variants.length],
+                    variantName: e.target.value
+                  };
+                  setNewVariants(updated);
+                }}
                                   placeholder="Enter Variant"
                                   className="outline-none placeholder:text-[#6B6B6B]"
                                 />
@@ -1661,7 +1706,7 @@ const AddProduct = () => {
                           </td>
 
                           <td className="px-3 py-1">
-                            {isEditing ? (
+                            {isExisting ? (
                               <div className="flex items-center gap-2 border rounded px-3 py-1 bg-gray-100 text-gray-600 min-w-[140px]">
                                 <span>{variant.variantWeight || "-"} {variant.variantWeightUnit || "kg"}</span>
                               </div>
@@ -1673,25 +1718,27 @@ const AddProduct = () => {
                                   min="0"
                                   step="0.01"
                                   value={variant.variantWeight || ""}
-                                  onChange={(e) =>
-                                    handleVariantChange(
-                                      index,
-                                      "variantWeight",
-                                      e.target.value,
-                                    )
-                                  }
+                                   onChange={(e) => {
+                  const updated = [...newVariants];
+                  updated[index - formData.variants.length] = {
+                    ...updated[index - formData.variants.length],
+                    variantWeight: e.target.value
+                  };
+                  setNewVariants(updated);
+                }}
                                   placeholder="Enter Weight"
                                   className="px-2 py-1 placeholder:text-[#6B6B6B] outline-none"
                                 />
                                 <select
                                   value={variant.variantWeightUnit || "kg"}
-                                  onChange={(e) =>
-                                    handleVariantChange(
-                                      index,
-                                      "variantWeightUnit",
-                                      e.target.value,
-                                    )
-                                  }
+                                   onChange={(e) => {
+                  const updated = [...newVariants];
+                  updated[index - formData.variants.length] = {
+                    ...updated[index - formData.variants.length],
+                    variantWeightUnit: e.target.value
+                  };
+                  setNewVariants(updated);
+                }}
                                   className="border rounded-lg px-3 bg-[#264464] text-white text-sm"
                                 >
                                   <option value="kg">kg</option>
@@ -1703,7 +1750,7 @@ const AddProduct = () => {
 
                           <td className="px-3 py-2">
                             <div>
-                              {isEditing ? (
+                              {isExisting ? (
                                 <div className="w-[274px] h-[28px] border rounded px-3 bg-gray-100 text-gray-600 flex items-center">
                                   {variant.variantSkuId || "N/A"}
                                 </div>
@@ -1714,13 +1761,13 @@ const AddProduct = () => {
                                     name="SKU"
                                     readOnly
                                     value={variant.variantSkuId || ""}
-                                    onChange={(e) =>
-                                      handleVariantChange(
-                                        index,
-                                        "variantSkuId",
-                                        e.target.value,
-                                      )
-                                    }
+                                    // onChange={(e) =>
+                                    //   handleVariantChange(
+                                    //     index,
+                                    //     "variantSkuId",
+                                    //     e.target.value,
+                                    //   )
+                                    // }
                                     placeholder="Generate Variant SKU ID"
                                     className="w-[274px] h-[28px] border border-[#D0D0D0] rounded px-3 pr-28
               bg-[#F8FAFB] text-sm text-[#6B6B6B] placeholder-[#494848]
@@ -1729,7 +1776,18 @@ const AddProduct = () => {
                                   {index !== 0 && (
                                     <button
                                       type="button"
-                                      onClick={() => generateVariantSKU(index)}
+                                      // onClick={() => generateVariantSKU(index)}
+                                       onClick={() => {
+                  const productSKU = formData.SKU?.trim();
+                  const randomNum = Math.floor(100 + Math.random() * 900);
+                  const newSku = `${productSKU}-V-${randomNum}`;
+                  const updated = [...newVariants];
+                  updated[actualIndex - formData.variants.length] = {
+                    ...updated[actualIndex - formData.variants.length],
+                    variantSkuId: newSku
+                  };
+                  setNewVariants(updated);
+                }}
                                       className="absolute right-2 top-1/2 -translate-y-1/2
               h-[24px] px-4 bg-[#1C3753] text-white text-sm font-normal
               rounded-md hover:bg-[#264464] transition"
@@ -1742,6 +1800,82 @@ const AddProduct = () => {
                             </div>
                           </td>
                           {/* images */}
+                         <td className="px-3 py-2">
+  {isExisting ? (
+    // VIEW-ONLY MODE FOR EXISTING VARIANTS
+    <div className="flex items-center gap-3">
+      {variant.variantImage && variant.variantImage.length > 0 ? (
+        <div className="flex items-center gap-2">
+          <div className="h-9 w-9 rounded-md overflow-hidden border bg-gray-100">
+            <img
+              src={variant.variantImage[0]?.url || "/placeholder.png"}
+              className="h-full w-full object-cover"
+              alt="product"
+            />
+          </div>
+          <span className="text-sm text-gray-500">
+            {variant.variantImage.length} image{variant.variantImage.length !== 1 ? "s" : ""}
+          </span>
+        </div>
+      ) : (
+        <div className="text-sm text-gray-400">No images</div>
+      )}
+    </div>
+  ) : (
+    // EDITABLE FOR NEW VARIANTS
+    <div className="flex items-center gap-4 whitespace-nowrap">
+      {(!variant.variantImage || variant.variantImage.length === 0) && (
+        <button
+          type="button"
+          onClick={() => triggerVariantUpload(actualIndex)}
+          disabled={uploadingVariantIndex === actualIndex}
+          className="flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+        >
+          <div className="h-9 w-9 rounded-md border bg-[#EFEFEF] flex items-center justify-center">
+            {uploadingVariantIndex === actualIndex ? (
+              <div className="h-5 w-5 rounded-full border-2 border-gray-300 border-t-[#1C3753] animate-spin" />
+            ) : (
+              <FiUpload className="h-5 w-5 text-[#1C3753]" />
+            )}
+          </div>
+          <span className="text-sm text-[#1C3753]">
+            {uploadingVariantIndex === actualIndex ? "Uploading..." : "Add Images"}
+          </span>
+        </button>
+      )}
+
+      {variant.variantImage && variant.variantImage.length > 0 && (
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => openVariantImages(actualIndex)}
+            className="flex items-center gap-2"
+          >
+            <div className="h-9 w-9 rounded-md overflow-hidden border bg-gray-100">
+              <img
+                src={variant.variantImage[0]?.url || variant.variantImage[0]?.preview || "/placeholder.png"}
+                alt=""
+                className="h-full w-full object-cover"
+              />
+            </div>
+            <span className="text-sm text-[#1C3753]">
+              +{variant.variantImage.length} Image{variant.variantImage.length !== 1 ? "s" : ""}
+            </span>
+          </button>
+        </div>
+      )}
+
+      <input
+        type="file"
+        multiple
+        accept=".png,.jpg,.jpeg,.webp,.svg"
+        className="hidden"
+        ref={(el) => (variantFileRefs.current[actualIndex] = el)}
+        onChange={(e) => handleVariantImageChange(e, actualIndex)}
+      />
+    </div>
+  )}
+</td>
                           <td className="px-3 py-2">
                             {isEditing ? (
                               // ✅ VIEW-ONLY MODE FOR EDIT
@@ -1886,13 +2020,19 @@ const AddProduct = () => {
                             <input
                               type="number"
                               value={variant.variantSellingPrice || ""}
-                              onChange={(e) =>
-                                handleVariantChange(
-                                  index,
-                                  "variantSellingPrice",
-                                  e.target.value,
-                                )
-                              }
+                              onChange={(e) => {
+  if (isNewVariant) {
+    const updated = [...newVariants];
+    updated[actualIndex - formData.variants.length] = {
+      ...updated[actualIndex - formData.variants.length],
+      variantSellingPrice: e.target.value
+    };
+    setNewVariants(updated);
+  } else {
+    handleVariantChange(actualIndex, "variantSellingPrice", e.target.value);
+  }
+}}
+
                               className=" rounded border px-2 py-1 placeholder:text-[#6B6B6B]"
                               placeholder="Enter Selling Price"
                             />
@@ -1913,61 +2053,55 @@ const AddProduct = () => {
                             />
                           </td>
 
-                          <td className="">
-                            <div className="flex items-center justify-center rounded-md gap-2 border px-3 py-1">
-                              <input
-                                type="number"
-                                disabled
-                                value={variant.variantDiscount || ""}
-                                onChange={(e) =>
-                                  handleVariantChange(
-                                    index,
-                                    "variantDiscount",
-                                    e.target.value,
-                                  )
-                                }
-                                placeholder="Discount"
-                                className=" placeholder:text-[#6B6B6B] bg-white"
-                              />
+                          <td className="px-3 py-2">
+          <div className="flex items-center justify-center rounded-md gap-2 border px-3 py-1">
+            <input
+              type="number"
+              value={variant.variantDiscount || ""}
+              onChange={(e) => {
+                if (isNewVariant) {
+                  const updated = [...newVariants];
+                  updated[actualIndex - formData.variants.length] = {
+                    ...updated[actualIndex - formData.variants.length],
+                    variantDiscount: e.target.value
+                  };
+                  setNewVariants(updated);
+                } else {
+                  handleVariantChange(actualIndex, "variantDiscount", e.target.value);
+                }
+              }}
+              placeholder="Discount"
+              className="placeholder:text-[#6B6B6B] bg-white w-20"
+            />
+            <div className="border rounded-lg px-3 bg-[#264464] text-white text-sm">
+              %
+            </div>
+          </div>
+        </td>
 
-                              <div
-                                value={variant.variantDiscountUnit || "%"}
-                                onChange={(e) =>
-                                  handleVariantChange(
-                                    index,
-                                    "variantDiscountUnit",
-                                    e.target.value,
-                                  )
-                                }
-                                className="border rounded-lg px-3 bg-[#264464] text-white text-sm"
-                              >
-                                <div value="%">%</div>
-                                {/* <option value="₹">₹</option> */}
-                              </div>
-                            </div>
-                          </td>
-
-                          <td className=" px-3 py-2">
-                            {isEditing ? (
-                              <div className="rounded border px-2 py-1 bg-gray-100 text-gray-600  min-w-[200px]">
-                                {variant.variantAvailableStock || 0}
-                              </div>
-                            ) : (
-                              <input
-                                type="number"
-                                value={variant.variantAvailableStock || ""}
-                                onChange={(e) =>
-                                  handleVariantChange(
-                                    index,
-                                    "variantAvailableStock",
-                                    e.target.value,
-                                  )
-                                }
-                                className="rounded border px-2 py-1 placeholder:text-[#6B6B6B]"
-                                placeholder="Enter Available Stock"
-                              />
-                            )}
-                          </td>
+                                {/* Available Stock */}
+        <td className="px-3 py-2">
+          {isExisting ? (
+            <div className="rounded border px-2 py-1 bg-gray-100 text-gray-600">
+              {variant.variantAvailableStock || 0}
+            </div>
+          ) : (
+            <input
+              type="number"
+              value={variant.variantAvailableStock || ""}
+              onChange={(e) => {
+                const updated = [...newVariants];
+                updated[index - formData.variants.length] = {
+                  ...updated[index - formData.variants.length],
+                  variantAvailableStock: e.target.value
+                };
+                setNewVariants(updated);
+              }}
+              className="rounded border px-2 py-1 placeholder:text-[#6B6B6B]"
+              placeholder="Enter Stock"
+            />
+          )}
+        </td>
                           <td className="px-3 py-2">
                             <input
                               type="number"
@@ -1984,7 +2118,8 @@ const AddProduct = () => {
                             />
                           </td>
                         </tr>
-                      ))}
+                            );
+  })}
                     </tbody>
                   </table>
                 </div>
