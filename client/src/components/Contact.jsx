@@ -43,7 +43,7 @@ function ContactSection() {
       <div className="bg-white md:rounded-md md:shadow-sm border border-gray-200 overflow-hidden">
         <div className="flex flex-col-reverse lg:grid lg:grid-cols-3">
           {/* ===== Left: Form ===== */}
-          <div className="lg:col-span-2">
+          {/* <div className="lg:col-span-2">
             <div className="p-6 border-b border-gray-200 bg-gray-50">
               <div>
                 <h1 className="text-lg sm:text-xl font-semibold text-gray-800">
@@ -53,9 +53,9 @@ function ContactSection() {
                   We'd love to hear from you. Fill out this form below.
                 </p>
               </div>
-            </div>
+            </div> */}
 
-            <form className="p-6 space-y-5" onSubmit={handleSubmit}>
+            {/* <form className="p-6 space-y-5" onSubmit={handleSubmit}> */}
               {/* Full Name 
               <div>
                 <label
@@ -139,7 +139,7 @@ function ContactSection() {
               </div> */}
 
               {/* Message */}
-              <div>
+              {/* <div>
                 <label
                   htmlFor="message"
                   className="block text-sm font-medium text-gray-700 mb-2"
@@ -158,7 +158,7 @@ function ContactSection() {
               </div>
 
               {/* Submit */}
-              <button
+              {/* <button
                 type="submit"
                 className="w-full md:w-auto px-6 py-3 text-sm font-medium bg-[#1800AC] text-white rounded-lg shadow-sm transition flex items-center justify-center"
               >
@@ -166,10 +166,10 @@ function ContactSection() {
                 Submit
               </button>
             </form>
-          </div>
+          </div> */} 
 
           {/* ===== Right: Contact Info ===== */}
-          <div className="p-8 flex flex-col justify-center bg-gradient-to-b from-[#CFC7FF]/20 to-[#FFC9EA]/50 space-y-6">
+          <div className="p-8 w-full flex flex-col justify-center bg-gradient-to-b from-[#CFC7FF]/20 to-[#FFC9EA]/50 space-y-6">
             <div className="text-center mb-1">
               <h2 className="text-lg font-semibold text-gray-800">
                 Get in Touch
