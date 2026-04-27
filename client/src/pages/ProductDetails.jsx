@@ -80,7 +80,7 @@ function ProductDetails() {
 
     const normalize = (str) => {
       if (!str) return "";
-      if (typeof str !== "string") return ""; 
+      if (typeof str !== "string") return "";
       return str
         .toLowerCase()
         .replace(/[^a-z0-9 ]/g, " ")
@@ -930,18 +930,37 @@ function ProductDetails() {
             Rating & Reviews
           </h3>
 
-          <div className="mt-4 grid grid-cols-1 lg:grid-cols-[580px_minmax(0,1fr)] gap-6 items-start">
-            <div className="w-full">
-              <Reviews
-                onAddReview={handleOpenAddReview}
-                reviews={product?.reviews}
-              />
-            </div>
+          {/* 👉 If NO reviews */}
+          {(!product?.reviews || product.reviews.length === 0) && (
+            <div className="flex flex-col items-center justify-center py-10 text-center">
+              <p className="text-gray-500 mb-4">
+                No reviews yet. Be the first to review this product!
+              </p>
 
-            <div className="w-full">
-              <CustomerReview reviews={product?.reviews} id={product?._id} />
+              <button
+                onClick={handleOpenAddReview}
+                className="px-5 py-2 bg-[#0C0057] text-white rounded-md"
+              >
+                Write a Review
+              </button>
             </div>
-          </div>
+          )}
+
+          {/* 👉 If reviews exist */}
+          {product?.reviews?.length > 0 && (
+            <div className="mt-4 grid grid-cols-1 lg:grid-cols-[580px_minmax(0,1fr)] gap-6 items-start">
+              <div className="w-full">
+                <Reviews
+                  onAddReview={handleOpenAddReview}
+                  reviews={product?.reviews}
+                />
+              </div>
+
+              <div className="w-full">
+                <CustomerReview reviews={product?.reviews} id={product?._id} />
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Similar & Latest */}
