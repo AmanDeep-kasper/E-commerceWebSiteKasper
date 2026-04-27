@@ -626,32 +626,6 @@ export const adminDeleteVariant = asyncHandler(async (req, res) => {
     .json({ success: true, message: "Variant deleted successfully" });
 });
 
-export const adjustStock = asyncHandler(async (req, res) => {
-  const { productId, variantId, quantity, stockType } = req.body;
-  const product = await Product.findById(productId);
-
-  if (!product) {
-    throw AppError.notFound("Product not found", "NOT_FOUND");
-  }
-
-  const variant = product.variants.id(variantId);
-  if (!variant) {
-    throw AppError.notFound("Variant not found", "NOT_FOUND");
-  }
-
-  // check stock type - inStock or outStock
-  if (stockType === "inStock") {
-    variant.variantAvailableStock += quantity;
-  } else if (stockType === "outStock") {
-    variant.variantAvailableStock -= quantity;
-  }
-
-  res.status(200).json({
-    success: true,
-    message: "Stock adjusted successfully",
-  });
-});
-
 // export const deleteProduct = async (req, res) => {
 //   try {
 //     const product = await Product.findByIdAndDelete(req.params.id);

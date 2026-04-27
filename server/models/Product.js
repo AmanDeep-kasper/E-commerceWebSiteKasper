@@ -12,7 +12,7 @@ const VariantSchema = new mongoose.Schema({
     default: "kg",
   },
 
-  variantSkuId: { type: String, required: true, index: true },
+  variantSkuId: { type: String, required: true, unique: true },
 
   variantImage: [
     {
@@ -38,7 +38,7 @@ const VariantSchema = new mongoose.Schema({
 
 const ProductSchema = new mongoose.Schema(
   {
-    productTittle: { type: String, required: true, index: true },
+    productTittle: { type: String, required: true },
     description: { type: String, default: "" },
 
     slug: {
@@ -68,7 +68,6 @@ const ProductSchema = new mongoose.Schema(
       required: function () {
         return !this.isDraft;
       },
-      index: true,
     },
 
     subcategory: {
@@ -120,6 +119,8 @@ const ProductSchema = new mongoose.Schema(
 );
 
 // ✅ COMPOUND INDEXES (VERY IMPORTANT)
+ProductSchema.index({ category: 1 });
+ProductSchema.index({ productTittle: 1 });
 ProductSchema.index({ category: 1, subcategory: 1 });
 ProductSchema.index({ status: 1, "stats.averageRating": -1 });
 ProductSchema.index({ "variants.variantSellingPrice": 1 });
