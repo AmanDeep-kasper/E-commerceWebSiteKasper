@@ -182,46 +182,47 @@ function ProductInformation() {
           <div className="flex flex-col gap-3 flex-1 overflow-y-auto pr-1">
             {/* MAIN PRODUCT */}
             {(!debouncedSearch || mainProductMatch) && defaultVariant && (
-              <div
-                onClick={() => {
-                  setSelectedType("product");
-                  setSelectedVariant(null);
-                }}
-                className={`flex items-center gap-4 bg-[#F5F8FA] border rounded-xl p-3 hover:border-gray-400 cursor-pointer transition ${
-                  selectedType === "product"
-                    ? "bg-blue-50 border-blue-400"
-                    : "bg-blue-50 border-blue-400"
-                }`}
-              >
-                <img
-                  className="w-10 h-10 rounded-md object-cover"
-                  src={
-                    defaultVariant?.variantImage?.[0]?.url || "/placeholder.png"
-                  }
-                  alt={product.productTittle}
-                />
+              // <div
+              //   onClick={() => {
+              //     setSelectedType("product");
+              //     setSelectedVariant(null);
+              //   }}
+              //   className={`flex items-center gap-4 bg-[#F5F8FA] border rounded-xl p-3 hover:border-gray-400 cursor-pointer transition ${
+              //     selectedType === "product"
+              //       ? "bg-blue-50 border-blue-400"
+              //       : "bg-blue-50 border-blue-400"
+              //   }`}
+              // >
+              //   <img
+              //     className="w-10 h-10 rounded-md object-cover"
+              //     src={
+              //       defaultVariant?.variantImage?.[0]?.url || "/placeholder.png"
+              //     }
+              //     alt={product.productTittle}
+              //   />
 
-                <div className="flex-1">
-                  <div className="flex justify-between text-sm font-medium">
-                    <p>{defaultVariant?.variantSkuId || "N/A"}</p>
-                    <p>₹ {defaultVariant?.variantSellingPrice || 0}</p>
-                  </div>
+              //   <div className="flex-1">
+              //     <div className="flex justify-between text-sm font-medium">
+              //       <p>{defaultVariant?.variantSkuId || "N/A"}</p>
+              //       <p>₹ {defaultVariant?.variantSellingPrice || 0}</p>
+              //     </div>
 
-                  <div className="flex justify-between text-xs text-gray-600 mt-0.5">
-                    <div className="flex gap-2">
-                      {defaultVariant?.variantColor && (
-                        <p className="border border-[#495F75] px-1 rounded-md">
-                          {defaultVariant.variantColor}
-                        </p>
-                      )}
-                      <p className="border border-[#495F75] px-1 rounded-md">
-                        20×20
-                      </p>
-                    </div>
-                    <p>{defaultVariant?.variantAvailableStock || 0} in stock</p>
-                  </div>
-                </div>
-              </div>
+              //     <div className="flex justify-between text-xs text-gray-600 mt-0.5">
+              //       <div className="flex gap-2">
+              //         {defaultVariant?.variantColor && (
+              //           <p className="border border-[#495F75] px-1 rounded-md">
+              //             {defaultVariant.variantColor}
+              //           </p>
+              //         )}
+              //         <p className="border border-[#495F75] px-1 rounded-md">
+              //           20×20
+              //         </p>
+              //       </div>
+              //       <p>{defaultVariant?.variantAvailableStock || 0} in stock</p>
+              //     </div>
+              //   </div>
+              // </div>
+              <></>
             )}
 
             {/* VARIANTS */}
@@ -294,9 +295,10 @@ function ProductInformation() {
             <div>
               <p className="">Product Name</p>
               <span className="text-[#686868] text-sm">
-                {selectedType === "product"
+                {/* {selectedType === "product"
                   ? product.productTittle
-                  : selectedVariant?.variantName || "-"}
+                  : selectedVariant?.variantName || "-"} */}
+                  {product.productTittle || "-"}
               </span>
             </div>
             <div className="mb-4">
