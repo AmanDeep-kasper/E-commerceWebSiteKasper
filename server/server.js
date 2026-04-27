@@ -26,6 +26,7 @@ import wishlistRouter from "./routes/wishlistRouter.js";
 import cartRouter from "./routes/cartRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
 import dashboardRouter from "./routes/dashboardRoutes.js";
+import inventoryRouter from "./routes/inventoryRoutes.js";
 
 // =========== admin dashboard setting routes ==============
 import businessRouter from "./routes/admin/businessRoutes.js";
@@ -117,6 +118,7 @@ app.use("/api/v1/wishlist", wishlistRouter);
 app.use("/api/v1/cart", cartRouter);
 app.use("/api/v1/order", orderRoutes);
 app.use("/api/v1/dashboard", dashboardRouter);
+app.use("/api/v1/inventory", inventoryRouter);
 
 // ============= Dashboard Setting Routes =============
 app.use("/api/v1/dashboard/business", businessRouter);
