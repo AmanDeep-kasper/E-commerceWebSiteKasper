@@ -10,12 +10,40 @@ import { ListFilter, Package } from "lucide-react";
 import EmptyState from "../components/EmptyState";
 import axiosInstance from "../api/axiosInstance";
 
+const OrderSkeleton = () => {
+  return (
+    <div className="bg-white md:rounded-lg md:shadow-sm animate-pulse">
+      <div className="flex flex-wrap justify-between gap-3 bg-[#F0EEFF] px-4 sm:px-6 py-4 border-b">
+        <div className="h-10 w-28 bg-gray-200 rounded" />
+        <div className="h-10 w-20 bg-gray-200 rounded" />
+        <div className="h-10 w-32 bg-gray-200 rounded" />
+        <div className="h-9 w-40 bg-gray-200 rounded" />
+      </div>
+
+      <div className="p-4 sm:p-6">
+        {[1, 2].map((item) => (
+          <div key={item} className="flex gap-4 mb-6 last:mb-0">
+            <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gray-200 rounded-md" />
+            <div className="flex-1 space-y-3">
+              <div className="h-4 w-2/3 bg-gray-200 rounded" />
+              <div className="h-3 w-32 bg-gray-200 rounded" />
+              <div className="h-3 w-28 bg-gray-200 rounded" />
+              <div className="h-3 w-24 bg-gray-200 rounded" />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 function OrderHistory() {
   const orders = useSelector((s) => s.order.list); //  from Redux
   const [param, setParam] = useState("");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const [order, setOrder] = useState([]);
+  const [filteredOrders, setFilteredOrders] = useState([]);
   const [status, setStatus] = useState("");
   const [time, setTime] = useState("");
   const navigate = useNavigate();
@@ -32,49 +60,70 @@ function OrderHistory() {
       let filtered = [...order];
 
       if (status.trim()) {
-        filtered = filtered.filter((o) =>
-          o.orderStatus.toLowerCase().includes(status.toLowerCase()),
+        filtered = filtered.filter(
+          (o) => o.status?.toLowerCase() === status.toLowerCase(),
         );
       }
 
       if (time) {
         const now = new Date();
 
-        if (time === "last30Days") {
-          filtered = filtered.filter((o) => {
-            const orderDate = new Date(o.orderDate);
+        filtered = filtered.filter((o) => {
+          const orderDate = new Date(o.placedAt);
+
+          if (time === "last30Days") {
             const diffDays = (now - orderDate) / (1000 * 60 * 60 * 24);
             return diffDays <= 30;
-          });
-        }
+          }
+
+          if (time.startsWith("year")) {
+            const selectedYear = Number(time.replace("year", ""));
+            return orderDate.getFullYear() === selectedYear;
+          }
+
+          if (time === "older") {
+            const olderThanYear = now.getFullYear() - 2;
+            return orderDate.getFullYear() < olderThanYear;
+          }
+
+          return true;
+        });
       }
 
       if (param.trim()) {
         filtered = filtered.filter((o) =>
-          o.items.some((item) =>
-            item.name.toLowerCase().includes(param.toLowerCase()),
+          o.items?.some((item) =>
+            item.productTitle?.toLowerCase().includes(param.toLowerCase()),
           ),
         );
       }
 
-      setOrder(filtered);
+      setFilteredOrders(filtered);
     }, 300);
 
     return () => clearTimeout(handler);
-  }, [param, status, time]);
+  }, [param, status, time, order]);
 
   // fetch the latest orders on component mount
-  const handleOrder = async () => {
-    try {
-      setLoading(true);
-      const res = await axiosInstance.get("/order");
-      // console.log("fetchOrders response:", res.data);
-      setOrder(res.data.orders.reverse());
-      setLoading(false);
-    } catch (err) {
-      console.error(err);
-    }
-  };
+ const handleOrder = async () => {
+  try {
+    setLoading(true);
+
+    const res = await axiosInstance.get("/order");
+    const ordersData = Array.isArray(res.data?.orders)
+      ? [...res.data.orders].reverse()
+      : [];
+
+    setOrder(ordersData);
+    setFilteredOrders(ordersData);
+  } catch (err) {
+    console.error("Order fetch error:", err);
+    setOrder([]);
+    setFilteredOrders([]);
+  } finally {
+    setLoading(false);
+  }
+};
 
   useEffect(() => {
     handleOrder();
@@ -130,17 +179,18 @@ function OrderHistory() {
 
       {/* Order Cards */}
       <div className="flex flex-col gap-6 rounded-md">
-        {order.length === 0 ? (
+        {loading ? (
+          [1, 2, 3].map((item) => <OrderSkeleton key={item} />)
+        ) : filteredOrders.length === 0 ? (
           <EmptyState
             heading="No Orders Yet"
-            description="You haven’t placed any orders yet. Start shopping to see your
-              orders here."
+            description="You haven’t placed any orders yet. Start shopping to see your orders here."
             icon={Package}
             ctaLabel="Start Shopping"
             ctaLink="/products"
           />
         ) : (
-          order.map((order, index) => {
+          filteredOrders.map((order, index) => {
             return (
               <div
                 key={index}
@@ -166,14 +216,14 @@ function OrderHistory() {
                       {order.status}
                     </p>
                   </div>
-                  <div className="flex items-end flex-col justify-end max-sm:w-full">
+                  <div className="flex items-end gap-2 justify-end max-sm:w-full">
                     <Link
                       className="border border-[#0C0057]  text-[#0C0057]  bg-white text-center mb-1 px-3 py-1 rounded-md text-xs sm:text-sm"
                       to={`/accounts/order-detail/${order._id}`}
                     >
                       Order Details
                     </Link>
-                    <div className="flex items-center justify-center gap-4 text-[#0C0057]">
+                    <div className="border border-[#0C0057]  text-[#0C0057]  bg-white text-center mb-1 px-3 py-1 rounded-md text-xs sm:text-sm">
                       <p
                         onClick={() => navigate(`/order-history/${order?._id}`)}
                         className="cursor-pointer"
