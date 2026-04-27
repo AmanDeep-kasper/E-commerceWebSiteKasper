@@ -78,34 +78,38 @@ function ProductDetails() {
   const getSimilarProducts = (all, found, uuid) => {
     if (!found) return [];
 
-    const normalize = (str) =>
-      str
-        ?.toLowerCase()
+    const normalize = (str) => {
+      if (!str) return "";
+      if (typeof str !== "string") return "";
+      return str
+        .toLowerCase()
         .replace(/[^a-z0-9 ]/g, " ")
-        .trim() || "";
+        .trim();
+    };
 
-    const foundTitleWords = normalize(found.title).split(" ");
+    const foundTitleWords = normalize(found.productTittle).split(" ");
 
     const sameCategoryList = all.filter(
       (p) =>
-        p.uuid !== uuid && normalize(p.category) === normalize(found.category),
+        p._id !== uuid &&
+        normalize(p.category?.name) === normalize(found.category?.name),
     );
 
-    const list = sameCategoryList;
-
-    const sameSub = list.filter(
-      (p) => normalize(p.subcategory) === normalize(found.subcategory),
+    const sameSub = sameCategoryList.filter(
+      (p) =>
+        normalize(p.subcategory?.name) === normalize(found.subcategory?.name),
     );
+
     if (sameSub.length > 0) return sameSub.slice(0, 10);
 
-    const similarByTitle = list.filter((p) => {
-      const title = normalize(p.title);
+    const similarByTitle = sameCategoryList.filter((p) => {
+      const title = normalize(p.productTittle);
       return foundTitleWords.some((w) => title.includes(w));
     });
 
     if (similarByTitle.length > 0) return similarByTitle.slice(0, 10);
 
-    return list.slice(0, 10);
+    return sameCategoryList.slice(0, 10);
   };
 
   // FETCH PRODUCT + SIMILAR PRODUCTS
@@ -114,21 +118,26 @@ function ProductDetails() {
       try {
         setPageLoading(true);
 
+        // 1️⃣ Fetch current product
         const res = await axiosInstance.get(`/product/${slugOrId}`);
-        console.log("API:", res.data);
-
-        const found = res.data.data; // DIRECT OBJECT
+        const found = res.data.data;
 
         setProduct(found);
 
         if (found?.variants?.length > 0) {
           const v0 = found.variants[0];
           setSelectedVariant(v0);
-          // setSelectedColor(v0?.variantColor || null);
           setSelectedSize(normalizeSize(v0));
         }
 
-        // ❌ REMOVE similarProducts logic here (you don't have list API)
+        // 2️⃣ Fetch ALL products
+        const allRes = await axiosInstance.get("/product/all");
+        const allProducts = allRes?.data?.data || allRes?.data?.products || [];
+
+        // 3️⃣ Filter similar
+        const similar = getSimilarProducts(allProducts, found, found._id);
+
+        setSimilarProducts(similar);
       } catch (err) {
         console.error(err);
         setProduct(null);
@@ -921,18 +930,37 @@ function ProductDetails() {
             Rating & Reviews
           </h3>
 
-          <div className="mt-4 grid grid-cols-1 lg:grid-cols-[580px_minmax(0,1fr)] gap-6 items-start">
-            <div className="w-full">
-              <Reviews
-                onAddReview={handleOpenAddReview}
-                reviews={product?.reviews}
-              />
-            </div>
+          {/* 👉 If NO reviews */}
+          {(!product?.reviews || product.reviews.length === 0) && (
+            <div className="flex flex-col items-center justify-center py-10 text-center">
+              <p className="text-gray-500 mb-4">
+                No reviews yet. Be the first to review this product!
+              </p>
 
-            <div className="w-full">
-              <CustomerReview reviews={product?.reviews} id={product?._id} />
+              <button
+                onClick={handleOpenAddReview}
+                className="px-5 py-2 bg-[#0C0057] text-white rounded-md"
+              >
+                Write a Review
+              </button>
             </div>
-          </div>
+          )}
+
+          {/* 👉 If reviews exist */}
+          {product?.reviews?.length > 0 && (
+            <div className="mt-4 grid grid-cols-1 lg:grid-cols-[580px_minmax(0,1fr)] gap-6 items-start">
+              <div className="w-full">
+                <Reviews
+                  onAddReview={handleOpenAddReview}
+                  reviews={product?.reviews}
+                />
+              </div>
+
+              <div className="w-full">
+                <CustomerReview reviews={product?.reviews} id={product?._id} />
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Similar & Latest */}

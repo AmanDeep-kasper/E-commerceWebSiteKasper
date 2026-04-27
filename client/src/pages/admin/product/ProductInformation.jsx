@@ -223,7 +223,7 @@ function ProductInformation() {
               //     </div>
               //   </div>
               // </div>
-              //<></>
+              // <></>
               <div
                 onClick={() => {
                   setSelectedType("product");

@@ -395,7 +395,7 @@ const OrderDetail = () => {
     const fetchOrder = async () => {
       try {
         const res = await axiosInstance.get(`/order/${orderId}`);
-        console.log("order data", res.data.order);
+        // console.log("order data", res.data.order);
         setOrder(res.data.order);
       } catch (err) {
         console.error("Error fetching order:", err);
@@ -729,7 +729,6 @@ shippingAddress.landmark && (
               </span>
             </p>
           )}
-          <span className="text-gray-400 hidden sm:block">|</span>
           {currentStatus === "shipped" && (
             <p className="text-gray-600 text-sm">
               Tracking URL:{" "}
@@ -737,6 +736,7 @@ shippingAddress.landmark && (
                 {order?.tracking?.trackingUrl
                   ? order?.tracking?.trackingUrl
                   : "--"}
+                  <span className="text-gray-400 hidden sm:block">|</span>
               </span>
             </p>
           )}
