@@ -467,96 +467,50 @@ function Card({ cardData = [] }) {
                   )}
                 </div>
 
-                <div className="flex gap-3 justify-center">
-                  {outOfStock ? (
-                    <button
-                      disabled
-                      className="px-4 py-2 bg-gray-300 text-xs w-full text-center text-gray-600 rounded-full cursor-not-allowed"
-                    >
-                      Out of Stock
-                    </button>
-                  ) : inCart ? (
-                    <div className="flex items-center w-full text-xs justify-between gap-2 px-2 ring-2 ring-[#1C3753]/50 p-1 rounded-md">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          dispatch(
-                            decreaseQty({
-                              uuid: productId,
-                              variantId: defaultVariant?._id,
-                            }),
-                          );
-                        }}
-                        className="w-6 h-6 flex items-center justify-center"
-                        disabled={isLoading}
-                      >
-                        {cartItems.find(
-                          (i) =>
-                            i.uuid === productId &&
-                            i.variantId === defaultVariant?._id,
-                        )?.quantity === 1 ? (
-                          <Trash2 size={16} />
-                        ) : (
-                          <Minus size={16} />
-                        )}
-                      </button>
-
-                      <span className="w-6 text-center">
-                        {cartItems.find(
-                          (i) =>
-                            i.uuid === productId &&
-                            i.variantId === defaultVariant?._id,
-                        )?.quantity || 0}
-                      </span>
-
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          dispatch(
-                            increaseQty({
-                              uuid: productId,
-                              variantId: defaultVariant?._id,
-                            }),
-                          );
-                        }}
-                        className="w-6 h-6 flex items-center justify-center"
-                        disabled={
-                          isLoading ||
-                          cartItems.find(
-                            (i) =>
-                              i.uuid === productId &&
-                              i.variantId === defaultVariant?._id,
-                          )?.quantity >= variantStock
-                        }
-                      >
-                        <Plus size={16} />
-                      </button>
-                    </div>
-                  ) : (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleAddToCart(item);
-                      }}
-                      disabled={isLoading}
-                      className="px-4 py-2 bg-[#252525] text-xs w-full text-center rounded text-white"
-                    >
-                      {isLoading ? (
-                        <div className="flex items-center gap-2">
-                          <div className="w-4 h-4 border-2 border-white border-opacity-30 rounded-md animate-spin"></div>
-                          <span>Adding...</span>
-                        </div>
-                      ) : (
-                        <div className="flex items-center justify-center gap-4">
-                          <p>Add to Cart</p>
-                          <span className="text-white">
-                            <FaBagShopping />
-                          </span>
-                        </div>
-                      )}
-                    </button>
-                  )}
-                </div>
+               <div className="flex gap-3 justify-center">
+  {outOfStock ? (
+    <button
+      disabled
+      className="px-4 py-2 bg-gray-300 text-xs w-full text-center text-gray-600 rounded-full cursor-not-allowed"
+    >
+      Out of Stock
+    </button>
+  ) : inCart ? (
+    <button
+      onClick={(e) => {
+        e.stopPropagation();
+        navigate("/bag");
+      }}
+      className="flex items-center w-full text-xs justify-center gap-2 px-2 ring-2 ring-[#1C3753]/50 p-2 rounded-md"
+    >
+      <ShoppingCart className="w-4 h-4" />
+      <span>Go to Cart</span>
+    </button>
+  ) : (
+    <button
+      onClick={(e) => {
+        e.stopPropagation();
+        handleAddToCart(item);
+      }}
+      disabled={isLoading}
+      className="px-4 py-2 bg-[#252525] text-xs w-full text-center rounded text-white"
+    >
+      {isLoading ? (
+        <div className="flex items-center gap-2">
+          <div className="w-4 h-4 border-2 border-white border-opacity-30 rounded-md animate-spin"></div>
+          <span>Adding...</span>
+        </div>
+      ) : (
+        <div className="flex items-center justify-center gap-4">
+          <p>Add to Cart</p>
+          <span className="text-white">
+            <FaBagShopping />
+          </span>
+        </div>
+      )}
+    </button>
+  )}
+</div>
               </div>
             </div>
           );

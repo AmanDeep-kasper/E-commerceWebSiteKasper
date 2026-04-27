@@ -76,19 +76,58 @@ function Navbar() {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [dropdown, setDropdown] = useState(false);
   const [subDropdown, setSubDropdown] = useState(null);
-  // const [isSearchBarOpen, setIsSearchBarOpen] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  // const totalWishlistItems = useSelector(
-  //   (state) => state?.wishlist?.totalItems,
-  // );
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const query = searchParams.get("q") || "";
   const [searchResults, setSearchResults] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const shopCategories = Array.isArray(categories)
+    ? categories.filter((cat) => cat.isActive)
+    : [];
+
+  // category data for mobile dropdown
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        setLoading(true);
+
+        const response = await axiosInstance.get("/category/all-categories", {
+          params: {
+            page: 1,
+            limit: 20,
+          },
+        });
+
+        let fetchedCategories = [];
+
+        if (response.data?.success && Array.isArray(response.data?.data)) {
+          fetchedCategories = response.data.data;
+        } else if (Array.isArray(response.data)) {
+          fetchedCategories = response.data;
+        }
+
+        setCategories(fetchedCategories);
+        setError(null);
+      } catch (err) {
+        console.error("Error fetching categories:", err);
+        setError(err.response?.data?.message || "Failed to load categories");
+        setCategories([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
+  // console.log(categories)
 
   const searchRef = useRef(null);
   useEffect(() => {
@@ -588,7 +627,7 @@ function Navbar() {
                   <div>
                     <p className="font-medium text-gray-900">
                       {user?.user?.name || "please login"}
-                      {console.log(user)}
+                      {/* {console.log(user)} */}
                     </p>
 
                     <p className="text-sm text-gray-500">Welcome back!</p>
@@ -624,17 +663,25 @@ function Navbar() {
                 </h3>
 
                 {shopCategories.map((item, index) => (
+                  
                   <div key={item._id || item.name || index} className="py-2">
-                    {/* Category */}
+                    {console.log(item)}
                     <div
                       className="flex items-center justify-between py-3 px-3 text-gray-700 font-medium rounded-lg hover:bg-[#D5E5F5] hover:text-[#1C3753] cursor-pointer"
-                      onClick={() =>
-                        setSubDropdown(subDropdown === index ? null : index)
-                      }
+                      onClick={() => {
+                        if (item.name?.length > 0) {
+                          setSubDropdown(subDropdown === index ? null : index);
+                        } else {
+                          navigate(
+                            `/products/${encodeURIComponent(item.name)}`,
+                          );
+                          setIsMobileMenuOpen(false);
+                        }
+                      }}
                     >
                       <span>{item.name}</span>
 
-                      {item.subcategories?.length > 0 && (
+                      {item.name?.length > 0 && (
                         <ChevronDown
                           size={16}
                           className={`text-gray-400 transition-transform duration-300 ${
@@ -644,45 +691,44 @@ function Navbar() {
                       )}
                     </div>
 
-                    {/* Subcategories */}
-                    <div
-                      className={`pl-6 flex flex-col gap-1 overflow-hidden transition-[max-height] duration-300 ease-in-out ${
-                        subDropdown === index ? "max-h-96" : "max-h-0"
-                      }`}
-                    >
-                      {/* ALL */}
+                    {item.subcategories?.length > 0 && (
                       <div
-                        className="py-2 px-3 text-sm rounded-md text-gray-600 hover:bg-[#D5E5F5] hover:text-[#1C3753] cursor-pointer"
-                        onClick={() => {
-                          navigate(
-                            `/products/${encodeURIComponent(item.name)}`,
-                          );
-                          setIsMobileMenuOpen(false);
-                        }}
+                        className={`pl-6 flex flex-col gap-1 overflow-hidden transition-[max-height] duration-300 ease-in-out ${
+                          subDropdown === index ? "max-h-96" : "max-h-0"
+                        }`}
                       >
-                        All
-                      </div>
+                        <div
+                          className="py-2 px-3 text-sm rounded-md text-gray-600 hover:bg-[#D5E5F5] hover:text-[#1C3753] cursor-pointer"
+                          onClick={() => {
+                            navigate(
+                              `/products/${encodeURIComponent(item.name)}`,
+                            );
+                            setIsMobileMenuOpen(false);
+                          }}
+                        >
+                          All
+                        </div>
 
-                      {/* SUBCATEGORY LIST */}
-                      {(item.subcategories || [])
-                        .filter(
-                          (s) => s?.name && s.name.toLowerCase() !== "all",
-                        )
-                        .map((sub, i) => (
-                          <div
-                            key={sub._id || sub.name || i}
-                            className="py-2 px-3 text-sm text-gray-600 rounded-md hover:bg-[#D5E5F5] hover:text-[#1C3753] cursor-pointer"
-                            onClick={() => {
-                              navigate(
-                                `/products/${encodeURIComponent(item.name)}/${encodeURIComponent(sub.name)}`,
-                              );
-                              setIsMobileMenuOpen(false);
-                            }}
-                          >
-                            {sub.name}
-                          </div>
-                        ))}
-                    </div>
+                        {item.subcategories
+                          .filter(
+                            (s) => s?.name && s.name.toLowerCase() !== "all",
+                          )
+                          .map((sub, i) => (
+                            <div
+                              key={sub._id || sub.name || i}
+                              className="py-2 px-3 text-sm text-gray-600 rounded-md hover:bg-[#D5E5F5] hover:text-[#1C3753] cursor-pointer"
+                              onClick={() => {
+                                navigate(
+                                  `/products/${encodeURIComponent(item.name)}/${encodeURIComponent(sub.name)}`,
+                                );
+                                setIsMobileMenuOpen(false);
+                              }}
+                            >
+                              {sub.name}
+                            </div>
+                          ))}
+                      </div>
+                    )}
                   </div>
                 ))}
 
