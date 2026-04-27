@@ -1,7 +1,6 @@
 // App.jsx
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-// import { syncCart } from "./redux/cart/cartSlice";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import PageRouter from "./Router/PageRouter";
@@ -12,32 +11,22 @@ function App() {
   const dispatch = useDispatch();
   const { isAuthenticated } = useSelector((state) => state.user);
 
+  //  INITIAL AUTH CHECK (IMPORTANT)
   useEffect(() => {
-    const initializeUser = async () => {
-      try {
-        await dispatch(getUserDetails()).unwrap();
-      } catch (err) {
-        // Cookie expired ya user not logged in
-        // console.log("User not authenticated check");
-        throw new Error(err);
-      }
-    };
-
-    initializeUser();
+    dispatch(getUserDetails());
   }, [dispatch]);
 
-  // useEffect(() => {
-  //   dispatch(syncCart());
-  // }, [dispatch]);
-
+  //  AUTO TOKEN REFRESH (OPTIONAL BUT RECOMMENDED)
   useEffect(() => {
     if (!isAuthenticated) return;
+
     const interval = setInterval(
       () => {
         axiosInstance.post("/auth/refresh-token").catch(() => {});
       },
-      14 * 60 * 1000,
+      9 * 60 * 1000,
     );
+
     return () => clearInterval(interval);
   }, [isAuthenticated]);
 
@@ -50,8 +39,10 @@ function App() {
         closeButton={false}
         pauseOnHover
       />
+
       <PageRouter />
     </>
   );
 }
+
 export default App;
