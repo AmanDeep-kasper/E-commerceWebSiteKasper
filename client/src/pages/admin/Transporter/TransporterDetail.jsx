@@ -239,11 +239,10 @@ const TransporterDetail = () => {
               <div className="">
                 {/* <p className="text-[#686868] text-[14px]">Status</p> */}
                 <span
-                  className={`font-medium ${
-                    transporter.isActive
+                  className={`font-medium ${transporter.isActive
                       ? "text-[#00A63E] bg-[#E0F4DE] py-1 px-4 rounded-lg"
                       : "text-[#D53B35] bg-[#FFEAE9] py-1 px-4 rounded-lg"
-                  }`}
+                    }`}
                 >
                   {transporter.isActive ? "Active" : "Inactive"}
                 </span>
@@ -463,16 +462,34 @@ const TransporterDetail = () => {
 
                 <div>
                   <label className="text-sm text-gray-600">Status</label>
-                  <select
-                    name="status"
-                    value={formData.status}
-                    onChange={handleInputChange}
-                    className="w-full mt-1 border rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-200"
-                  >
-                    <option value="Active">Active</option>
-                    <option value="Paused">Paused</option>
-                    <option value="Inactive">Inactive</option>
-                  </select>
+
+                  <div className="mt-2 flex gap-6">
+                    {/* Active */}
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="status"
+                        value="Active"
+                        checked={formData.status === "Active"}
+                        onChange={handleInputChange}
+                        className="accent-blue-600"
+                      />
+                      <span>Active</span>
+                    </label>
+
+                    {/* Inactive */}
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="status"
+                        value="Inactive"
+                        checked={formData.status === "Inactive"}
+                        onChange={handleInputChange}
+                        className="accent-blue-600"
+                      />
+                      <span>Inactive</span>
+                    </label>
+                  </div>
                 </div>
                 <div>
                   <label className="text-sm text-gray-600">

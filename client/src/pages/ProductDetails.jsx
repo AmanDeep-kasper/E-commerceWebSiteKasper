@@ -457,6 +457,12 @@ function ProductDetails() {
     }
   };
 
+  const handleGoToCart = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    navigate("/bag");
+  };
+
   return (
     <>
       <Navbar />
@@ -737,9 +743,10 @@ function ProductDetails() {
               ) : (
                 <button
                   type="button"
-                  onClick={async () => {
+                  onClick={async (e) => {
                     if (inCart) {
-                      toast.info("Already Added");
+                      // toast.info("Already Added");
+                      handleGoToCart(e);
                       return;
                     }
 

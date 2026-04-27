@@ -61,7 +61,6 @@ export const addToCart = asyncHandler(async (req, res) => {
     variantColor: variant.variantColor,
     variantAvailableStock: variant.variantAvailableStock,
 
-
     variantAttributes: {
       weight: `${variant.variantWeight}${variant.variantWeightUnit}`,
     },
@@ -140,6 +139,8 @@ export const addToCart = asyncHandler(async (req, res) => {
       totalQuantity: cart.totalQuantity,
       subtotal: cart.subtotal,
       totalGST: cart.totalGST,
+      mrpsubtotal: cart.mrpsubtotal,
+      discount: cart.discount,
       grandTotal: cart.grandTotal,
     },
   });

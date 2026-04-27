@@ -250,7 +250,7 @@ export const loginUser = asyncHandler(async (req, res) => {
 
   res.cookie("accessToken", accessToken, {
     ...cookieOptions,
-    maxAge: 3 * 60 * 1000,
+    maxAge: 15 * 60 * 1000,
   });
 
   res.cookie("refreshToken", refreshToken, {
@@ -514,7 +514,7 @@ export const changePassword = asyncHandler(async (req, res) => {
 
   res.cookie("accessToken", accessToken, {
     ...cookieOptions,
-    maxAge: 3 * 60 * 1000,
+    maxAge: 15 * 60 * 1000,
   });
 
   res.cookie("refreshToken", refreshToken, {
@@ -676,6 +676,83 @@ export const resetPassword = asyncHandler(async (req, res) => {
   });
 });
 
+// export const refreshAccessToken = asyncHandler(async (req, res) => {
+//   const refreshToken = req.cookies?.refreshToken;
+
+//   if (!refreshToken) {
+//     throw AppError.authentication("Refresh token required", "NO_REFRESH_TOKEN");
+//   }
+
+//   let decoded;
+//   try {
+//     decoded = jwt.verify(refreshToken, env.JWT_REFRESH_SECRET, {
+//       issuer: env.JWT_ISSUER,
+//       audience: env.JWT_AUDIENCE,
+//     });
+//   } catch (error) {
+//     if (error.name === "TokenExpiredError") {
+//       throw AppError.authentication(
+//         "Refresh token expired. Please login again.",
+//         "REFRESH_TOKEN_EXPIRED",
+//       );
+//     }
+//     throw AppError.authentication(
+//       "Invalid refresh token",
+//       "INVALID_REFRESH_TOKEN",
+//     );
+//   }
+
+//   const user = await User.findById(decoded.userId).select("role isActive");
+//   if (!user || !user.isActive) {
+//     throw AppError.notFound("User not found or inactive", "USER_NOT_FOUND");
+//   }
+
+//   const newTokens = await rotateTokens(
+//     decoded.userId,
+//     user.role,
+//     refreshToken,
+//     req,
+//   );
+
+//   // Swap old sessionId with new sessionId in activeSessions array
+//   // await User.updateOne(
+//   //   { _id: decoded.userId },
+//   //   {
+//   //     $addToSet: { activeSessions: decoded.sessionId },
+//   //   },
+//   // );
+
+//   const isProduction = env.NODE_ENV === "production";
+
+//   const cookieOptions = {
+//     httpOnly: true,
+//     secure: isProduction,
+//     sameSite: isProduction ? "none" : "lax",
+//   };
+
+//   res.cookie("accessToken", newTokens.accessToken, {
+//     ...cookieOptions,
+//     maxAge: 3 * 60 * 1000,
+//   });
+
+//   res.cookie("refreshToken", newTokens.refreshToken, {
+//     ...cookieOptions,
+//     maxAge: 7 * 24 * 60 * 60 * 1000,
+//   });
+
+//   res.cookie("sessionId", newTokens.sessionId, {
+//     httpOnly: false,
+//     secure: isProduction,
+//     sameSite: isProduction ? "none" : "lax",
+//     maxAge: 7 * 24 * 60 * 60 * 1000,
+//   });
+
+//   res.status(200).json({
+//     success: true,
+//     message: "Access token refreshed successfully",
+//   });
+// });
+
 export const refreshAccessToken = asyncHandler(async (req, res) => {
   const refreshToken = req.cookies?.refreshToken;
 
@@ -714,40 +791,37 @@ export const refreshAccessToken = asyncHandler(async (req, res) => {
     req,
   );
 
-  // Swap old sessionId with new sessionId in activeSessions array
-  // await User.updateOne(
-  //   { _id: decoded.userId },
-  //   {
-  //     $addToSet: { activeSessions: decoded.sessionId },
-  //   },
-  // );
-
   const isProduction = env.NODE_ENV === "production";
-
   const cookieOptions = {
     httpOnly: true,
     secure: isProduction,
     sameSite: isProduction ? "none" : "lax",
+    path: "/",
   };
 
   res.cookie("accessToken", newTokens.accessToken, {
     ...cookieOptions,
-    maxAge: 3 * 60 * 1000,
+    maxAge: 15 * 60 * 1000,
   });
 
-  res.cookie("refreshToken", newTokens.refreshToken, {
-    ...cookieOptions,
-    maxAge: 7 * 24 * 60 * 60 * 1000,
-  });
+  // KEY FIX: only set a new refreshToken cookie if we actually rotated
+  // On concurrent rotation, the client already has the winning refresh token
+  if (!newTokens._concurrentRotation) {
+    res.cookie("refreshToken", newTokens.refreshToken, {
+      ...cookieOptions,
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
 
-  res.cookie("sessionId", newTokens.sessionId, {
-    httpOnly: false,
-    secure: isProduction,
-    sameSite: isProduction ? "none" : "lax",
-    maxAge: 7 * 24 * 60 * 60 * 1000,
-  });
+    res.cookie("sessionId", newTokens.sessionId, {
+      httpOnly: false,
+      secure: isProduction,
+      sameSite: isProduction ? "none" : "lax",
+      path: "/",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+  }
 
-  res.status(200).json({
+  return res.status(200).json({
     success: true,
     message: "Access token refreshed successfully",
   });

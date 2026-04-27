@@ -7,10 +7,10 @@ import { useSelector, useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import EmptyState from "../components/EmptyState";
-import axios from "axios";
+import { useLocation } from "react-router-dom";
+import axiosInstance from "../api/axiosInstance";
 import { placeOrder } from "../redux/cart/orderSlice";
 import { clearCart, resetBuyNow } from "../redux/cart/cartSlice";
-import BASEURL from "../api/axiosInstance";
 import { Banknote, ChevronLeft, PackageCheck, Truck } from "lucide-react";
 import Razorpay from "../assets/IconsUsed/Razorpay.png";
 import { loadRazorpay } from "../hooks/loadRazorpay";
@@ -24,7 +24,7 @@ function Payment() {
     buyNowMode,
   } = useSelector((s) => s.cart || {});
 
-  const selectedAddress = useSelector((s) => s.address.selectedAddress);
+  // const selectedAddress = useSelector((s) => s.address.selectedAddress);
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -32,6 +32,71 @@ function Payment() {
   const [showStripe, setShowStripe] = useState(false);
   const [upiId, setUpiId] = useState("");
   const [clientSecret, setClientSecret] = useState("");
+
+  // add by aman
+  const location = useLocation();
+  const selectedAddress =
+    location.state?.selectedAddress ||
+    useSelector((s) => s.address.selectedAddress);
+
+  const [checkoutSummary, setCheckoutSummary] = useState(null);
+  const [summaryLoading, setSummaryLoading] = useState(false);
+  const [appliedPoints, setAppliedPoints] = useState(0);
+  // reword points and config from api
+  const [availablePoints, setAvailablePoints] = useState(0);
+  const [rewardConfig, setRewardConfig] = useState(null);
+
+  // summery api call to get the latest pricing details based on selected address and applied points. This is called on initial load and also whenever user applies reward points to get updated summary with discounts and taxes.
+  const fetchCheckoutSummary = async (points = 0) => {
+    try {
+      if (!selectedAddress) return;
+
+      setSummaryLoading(true);
+
+      const res = await axiosInstance.post("/order/checkout-summary", {
+        shippingAddress: selectedAddress,
+        appliedPoints: points,
+      });
+      setCheckoutSummary(res.data?.data || null);
+    } catch (error) {
+      console.error("Checkout summary error:", error);
+      toast.error(
+        error?.response?.data?.message || "Failed to load checkout summary",
+      );
+    } finally {
+      setSummaryLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (selectedAddress) {
+      fetchCheckoutSummary(appliedPoints);
+    }
+  }, [selectedAddress]);
+
+  console.log(checkoutSummary);
+
+  // points
+  const fetchAvailablePoints = async () => {
+    try {
+      const res = await axiosInstance.get("/order/available-points");
+
+      setAvailablePoints(res.data?.data?.availablePoints || 0);
+      setRewardConfig(res.data?.data?.reward || null);
+    } catch (error) {
+      console.error("Points fetch error:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchAvailablePoints();
+  }, []);
+
+  // handleApplyPoints is called from PriceDetails when user applies reward points. It updates the appliedPoints state and refetches the checkout summary with the new points value to get updated pricing details.
+  const handleApplyPoints = async (points) => {
+    setAppliedPoints(points);
+    await fetchCheckoutSummary(points);
+  };
 
   function generateOrderId() {
     const datePart = new Date().toISOString().slice(0, 10).replace(/-/g, "");
@@ -102,24 +167,19 @@ function Payment() {
   }, [selected, totalPrice]);
 
   // Auto open Stripe as soon as clientSecret is ready
-  useEffect(() => {
-    if (selected === "card" && clientSecret) {
-      setShowStripe(true);
-    }
-  }, [clientSecret, selected]);
+  // useEffect(() => {
+  //   if (selected === "card" && clientSecret) {
+  //     setShowStripe(true);
+  //   }
+  // }, [clientSecret, selected]);
 
   const processOrder = (orderDetails) => {
     dispatch(placeOrder(orderDetails));
-
-    // Clear cart
     dispatch(clearCart());
 
-    // Reset Buy Now mode
     if (buyNowMode) dispatch(resetBuyNow());
 
     toast.success("Order placed successfully!");
-
-    // Navigate to confirmation screen
     navigate("/confirm-order", { state: orderDetails });
   };
 
@@ -134,39 +194,44 @@ function Payment() {
         return;
       }
 
-      const backendUrl =
-        import.meta.env.VITE_API_URL || "http://localhost:5000";
-      const { data } = await axios.post(
-        `${backendUrl}/api/payment/create-order`,
-        {
-          amount: orderDetails.totalAmount,
-        },
-        { withCredentials: true },
-      );
-      const razorpayOrder = data.order;
+      const { data } = await axiosInstance.post("/order", {
+        paymentMethod: "razorpay",
+        shippingAddress: selectedAddress,
+        appliedPoints: appliedPoints || 0,
+      });
+
+      const razorpayOrder = data?.data?.razorpay;
+
+      if (!razorpayOrder?.rzOrderId) {
+        toast.error("Failed to create Razorpay order");
+        return;
+      }
 
       const options = {
-        key: data.key,
+        key: razorpayOrder.key,
         amount: razorpayOrder.amount,
         currency: razorpayOrder.currency,
         name: "Happy Art Supplies",
         description: "Order Payment",
-        order_id: razorpayOrder.id,
+        order_id: razorpayOrder.rzOrderId,
         handler: async function (response) {
           try {
-            const verifyRes = await axios.post(
-              `${backendUrl}/api/payment/verify`,
+            const verifyRes = await axiosInstance.post(
+              "/order/verify-payment",
               {
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_signature: response.razorpay_signature,
+                razorpayOrderId: response.razorpay_order_id,
+                razorpayPaymentId: response.razorpay_payment_id,
+                razorpaySignature: response.razorpay_signature,
               },
-              { withCredentials: true },
             );
 
+            // console.log("verifyRes:", verifyRes.data);
+
             if (verifyRes.data.success) {
+              const confirmedOrder = verifyRes.data.data;
               processOrder({
-                ...orderDetails,
+                ...confirmedOrder,
+                backendOrderId: data?.data?.orderId,
                 paymentStatus: "Paid",
                 razorpay_order_id: response.razorpay_order_id,
                 razorpay_payment_id: response.razorpay_payment_id,
@@ -193,7 +258,9 @@ function Payment() {
       razor.open();
     } catch (error) {
       console.error("Razorpay payment error:", error);
-      toast.error("Unable to start Razorpay payment");
+      toast.error(
+        error?.response?.data?.message || "Unable to start Razorpay payment",
+      );
     }
   };
 
@@ -201,33 +268,7 @@ function Payment() {
     const orderDetails = handlePayment();
     if (!orderDetails) return;
 
-    if (selected === "upi") {
-      const cleanUpi = upiId.trim();
-      const upiRegex = /^[\\w.\\-]{2,256}@[A-Za-z]{2,64}$/;
-
-      if (!upiRegex.test(cleanUpi)) {
-        return toast.error("Enter a valid UPI ID (e.g. name@bank)");
-      }
-
-      await handleRazorpayPayment(orderDetails);
-      return;
-    }
-
-    if (
-      selected === "card" ||
-      selected === "netbanking" ||
-      selected === "emi"
-    ) {
-      await handleRazorpayPayment(orderDetails);
-      return;
-    }
-
-    if (selected === "cod") {
-      processOrder({
-        ...orderDetails,
-        paymentStatus: "Pending",
-      });
-    }
+    await handleRazorpayPayment(orderDetails);
   };
 
   if (!cartItems || cartItems.length === 0) {
@@ -301,7 +342,7 @@ function Payment() {
             <div className="w-full bg-white rounded-lg flex flex-col gap-4 mt-6">
               {[
                 {
-                  key: "netbanking",
+                  key: "Razorpay",
                   label: "Razorpay",
                   icon: Razorpay,
                   type: "image",
@@ -361,13 +402,23 @@ function Payment() {
           </div>
 
           <PriceDetails
-            totalItems={totalItems}
-            totalDiscount={totalDiscount}
-            totalPrice={totalPrice}
+            totalItems={cartItems?.length || totalItems}
+            sellingPrice={checkoutSummary?.mrpTotal}
+            totalPrice={checkoutSummary?.total || 0}
+            totalDiscount={checkoutSummary?.totalDiscount || 0}
+            totalGST={checkoutSummary?.totalGST || 0}
             product={cartItems}
             step="payment"
+            // handlePlaceOrder={handleRazorpayPayment}
             handlePlaceOrder={handlePlaceOrder}
             buyNowMode={buyNowMode}
+            deliveryCharge={checkoutSummary?.shippingCharge || 0}
+            PlatformFee={checkoutSummary?.platformFee || 0}
+            // reword points data from api to match PriceDetails props
+            availablePoints={availablePoints}
+            rewardConfig={rewardConfig}
+            onApplyPoints={handleApplyPoints}
+            appliedPoints={checkoutSummary?.discount || 0}
           />
         </div>
       </section>

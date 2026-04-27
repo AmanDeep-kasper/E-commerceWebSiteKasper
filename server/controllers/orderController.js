@@ -123,11 +123,13 @@ const calculateOrderSummary = ({
   }
 
   return {
+    mrpTotal: cart.mrpsubtotal,
+    totalDiscount: cart.discount,
     subtotal: cart.subtotal,
+    totalGST: cart.totalGST,
     shippingCharge,
     platformFee,
     discount,
-    gst: cart.totalGST,
     total: totalBeforeEarning,
     earnedPoints,
   };
@@ -270,7 +272,10 @@ export const checkout = asyncHandler(async (req, res) => {
   });
 
   const {
+    mrpTotal,
+    totalDiscount,
     subtotal,
+    totalGST,
     shippingCharge,
     platformFee,
     discount,
@@ -289,10 +294,12 @@ export const checkout = asyncHandler(async (req, res) => {
     paymentStatus: "pending",
     status: "placed",
 
-    subtotal,
-    totalGST: cart.totalGST,
-    shippingCharge,
+    mrpTotal,
+    totalDiscount,
     platformFee,
+    totalGST,
+    subtotal,
+    shippingCharge,
     discount,
     grandTotal: total,
 
@@ -424,7 +431,7 @@ export const verifyPayment = asyncHandler(async (req, res) => {
 
     // ORDER UPDATE
     order.paymentStatus = "paid";
-    order.status = "confirmed";
+    order.status = "placed";
     order.confirmedAt = new Date();
 
     await order.save({ session });
@@ -564,7 +571,23 @@ export const verifyPayment = asyncHandler(async (req, res) => {
       success: true,
       message: "Payment verified successfully",
       data: {
-        orderId: order._id,
+        orderId: order.orderNumber,
+        shippingAddress: order.shippingAddress,
+        placedAt: order.placedAt,
+        paymentStatus: order.paymentStatus,
+        paymentMethod: order.paymentMethod,
+        items: order.items,
+        reward: order.reward,
+        orderSummary: {
+          mrpTotal: order.mrpTotal,
+          totalDiscount: order.totalDiscount,
+          subtotal: order.subtotal,
+          totalGST: order.totalGST,
+          shippingCharge: order.shippingCharge,
+          platformFee: order.platformFee,
+          discount: order.discount,
+          grandTotal: order.grandTotal,
+        },
       },
     });
   } catch (err) {
@@ -913,83 +936,208 @@ export const getPayments = asyncHandler(async (req, res) => {
     limit = 10,
     search,
     range,
-    sortByMethod,
-    sortByStatus,
+    fromDate,
+    toDate,
+    method,
+    status,
   } = req.query;
 
   const skip = (Number(page) - 1) * Number(limit);
 
   let query = {};
 
-  // search by order id
+  // 🔍 SEARCH
   if (search) {
-    query.$or = [{ orderId: { $regex: search, $options: "i" } }];
+    query.$or = [
+      { razorpayPaymentId: { $regex: search, $options: "i" } },
+      { razorpayOrderId: { $regex: search, $options: "i" } },
+    ];
   }
 
-  // filter by date like last 30 days,
-  if (range) {
+  // 📅 DATE FILTER
+  if (range || (fromDate && toDate)) {
+    let start, end;
     const today = new Date();
-    let fromDate;
 
     if (range === "7d") {
-      fromDate = new Date(today.setDate(today.getDate() - 7));
+      start = new Date();
+      start.setDate(today.getDate() - 7);
     }
 
     if (range === "30d") {
-      fromDate = new Date(today.setDate(today.getDate() - 30));
+      start = new Date();
+      start.setDate(today.getDate() - 30);
     }
 
     if (range === "today") {
-      fromDate = new Date(today.setHours(0, 0, 0, 0));
+      start = new Date();
+      start.setHours(0, 0, 0, 0);
     }
 
-    if (fromDate) {
-      query.createdAt = { $gte: fromDate };
+    if (fromDate && toDate) {
+      start = new Date(fromDate);
+      end = new Date(toDate);
+      end.setHours(23, 59, 59, 999);
+    }
+
+    if (start) {
+      query.createdAt = {
+        $gte: start,
+        ...(end && { $lte: end }),
+      };
     }
   }
 
-  // sort by payment Method
-  let sortOptions = { createdAt: -1 };
+  // 💳 METHOD FILTER
+  if (method) query.method = method;
 
-  if (sortByMethod === "card") sortOptions = { method: "card" };
-  if (sortByMethod === "upi") sortOptions = { method: "upi" };
-  if (sortByMethod === "netbanking") sortOptions = { method: "netbanking" };
-  if (sortByMethod === "wallet") sortOptions = { method: "wallet" };
-  if (sortByMethod === "emi") sortOptions = { method: "emi" };
-  if (sortByMethod === "bank") sortOptions = { method: "bank" };
+  // 📊 STATUS FILTER
+  if (status) query.status = status;
 
-  // sort by payment status
-  if (sortByStatus === "pending") sortOptions = { status: "pending" };
-  if (sortByStatus === "success") sortOptions = { status: "captured" };
-  if (sortByStatus === "failed") sortOptions = { status: "failed" };
+  // ⚡ PARALLEL QUERIES
+  const [payments, total, revenueAgg, weekly, monthly, yearly] =
+    await Promise.all([
+      Payment.find(query)
+        .select("-razorpayRawResponse")
+        .skip(skip)
+        .limit(Number(limit))
+        .sort({ createdAt: -1 })
+        .lean(),
 
-  const payments = await Payment.find(query)
-    .skip(skip)
-    .limit(Number(limit))
-    .sort(sortOptions)
-    .lean();
+      Payment.countDocuments(query),
 
-  const total = await Payment.countDocuments(query);
-  const totalRevenue = await Payment.aggregate([
-    {
-      $match: {
-        status: "captured",
-      },
-    },
-    {
-      $group: {
-        _id: null,
-        total: { $sum: "$amount" },
-      },
-    },
-  ]);
+      // 💰 TOTAL REVENUE
+      Payment.aggregate([
+        { $match: { ...query, status: "captured" } },
+        { $group: { _id: null, total: { $sum: "$amount" } } },
+      ]),
+
+      // 📊 WEEKLY
+      Payment.aggregate([
+        { $match: { ...query, status: "captured" } },
+        {
+          $group: {
+            _id: { $dayOfWeek: "$createdAt" },
+            total: { $sum: "$amount" },
+          },
+        },
+      ]),
+
+      // 📊 MONTHLY (FIXED BUCKET)
+      Payment.aggregate([
+        { $match: { ...query, status: "captured" } },
+
+        {
+          $addFields: {
+            day: { $dayOfMonth: "$createdAt" },
+          },
+        },
+
+        {
+          $addFields: {
+            bucketStart: {
+              $subtract: ["$day", { $mod: [{ $subtract: ["$day", 1] }, 5] }],
+            },
+          },
+        },
+
+        {
+          $addFields: {
+            bucketEnd: {
+              $add: ["$bucketStart", 4],
+            },
+          },
+        },
+
+        {
+          $addFields: {
+            bucket: {
+              $concat: [
+                { $toString: "$bucketStart" },
+                "-",
+                {
+                  $toString: {
+                    $cond: [{ $gt: ["$bucketEnd", 31] }, 31, "$bucketEnd"],
+                  },
+                },
+              ],
+            },
+          },
+        },
+
+        {
+          $group: {
+            _id: "$bucket",
+            total: { $sum: "$amount" },
+          },
+        },
+      ]),
+
+      // 📊 YEARLY
+      Payment.aggregate([
+        { $match: { ...query, status: "captured" } },
+        {
+          $group: {
+            _id: { $month: "$createdAt" },
+            total: { $sum: "$amount" },
+          },
+        },
+      ]),
+    ]);
+
+  // 🧠 FORMAT
+
+  const daysMap = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+  const weeklyData = daysMap.map((day, i) => {
+    const found = weekly.find((d) => d._id === i + 1);
+    return { day, revenue: found ? found.total : 0 };
+  });
+
+  const bucketRanges = [
+    "1-5",
+    "6-10",
+    "11-15",
+    "16-20",
+    "21-25",
+    "26-30",
+    "31-31",
+  ];
+
+  const monthlyData = bucketRanges.map((range) => {
+    const found = monthly.find((d) => d._id === range);
+    return { range, revenue: found ? found.total : 0 };
+  });
+
+  const monthsMap = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+
+  const yearlyData = monthsMap.map((m, i) => {
+    const found = yearly.find((d) => d._id === i + 1);
+    return { month: m, revenue: found ? found.total : 0 };
+  });
 
   res.status(200).json({
     success: true,
     message: "Payments fetched successfully",
     payments,
     stats: {
-      totalRevenue: totalRevenue[0]?.total || 0,
+      totalRevenue: revenueAgg[0]?.total || 0,
+      weekly: weeklyData,
+      monthly: monthlyData,
+      yearly: yearlyData,
     },
     pagination: {
       total,

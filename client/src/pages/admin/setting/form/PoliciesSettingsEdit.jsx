@@ -1,15 +1,80 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ReactQuill from "react-quill-new";
 import "react-quill-new/dist/quill.snow.css";
 import { Link } from "react-router-dom";
+import axiosInstance from "../../../../api//axiosInstance";
 
 const PoliciesSettingsEdit = () => {
-  const [value, setValue] = useState(`
-    <p><strong>Example:</strong></p>
-    <p>Returns are accepted within {{return_window}} days of delivery.</p>
-    <p>Products must be unused, in original condition, and with all packaging intact.</p>
-    <p>Refunds will be processed to the {{refund_method}} after the return is approved.</p>
-  `);
+  const [refundValue, setRefundValue] = useState("");
+  const [shippingValue, setShippingValue] = useState("");
+  const [termsValue, setTermsValue] = useState("");
+  const [faqValue, setFaqValue] = useState("");
+  const [aboutValue, setAboutValue] = useState("");
+  const [privacyValue, setPrivacyValue] = useState("");
+
+  const saveChanges = async () => {
+    try {
+      const payload = {
+        policies: [
+          {
+            type: "return_refund",
+            title: "Refund & Cancellation Policy",
+            content: refundValue,
+          },
+          {
+            type: "shipping",
+            title: "Shipping Policy",
+            content: shippingValue,
+          },
+          {
+            type: "terms",
+            title: "Terms & Conditions",
+            content: termsValue,
+          },
+          {
+            type: "about",
+            title: "About Us",
+            content: aboutValue,
+          },
+          {
+            type: "privacy",
+            title: "Privacy Policy",
+            content: privacyValue,
+          },
+        ],
+      };
+
+      const size = JSON.stringify(payload).length / (1024 * 1024);
+      console.log("Payload size:", size.toFixed(2), "MB");
+      await axiosInstance.post("/dashboard/policy/upsert-policies", payload);
+
+      alert("Saved successfully");
+    } catch (error) {
+      console.error("Error saving policy changes:", error);
+      alert("Save failed");
+    }
+  };
+
+  useEffect(() => {
+    const fetchPolicies = async () => {
+      try {
+        const res = await axiosInstance.get("/dashboard/policy/get-policy");
+
+        res.data.policy.forEach((p) => {
+          if (p.type === "return_refund") setRefundValue(p.content);
+          if (p.type === "shipping") setShippingValue(p.content);
+          if (p.type === "terms") setTermsValue(p.content);
+          if (p.type === "about") setAboutValue(p.content);
+          if (p.type === "privacy") setPrivacyValue(p.content);
+        });
+
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchPolicies();
+  }, []);
 
   return (
     <div className="p-5">
@@ -23,12 +88,15 @@ const PoliciesSettingsEdit = () => {
         </div>
 
         <div className="flex items-center gap-2">
-            <Link to={"/admin/settings/Policies"}>
-          <button className="border border-[#1F3B5B] text-[#1F3B5B] bg-white text-[12px] font-medium px-3 py-1.5 rounded-[4px]">
-            Cancel
-          </button>
+          <Link to={"/admin/settings/Policies"}>
+            <button className="border border-[#1F3B5B] text-[#1F3B5B] bg-white text-[12px] font-medium px-3 py-1.5 rounded-[4px]">
+              Cancel
+            </button>
           </Link>
-          <button className="bg-[#1F3B5B] text-white text-[12px] font-medium px-3 py-1.5 rounded-[4px]">
+          <button
+            className="bg-[#1F3B5B] text-white text-[12px] font-medium px-3 py-1.5 rounded-[4px]"
+            onClick={saveChanges}
+          >
             Save Changes
           </button>
         </div>
@@ -36,14 +104,14 @@ const PoliciesSettingsEdit = () => {
 
       <div className="flex flex-col space-y-4">
         <div>
-          <h2 className="text-[18px] font-semibold text-[#1F2937] mb-4">
-            Return & Refund Policy
+          <h2 className="text-[18px] font-semibold text-[#1F2937] mb-4 px-5">
+            Refund & Cancellation Policy
           </h2>
           <div className=" border-[#D1D5DB] rounded-md bg-white p-4">
             <ReactQuill
               theme="snow"
-              value={value}
-              onChange={setValue}
+              value={refundValue}
+              onChange={setRefundValue}
               modules={{
                 toolbar: [
                   [{ header: [1, 2, 3, false] }],
@@ -59,14 +127,14 @@ const PoliciesSettingsEdit = () => {
           </div>
         </div>
         <div>
-          <h2 className="text-[18px] font-semibold text-[#1F2937] mb-4">
+          <h2 className="text-[18px] font-semibold text-[#1F2937] mb-4 px-5">
             Shipping Policy
           </h2>
           <div className=" border-[#D1D5DB] rounded-md bg-white p-4">
             <ReactQuill
               theme="snow"
-              value={value}
-              onChange={setValue}
+              value={shippingValue}
+              onChange={setShippingValue}
               modules={{
                 toolbar: [
                   [{ header: [1, 2, 3, false] }],
@@ -82,14 +150,14 @@ const PoliciesSettingsEdit = () => {
           </div>
         </div>
         <div>
-          <h2 className="text-[18px] font-semibold text-[#1F2937] mb-4">
-           Terms & Conditions
+          <h2 className="text-[18px] font-semibold text-[#1F2937] mb-4 px-5">
+            Terms & Conditions
           </h2>
           <div className=" border-[#D1D5DB] rounded-md bg-white p-4">
             <ReactQuill
               theme="snow"
-              value={value}
-              onChange={setValue}
+              value={termsValue}
+              onChange={setTermsValue}
               modules={{
                 toolbar: [
                   [{ header: [1, 2, 3, false] }],
@@ -104,15 +172,15 @@ const PoliciesSettingsEdit = () => {
             />
           </div>
         </div>
-        <div>
+        {/* <div>
           <h2 className="text-[18px] font-semibold text-[#1F2937] mb-4">
             Frequently Asked Question (FAQs)
           </h2>
           <div className=" border-[#D1D5DB] rounded-md bg-white p-4">
             <ReactQuill
               theme="snow"
-              value={value}
-              onChange={setValue}
+              value={faqValue}
+              onChange={setFaqValue}
               modules={{
                 toolbar: [
                   [{ header: [1, 2, 3, false] }],
@@ -126,16 +194,16 @@ const PoliciesSettingsEdit = () => {
               className="bg-white"
             />
           </div>
-        </div>
+        </div> */}
         <div>
-          <h2 className="text-[18px] font-semibold text-[#1F2937] mb-4">
-           About Us
+          <h2 className="text-[18px] font-semibold text-[#1F2937] mb-4 px-5">
+            About Us
           </h2>
           <div className=" border-[#D1D5DB] rounded-md bg-white p-4">
             <ReactQuill
               theme="snow"
-              value={value}
-              onChange={setValue}
+              value={aboutValue}
+              onChange={setAboutValue}
               modules={{
                 toolbar: [
                   [{ header: [1, 2, 3, false] }],
@@ -151,14 +219,14 @@ const PoliciesSettingsEdit = () => {
           </div>
         </div>
         <div>
-          <h2 className="text-[18px] font-semibold text-[#1F2937] mb-4">
+          <h2 className="text-[18px] font-semibold text-[#1F2937] mb-4 px-5">
             Privacy Policy
           </h2>
           <div className=" border-[#D1D5DB] rounded-md bg-white p-4">
             <ReactQuill
               theme="snow"
-              value={value}
-              onChange={setValue}
+              value={privacyValue}
+              onChange={setPrivacyValue}
               modules={{
                 toolbar: [
                   [{ header: [1, 2, 3, false] }],
@@ -173,6 +241,7 @@ const PoliciesSettingsEdit = () => {
             />
           </div>
         </div>
+
       </div>
     </div>
   );

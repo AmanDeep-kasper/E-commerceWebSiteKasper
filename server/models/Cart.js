@@ -80,13 +80,9 @@ const CartSchema = new mongoose.Schema(
       default: 0,
     },
 
-    // // REWARD (NO COUPON AS PER YOUR REQUIREMENT)
-    // reward: {
-    //   usedPoints: { type: Number, default: 0 },
-    //   discount: { type: Number, default: 0 },
-    // },
-
     // TOTALS
+    mrpsubtotal: { type: Number, default: 0 },
+    discount: { type: Number, default: 0 },
     subtotal: { type: Number, default: 0 },
     totalGST: { type: Number, default: 0 },
     grandTotal: { type: Number, default: 0 },
@@ -110,13 +106,19 @@ CartSchema.methods.recalculate = function () {
   let subtotal = 0;
   let totalGST = 0;
   let totalQty = 0;
+  let totalDiscount = 0;
+  let totalMrp = 0;
 
   for (const item of this.items) {
     const base = item.sellingPrice * item.quantity;
     const gstAmt = (base * item.gst) / 100;
+    const totalMrpBase = item.mrp * item.quantity;
+    const discount = totalMrpBase - base;
 
     item.itemTotal = base;
 
+    totalDiscount += discount;
+    totalMrp += totalMrpBase;
     subtotal += base;
     totalGST += gstAmt;
     totalQty += item.quantity;
@@ -124,14 +126,11 @@ CartSchema.methods.recalculate = function () {
 
   this.totalQuantity = totalQty;
 
-  // ✅ SAFE DEFAULTS (VERY IMPORTANT)
-  // const shippingCharge = this.shipping?.charge || 0;
-  // const rewardDiscount = this.reward?.discount || 0;
-
+  this.mrpsubtotal = Math.round(totalMrp * 100) / 100;
+  this.discount = Math.round(totalDiscount * 100) / 100;
   this.subtotal = Math.round(subtotal * 100) / 100;
   this.totalGST = Math.round(totalGST * 100) / 100;
-
-  this.grandTotal = Math.round((subtotal + totalGST) * 100) / 100;
+  this.grandTotal = Math.round(subtotal * 100) / 100;
 };
 
 const Cart = mongoose.model("Cart", CartSchema);

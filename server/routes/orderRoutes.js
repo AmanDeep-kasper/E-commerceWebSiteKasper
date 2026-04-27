@@ -7,6 +7,7 @@ import {
   getOrderDetails,
   getOrders,
   getOrdersAdmin,
+  getPayments,
   getUserAvailablePoints,
   paymentFailed,
   readyToShip,
@@ -22,7 +23,7 @@ router.post("/", authenticate, checkout);
 router.post("/checkout-summary", authenticate, checkoutSummary);
 router.post("/verify-payment", authenticate, verifyPayment);
 router.post("/payment-failed", authenticate, paymentFailed);
-router.get("/", authenticate, authorize("user"), getOrders);
+router.get("/", authenticate, authorize("user"), getOrders); // get orders for logged in user
 router.get("/available-points", authenticate, getUserAvailablePoints);
 
 // admin routes
@@ -51,6 +52,7 @@ router.patch(
   authorize("admin"),
   deliverOrder,
 );
+router.get("/payments", authenticate, authorize("admin"), getPayments);
 
 // common routes
 router.get("/:orderId", authenticate, getOrderDetails);
