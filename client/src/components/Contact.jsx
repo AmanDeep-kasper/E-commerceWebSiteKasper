@@ -246,13 +246,14 @@ function ContactSection() {
                   Contact Us
                 </h1>
                 <p className="text-sm text-gray-500 mt-1">
-                  We'd love to hear from you. Fill out this form below.
+                  If you have any questions related orders, products, or
+                  anything please reach out.
                 </p>
               </div>
             </div>
             {/* email section */}
-            <div className=" flex items-start justify-start ">
-              <div className="w-[50%] bg-[#FFFFFF]">
+            <div className=" flex items-start justify-start relative ">
+              <div className="md:w-[50%] w-full bg-[#FFFFFF]">
                 <div className="border-b">
                   <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 p-3 bg-white rounded-lg">
                     <div className="p-2 bg-[#F0EEFF] rounded-lg flex-shrink-0">
@@ -307,21 +308,27 @@ function ContactSection() {
 
                     <div className="flex items-center gap-4 mt-2">
                       <button>
-                        <a target="-" href="https://www.instagram.com/happyartsupplies/">
+                        <a
+                          target="-"
+                          href="https://www.instagram.com/happyartsupplies/"
+                        >
                           <img src={insta} alt="Instagram" />
                         </a>
                       </button>
                       <button>
-                          <a target="-" href="https://www.facebook.com/HappyArtSupplies/">
-                        <img src={facebook} alt="Facebook" />
-                          </a>
+                        <a
+                          target="-"
+                          href="https://www.facebook.com/HappyArtSupplies/"
+                        >
+                          <img src={facebook} alt="Facebook" />
+                        </a>
                       </button>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div className="flex justify-center items-center">
+              <div className="hidden md:flex w-[50%] justify-center items-center absolute right-0 bottom-5">
                 <img
                   src={loadingGif}
                   alt="loading"
