@@ -221,13 +221,13 @@ const AddProduct = () => {
             status: productData.isActive ? "ACTIVE" : "INACTIVE",
             category: categoryId,
             subcategory: subcategoryId,
-             SKU: productData.SKU || "",
+            SKU: productData.SKU || "",
             variants: mappedVariants,
           });
           setIsProductDraft(productData.isDraft === true);
 
           setStatus(productData.isActive ? "active" : "inactive");
-          
+
 
           if (productData.SKU) {
             setFormData((prev) => ({ ...prev, SKU: productData.SKU }));
@@ -237,8 +237,8 @@ const AddProduct = () => {
           if (productData.isDraft) {
             setDraftId(productData._id);
           }
-           // Clear any pending new variants since we're loading from DB
-        setNewVariants([]);
+          // Clear any pending new variants since we're loading from DB
+          setNewVariants([]);
           // setIsEditing(true);
         }
       } catch (error) {
@@ -418,85 +418,85 @@ const AddProduct = () => {
   ]);
 
   //  Handle image upload per variant
- //  Handle image upload per variant
-const handleVariantImageChange = async (e, index) => {
-  let files = Array.from(e.target.files);
-  if (!files.length) return;
+  //  Handle image upload per variant
+  const handleVariantImageChange = async (e, index) => {
+    let files = Array.from(e.target.files);
+    if (!files.length) return;
 
-  setUploadingVariantIndex(index);
+    setUploadingVariantIndex(index);
 
-  try {
-    const formDataObj = new FormData();
+    try {
+      const formDataObj = new FormData();
 
-    for (let file of files) {
-      const compressedBlob = await imageCompression(file, {
-        maxSizeMB: 2,
-        maxWidthOrHeight: 2000,
-        useWebWorker: true,
-      });
+      for (let file of files) {
+        const compressedBlob = await imageCompression(file, {
+          maxSizeMB: 2,
+          maxWidthOrHeight: 2000,
+          useWebWorker: true,
+        });
 
-      const compressed = blobToFile(compressedBlob, file.name);
-      formDataObj.append("productImages", compressed);
-    }
-
-    const res = await axiosInstance.post(
-      "/product/admin/add-product-images",
-      formDataObj,
-    );
-
-    const uploadedImages = res.data.data;
-    
-    // Get the variant at this index from allVariants
-    const variantAtIndex = allVariants[index];
-    const isNewVariantAtIndex = variantAtIndex?.isNew === true;
-
-    if (isNewVariantAtIndex) {
-      // Find the variant in newVariants by its unique ID
-      const variantId = variantAtIndex.variantId || variantAtIndex.variantSkuId;
-      const newVariantIndex = newVariants.findIndex(
-        v => v.variantId === variantId || v.variantSkuId === variantId
-      );
-      
-      if (newVariantIndex !== -1) {
-        const updated = [...newVariants];
-        const existingImages = updated[newVariantIndex]?.variantImage || [];
-        updated[newVariantIndex] = {
-          ...updated[newVariantIndex],
-          variantImage: [...existingImages, ...uploadedImages].slice(0, 10),
-        };
-        setNewVariants(updated);
-      } else {
-        console.error("New variant not found in newVariants array");
-        toast.error("Failed to find variant for image upload");
+        const compressed = blobToFile(compressedBlob, file.name);
+        formDataObj.append("productImages", compressed);
       }
-    } else {
-      // Update existing variant in formData
-      setFormData((prev) => {
-        const updatedVariants = [...prev.variants];
-        const existingImages = updatedVariants[index]?.variantImage || [];
-        updatedVariants[index] = {
-          ...updatedVariants[index],
-          variantImage: [...existingImages, ...uploadedImages].slice(0, 10),
-        };
-        return { ...prev, variants: updatedVariants };
-      });
-    }
 
-    toast.success("Images uploaded successfully!");
-  } catch (err) {
-    console.error("Upload error:", err);
-    if (err.code === "ECONNABORTED") {
-      toast.error("Upload timeout - please try again with smaller images");
-    } else if (err.response?.status === 413) {
-      toast.error("Images too large - please use smaller images");
-    } else {
-      toast.error("Image upload failed - please try again");
+      const res = await axiosInstance.post(
+        "/product/admin/add-product-images",
+        formDataObj,
+      );
+
+      const uploadedImages = res.data.data;
+
+      // Get the variant at this index from allVariants
+      const variantAtIndex = allVariants[index];
+      const isNewVariantAtIndex = variantAtIndex?.isNew === true;
+
+      if (isNewVariantAtIndex) {
+        // Find the variant in newVariants by its unique ID
+        const variantId = variantAtIndex.variantId || variantAtIndex.variantSkuId;
+        const newVariantIndex = newVariants.findIndex(
+          v => v.variantId === variantId || v.variantSkuId === variantId
+        );
+
+        if (newVariantIndex !== -1) {
+          const updated = [...newVariants];
+          const existingImages = updated[newVariantIndex]?.variantImage || [];
+          updated[newVariantIndex] = {
+            ...updated[newVariantIndex],
+            variantImage: [...existingImages, ...uploadedImages].slice(0, 10),
+          };
+          setNewVariants(updated);
+        } else {
+          console.error("New variant not found in newVariants array");
+          toast.error("Failed to find variant for image upload");
+        }
+      } else {
+        // Update existing variant in formData
+        setFormData((prev) => {
+          const updatedVariants = [...prev.variants];
+          const existingImages = updatedVariants[index]?.variantImage || [];
+          updatedVariants[index] = {
+            ...updatedVariants[index],
+            variantImage: [...existingImages, ...uploadedImages].slice(0, 10),
+          };
+          return { ...prev, variants: updatedVariants };
+        });
+      }
+
+      toast.success("Images uploaded successfully!");
+    } catch (err) {
+      console.error("Upload error:", err);
+      if (err.code === "ECONNABORTED") {
+        toast.error("Upload timeout - please try again with smaller images");
+      } else if (err.response?.status === 413) {
+        toast.error("Images too large - please use smaller images");
+      } else {
+        toast.error("Image upload failed - please try again");
+      }
+    } finally {
+      setUploadingVariantIndex(null);
+      e.target.value = "";
     }
-  } finally {
-    setUploadingVariantIndex(null);
-    e.target.value = "";
-  }
-};
+  };
 
   //  Remove a specific image from a specific variant
   const removeVariantImage = (variantIndex, imgIndex) => {
@@ -561,6 +561,11 @@ const handleVariantImageChange = async (e, index) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log("=== Submit Debug ===");
+  console.log("isEditing:", isEditing);
+  console.log("productId:", productId);
+  console.log("isProductDraft:", isProductDraft);
+  console.log("draftId:", draftId);
 
     if (!formData.productTittle.trim()) {
       toast.error("Product name is required");
@@ -571,8 +576,8 @@ const handleVariantImageChange = async (e, index) => {
       toast.error("Category is required");
       return;
     }
-      // Combine existing variants with new variants
-  const allVariantsToSubmit = [...formData.variants, ...newVariants];
+    // Combine existing variants with new variants
+    const allVariantsToSubmit = [...formData.variants, ...newVariants];
 
     for (let i = 0; i < allVariantsToSubmit.length; i++) {
       const variant = allVariantsToSubmit[i];
@@ -645,17 +650,24 @@ const handleVariantImageChange = async (e, index) => {
     try {
       let response;
       if (isEditing && productId) {
+        // check of this is a draft being published
+        const isPublishingDraft = isProductDraft === true;
         // UPDATE existing product
         response = await axiosInstance.patch(
           `/product/admin/update-product/${productId}`,
           {
             ...payload,
             action: "add",
+            // If this is a draft being published, explicitly set isDraft to false and isActive to true
+            ...(isPublishingDraft && {
+              isDraft: false,
+              isActive: true,
+            }),
           }
         );
-        toast.success("Product updated successfully!");
-         // Clear newVariants after successful update
-      setNewVariants([]);
+        toast.success(isPublishingDraft ? "Product published successfully!" : "Product updated successfully!");
+        // Clear newVariants after successful update
+        setNewVariants([]);
       } else {
         // CREATE new product
         response = await axiosInstance.post(
@@ -895,7 +907,6 @@ const handleSaveDraft = async () => {
     return;
   }
 
-  // Combine existing variants with new variants
   const allVariantsToSubmit = [...formData.variants, ...newVariants];
 
   try {
@@ -924,22 +935,32 @@ const handleSaveDraft = async () => {
     };
 
     let response;
+    let savedDraftId = draftId;
+    
     if (draftId) {
       response = await axiosInstance.patch(
         `/product/admin/update-product/${draftId}`,
         payload
       );
       toast.success("Draft updated successfully!");
-      // Clear newVariants after successful draft save
+      savedDraftId = draftId;
       setNewVariants([]);
     } else {
       response = await axiosInstance.post("/product/admin/add-product", payload);
-      setDraftId(response.data.data._id);
+      savedDraftId = response.data.data._id;
+      setDraftId(savedDraftId);
       toast.success("Draft saved successfully!");
     }
     
-    // Also save to localStorage as backup
-    localStorage.setItem("addProductDraft", JSON.stringify(formData));
+    // Store draft info in localStorage with the database ID
+    const draftWithInfo = {
+      ...formData,
+      _id: savedDraftId,
+      _lastSaved: new Date().toISOString()
+    };
+    localStorage.setItem("addProductDraft", JSON.stringify(draftWithInfo));
+    localStorage.setItem("addProductDraft_lastSaved", new Date().toISOString());
+    localStorage.setItem("addProductDraft_id", savedDraftId);
     setHasDraft(true);
   } catch (err) {
     console.error("Draft save error:", err);
@@ -947,21 +968,28 @@ const handleSaveDraft = async () => {
   }
 };
 
-  useEffect(() => {
-    const savedDraft = localStorage.getItem("addProductDraft");
-    if (savedDraft) {
-      try {
-        const parsedData = JSON.parse(savedDraft);
-        setFormData(parsedData);
-        // setTimeout(() => {
-        //   toast.success("Draft restored!");
-        // }, 500);
-      } catch (err) {
-        console.log(err);
-      }
-    }
-  }, []);
+  // useEffect(() => {
+  //   const savedDraft = localStorage.getItem("addProductDraft");
+  //   if (savedDraft) {
+  //     try {
+  //       const parsedData = JSON.parse(savedDraft);
+  //       setFormData(parsedData);
+  //       // setTimeout(() => {
+  //       //   toast.success("Draft restored!");
+  //       // }, 500);
+  //     } catch (err) {
+  //       console.log(err);
+  //     }
+  //   }
+  // }, []);
 
+  useEffect(() => {
+  // If we have an ID in the URL and we're not editing, set editing mode
+  if (id && !isEditing) {
+    // This will trigger the fetchProductForEdit effect
+    // The component will re-render with isEditing=true
+  }
+}, [id]);
   const [hasDraft, setHasDraft] = useState(false);
 
   useEffect(() => {
@@ -973,14 +1001,36 @@ const handleSaveDraft = async () => {
   }, []);
 
 
-  const handleRestoreDraft = () => {
+const handleRestoreDraft = () => {
+  const savedDraftId = localStorage.getItem("addProductDraft_id");
+  if (savedDraftId) {
+    // Navigate to the draft edit page
+    navigate(`/admin/add-product/${savedDraftId}`);
+    // Clear the localStorage draft after navigation to prevent confusion
+    // Don't clear immediately - let the edit page load first
+  } else {
     const savedDraft = localStorage.getItem("addProductDraft");
-
     if (savedDraft) {
-      setFormData(JSON.parse(savedDraft));
-      toast.success("Draft restored!");
+      try {
+        const parsedData = JSON.parse(savedDraft);
+        if (parsedData._id) {
+          navigate(`/admin/add-product/${parsedData._id}`);
+        } else {
+          // Fallback: restore to form
+          delete parsedData._lastSaved;
+          delete parsedData._id;
+          delete parsedData.draftId;
+          setFormData(parsedData);
+          toast.success("Draft restored! Continue editing.");
+          setHasDraft(false);
+        }
+      } catch (error) {
+        console.error("Error restoring draft:", error);
+        toast.error("Failed to restore draft");
+      }
     }
-  };
+  }
+};
 
   // ////////////////////
 
@@ -1278,24 +1328,32 @@ const handleSaveDraft = async () => {
           </div>
 
           <div className="flex items-center gap-4 px-2">
-            <button
-              type="button"
-              onClick={() => {
-                if (isEditing) {
-                  // In edit mode, just navigate back without clearing
-                  navigate("/admin/products");
-                } else {
-                  // In add mode, clear draft and reset form
-                  localStorage.removeItem("addProductDraft");
-                  setFormData(createInitialState());
-                  toast.info("Draft cleared");
-                  navigate("/admin/products");
-                }
-              }}
-              className="py-1 px-3 rounded border border-[#737373] text-[#737373] hover:bg-[#706f6f] hover:text-white bg-[#F6F8F9] font-medium"
-            >
-              Cancel
-            </button>
+           <button
+  type="button"
+  onClick={() => {
+    if (isEditing) {
+      navigate("/admin/products");
+    } else {
+      if (hasDraft) {
+        if (window.confirm("You have an unsaved draft. Are you sure you want to discard it?")) {
+          localStorage.removeItem("addProductDraft");
+          localStorage.removeItem("addProductDraft_lastSaved");
+          localStorage.removeItem("addProductDraft_id");
+          setFormData(createInitialState());
+          setHasDraft(false);
+          setNewVariants([]);
+          toast.info("Draft cleared");
+          navigate("/admin/products");
+        }
+      } else {
+        navigate("/admin/products");
+      }
+    }
+  }}
+  className="py-1 px-3 rounded border border-[#737373] text-[#737373] hover:bg-[#706f6f] hover:text-white bg-[#F6F8F9] font-medium"
+>
+  Cancel
+</button>
             {!isEditing && (
               <button
                 type="button"
@@ -1323,6 +1381,40 @@ const handleSaveDraft = async () => {
             </button>
           </div>
         </div>
+        {/* Draft Banner - Add this right after header */}
+        {!isEditing && hasDraft && (
+          <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-amber-600 text-xl">📝</span>
+              <div>
+                <span className="text-sm font-medium text-amber-800">You have an unfinished draft product.</span>
+                <p className="text-xs text-amber-600 mt-0.5">Last saved: {new Date(localStorage.getItem("addProductDraft_lastSaved") || Date.now()).toLocaleString()}</p>
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={handleRestoreDraft}
+                className="px-3 py-1.5 text-sm bg-amber-100 text-amber-800 rounded-lg hover:bg-amber-200 transition-colors"
+              >
+                Resume Draft
+              </button>
+              <button
+  onClick={() => {
+    localStorage.removeItem("addProductDraft");
+    localStorage.removeItem("addProductDraft_lastSaved");
+    localStorage.removeItem("addProductDraft_id");
+    setHasDraft(false);
+    setFormData(createInitialState());
+    setNewVariants([]);
+    toast.info("Draft discarded. You can start a new product.");
+  }}
+  className="px-3 py-1.5 text-sm bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors"
+>
+  Discard
+</button>
+            </div>
+          </div>
+        )}
 
         {/* Product Info Grid */}
         <div className="w-full">
@@ -1444,10 +1536,9 @@ const handleSaveDraft = async () => {
                       <div className="relative w-full">
                         {isEditing ? (
                           <div className="w-full h-[48px] px-4 rounded-xl bg-gray-100 text-gray-600 flex items-center border border-gray-200">
-                            {categories.find(
-                              (cat) => cat._id === formData.category,
-                            )?.name || "Not selected"}
-                            {categories.find(cat => cat._id === formData.category)?.name || "Not selected"}
+                           {categories.find(
+      (cat) => cat._id === formData.category,
+    )?.name || "Not selected"}
                           </div>
                         ) : (
                           <select
@@ -1502,9 +1593,9 @@ const handleSaveDraft = async () => {
                       </label>
 
                       <div className="relative w-full">
-                        {isEditing ? (
-                          <div className="w-full h-[48px] px-4 rounded-xl bg-gray-100 text-gray-600 flex items-center border border-gray-200">
-                            {subCategories.find(sub => sub._id === formData.subcategory)?.name || "Not selected"}
+                       {isEditing ? (
+  <div className="w-full h-[48px] px-4 rounded-xl bg-gray-100 text-gray-600 flex items-center border border-gray-200">
+    {subCategories.find(sub => sub._id === formData.subcategory)?.name || "Not selected"}
                           </div>
                         ) : (
                           <select
