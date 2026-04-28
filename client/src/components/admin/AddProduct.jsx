@@ -165,7 +165,7 @@ const AddProduct = () => {
         const response = await axiosInstance.get(
           `/product/admin/get-product-details/${id}`,
         );
-        console.log("Product to edit:", response.data);
+        // console.log("Product to edit:", response.data);
 
         let productData = null;
         if (response.data?.success && response.data?.data) {
@@ -242,7 +242,7 @@ const AddProduct = () => {
           // setIsEditing(true);
         }
       } catch (error) {
-        console.error("Error fetching product:", error);
+        // console.error("Error fetching product:", error);
         toast.error("Failed to load product data");
       } finally {
         setLoadingProduct(false);
@@ -466,7 +466,7 @@ const AddProduct = () => {
           };
           setNewVariants(updated);
         } else {
-          console.error("New variant not found in newVariants array");
+          // console.error("New variant not found in newVariants array");
           toast.error("Failed to find variant for image upload");
         }
       } else {
@@ -561,11 +561,11 @@ const AddProduct = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("=== Submit Debug ===");
-  console.log("isEditing:", isEditing);
-  console.log("productId:", productId);
-  console.log("isProductDraft:", isProductDraft);
-  console.log("draftId:", draftId);
+  //   console.log("=== Submit Debug ===");
+  // console.log("isEditing:", isEditing);
+  // console.log("productId:", productId);
+  // console.log("isProductDraft:", isProductDraft);
+  // console.log("draftId:", draftId);
 
     if (!formData.productTittle.trim()) {
       toast.error("Product name is required");
