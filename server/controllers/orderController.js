@@ -16,6 +16,7 @@ import razorpay, {
   verifyPaymentSignature,
 } from "../service/razorpayService.js";
 import mongoose from "mongoose";
+import { createInvoiceFromOrder } from "../service/invoiceService.js";
 
 // Helper function
 const calculateShippingCharge = ({
@@ -566,12 +567,30 @@ export const verifyPayment = asyncHandler(async (req, res) => {
     await session.commitTransaction();
     session.endSession();
 
+    /* =========================
+   CREATE INVOICE
+========================= */
+    let invoice = null;
+
+    try {
+      invoice = await createInvoiceFromOrder(order._id);
+    } catch (error) {
+      console.error("Invoice generation failed:", error);
+    }
+
     // RESPONSE
     res.status(200).json({
       success: true,
       message: "Payment verified successfully",
       data: {
         orderId: order.orderNumber,
+        invoice: invoice
+          ? {
+              id: invoice._id,
+              invoiceNumber: invoice.invoiceNumber,
+              pdfUrl: invoice.pdf?.url || null,
+            }
+          : null,
         shippingAddress: order.shippingAddress,
         placedAt: order.placedAt,
         paymentStatus: order.paymentStatus,

@@ -155,7 +155,6 @@ const InvoiceSchema = new mongoose.Schema(
       type: String,
       required: true,
       unique: true,
-      index: true,
     },
 
     orderId: {
@@ -163,7 +162,6 @@ const InvoiceSchema = new mongoose.Schema(
       ref: "Order",
       required: true,
       unique: true,
-      index: true,
     },
 
     orderNumber: {
@@ -288,6 +286,27 @@ InvoiceSchema.index({ "buyer.stateCode": 1, issuedAt: -1 });
 InvoiceSchema.index({ "items.hsnCode": 1 });
 InvoiceSchema.index({ "items.sku": 1 });
 InvoiceSchema.index({ status: 1, issuedAt: -1 });
+
+InvoiceSchema.pre("save", async function (next) {
+  if (!this.isNew || this.invoiceNumber) return next();
+
+  try {
+    const date = new Date();
+
+    const dateStr =
+      date.getFullYear() +
+      String(date.getMonth() + 1).padStart(2, "0") +
+      String(date.getDate()).padStart(2, "0");
+
+    const count = await mongoose.model("Invoice").countDocuments();
+
+    this.invoiceNumber = `INV-${dateStr}-${String(count + 1).padStart(4, "0")}`;
+
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
 
 const Invoice = mongoose.model("Invoice", InvoiceSchema);
 export default Invoice;
