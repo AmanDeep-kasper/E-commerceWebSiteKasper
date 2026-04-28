@@ -331,6 +331,7 @@ export const getUserById = asyncHandler(async (req, res) => {
 
   // ✅ Fetch user (exclude sensitive fields)
   const user = await User.findById(userId)
+    .populate("defaultAddress")
     .select(
       "-password -refreshTokens -currentSessionId -resetPasswordAttempts -lastResetRequest -lastResetRequestIP -lastResetRequestDevice -lastPasswordChange -lastPasswordChangeIP -lastPasswordChangeDevice -lockUntil",
     )
