@@ -863,7 +863,7 @@ export const acceptOrder = asyncHandler(async (req, res) => {
 
 export const readyToShip = asyncHandler(async (req, res) => {
   const { orderId } = req.params;
-  const { carrier, trackingNumber, trackingUrl } = req.body;
+  const { carrier } = req.body;
 
   const order = await Order.findById(orderId);
   if (!order) {
@@ -881,8 +881,6 @@ export const readyToShip = asyncHandler(async (req, res) => {
   order.status = "ready_to_ship";
   order.tracking = {
     carrier,
-    trackingNumber,
-    trackingUrl,
   };
   await order.save();
 
@@ -894,6 +892,7 @@ export const readyToShip = asyncHandler(async (req, res) => {
 
 export const shipOrder = asyncHandler(async (req, res) => {
   const { orderId } = req.params;
+  const { carrier, trackingNumber, trackingUrl } = req.body;
 
   const order = await Order.findById(orderId);
   if (!order) {
@@ -907,6 +906,12 @@ export const shipOrder = asyncHandler(async (req, res) => {
   if (["shipped", "delivered"].includes(order.status)) {
     throw AppError.badRequest("Order already shipped", "ALREADY_SHIPPED");
   }
+
+  order.tracking = {
+    carrier,
+    trackingNumber,
+    trackingUrl,
+  };
 
   order.status = "shipped";
   await order.save();
