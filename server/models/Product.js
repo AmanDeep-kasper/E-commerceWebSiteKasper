@@ -12,7 +12,13 @@ const VariantSchema = new mongoose.Schema({
     default: "kg",
   },
 
-  variantSkuId: { type: String, required: true, unique: true },
+  variantSkuId: {
+    type: String,
+    required: true,
+    unique: function () {
+      return !this.isDraft;
+    },
+  },
 
   variantImage: [
     {
@@ -73,9 +79,6 @@ const ProductSchema = new mongoose.Schema(
     subcategory: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "SubCategory",
-      // required: function () {
-      //   return !this.isDraft;
-      // },
       index: true,
     },
 
