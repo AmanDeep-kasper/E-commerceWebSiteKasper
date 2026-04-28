@@ -850,15 +850,13 @@ export const getAllOrdersByUser = asyncHandler(async (req, res) => {
 
   const query = { user: userObjectId };
 
-
-  // 1. ORDERS 
+  // 1. ORDERS
   const orders = await Order.find(query)
-    .select("orderNumber grandTotal createdAt status") 
+    .select("orderNumber grandTotal createdAt status")
     .skip(skip)
     .limit(Number(limit))
     .sort({ createdAt: -1 })
     .lean();
-
 
   // 2. PARALLEL STATS (FAST)
   const [total, cancelled, totalSpendAgg, topCategoryAgg] = await Promise.all([
@@ -880,7 +878,6 @@ export const getAllOrdersByUser = asyncHandler(async (req, res) => {
       },
     ]),
 
-   
     // TOP CATEGORY WITH NAME
     Order.aggregate([
       { $match: query },
@@ -909,7 +906,7 @@ export const getAllOrdersByUser = asyncHandler(async (req, res) => {
       {
         $group: {
           _id: "$category._id",
-          name: { $first: "$category.name" }, 
+          name: { $first: "$category.name" },
           count: { $sum: 1 },
         },
       },
@@ -918,7 +915,6 @@ export const getAllOrdersByUser = asyncHandler(async (req, res) => {
     ]),
   ]);
 
- 
   // FINAL DATA
   const topCategory =
     topCategoryAgg.length > 0
@@ -1299,3 +1295,9 @@ export const getOrderDetails = asyncHandler(async (req, res) => {
     order,
   });
 });
+
+export const createInvoice = asyncHandler(async (req, res) => {});
+
+export const getInvoices = asyncHandler(async (req, res) => {});
+
+export const getInvoiceDetails = asyncHandler(async (req, res) => {});
