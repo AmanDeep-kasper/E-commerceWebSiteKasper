@@ -193,6 +193,7 @@ export const adminGetAllProducts = asyncHandler(async (req, res) => {
   // ✅ STATUS FILTER
   if (status === "active") filter.isActive = true;
   if (status === "inactive") filter.isActive = false;
+  if (status === "draft") filter.isDraft = true;
 
   // 🔍 SEARCH (name, slug, sku)
   if (search) {
