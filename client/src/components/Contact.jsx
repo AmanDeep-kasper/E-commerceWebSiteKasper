@@ -255,14 +255,13 @@ function ContactSection() {
             <div className=" flex items-start justify-start relative ">
               <div className="md:w-[50%] w-full bg-[#FFFFFF]">
                 <div className="border-b">
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 p-3 bg-white rounded-lg">
+                  <div className="flex items-center gap-4 p-3 bg-white rounded-lg">
                     <div className="p-2 bg-[#F0EEFF] rounded-lg flex-shrink-0">
                       <Mail className="w-5 h-5 text-[#1800AC]" />
                     </div>
-
-                    <div className="flex flex-col">
+                    <div>
                       <p className="text-sm font-medium text-gray-700">Email</p>
-                      <p className="text-sm text-gray-500 break-all">
+                      <p className="text-sm text-gray-500">
                         happyartsupplies@gmail.com
                       </p>
                     </div>
