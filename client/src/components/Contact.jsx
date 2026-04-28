@@ -238,7 +238,7 @@ function ContactSection() {
           </div> */}
 
         {/* //////////////////// add by client requied */}
-        <div className="flex flex-col-reverse lg:grid lg:grid-cols-2">
+        <div className="flex flex-col-reverse lg:grid lg:grid-cols-2 pb-5">
           <div className="lg:col-span-2">
             <div className="p-6  bg-[#FFFFFF]">
               <div>
