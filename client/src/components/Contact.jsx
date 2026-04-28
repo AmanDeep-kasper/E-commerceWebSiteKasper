@@ -238,7 +238,7 @@ function ContactSection() {
           </div> */}
 
         {/* //////////////////// add by client requied */}
-        <div className="flex flex-col-reverse lg:grid lg:grid-cols-2 pb-5">
+        <div className="flex flex-col-reverse lg:grid lg:grid-cols-1">
           <div className="lg:col-span-2">
             <div className="p-6  bg-[#FFFFFF]">
               <div>
@@ -252,11 +252,11 @@ function ContactSection() {
               </div>
             </div>
             {/* email section */}
-            <div className=" flex items-start justify-start relative ">
-              <div className="md:w-[50%] w-full bg-[#FFFFFF]">
+            <div className=" flex items-start justify-between flex-col lg:flex-row gap-4 p-6">
+              <div className="w-[50%] bg-[#FFFFFF]">
                 <div className="border-b">
-                  <div className="flex items-center gap-4 p-3 bg-white rounded-lg">
-                    <div className="p-2 bg-[#F0EEFF] rounded-lg flex-shrink-0">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 p-3 bg-white rounded-lg">
+                    <div className="p-2 bg-[#F0EEFF] rounded-full flex-shrink-0">
                       <Mail className="w-5 h-5 text-[#1800AC]" />
                     </div>
                     <div>
@@ -267,8 +267,8 @@ function ContactSection() {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-4 p-3 bg-white rounded-lg">
-                    <div className="p-2 bg-[#F0EEFF] rounded-lg">
+                  <div className="flex items-center gap-4 p-3 bg-white rounded-full">
+                    <div className="p-2 bg-[#F0EEFF] rounded-full">
                       <Phone className="w-5 h-5 text-[#1800AC]" />
                     </div>
                     <div>
@@ -277,8 +277,8 @@ function ContactSection() {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-4 p-3 bg-white rounded-lg">
-                    <div className="p-2 bg-[#F0EEFF] rounded-lg">
+                  <div className="flex items-center gap-4 p-3 bg-white rounded-full">
+                    <div className="p-2 bg-[#F0EEFF] rounded-full">
                       <MapPin className="w-5 h-5 text-[#1800AC]" />
                     </div>
                     <div>
