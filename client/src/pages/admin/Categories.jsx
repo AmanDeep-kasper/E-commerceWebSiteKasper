@@ -34,9 +34,9 @@ const Products = () => {
       setTotalPages(res.pagination?.pages || 1);
       setTotalItems(res.pagination?.total || 0);
 
-      console.log("categories:", res);
+      // console.log("categories:", res);
     } catch (error) {
-      console.error("Error fetching products:", error);
+      // console.error("Error fetching products:", error);
       setProduct([]);
       setTotalPages(1);
       setTotalItems(0);
@@ -412,7 +412,6 @@ const Products = () => {
                   <th className="px-4 py-3 text-center font-medium">Action</th>
                 </tr>
               </thead>
-
               <tbody>
                 {loading ? (
                   [...Array(5)].map((_, i) => <SkeletonRow key={i} />)

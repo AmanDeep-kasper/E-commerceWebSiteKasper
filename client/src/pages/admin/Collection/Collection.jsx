@@ -535,16 +535,22 @@ function Collection() {
 
     const isFilterActive = selectedSort !=="Latest"  || search !== "";
     // Loading state
-    if (loading) {
-        return (
-            <div className="p-6 bg-[#F6F8F9] min-h-screen flex justify-center items-center">
-                <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1C3753] mx-auto"></div>
-                    <p className="mt-4 text-gray-600">Loading collections...</p>
-                </div>
-            </div>
-        );
-    }
+
+      const SkeletonRow = () => {
+    return (
+      <tr className="animate-pulse border-t">
+        <td className="px-4 py-3">
+          <div className="h-4 w-32 bg-gray-200 rounded"></div>
+        </td>
+        <td className="px-4 py-3 text-center">
+          <div className="h-4 w-10 bg-gray-200 rounded mx-auto"></div>
+        </td>
+        <td className="px-4 py-3 text-center">
+          <div className="h-4 w-10 bg-gray-200 rounded mx-auto"></div>
+        </td>
+      </tr>
+    );
+  };
 
 
 
@@ -676,9 +682,15 @@ function Collection() {
                             <th className="px-6 py-3 text-center">Action</th>
                         </tr>
                     </thead>
-
-                    <tbody>
-                        {currentItems.map((item) => (
+                     <tbody>
+                        {loading ? (
+                            [...Array(10)].map((_, index) => <SkeletonRow key={index} />)
+                        ) : currentItems.length === 0 ? (
+                            <tr>
+                                <td colSpan={5} className="text-center py-6 text-gray-500">No data found</td>
+                            </tr>
+                        ) : (
+                        currentItems.map((item) => (
                             <tr key={item._id} className="border-t hover:bg-gray-50">
 
                                 <td className="px-6 py-4 font-medium">
@@ -728,7 +740,8 @@ function Collection() {
                                     </div>
                                 </td>
                             </tr>
-                        ))}
+                        ))
+                    )}
                     </tbody>
                 </table>
 
