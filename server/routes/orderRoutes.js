@@ -4,6 +4,7 @@ import {
   checkout,
   checkoutSummary,
   deliverOrder,
+  getAllOrdersByUser,
   getOrderDetails,
   getOrders,
   getOrdersAdmin,
@@ -28,6 +29,12 @@ router.get("/available-points", authenticate, getUserAvailablePoints);
 
 // admin routes
 router.get("/admin", authenticate, authorize("admin"), getOrdersAdmin);
+router.get(
+  "/admin/:userId/orders",
+  authenticate,
+  authorize("admin"),
+  getAllOrdersByUser,
+);
 router.patch(
   "/admin/:orderId/accept",
   authenticate,

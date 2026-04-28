@@ -2,12 +2,6 @@ import mongoose from "mongoose";
 
 const BusinessSettingSchema = new mongoose.Schema(
   {
-    userId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-      unique: true,
-    },
     businessName: String,
     logo: {
       url: String,
