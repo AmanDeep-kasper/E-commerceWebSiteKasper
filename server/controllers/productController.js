@@ -67,6 +67,7 @@ export const addProduct = asyncHandler(async (req, res) => {
     }
 
     const skuIds = variants.map((v) => v.variantSkuId);
+
     if (new Set(skuIds).size !== skuIds.length) {
       throw AppError.badRequest(
         "Duplicate variantSkuId found in request",
@@ -75,6 +76,7 @@ export const addProduct = asyncHandler(async (req, res) => {
     }
 
     const existingSku = await Product.aggregate([
+      { $match: { isDraft: false } }, // ✅ FIX HERE
       { $unwind: "$variants" },
       { $match: { "variants.variantSkuId": { $in: skuIds } } },
       { $project: { sku: "$variants.variantSkuId", _id: 0 } },
@@ -90,20 +92,17 @@ export const addProduct = asyncHandler(async (req, res) => {
 
   let finalVariants = [];
 
-  // if (!isDraft) {
-   if (variants && variants.length > 0) {
+  if (variants && variants.length > 0) {
     const cleanVariants = variants.map((v) => {
       const mrp = Number(v.variantMrp);
       const selling = Number(v.variantSellingPrice);
 
-      // ✅ Discount calculation
       let discountPercent = 0;
 
       if (mrp > 0 && selling <= mrp) {
         discountPercent = ((mrp - selling) / mrp) * 100;
       }
 
-      // ✅ Round to 2 decimal (optional but recommended)
       discountPercent = Number(discountPercent.toFixed(2));
 
       return {
@@ -114,7 +113,6 @@ export const addProduct = asyncHandler(async (req, res) => {
       };
     });
 
-    // Ensure only one isSelected variant
     let selectedSet = false;
 
     finalVariants = cleanVariants.map((v) => {
@@ -130,7 +128,6 @@ export const addProduct = asyncHandler(async (req, res) => {
     }
   }
 
-  // ✅ Create product
   const product = new Product({
     productTittle,
     description,
@@ -319,11 +316,11 @@ export const adminGetProductDetails = asyncHandler(async (req, res) => {
 
 export const adminUpdateProduct = asyncHandler(async (req, res) => {
   const { productId } = req.params;
-   // ✅ Validate ID format first
+  // ✅ Validate ID format first
   if (!mongoose.Types.ObjectId.isValid(productId)) {
     throw AppError.badRequest(`Invalid product ID: ${productId}`, "INVALID_ID");
   }
-  
+
   const allowed = [
     "productTittle",
     "description",
@@ -667,18 +664,17 @@ export const userGetAllProducts = asyncHandler(async (req, res) => {
   const limitNum = parseInt(limit);
   const skip = (pageNum - 1) * limitNum;
 
-
   const filter = {};
 
-    // ✅ CATEGORY FILTER (by ID or by name from URL)
+  // ✅ CATEGORY FILTER (by ID or by name from URL)
   if (category) {
     // Check if category is an ID or a name
     if (mongoose.Types.ObjectId.isValid(category)) {
       filter.category = category;
     } else {
       // Find category by name (for URL like /products/writing instrument art c)
-      const categoryDoc = await Category.findOne({ 
-        name: { $regex: `^${category}$`, $options: "i" } 
+      const categoryDoc = await Category.findOne({
+        name: { $regex: `^${category}$`, $options: "i" },
       });
       if (categoryDoc) {
         filter.category = categoryDoc._id;
@@ -689,8 +685,8 @@ export const userGetAllProducts = asyncHandler(async (req, res) => {
   // ✅ SUBCATEGORY FILTER - FIXED
   if (subcategory) {
     // Find subcategory by name
-    const subcategoryDoc = await SubCategory.findOne({ 
-      name: { $regex: `^${subcategory}$`, $options: "i" } 
+    const subcategoryDoc = await SubCategory.findOne({
+      name: { $regex: `^${subcategory}$`, $options: "i" },
     });
     if (subcategoryDoc) {
       filter.subcategory = subcategoryDoc._id;
@@ -775,10 +771,10 @@ export const userGetAllProducts = asyncHandler(async (req, res) => {
 
     const image = defaultVariant?.variantImage?.[0]?.url || null;
 
-      // ✅ Extract unique colors from variants
-    const availableColors = [...new Set(
-      variants.map(v => v.variantColor).filter(Boolean)
-    )];
+    // ✅ Extract unique colors from variants
+    const availableColors = [
+      ...new Set(variants.map((v) => v.variantColor).filter(Boolean)),
+    ];
 
     return {
       _id: product._id,
@@ -799,15 +795,15 @@ export const userGetAllProducts = asyncHandler(async (req, res) => {
       mrp: defaultVariant?.variantMrp || 0,
       defaultPrice: defaultVariant?.variantSellingPrice || 0,
       discount: defaultVariant?.variantDiscount || 0,
-      image:image,
+      image: image,
       inStock: inStockVariants.length > 0,
       variantCount: variants.length,
-      availableColors:availableColors,
+      availableColors: availableColors,
       variants: variants.map((v) => ({
-        variantColor:v.variantColor,
-        variantName:v.variantName,
-        variantSellingPrice:v.variantSellingPrice,
-        _id:v._id,
+        variantColor: v.variantColor,
+        variantName: v.variantName,
+        variantSellingPrice: v.variantSellingPrice,
+        _id: v._id,
       })),
 
       stats: product.stats,
