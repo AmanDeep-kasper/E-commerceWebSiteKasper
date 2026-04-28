@@ -750,7 +750,7 @@ export const getUserAvailablePoints = asyncHandler(async (req, res) => {
 
 // admin controllers
 export const getOrdersAdmin = asyncHandler(async (req, res) => {
-  const { page = 1, limit = 10, search, range, sortBy } = req.query;
+  const { page = 1, limit = 10, search, range, sortBy, status } = req.query;
 
   const skip = (Number(page) - 1) * Number(limit);
 
@@ -786,6 +786,10 @@ export const getOrdersAdmin = asyncHandler(async (req, res) => {
   if (sortBy === "price-high") sortOptions = { grandTotal: -1 };
   if (sortBy === "price-low") sortOptions = { grandTotal: 1 };
 
+  if (status) {
+    query.status = status;
+  }
+
   const orders = await Order.find(query)
     .skip(skip)
     .limit(Number(limit))
@@ -798,12 +802,18 @@ export const getOrdersAdmin = asyncHandler(async (req, res) => {
     processingOrders,
     shippedOrders,
     deliveredOrders,
+    readyToShipOrders,
+    cancelledOrders,
+    refundedOrders,
   ] = await Promise.all([
     Order.countDocuments(),
     Order.countDocuments({ status: "placed" }),
     Order.countDocuments({ status: "processing" }),
     Order.countDocuments({ status: "shipped" }),
     Order.countDocuments({ status: "delivered" }),
+    Order.countDocuments({ status: "ready_to_ship" }),
+    Order.countDocuments({ status: "cancelled" }),
+    Order.countDocuments({ status: "refunded" }),
   ]);
 
   const total = await Order.countDocuments(query);
@@ -824,6 +834,9 @@ export const getOrdersAdmin = asyncHandler(async (req, res) => {
       processingOrders,
       shippedOrders,
       deliveredOrders,
+      readyToShipOrders,
+      cancelledOrders,
+      refundedOrders,
     },
   });
 });
