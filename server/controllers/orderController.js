@@ -841,6 +841,118 @@ export const getOrdersAdmin = asyncHandler(async (req, res) => {
   });
 });
 
+export const getAllOrdersByUser = asyncHandler(async (req, res) => {
+  const { userId } = req.params;
+  const { page = 1, limit = 10 } = req.query;
+
+  const skip = (Number(page) - 1) * Number(limit);
+  const userObjectId = new mongoose.Types.ObjectId(userId);
+
+  const query = { user: userObjectId };
+
+
+  // 1. ORDERS 
+  const orders = await Order.find(query)
+    .select("orderNumber grandTotal createdAt status") 
+    .skip(skip)
+    .limit(Number(limit))
+    .sort({ createdAt: -1 })
+    .lean();
+
+
+  // 2. PARALLEL STATS (FAST)
+  const [total, cancelled, totalSpendAgg, topCategoryAgg] = await Promise.all([
+    Order.countDocuments(query),
+
+    Order.countDocuments({
+      user: userObjectId,
+      status: "cancelled",
+    }),
+
+    // total spend
+    Order.aggregate([
+      { $match: query },
+      {
+        $group: {
+          _id: null,
+          totalSpend: { $sum: "$grandTotal" },
+        },
+      },
+    ]),
+
+   
+    // TOP CATEGORY WITH NAME
+    Order.aggregate([
+      { $match: query },
+      { $unwind: "$items" },
+
+      {
+        $lookup: {
+          from: "products",
+          localField: "items.product",
+          foreignField: "_id",
+          as: "product",
+        },
+      },
+      { $unwind: "$product" },
+
+      {
+        $lookup: {
+          from: "categories",
+          localField: "product.category",
+          foreignField: "_id",
+          as: "category",
+        },
+      },
+      { $unwind: "$category" },
+
+      {
+        $group: {
+          _id: "$category._id",
+          name: { $first: "$category.name" }, 
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { count: -1 } },
+      { $limit: 1 },
+    ]),
+  ]);
+
+ 
+  // FINAL DATA
+  const topCategory =
+    topCategoryAgg.length > 0
+      ? {
+          id: topCategoryAgg[0]._id,
+          name: topCategoryAgg[0].name,
+        }
+      : null;
+
+  const lastOrderDate = orders.length > 0 ? orders[0].createdAt : null;
+
+  res.status(200).json({
+    success: true,
+    message: "Orders fetched successfully",
+
+    // clean orders
+    data: orders,
+
+    stats: {
+      total,
+      cancelled,
+      totalSpend: totalSpendAgg[0]?.totalSpend || 0,
+      topCategory,
+      lastOrderDate,
+    },
+
+    pagination: {
+      page: Number(page),
+      limit: Number(limit),
+      pages: Math.ceil(total / Number(limit)),
+    },
+  });
+});
+
 export const acceptOrder = asyncHandler(async (req, res) => {
   const { orderId } = req.params;
 
