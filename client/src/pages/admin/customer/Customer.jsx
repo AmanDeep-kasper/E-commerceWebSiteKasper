@@ -140,17 +140,57 @@ function Customer() {
   const end = Math.min(page * rowsPerPage, totalItems);
   const total = totalItems;
 
-  // Loading state
-   if (loading) {
-    return (
-      <div className="p-[24px] bg-[#F6F8F9] min-h-screen flex justify-center items-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1C3753] mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading customers...</p>
-        </div>
-      </div>
-    );
+    const formatDate = (dateString) => {
+    if (!dateString) return "N/A";
+   const date = new Date(dateString);
+   return date.toLocaleDateString("en-US", {
+    day:"2-digit",
+    month:"short",
+    year:"numeric",
+    // hour:"2-digit",
+    // minute:"2-digit",
+   });
   }
+
+  // Loading state
+  //  if (loading) {
+  //   return (
+  //     <div className="p-[24px] bg-[#F6F8F9] min-h-screen flex justify-center items-center">
+  //       <div className="text-center">
+  //         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1C3753] mx-auto"></div>
+  //         <p className="mt-4 text-gray-600">Loading customers...</p>
+  //       </div>
+  //     </div>
+  //   );
+  // }
+
+        const SkeletonRow = () => {
+    return (
+      <tr className="animate-pulse border-t">
+        <td className="px-4 py-3">
+          <div className="h-4 w-32 bg-gray-200 rounded"></div>
+        </td>
+        <td className="px-4 py-3 text-center">
+          <div className="h-4 w-10 bg-gray-200 rounded mx-auto"></div>
+        </td>
+        <td className="px-4 py-3 text-center">
+          <div className="h-4 w-10 bg-gray-200 rounded mx-auto"></div>
+        </td>
+        <td className="px-4 py-3 text-center">
+          <div className="h-6 w-20 bg-gray-200 rounded mx-auto"></div>
+        </td>
+        <td className="px-4 py-3 text-center">
+          <div className="h-6 w-16 bg-gray-200 rounded mx-auto"></div>
+        </td>
+        <td className="px-4 py-3 text-center">
+          <div className="h-6 w-20 bg-gray-200 rounded mx-auto"></div>
+        </td>
+        <td className="px-4 py-3 text-center">
+          <div className="h-6 w-16 bg-gray-200 rounded mx-auto"></div>
+        </td>
+      </tr>
+    );
+  };
 
 
   return (
@@ -292,18 +332,27 @@ function Customer() {
               </thead>
 
               <tbody>
-                {rows.map((user) => (
+                {loading ? (
+                  [...Array(10)].map((_, i) => <SkeletonRow key={i} />)
+                 ) : rows.length === 0 ? (
+                  <tr>
+                    <td colSpan={8} className="text-center py-8 text-gray-500">
+                      No customers found
+                    </td>
+                  </tr>
+                 ) : (
+                rows.map((user) => (
                   <tr
                     key={user._id}
                       onClick={() => navigate(`/admin/customers/${user._id}/customer-info`)}
                     className="border-t hover:bg-gray-50 transition cursor-pointer"
                   >
-                    <td className="px-4 py-3">{user.name  || "N/A"}</td>
-                    <td className="px-4 py-3">{user.email  || "N/A"}</td>
-                    <td className="px-4 py-3">{user.phoneNumber || "N/A"}</td>
-                    <td className="px-4 py-3">{user.total_orders || "N/A"}</td>
-                    <td className="px-4 py-3">₹{user.total_spent || "N/A"}</td>
-                    <td className="px-4 py-3">{user.last_order_date || "N/A"}</td>
+                    <td className="px-4 py-3">{user?.name  || "N/A"}</td>
+                    <td className="px-4 py-3">{user?.email  || "N/A"}</td>
+                    <td className="px-4 py-3">{user?.phoneNumber || "N/A"}</td>
+                    <td className="px-4 py-3">{user?.totalOrders || "N/A"}</td>
+                    <td className="px-4 py-3">₹{user?.totalSpend || "0.00"}</td>
+                    <td className="px-4 py-3">{formatDate(user?.lastOrderAt) || "N/A"}</td>
 
                     {/* Status */}
                   <td className="px-4 py-3">
@@ -336,7 +385,8 @@ function Customer() {
                       </button>
                     </td> */}
                   </tr>
-                ))}
+                ))
+              )}
               </tbody>
             </table>
           </div>

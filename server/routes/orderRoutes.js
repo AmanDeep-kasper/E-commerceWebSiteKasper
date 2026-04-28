@@ -4,6 +4,7 @@ import {
   checkout,
   checkoutSummary,
   deliverOrder,
+  getAllOrdersByUser,
   getOrderDetails,
   getOrders,
   getOrdersAdmin,
@@ -23,11 +24,17 @@ router.post("/", authenticate, checkout);
 router.post("/checkout-summary", authenticate, checkoutSummary);
 router.post("/verify-payment", authenticate, verifyPayment);
 router.post("/payment-failed", authenticate, paymentFailed);
-router.get("/", authenticate, authorize("user"), getOrders); // get orders for logged in user
+router.get("/", authenticate, getOrders);
 router.get("/available-points", authenticate, getUserAvailablePoints);
 
 // admin routes
 router.get("/admin", authenticate, authorize("admin"), getOrdersAdmin);
+router.get(
+  "/admin/:userId/orders",
+  authenticate,
+  authorize("admin"),
+  getAllOrdersByUser,
+);
 router.patch(
   "/admin/:orderId/accept",
   authenticate,
