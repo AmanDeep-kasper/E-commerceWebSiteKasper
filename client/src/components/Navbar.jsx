@@ -1,4 +1,3 @@
-// import products from "../data/products.json";
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { getCart } from "../services/CartService";
@@ -34,44 +33,7 @@ import { clearCart, setCartFromAPI } from "../redux/cart/cartSlice";
 
 function Navbar() {
   const { user, isAuthenticated } = useSelector((state) => state.user);
-  // console.log(user);
   const [showChoice, setShowChoice] = useState(false);
-
-  useEffect(() => {
-    if (user?.user?.role === "admin") {
-      setShowChoice(true);
-    } else {
-      setShowChoice(false);
-    }
-  }, [user]);
-
-  // add by aman
-  useEffect(() => {
-    const syncData = async () => {
-      try {
-        if (!isAuthenticated) return;
-
-        //  Get guest cart from localStorage
-        const guestCart = JSON.parse(localStorage.getItem("cart") || "[]");
-
-        if (guestCart.length > 0) {
-          await axiosInstance.post("/cart/merge", { items: guestCart });
-          localStorage.removeItem("cart"); // clear guest after merge
-        }
-
-        // Fetch user cart
-        const cartRes = await axiosInstance.get("/cart");
-        dispatch(setCartFromAPI(cartRes.data.data));
-
-        const wishRes = await axiosInstance.get("/wishlist");
-        dispatch(setWishlistFromAPI(wishRes.data.data));
-      } catch (error) {
-        console.error("Navbar sync error:", error);
-      }
-    };
-
-    syncData();
-  }, [isAuthenticated]);
 
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [dropdown, setDropdown] = useState(false);
@@ -87,6 +49,13 @@ function Navbar() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  useEffect(() => {
+    if (user?.user?.role === "admin") {
+      setShowChoice(true);
+    } else {
+      setShowChoice(false);
+    }
+  }, [user]);
 
   const shopCategories = Array.isArray(categories)
     ? categories.filter((cat) => cat.isActive)
@@ -150,17 +119,11 @@ function Navbar() {
     };
   }, [isOpen]);
 
-  // const handleLogout = () => {
-  //   dispatch(logoutUser());
-  //   navigate("/login", { replace: true });
-  // };
 
   const handleLogout = () => {
     dispatch(logoutUser());
     dispatch(clearCart());
     dispatch(clearWishlist());
-    // localStorage.removeItem("cart");
-    // localStorage.removeItem("wishlist");
     navigate("/login", { replace: true });
   };
 
@@ -663,7 +626,6 @@ function Navbar() {
                 </h3>
 
                 {shopCategories.map((item, index) => (
-                  
                   <div key={item._id || item.name || index} className="py-2">
                     {console.log(item)}
                     <div
