@@ -295,13 +295,13 @@ const Products = () => {
                   ? "inactive"
                   : selectedStatus === "Draft"
                     ? "draft"
-                    : undefined,
+                    : "all",
             category:
               selectedCategory !== "Category" ? selectedCategory : undefined,
           },
         },
       );
-      console.log("Products API Response:", response.data);
+      // console.log("Products API Response:", response.data);
 
       let products = [];
       if (response.data?.success && response.data?.data) {
