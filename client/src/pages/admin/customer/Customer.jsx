@@ -140,6 +140,18 @@ function Customer() {
   const end = Math.min(page * rowsPerPage, totalItems);
   const total = totalItems;
 
+    const formatDate = (dateString) => {
+    if (!dateString) return "N/A";
+   const date = new Date(dateString);
+   return date.toLocaleDateString("en-US", {
+    day:"2-digit",
+    month:"short",
+    year:"numeric",
+    // hour:"2-digit",
+    // minute:"2-digit",
+   });
+  }
+
   // Loading state
    if (loading) {
     return (
@@ -298,12 +310,12 @@ function Customer() {
                       onClick={() => navigate(`/admin/customers/${user._id}/customer-info`)}
                     className="border-t hover:bg-gray-50 transition cursor-pointer"
                   >
-                    <td className="px-4 py-3">{user.name  || "N/A"}</td>
-                    <td className="px-4 py-3">{user.email  || "N/A"}</td>
-                    <td className="px-4 py-3">{user.phoneNumber || "N/A"}</td>
-                    <td className="px-4 py-3">{user.total_orders || "N/A"}</td>
-                    <td className="px-4 py-3">₹{user.total_spent || "N/A"}</td>
-                    <td className="px-4 py-3">{user.last_order_date || "N/A"}</td>
+                    <td className="px-4 py-3">{user?.name  || "N/A"}</td>
+                    <td className="px-4 py-3">{user?.email  || "N/A"}</td>
+                    <td className="px-4 py-3">{user?.phoneNumber || "N/A"}</td>
+                    <td className="px-4 py-3">{user?.totalOrders || "N/A"}</td>
+                    <td className="px-4 py-3">₹{user?.totalSpend || "0.00"}</td>
+                    <td className="px-4 py-3">{formatDate(user?.lastOrderAt) || "N/A"}</td>
 
                     {/* Status */}
                   <td className="px-4 py-3">

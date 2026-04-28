@@ -394,15 +394,15 @@ const handleStatusChange = async() => {
           <h1 className="font-medium ">Account Activity</h1>
           <AccountActivityRow
             lable={"Total Orders"}
-            value={customer.total_orders ?? "-"}
+            value={customer?.totalOrders ?? "-"}
           />
           <AccountActivityRow
             lable={"Total Spend"}
-            value={customer.total_spent ?? "₹0"}
+            value={customer?.totalSpend ?? "₹0"}
           />
           <AccountActivityRow
             lable={"Last Order"}
-            value={customer.last_order_date ?? "-"}
+            value={customer?.lastOrderAt ? formatDate(customer.lastOrderAt) : "-"}
           />
           <AccountActivityRow
             lable={"Last Login"}
