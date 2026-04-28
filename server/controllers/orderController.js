@@ -930,225 +930,6 @@ export const deliverOrder = asyncHandler(async (req, res) => {
   });
 });
 
-// export const getPayments = asyncHandler(async (req, res) => {
-//   const {
-//     page = 1,
-//     limit = 10,
-//     search,
-//     range,
-//     fromDate,
-//     toDate,
-//     method,
-//     status,
-//   } = req.query;
-
-//   const skip = (Number(page) - 1) * Number(limit);
-
-//   let query = {};
-
-//   // 🔍 SEARCH
-//   if (search) {
-//     query.$or = [
-//       { razorpayPaymentId: { $regex: search, $options: "i" } },
-//       { razorpayOrderId: { $regex: search, $options: "i" } },
-//     ];
-//   }
-
-//   // 📅 DATE FILTER
-//   if (range || (fromDate && toDate)) {
-//     let start, end;
-//     const today = new Date();
-
-//     if (range === "7d") {
-//       start = new Date();
-//       start.setDate(today.getDate() - 7);
-//     }
-
-//     if (range === "30d") {
-//       start = new Date();
-//       start.setDate(today.getDate() - 30);
-//     }
-
-//     if (range === "today") {
-//       start = new Date();
-//       start.setHours(0, 0, 0, 0);
-//     }
-
-//     if (fromDate && toDate) {
-//       start = new Date(fromDate);
-//       end = new Date(toDate);
-//       end.setHours(23, 59, 59, 999);
-//     }
-
-//     if (start) {
-//       query.createdAt = {
-//         $gte: start,
-//         ...(end && { $lte: end }),
-//       };
-//     }
-//   }
-
-//   // 💳 METHOD FILTER
-//   if (method) query.method = method;
-
-//   // 📊 STATUS FILTER
-//   if (status) query.status = status;
-
-//   // ⚡ PARALLEL QUERIES
-//   const [payments, total, revenueAgg, weekly, monthly, yearly] =
-//     await Promise.all([
-//       Payment.find(query)
-//         .select("-razorpayRawResponse")
-//         .skip(skip)
-//         .limit(Number(limit))
-//         .sort({ createdAt: -1 })
-//         .lean(),
-
-//       Payment.countDocuments(query),
-
-//       // 💰 TOTAL REVENUE
-//       Payment.aggregate([
-//         { $match: { ...query, status: "captured" } },
-//         { $group: { _id: null, total: { $sum: "$amount" } } },
-//       ]),
-
-//       // 📊 WEEKLY
-//       Payment.aggregate([
-//         { $match: { ...query, status: "captured" } },
-//         {
-//           $group: {
-//             _id: { $dayOfWeek: "$createdAt" },
-//             total: { $sum: "$amount" },
-//           },
-//         },
-//       ]),
-
-//       // 📊 MONTHLY (FIXED BUCKET)
-//       Payment.aggregate([
-//         { $match: { ...query, status: "captured" } },
-
-//         {
-//           $addFields: {
-//             day: { $dayOfMonth: "$createdAt" },
-//           },
-//         },
-
-//         {
-//           $addFields: {
-//             bucketStart: {
-//               $subtract: ["$day", { $mod: [{ $subtract: ["$day", 1] }, 5] }],
-//             },
-//           },
-//         },
-
-//         {
-//           $addFields: {
-//             bucketEnd: {
-//               $add: ["$bucketStart", 4],
-//             },
-//           },
-//         },
-
-//         {
-//           $addFields: {
-//             bucket: {
-//               $concat: [
-//                 { $toString: "$bucketStart" },
-//                 "-",
-//                 {
-//                   $toString: {
-//                     $cond: [{ $gt: ["$bucketEnd", 31] }, 31, "$bucketEnd"],
-//                   },
-//                 },
-//               ],
-//             },
-//           },
-//         },
-
-//         {
-//           $group: {
-//             _id: "$bucket",
-//             total: { $sum: "$amount" },
-//           },
-//         },
-//       ]),
-
-//       // 📊 YEARLY
-//       Payment.aggregate([
-//         { $match: { ...query, status: "captured" } },
-//         {
-//           $group: {
-//             _id: { $month: "$createdAt" },
-//             total: { $sum: "$amount" },
-//           },
-//         },
-//       ]),
-//     ]);
-
-//   // 🧠 FORMAT
-
-//   const daysMap = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-
-//   const weeklyData = daysMap.map((day, i) => {
-//     const found = weekly.find((d) => d._id === i + 1);
-//     return { day, revenue: found ? found.total : 0 };
-//   });
-
-//   const bucketRanges = [
-//     "1-5",
-//     "6-10",
-//     "11-15",
-//     "16-20",
-//     "21-25",
-//     "26-30",
-//     "31-31",
-//   ];
-
-//   const monthlyData = bucketRanges.map((range) => {
-//     const found = monthly.find((d) => d._id === range);
-//     return { range, revenue: found ? found.total : 0 };
-//   });
-
-//   const monthsMap = [
-//     "Jan",
-//     "Feb",
-//     "Mar",
-//     "Apr",
-//     "May",
-//     "Jun",
-//     "Jul",
-//     "Aug",
-//     "Sep",
-//     "Oct",
-//     "Nov",
-//     "Dec",
-//   ];
-
-//   const yearlyData = monthsMap.map((m, i) => {
-//     const found = yearly.find((d) => d._id === i + 1);
-//     return { month: m, revenue: found ? found.total : 0 };
-//   });
-
-//   res.status(200).json({
-//     success: true,
-//     message: "Payments fetched successfully",
-//     payments,
-//     stats: {
-//       totalRevenue: revenueAgg[0]?.total || 0,
-//       weekly: weeklyData,
-//       monthly: monthlyData,
-//       yearly: yearlyData,
-//     },
-//     pagination: {
-//       total,
-//       page: Number(page),
-//       limit: Number(limit),
-//       pages: Math.ceil(total / Number(limit)),
-//     },
-//   });
-// });
-
-
 export const getPayments = asyncHandler(async (req, res) => {
   const {
     page = 1,
@@ -1210,15 +991,14 @@ export const getPayments = asyncHandler(async (req, res) => {
   // 💳 METHOD FILTER
   if (method) query.method = method;
 
+  // 📊 STATUS FILTER
+  if (status) query.status = status;
+
   // ⚡ PARALLEL QUERIES
   const [payments, total, revenueAgg, weekly, monthly, yearly] =
     await Promise.all([
       Payment.find(query)
         .select("-razorpayRawResponse")
-        .populate({
-          path: "order", // 👈 IMPORTANT (Payment → Order relation required)
-          select: "paymentStatus orderNumber grandTotal createdAt paymentMethod",
-        })
         .skip(skip)
         .limit(Number(limit))
         .sort({ createdAt: -1 })
@@ -1226,53 +1006,26 @@ export const getPayments = asyncHandler(async (req, res) => {
 
       Payment.countDocuments(query),
 
-      // 💰 TOTAL REVENUE (ONLY PAID ORDERS)
+      // 💰 TOTAL REVENUE
       Payment.aggregate([
-        {
-          $lookup: {
-            from: "orders",
-            localField: "order",
-            foreignField: "_id",
-            as: "order",
-          },
-        },
-        { $unwind: "$order" },
-        { $match: { ...query, "order.paymentStatus": "paid" } },
-        { $group: { _id: null, total: { $sum: "$order.grandTotal" } } },
+        { $match: { ...query, status: "captured" } },
+        { $group: { _id: null, total: { $sum: "$amount" } } },
       ]),
 
-      // 📊 WEEKLY (unchanged)
+      // 📊 WEEKLY
       Payment.aggregate([
-        {
-          $lookup: {
-            from: "orders",
-            localField: "order",
-            foreignField: "_id",
-            as: "order",
-          },
-        },
-        { $unwind: "$order" },
-        { $match: { ...query, "order.paymentStatus": "paid" } },
+        { $match: { ...query, status: "captured" } },
         {
           $group: {
             _id: { $dayOfWeek: "$createdAt" },
-            total: { $sum: "$order.grandTotal" },
+            total: { $sum: "$amount" },
           },
         },
       ]),
 
-      // 📊 MONTHLY (UI FIXED DAYS ✅)
+      // 📊 MONTHLY (SMART BUCKET FIX ✅)
       Payment.aggregate([
-        {
-          $lookup: {
-            from: "orders",
-            localField: "order",
-            foreignField: "_id",
-            as: "order",
-          },
-        },
-        { $unwind: "$order" },
-        { $match: { ...query, "order.paymentStatus": "paid" } },
+        { $match: { ...query, status: "captured" } },
 
         {
           $addFields: {
@@ -1281,43 +1034,44 @@ export const getPayments = asyncHandler(async (req, res) => {
         },
 
         {
-          $match: {
-            day: { $in: [1, 5, 10, 15, 20, 25, 30] },
+          $addFields: {
+            bucket: {
+              $switch: {
+                branches: [
+                  { case: { $lte: ["$day", 5] }, then: 1 },
+                  { case: { $lte: ["$day", 10] }, then: 5 },
+                  { case: { $lte: ["$day", 15] }, then: 10 },
+                  { case: { $lte: ["$day", 20] }, then: 15 },
+                  { case: { $lte: ["$day", 25] }, then: 20 },
+                  { case: { $lte: ["$day", 30] }, then: 25 },
+                ],
+                default: 30,
+              },
+            },
           },
         },
 
         {
           $group: {
-            _id: "$day",
-            total: { $sum: "$order.grandTotal" },
+            _id: "$bucket",
+            total: { $sum: "$amount" },
           },
         },
       ]),
 
-      // 📊 YEARLY (unchanged)
+      // 📊 YEARLY
       Payment.aggregate([
-        {
-          $lookup: {
-            from: "orders",
-            localField: "order",
-            foreignField: "_id",
-            as: "order",
-          },
-        },
-        { $unwind: "$order" },
-        { $match: { ...query, "order.paymentStatus": "paid" } },
+        { $match: { ...query, status: "captured" } },
         {
           $group: {
             _id: { $month: "$createdAt" },
-            total: { $sum: "$order.grandTotal" },
+            total: { $sum: "$amount" },
           },
         },
       ]),
     ]);
 
-  // =========================
-  // 🧠 FORMAT DATA
-  // =========================
+  // 🧠 FORMAT
 
   const daysMap = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
@@ -1326,10 +1080,9 @@ export const getPayments = asyncHandler(async (req, res) => {
     return { day, revenue: found ? found.total : 0 };
   });
 
-  // ✅ MONTHLY UI FORMAT
-  const chartDays = [1, 5, 10, 15, 20, 25, 30];
+  const bucketRanges = [1, 5, 10, 15, 20, 25, 30];
 
-  const monthlyData = chartDays.map((day) => {
+  const monthlyData = bucketRanges.map((day) => {
     const found = monthly.find((d) => d._id === day);
     return {
       day,
@@ -1338,8 +1091,18 @@ export const getPayments = asyncHandler(async (req, res) => {
   });
 
   const monthsMap = [
-    "Jan","Feb","Mar","Apr","May","Jun",
-    "Jul","Aug","Sep","Oct","Nov","Dec",
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
   ];
 
   const yearlyData = monthsMap.map((m, i) => {
@@ -1347,17 +1110,29 @@ export const getPayments = asyncHandler(async (req, res) => {
     return { month: m, revenue: found ? found.total : 0 };
   });
 
-  // ✅ TABLE DATA (STATUS FROM ORDER)
+  const order = await Order.find({ _id: { $in: payments.map((p) => p.order) } })
+    .select("paymentStatus orderNumber grandTotal paymentMethod createdAt")
+    .lean();
+
+  const revenue = revenueAgg[0]?.total || 0;
+
+  // ✅ TABLE FORMAT (IMPORTANT FIX)
   const formattedPayments = payments.map((p) => ({
-    orderId: p.order?.orderNumber || "N/A",
+    orderId:
+      order.find((o) => o._id.toString() === p.order?.toString())
+        ?.orderNumber || "N/A",
     paymentId: p.razorpayPaymentId || "N/A",
     date: p.createdAt,
     method: p.order?.paymentMethod || p.method,
-    status: p.order?.paymentStatus || "pending", // ✅ FIX
+
+    // ✅ FROM ORDER (FIXED)
+    status:
+      order.find((o) => o._id.toString() === p.order?.toString())
+        ?.paymentStatus || p.status,
+
+    // ✅ FROM ORDER (FIXED)
     amount: p.order?.grandTotal || p.amount,
   }));
-
-  // =========================
 
   res.status(200).json({
     success: true,
@@ -1366,7 +1141,7 @@ export const getPayments = asyncHandler(async (req, res) => {
     stats: {
       totalRevenue: revenueAgg[0]?.total || 0,
       weekly: weeklyData,
-      monthly: monthlyData, // ✅ updated
+      monthly: monthlyData,
       yearly: yearlyData,
     },
     pagination: {
