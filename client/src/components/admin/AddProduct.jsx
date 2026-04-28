@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import axiosInstance from "../../api/axiosInstance";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -22,10 +22,11 @@ const AddProduct = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { id } = useParams();
-  // const isEditing = Boolean(id);
+  const isEditing = Boolean(id);
   const [newVariants, setNewVariants] = useState([]);
+  const [isProductDraft, setIsProductDraft] = useState(false);
   // const { loading, error } = useSelector((state) => state.product);
-  const { uuid } = useParams();
+  // const { uuid } = useParams();
 
   const createInitialState = () => ({
     productTittle: "",
@@ -74,7 +75,9 @@ const AddProduct = () => {
     variantDiscountUnit: "%", // default
     variantAvailableStock: "",
     variantLowStockAlertStock: "",
+    variantGST: "",
     isSelected: false,
+    isNew: true,
   });
   const addVariantRow = () => {
     let productSKU = formData.SKU?.trim();
@@ -107,16 +110,16 @@ const AddProduct = () => {
       variantSkuId: `${productSKU}-V-${randomNum}`,
       isNew: true,
     };
-if(isEditing) {
-  // In edit mode, add to a seprate array or mark as 
-  setNewVariants((prev) => [...prev, newVariant]);
-} else {
-    setFormData((prev) => ({
-      ...prev,
-      variants: [...prev.variants, newVariant],
-    }));
-  }
-};
+    if (isEditing) {
+      // In edit mode, add to a seprate array or mark as 
+      setNewVariants((prev) => [...prev, newVariant]);
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        variants: [...prev.variants, newVariant],
+      }));
+    }
+  };
 
   // const addVariantRow = () => {
   //   const productSKU = formData.SKU?.trim();
@@ -142,25 +145,25 @@ if(isEditing) {
   // };
 
   // edit product added new here(akash)
-  const [isEditing, setIsEditing] = useState(false);
+  // const [isEditing, setIsEditing] = useState(false);
   const [productId, setProductId] = useState(null);
   const [loadingProduct, setLoadingProduct] = useState(false);
+  const [draftId, setDraftId] = useState(null);
   // for editning status
   const [status, setStatus] = useState("active");
   // Fetch product for editing from API
   useEffect(() => {
-    console.log("Fetching product for edit. ID:", id);
+    // console.log("Fetching product for edit. ID:", id);
     const fetchProductForEdit = async () => {
-      if (!uuid) return;
       if (!id) {
-        console.log("No ID provided, skipping fetch");
+        // console.log("No ID provided, skipping fetch");
         return;
-      } 
+      }
 
       try {
         setLoadingProduct(true);
         const response = await axiosInstance.get(
-          `/product/admin/get-product-details/${uuid}`,
+          `/product/admin/get-product-details/${id}`,
         );
         console.log("Product to edit:", response.data);
 
@@ -192,7 +195,7 @@ if(isEditing) {
             }
           }
 
-          const mappedVariants = productData.variants.map((variant) => ({
+          const mappedVariants = (productData.variants || []).map((variant) => ({
             variantColor: variant.variantColor || "",
             variantName: variant.variantName || "",
             variantWeight: variant.variantWeight || "",
@@ -218,19 +221,24 @@ if(isEditing) {
             status: productData.isActive ? "ACTIVE" : "INACTIVE",
             category: categoryId,
             subcategory: subcategoryId,
+             SKU: productData.SKU || "",
             variants: mappedVariants,
           });
+          setIsProductDraft(productData.isDraft === true);
 
           setStatus(productData.isActive ? "active" : "inactive");
+          
 
           if (productData.SKU) {
             setFormData((prev) => ({ ...prev, SKU: productData.SKU }));
           }
 
           setProductId(productData._id);
-          if(productData.isDraft) {
+          if (productData.isDraft) {
             setDraftId(productData._id);
           }
+           // Clear any pending new variants since we're loading from DB
+        setNewVariants([]);
           // setIsEditing(true);
         }
       } catch (error) {
@@ -242,7 +250,7 @@ if(isEditing) {
     };
 
     fetchProductForEdit();
-  }, [uuid]);
+  }, [id]);
 
   const handleButtonClick = () => {
     fileInputRef.current.click();
@@ -347,113 +355,148 @@ if(isEditing) {
 
   //  Handle field change for a specific variant
   const handleVariantChange = (index, field, value) => {
-    setFormData((prev) => {
-      const variants = [...prev.variants];
-      const v = { ...variants[index], [field]: value };
+    const isNewVariant = isEditing ? (index >= formData.variants.length) : false;
 
-      const mrp = Number(v.variantMrp) || 0;
-      const cost = Number(v.variantCostPrice) || 0;
+    if (isNewVariant && isEditing) {
+      const newVariantIndex = index - formData.variants.length;
+      const updated = [...newVariants];
+      updated[newVariantIndex] = {
+        ...updated[newVariantIndex],
+        [field]: value,
+      };
 
-      // 🟢 USER TYPES DISCOUNT → UPDATE SELLING PRICE
-      if (field === "variantDiscount") {
-        const discount = Number(value);
+      const mrp = Number(field === "variantMrp" ? value : updated[newVariantIndex].variantMrp);
+      const discount = Number(field === "variantDiscount" ? value : updated[newVariantIndex].variantDiscount);
 
-        if (mrp > 0 && discount >= 0 && discount <= 100) {
-          v.variantSellingPrice = (mrp * (1 - discount / 100)).toFixed(2);
-          v.variantDiscount = discount.toFixed(2);
-        }
+      if (field === "variantDiscount" && mrp > 0) {
+        updated[newVariantIndex].variantSellingPrice = (mrp * (1 - discount / 100)).toFixed(2);
       }
-
-      // 🟢 USER TYPES SELLING PRICE → UPDATE DISCOUNT
-      if (field === "variantSellingPrice") {
+      if (field === "variantSellingPrice" && mrp > 0) {
         const selling = Number(value);
+        updated[newVariantIndex].variantDiscount = (((mrp - selling) / mrp) * 100).toFixed(2);
+      }
 
-        if (mrp > 0 && selling > 0 && selling <= mrp) {
-          v.variantDiscount = (((mrp - selling) / mrp) * 100).toFixed(2);
+      setNewVariants(updated);
+    } else {
+      setFormData((prev) => {
+        const variants = [...prev.variants];
+        const v = { ...variants[index], [field]: value };
+
+        const mrp = Number(v.variantMrp) || 0;
+        const cost = Number(v.variantCostPrice) || 0;
+
+        if (field === "variantDiscount") {
+          const discount = Number(value);
+          if (mrp > 0 && discount >= 0 && discount <= 100) {
+            v.variantSellingPrice = (mrp * (1 - discount / 100)).toFixed(2);
+            v.variantDiscount = discount.toFixed(2);
+          }
         }
-      }
 
-      // 🟢 PROFIT AUTO CALC
-      const selling = Number(v.variantSellingPrice) || 0;
-      if (selling > 0 && cost > 0) {
-        v.variantProfit = (selling - cost).toFixed(2);
-      } else {
-        v.variantProfit = "";
-      }
+        if (field === "variantSellingPrice") {
+          const selling = Number(value);
+          if (mrp > 0 && selling > 0 && selling <= mrp) {
+            v.variantDiscount = (((mrp - selling) / mrp) * 100).toFixed(2);
+          }
+        }
 
-      variants[index] = v;
+        const selling = Number(v.variantSellingPrice) || 0;
+        if (selling > 0 && cost > 0) {
+          v.variantProfit = (selling - cost).toFixed(2);
+        } else {
+          v.variantProfit = "";
+        }
 
-      return { ...prev, variants };
-    });
+        variants[index] = v;
+        return { ...prev, variants };
+      });
+    }
   };
-  const allVariants = [...formData.variants, ...newVariants];
+  const allVariants = useMemo(() => [...formData.variants, ...newVariants], [
+    formData.variants,
+    newVariants,
+  ]);
 
   //  Handle image upload per variant
-  const handleVariantImageChange = async (e, index) => {
-    let files = Array.from(e.target.files);
+ //  Handle image upload per variant
+const handleVariantImageChange = async (e, index) => {
+  let files = Array.from(e.target.files);
+  if (!files.length) return;
 
-    if (!files.length) return;
+  setUploadingVariantIndex(index);
 
-    setUploadingVariantIndex(index);
+  try {
+    const formDataObj = new FormData();
 
-    try {
-      const formData = new FormData();
+    for (let file of files) {
+      const compressedBlob = await imageCompression(file, {
+        maxSizeMB: 2,
+        maxWidthOrHeight: 2000,
+        useWebWorker: true,
+      });
 
-      for (let file of files) {
-        const compressedBlob = await imageCompression(file, {
-          maxSizeMB: 2,
-          maxWidthOrHeight: 2000,
-          useWebWorker: true,
-        });
+      const compressed = blobToFile(compressedBlob, file.name);
+      formDataObj.append("productImages", compressed);
+    }
 
-        const compressed = blobToFile(compressedBlob, file.name);
-        formData.append("productImages", compressed);
-      }
+    const res = await axiosInstance.post(
+      "/product/admin/add-product-images",
+      formDataObj,
+    );
 
-      const res = await axiosInstance.post(
-        "/product/admin/add-product-images",
-        formData,
-      );
-
-      const uploadedImages = res.data.data;
-      // Get the variant at this index from allVariants
+    const uploadedImages = res.data.data;
+    
+    // Get the variant at this index from allVariants
     const variantAtIndex = allVariants[index];
     const isNewVariantAtIndex = variantAtIndex?.isNew === true;
 
     if (isNewVariantAtIndex) {
-      // Update the newVariants array
-      const newVariantIndex = index - formData.variants.length;
-      const updated = [...newVariants];
-      const existingImages = updated[newVariantIndex]?.variantImage || [];
-      updated[newVariantIndex] = {
-        ...updated[newVariantIndex],
-        variantImage: [...existingImages, ...uploadedImages].slice(0, 10),
-      };
-      setNewVariants(updated);
+      // Find the variant in newVariants by its unique ID
+      const variantId = variantAtIndex.variantId || variantAtIndex.variantSkuId;
+      const newVariantIndex = newVariants.findIndex(
+        v => v.variantId === variantId || v.variantSkuId === variantId
+      );
+      
+      if (newVariantIndex !== -1) {
+        const updated = [...newVariants];
+        const existingImages = updated[newVariantIndex]?.variantImage || [];
+        updated[newVariantIndex] = {
+          ...updated[newVariantIndex],
+          variantImage: [...existingImages, ...uploadedImages].slice(0, 10),
+        };
+        setNewVariants(updated);
+      } else {
+        console.error("New variant not found in newVariants array");
+        toast.error("Failed to find variant for image upload");
+      }
     } else {
-
+      // Update existing variant in formData
       setFormData((prev) => {
         const updatedVariants = [...prev.variants];
         const existingImages = updatedVariants[index]?.variantImage || [];
-
         updatedVariants[index] = {
           ...updatedVariants[index],
           variantImage: [...existingImages, ...uploadedImages].slice(0, 10),
         };
-
         return { ...prev, variants: updatedVariants };
       });
     }
 
-      toast.success("Images uploaded successfully!");
-    } catch (err) {
-      console.error(err);
-      toast.error("Image upload failed");
-    } finally {
-      setUploadingVariantIndex(null);
-      e.target.value = "";
+    toast.success("Images uploaded successfully!");
+  } catch (err) {
+    console.error("Upload error:", err);
+    if (err.code === "ECONNABORTED") {
+      toast.error("Upload timeout - please try again with smaller images");
+    } else if (err.response?.status === 413) {
+      toast.error("Images too large - please use smaller images");
+    } else {
+      toast.error("Image upload failed - please try again");
     }
-  };
+  } finally {
+    setUploadingVariantIndex(null);
+    e.target.value = "";
+  }
+};
 
   //  Remove a specific image from a specific variant
   const removeVariantImage = (variantIndex, imgIndex) => {
@@ -528,9 +571,11 @@ if(isEditing) {
       toast.error("Category is required");
       return;
     }
+      // Combine existing variants with new variants
+  const allVariantsToSubmit = [...formData.variants, ...newVariants];
 
-    for (let i = 0; i < formData.variants.length; i++) {
-      const variant = formData.variants[i];
+    for (let i = 0; i < allVariantsToSubmit.length; i++) {
+      const variant = allVariantsToSubmit[i];
 
       const hasAnyVariantInput =
         variant.variantColor?.trim() ||
@@ -579,7 +624,7 @@ if(isEditing) {
       category: formData.category,
       subcategory: formData.subcategory,
       isActive: status === "active",
-      variants: formData.variants.map((v) => ({
+      variants: allVariantsToSubmit.map((v) => ({
         variantColor: v.variantColor,
         variantName: v.variantName,
         variantWeight: v.variantWeight,
@@ -609,6 +654,8 @@ if(isEditing) {
           }
         );
         toast.success("Product updated successfully!");
+         // Clear newVariants after successful update
+      setNewVariants([]);
       } else {
         // CREATE new product
         response = await axiosInstance.post(
@@ -842,50 +889,63 @@ if(isEditing) {
 
   const [isDraftEnabled, setIsDraftEnabled] = useState(true);
 
-  const handleSaveDraft = () => {
-    try {
-      const draftData = {
-        ...formData,
-        variants: formData.variants.map((v) => ({
-          ...v,
-          variantImage: [], // remove images
-        })),
-      };
+const handleSaveDraft = async () => {
+  if (!formData.productTittle.trim()) {
+    toast.error("Please enter product name before saving draft");
+    return;
+  }
 
-      localStorage.setItem("addProductDraft", JSON.stringify(draftData));
-      setHasDraft(true);
+  // Combine existing variants with new variants
+  const allVariantsToSubmit = [...formData.variants, ...newVariants];
 
-      const payload = {
-        productTittle: formData.productTittle,
-        description: formData.description,
-        category: formData.category,
-        subcategory: formData.subcategory,
-        variants: formData.variants.map((v) => ({
-          variantColor: v.variantColor,
-          variantName: v.variantName,
-          variantWeight: v.variantWeight,
-          variantWeightUnit: v.variantWeightUnit,
-          variantSkuId: v.variantSkuId,
-          variantImage: v.variantImage || [],
-          variantMrp: Number(v.variantMrp) || 0,
-          variantCostPrice: Number(v.variantCostPrice) || 0,
-          variantSellingPrice: Number(v.variantSellingPrice) || 0,
-          variantGST: Number(v.variantGST) || 0,
-          variantDiscount: Number(v.variantDiscount) || 0,
-          variantAvailableStock: Number(v.variantAvailableStock) || 0,
-          variantLowStockAlertStock: Number(v.variantLowStockAlertStock) || 0,
-          isSelected: v.isSelected || false,
-        })),
-        action: "draft",
-        // isDraft: true,
-        // isActive: false,
-      };
+  try {
+    const payload = {
+      productTittle: formData.productTittle,
+      description: formData.description,
+      category: formData.category,
+      subcategory: formData.subcategory,
+      variants: allVariantsToSubmit.map((v) => ({
+        variantColor: v.variantColor,
+        variantName: v.variantName,
+        variantWeight: v.variantWeight,
+        variantWeightUnit: v.variantWeightUnit,
+        variantSkuId: v.variantSkuId,
+        variantImage: v.variantImage || [],
+        variantMrp: Number(v.variantMrp) || 0,
+        variantCostPrice: Number(v.variantCostPrice) || 0,
+        variantSellingPrice: Number(v.variantSellingPrice) || 0,
+        variantGST: Number(v.variantGST) || 0,
+        variantDiscount: Number(v.variantDiscount) || 0,
+        variantAvailableStock: Number(v.variantAvailableStock) || 0,
+        variantLowStockAlertStock: Number(v.variantLowStockAlertStock) || 0,
+        isSelected: v.isSelected || false,
+      })),
+      action: "draft",
+    };
 
+    let response;
+    if (draftId) {
+      response = await axiosInstance.patch(
+        `/product/admin/update-product/${draftId}`,
+        payload
+      );
+      toast.success("Draft updated successfully!");
+      // Clear newVariants after successful draft save
+      setNewVariants([]);
+    } else {
+      response = await axiosInstance.post("/product/admin/add-product", payload);
+      setDraftId(response.data.data._id);
       toast.success("Draft saved successfully!");
-    } catch (err) {
-      toast.error("Failed to save draft");
     }
-  };
+    
+    // Also save to localStorage as backup
+    localStorage.setItem("addProductDraft", JSON.stringify(formData));
+    setHasDraft(true);
+  } catch (err) {
+    console.error("Draft save error:", err);
+    toast.error(err?.response?.data?.message || "Failed to save draft");
+  }
+};
 
   useEffect(() => {
     const savedDraft = localStorage.getItem("addProductDraft");
@@ -1020,7 +1080,7 @@ if(isEditing) {
 
   const openVariantImages = (variantIndex) => {
     // const imgs = formData.variants[variantIndex]?.variantImage || [];
-     const variant = allVariants[variantIndex];
+    const variant = allVariants[variantIndex];
     const imgs = variant.variantImage || [];
 
     setActiveVariantIndex(variantIndex);
@@ -1578,7 +1638,7 @@ if(isEditing) {
                         </th>
                         <th className="px-3 py-2 text-left font-medium">
                           Images
-                        </th>{" "}
+                        </th>
                         <th className="px-3 py-2 text-left font-medium">MRP</th>
                         <th className="px-3 py-2 text-left font-medium">
                           Cost Price
@@ -1605,12 +1665,12 @@ if(isEditing) {
                         const isNewVariant = variant.isNew === true;
                         const actualIndex = index;
                         return (
-                        <tr
-                          key={variant.variantSkuId || index}
-                          className="hover:bg-gray-50 border-b"
-                        >
-                          {/* Checkbox */}
-                          {/* <td className="px-3 py-2">
+                          <tr
+                            key={variant.variantSkuId || index}
+                            className="hover:bg-gray-50 border-b"
+                          >
+                            {/* Checkbox */}
+                            {/* <td className="px-3 py-2">
                             <input
                               type="checkbox"
                               checked={!!variant.isSelected}
@@ -1618,483 +1678,399 @@ if(isEditing) {
                             />
                           </td> */}
 
-                          <td className="px-3 py-1">
-                            {isExisting ? (
-                              <div className="w-[140px] rounded-md border px-3 py-1 text-sm bg-gray-100 text-gray-600 min-h-[36px]">
-                                {variant.variantColor || "-"}
-                              </div>
-                            ) : (
-                              // Editable for new variants
-                              <div className="flex flex-wrap items-center gap-2 rounded-lg p-2 w-[140px]">
-                                <select
-  value={variant.variantColor || ""}
-  onChange={(e) => {
-    if (isNewVariant) {
-      const updated = [...newVariants];
-      updated[index - formData.variants.length] = {
-        ...updated[index - formData.variants.length],
-        variantColor: e.target.value,
-      };
-      setNewVariants(updated);
-    } else {
-      handleVariantChange(index, "variantColor", e.target.value);
-    }
-  }}
-  className="w-[140px] rounded-md border px-3 py-1 text-sm focus:outline-none "
->
-                                  <option value="" disabled>
-                                    Select color
-                                  </option>
-                                  {colors.map((color, index) => (
-                                    <option key={index} value={color}>
-                                      {color}
-                                    </option>
-                                  ))}
-                                </select>
-                              </div>
-                            )}
-                          </td>
-
-                          <td className="px-3 py-1">
-                            {isExisting ? (
-                              <div className="border px-3 py-2 rounded bg-gray-100 text-gray-600 min-w-[120px]">
-                                {variant.variantName || "-"}
-                              </div>
-                            ) : (
-                              <div className="flex gap-2 border px-3 py-2 rounded">
-                                <input
-                                  type="text"
-                                  value={variant.variantName || ""}
-                                  onChange={(e) => {
-                  const updated = [...newVariants];
-                  updated[index - formData.variants.length] = {
-                    ...updated[index - formData.variants.length],
-                    variantName: e.target.value
-                  };
-                  setNewVariants(updated);
-                }}
-                                  placeholder="Enter Variant"
-                                  className="outline-none placeholder:text-[#6B6B6B]"
-                                />
-                              </div>
-                            )}
-                          </td>
-
-                          <td className="px-3 py-1">
-                            {isExisting ? (
-                              <div className="flex items-center gap-2 border rounded px-3 py-1 bg-gray-100 text-gray-600 min-w-[140px]">
-                                <span>{variant.variantWeight || "-"} {variant.variantWeightUnit || "kg"}</span>
-                              </div>
-                            ) : (
-                              <div className="flex items-center justify-center gap-2 border rounded px-3 py-1">
-                                {" "}
-                                <input
-                                  type="number"
-                                  min="0"
-                                  step="0.01"
-                                  value={variant.variantWeight || ""}
-                                   onChange={(e) => {
-                  const updated = [...newVariants];
-                  updated[index - formData.variants.length] = {
-                    ...updated[index - formData.variants.length],
-                    variantWeight: e.target.value
-                  };
-                  setNewVariants(updated);
-                }}
-                                  placeholder="Enter Weight"
-                                  className="px-2 py-1 placeholder:text-[#6B6B6B] outline-none"
-                                />
-                                <select
-                                  value={variant.variantWeightUnit || "kg"}
-                                   onChange={(e) => {
-                  const updated = [...newVariants];
-                  updated[index - formData.variants.length] = {
-                    ...updated[index - formData.variants.length],
-                    variantWeightUnit: e.target.value
-                  };
-                  setNewVariants(updated);
-                }}
-                                  className="border rounded-lg px-3 bg-[#264464] text-white text-sm"
-                                >
-                                  <option value="kg">kg</option>
-                                  <option value="gm">g</option>
-                                </select>
-                              </div>
-                            )}
-                          </td>
-
-                          <td className="px-3 py-2">
-                            <div>
-                              {isExisting ? (
-                                <div className="w-[274px] h-[28px] border rounded px-3 bg-gray-100 text-gray-600 flex items-center">
-                                  {variant.variantSkuId || "N/A"}
+                            <td className="px-3 py-1">
+                              {(isExisting && !isProductDraft) ? (
+                                <div className="w-[140px] rounded-md border px-3 py-1 text-sm bg-gray-100 text-gray-600 min-h-[36px]">
+                                  {variant.variantColor || "-"}
                                 </div>
                               ) : (
-                                <div className="relative">
-                                  <input
-                                    type="text"
-                                    name="SKU"
-                                    readOnly
-                                    value={variant.variantSkuId || ""}
-                                    // onChange={(e) =>
-                                    //   handleVariantChange(
-                                    //     index,
-                                    //     "variantSkuId",
-                                    //     e.target.value,
-                                    //   )
-                                    // }
-                                    placeholder="Generate Variant SKU ID"
-                                    className="w-[274px] h-[28px] border border-[#D0D0D0] rounded px-3 pr-28
-              bg-[#F8FAFB] text-sm text-[#6B6B6B] placeholder-[#494848]
-              "
-                                  />
-                                  {index !== 0 && (
-                                    <button
-                                      type="button"
-                                      // onClick={() => generateVariantSKU(index)}
-                                       onClick={() => {
-                  const productSKU = formData.SKU?.trim();
-                  const randomNum = Math.floor(100 + Math.random() * 900);
-                  const newSku = `${productSKU}-V-${randomNum}`;
-                  const updated = [...newVariants];
-                  updated[actualIndex - formData.variants.length] = {
-                    ...updated[actualIndex - formData.variants.length],
-                    variantSkuId: newSku
-                  };
-                  setNewVariants(updated);
-                }}
-                                      className="absolute right-2 top-1/2 -translate-y-1/2
-              h-[24px] px-4 bg-[#1C3753] text-white text-sm font-normal
-              rounded-md hover:bg-[#264464] transition"
-                                    >
-                                      Generate
-                                    </button>
-                                  )}
+                                // Editable for new variants
+                                <div className="flex flex-wrap items-center gap-2 rounded-lg p-2 w-[140px]">
+                                  <select
+                                    value={variant.variantColor || ""}
+                                    onChange={(e) => {
+                                      if (isEditing && isNewVariant) {
+                                        const updated = [...newVariants];
+                                        updated[index - formData.variants.length] = {
+                                          ...updated[index - formData.variants.length],
+                                          variantColor: e.target.value,
+                                        };
+                                        setNewVariants(updated);
+                                      } else {
+                                        handleVariantChange(index, "variantColor", e.target.value);
+                                      }
+                                    }}
+                                    className="w-[140px] rounded-md border px-3 py-1 text-sm focus:outline-none "
+                                  >
+                                    <option value="" disabled>
+                                      Select color
+                                    </option>
+                                    {colors.map((color, index) => (
+                                      <option key={index} value={color}>
+                                        {color}
+                                      </option>
+                                    ))}
+                                  </select>
                                 </div>
                               )}
-                            </div>
-                          </td>
-                          {/* images */}
-                         <td className="px-3 py-2">
-  {isExisting ? (
-    // VIEW-ONLY MODE FOR EXISTING VARIANTS
-    <div className="flex items-center gap-3">
-      {variant.variantImage && variant.variantImage.length > 0 ? (
-        <div className="flex items-center gap-2">
-          <div className="h-9 w-9 rounded-md overflow-hidden border bg-gray-100">
-            <img
-              src={variant.variantImage[0]?.url || "/placeholder.png"}
-              className="h-full w-full object-cover"
-              alt="product"
-            />
-          </div>
-          <span className="text-sm text-gray-500">
-            {variant.variantImage.length} image{variant.variantImage.length !== 1 ? "s" : ""}
-          </span>
-        </div>
-      ) : (
-        <div className="text-sm text-gray-400">No images</div>
-      )}
-    </div>
-  ) : (
-    // EDITABLE FOR NEW VARIANTS
-    <div className="flex items-center gap-4 whitespace-nowrap">
-      {(!variant.variantImage || variant.variantImage.length === 0) && (
-        <button
-          type="button"
-          onClick={() => triggerVariantUpload(actualIndex)}
-          disabled={uploadingVariantIndex === actualIndex}
-          className="flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
-        >
-          <div className="h-9 w-9 rounded-md border bg-[#EFEFEF] flex items-center justify-center">
-            {uploadingVariantIndex === actualIndex ? (
-              <div className="h-5 w-5 rounded-full border-2 border-gray-300 border-t-[#1C3753] animate-spin" />
-            ) : (
-              <FiUpload className="h-5 w-5 text-[#1C3753]" />
-            )}
-          </div>
-          <span className="text-sm text-[#1C3753]">
-            {uploadingVariantIndex === actualIndex ? "Uploading..." : "Add Images"}
-          </span>
-        </button>
-      )}
+                            </td>
 
-      {variant.variantImage && variant.variantImage.length > 0 && (
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={() => openVariantImages(actualIndex)}
-            className="flex items-center gap-2"
-          >
-            <div className="h-9 w-9 rounded-md overflow-hidden border bg-gray-100">
-              <img
-                src={variant.variantImage[0]?.url || variant.variantImage[0]?.preview || "/placeholder.png"}
-                alt=""
-                className="h-full w-full object-cover"
-              />
-            </div>
-            <span className="text-sm text-[#1C3753]">
-              +{variant.variantImage.length} Image{variant.variantImage.length !== 1 ? "s" : ""}
-            </span>
-          </button>
-        </div>
-      )}
+                            <td className="px-3 py-1">
+                              {(isExisting && !isProductDraft) ? (
+                                <div className="border px-3 py-2 rounded bg-gray-100 text-gray-600 min-w-[120px]">
+                                  {variant.variantName || "-"}
+                                </div>
+                              ) : (
+                                <div className="flex gap-2 border px-3 py-2 rounded">
+                                  <input
+                                    type="text"
+                                    value={variant.variantName || ""}
+                                    onChange={(e) => {
+                                      // in edit mode and this is new variant
+                                      if (isEditing && isNewVariant) {
+                                        const updated = [...newVariants];
+                                        updated[index - formData.variants.length] = {
+                                          ...updated[index - formData.variants.length],
+                                          variantName: e.target.value
+                                        };
+                                        setNewVariants(updated);
+                                      } else {
+                                        handleVariantChange(actualIndex, "variantName", e.target.value);
+                                      }
+                                    }}
+                                    placeholder="Enter Variant"
+                                    className="outline-none placeholder:text-[#6B6B6B]"
+                                  />
+                                </div>
+                              )}
+                            </td>
 
-      <input
-        type="file"
-        multiple
-        accept=".png,.jpg,.jpeg,.webp,.svg"
-        className="hidden"
-        ref={(el) => (variantFileRefs.current[actualIndex] = el)}
-        onChange={(e) => handleVariantImageChange(e, actualIndex)}
-      />
-    </div>
-  )}
-</td>
-                          <td className="px-3 py-2">
-                            {isEditing ? (
-                              // ✅ VIEW-ONLY MODE FOR EDIT
-                              <div className="flex items-center gap-3">
-                                {variant.variantImage && variant.variantImage.length > 0 ? (
-                                  <div className="flex items-center gap-2">
-                                    <div className="h-9 w-9 rounded-md overflow-hidden border bg-gray-100">
-                                      <img
-                                        src={variant.variantImage[0]?.url || "/placeholder.png"}
-                                        className="h-full w-full object-cover"
-                                        alt="product"
-                                      />
-                                    </div>
-                                    <span className="text-sm text-gray-500">
-                                      {variant.variantImage.length} image{variant.variantImage.length !== 1 ? 's' : ''}
-                                    </span>
+                            <td className="px-3 py-1">
+                              {(isExisting && !isProductDraft) ? (
+                                <div className="flex items-center gap-2 border rounded px-3 py-1 bg-gray-100 text-gray-600 min-w-[140px]">
+                                  <span>{variant.variantWeight || "-"} {variant.variantWeightUnit || "kg"}</span>
+                                </div>
+                              ) : (
+                                <div className="flex items-center justify-center gap-2 border rounded px-3 py-1">
+                                  {" "}
+                                  <input
+                                    type="number"
+                                    min="0"
+                                    step="0.01"
+                                    value={variant.variantWeight || ""}
+                                    onChange={(e) => {
+                                      if (isEditing && isNewVariant) {
+                                        const updated = [...newVariants];
+                                        updated[index - formData.variants.length] = {
+                                          ...updated[index - formData.variants.length],
+                                          variantWeight: e.target.value
+                                        };
+                                        setNewVariants(updated);
+                                      }
+                                      else {
+                                        handleVariantChange(actualIndex, "variantWeight", e.target.value);
+                                      }
+                                    }
+                                    }
+                                    placeholder="Enter Weight"
+                                    className="px-2 py-1 placeholder:text-[#6B6B6B] outline-none"
+                                  />
+                                  <select
+                                    value={variant.variantWeightUnit || "kg"}
+                                    onChange={(e) => {
+                                      if (isEditing && isNewVariant) {
+                                        const updated = [...newVariants];
+                                        updated[index - formData.variants.length] = {
+                                          ...updated[index - formData.variants.length],
+                                          variantWeightUnit: e.target.value
+                                        };
+                                        setNewVariants(updated);
+                                      }
+                                      else {
+                                        handleVariantChange(actualIndex, "variantWeightUnit", e.target.value);
+                                      }
+                                    }
+                                    }
+                                    className="border rounded-lg px-3 bg-[#264464] text-white text-sm"
+                                  >
+                                    <option value="kg">kg</option>
+                                    <option value="gm">g</option>
+                                  </select>
+                                </div>
+                              )}
+                            </td>
+
+                            <td className="px-3 py-2">
+                              <div>
+                                {(isExisting && !isProductDraft) ? (
+                                  <div className="w-[274px] h-[28px] border rounded px-3 bg-gray-100 text-gray-600 flex items-center">
+                                    {variant.variantSkuId || "N/A"}
                                   </div>
                                 ) : (
-                                  <div className="text-sm text-gray-400">No images</div>
-                                )}
-                              </div>
-                            ) : (
-                              (() => {
-                                const imgs =
-                                  formData.variants[index].variantImage || [];
-
-                                const count = imgs.length;
-                                const firstImg = imgs[0];
-
-                                const thumbSrc = firstImg
-                                  ? typeof firstImg === "string"
-                                    ? firstImg
-                                    : firstImg.url || firstImg.preview || ""
-                                  : "";
-
-                                return (
-                                  <div className="flex items-center gap-4 whitespace-nowrap">
-                                    {count === 0 && (
+                                  <div className="relative">
+                                    <input
+                                      type="text"
+                                      name="SKU"
+                                      readOnly
+                                      value={variant.variantSkuId || ""}
+                                      // onChange={(e) =>
+                                      //   handleVariantChange(
+                                      //     index,
+                                      //     "variantSkuId",
+                                      //     e.target.value,
+                                      //   )
+                                      // }
+                                      placeholder="Generate Variant SKU ID"
+                                      className="w-[274px] h-[28px] border border-[#D0D0D0] rounded px-3 pr-28
+              bg-[#F8FAFB] text-sm text-[#6B6B6B] placeholder-[#494848]
+              "
+                                    />
+                                    {index !== 0 && (
                                       <button
                                         type="button"
-                                        onClick={() =>
-                                          triggerVariantUpload(index)
-                                        }
-                                        disabled={uploadingVariantIndex === index}
-                                        className="flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+                                        // onClick={() => generateVariantSKU(index)}
+                                        onClick={() => {
+                                          const productSKU = formData.SKU?.trim();
+                                          const randomNum = Math.floor(100 + Math.random() * 900);
+                                          const newSku = `${productSKU}-V-${randomNum}`;
+                                          const updated = [...newVariants];
+                                          updated[actualIndex - formData.variants.length] = {
+                                            ...updated[actualIndex - formData.variants.length],
+                                            variantSkuId: newSku
+                                          };
+                                          setNewVariants(updated);
+                                        }}
+                                        className="absolute right-2 top-1/2 -translate-y-1/2
+              h-[24px] px-4 bg-[#1C3753] text-white text-sm font-normal
+              rounded-md hover:bg-[#264464] transition"
                                       >
-                                        <div className="h-9 w-9 rounded-md border bg-[#EFEFEF] flex items-center justify-center">
-                                          {uploadingVariantIndex === index ? (
-                                            <div className="h-5 w-5 rounded-full border-2 border-gray-300 border-t-[#1C3753] animate-spin" />
-                                          ) : (
-                                            <FiUpload className="h-5 w-5 text-[#1C3753]" />
-                                          )}
-                                        </div>
-                                        <span className="text-sm text-[#1C3753]">
-                                          {uploadingVariantIndex === index
-                                            ? "Uploading..."
-                                            : "Add Images"}
-                                        </span>
+                                        Generate
                                       </button>
                                     )}
-
-                                    {count > 0 && (
-                                      <div className="flex items-center gap-3">
-                                        <button
-                                          type="button"
-                                          onClick={() => openVariantImages(index)}
-                                          className="flex items-center gap-2"
-                                        >
-                                          <div className="h-9 w-9 rounded-md overflow-hidden border bg-gray-100">
-                                            <img
-                                              src={thumbSrc}
-                                              alt=""
-                                              className="h-full w-full object-cover"
-                                            />
-                                          </div>
-
-                                          <span className="text-sm text-[#1C3753]">
-                                            +{count} Images
-                                          </span>
-                                        </button>
-
-                                        {uploadingVariantIndex === index && (
-                                          <div className="flex items-center gap-2 text-sm text-[#1C3753]">
-                                            <div className="h-4 w-4 rounded-full border-2 border-gray-300 border-t-[#1C3753] animate-spin" />
-                                            Uploading...
-                                          </div>
+                                  </div>
+                                )}
+                              </div>
+                            </td>
+                            {/* images */}
+                            <td className="px-3 py-2">
+                              {(isExisting && !isProductDraft) ? (
+                                // VIEW-ONLY MODE FOR EXISTING VARIANTS
+                                <div className="flex items-center gap-3">
+                                  {variant.variantImage && variant.variantImage.length > 0 ? (
+                                    <div className="flex items-center gap-2">
+                                      <div className="h-9 w-9 rounded-md overflow-hidden border bg-gray-100">
+                                        <img
+                                          src={variant.variantImage[0]?.url || "/placeholder.png"}
+                                          className="h-full w-full object-cover"
+                                          alt="product"
+                                        />
+                                      </div>
+                                      <span className="text-sm text-gray-500">
+                                        {variant.variantImage.length} image{variant.variantImage.length !== 1 ? "s" : ""}
+                                      </span>
+                                    </div>
+                                  ) : (
+                                    <div className="text-sm text-gray-400">No images</div>
+                                  )}
+                                </div>
+                              ) : (
+                                // EDITABLE FOR NEW VARIANTS
+                                <div className="flex items-center gap-4 whitespace-nowrap">
+                                  {(!variant.variantImage || variant.variantImage.length === 0) && (
+                                    <button
+                                      type="button"
+                                      onClick={() => triggerVariantUpload(actualIndex)}
+                                      disabled={uploadingVariantIndex === actualIndex}
+                                      className="flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+                                    >
+                                      <div className="h-9 w-9 rounded-md border bg-[#EFEFEF] flex items-center justify-center">
+                                        {uploadingVariantIndex === actualIndex ? (
+                                          <div className="h-5 w-5 rounded-full border-2 border-gray-300 border-t-[#1C3753] animate-spin" />
+                                        ) : (
+                                          <FiUpload className="h-5 w-5 text-[#1C3753]" />
                                         )}
                                       </div>
-                                    )}
+                                      <span className="text-sm text-[#1C3753]">
+                                        {uploadingVariantIndex === actualIndex ? "Uploading..." : "Add Images"}
+                                      </span>
+                                    </button>
+                                  )}
 
-                                    <input
-                                      type="file"
-                                      multiple
-                                      accept=".png,.jpg,.jpeg,.webp,.svg"
-                                      className="hidden"
-                                      ref={(el) =>
-                                        (variantFileRefs.current[index] = el)
-                                      }
-                                      onChange={(e) =>
-                                        handleVariantImageChange(e, index)
-                                      }
-                                    />
-                                  </div>
-                                );
-                              })()
-                            )}
-                          </td>
+                                  {variant.variantImage && variant.variantImage.length > 0 && (
+                                    <div className="flex items-center gap-3">
+                                      <button
+                                        type="button"
+                                        onClick={() => openVariantImages(actualIndex)}
+                                        className="flex items-center gap-2"
+                                      >
+                                        <div className="h-9 w-9 rounded-md overflow-hidden border bg-gray-100">
+                                          <img
+                                            src={variant.variantImage[0]?.url || variant.variantImage[0]?.preview || "/placeholder.png"}
+                                            alt=""
+                                            className="h-full w-full object-cover"
+                                          />
+                                        </div>
+                                        <span className="text-sm text-[#1C3753]">
+                                          +{variant.variantImage.length} Image{variant.variantImage.length !== 1 ? "s" : ""}
+                                        </span>
+                                      </button>
+                                    </div>
+                                  )}
 
-                          <td className="px-3 py-2">
-                            <input
-                              type="number"
-                              value={variant.variantMrp || ""}
-                              onChange={(e) =>
-                                handleVariantChange(
-                                  index,
-                                  "variantMrp",
-                                  e.target.value,
-                                )
-                              }
-                              className=" rounded border px-2 py-1 placeholder:text-[#6B6B6B]"
-                              placeholder="Enter MRP"
-                            />
-                          </td>
+                                  <input
+                                    type="file"
+                                    multiple
+                                    accept=".png,.jpg,.jpeg,.webp,.svg"
+                                    className="hidden"
+                                    ref={(el) => (variantFileRefs.current[actualIndex] = el)}
+                                    onChange={(e) => handleVariantImageChange(e, actualIndex)}
+                                  />
+                                </div>
+                              )}
+                            </td>
 
-                          <td className=" px-3 py-2">
-                            <input
-                              type="number"
-                              value={variant.variantCostPrice || ""}
-                              onChange={(e) =>
-                                handleVariantChange(
-                                  index,
-                                  "variantCostPrice",
-                                  e.target.value,
-                                )
-                              }
-                              className=" rounded border px-2 py-1 placeholder:text-[#6B6B6B]"
-                              placeholder="Enter Cost Price"
-                            />
-                          </td>
+                            <td className="px-3 py-2">
+                              <input
+                                type="number"
+                                value={variant.variantMrp || ""}
+                                onChange={(e) =>
+                                  handleVariantChange(
+                                    index,
+                                    "variantMrp",
+                                    e.target.value,
+                                  )
+                                }
+                                className=" rounded border px-2 py-1 placeholder:text-[#6B6B6B]"
+                                placeholder="Enter MRP"
+                              />
+                            </td>
 
-                          <td className="px-3 py-2">
-                            <input
-                              type="number"
-                              value={variant.variantSellingPrice || ""}
-                              onChange={(e) => {
-  if (isNewVariant) {
-    const updated = [...newVariants];
-    updated[actualIndex - formData.variants.length] = {
-      ...updated[actualIndex - formData.variants.length],
-      variantSellingPrice: e.target.value
-    };
-    setNewVariants(updated);
-  } else {
-    handleVariantChange(actualIndex, "variantSellingPrice", e.target.value);
-  }
-}}
+                            <td className=" px-3 py-2">
+                              <input
+                                type="number"
+                                value={variant.variantCostPrice || ""}
+                                onChange={(e) =>
+                                  handleVariantChange(
+                                    index,
+                                    "variantCostPrice",
+                                    e.target.value,
+                                  )
+                                }
+                                className=" rounded border px-2 py-1 placeholder:text-[#6B6B6B]"
+                                placeholder="Enter Cost Price"
+                              />
+                            </td>
 
-                              className=" rounded border px-2 py-1 placeholder:text-[#6B6B6B]"
-                              placeholder="Enter Selling Price"
-                            />
-                          </td>
-                          <td className="px-3 py-2">
-                            <input
-                              type="number"
-                              value={variant.variantGST || ""}
-                              onChange={(e) =>
-                                handleVariantChange(
-                                  index,
-                                  "variantGST",
-                                  e.target.value,
-                                )
-                              }
-                              placeholder="GST @ (%)"
-                              className=" rounded border px-2 py-1 placeholder:text-[#6B6B6B]"
-                            />
-                          </td>
+                            <td className="px-3 py-2">
+                              <input
+                                type="number"
+                                value={variant.variantSellingPrice || ""}
+                                onChange={(e) => {
+                                  if (isNewVariant) {
+                                    const updated = [...newVariants];
+                                    updated[actualIndex - formData.variants.length] = {
+                                      ...updated[actualIndex - formData.variants.length],
+                                      variantSellingPrice: e.target.value
+                                    };
+                                    setNewVariants(updated);
+                                  } else {
+                                    handleVariantChange(actualIndex, "variantSellingPrice", e.target.value);
+                                  }
+                                }}
 
-                          <td className="px-3 py-2">
-          <div className="flex items-center justify-center rounded-md gap-2 border px-3 py-1">
-            <input
-              type="number"
-              value={variant.variantDiscount || ""}
-              onChange={(e) => {
-                if (isNewVariant) {
-                  const updated = [...newVariants];
-                  updated[actualIndex - formData.variants.length] = {
-                    ...updated[actualIndex - formData.variants.length],
-                    variantDiscount: e.target.value
-                  };
-                  setNewVariants(updated);
-                } else {
-                  handleVariantChange(actualIndex, "variantDiscount", e.target.value);
-                }
-              }}
-              placeholder="Discount"
-              className="placeholder:text-[#6B6B6B] bg-white w-20"
-            />
-            <div className="border rounded-lg px-3 bg-[#264464] text-white text-sm">
-              %
-            </div>
-          </div>
-        </td>
+                                className=" rounded border px-2 py-1 placeholder:text-[#6B6B6B]"
+                                placeholder="Enter Selling Price"
+                              />
+                            </td>
+                            <td className="px-3 py-2">
+                              <input
+                                type="number"
+                                value={variant.variantGST || ""}
+                                onChange={(e) =>
+                                  handleVariantChange(
+                                    index,
+                                    "variantGST",
+                                    e.target.value,
+                                  )
+                                }
+                                placeholder="GST @ (%)"
+                                className=" rounded border px-2 py-1 placeholder:text-[#6B6B6B]"
+                              />
+                            </td>
 
-                                {/* Available Stock */}
-        <td className="px-3 py-2">
-          {isExisting ? (
-            <div className="rounded border px-2 py-1 bg-gray-100 text-gray-600">
-              {variant.variantAvailableStock || 0}
-            </div>
-          ) : (
-            <input
-              type="number"
-              value={variant.variantAvailableStock || ""}
-              onChange={(e) => {
-                const updated = [...newVariants];
-                updated[index - formData.variants.length] = {
-                  ...updated[index - formData.variants.length],
-                  variantAvailableStock: e.target.value
-                };
-                setNewVariants(updated);
-              }}
-              className="rounded border px-2 py-1 placeholder:text-[#6B6B6B]"
-              placeholder="Enter Stock"
-            />
-          )}
-        </td>
-                          <td className="px-3 py-2">
-                            <input
-                              type="number"
-                              value={variant.variantLowStockAlertStock || ""}
-                              onChange={(e) =>
-                                handleVariantChange(
-                                  index,
-                                  "variantLowStockAlertStock",
-                                  e.target.value,
-                                )
-                              }
-                              placeholder="Enter Low Stock Alert"
-                              className=" rounded border px-2 py-1 placeholder:text-[#6B6B6B]"
-                            />
-                          </td>
-                        </tr>
-                            );
-  })}
+                            <td className="px-3 py-2">
+                              <div className="flex items-center justify-center rounded-md gap-2 border px-3 py-1">
+                                <input
+                                  type="number"
+                                  value={variant.variantDiscount || ""}
+                                  onChange={(e) => {
+                                    if (isNewVariant) {
+                                      const updated = [...newVariants];
+                                      updated[actualIndex - formData.variants.length] = {
+                                        ...updated[actualIndex - formData.variants.length],
+                                        variantDiscount: e.target.value
+                                      };
+                                      setNewVariants(updated);
+                                    } else {
+                                      handleVariantChange(actualIndex, "variantDiscount", e.target.value);
+                                    }
+                                  }}
+                                  placeholder="Discount"
+                                  className="placeholder:text-[#6B6B6B] bg-white w-20"
+                                />
+                                <div className="border rounded-lg px-3 bg-[#264464] text-white text-sm">
+                                  %
+                                </div>
+                              </div>
+                            </td>
+
+                            {/* Available Stock */}
+                            <td className="px-3 py-2">
+                              {(isExisting && !isProductDraft) ? (
+                                <div className="rounded border px-2 py-1 bg-gray-100 text-gray-600">
+                                  {variant.variantAvailableStock || 0}
+                                </div>
+                              ) : (
+                                <input
+                                  type="number"
+                                  value={variant.variantAvailableStock || ""}
+                                  onChange={(e) => {
+                                    if (isEditing && isNewVariant) {
+                                      const updated = [...newVariants];
+                                      updated[index - formData.variants.length] = {
+                                        ...updated[index - formData.variants.length],
+                                        variantAvailableStock: e.target.value
+                                      };
+                                      setNewVariants(updated);
+                                    }
+                                    else {
+                                      handleVariantChange(actualIndex, "variantAvailableStock", e.target.value);
+                                    }
+                                  }
+                                  }
+                                  className="rounded border px-2 py-1 placeholder:text-[#6B6B6B]"
+                                  placeholder="Enter Stock"
+                                />
+                              )}
+                            </td>
+                            <td className="px-3 py-2">
+                              <input
+                                type="number"
+                                value={variant.variantLowStockAlertStock || ""}
+                                onChange={(e) =>
+                                  handleVariantChange(
+                                    index,
+                                    "variantLowStockAlertStock",
+                                    e.target.value,
+                                  )
+                                }
+                                placeholder="Enter Low Stock Alert"
+                                className=" rounded border px-2 py-1 placeholder:text-[#6B6B6B]"
+                              />
+                            </td>
+                          </tr>
+                        );
+                      })}
                     </tbody>
                   </table>
                 </div>
