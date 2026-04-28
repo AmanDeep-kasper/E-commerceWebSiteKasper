@@ -91,8 +91,6 @@ const ProductSchema = new mongoose.Schema(
       index: true,
     },
 
-    reviews: [{ type: mongoose.Schema.Types.ObjectId, ref: "Review" }],
-
     stats: {
       averageRating: {
         type: Number,
@@ -112,8 +110,6 @@ const ProductSchema = new mongoose.Schema(
         index: true,
       },
     },
-
-    reviews: [{ type: mongoose.Schema.Types.ObjectId, ref: "Review" }],
   },
   { timestamps: true, versionKey: false },
 );
@@ -122,7 +118,11 @@ const ProductSchema = new mongoose.Schema(
 ProductSchema.index({ category: 1 });
 ProductSchema.index({ productTittle: 1 });
 ProductSchema.index({ category: 1, subcategory: 1 });
-ProductSchema.index({ status: 1, "stats.averageRating": -1 });
+ProductSchema.index({
+  isActive: 1,
+  isDraft: 1,
+  "stats.averageRating": -1,
+});
 ProductSchema.index({ "variants.variantSellingPrice": 1 });
 ProductSchema.index({ createdAt: -1 });
 ProductSchema.index({ isActive: 1, isDraft: 1 });

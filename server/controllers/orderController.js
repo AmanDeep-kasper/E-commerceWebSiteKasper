@@ -447,7 +447,7 @@ export const verifyPayment = asyncHandler(async (req, res) => {
         {
           $inc: {
             "variants.$.variantAvailableStock": -item.quantity,
-            "variants.$.totalSold": item.quantity,
+            "stats.totalSold": item.quantity,
           },
         },
         { session },
