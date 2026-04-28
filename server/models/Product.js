@@ -15,9 +15,6 @@ const VariantSchema = new mongoose.Schema({
   variantSkuId: {
     type: String,
     required: true,
-    unique: function () {
-      return !this.isDraft;
-    },
   },
 
   variantImage: [
@@ -134,6 +131,17 @@ ProductSchema.index({
   isDraft: 1,
   "variants.variantAvailableStock": 1,
 });
+
+ProductSchema.index(
+  { "variants.variantSkuId": 1 },
+  {
+    unique: true,
+    partialFilterExpression: {
+      isDraft: false, // ✅ only enforce for non-draft
+      "variants.variantSkuId": { $exists: true, $ne: "" },
+    },
+  },
+);
 
 // ✅ AUTO SLUG GENERATION (CREATE + UPDATE)
 ProductSchema.pre("save", function (next) {
