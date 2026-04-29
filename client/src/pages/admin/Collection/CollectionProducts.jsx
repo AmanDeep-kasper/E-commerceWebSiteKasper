@@ -217,6 +217,17 @@ const fetchCategories = async () => {
                     </button>
                 </div>
             </div>
+            {/* INFO MESSAGE */}
+{products.length < 4 && (
+    <div className="mb-4 p-4 rounded-lg bg-yellow-50 border border-yellow-200 text-yellow-800">
+        <p className="text-sm">
+            If a collection has fewer than <b>four products</b>, it will only appear in your Collections section.
+        </p>
+        <p className="text-sm mt-1">
+            Once you add <b>four or more products</b>, the collection will automatically be displayed on your homepage for visitors to see.
+        </p>
+    </div>
+)}
 
             <div className="bg-white p-4 rounded-xl">
                 {/* SEARCH + FILTER */}
