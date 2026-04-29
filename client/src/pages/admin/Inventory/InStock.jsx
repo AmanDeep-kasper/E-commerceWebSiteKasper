@@ -81,7 +81,7 @@ const All = () => {
           limit,
           search: debouncedValue.trim(),
           sortBy: filterOne,
-          filterBy: "low_stock",
+          filterBy: "in_stock",
         },
       });
 
