@@ -34,12 +34,6 @@ const InvoiceItemSchema = new mongoose.Schema(
       trim: true,
     },
 
-    hsnCode: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-
     productTitle: {
       type: String,
       required: true,
@@ -129,12 +123,11 @@ const AddressSchema = new mongoose.Schema(
     email: String,
 
     addressLine1: String,
-    addressLine2: String,
 
     city: String,
     state: String,
-    stateCode: String,
     pinCode: String,
+    stateCode: String,
 
     country: {
       type: String,
@@ -151,7 +144,6 @@ const InvoiceSchema = new mongoose.Schema(
   {
     invoiceNumber: {
       type: String,
-      required: true,
       unique: true,
     },
 
@@ -272,7 +264,6 @@ const InvoiceSchema = new mongoose.Schema(
 );
 
 /* ========= INDEXES ========= */
-
 InvoiceSchema.index({ customerId: 1, createdAt: -1 });
 InvoiceSchema.index({ orderNumber: 1 });
 InvoiceSchema.index({ paymentStatus: 1, createdAt: -1 });

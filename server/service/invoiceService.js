@@ -4,53 +4,155 @@ import Warehouse from "../models/admin/WarehouseConfig.js";
 import BusinessSetting from "../models/admin/BusinessConfig.js";
 
 const GST_STATE_CODES = {
-  Bihar: "10",
+  "Jammu and Kashmir": "01",
+  "Himachal Pradesh": "02",
+  Punjab: "03",
+  Chandigarh: "04",
+  Uttarakhand: "05",
+  Haryana: "06",
   Delhi: "07",
-  Karnataka: "29",
+  Rajasthan: "08",
+  "Uttar Pradesh": "09",
+  Bihar: "10",
+  Sikkim: "11",
+  "Arunachal Pradesh": "12",
+  Nagaland: "13",
+  Manipur: "14",
+  Mizoram: "15",
+  Tripura: "16",
+  Meghalaya: "17",
+  Assam: "18",
+  "West Bengal": "19",
+  Jharkhand: "20",
+  Odisha: "21",
+  Chhattisgarh: "22",
+  "Madhya Pradesh": "23",
+  Gujarat: "24",
+  "Daman and Diu": "25",
+  "Dadra and Nagar Haveli and Daman and Diu": "26",
   Maharashtra: "27",
-  UttarPradesh: "09",
+  Karnataka: "29",
+  Goa: "30",
+  Lakshadweep: "31",
+  Kerala: "32",
+  "Tamil Nadu": "33",
+  Puducherry: "34",
+  "Andaman and Nicobar Islands": "35",
+  Telangana: "36",
+  "Andhra Pradesh": "37",
+  Ladakh: "38",
 };
 
 function stateCode(state) {
   return GST_STATE_CODES[state] || "";
 }
 
-function amountInWords(amount) {
-  return `${amount} Rupees Only`;
+function amountInWords(num) {
+  const ones = [
+    "",
+    "One",
+    "Two",
+    "Three",
+    "Four",
+    "Five",
+    "Six",
+    "Seven",
+    "Eight",
+    "Nine",
+    "Ten",
+    "Eleven",
+    "Twelve",
+    "Thirteen",
+    "Fourteen",
+    "Fifteen",
+    "Sixteen",
+    "Seventeen",
+    "Eighteen",
+    "Nineteen",
+  ];
+
+  const tens = [
+    "",
+    "",
+    "Twenty",
+    "Thirty",
+    "Forty",
+    "Fifty",
+    "Sixty",
+    "Seventy",
+    "Eighty",
+    "Ninety",
+  ];
+
+  const formatNumber = (n) => {
+    if (n < 20) return ones[n];
+    if (n < 100)
+      return tens[Math.floor(n / 10)] + (n % 10 ? " " + ones[n % 10] : "");
+    if (n < 1000)
+      return (
+        ones[Math.floor(n / 100)] +
+        " Hundred" +
+        (n % 100 ? " " + formatNumber(n % 100) : "")
+      );
+    if (n < 100000)
+      return (
+        formatNumber(Math.floor(n / 1000)) +
+        " Thousand" +
+        (n % 1000 ? " " + formatNumber(n % 1000) : "")
+      );
+    if (n < 10000000)
+      return (
+        formatNumber(Math.floor(n / 100000)) +
+        " Lakh" +
+        (n % 100000 ? " " + formatNumber(n % 100000) : "")
+      );
+    return (
+      formatNumber(Math.floor(n / 10000000)) +
+      " Crore" +
+      (n % 10000000 ? " " + formatNumber(n % 10000000) : "")
+    );
+  };
+
+  return `${formatNumber(num)} Rupees Only`;
 }
 
 function calculateTax(price, qty, gst, sellerState, buyerState) {
-  const taxableAmount = price * qty;
-  const totalTax = (taxableAmount * gst) / 100;
+  const totalPrice = price * qty;
+
+  // Extract GST from inclusive price
+  const taxableAmount = totalPrice / (1 + gst / 100);
+  const totalTax = totalPrice - taxableAmount;
+
+  const round = (num) => Math.round(num * 100) / 100;
 
   const intra = sellerState === buyerState;
 
   if (intra) {
     return {
       taxType: "CGST_SGST",
-      taxableAmount,
+      taxableAmount: round(taxableAmount),
       cgstRate: gst / 2,
       sgstRate: gst / 2,
       igstRate: 0,
-      cgstAmount: totalTax / 2,
-      sgstAmount: totalTax / 2,
+      cgstAmount: round(totalTax / 2),
+      sgstAmount: round(totalTax / 2),
       igstAmount: 0,
-      totalTax,
-      lineTotal: taxableAmount + totalTax,
+      totalTax: round(totalTax),
+      lineTotal: totalPrice, // already inclusive
     };
   }
 
   return {
     taxType: "IGST",
-    taxableAmount,
+    taxableAmount: round(taxableAmount),
     cgstRate: 0,
     sgstRate: 0,
     igstRate: gst,
     cgstAmount: 0,
     sgstAmount: 0,
-    igstAmount: totalTax,
-    totalTax,
-    lineTotal: taxableAmount + totalTax,
+    igstAmount: round(totalTax),
+    totalTax: round(totalTax),
+    lineTotal: totalPrice, // already inclusive
   };
 }
 
@@ -95,7 +197,6 @@ export async function createInvoiceFromOrder(orderId) {
       categoryId: item.category,
 
       sku: item.variantSkuId,
-      hsnCode: "000000", // later product/category se fetch karna
       productTitle: item.productTitle,
       variantName: item.variantName,
       variantColor: item.variantColor,
