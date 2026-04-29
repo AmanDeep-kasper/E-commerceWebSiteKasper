@@ -216,6 +216,7 @@ const InvoiceSchema = new mongoose.Schema(
       subtotal: Number,
       discount: Number,
       shippingCharge: Number,
+      platformFee: Number,
 
       cgst: Number,
       sgst: Number,
