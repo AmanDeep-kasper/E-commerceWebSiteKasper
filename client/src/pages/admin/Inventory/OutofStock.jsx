@@ -1,15 +1,137 @@
 import { useEffect, useMemo, useState } from "react";
-import { useOutletContext } from "react-router-dom";
-import { ChevronDown, ListFilter, MoreVertical, Search } from "lucide-react";
+import { Link, useOutletContext } from "react-router-dom";
+import {
+  ChevronDown,
+  ListFilter,
+  MoreVertical,
+  Search,
+  TrendingDown,
+  TrendingUp,
+} from "lucide-react";
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
 import { toast } from "react-toastify";
-// import ReturnRejectedModule from "./ReturnPopModules/ReturnRejectedModule";
-// import ReturnRequestedModule from "./ReturnPopModules/ReturnRequestedModule";
+import axiosInstance from "../../../api/axiosInstance";
 
-const LowStock = () => {
-  // const { returns: contextReturns } = useOutletContext();
-  const { returnsData, setReturnsData } = useOutletContext();
+const All = () => {
+  const [openDetails, setOpenDetails] = useState(null);
+  /* ================= PAGINATION ================= */
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10);
+  const [total, setTotal] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+
+  /* ================= SEARCH ================= */
+  const [search, setSearch] = useState("");
+  const [debouncedValue, setDebouncedValue] = useState("");
+
+  /* ================= SORT FILTER (MOVE UP) ================= */
+  const [filterOne, setfilterOne] = useState("latest");
+  const [filterOneOpen, setfilterOneOpen] = useState(false);
+  // open
+  const [openCancelModule, setopenCancelModule] = useState(null);
+  const [cancelResionData, setCancelResionData] = useState("");
+  // stock adjected
+  const [stockType, setStockType] = useState("");
+  const [quantity, setQuantity] = useState("");
+  const [adjustLoading, setAdjustLoading] = useState(false);
+
+  const filterOneItems = [
+    { label: "Latest", value: "latest" },
+    { label: "Oldest Date", value: "oldest" },
+    { label: "Price Low to High", value: "price_low" },
+    { label: "Price High to Low", value: "price_high" },
+  ];
+
+  // stock updata api call
+  const handleAdjustStock = async () => {
+    try {
+      setAdjustLoading(true);
+      const res = await axiosInstance.post("/inventory/adjust-stock", {
+        productId: openDetails.productId,
+        variantId: openDetails.variantId,
+        quantity: Number(quantity),
+        stockType,
+      });
+      toast.success(res.data?.message || "Stock updated");
+      setOpenDetails(null);
+      setQuantity("");
+      setStockType("inStock");
+    } catch (error) {
+      toast.error(err.response?.data?.message || "Failed to update stock");
+    } finally {
+      setAdjustLoading(false);
+    }
+  };
+
+  // backend integration for inventory data
+
+  const [inventoryData, setInventoryData] = useState([]);
+
+  // fetch inventory data from backend
+  const handleInventoryData = async () => {
+    try {
+      const res = await axiosInstance.get("/inventory/get-inventory", {
+        params: {
+          page,
+          limit,
+          search: debouncedValue.trim(),
+          sortBy: filterOne,
+          filterBy: "out_of_stock",
+        },
+      });
+
+      setInventoryData(res.data?.data || []);
+      setTotal(res.data?.total || 0);
+      setTotalPages(res.data?.totalPages || 1);
+    } catch (error) {
+      console.error("Error fetching inventory data:", error);
+    }
+  };
+
+  useEffect(() => {
+    handleInventoryData();
+  }, [page, debouncedValue, filterOne, handleAdjustStock]);
+
+  // useEffect(() => {
+  //   let result = [...allInventoryData];
+
+  //   if (debouncedValue.trim()) {
+  //     const value = debouncedValue.toLowerCase();
+
+  //     result = result.filter(
+  //       (item) =>
+  //         item.sku?.toLowerCase().includes(value) ||
+  //         item.productName?.toLowerCase().includes(value) ||
+  //         item.categoryName?.toLowerCase().includes(value),
+  //     );
+  //   }
+
+  //   if (filterOne === "latest") {
+  //     result.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  //   }
+
+  //   if (filterOne === "oldest") {
+  //     result.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+  //   }
+
+  //   setTotal(result.length);
+  //   setTotalPages(Math.ceil(result.length / limit) || 1);
+
+  //   const start = (page - 1) * limit;
+  //   const end = start + limit;
+
+  //   setInventoryData(result.slice(start, end));
+  // }, [allInventoryData, debouncedValue, filterOne, page, limit]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedValue(search);
+      setPage(1);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [search]);
 
   const columns = [
     " SKU ID",
@@ -21,189 +143,8 @@ const LowStock = () => {
     "Action",
   ];
 
-  /* ================= PAGINATION ================= */
-  const [page, setPage] = useState(1);
-  const rowsPerPage = 10;
-
-  /* ================= SEARCH ================= */
-  const [search, setSearch] = useState("");
-  const [debouncedValue, setDebouncedValue] = useState("");
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedValue(search);
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, [search]);
-
-  /* ================= PAYMENT FILTER ================= */
-  // const [paymentstatusOpen, setPaymentStatusOpen] = useState(false);
-  // const [paymentstatus, setPaymentStatus] = useState("Return Type");
-  // const Paymentstatuses = ["Return Type", "Exchange", "Return"];
-
-  /* ================= SORT FILTER (MOVE UP) ================= */
-  const [filterOne, setfilterOne] = useState("Latest");
-  const [filterOneOpen, setfilterOneOpen] = useState(false);
-
-  const filterOneItems = ["Latest", "Latest Date", "Oldest Date"];
-
-  // const [returnsData, setReturnsData] = useState([]);
-
-  // useEffect(() => {
-  //   setReturnsData(contextReturns || []);
-  // }, [contextReturns]);
-
-  const filteredOrders = useMemo(() => {
-    let result = [...returnsData];
-
-    /* 🔍 SEARCH */
-    if (debouncedValue.trim()) {
-      const searchValue = debouncedValue.toLowerCase();
-
-      result = result.filter((item) => {
-        const returnId = item.returnId?.toLowerCase() || "";
-        const orderId = item.orderDetails?.orderId?.toLowerCase() || "";
-
-        return returnId.includes(searchValue) || orderId.includes(searchValue);
-      });
-    }
-
-    /* 💳 PAYMENT */
-    // if (paymentstatus !== "Return Type") {
-    //   result = result.filter((item) => item.type === paymentstatus);
-    // }
-
-    /* ↕️ SORT */
-    if (filterOne === "Latest Return Date") {
-      result.sort((a, b) => new Date(b.requestedAt) - new Date(a.requestedAt));
-    }
-
-    if (filterOne === "Oldest Return Date") {
-      result.sort((a, b) => new Date(a.requestedAt) - new Date(b.requestedAt));
-    }
-
-    return result;
-    // }, [returnsData, debouncedValue, paymentstatus, filterOne]);
-  }, [returnsData, debouncedValue, filterOne]);
-
-  useEffect(() => {
-    setPage(1);
-    // }, [debouncedValue, paymentstatus, filterOne]);
-  }, [debouncedValue, filterOne]);
-
-  /* ================= PAGINATION ================= */
-  const total = filteredOrders.length;
-  const totalPages = Math.ceil(total / rowsPerPage);
-
-  const startIndex = (page - 1) * rowsPerPage;
-  const endIndex = Math.min(startIndex + rowsPerPage, total);
-
-  const paginatedOrders = filteredOrders.slice(startIndex, endIndex);
-
-  //////////////////////////////////////////////////
-  const [selectedOrderId, setSelectedOrderId] = useState(null);
-  const selectOrder = returnsData.find(
-    (orders) => orders.returnId === selectedOrderId,
-  );
-
-  ///////////////////////////////////////////////////
-  // cancel order module
-
-  const [openCancelModule, setopenCancelModule] = useState(null);
-  const [cancelResionData, setCancelResionData] = useState("");
-
-  const selectCancelOrder = returnsData.find(
-    (orders) => orders.returnId === openCancelModule,
-  );
-
-  // Accepted order
-
-  const [acceptedOrders, setAcceptedOrders] = useState([]);
-
-  // const handleAcceptedOrders = (orderId) => {
-  //   setAcceptedOrders((prev) => [...prev, orderId]);
-  // };
-
-  // const handleAcceptedOrders = (orderId) => {
-  //   const updatedReturns = returnsData.map((item) => {
-  //     if (item.returnId === orderId) {
-  //       return { ...item, status: "Approved" };
-  //     }
-  //     return item;
-  //   });
-
-  //   setReturnsData(updatedReturns);
-
-  //   setAcceptedOrders((prev) => [...prev, orderId]);
-  // };
-
-  // agin
-  const handleAcceptedOrders = ({ returnId, deliveryPartner }) => {
-    const updatedReturns = returnsData.map((item) => {
-      if (item.returnId === returnId) {
-        return {
-          ...item,
-          status: "Approved",
-          shippingDetails: {
-            ...(item.shippingDetails || {}),
-            shippingPartner: deliveryPartner,
-            trackingId: "",
-            trackingLink: "",
-            shippingStatus: "Approved",
-            expectedDeliveryDate: "",
-          },
-        };
-      }
-      return item;
-    });
-
-    setReturnsData(updatedReturns);
-  };
-
-  // marks as shipped
-  const handleMarkAsShipped = ({
-    returnId,
-    deliveryPartner,
-    trackingId,
-    trackingLink,
-  }) => {
-    const updatedReturns = returnsData.map((item) => {
-      if (item.returnId === returnId) {
-        return {
-          ...item,
-          status: "Pickup Scheduled",
-          shippingDetails: {
-            ...(item.shippingDetails || {}),
-            shippingPartner: deliveryPartner,
-            trackingId,
-            trackingLink,
-            shippingStatus: "Pickup Scheduled",
-            expectedDeliveryDate: "2026-02-06",
-          },
-        };
-      }
-      return item;
-    });
-
-    setReturnsData(updatedReturns);
-  };
-
-  const handleCancelOrder = (orderId) => {
-    toast.error("Order has been cancelled", {
-      icon: true,
-      style: {
-        background: "#FDECEC",
-        color: "#1C1C1C",
-      },
-    });
-
-    setopenCancelModule(null);
-  };
-
   return (
     <>
-      
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2 w-[30%] rounded-lg px-3 py-2 bg-[#F8FBFC]">
           <Search className="w-4 h-4 text-[#686868]" />
@@ -211,7 +152,7 @@ const LowStock = () => {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by Return ID and Order ID"
+            placeholder="Search by SKU ID, Product name, category"
             className="outline-none text-sm text-[#686868] w-full bg-transparent"
           />
         </div>
@@ -246,38 +187,240 @@ const LowStock = () => {
 
           <div className="relative">
             <button
+              type="button"
               className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 bg-[#F8FBFC] rounded-lg hover:bg-gray-100 border"
               onClick={() => setfilterOneOpen((p) => !p)}
             >
               <ListFilter className="w-4 h-4" />
-              {filterOne}
+              {filterOneItems.find((item) => item.value === filterOne)?.label ||
+                "Filter"}
             </button>
+
             {filterOneOpen && (
-              <div className="absolute mt-2 w-48 -right-2 top-8 bg-white border rounded-lg shadow-md z-100">
-                {filterOneItems.map((s) => {
-                  return (
-                    <div
-                      key={s}
-                      onClick={() => {
-                        setfilterOne(s);
-                        setfilterOneOpen(false);
-                      }}
-                      className={`px-4 py-2 text-sm cursor-pointer hover:bg-gray-100 text-[#686868] ${
-                        filterOne === s
-                          ? "bg-gray-100 text-[#686868] font-medium"
-                          : ""
-                      }`}
-                    >
-                      {s}
-                    </div>
-                  );
-                })}
+              <div className="absolute mt-2 w-48 -right-2 top-8 bg-white border rounded-lg shadow-md z-50">
+                {filterOneItems.map((item) => (
+                  <button
+                    type="button"
+                    key={item.value}
+                    onClick={() => {
+                      setfilterOne(item.value);
+                      setfilterOneOpen(false);
+                      setPage(1);
+                    }}
+                    className={`block w-full text-left px-4 py-2 text-sm cursor-pointer hover:bg-gray-100 text-[#686868] ${
+                      filterOne === item.value
+                        ? "bg-gray-100 text-[#686868] font-medium"
+                        : ""
+                    }`}
+                  >
+                    {item.label}
+                  </button>
+                ))}
               </div>
             )}
           </div>
         </div>
       </div>
       <div className="overflow-x-auto bg-white shadow rounded-lg">
+        {openDetails && (
+          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+            <div className="bg-white rounded-xl p-6 w-[500px] relative shadow-lg">
+              {/* Close button */}
+              <button
+                onClick={() => setOpenDetails(null)}
+                className="absolute top-3 right-3 text-gray-500 hover:text-black"
+              >
+                ✕
+              </button>
+
+              <div className="w-[500px] inline-flex flex-col justify-start items-start gap-2.5 overflow-hidden">
+                <div className="w-[452px] flex flex-col justify-start items-start gap-4">
+                  <div className="inline-flex justify-center items-center gap-2.5">
+                    <div className="justify-start text-zinc-900 text-lg font-medium font-['Inter'] leading-4">
+                      Adjust Stock
+                    </div>
+                  </div>
+                  <div className="self-stretch flex flex-col justify-start items-start gap-4">
+                    <div className="self-stretch p-3 bg-white rounded-lg outline outline-1 outline-offset-[-1px] outline-neutral-200 flex flex-col justify-start items-start gap-2.5">
+                      <div className="inline-flex justify-start items-center gap-2.5">
+                        <div className="justify-start text-zinc-900 text-xs font-medium font-['Inter'] leading-3">
+                          Available Stock
+                        </div>
+                      </div>
+                      <div className="flex flex-col justify-center items-center gap-2.5">
+                        <div className="justify-start text-zinc-900 text-base font-medium font-['Inter'] leading-4">
+                          {openDetails?.stock}
+                        </div>
+                      </div>
+                    </div>
+                    <div
+                      data-type="increase - filled"
+                      className="w-[452px] flex flex-col justify-start items-start gap-6"
+                    >
+                      <div className="self-stretch flex flex-col justify-start items-start gap-4">
+                        <div className="flex flex-col justify-start items-start gap-4">
+                          <div className="w-[452px] flex flex-col justify-start items-start gap-4">
+                            <div className="inline-flex justify-start items-center gap-2.5">
+                              <div className="justify-start text-zinc-900 text-sm font-medium font-['Inter'] leading-4">
+                                Adjustment Type
+                              </div>
+                            </div>
+                            <div
+                              data-type="increase"
+                              className="self-stretch inline-flex justify-start items-center gap-4"
+                            >
+                              <div className="flex-1 px-2.5 py-2 rounded-md outline outline-1 outline-offset-[-1px] outline-neutral-200 flex justify-start items-center gap-3 overflow-hidden">
+                                <input
+                                  type="checkbox"
+                                  checked={stockType === "inStock"}
+                                  onChange={() => setStockType("inStock")}
+                                />
+                                <div className="flex justify-start items-center gap-1.5">
+                                  <div className=" text-green-600">
+                                    <TrendingUp />
+                                  </div>
+
+                                  <div className="justify-start text-zinc-900 text-sm font-medium font-['Inter'] leading-4">
+                                    Stock In
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="flex-1 px-2.5 py-2 rounded-md outline outline-1 outline-offset-[-1px] outline-neutral-200 flex justify-start items-center gap-3 overflow-hidden">
+                                <input
+                                  type="checkbox"
+                                  checked={stockType === "outStock"}
+                                  onChange={() => setStockType("outStock")}
+                                />
+                                <div className="flex justify-start items-center gap-1.5">
+                                  {/* <div
+                                    data-type="down"
+                                    className="w-5 h-5 relative overflow-hidden"
+                                  > */}
+                                  <div className="text-red-600">
+                                    {" "}
+                                    <TrendingDown />
+                                  </div>
+                                  {/* </div> */}
+                                  <div className="justify-start text-zinc-900 text-sm font-medium font-['Inter'] leading-4">
+                                    Stock Out
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="w-[452px] flex flex-col justify-start items-start gap-2">
+                            <div className="inline-flex justify-start items-start gap-0.5">
+                              <div className="flex justify-start items-center gap-2.5">
+                                <div className="justify-start text-zinc-900 text-sm font-medium font-['Inter'] leading-4">
+                                  Stock Quantity
+                                </div>
+                              </div>
+                              <div className=" text-red-600">*</div>
+                            </div>
+                            <div className="w-[452px] flex flex-col justify-start items-start gap-2">
+                              <input
+                                type="number"
+                                min="1"
+                                value={quantity}
+                                onChange={(e) => setQuantity(e.target.value)}
+                                placeholder="Enter stock quantity"
+                                className="self-stretch h-10 px-3 py-2 bg-slate-50 rounded-lg outline outline-1 outline-offset-[-1px] outline-neutral-200 text-zinc-900 text-sm font-normal font-['Inter'] leading-4"
+                              />
+                            </div>
+                          </div>
+                          {quantity && Number(quantity) > 0 && (
+                            <div className="w-[452px] p-3 bg-blue-100 rounded-lg outline outline-1 outline-offset-[-1px] outline-neutral-200 flex flex-col justify-start items-start gap-2.5">
+                              <div className="inline-flex justify-start items-center gap-2.5">
+                                <div className="justify-start text-zinc-900 text-xs font-medium font-['Inter'] leading-3">
+                                  Preview After Adjustment
+                                </div>
+                              </div>
+                              <div className="self-stretch inline-flex justify-start items-center gap-14">
+                                <div className="h-9 inline-flex flex-col justify-center items-start gap-2">
+                                  <div className="inline-flex justify-start items-center gap-2.5">
+                                    <div className="justify-start text-stone-500 text-sm font-normal font-['Inter'] leading-4">
+                                      Current Available Stock
+                                    </div>
+                                  </div>
+                                  <div className="flex flex-col justify-center items-center gap-2.5">
+                                    <div className="justify-start text-zinc-900 text-base font-medium font-['Inter'] leading-4">
+                                      {openDetails?.stock}
+                                    </div>
+                                  </div>
+                                </div>
+                                <div className="h-9 inline-flex flex-col justify-center items-start gap-2">
+                                  <div className="inline-flex justify-start items-center gap-2.5">
+                                    <div className="justify-start text-stone-500 text-sm font-normal font-['Inter'] leading-4">
+                                      New Available Stock
+                                    </div>
+                                  </div>
+                                  <div className="flex flex-col justify-center items-center gap-2.5">
+                                    <div
+                                      className={`justify-start text-base font-medium font-['Inter'] leading-4 ${
+                                        stockType === "outStock"
+                                          ? "text-red-600"
+                                          : "text-green-600"
+                                      }`}
+                                    >
+                                      {stockType === "inStock"
+                                        ? Number(openDetails?.stock || 0) +
+                                          Number(quantity || 0)
+                                        : Number(openDetails?.stock || 0) -
+                                          Number(quantity || 0)}
+                                      {""}({stockType === "inStock" ? "+" : "-"}
+                                      {Number(quantity || 0)})
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      <div className="self-stretch inline-flex justify-end items-center gap-2">
+                        <div
+                          data-has-icon="Off"
+                          data-type="Secondary"
+                          className="w-24 px-2.5 py-2 rounded-md outline outline-1 outline-offset-[-1px] outline-stone-500 flex justify-center items-center gap-2.5 overflow-hidden"
+                        >
+                          <button
+                            onClick={() => setOpenDetails(null)}
+                            className="justify-start text-stone-500 text-sm font-medium font-['Inter'] leading-4"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                        <div
+                          data-has-icon="Off"
+                          data-type="Primary"
+                          className="px-2.5 py-2 bg-blue-950 rounded-md flex justify-center items-center gap-2.5 overflow-hidden"
+                        >
+                          <button
+                            onClick={handleAdjustStock}
+                            disabled={
+                              !quantity ||
+                              Number(quantity) <= 0 ||
+                              adjustLoading
+                            }
+                            className={`justify-start text-white text-sm font-medium font-['Inter'] leading-4 ${
+                              !quantity || Number(quantity) <= 0
+                                ? "opacity-50 cursor-not-allowed"
+                                : ""
+                            }`}
+                          >
+                            {adjustLoading
+                              ? "Updating..."
+                              : "Confirm Adjustment"}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
         <table className="w-full text-sm text-left text-gray-600">
           <thead className="bg-[#F8F8F8] h-[54px]">
             <tr className="text-[#4B5563] text-sm text-center">
@@ -290,9 +433,9 @@ const LowStock = () => {
           </thead>
 
           <tbody>
-            {paginatedOrders.map((order) => (
+            {inventoryData.map((order, index) => (
               <tr
-                key={order.returnId}
+                key={index}
                 className="border-t hover:bg-gray-50 transition text-center cursor-pointer"
               >
                 <td
@@ -301,60 +444,67 @@ const LowStock = () => {
                   // }}
                   className="px-4 py-3 text-[#000000]"
                 >
-                  {order.returnId}
+                  {order.sku}
                 </td>
                 <td className="px-0 py-4">
-                  <div className="flex items-center justify-center text-center bg-emerald- gap-2">
-                    <div className="h-[50px] w-[50px] ml-2 bg-[#EFEFEF] p-1 rounded-md overflow-hidden">
+                  <div className="flex items-center justify-center gap-2">
+                    <div className="h-[50px] w-[50px] ml-2 bg-[#EFEFEF] p-1.5 rounded-md overflow-hidden">
                       <img
                         className="h-full w-full object-cover object-center"
-                        src={order?.item?.images?.[0] || "/no-image.png"}
-                        alt={order?.item?.productName || "Product image"}
+                        src={order.image || "/no-image.png"}
+                        alt={order.productName || "Product image"}
                       />
                     </div>
 
-                    <div className="flex items-center justify-center">
+                    <div className="flex flex-col items-start justify-start">
                       <span className="text-[#1F2937] text-[16px]  font-medium cursor-pointer">
-                        {order.item.productName.split(" ").length > 3
-                          ? order.item.productName
-                              .split(" ")
-                              .slice(0, 6)
-                              .join(" ") + "..."
-                          : order.item.productName}
+                        {order.productName.split(" ").length > 3
+                          ? order.productName.split(" ").slice(0, 6).join(" ") +
+                            "..."
+                          : order.productName || ""}
                       </span>
+                      <div className="flex items-start justify-start gap-3 mt-1">
+                        <span className="p-0.5 border text-xs border-[#495F75] rounded-md">
+                          {order.varintStyle || ""}
+                        </span>
+                        <span className="p-0.5 border text-xs border-[#495F75] rounded-md">
+                          {order.weight || ""} {order.weightUnit || "20X10"}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </td>
 
-                <td className="px-4 py-3">{order.returnReason}</td>
-                <td className="px-4 py-3">{order.returnReason}</td>
+                <td className="px-4 py-3">{order.categoryName}</td>
+                <td className="px-4 py-3">{order.stock}</td>
 
-                <td className="px-4 py-3">{order.requestedAt}</td>
-                <td className="px-4 py-3 font-medium text-xs ">
+                <td className="px-4 py-3">₹{order.sellingPrice}</td>
+                <td className="px-4 py-3 font-medium text-xs">
                   <span
                     className={`inline-flex items-center justify-center min-w-[110px] px-4 py-1.5 rounded-md font-medium text-center ${
-                      order.type === "In Stock"
+                      order.status === "in_stock"
                         ? "text-[#00A63E] bg-[#E0F4DE]"
-                        : order.type === "Low Stock"
+                        : order.status === "low_stock"
                           ? "text-[#F8A14A] bg-[#FFFBEB]"
-                          : order.type === "Out of Stock"
-                            ? "bg-[#FFEAE9] text-[#D53B35]"
+                          : order.status === "out_of_stock"
+                            ? "bg-[#FFE4E3] text-[#D53B35]"
                             : ""
                     }`}
                   >
-                    {order.type}
+                    {order.status
+                      ?.replaceAll("_", " ")
+                      .toLowerCase()
+                      .replace(/\b\w/g, (char) => char.toUpperCase())}
                   </span>
                 </td>
 
                 <td className="px-4 py-3 gap-3">
-                  <span
-                    onClick={() => {
-                      setSelectedOrderId(order.returnId);
-                    }}
+                  <button
+                    onClick={() => setOpenDetails(order)}
                     className="hover:underline text-[#2C87E2]"
                   >
-                    view
-                  </span>
+                    Adjust Stock
+                  </button>
                 </td>
               </tr>
             ))}
@@ -364,9 +514,13 @@ const LowStock = () => {
         {/* Pagination Footer */}
         <div className="flex items-center justify-between px-6 py-3 text-sm text-gray-600">
           <div>
-            Showing <span className="font-medium">{startIndex + 1}</span>–
-            <span className="font-medium">{endIndex}</span> of{" "}
-            <span className="font-medium">{total}</span> results
+            Showing{" "}
+            <span className="font-medium">
+              {total === 0 ? 0 : (page - 1) * limit + 1}
+            </span>
+            –
+            <span className="font-medium">{Math.min(page * limit, total)}</span>{" "}
+            of <span className="font-medium">{total}</span> results
           </div>
 
           <div className="flex items-center gap-2">
@@ -397,4 +551,4 @@ const LowStock = () => {
   );
 };
 
-export default LowStock;
+export default All;
