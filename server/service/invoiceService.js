@@ -1,7 +1,7 @@
 import Invoice from "../models/Invoice.js";
 import Order from "../models/Order.js";
 import Warehouse from "../models/admin/WarehouseConfig.js";
-import BusinessSetting from "../models/admin/BusinessConfig";
+import BusinessSetting from "../models/admin/BusinessConfig.js";
 
 const GST_STATE_CODES = {
   Bihar: "10",

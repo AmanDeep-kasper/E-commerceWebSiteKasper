@@ -32,14 +32,12 @@ const InvoiceItemSchema = new mongoose.Schema(
       type: String,
       required: true,
       trim: true,
-      index: true,
     },
 
     hsnCode: {
       type: String,
       required: true,
       trim: true,
-      index: true,
     },
 
     productTitle: {
@@ -167,7 +165,6 @@ const InvoiceSchema = new mongoose.Schema(
     orderNumber: {
       type: String,
       required: true,
-      index: true,
     },
 
     customerId: {
@@ -277,7 +274,6 @@ const InvoiceSchema = new mongoose.Schema(
 /* ========= INDEXES ========= */
 
 InvoiceSchema.index({ customerId: 1, createdAt: -1 });
-InvoiceSchema.index({ orderId: 1 });
 InvoiceSchema.index({ orderNumber: 1 });
 InvoiceSchema.index({ paymentStatus: 1, createdAt: -1 });
 InvoiceSchema.index({ taxType: 1, issuedAt: -1 });
