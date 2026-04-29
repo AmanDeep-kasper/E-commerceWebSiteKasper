@@ -11,12 +11,102 @@ import {
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
 import { toast } from "react-toastify";
-// import ReturnRejectedModule from "./ReturnPopModules/ReturnRejectedModule";
-// import ReturnRequestedModule from "./ReturnPopModules/ReturnRequestedModule";
+import axiosInstance from "../../../api/axiosInstance";
 
 const All = () => {
-  const { returnsData, setReturnsData } = useOutletContext();
   const [openDetails, setOpenDetails] = useState(null);
+  /* ================= PAGINATION ================= */
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10);
+  const [total, setTotal] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+
+  /* ================= SEARCH ================= */
+  const [search, setSearch] = useState("");
+  const [debouncedValue, setDebouncedValue] = useState("");
+
+  /* ================= SORT FILTER (MOVE UP) ================= */
+  const [filterOne, setfilterOne] = useState("latest");
+  const [filterOneOpen, setfilterOneOpen] = useState(false);
+  // open
+  const [openCancelModule, setopenCancelModule] = useState(null);
+  const [cancelResionData, setCancelResionData] = useState("");
+
+  const filterOneItems = [
+    { label: "Latest", value: "latest" },
+    { label: "Oldest Date", value: "oldest" },
+    { label: "Price Low to High", value: "price_low" },
+    { label: "Price High to Low", value: "price_high" },
+  ];
+
+  // backend integration for inventory data
+  // const [allInventoryData, setAllInventoryData] = useState([]);
+  const [inventoryData, setInventoryData] = useState([]);
+
+  // fetch inventory data from backend
+  const handleInventoryData = async () => {
+    try {
+      const res = await axiosInstance.get("/inventory/get-inventory", {
+        params: {
+          page,
+          limit,
+          search: debouncedValue.trim(),
+          sortBy: filterOne,
+          filterBy: "all",
+        },
+      });
+
+      setInventoryData(res.data?.data || []);
+      setTotal(res.data?.total || 0);
+      setTotalPages(res.data?.totalPages || 1);
+    } catch (error) {
+      console.error("Error fetching inventory data:", error);
+    }
+  };
+
+  useEffect(() => {
+    handleInventoryData();
+  }, [page, debouncedValue, filterOne]);
+
+  // useEffect(() => {
+  //   let result = [...allInventoryData];
+
+  //   if (debouncedValue.trim()) {
+  //     const value = debouncedValue.toLowerCase();
+
+  //     result = result.filter(
+  //       (item) =>
+  //         item.sku?.toLowerCase().includes(value) ||
+  //         item.productName?.toLowerCase().includes(value) ||
+  //         item.categoryName?.toLowerCase().includes(value),
+  //     );
+  //   }
+
+  //   if (filterOne === "latest") {
+  //     result.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  //   }
+
+  //   if (filterOne === "oldest") {
+  //     result.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+  //   }
+
+  //   setTotal(result.length);
+  //   setTotalPages(Math.ceil(result.length / limit) || 1);
+
+  //   const start = (page - 1) * limit;
+  //   const end = start + limit;
+
+  //   setInventoryData(result.slice(start, end));
+  // }, [allInventoryData, debouncedValue, filterOne, page, limit]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedValue(search);
+      setPage(1);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [search]);
 
   const columns = [
     " SKU ID",
@@ -28,186 +118,6 @@ const All = () => {
     "Action",
   ];
 
-  /* ================= PAGINATION ================= */
-  const [page, setPage] = useState(1);
-  const rowsPerPage = 10;
-
-  /* ================= SEARCH ================= */
-  const [search, setSearch] = useState("");
-  const [debouncedValue, setDebouncedValue] = useState("");
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedValue(search);
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, [search]);
-
-  /* ================= PAYMENT FILTER ================= */
-  // const [paymentstatusOpen, setPaymentStatusOpen] = useState(false);
-  // const [paymentstatus, setPaymentStatus] = useState("Return Type");
-  // const Paymentstatuses = ["Return Type", "Exchange", "Return"];
-
-  /* ================= SORT FILTER (MOVE UP) ================= */
-  const [filterOne, setfilterOne] = useState("Latest");
-  const [filterOneOpen, setfilterOneOpen] = useState(false);
-
-  const filterOneItems = ["Latest", "Latest Date", "Oldest Date"];
-
-  // const [returnsData, setReturnsData] = useState([]);
-
-  // useEffect(() => {
-  //   setReturnsData(contextReturns || []);
-  // }, [contextReturns]);
-
-  const filteredOrders = useMemo(() => {
-    let result = [...returnsData];
-
-    /* 🔍 SEARCH */
-    if (debouncedValue.trim()) {
-      const searchValue = debouncedValue.toLowerCase();
-
-      result = result.filter((item) => {
-        const returnId = item.returnId?.toLowerCase() || "";
-        const orderId = item.orderDetails?.orderId?.toLowerCase() || "";
-
-        return returnId.includes(searchValue) || orderId.includes(searchValue);
-      });
-    }
-
-    /* 💳 PAYMENT */
-    // if (paymentstatus !== "Return Type") {
-    //   result = result.filter((item) => item.type === paymentstatus);
-    // }
-
-    /* ↕️ SORT */
-    if (filterOne === "Latest Return Date") {
-      result.sort((a, b) => new Date(b.requestedAt) - new Date(a.requestedAt));
-    }
-
-    if (filterOne === "Oldest Return Date") {
-      result.sort((a, b) => new Date(a.requestedAt) - new Date(b.requestedAt));
-    }
-
-    return result;
-    // }, [returnsData, debouncedValue, paymentstatus, filterOne]);
-  }, [returnsData, debouncedValue, filterOne]);
-
-  useEffect(() => {
-    setPage(1);
-    // }, [debouncedValue, paymentstatus, filterOne]);
-  }, [debouncedValue, filterOne]);
-
-  /* ================= PAGINATION ================= */
-  const total = filteredOrders.length;
-  const totalPages = Math.ceil(total / rowsPerPage);
-
-  const startIndex = (page - 1) * rowsPerPage;
-  const endIndex = Math.min(startIndex + rowsPerPage, total);
-
-  const paginatedOrders = filteredOrders.slice(startIndex, endIndex);
-
-  //////////////////////////////////////////////////
-  const [selectedOrderId, setSelectedOrderId] = useState(null);
-  const selectOrder = returnsData.find(
-    (orders) => orders.returnId === selectedOrderId,
-  );
-
-  ///////////////////////////////////////////////////
-  // cancel order module
-
-  const [openCancelModule, setopenCancelModule] = useState(null);
-  const [cancelResionData, setCancelResionData] = useState("");
-
-  const selectCancelOrder = returnsData.find(
-    (orders) => orders.returnId === openCancelModule,
-  );
-
-  // Accepted order
-
-  const [acceptedOrders, setAcceptedOrders] = useState([]);
-
-  // const handleAcceptedOrders = (orderId) => {
-  //   setAcceptedOrders((prev) => [...prev, orderId]);
-  // };
-
-  // const handleAcceptedOrders = (orderId) => {
-  //   const updatedReturns = returnsData.map((item) => {
-  //     if (item.returnId === orderId) {
-  //       return { ...item, status: "Approved" };
-  //     }
-  //     return item;
-  //   });
-
-  //   setReturnsData(updatedReturns);
-
-  //   setAcceptedOrders((prev) => [...prev, orderId]);
-  // };
-
-  // agin
-  const handleAcceptedOrders = ({ returnId, deliveryPartner }) => {
-    const updatedReturns = returnsData.map((item) => {
-      if (item.returnId === returnId) {
-        return {
-          ...item,
-          status: "Approved",
-          shippingDetails: {
-            ...(item.shippingDetails || {}),
-            shippingPartner: deliveryPartner,
-            trackingId: "",
-            trackingLink: "",
-            shippingStatus: "Approved",
-            expectedDeliveryDate: "",
-          },
-        };
-      }
-      return item;
-    });
-
-    setReturnsData(updatedReturns);
-  };
-
-  // marks as shipped
-  const handleMarkAsShipped = ({
-    returnId,
-    deliveryPartner,
-    trackingId,
-    trackingLink,
-  }) => {
-    const updatedReturns = returnsData.map((item) => {
-      if (item.returnId === returnId) {
-        return {
-          ...item,
-          status: "Pickup Scheduled",
-          shippingDetails: {
-            ...(item.shippingDetails || {}),
-            shippingPartner: deliveryPartner,
-            trackingId,
-            trackingLink,
-            shippingStatus: "Pickup Scheduled",
-            expectedDeliveryDate: "2026-02-06",
-          },
-        };
-      }
-      return item;
-    });
-
-    setReturnsData(updatedReturns);
-  };
-
-  const handleCancelOrder = (orderId) => {
-    toast.error("Order has been cancelled", {
-      icon: true,
-      style: {
-        background: "#FDECEC",
-        color: "#1C1C1C",
-      },
-    });
-
-    setopenCancelModule(null);
-  };
-
   return (
     <>
       <div className="flex items-center justify-between mb-4">
@@ -217,7 +127,7 @@ const All = () => {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by Return ID and Order ID"
+            placeholder="Search by SKU ID, Product name, category"
             className="outline-none text-sm text-[#686868] w-full bg-transparent"
           />
         </div>
@@ -252,31 +162,35 @@ const All = () => {
 
           <div className="relative">
             <button
+              type="button"
               className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 bg-[#F8FBFC] rounded-lg hover:bg-gray-100 border"
               onClick={() => setfilterOneOpen((p) => !p)}
             >
               <ListFilter className="w-4 h-4" />
-              {filterOne}
+              {filterOneItems.find((item) => item.value === filterOne)?.label ||
+                "Filter"}
             </button>
+
             {filterOneOpen && (
-              <div className="absolute mt-2 w-48 -right-2 top-8 bg-white border rounded-lg shadow-md z-100">
-                {filterOneItems.map((s) => {
-                  return (
-                    <div
-                      key={s}
-                      onClick={() => {
-                        setfilterOne(s);
-                        setfilterOneOpen(false);
-                      }}
-                      className={`px-4 py-2 text-sm cursor-pointer hover:bg-gray-100 text-[#686868] ${filterOne === s
-                          ? "bg-gray-100 text-[#686868] font-medium"
-                          : ""
-                        }`}
-                    >
-                      {s}
-                    </div>
-                  );
-                })}
+              <div className="absolute mt-2 w-48 -right-2 top-8 bg-white border rounded-lg shadow-md z-50">
+                {filterOneItems.map((item) => (
+                  <button
+                    type="button"
+                    key={item.value}
+                    onClick={() => {
+                      setfilterOne(item.value);
+                      setfilterOneOpen(false);
+                      setPage(1);
+                    }}
+                    className={`block w-full text-left px-4 py-2 text-sm cursor-pointer hover:bg-gray-100 text-[#686868] ${
+                      filterOne === item.value
+                        ? "bg-gray-100 text-[#686868] font-medium"
+                        : ""
+                    }`}
+                  >
+                    {item.label}
+                  </button>
+                ))}
               </div>
             )}
           </div>
@@ -458,9 +372,9 @@ const All = () => {
           </thead>
 
           <tbody>
-            {paginatedOrders.map((order) => (
+            {inventoryData.map((order, index) => (
               <tr
-                key={order.returnId}
+                key={index}
                 className="border-t hover:bg-gray-50 transition text-center cursor-pointer"
               >
                 <td
@@ -469,51 +383,57 @@ const All = () => {
                   // }}
                   className="px-4 py-3 text-[#000000]"
                 >
-                  {order.returnId}
+                  {order.sku}
                 </td>
                 <td className="px-0 py-4">
-                  <div className="flex items-center justify-center text-center bg-emerald- gap-2">
-                    <div className="h-[50px] w-[50px] ml-2 bg-[#EFEFEF] p-1 rounded-md overflow-hidden">
+                  <div className="flex items-center justify-center gap-2">
+                    <div className="h-[50px] w-[50px] ml-2 bg-[#EFEFEF] p-1.5 rounded-md overflow-hidden">
                       <img
                         className="h-full w-full object-cover object-center"
-                        src={order?.item?.images?.[0] || "/no-image.png"}
-                        alt={order?.item?.productName || "Product image"}
+                        src={order.image || "/no-image.png"}
+                        alt={order.productName || "Product image"}
                       />
                     </div>
 
                     <div className="flex flex-col items-start justify-start">
                       <span className="text-[#1F2937] text-[16px]  font-medium cursor-pointer">
-                        {order.item.productName.split(" ").length > 3
-                          ? order.item.productName
-                            .split(" ")
-                            .slice(0, 6)
-                            .join(" ") + "..."
-                          : order.item.productName}
+                        {order.productName.split(" ").length > 3
+                          ? order.productName.split(" ").slice(0, 6).join(" ") +
+                            "..."
+                          : order.productName || ""}
                       </span>
                       <div className="flex items-start justify-start gap-3 mt-1">
-                        <span className="p-0.5 border rounded-md">Black</span>
-                        <span className="p-0.5 border rounded-md">20X10</span>
+                        <span className="p-0.5 border text-xs border-[#495F75] rounded-md">
+                          {order.varintStyle || ""}
+                        </span>
+                        <span className="p-0.5 border text-xs border-[#495F75] rounded-md">
+                          {order.weight || ""} {order.weightUnit || "20X10"}
+                        </span>
                       </div>
                     </div>
                   </div>
                 </td>
 
-                <td className="px-4 py-3">{order.returnReason}</td>
-                <td className="px-4 py-3">{order.returnReason}</td>
+                <td className="px-4 py-3">{order.categoryName}</td>
+                <td className="px-4 py-3">{order.stock}</td>
 
-                <td className="px-4 py-3">{order.requestedAt}</td>
+                <td className="px-4 py-3">₹{order.sellingPrice}</td>
                 <td className="px-4 py-3 font-medium text-xs">
                   <span
-                    className={`inline-flex items-center justify-center min-w-[110px] px-4 py-1.5 rounded-md font-medium text-center ${order.status === "In Stock"
+                    className={`inline-flex items-center justify-center min-w-[110px] px-4 py-1.5 rounded-md font-medium text-center ${
+                      order.status === "in_stock"
                         ? "text-[#00A63E] bg-[#E0F4DE]"
-                        : order.type === "Low Stock"
+                        : order.status === "low_stock"
                           ? "text-[#F8A14A] bg-[#FFFBEB]"
-                          : order.type === "Out of Stock"
+                          : order.status === "out_of_stock"
                             ? "bg-[#FFE4E3] text-[#D53B35]"
                             : ""
-                      }`}
+                    }`}
                   >
-                    {order.type}
+                    {order.status
+                      ?.replaceAll("_", " ")
+                      .toLowerCase()
+                      .replace(/\b\w/g, (char) => char.toUpperCase())}
                   </span>
                 </td>
 
@@ -533,9 +453,13 @@ const All = () => {
         {/* Pagination Footer */}
         <div className="flex items-center justify-between px-6 py-3 text-sm text-gray-600">
           <div>
-            Showing <span className="font-medium">{startIndex + 1}</span>–
-            <span className="font-medium">{endIndex}</span> of{" "}
-            <span className="font-medium">{total}</span> results
+            Showing{" "}
+            <span className="font-medium">
+              {total === 0 ? 0 : (page - 1) * limit + 1}
+            </span>
+            –
+            <span className="font-medium">{Math.min(page * limit, total)}</span>{" "}
+            of <span className="font-medium">{total}</span> results
           </div>
 
           <div className="flex items-center gap-2">
