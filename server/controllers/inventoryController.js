@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import Product from "../models/Product.js";
 import AppError from "../utils/AppError.js";
 import asyncHandler from "../utils/asyncHandler.js";
@@ -9,7 +10,7 @@ export const getInventory = asyncHandler(async (req, res) => {
     search = "",
     sortBy = "latest",
     category,
-    filterBy = "all", // all | low_stock | out_of_stock
+    filterBy = "all", // all | low_stock | out_of_stock | in_stock
   } = req.query;
 
   const skip = Number(page - 1) * Number(limit);
@@ -19,29 +20,11 @@ export const getInventory = asyncHandler(async (req, res) => {
     isActive: true,
   };
 
-  if (category) {
-    matchStage.category = new mongoose.Types.ObjectId(category);
-  }
-
   const pipeline = [
     { $match: matchStage },
 
     // UNWIND VARIANTS
     { $unwind: "$variants" },
-
-    // 🔍 SEARCH
-    ...(search
-      ? [
-          {
-            $match: {
-              $or: [
-                { productTittle: searchRegex },
-                { "variants.variantSkuId": searchRegex },
-              ],
-            },
-          },
-        ]
-      : []),
 
     // STOCK FILTER
     ...(filterBy === "out_of_stock"
@@ -81,6 +64,32 @@ export const getInventory = asyncHandler(async (req, res) => {
         preserveNullAndEmptyArrays: true,
       },
     },
+
+    // CATEGORY FILTER
+    ...(category
+      ? [
+          {
+            $match: {
+              "categoryData.name": new RegExp(category, "i"), // ✅ filter by name
+            },
+          },
+        ]
+      : []),
+
+    // 🔍 SEARCH
+    ...(search
+      ? [
+          {
+            $match: {
+              $or: [
+                { productTittle: searchRegex },
+                { "variants.variantSkuId": searchRegex },
+                { "categoryData.name": searchRegex },
+              ],
+            },
+          },
+        ]
+      : []),
 
     // PROJECT
     {

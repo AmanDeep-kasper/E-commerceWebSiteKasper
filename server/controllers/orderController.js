@@ -16,6 +16,7 @@ import razorpay, {
   verifyPaymentSignature,
 } from "../service/razorpayService.js";
 import mongoose from "mongoose";
+import { createInvoiceFromOrder } from "../service/invoiceService.js";
 
 // Helper function
 const calculateShippingCharge = ({
@@ -447,7 +448,7 @@ export const verifyPayment = asyncHandler(async (req, res) => {
         {
           $inc: {
             "variants.$.variantAvailableStock": -item.quantity,
-            "variants.$.totalSold": item.quantity,
+            "stats.totalSold": item.quantity,
           },
         },
         { session },
@@ -566,12 +567,30 @@ export const verifyPayment = asyncHandler(async (req, res) => {
     await session.commitTransaction();
     session.endSession();
 
+    /* =========================
+   CREATE INVOICE
+========================= */
+    let invoice = null;
+
+    try {
+      invoice = await createInvoiceFromOrder(order._id);
+    } catch (error) {
+      console.error("Invoice generation failed:", error);
+    }
+
     // RESPONSE
     res.status(200).json({
       success: true,
       message: "Payment verified successfully",
       data: {
         orderId: order.orderNumber,
+        invoice: invoice
+          ? {
+              id: invoice._id,
+              invoiceNumber: invoice.invoiceNumber,
+              pdfUrl: invoice.pdf?.url || null,
+            }
+          : null,
         shippingAddress: order.shippingAddress,
         placedAt: order.placedAt,
         paymentStatus: order.paymentStatus,
@@ -850,23 +869,13 @@ export const getAllOrdersByUser = asyncHandler(async (req, res) => {
 
   const query = { user: userObjectId };
 
-
-  // 1. ORDERS - Include items and populate product details
+  // 1. ORDERS
   const orders = await Order.find(query)
-    .select("orderNumber grandTotal createdAt status items paymentMethod")
-    .populate({
-      path:"items.product",
-      select:"name images sku category price",
-      populate:{
-        path:"category",
-        select:"name"
-      }
-    })
+    .select("orderNumber grandTotal createdAt status")
     .skip(skip)
     .limit(Number(limit))
     .sort({ createdAt: -1 })
     .lean();
-
 
   // 2. PARALLEL STATS (FAST)
   const [total, cancelled, totalSpendAgg, topCategoryAgg] = await Promise.all([
@@ -888,7 +897,6 @@ export const getAllOrdersByUser = asyncHandler(async (req, res) => {
       },
     ]),
 
-   
     // TOP CATEGORY WITH NAME
     Order.aggregate([
       { $match: query },
@@ -917,7 +925,7 @@ export const getAllOrdersByUser = asyncHandler(async (req, res) => {
       {
         $group: {
           _id: "$category._id",
-          name: { $first: "$category.name" }, 
+          name: { $first: "$category.name" },
           count: { $sum: 1 },
         },
       },
@@ -926,7 +934,6 @@ export const getAllOrdersByUser = asyncHandler(async (req, res) => {
     ]),
   ]);
 
- 
   // FINAL DATA
   const topCategory =
     topCategoryAgg.length > 0
@@ -1307,3 +1314,9 @@ export const getOrderDetails = asyncHandler(async (req, res) => {
     order,
   });
 });
+
+export const createInvoice = asyncHandler(async (req, res) => {});
+
+export const getInvoices = asyncHandler(async (req, res) => {});
+
+export const getInvoiceDetails = asyncHandler(async (req, res) => {});

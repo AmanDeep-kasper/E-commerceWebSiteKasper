@@ -24,7 +24,7 @@ router.post("/", authenticate, checkout);
 router.post("/checkout-summary", authenticate, checkoutSummary);
 router.post("/verify-payment", authenticate, verifyPayment);
 router.post("/payment-failed", authenticate, paymentFailed);
-router.get("/", authenticate, getOrders);
+router.get("/", authenticate, authorize("user"), getOrders);
 router.get("/available-points", authenticate, getUserAvailablePoints);
 
 // admin routes
