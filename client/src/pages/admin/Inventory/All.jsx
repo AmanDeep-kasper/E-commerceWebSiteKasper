@@ -31,6 +31,12 @@ const All = () => {
   // open
   const [openCancelModule, setopenCancelModule] = useState(null);
   const [cancelResionData, setCancelResionData] = useState("");
+  // stock adjected
+  const [stockType, setStockType] = useState("");
+  const [quantity, setQuantity] = useState("");
+  const [adjustLoading, setAdjustLoading] = useState(false);
+  // backend integration for inventory data
+  const [inventoryData, setInventoryData] = useState([]);
 
   const filterOneItems = [
     { label: "Latest", value: "latest" },
@@ -39,9 +45,32 @@ const All = () => {
     { label: "Price High to Low", value: "price_high" },
   ];
 
-  // backend integration for inventory data
-  // const [allInventoryData, setAllInventoryData] = useState([]);
-  const [inventoryData, setInventoryData] = useState([]);
+  // stock updata api call
+  const handleAdjustStock = async () => {
+    try {
+      setAdjustLoading(true);
+
+      const res = await axiosInstance.post("/inventory/adjust-stock", {
+        productId: openDetails.productId,
+        variantId: openDetails.variantId,
+        quantity: Number(quantity),
+        stockType,
+      });
+
+      toast.success(res.data?.message || "Stock updated");
+
+      setOpenDetails(null);
+      setQuantity("");
+      setStockType("inStock");
+
+      // ✅ manually refresh data
+      handleInventoryData();
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to update stock");
+    } finally {
+      setAdjustLoading(false);
+    }
+  };
 
   // fetch inventory data from backend
   const handleInventoryData = async () => {
@@ -56,6 +85,8 @@ const All = () => {
         },
       });
 
+      console.log(res);
+
       setInventoryData(res.data?.data || []);
       setTotal(res.data?.total || 0);
       setTotalPages(res.data?.totalPages || 1);
@@ -67,37 +98,6 @@ const All = () => {
   useEffect(() => {
     handleInventoryData();
   }, [page, debouncedValue, filterOne]);
-
-  // useEffect(() => {
-  //   let result = [...allInventoryData];
-
-  //   if (debouncedValue.trim()) {
-  //     const value = debouncedValue.toLowerCase();
-
-  //     result = result.filter(
-  //       (item) =>
-  //         item.sku?.toLowerCase().includes(value) ||
-  //         item.productName?.toLowerCase().includes(value) ||
-  //         item.categoryName?.toLowerCase().includes(value),
-  //     );
-  //   }
-
-  //   if (filterOne === "latest") {
-  //     result.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-  //   }
-
-  //   if (filterOne === "oldest") {
-  //     result.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
-  //   }
-
-  //   setTotal(result.length);
-  //   setTotalPages(Math.ceil(result.length / limit) || 1);
-
-  //   const start = (page - 1) * limit;
-  //   const end = start + limit;
-
-  //   setInventoryData(result.slice(start, end));
-  // }, [allInventoryData, debouncedValue, filterOne, page, limit]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -224,7 +224,7 @@ const All = () => {
                       </div>
                       <div className="flex flex-col justify-center items-center gap-2.5">
                         <div className="justify-start text-zinc-900 text-base font-medium font-['Inter'] leading-4">
-                          53
+                          {openDetails?.stock}
                         </div>
                       </div>
                     </div>
@@ -245,7 +245,11 @@ const All = () => {
                               className="self-stretch inline-flex justify-start items-center gap-4"
                             >
                               <div className="flex-1 px-2.5 py-2 rounded-md outline outline-1 outline-offset-[-1px] outline-neutral-200 flex justify-start items-center gap-3 overflow-hidden">
-                                <input type="checkbox" />
+                                <input
+                                  type="checkbox"
+                                  checked={stockType === "inStock"}
+                                  onChange={() => setStockType("inStock")}
+                                />
                                 <div className="flex justify-start items-center gap-1.5">
                                   <div className=" text-green-600">
                                     <TrendingUp />
@@ -257,7 +261,11 @@ const All = () => {
                                 </div>
                               </div>
                               <div className="flex-1 px-2.5 py-2 rounded-md outline outline-1 outline-offset-[-1px] outline-neutral-200 flex justify-start items-center gap-3 overflow-hidden">
-                                <input type="checkbox" />
+                                <input
+                                  type="checkbox"
+                                  checked={stockType === "outStock"}
+                                  onChange={() => setStockType("outStock")}
+                                />
                                 <div className="flex justify-start items-center gap-1.5">
                                   {/* <div
                                     data-type="down"
@@ -282,55 +290,66 @@ const All = () => {
                                   Stock Quantity
                                 </div>
                               </div>
-                              {/* <div className="w-3 h-3 relative overflow-hidden"> */}
                               <div className=" text-red-600">*</div>
-                              {/* </div> */}
                             </div>
                             <div className="w-[452px] flex flex-col justify-start items-start gap-2">
-                              <div className="self-stretch h-10 px-3 py-2 bg-slate-50 rounded-lg outline outline-1 outline-offset-[-1px] outline-neutral-200 inline-flex justify-start items-center gap-2.5">
-                                <div className="flex-1 flex justify-start items-center gap-2.5">
-                                  <div className="flex justify-center items-center gap-2.5">
-                                    <div className="justify-start text-zinc-900 text-sm font-normal font-['Inter'] leading-4">
-                                      10
+                              <input
+                                type="number"
+                                min="1"
+                                value={quantity}
+                                onChange={(e) => setQuantity(e.target.value)}
+                                placeholder="Enter stock quantity"
+                                className="self-stretch h-10 px-3 py-2 bg-slate-50 rounded-lg outline outline-1 outline-offset-[-1px] outline-neutral-200 text-zinc-900 text-sm font-normal font-['Inter'] leading-4"
+                              />
+                            </div>
+                          </div>
+                          {quantity && Number(quantity) > 0 && (
+                            <div className="w-[452px] p-3 bg-blue-100 rounded-lg outline outline-1 outline-offset-[-1px] outline-neutral-200 flex flex-col justify-start items-start gap-2.5">
+                              <div className="inline-flex justify-start items-center gap-2.5">
+                                <div className="justify-start text-zinc-900 text-xs font-medium font-['Inter'] leading-3">
+                                  Preview After Adjustment
+                                </div>
+                              </div>
+                              <div className="self-stretch inline-flex justify-start items-center gap-14">
+                                <div className="h-9 inline-flex flex-col justify-center items-start gap-2">
+                                  <div className="inline-flex justify-start items-center gap-2.5">
+                                    <div className="justify-start text-stone-500 text-sm font-normal font-['Inter'] leading-4">
+                                      Current Available Stock
+                                    </div>
+                                  </div>
+                                  <div className="flex flex-col justify-center items-center gap-2.5">
+                                    <div className="justify-start text-zinc-900 text-base font-medium font-['Inter'] leading-4">
+                                      {openDetails?.stock}
+                                    </div>
+                                  </div>
+                                </div>
+                                <div className="h-9 inline-flex flex-col justify-center items-start gap-2">
+                                  <div className="inline-flex justify-start items-center gap-2.5">
+                                    <div className="justify-start text-stone-500 text-sm font-normal font-['Inter'] leading-4">
+                                      New Available Stock
+                                    </div>
+                                  </div>
+                                  <div className="flex flex-col justify-center items-center gap-2.5">
+                                    <div
+                                      className={`justify-start text-base font-medium font-['Inter'] leading-4 ${
+                                        stockType === "outStock"
+                                          ? "text-red-600"
+                                          : "text-green-600"
+                                      }`}
+                                    >
+                                      {stockType === "inStock"
+                                        ? Number(openDetails?.stock || 0) +
+                                          Number(quantity || 0)
+                                        : Number(openDetails?.stock || 0) -
+                                          Number(quantity || 0)}
+                                      {""}({stockType === "inStock" ? "+" : "-"}
+                                      {Number(quantity || 0)})
                                     </div>
                                   </div>
                                 </div>
                               </div>
                             </div>
-                          </div>
-                          <div className="w-[452px] p-3 bg-blue-100 rounded-lg outline outline-1 outline-offset-[-1px] outline-neutral-200 flex flex-col justify-start items-start gap-2.5">
-                            <div className="inline-flex justify-start items-center gap-2.5">
-                              <div className="justify-start text-zinc-900 text-xs font-medium font-['Inter'] leading-3">
-                                Preview After Adjustment
-                              </div>
-                            </div>
-                            <div className="self-stretch inline-flex justify-start items-center gap-14">
-                              <div className="h-9 inline-flex flex-col justify-center items-start gap-2">
-                                <div className="inline-flex justify-start items-center gap-2.5">
-                                  <div className="justify-start text-stone-500 text-sm font-normal font-['Inter'] leading-4">
-                                    Current Available Stock
-                                  </div>
-                                </div>
-                                <div className="flex flex-col justify-center items-center gap-2.5">
-                                  <div className="justify-start text-zinc-900 text-base font-medium font-['Inter'] leading-4">
-                                    53
-                                  </div>
-                                </div>
-                              </div>
-                              <div className="h-9 inline-flex flex-col justify-center items-start gap-2">
-                                <div className="inline-flex justify-start items-center gap-2.5">
-                                  <div className="justify-start text-stone-500 text-sm font-normal font-['Inter'] leading-4">
-                                    New Available Stock
-                                  </div>
-                                </div>
-                                <div className="flex flex-col justify-center items-center gap-2.5">
-                                  <div className="justify-start text-green-600 text-base font-medium font-['Inter'] leading-4">
-                                    63 (+10)
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
+                          )}
                         </div>
                       </div>
                       <div className="self-stretch inline-flex justify-end items-center gap-2">
@@ -339,7 +358,10 @@ const All = () => {
                           data-type="Secondary"
                           className="w-24 px-2.5 py-2 rounded-md outline outline-1 outline-offset-[-1px] outline-stone-500 flex justify-center items-center gap-2.5 overflow-hidden"
                         >
-                          <button className="justify-start text-stone-500 text-sm font-medium font-['Inter'] leading-4">
+                          <button
+                            onClick={() => setOpenDetails(null)}
+                            className="justify-start text-stone-500 text-sm font-medium font-['Inter'] leading-4"
+                          >
                             Cancel
                           </button>
                         </div>
@@ -348,8 +370,22 @@ const All = () => {
                           data-type="Primary"
                           className="px-2.5 py-2 bg-blue-950 rounded-md flex justify-center items-center gap-2.5 overflow-hidden"
                         >
-                          <button className="justify-start text-white text-sm font-medium font-['Inter'] leading-4">
-                            Confirm Adjustment
+                          <button
+                            onClick={handleAdjustStock}
+                            disabled={
+                              !quantity ||
+                              Number(quantity) <= 0 ||
+                              adjustLoading
+                            }
+                            className={`justify-start text-white text-sm font-medium font-['Inter'] leading-4 ${
+                              !quantity || Number(quantity) <= 0
+                                ? "opacity-50 cursor-not-allowed"
+                                : ""
+                            }`}
+                          >
+                            {adjustLoading
+                              ? "Updating..."
+                              : "Confirm Adjustment"}
                           </button>
                         </div>
                       </div>
