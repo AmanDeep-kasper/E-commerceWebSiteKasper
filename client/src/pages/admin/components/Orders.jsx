@@ -119,6 +119,14 @@ function Orders() {
   const {customer} = useOutletContext();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+   const [stats, setStats] = useState({
+    total: 0,
+    cancelled: 0,
+    totalSpend: 0,
+    topCategory: null,
+    lastOrderDate: null
+  });
+
   const [error, setError] = useState(null);
 
   const [page, setPage] = useState(1);
@@ -133,7 +141,12 @@ function Orders() {
 const fetchOrders = async () => {
   try {
     setLoading(true);
-    const response = await axiosInstance.get(`/order/get-orders`, {
+      // Get userId from customer context
+    const userId = customer?._id || customer?.id;
+      if (!userId) {
+        throw new Error("User ID not found");
+      }
+    const response = await axiosInstance.get(`/order/admin/${userId}/orders`, {
       params: {
         page,
         limit: rowsPerPage,
@@ -141,9 +154,18 @@ const fetchOrders = async () => {
     });
     console.log("Orders API Response:", response.data);
     if(response.data?.success) {
-      setOrders(response.data.orders || []);
-      setTotalPages(response.data.pagination?.pages || 1);
+      setOrders(response.data.data || []);
       setTotalItems(response.data.pagination?.total || 0);
+      setTotalPages(response.data.pagination?.pages || 1);
+      // ✅ Use the stats from API
+        setStats({
+          total: response.data.stats?.total || 0,
+          cancelled: response.data.stats?.cancelled || 0,
+          totalSpend: response.data.stats?.totalSpend || 0,
+          topCategory: response.data.stats?.topCategory?.name,
+          lastOrderDate: response.data.stats?.lastOrderDate
+        });
+
     }
     setError(null);
   } catch (err) {
@@ -155,9 +177,23 @@ const fetchOrders = async () => {
 };
 
 useEffect(() => {
-  fetchOrders();
-}, [page]
-);
+  if(customer?._id || customer?.id) {
+    fetchOrders();
+  }
+}, [page, customer]);
+
+
+ // Format last order date
+  const formatLastOrderDate = (dateString) => {
+    if (!dateString) return "N/A";
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
+    });
+  };
+
 
 // calculate order summary from API data
 const orderSummary = {
@@ -257,22 +293,22 @@ if(loading && page === 1) {
           <div className="gap-4">
             {/* Info Section */}
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <InfoRow label="Total Orders" value={orderSummary?.totalOrder} />
+              <InfoRow label="Total Orders" value={stats?.total || 0} />
               <InfoRow
                 label="Total Spend"
-                value={`₹${orderSummary?.totalSpend.toFixed(2)}`}
+                value={`₹${(stats?.totalSpend || 0).toFixed(2)}`}
               />
               <InfoRow
                 label="Cancelled Orders"
-                value={orderSummary?.cancelledOrder}
+                value={stats?.cancelled || 0}
               />
               <InfoRow
                 label="Last Order Date"
-                value={orderSummary?.lastOrderDate}
+                value={formatLastOrderDate(stats?.lastOrderDate) || "N/A"}
               />
               <InfoRow
                 label="Top Category Purchased"
-                value={orderSummary?.topCategoryPurchased}
+                value={stats?.topCategory || "N/A"}
               />
             </div>
           </div>
@@ -305,18 +341,18 @@ if(loading && page === 1) {
               {orders.length === 0 ? (
                 <tr>
                   <td colSpan="5" className="text-center py-8 text-gray-500">
-
+No Orders found
                   </td>
                 </tr>
               ) : (
                 orders.map((order) => (
                 <tr
-                  key={order_id}
+                  key={order._id}
                   className="border-t hover:bg-gray-50 transition text-center"
                 >
-                  <td className="px-4 py-3">{order.orderNumber || "N/A"}</td>
-                  <td className="px-4 py-3  ">{formatDate(order.createdAt)}</td>
-                  <td className="px-4 py-3 ">₹{order.grandTotal?.toFixed(2) || "0.00"}</td>
+                  <td className="px-4 py-3">{order?.orderNumber || "N/A"}</td>
+                  <td className="px-4 py-3  ">{formatDate(order?.createdAt)}</td>
+                  <td className="px-4 py-3 ">₹{order?.grandTotal?.toFixed(2) || "0.00"}</td>
                   {/* <td className="px-4 py-3 ">
                     <span
                       className={`inline-flex text-sm font-medium  ${r.payment_status === "Paid" ? "text-[#00A63E]" : r.payment_status === "Cod" ? "text-[#F8A14A]" : ""}`}
@@ -326,9 +362,9 @@ if(loading && page === 1) {
                   </td> */}
                  <td className="px-1 py-3">
                       <span
-                        className={`inline-flex items-center gap-2 px-3 py-1 rounded-md text-xs font-medium ${getStatusColor(order.status)}`}
+                        className={`inline-flex items-center gap-2 px-3 py-1 rounded-md text-xs font-medium ${getStatusColor(order?.status)}`}
                       >
-                        {getStatusDisplay(order.status)}
+                        {getStatusDisplay(order?.status)}
                       </span>
                     </td>
 
@@ -336,7 +372,7 @@ if(loading && page === 1) {
                     <button
                       type="button"
                       onClick={() => {
-                        setSelectedOrder(r);
+                        setSelectedOrder(order);
                         setOpen(true);
                       }}
                       className="text-blue-500 hover:underline"

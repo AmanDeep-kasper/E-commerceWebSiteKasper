@@ -851,9 +851,17 @@ export const getAllOrdersByUser = asyncHandler(async (req, res) => {
   const query = { user: userObjectId };
 
 
-  // 1. ORDERS 
+  // 1. ORDERS - Include items and populate product details
   const orders = await Order.find(query)
-    .select("orderNumber grandTotal createdAt status") 
+    .select("orderNumber grandTotal createdAt status items paymentMethod")
+    .populate({
+      path:"items.product",
+      select:"name images sku category price",
+      populate:{
+        path:"category",
+        select:"name"
+      }
+    })
     .skip(skip)
     .limit(Number(limit))
     .sort({ createdAt: -1 })
