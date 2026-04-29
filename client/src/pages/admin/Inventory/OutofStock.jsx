@@ -35,6 +35,8 @@ const All = () => {
   const [stockType, setStockType] = useState("");
   const [quantity, setQuantity] = useState("");
   const [adjustLoading, setAdjustLoading] = useState(false);
+  // backend integration for inventory data
+  const [inventoryData, setInventoryData] = useState([]);
 
   const filterOneItems = [
     { label: "Latest", value: "latest" },
@@ -47,26 +49,28 @@ const All = () => {
   const handleAdjustStock = async () => {
     try {
       setAdjustLoading(true);
+
       const res = await axiosInstance.post("/inventory/adjust-stock", {
         productId: openDetails.productId,
         variantId: openDetails.variantId,
         quantity: Number(quantity),
         stockType,
       });
+
       toast.success(res.data?.message || "Stock updated");
+
       setOpenDetails(null);
       setQuantity("");
       setStockType("inStock");
+
+      // ✅ manually refresh data
+      handleInventoryData();
     } catch (error) {
-      toast.error(err.response?.data?.message || "Failed to update stock");
+      toast.error(error.response?.data?.message || "Failed to update stock");
     } finally {
       setAdjustLoading(false);
     }
   };
-
-  // backend integration for inventory data
-
-  const [inventoryData, setInventoryData] = useState([]);
 
   // fetch inventory data from backend
   const handleInventoryData = async () => {
@@ -81,6 +85,8 @@ const All = () => {
         },
       });
 
+      // console.log(res);
+
       setInventoryData(res.data?.data || []);
       setTotal(res.data?.total || 0);
       setTotalPages(res.data?.totalPages || 1);
@@ -91,38 +97,7 @@ const All = () => {
 
   useEffect(() => {
     handleInventoryData();
-  }, [page, debouncedValue, filterOne, handleAdjustStock]);
-
-  // useEffect(() => {
-  //   let result = [...allInventoryData];
-
-  //   if (debouncedValue.trim()) {
-  //     const value = debouncedValue.toLowerCase();
-
-  //     result = result.filter(
-  //       (item) =>
-  //         item.sku?.toLowerCase().includes(value) ||
-  //         item.productName?.toLowerCase().includes(value) ||
-  //         item.categoryName?.toLowerCase().includes(value),
-  //     );
-  //   }
-
-  //   if (filterOne === "latest") {
-  //     result.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-  //   }
-
-  //   if (filterOne === "oldest") {
-  //     result.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
-  //   }
-
-  //   setTotal(result.length);
-  //   setTotalPages(Math.ceil(result.length / limit) || 1);
-
-  //   const start = (page - 1) * limit;
-  //   const end = start + limit;
-
-  //   setInventoryData(result.slice(start, end));
-  // }, [allInventoryData, debouncedValue, filterOne, page, limit]);
+  }, [page, debouncedValue, filterOne]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -421,11 +396,16 @@ const All = () => {
             </div>
           </div>
         )}
-        <table className="w-full text-sm text-left text-gray-600">
+        <table className="w-full text-sm text-gray-600">
           <thead className="bg-[#F8F8F8] h-[54px]">
-            <tr className="text-[#4B5563] text-sm text-center">
-              {columns.map((col) => (
-                <th key={col} className="px-4 py-3 font-medium text-[#1C1C1C]">
+            <tr className="text-left">
+              {columns.map((col, index) => (
+                <th
+                  key={col}
+                  className={`px-4 py-3 font-medium text-[#1C1C1C] ${
+                    index >= 3 ? "text-center" : "text-left"
+                  }`}
+                >
                   {col}
                 </th>
               ))}
@@ -436,7 +416,7 @@ const All = () => {
             {inventoryData.map((order, index) => (
               <tr
                 key={index}
-                className="border-t hover:bg-gray-50 transition text-center cursor-pointer"
+                className="border-t hover:bg-gray-50 transition cursor-pointer"
               >
                 <td
                   // onClick={() => {
@@ -446,40 +426,47 @@ const All = () => {
                 >
                   {order.sku}
                 </td>
-                <td className="px-0 py-4">
-                  <div className="flex items-center justify-center gap-2">
-                    <div className="h-[50px] w-[50px] ml-2 bg-[#EFEFEF] p-1.5 rounded-md overflow-hidden">
+                <td className="px-3 py-3">
+                  <div className="flex items-center gap-3">
+                    {/* Image */}
+                    <div className="h-[52px] w-[52px] bg-[#F3F4F6] p-1 rounded-md overflow-hidden flex-shrink-0">
                       <img
-                        className="h-full w-full object-cover object-center"
+                        className="h-full w-full object-cover rounded-md"
                         src={order.image || "/no-image.png"}
-                        alt={order.productName || "Product image"}
+                        alt="product"
                       />
                     </div>
 
-                    <div className="flex flex-col items-start justify-start">
-                      <span className="text-[#1F2937] text-[16px]  font-medium cursor-pointer">
-                        {order.productName.split(" ").length > 3
-                          ? order.productName.split(" ").slice(0, 6).join(" ") +
-                            "..."
-                          : order.productName || ""}
+                    {/* Content */}
+                    <div className="flex flex-col min-w-0">
+                      {/* Product Name */}
+                      <span className="text-[14px] font-medium text-[#1F2937] truncate max-w-[180px]">
+                        {order.productName || ""}
                       </span>
-                      <div className="flex items-start justify-start gap-3 mt-1">
-                        <span className="p-0.5 border text-xs border-[#495F75] rounded-md">
-                          {order.varintStyle || ""}
-                        </span>
-                        <span className="p-0.5 border text-xs border-[#495F75] rounded-md">
-                          {order.weight || ""} {order.weightUnit || "20X10"}
-                        </span>
+
+                      {/* Badges */}
+                      <div className="flex items-center gap-2 mt-1">
+                        {order.varintStyle && (
+                          <span className="text-[11px] px-2 py-[2px] border border-gray-400 rounded-md text-gray-600">
+                            {order.varintStyle}
+                          </span>
+                        )}
+
+                        {(order.weight || order.weightUnit) && (
+                          <span className="text-[11px] px-2 py-[2px] border border-gray-400 rounded-md text-gray-600">
+                            {order.weight} {order.weightUnit}
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>
                 </td>
 
-                <td className="px-4 py-3">{order.categoryName}</td>
-                <td className="px-4 py-3">{order.stock}</td>
+                <td className="px-4 py-3">{order.categoryName || ""}</td>
+                <td className="px-4 py-3 text-center">{order.stock}</td>
 
-                <td className="px-4 py-3">₹{order.sellingPrice}</td>
-                <td className="px-4 py-3 font-medium text-xs">
+                <td className="px-4 py-3 text-center">₹{order.sellingPrice || ""}</td>
+                <td className="px-4 py-3 font-medium text-xs text-center">
                   <span
                     className={`inline-flex items-center justify-center min-w-[110px] px-4 py-1.5 rounded-md font-medium text-center ${
                       order.status === "in_stock"
@@ -498,7 +485,7 @@ const All = () => {
                   </span>
                 </td>
 
-                <td className="px-4 py-3 gap-3">
+                <td className="px-4 py-3 gap-3 text-center">
                   <button
                     onClick={() => setOpenDetails(order)}
                     className="hover:underline text-[#2C87E2]"

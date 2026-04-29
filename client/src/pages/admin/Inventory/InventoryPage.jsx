@@ -19,6 +19,7 @@ const Badge = ({ children, tone }) => {
 
 const profileMenu = [
   { label: "All", path: "All" },
+  { label: "In Stock", path: "InStock" },
   { label: "LowStock", path: "LowStock" },
   { label: "OutofStock", path: "OutofStock" },
 ];
