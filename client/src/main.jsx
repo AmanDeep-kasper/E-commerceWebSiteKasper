@@ -7,11 +7,11 @@ import App from "./App.jsx";
 import ErrorBoundary from "./hooks/ErrorBoundary.jsx";
 
 createRoot(document.getElementById("root")).render(
-  <StrictMode>
+  // <StrictMode>
     <Provider store={store}>
       <ErrorBoundary>
         <App />
       </ErrorBoundary>
     </Provider>
-  </StrictMode>,
+  // </StrictMode>
 );
