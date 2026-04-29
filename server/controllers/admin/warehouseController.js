@@ -2,59 +2,51 @@ import Warehouse from "../../models/admin/WarehouseConfig.js";
 import AppError from "../../utils/AppError.js";
 import asyncHandler from "../../utils/asyncHandler.js";
 
-export const createWarehouse = asyncHandler(async (req, res) => {
-  const { name, phone, email, address } = req.body;
-  const userId = req.user?.userId;
+export const upsertWarehouse = asyncHandler(async (req, res) => {
+  let { name, phone, email, address } = req.body;
+
+  if (address && typeof address === "string") {
+    address = JSON.parse(address);
+  }
 
   // Better duplicate check
-  const existing = await Warehouse.findOne({
-    userId,
-  });
-
-  if (existing) {
-    throw AppError.conflict("Warehouse already exists", "ALREADY_EXISTS");
-  }
-
-  const warehouse = await Warehouse.create({
-    userId,
-    name,
-    phone,
-    email,
-    address,
-    isActive: true,
-  });
-
-  res.status(201).json({
-    success: true,
-    message: "Warehouse created successfully",
-    warehouse,
-  });
-});
-
-export const updateWarehouse = asyncHandler(async (req, res) => {
-  const { name, phone, email, address } = req.body;
-  const userId = req.user?.userId;
-
-  const warehouse = await Warehouse.findOne({
-    userId,
-    isActive: true,
-  });
+  const warehouse = await Warehouse.findOne();
 
   if (!warehouse) {
-    throw AppError.notFound("Warehouse not found", "NOT_FOUND");
+    const newWarehouse = await Warehouse.create({
+      name,
+      phone,
+      email,
+      address,
+      isActive: true,
+    });
+
+    res.status(201).json({
+      success: true,
+      message: "Warehouse created successfully",
+      warehouse: newWarehouse,
+    });
   }
 
-  if (name !== undefined) warehouse.name = name;
-  if (phone !== undefined) warehouse.phone = phone;
-  if (email !== undefined) warehouse.email = email;
-  if (address !== undefined) warehouse.address = address;
-
-  await warehouse.save();
+  // Update existing
+  const updated = await Warehouse.findOneAndUpdate(
+    { _id: warehouse._id },
+    {
+      $set: {
+        name,
+        phone,
+        email,
+        address,
+        isActive: true,
+      },
+    },
+    { new: true, runValidators: true },
+  ).lean();
 
   res.status(200).json({
     success: true,
     message: "Warehouse updated successfully",
-    warehouse,
+    warehouse: updated,
   });
 });
 

@@ -16,6 +16,7 @@ import razorpay, {
   verifyPaymentSignature,
 } from "../service/razorpayService.js";
 import mongoose from "mongoose";
+import { createInvoiceFromOrder } from "../service/invoiceService.js";
 
 // Helper function
 const calculateShippingCharge = ({
@@ -447,7 +448,7 @@ export const verifyPayment = asyncHandler(async (req, res) => {
         {
           $inc: {
             "variants.$.variantAvailableStock": -item.quantity,
-            "variants.$.totalSold": item.quantity,
+            "stats.totalSold": item.quantity,
           },
         },
         { session },
@@ -566,12 +567,30 @@ export const verifyPayment = asyncHandler(async (req, res) => {
     await session.commitTransaction();
     session.endSession();
 
+    /* =========================
+   CREATE INVOICE
+========================= */
+    let invoice = null;
+
+    try {
+      invoice = await createInvoiceFromOrder(order._id);
+    } catch (error) {
+      console.error("Invoice generation failed:", error);
+    }
+
     // RESPONSE
     res.status(200).json({
       success: true,
       message: "Payment verified successfully",
       data: {
         orderId: order.orderNumber,
+        invoice: invoice
+          ? {
+              id: invoice._id,
+              invoiceNumber: invoice.invoiceNumber,
+              pdfUrl: invoice.pdf?.url || null,
+            }
+          : null,
         shippingAddress: order.shippingAddress,
         placedAt: order.placedAt,
         paymentStatus: order.paymentStatus,
@@ -750,7 +769,7 @@ export const getUserAvailablePoints = asyncHandler(async (req, res) => {
 
 // admin controllers
 export const getOrdersAdmin = asyncHandler(async (req, res) => {
-  const { page = 1, limit = 10, search, range, sortBy } = req.query;
+  const { page = 1, limit = 10, search, range, sortBy, status } = req.query;
 
   const skip = (Number(page) - 1) * Number(limit);
 
@@ -786,6 +805,10 @@ export const getOrdersAdmin = asyncHandler(async (req, res) => {
   if (sortBy === "price-high") sortOptions = { grandTotal: -1 };
   if (sortBy === "price-low") sortOptions = { grandTotal: 1 };
 
+  if (status) {
+    query.status = status;
+  }
+
   const orders = await Order.find(query)
     .skip(skip)
     .limit(Number(limit))
@@ -798,12 +821,18 @@ export const getOrdersAdmin = asyncHandler(async (req, res) => {
     processingOrders,
     shippedOrders,
     deliveredOrders,
+    readyToShipOrders,
+    cancelledOrders,
+    refundedOrders,
   ] = await Promise.all([
     Order.countDocuments(),
     Order.countDocuments({ status: "placed" }),
     Order.countDocuments({ status: "processing" }),
     Order.countDocuments({ status: "shipped" }),
     Order.countDocuments({ status: "delivered" }),
+    Order.countDocuments({ status: "ready_to_ship" }),
+    Order.countDocuments({ status: "cancelled" }),
+    Order.countDocuments({ status: "refunded" }),
   ]);
 
   const total = await Order.countDocuments(query);
@@ -824,6 +853,117 @@ export const getOrdersAdmin = asyncHandler(async (req, res) => {
       processingOrders,
       shippedOrders,
       deliveredOrders,
+      readyToShipOrders,
+      cancelledOrders,
+      refundedOrders,
+    },
+  });
+});
+
+export const getAllOrdersByUser = asyncHandler(async (req, res) => {
+  const { userId } = req.params;
+  const { page = 1, limit = 10 } = req.query;
+
+  const skip = (Number(page) - 1) * Number(limit);
+  const userObjectId = new mongoose.Types.ObjectId(userId);
+
+  const query = { user: userObjectId };
+
+  // 1. ORDERS
+  const orders = await Order.find(query)
+    .select("orderNumber grandTotal createdAt status")
+    .skip(skip)
+    .limit(Number(limit))
+    .sort({ createdAt: -1 })
+    .lean();
+
+  // 2. PARALLEL STATS (FAST)
+  const [total, cancelled, totalSpendAgg, topCategoryAgg] = await Promise.all([
+    Order.countDocuments(query),
+
+    Order.countDocuments({
+      user: userObjectId,
+      status: "cancelled",
+    }),
+
+    // total spend
+    Order.aggregate([
+      { $match: query },
+      {
+        $group: {
+          _id: null,
+          totalSpend: { $sum: "$grandTotal" },
+        },
+      },
+    ]),
+
+    // TOP CATEGORY WITH NAME
+    Order.aggregate([
+      { $match: query },
+      { $unwind: "$items" },
+
+      {
+        $lookup: {
+          from: "products",
+          localField: "items.product",
+          foreignField: "_id",
+          as: "product",
+        },
+      },
+      { $unwind: "$product" },
+
+      {
+        $lookup: {
+          from: "categories",
+          localField: "product.category",
+          foreignField: "_id",
+          as: "category",
+        },
+      },
+      { $unwind: "$category" },
+
+      {
+        $group: {
+          _id: "$category._id",
+          name: { $first: "$category.name" },
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { count: -1 } },
+      { $limit: 1 },
+    ]),
+  ]);
+
+  // FINAL DATA
+  const topCategory =
+    topCategoryAgg.length > 0
+      ? {
+          id: topCategoryAgg[0]._id,
+          name: topCategoryAgg[0].name,
+        }
+      : null;
+
+  const lastOrderDate = orders.length > 0 ? orders[0].createdAt : null;
+
+  res.status(200).json({
+    success: true,
+    message: "Orders fetched successfully",
+
+    // clean orders
+    data: orders,
+
+    stats: {
+      total,
+      cancelled,
+      totalSpend: totalSpendAgg[0]?.totalSpend || 0,
+      topCategory,
+      lastOrderDate,
+    },
+
+    pagination: {
+      page: Number(page),
+      limit: Number(limit),
+      pages: Math.ceil(total / Number(limit)),
     },
   });
 });
@@ -850,7 +990,7 @@ export const acceptOrder = asyncHandler(async (req, res) => {
 
 export const readyToShip = asyncHandler(async (req, res) => {
   const { orderId } = req.params;
-  const { carrier, trackingNumber, trackingUrl } = req.body;
+  const { carrier } = req.body;
 
   const order = await Order.findById(orderId);
   if (!order) {
@@ -868,8 +1008,6 @@ export const readyToShip = asyncHandler(async (req, res) => {
   order.status = "ready_to_ship";
   order.tracking = {
     carrier,
-    trackingNumber,
-    trackingUrl,
   };
   await order.save();
 
@@ -881,6 +1019,7 @@ export const readyToShip = asyncHandler(async (req, res) => {
 
 export const shipOrder = asyncHandler(async (req, res) => {
   const { orderId } = req.params;
+  const { carrier, trackingNumber, trackingUrl } = req.body;
 
   const order = await Order.findById(orderId);
   if (!order) {
@@ -894,6 +1033,12 @@ export const shipOrder = asyncHandler(async (req, res) => {
   if (["shipped", "delivered"].includes(order.status)) {
     throw AppError.badRequest("Order already shipped", "ALREADY_SHIPPED");
   }
+
+  order.tracking = {
+    carrier,
+    trackingNumber,
+    trackingUrl,
+  };
 
   order.status = "shipped";
   await order.save();
@@ -1169,3 +1314,9 @@ export const getOrderDetails = asyncHandler(async (req, res) => {
     order,
   });
 });
+
+export const createInvoice = asyncHandler(async (req, res) => {});
+
+export const getInvoices = asyncHandler(async (req, res) => {});
+
+export const getInvoiceDetails = asyncHandler(async (req, res) => {});

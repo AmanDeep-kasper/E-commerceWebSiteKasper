@@ -28,7 +28,7 @@ export const addReview = asyncHandler(async (req, res) => {
     );
   }
 
-  // uplaod images to cloudinary
+  // upload images to cloudinary
   const uploadedImages = [];
   if (req.files && req.files.length > 0) {
     for (const file of req.files) {
@@ -66,7 +66,6 @@ export const addReview = asyncHandler(async (req, res) => {
       review.rating) /
       product.stats.totalReviews,
   ).toFixed(1);
-  product.reviews.push(review._id);
 
   await product.save();
 
@@ -103,7 +102,7 @@ export const getAllUserReviews = asyncHandler(async (req, res) => {
       productId: {
         _id: product?._id,
         productTittle: product?.productTittle,
-        image: firstImage, // 👈 only one image
+        image: firstImage, 
       },
     };
   });
@@ -115,7 +114,7 @@ export const getAllUserReviews = asyncHandler(async (req, res) => {
     pagination: {
       page,
       limit,
-      total, // ✅ fix (not reviews.length)
+      total, 
       totalPages: Math.ceil(total / limit),
     },
   });

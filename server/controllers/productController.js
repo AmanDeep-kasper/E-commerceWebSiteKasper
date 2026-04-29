@@ -322,7 +322,6 @@ export const adminGetProductDetails = asyncHandler(async (req, res) => {
   const product = await Product.findOne(filter)
     .populate("category", "name")
     .populate("subcategory", "name")
-    .populate("reviews")
     .lean();
 
   if (!product) {
@@ -857,7 +856,6 @@ export const userGetProductDetails = asyncHandler(async (req, res) => {
   const product = await Product.findOne(query)
     .populate("category", "name slug")
     .populate("subcategory", "name slug")
-    .populate("reviews")
     .lean();
 
   if (!product) {

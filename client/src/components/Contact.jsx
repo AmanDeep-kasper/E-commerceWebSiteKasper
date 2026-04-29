@@ -246,7 +246,8 @@ function ContactSection() {
                   Contact Us
                 </h1>
                 <p className="text-sm text-gray-500 mt-1">
-                  We'd love to hear from you. Fill out this form below.
+                  If you have any questions related orders, products, or
+                  anything please reach out.
                 </p>
               </div>
             </div>
@@ -258,10 +259,9 @@ function ContactSection() {
                     <div className="p-2 bg-[#F0EEFF] rounded-full flex-shrink-0">
                       <Mail className="w-5 h-5 text-[#1800AC]" />
                     </div>
-
-                    <div className="flex flex-col">
+                    <div>
                       <p className="text-sm font-medium text-gray-700">Email</p>
-                      <p className="text-sm text-gray-500 break-all">
+                      <p className="text-sm text-gray-500">
                         happyartsupplies@gmail.com
                       </p>
                     </div>
@@ -307,21 +307,27 @@ function ContactSection() {
 
                     <div className="flex items-center gap-4 mt-2">
                       <button>
-                        <a target="-" href="https://www.instagram.com/happyartsupplies/">
+                        <a
+                          target="-"
+                          href="https://www.instagram.com/happyartsupplies/"
+                        >
                           <img src={insta} alt="Instagram" />
                         </a>
                       </button>
                       <button>
-                          <a target="-" href="https://www.facebook.com/HappyArtSupplies/">
-                        <img src={facebook} alt="Facebook" />
-                          </a>
+                        <a
+                          target="-"
+                          href="https://www.facebook.com/HappyArtSupplies/"
+                        >
+                          <img src={facebook} alt="Facebook" />
+                        </a>
                       </button>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div className="flex justify-center items-center">
+              <div className="hidden md:flex w-[50%] justify-center items-center absolute right-0 bottom-5">
                 <img
                   src={loadingGif}
                   alt="loading"

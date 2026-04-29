@@ -526,16 +526,44 @@ const Products = () => {
     selectedCategory !== "Category" ||
     search !== "";
 
-  if (loading && isFirstLoad) {
+  // if (loading && isFirstLoad) {
+  //   return (
+  //     <div className="p-[24px] bg-[#F6F8F9] rounded-md min-h-screen flex justify-center items-center">
+  //       <div className="text-center">
+  //         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1C3753] mx-auto"></div>
+  //         <p className="mt-4 text-gray-600">Loading products...</p>
+  //       </div>
+  //     </div>
+  //   );
+  // }
+
+    const SkeletonRow = () => {
     return (
-      <div className="p-[24px] bg-[#F6F8F9] rounded-md min-h-screen flex justify-center items-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1C3753] mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading products...</p>
-        </div>
-      </div>
+      <tr className="animate-pulse border-t">
+        <td className="px-4 py-3">
+          <div className="h-4 w-32 bg-gray-200 rounded"></div>
+        </td>
+        <td className="px-4 py-3 text-center">
+          <div className="h-4 w-10 bg-gray-200 rounded mx-auto"></div>
+        </td>
+        <td className="px-4 py-3 text-center">
+          <div className="h-4 w-10 bg-gray-200 rounded mx-auto"></div>
+        </td>
+        <td className="px-4 py-3 text-center">
+          <div className="h-6 w-20 bg-gray-200 rounded mx-auto"></div>
+        </td>
+        <td className="px-4 py-3 text-center">
+          <div className="h-6 w-16 bg-gray-200 rounded mx-auto"></div>
+        </td>
+         <td className="px-4 py-3 text-center">
+          <div className="h-6 w-20 bg-gray-200 rounded mx-auto"></div>
+        </td>
+        <td className="px-4 py-3 text-center">
+          <div className="h-6 w-16 bg-gray-200 rounded mx-auto"></div>
+        </td>
+      </tr>
     );
-  }
+  };
   return (
     <>
       <div className="p-[24px] bg-[#F6F8F9] rounded-md min-h-screen">
@@ -809,7 +837,16 @@ const Products = () => {
               </thead>
 
               <tbody>
-                {sortedProducts.map((item) => (
+                {loading ? (
+                  [...Array(10)].map((_, i) => <SkeletonRow key={i} />)
+                ) : sortedProducts.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} className="text-center py-6 text-gray-500">
+                      No data found
+                    </td>
+                  </tr>
+                ) : (
+                sortedProducts.map((item) => (
                   <tr
                     key={item._id}
                     className={`border-t hover:bg-gray-50 transition ${
@@ -975,7 +1012,8 @@ const Products = () => {
                       </div>
                     </td>
                   </tr>
-                ))}
+                ))
+                )}
               </tbody>
             </table>
 
