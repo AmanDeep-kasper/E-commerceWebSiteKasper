@@ -241,8 +241,9 @@ export async function createInvoiceFromOrder(orderId) {
 
   const subtotal = order.subtotal; // already GST inclusive
   const totalTax = round(cgst + sgst + igst);
+  const discount = order.discount;
 
-  const grandTotal = round(subtotal + shippingCharge + platformFee);
+  const grandTotal = round(subtotal + shippingCharge + platformFee - discount);
 
   /* =========================
      CREATE INVOICE
@@ -294,7 +295,7 @@ export async function createInvoiceFromOrder(orderId) {
     summary: {
       mrpTotal: order.mrpTotal,
       subtotal,
-      discount: order.discount,
+      discount,
 
       shippingCharge,
       platformFee,
