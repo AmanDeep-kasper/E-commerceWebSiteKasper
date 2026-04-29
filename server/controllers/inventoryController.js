@@ -47,7 +47,20 @@ export const getInventory = asyncHandler(async (req, res) => {
               },
             },
           ]
-        : []),
+        : filterBy === "in_stock"
+          ? [
+              {
+                $match: {
+                  $expr: {
+                    $gt: [
+                      "$variants.variantAvailableStock",
+                      "$variants.variantLowStockAlertStock",
+                    ],
+                  },
+                },
+              },
+            ]
+          : []),
 
     // CATEGORY LOOKUP (FIX)
     {

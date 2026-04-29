@@ -3,6 +3,9 @@ import Order from "../models/Order.js";
 import Warehouse from "../models/admin/WarehouseConfig.js";
 import BusinessSetting from "../models/admin/BusinessConfig.js";
 
+/* =========================
+   GST STATE CODES
+========================= */
 const GST_STATE_CODES = {
   "Jammu and Kashmir": "01",
   "Himachal Pradesh": "02",
@@ -43,10 +46,13 @@ const GST_STATE_CODES = {
   Ladakh: "38",
 };
 
-function stateCode(state) {
-  return GST_STATE_CODES[state] || "";
-}
+const round = (num) => Math.round(num * 100) / 100;
 
+const stateCode = (state) => GST_STATE_CODES[state] || "";
+
+/* =========================
+   AMOUNT IN WORDS
+========================= */
 function amountInWords(num) {
   const ones = [
     "",
@@ -84,7 +90,7 @@ function amountInWords(num) {
     "Ninety",
   ];
 
-  const formatNumber = (n) => {
+  const format = (n) => {
     if (n < 20) return ones[n];
     if (n < 100)
       return tens[Math.floor(n / 10)] + (n % 10 ? " " + ones[n % 10] : "");
@@ -92,38 +98,39 @@ function amountInWords(num) {
       return (
         ones[Math.floor(n / 100)] +
         " Hundred" +
-        (n % 100 ? " " + formatNumber(n % 100) : "")
+        (n % 100 ? " " + format(n % 100) : "")
       );
     if (n < 100000)
       return (
-        formatNumber(Math.floor(n / 1000)) +
+        format(Math.floor(n / 1000)) +
         " Thousand" +
-        (n % 1000 ? " " + formatNumber(n % 1000) : "")
+        (n % 1000 ? " " + format(n % 1000) : "")
       );
     if (n < 10000000)
       return (
-        formatNumber(Math.floor(n / 100000)) +
+        format(Math.floor(n / 100000)) +
         " Lakh" +
-        (n % 100000 ? " " + formatNumber(n % 100000) : "")
+        (n % 100000 ? " " + format(n % 100000) : "")
       );
+
     return (
-      formatNumber(Math.floor(n / 10000000)) +
+      format(Math.floor(n / 10000000)) +
       " Crore" +
-      (n % 10000000 ? " " + formatNumber(n % 10000000) : "")
+      (n % 10000000 ? " " + format(n % 10000000) : "")
     );
   };
 
-  return `${formatNumber(num)} Rupees Only`;
+  return `${format(Math.round(num))} Rupees Only`;
 }
 
+/* =========================
+   GST CALCULATION (INCLUSIVE)
+========================= */
 function calculateTax(price, qty, gst, sellerState, buyerState) {
   const totalPrice = price * qty;
 
-  // Extract GST from inclusive price
   const taxableAmount = totalPrice / (1 + gst / 100);
   const totalTax = totalPrice - taxableAmount;
-
-  const round = (num) => Math.round(num * 100) / 100;
 
   const intra = sellerState === buyerState;
 
@@ -131,38 +138,51 @@ function calculateTax(price, qty, gst, sellerState, buyerState) {
     return {
       taxType: "CGST_SGST",
       taxableAmount: round(taxableAmount),
+
       cgstRate: gst / 2,
       sgstRate: gst / 2,
       igstRate: 0,
+
       cgstAmount: round(totalTax / 2),
       sgstAmount: round(totalTax / 2),
       igstAmount: 0,
+
       totalTax: round(totalTax),
-      lineTotal: totalPrice, // already inclusive
+      lineTotal: round(totalPrice),
     };
   }
 
   return {
     taxType: "IGST",
     taxableAmount: round(taxableAmount),
+
     cgstRate: 0,
     sgstRate: 0,
     igstRate: gst,
+
     cgstAmount: 0,
     sgstAmount: 0,
     igstAmount: round(totalTax),
+
     totalTax: round(totalTax),
-    lineTotal: totalPrice, // already inclusive
+    lineTotal: round(totalPrice),
   };
 }
 
+/* =========================
+   MAIN FUNCTION
+========================= */
 export async function createInvoiceFromOrder(orderId) {
+  // prevent duplicate invoice
   const exists = await Invoice.findOne({ orderId });
-
   if (exists) return exists;
 
   const order = await Order.findById(orderId).lean();
   if (!order) throw new Error("Order not found");
+
+  if (order.paymentStatus !== "paid") {
+    throw new Error("Invoice only allowed for paid orders");
+  }
 
   const business = await BusinessSetting.findOne({ isActive: true }).lean();
   const warehouse = await Warehouse.findOne({ isActive: true }).lean();
@@ -177,6 +197,9 @@ export async function createInvoiceFromOrder(orderId) {
   let sgst = 0;
   let igst = 0;
 
+  /* =========================
+     ITEMS BUILD
+  ========================= */
   const items = order.items.map((item) => {
     const tax = calculateTax(
       item.sellingPrice,
@@ -210,6 +233,20 @@ export async function createInvoiceFromOrder(orderId) {
     };
   });
 
+  /* =========================
+     TOTALS
+  ========================= */
+  const shippingCharge = order.shippingCharge || 0;
+  const platformFee = order.platformFee || 0;
+
+  const subtotal = order.subtotal; // already GST inclusive
+  const totalTax = round(cgst + sgst + igst);
+
+  const grandTotal = round(subtotal + shippingCharge + platformFee);
+
+  /* =========================
+     CREATE INVOICE
+  ========================= */
   const invoice = await Invoice.create({
     orderId: order._id,
     orderNumber: order.orderNumber,
@@ -256,15 +293,20 @@ export async function createInvoiceFromOrder(orderId) {
 
     summary: {
       mrpTotal: order.mrpTotal,
-      subtotal: order.subtotal,
+      subtotal,
       discount: order.discount,
-      shippingCharge: order.shippingCharge,
-      cgst,
-      sgst,
-      igst,
-      totalTax: order.totalGST,
-      grandTotal: order.grandTotal,
-      amountInWords: amountInWords(order.grandTotal),
+
+      shippingCharge,
+      platformFee,
+
+      cgst: round(cgst),
+      sgst: round(sgst),
+      igst: round(igst),
+
+      totalTax,
+      grandTotal,
+
+      amountInWords: amountInWords(grandTotal),
     },
 
     taxType: sellerState === buyerState ? "CGST_SGST" : "IGST",
