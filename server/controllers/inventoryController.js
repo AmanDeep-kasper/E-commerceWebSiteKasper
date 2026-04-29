@@ -147,7 +147,9 @@ export const getInventory = asyncHandler(async (req, res) => {
           ? { sellingPrice: 1 }
           : sortBy === "price_high"
             ? { sellingPrice: -1 }
-            : { createdAt: -1 },
+            : sortBy === "oldest"
+              ? { createdAt: 1 }
+              : { createdAt: -1 },
     },
 
     // PAGINATION
