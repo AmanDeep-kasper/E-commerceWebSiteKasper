@@ -9,9 +9,16 @@ export const uploadToCloudinary = (
   originalName = "",
 ) => {
   return new Promise((resolve, reject) => {
+    if (!fileBuffer) {
+      return reject(new Error("File buffer is required"));
+    }
+
     // clean file name
     const baseName = originalName
-      ? originalName.split(".")[0].replace(/\s+/g, "-").toLowerCase()
+      ? originalName
+          .replace(/\.[^/.]+$/, "")
+          .replace(/\s+/g, "-")
+          .toLowerCase()
       : "file";
 
     const publicId = `${folder}/${baseName}-${Date.now()}`;
@@ -28,6 +35,7 @@ export const uploadToCloudinary = (
           publicId: result.public_id,
           url: result.secure_url,
           resourceType: result.resource_type,
+          bytes: result.bytes,
         });
       },
     );
@@ -36,10 +44,7 @@ export const uploadToCloudinary = (
   });
 };
 
-export const deleteFromCloudinary = async (
-  publicId,
-  resourceType = "image",
-) => {
+export const deleteFromCloudinary = async (publicId, resourceType = "raw") => {
   try {
     if (!publicId) {
       throw new Error("Public ID is required for deletion");

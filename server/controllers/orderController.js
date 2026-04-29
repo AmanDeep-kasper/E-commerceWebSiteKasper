@@ -17,6 +17,8 @@ import razorpay, {
 } from "../service/razorpayService.js";
 import mongoose from "mongoose";
 import { createInvoiceFromOrder } from "../service/invoiceService.js";
+import { generateInvoicePDF } from "../service/generateInvoice.js";
+import { uploadToCloudinary } from "../utils/uploader.js";
 
 // Helper function
 const calculateShippingCharge = ({
@@ -567,13 +569,38 @@ export const verifyPayment = asyncHandler(async (req, res) => {
     await session.commitTransaction();
     session.endSession();
 
-    /* =========================
-   CREATE INVOICE
-========================= */
+    //  CREATE INVOICE
     let invoice = null;
 
     try {
       invoice = await createInvoiceFromOrder(order._id);
+
+      const pdfBuffer = await generateInvoicePDF(invoice);
+
+      const uploadRes = await uploadToCloudinary(
+        pdfBuffer,
+        "raw",
+        "invoices",
+        `invoice-${invoice.invoiceNumber}.pdf`,
+      );
+
+      invoice.pdf = {
+        publicId: uploadRes.publicId,
+        url: uploadRes.url,
+      };
+
+      await invoice.save();
+
+      // Update order with invoice reference
+      order.invoice = {
+        invoiceId: invoice._id,
+        invoiceNumber: invoice.invoiceNumber,
+        invoicePdf: {
+          publicId: uploadRes.publicId,
+          url: uploadRes.url,
+        },
+      };
+      await order.save();
     } catch (error) {
       console.error("Invoice generation failed:", error);
     }
@@ -1314,9 +1341,3 @@ export const getOrderDetails = asyncHandler(async (req, res) => {
     order,
   });
 });
-
-export const createInvoice = asyncHandler(async (req, res) => {});
-
-export const getInvoices = asyncHandler(async (req, res) => {});
-
-export const getInvoiceDetails = asyncHandler(async (req, res) => {});
