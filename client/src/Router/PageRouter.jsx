@@ -109,6 +109,7 @@ import GuestRoute from "../pages/user/GuestRoute";
 // import Reward from "../pages/user/reward";
 import CollectionProducts from "../pages/admin/Collection/CollectionProducts";
 import { useParams } from "react-router-dom";
+import InStock from "../pages/admin/Inventory/InStock";
 
 const PageRouter = () => {
   return (
@@ -348,6 +349,7 @@ const PageRouter = () => {
             <Route path="All" element={<All />} />
             <Route path="LowStock" element={<LowStock />} />
             <Route path="OutofStock" element={<OutofStock />} />
+            <Route path="InStock" element={<InStock />} />
 
             {/* Inventory Details Page */}
             <Route path="details/:id" element={<InventoryDetails />} />
