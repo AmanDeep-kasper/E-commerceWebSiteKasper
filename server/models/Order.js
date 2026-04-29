@@ -61,6 +61,23 @@ const OrderSchema = new mongoose.Schema(
       index: true,
     },
 
+    invoice: {
+      invoiceId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Invoice",
+      },
+
+      invoiceNumber: {
+        type: String,
+        unique: true,
+      },
+
+      invoicePdf: {
+        publicId: String,
+        url: String,
+      },
+    },
+
     // Human-readable order number (e.g. ORD-20240412-0001)
     orderNumber: {
       type: String,
