@@ -133,6 +133,7 @@ const AddProduct = () => {
   const [draftId, setDraftId] = useState(null);
   // for editning status
   const [status, setStatus] = useState("active");
+  const [selectedVariants, setSelectedVariants] = useState([]);
   // Fetch product for editing from API
   useEffect(() => {
     // console.log("Fetching product for edit. ID:", id);
@@ -1356,6 +1357,67 @@ const fetchCategories = async () => {
     }
   }, [formData.variants, isEditing]);
 
+  // handle individual variant checkbox change
+  const handleVariantCheckboxChange = (index, variantId) => {
+    setSelectedVariants((prev) => {
+      if(prev.includes(variantId)) {
+        return prev.filter((id) => id !== variantId);
+      }else {
+        return [...prev, variantId];
+      }
+    })
+  };
+
+  // handle select all variants
+  const handleSelectAllVariants = () => {
+    if(selectedVariants.length === allVariants.length) {
+      // if all are seelcted, deselect all
+      setSelectedVariants([]);
+    }else {
+      // select all variants
+      const allVariantIds = allVariants.map((_, idx) => idx);
+      setSelectedVariants(allVariantIds);
+    }
+  }
+
+  // delete selected variant
+  const deleteSelectedVariants = () => {
+    if(selectedVariants.length === 0) {
+      toast.error("Please select at least one varinat to delete")
+      return;
+    }
+
+ // Sort indices in descending order to delete from the end first
+  const sortedIndices = [...selectedVariants].sort((a, b) => b - a);
+  
+  // Filter out variants from both formData.variants and newVariants
+  let updatedFormDataVariants = [...formData.variants];
+  let updatedNewVariants = [...newVariants];
+  
+  sortedIndices.forEach(index => {
+    const isNewVariant = isEditing ? index >= formData.variants.length : false;
+    
+    if (isNewVariant && isEditing) {
+      // Remove from newVariants
+      const newVariantIndex = index - formData.variants.length;
+      updatedNewVariants = updatedNewVariants.filter((_, idx) => idx !== newVariantIndex);
+    } else {
+      // Remove from formData.variants
+      updatedFormDataVariants = updatedFormDataVariants.filter((_, idx) => idx !== index);
+    }
+  });
+  
+  // Ensure at least one variant exists
+  if (updatedFormDataVariants.length === 0 && updatedNewVariants.length === 0) {
+    updatedFormDataVariants = [emptyVariant()];
+  }
+  
+  setFormData(prev => ({ ...prev, variants: updatedFormDataVariants }));
+  setNewVariants(updatedNewVariants);
+  setSelectedVariants([]);
+  toast.success(`${selectedVariants.length} variant(s) deleted successfully`);
+};
+
 
   if (loadingProduct) {
     return (
@@ -1936,15 +1998,16 @@ const fetchCategories = async () => {
                 <div className="mb-4 flex items-center justify-between">
                   <h1 className="text-lg font-semibold">Variant Listings</h1>
                   <div className="flex items-center justify-end gap-3">
-                    {/* {isAnyVariantSelected && (
+                    {allVariants.length > 1 && selectedVariants.length > 0 && (
                       <button
-                        type="button"
-                        onClick={removeSelectedVariants}
-                        className="rounded-md border border-red-500 px-4 py-1 text-sm text-red-600"
+                      type="button"
+                      onClick={deleteSelectedVariants}
+                      className="rounded-md bg-red-600 px-4 py-1 text-sm text-white hover:bg-red-700 transition-colors flex items-center gap-2"
                       >
-                        Remove Selected
+Delete Selected
+{/* ({selectedVariants.length}) */}
                       </button>
-                    )} */}
+                    )}
 
                     <button
                       type="button"
@@ -1960,21 +2023,17 @@ const fetchCategories = async () => {
                   <table className="w-full min-w-[1200px] text-sm">
                     <thead className="bg-[#F5F8FA]">
                       <tr>
-                        {/* <th className="px-3 py-2 text-left">
-                      <tr className="">
-                        <th className="px-3 py-2 text-left">
-                          <input
-                            type="checkbox"
-                            checked={
-                              formData.variants.length > 0 &&
-                              formData.variants.every((v) => v.isSelected)
-                            }
-                            onChange={(e) =>
-                              toggleSelectAllVariants(e.target.checked)
-                            }
-                          />
-                        </th> */}
-                        <th></th>
+                        {allVariants.length > 1 && (
+                       <th className="px-3 py-2 text-left font-medium w-10">
+      <input
+        type="checkbox"
+        checked={allVariants.length > 0 && selectedVariants.length === allVariants.length}
+        onChange={handleSelectAllVariants}
+        className="w-4 h-4 cursor-pointer"
+      />
+    </th>
+                        )}
+                       
                         <th className="px-3 py-2 text-left font-medium">
                           Color
                         </th>
@@ -2017,6 +2076,7 @@ const fetchCategories = async () => {
                         const isAddModeVariant = !isEditing && index > 0;
                         const isReadOnly = isExisting && !isProductDraft;
                         const actualIndex = index;
+                        const showCheckbox = allVariants.length > 1;
 
                         // dont show delete button for first variant(keep at least one variant)
                         const canDelete = allVariants.length > 1;
@@ -2025,43 +2085,16 @@ const fetchCategories = async () => {
                             key={variant.variantSkuId || index}
                             className="hover:bg-gray-50 border-b-group"
                           >
-
-                            <td className="px-3 py-2">
-                              {canDelete && (
-                                <button
-                                  type="button"
-                                  onClick={() => {
-
-                                    if (isEditing && (index >= formData.variants.length)) {
-                                      // Delete from newVariants (edit mode)
-                                      const newVariantIndex = index - formData.variants.length;
-                                      const updated = [...newVariants];
-                                      updated.splice(newVariantIndex, 1);
-                                      setNewVariants(updated);
-                                    } else {
-                                      // Delete from formData.variants (add mode or existing variant)
-                                      setFormData((prev) => {
-                                        const variants = [...prev.variants];
-                                        variants.splice(index, 1);
-                                        // Ensure at least one variant exists
-                                        if (variants.length === 0) {
-                                          variants.push(emptyVariant());
-                                        }
-                                        return { ...prev, variants };
-                                      });
-                                    }
-                                    toast.success("Variant deleted");
-
-                                  }}
-                                  className="delete-btn transition-all duration-200
-                 text-gray-400 hover:text-red-600 p-1 rounded-full 
-                 hover:bg-red-50 focus:outline-none"
-                                >
-                                  <RiDeleteBin6Line className="w-4 h-4" style={{ color: "red" }} />
-                                </button>
-                              )}
-                            </td>
-
+{showCheckbox && (
+          <td className="px-3 py-2 text-center">
+            <input
+              type="checkbox"
+              checked={selectedVariants.includes(index)}
+              onChange={() => handleVariantCheckboxChange(index, index)}
+              className="w-4 h-4 cursor-pointer"
+            />
+          </td>
+        )}
                             <td className="px-3 py-1">
                               {(isExisting && !isProductDraft) ? (
                                 <div className="w-[140px] rounded-md border px-3 py-1 text-sm bg-gray-100 text-gray-600 min-h-[36px]">
