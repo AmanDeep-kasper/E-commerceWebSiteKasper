@@ -3,26 +3,65 @@ import { useOutletContext } from "react-router-dom";
 import { ChevronDown, ListFilter, Search } from "lucide-react";
 import OrderDetails from "./OrdersPopModels/OrderDetails";
 import OrdersTimelines from "./OrdersPopModels/OrdersTimelines";
+import axiosInstance from "../../../api/axiosInstance";
+import { toast } from "react-toastify";
 
 const ShippedOrders = () => {
-  const { ordersList = [], updateOrder } = useOutletContext();
-
-  const shippedOrders = useMemo(() => {
-    return ordersList.filter(
-      (item) => item.orderStatus?.toLowerCase() === "shipped",
-    );
-  }, [ordersList]);
-
-  const columns = [
-    "Order ID",
-    "Tracking ID",
-    // "Expected Delivery Date",
-    "Delivery Partner",
-    "Action",
-  ];
-
+  const [ordersList, setOrdersList] = useState([]);
+  const [loading, setLoading] = useState(false);
+  /* ================= PAGINATION ================= */
   const [page, setPage] = useState(1);
-  const rowsPerPage = 10;
+  const [totalItems, setTotalItems] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  const limit = 10;
+  const startIndex = (page - 1) * limit + 1;
+  const endIndex = Math.min(page * limit, totalItems);
+  const [deliveryPartners, setDeliveryPartners] = useState([]);
+  const apiStatus = "shipped";
+
+  const handleOrderList = async () => {
+    try {
+      setLoading(true);
+
+      const res = await axiosInstance.get("/order/admin", {
+        params: {
+          page,
+          limit,
+          status: apiStatus,
+        },
+      });
+      console.log(res);
+      setOrdersList(res?.data?.orders || []);
+      setTotalItems(res?.data?.pagination?.total || 0);
+      setTotalPages(res?.data?.pagination?.pages || 1);
+    } catch (error) {
+      console.error("Error fetching orders:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleMarkDelivered = async ({ orderId }) => {
+    try {
+      await axiosInstance.patch(`/order/admin/${orderId}/deliver`);
+
+      setOrdersList((prev) => prev.filter((order) => order._id !== orderId));
+
+      toast.success("Order marked as Delivered");
+      handleOrderList();
+      setSelectedOrderId(null);
+    } catch (error) {
+      toast.error(
+        error?.response?.data?.message || "Failed to mark ready to ship",
+      );
+    }
+  };
+
+  useEffect(() => {
+    handleOrderList();
+  }, []);
+
+  const columns = ["Order ID", "Tracking ID", "Delivery Partner", "Action"];
 
   const [search, setSearch] = useState("");
   const [debouncedValue, setDebouncedValue] = useState("");
@@ -35,28 +74,41 @@ const ShippedOrders = () => {
     return () => clearTimeout(timer);
   }, [search]);
 
-  const [paymentstatusOpen, setPaymentStatusOpen] = useState(false);
+  // const [paymentstatusOpen, setPaymentStatusOpen] = useState(false);
   const [paymentstatus, setPaymentStatus] = useState("Shipment Status");
-  const Paymentstatuses = [
-    "Shipment Status",
-    "Shipped",
-    "In transit",
-    "Out for delivery",
-    "Delivery delayed",
-    "Failed delivery",
-  ];
+  // const Paymentstatuses = [
+  //   "Shipment Status",
+  //   "Shipped",
+  //   "In transit",
+  //   "Out for delivery",
+  //   "Delivery delayed",
+  //   "Failed delivery",
+  // ];
+
+  useEffect(() => {
+    const fetchTransporters = async () => {
+      try {
+        const res = await axiosInstance.get("/dashboard/transport");
+        setDeliveryPartners(res?.data?.data || []);
+      } catch (error) {
+        console.error("Transport fetch error:", error);
+      }
+    };
+
+    fetchTransporters();
+  }, []);
 
   const [filterOne, setfilterOne] = useState("Latest");
   const [filterOneOpen, setfilterOneOpen] = useState(false);
 
-  const filterOneItems = ["Latest", "Delivering Soon", "Delivering Later"];
+  // const filterOneItems = ["Latest", "Delivering Soon", "Delivering Later"];
 
   const filteredOrders = useMemo(() => {
-    let result = [...shippedOrders];
+    let result = [...ordersList];
 
     if (debouncedValue.trim()) {
       result = result.filter((item) =>
-        item.orderId.toLowerCase().includes(debouncedValue.toLowerCase()),
+        item.orderNumber.toLowerCase().includes(debouncedValue.toLowerCase()),
       );
     }
 
@@ -81,34 +133,27 @@ const ShippedOrders = () => {
     }
 
     return result;
-  }, [shippedOrders, debouncedValue, paymentstatus, filterOne]);
+  }, [ordersList, debouncedValue, paymentstatus, filterOne]);
 
   useEffect(() => {
     setPage(1);
   }, [debouncedValue, paymentstatus, filterOne]);
 
-  const total = filteredOrders.length;
-  const totalPages = Math.ceil(total / rowsPerPage);
-
-  const startIndex = (page - 1) * rowsPerPage;
-  const endIndex = Math.min(startIndex + rowsPerPage, total);
-
-  const paginatedOrders = filteredOrders.slice(startIndex, endIndex);
+  // const paginatedOrders = ordersList.slice(startIndex, endIndex);
 
   const [selectedOrderId, setSelectedOrderId] = useState(null);
-  const selectOrder = ordersList.find(
-    (order) => order.orderId === selectedOrderId,
-  );
+  const selectOrder = ordersList.find((order) => order._id === selectedOrderId);
 
   const [openTimelineId, setOpenTimelineId] = useState(null);
   const selectTimeline = ordersList.find(
-    (order) => order.orderId === openTimelineId,
+    (order) => order._id === openTimelineId,
   );
 
-  const [DeliveryPartner, setDeliveryPartner] = useState("Select Delivery Partner");
-  const DeliveryPartners = ["Kasper", "Other"];
+  const [DeliveryPartner, setDeliveryPartner] = useState(
+    "Select Delivery Partner",
+  );
+  const DeliveryPartners = deliveryPartners;
   const [DeliveryPartnerOpen, setDeliveryPartnerOpen] = useState(false);
-
 
   return (
     <>
@@ -118,10 +163,7 @@ const ShippedOrders = () => {
             <OrderDetails
               data={selectOrder}
               setSelectedOrderId={() => setSelectedOrderId(null)}
-              onMarkDelivered={({ orderId }) => {
-                updateOrder(orderId, { orderStatus: "Delivered" });
-                setSelectedOrderId(null);
-              }}
+              onMarkDelivered={handleMarkDelivered}
             />
           </div>
         </div>
@@ -219,20 +261,21 @@ const ShippedOrders = () => {
               <ChevronDown className="w-4 h-4 text-gray-500" />
             </button>
             {DeliveryPartnerOpen && (
-              <div className="absolute mt-2 w-52 -right-2 top-8 bg-white border rounded-lg shadow-md z-100">
+              <div className="absolute mt-2 w-52 -right-2 top-8 bg-white border rounded-lg shadow-md z-100 max-h-60 overflow-y-auto">
                 {DeliveryPartners.map((s) => (
                   <div
-                    key={s}
+                    key={s._id}
                     onClick={() => {
-                      setDeliveryPartner(s);
+                      setDeliveryPartner(s.transporterName);
                       setDeliveryPartnerOpen(false);
                     }}
-                    className={`px-4 py-2 text-sm cursor-pointer hover:bg-gray-100 text-[#686868] ${DeliveryPartner === s
-                      ? "bg-gray-100 text-[#686868] font-medium"
-                      : ""
-                      }`}
+                    className={`px-4 py-2 text-sm cursor-pointer hover:bg-gray-100 text-[#686868] ${
+                      DeliveryPartner === s.transporterName
+                        ? "bg-gray-100 font-medium"
+                        : ""
+                    }`}
                   >
-                    {s}
+                    {s.transporterName}
                   </div>
                 ))}
               </div>
@@ -257,18 +300,20 @@ const ShippedOrders = () => {
           </thead>
 
           <tbody>
-            {paginatedOrders.map((order) => (
+            {filteredOrders.map((order) => (
               <tr
-                key={order.orderId}
+                key={order.orderNumber}
                 className="border-t hover:bg-gray-50 transition cursor-pointer text-center"
               >
-                <td className="px-4 py-3">{order.orderId}</td>
-                <td className="px-4 py-3">{order.trackingId || "-"}</td>
+                <td className="px-4 py-3">{order.orderNumber}</td>
+                <td className="px-4 py-3">
+                  {order?.tracking?.trackingNumber || "-"}
+                </td>
                 {/* <td className="px-4 py-3">{order.deliveryDate || "-"}</td> */}
 
                 <td className="px-4 py-3 font-medium text-xs">
                   <span className="bg-[#D5E5F5] inline-flex items-center justify-center min-w-[110px] px-4 py-1.5 rounded-lg font-medium text-center">
-                    {order.deliveryPartner || "Not Assigned"}
+                    {order?.tracking?.carrier || "Not Assigned"}
                   </span>
                 </td>
 
@@ -282,7 +327,7 @@ const ShippedOrders = () => {
                     </button> */}
 
                     <button
-                      onClick={() => setSelectedOrderId(order.orderId)}
+                      onClick={() => setSelectedOrderId(order._id)}
                       className="text-[#2C87E2]"
                     >
                       View
@@ -296,12 +341,9 @@ const ShippedOrders = () => {
 
         <div className="flex items-center justify-between px-6 py-3 text-sm text-gray-600">
           <div>
-            Showing{" "}
-            <span className="font-medium">
-              {total === 0 ? 0 : startIndex + 1}
-            </span>
-            –<span className="font-medium">{endIndex}</span> of{" "}
-            <span className="font-medium">{total}</span> results
+            Showing <span className="font-medium">{startIndex}</span>–
+            <span className="font-medium">{endIndex}</span> of{" "}
+            <span className="font-medium">{totalItems}</span> results
           </div>
 
           <div className="flex items-center gap-2">
@@ -315,13 +357,13 @@ const ShippedOrders = () => {
 
             <div className="px-4 py-1 border rounded">
               Page {String(page).padStart(2, "0")} of{" "}
-              {String(totalPages || 1).padStart(2, "0")}
+              {String(totalPages).padStart(2, "0")}
             </div>
 
             <button
               className="px-3 py-1 border rounded disabled:opacity-40"
-              onClick={() => setPage((p) => Math.min(totalPages || 1, p + 1))}
-              disabled={page === totalPages || totalPages === 0}
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
             >
               ›
             </button>
