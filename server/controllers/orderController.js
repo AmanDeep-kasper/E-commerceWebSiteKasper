@@ -898,11 +898,14 @@ export const getAllOrdersByUser = asyncHandler(async (req, res) => {
 
   // 1. ORDERS
   const orders = await Order.find(query)
-    .select("orderNumber grandTotal createdAt status")
+        .select("orderNumber grandTotal createdAt status items paymentMethod paymentStatus shippingAddress")
     .skip(skip)
     .limit(Number(limit))
     .sort({ createdAt: -1 })
     .lean();
+    console.log("First order items:", orders[0]?.items?.length || 0, "items");
+
+
 
   // 2. PARALLEL STATS (FAST)
   const [total, cancelled, totalSpendAgg, topCategoryAgg] = await Promise.all([
