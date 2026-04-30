@@ -5,7 +5,7 @@ import userService from "../../services/userService";
 import { loginUser } from "../../redux/cart/userSlice";
 import { Navigate, useNavigate } from "react-router-dom";
 
-function OtpVerifyForm({ onSuccess, onBack }) {
+function OtpVerifyForm({ onSuccess, onBack, initialCountdown = 0 }) {
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -18,16 +18,24 @@ function OtpVerifyForm({ onSuccess, onBack }) {
 
   // Countdown timer for resend OTP
   useEffect(() => {
-    let timer;
-    if (resendCountdown > 0) {
-      timer = setTimeout(() => setResendCountdown(resendCountdown - 1), 1000);
-    }
+    if (resendCountdown <= 0) return;
+
+    const timer = setTimeout(() => {
+      setResendCountdown((prev) => prev - 1); // ✅ FIXED
+    }, 1000);
+
     return () => clearTimeout(timer);
   }, [resendCountdown]);
 
-  const startResendCountdown = () => {
-    setResendCountdown(30); // 30 seconds countdown
-  };
+  useEffect(() => {
+    if (initialCountdown > 0) {
+      setResendCountdown(initialCountdown);
+    }
+  }, [initialCountdown]);
+
+  // const startResendCountdown = () => {
+  //   setResendCountdown(30); // 30 seconds countdown
+  // };
 
   const handleOtpChange = (index, value) => {
     if (!/^\d?$/.test(value)) return; // Only allow numbers
@@ -107,11 +115,27 @@ function OtpVerifyForm({ onSuccess, onBack }) {
 
       await userService.resendOtp({ tempUserId });
 
-      startResendCountdown();
+      // ✅ Reset OTP input
       setOtp(["", "", "", "", "", ""]);
       inputRefs.current[0].focus();
+
+      // ✅ Restart timer (assume success = full timer)
+      setResendCountdown(30);
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to resend OTP");
+      const message = err.response?.data?.message || "Failed to resend OTP";
+
+      // 🔥 Extract seconds from backend
+      const match = message.match(/(\d+)/);
+
+      if (match) {
+        const seconds = parseInt(match[0], 10);
+
+        setResendCountdown(seconds); // ✅ sync with backend
+        setError(null); // ❌ don't show error box
+        return;
+      }
+
+      setError(message);
     } finally {
       setResendLoading(false);
     }

@@ -542,7 +542,6 @@ shippingAddress.landmark && (
                   {order.totalDiscount ? order.totalDiscount : "--"}
                 </li>
                 <li>{order.platformFee ? order.platformFee : "--"}</li>
-                {/* <li>{order.platformFee ? order.platformFee : "--"}</li> */}
                 <li>{order.shippingCharge ? order.shippingCharge : "--"}</li>
                 <li className="text-[#00A63E]">
                   -{order.discount ? order.discount : "--"}
