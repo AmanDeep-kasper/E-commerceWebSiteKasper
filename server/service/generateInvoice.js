@@ -66,9 +66,22 @@ export function generateInvoiceHTML(invoice) {
     <td class="c">0%</td>
     <td class="c">N/A</td>
     <td class="r">&#8377;0</td>
-    <td class="r">&#8377;${fmt(invoice.summary.discount)}</td>
+    <td class="r">-&#8377;${fmt(invoice.summary.discount)}</td>
   </tr>`;
   }
+
+  const platformFeeRow = `<tr>
+    <td class="c">${invoice.items.length + 3}.</td>
+    <td class="l">Platform Fee</td>
+    <td class="r">&#8377;${fmt(invoice.summary.platformFee)}</td>
+    <td class="c">1</td>
+    <td class="r">&#8377;${fmt(invoice.summary.platformFee)}</td>
+    <td class="c">0%</td>
+    <td class="c">N/A</td>
+    <td class="r">&#8377;0</td>
+    <td class="r">&#8377;${fmt(invoice.summary.platformFee)}</td>
+  </tr>
+  `;
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -268,9 +281,16 @@ export function generateInvoiceHTML(invoice) {
   <div class="hdr">
     <div class="hdr-left">
       <div class="logo-box">
-        <span>Happy</span>
-        <span>Art</span>
-        <span>Supp.</span>
+        ${
+          invoice.seller.logo
+            ? `<img src="${invoice.seller.logo}" alt="Logo" style="width:100%; height:100%; object-fit:contain;">`
+            : `<span>${invoice.seller.fullName
+                .split(" ")
+                .map((w) => w[0])
+                .join("")
+                .slice(0, 3)
+                .toUpperCase()}</span>`
+        }
       </div>
       <span class="brand">${invoice.seller.fullName}</span>
     </div>
@@ -329,6 +349,7 @@ export function generateInvoiceHTML(invoice) {
     <tbody>
       ${itemRows}
       ${shippingRow}
+      ${platformFeeRow}
       ${discountRow}
       <tr class="tfoot">
         <td colspan="7"><strong>Total</strong></td>

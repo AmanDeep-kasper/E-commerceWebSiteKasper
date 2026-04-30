@@ -135,6 +135,7 @@ const AddressSchema = new mongoose.Schema(
     },
 
     gstin: String,
+    logo: String,
   },
   { _id: false },
 );
