@@ -11,6 +11,7 @@ import {
   getCategoryDetailsController,
   updateCategoryOrSubcategory,
   updateCategoryStatus,
+  getAllCategoriesForFilter
 } from "../controllers/categoryController.js";
 import { validateRequest } from "../validation/validator.js";
 import {
@@ -78,6 +79,13 @@ router.delete(
 
 // /users routes
 router.get("/all-categories", getAllCategoriesController);
+
+router.get(
+  "/admin/all-categories-filter",
+  authenticate,
+  authorize("admin"),
+  getAllCategoriesForFilter
+);
 
 router.get("/detail/:categoryIdOrSlug", getCategoryDetailsController);
 
