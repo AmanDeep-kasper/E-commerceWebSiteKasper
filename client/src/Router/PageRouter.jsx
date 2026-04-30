@@ -77,7 +77,7 @@ import PendingOrders from "../pages/admin/order/NewOrders";
 import ProcessingOrders from "../pages/admin/order/ProcessingOrders";
 import ShippedOrders from "../pages/admin/order/ShippedOrders";
 import DeliveredOrders from "../pages/admin/order/DeliveredOrders";
-import CancelledOrders from "../pages/admin/order/CancelledOrders";
+// import CancelledOrders from "../pages/admin/order/CancelledOrders";
 import Transporter from "../pages/admin/Transporter/Transporter";
 import AboutUs from "../pages/AboutUs";
 import ShippingPolicy from "../pages/ShippingPolicy";
@@ -295,7 +295,7 @@ const PageRouter = () => {
             <Route path="processing" element={<ProcessingOrders />} />
             <Route path="shipped" element={<ShippedOrders />} />
             <Route path="delivered" element={<DeliveredOrders />} />
-            <Route path="cancelled" element={<CancelledOrders />} />
+            {/* <Route path="cancelled" element={<CancelledOrders />} /> */}
           </Route>
 
           {/* returns */}

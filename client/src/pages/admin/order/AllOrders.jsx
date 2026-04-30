@@ -1,29 +1,96 @@
 import { useEffect, useMemo, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import { ChevronDown, ListFilter, MoreVertical, Search } from "lucide-react";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
 import OrderDetails from "./OrdersPopModels/OrderDetails";
 import { div } from "framer-motion/m";
 import OrdersTimelines from "./OrdersPopModels/OrdersTimelines";
 import OrderSectionInvoice from "./OrdersPopModels/OrderSectionInvoice";
+import axiosInstance from "../../../api/axiosInstance";
 
 const AllOrders = () => {
-  const { ordersList = [], updateOrder } = useOutletContext();
+  const [ordersList, setOrdersList] = useState([]);
+  const [loading, setLoading] = useState(false);
+  /* ================= PAGINATION ================= */
+  const [page, setPage] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  const limit = 10;
+  const startIndex = (page - 1) * limit + 1;
+  const endIndex = Math.min(page * limit, totalItems);
+
+  const handleOrderList = async () => {
+    try {
+      setLoading(true);
+      const res = await axiosInstance.get("/order/admin", {
+        params: {
+          page,
+          limit: 10,
+        },
+      });
+      setOrdersList(res?.data?.orders || []);
+      setTotalItems(res?.data?.pagination?.total || 0);
+      setTotalPages(res?.data?.pagination?.pages || 1);
+      console.log(res?.data);
+    } catch (error) {
+      console.error("Error fetching orders:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    handleOrderList();
+  }, [page]);
+
+  const handleAcceptOrder = async (orderId) => {
+    try {
+      await axiosInstance.patch(`/order/admin/${orderId}/accept`);
+
+      setOrdersList((prev) =>
+        prev.map((order) =>
+          order._id === orderId ? { ...order, status: "processing" } : order,
+        ),
+      );
+
+      toast.success("Order accepted successfully");
+
+      handleOrderList(); // optional refresh
+    } catch (error) {
+      toast.error(
+        error?.response?.data?.message || "Failed to accept order ❌",
+      );
+    }
+  };
+
+  const statusMap = {
+    placed: "New Orders",
+    processing: "Processing",
+    shipped: "Shipped",
+    delivered: "Delivered",
+    cancelled: "Cancelled",
+  };
+  const statusStyles = {
+    placed: "bg-[#D5E5F5] text-[#1C3753]",
+    processing: "bg-[#E6D3FF] text-[#8A38F5]",
+    shipped: "bg-[#FBDBF7] text-[#E91DD1]",
+    delivered: "bg-[#E0F4DE] text-[#00A63E]",
+    cancelled: "bg-[#EFEFEF] text-[#686868]",
+  };
+
+  console.log(ordersList);
 
   const columns = [
     "Order ID",
     "Quantity",
     "Order Value",
-    // "Payment Status",
     "Order Date",
     "Status",
     "Action",
   ];
-
-  /* ================= PAGINATION ================= */
-  const [page, setPage] = useState(1);
-  const rowsPerPage = 10;
 
   /* ================= SEARCH ================= */
   const [search, setSearch] = useState("");
@@ -40,7 +107,6 @@ const AllOrders = () => {
   /* ================= PAYMENT FILTER ================= */
   const [paymentstatusOpen, setPaymentStatusOpen] = useState(false);
   const [paymentstatus, setPaymentStatus] = useState("Payment Type");
-  // const Paymentstatuses = ["Payment Type", "Prepaid", "COD"];
 
   /* ================= SORT FILTER (MOVE UP) ================= */
   const [filterOne, setfilterOne] = useState("Latest Order Date");
@@ -128,14 +194,9 @@ const AllOrders = () => {
     /* 🔍 SEARCH */
     if (debouncedValue.trim()) {
       result = result.filter((item) =>
-        item.orderId.toLowerCase().includes(debouncedValue.toLowerCase()),
+        item.orderNumber.toLowerCase().includes(debouncedValue.toLowerCase()),
       );
     }
-
-    // /* 💳 PAYMENT */
-    // if (paymentstatus !== "Payment Type") {
-    //   result = result.filter((item) => item.paymentType === paymentstatus);
-    // }
 
     /* 📅 DATE */
     const today = new Date();
@@ -143,32 +204,32 @@ const AllOrders = () => {
     if (storeDate === "Today") {
       result = result.filter(
         (item) =>
-          new Date(item.orderDate).toDateString() === today.toDateString(),
+          new Date(item.placedAt).toDateString() === today.toDateString(),
       );
     }
 
     if (storeDate === "Last 7 days") {
       const past = new Date();
       past.setDate(today.getDate() - 7);
-      result = result.filter((item) => new Date(item.orderDate) >= past);
+      result = result.filter((item) => new Date(item.placedAt) >= past);
     }
 
     if (storeDate === "Last 30 days") {
       const past = new Date();
       past.setDate(today.getDate() - 30);
-      result = result.filter((item) => new Date(item.orderDate) >= past);
+      result = result.filter((item) => new Date(item.placedAt) >= past);
     }
 
     if (storeDate === "Last 6 months") {
       const past = new Date();
       past.setMonth(today.getMonth() - 6);
-      result = result.filter((item) => new Date(item.orderDate) >= past);
+      result = result.filter((item) => new Date(item.placedAt) >= past);
     }
 
     /* 📅 CUSTOM RANGE */
     if (range?.from && range?.to && storeDate.includes("-")) {
       result = result.filter((item) => {
-        const d = new Date(item.orderDate);
+        const d = new Date(item.placedAt);
         return d >= range.from && d <= range.to;
       });
     }
@@ -183,11 +244,11 @@ const AllOrders = () => {
     }
 
     if (filterOne === "Order Value (Low-High)") {
-      result.sort((a, b) => a.orderValue - b.orderValue);
+      result.sort((a, b) => a.grandTotal - b.grandTotal);
     }
 
     if (filterOne === "Order Value (High-Low)") {
-      result.sort((a, b) => b.orderValue - a.orderValue);
+      result.sort((a, b) => b.grandTotal - a.grandTotal);
     }
 
     return result;
@@ -197,21 +258,11 @@ const AllOrders = () => {
     setPage(1);
   }, [debouncedValue, paymentstatus, filterOne]);
 
-  /* ================= PAGINATION ================= */
-  const total = filteredOrders.length;
-  const totalPages = Math.ceil(total / rowsPerPage);
-
-  const startIndex = (page - 1) * rowsPerPage;
-  const endIndex = Math.min(startIndex + rowsPerPage, total);
-
-  const paginatedOrders = filteredOrders.slice(startIndex, endIndex);
   // ======================== Pops ==================
 
   const [selectedOrderId, setSelectedOrderId] = useState(null);
 
-const selectOrder = ordersList.find(
-  (order) => order.orderId === selectedOrderId,
-);
+  const selectOrder = ordersList.find((order) => order._id === selectedOrderId);
 
   /////////////////////////////////////////////////////////////
 
@@ -221,14 +272,14 @@ const selectOrder = ordersList.find(
 
   // this is for timeline pop model
   const [openTimelineId, setOpenTimelineId] = useState(null);
-const selectTimeline = ordersList.find(
-  (order) => order.orderId === openTimelineId,
-);
+  const selectTimeline = ordersList.find(
+    (order) => order._id === openTimelineId,
+  );
 
   //  this is for invoice pop model
   const [openInvoiceId, setOpenInvoiceId] = useState(null);
   const selectInvoice = ordersList.find(
-    (orders) => orders.orderId === openInvoiceId,
+    (orders) => orders._id === openInvoiceId,
   );
 
   return (
@@ -251,15 +302,10 @@ const selectTimeline = ordersList.find(
         scrollbar-hide
       "
           >
-            {/* <OrderDetails
-              data={selectOrder}
-              setSelectedOrderId={() => setSelectedOrderId(null)}
-              handleAcceptedOrders={handleAcceptedOrders}
-            /> */}
             <OrderDetails
               data={selectOrder}
               setSelectedOrderId={() => setSelectedOrderId(null)}
-              onAcceptOrder={({ orderId, deliveryPartner }) => {}}
+              onAcceptOrder={handleAcceptOrder}
               onSaveTracking={({ orderId, trackingId, trackingUrl }) => {}}
             />
           </div>
@@ -583,9 +629,9 @@ const selectTimeline = ordersList.find(
             </tr>
           </thead>
           <tbody>
-            {paginatedOrders.map((order) => (
+            {filteredOrders.map((order) => (
               <tr
-                key={order.orderId}
+                key={order._id}
                 className="border-t hover:bg-gray-50 transition  cursor-pointer text-center"
               >
                 <td
@@ -594,10 +640,12 @@ const selectTimeline = ordersList.find(
                   // }}
                   className="px-4 py-3"
                 >
-                  {order.orderId}
+                  {order.orderNumber}
                 </td>
-                <td className="px-4 py-3">{order.quantity}</td>
-                <td className="px-4 py-3">₹{order.orderValue}</td>
+                <td className="px-4 py-3">
+                  {order.items?.reduce((acc, item) => acc + item.quantity, 0)}
+                </td>
+                <td className="px-4 py-3">₹{order.grandTotal}</td>
                 {/* <td
                   className={`px-4 py-3 font-medium text-xs ${
                     order.paymentType === "Prepaid"
@@ -609,52 +657,41 @@ const selectTimeline = ordersList.find(
                 >
                   {order.paymentType}
                 </td> */}
-                <td className="px-4 py-3 ">{order.orderDate}</td>
-
-                <td className=" py-4 ">
-                  <span
-                    className={`px-6 py-1 rounded-md text-xs font-medium
-                    ${
-                      order.orderStatus === "Delivered"
-                        ? "bg-green-100 text-green-600"
-                        : order.orderStatus === "Cancelled"
-                          ? "bg-[#EFEFEF] text-[#686868]"
-                          : order.orderStatus === "New Orders"
-                            ? "bg-[#FFF9E0] text-[#F8A14A]"
-                            : order.orderStatus === "Processing"
-                              ? "bg-[#E6D3FF] text-[#8A38F5]"
-                              : order.orderStatus === "Shipped"
-                                ? "bg-[#D5E5F5] text-[#1C3753]"
-                                : ""
-                    }
-                  `}
-                  >
-                    {order.orderStatus}
-                  </span>
+                <td className="px-4 py-3 ">
+                  {" "}
+                  {new Date(order.placedAt).toLocaleDateString()}
                 </td>
 
-                <div className="flex items-center justify-center">
-                  <td className="px-4 py-3  relative">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setOpenActionId(
-                          openActionId === order.orderId ? null : order.orderId,
-                        );
+                <td className="py-4">
+                  <span
+                    className={`px-6 py-1 rounded-md text-xs font-medium ${
+                      statusStyles[order.status] || ""
+                    }`}
+                  >
+                    {statusMap[order.status] || order.status}
+                  </span>
+                </td>
+                <td className="px-4 py-3 relative">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setOpenActionId(
+                        openActionId === order._id ? null : order._id,
+                      );
+                    }}
+                    className="p-2 rounded-full  flex items-center justify-center"
+                  >
+                    {/* <MoreVertical className="w-4 h-4 text-gray-600" /> */}
+                    <p
+                      className="hover:underline text-[#2C87E2]"
+                      onClick={() => {
+                        setSelectedOrderId(order._id);
                       }}
-                      className="p-2 rounded-full  flex items-center justify-center"
                     >
-                      {/* <MoreVertical className="w-4 h-4 text-gray-600" /> */}
-                      <p
-                        className="hover:underline text-[#2C87E2]"
-                        onClick={() => {
-                          setSelectedOrderId(order.orderId);
-                        }}
-                      >
-                        view
-                      </p>
-                    </button>
-                    {/* {openActionId === order.orderId && (
+                      view
+                    </p>
+                  </button>
+                  {/* {openActionId === order.orderId && (
                       <div
                         className="absolute mt-2 w-40 right-0 top-10
 bg-white border rounded-lg shadow-md z-50">
@@ -693,8 +730,7 @@ bg-white border rounded-lg shadow-md z-50">
                         })}
                       </div>
                     )} */}
-                  </td>
-                </div>
+                </td>
               </tr>
             ))}
           </tbody>
@@ -703,9 +739,9 @@ bg-white border rounded-lg shadow-md z-50">
         {/* Pagination on the bottom */}
         <div className="flex items-center justify-between px-6 py-3 text-sm text-gray-600">
           <div>
-            Showing <span className="font-medium">{startIndex + 1}</span>–
+            Showing <span className="font-medium">{startIndex}</span> –{" "}
             <span className="font-medium">{endIndex}</span> of{" "}
-            <span className="font-medium">{total}</span> results
+            <span className="font-medium">{totalItems}</span> results
           </div>
 
           <div className="flex items-center gap-2">
@@ -718,8 +754,8 @@ bg-white border rounded-lg shadow-md z-50">
             </button>
 
             <div className="px-4 py-1 border rounded">
-              Page {String(page).padStart(2, "0")} of{" "}
-              {String(totalPages).padStart(2, "0")}
+              Page <span className="font-medium">{page}</span> of{" "}
+              <span className="font-medium">{totalPages}</span>
             </div>
 
             <button
