@@ -54,6 +54,7 @@ router.patch(
   authorize("admin"),
   shipOrder,
 );
+
 router.patch(
   "/admin/:orderId/deliver",
   authenticate,

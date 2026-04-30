@@ -441,6 +441,41 @@ export const getAllCategoriesController = asyncHandler(async (req, res) => {
   });
 });
 
+// Add this to your category controller - for filter dropdowns (no pagination)
+export const getAllCategoriesForFilter = asyncHandler(async (req, res) => {
+  // Get all active categories with their subcategories
+  const categories = await Category.find({ isActive: true })
+    .select("_id name slug categoryImage")
+    .sort({ name: 1 }) // Sort alphabetically
+    .lean();
+
+  // Get subcategories for each category
+  const categoriesWithSubs = await Promise.all(
+    categories.map(async (category) => {
+      const subCategories = await SubCategory.find({ 
+        category: category._id,
+        isActive: true 
+      })
+        .select("_id name slug")
+        .sort({ name: 1 })
+        .lean();
+
+      return {
+        ...category,
+        subCategories,
+        subCategoryCount: subCategories.length
+      };
+    })
+  );
+
+  res.status(200).json({
+    success: true,
+    message: "Categories fetched successfully for filter",
+    data: categoriesWithSubs,
+    total: categoriesWithSubs.length
+  });
+});
+
 export const getCategoryDetailsController = asyncHandler(async (req, res) => {
   const { categoryIdOrSlug } = req.params;
 
