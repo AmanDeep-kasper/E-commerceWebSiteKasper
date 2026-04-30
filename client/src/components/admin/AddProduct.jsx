@@ -16,6 +16,8 @@ import { Link } from "react-router-dom";
 // import AddSubCategoryPopup from "./AddSubCategoryPopup";
 import DisplayVariantImg from "./DisplayVariantImg";
 import CategoriesPopOnClick from "../../pages/admin/CategoriesPopOnClick";
+import { LuAArrowDown, LuDelete } from "react-icons/lu";
+import { RiDeleteBin6Line } from "react-icons/ri";
 
 const AddProduct = () => {
   const fileInputRef = useRef(null);
@@ -109,9 +111,12 @@ const AddProduct = () => {
       ...emptyVariant(),
       variantSkuId: `${productSKU}-V-${randomNum}`,
       isNew: true,
+      isExisting: false, // Explicitly mark as not existing
     };
+
+    // For add mode, always add to formData.variants
+    // For edit mode, add to newVariants
     if (isEditing) {
-      // In edit mode, add to a seprate array or mark as 
       setNewVariants((prev) => [...prev, newVariant]);
     } else {
       setFormData((prev) => ({
@@ -120,29 +125,6 @@ const AddProduct = () => {
       }));
     }
   };
-
-  // const addVariantRow = () => {
-  //   const productSKU = formData.SKU?.trim();
-
-  //   if (!productSKU) {
-  //     toast.error("Generate Product SKU first!", {
-  //       position: "top-right",
-  //       autoClose: 2000,
-  //     });
-  //     return;
-  //   }
-
-  //   const randomNum = Math.floor(100 + Math.random() * 900);
-  //   const newVariant = {
-  //     ...emptyVariant(),
-  //     variantSkuId: `${productSKU}-V-${randomNum}`, // auto
-  //   };
-
-  //   setFormData((prev) => ({
-  //     ...prev,
-  //     variants: [...prev.variants, newVariant],
-  //   }));
-  // };
 
   // edit product added new here(akash)
   // const [isEditing, setIsEditing] = useState(false);
@@ -176,7 +158,7 @@ const AddProduct = () => {
 
         if (productData) {
           let categoryId = "";
-          if (productData.category) {
+          if (productData.category && productData.category !== "") {
             if (typeof productData.category === "object") {
               categoryId =
                 productData.category._id || productData.category.id || "";
@@ -184,15 +166,22 @@ const AddProduct = () => {
               categoryId = productData.category;
             }
           }
+          else {
+            categoryId = "";
+          }
 
           let subcategoryId = "";
-          if (productData.subcategory) {
+          if (productData.subcategory && productData.subcategory !== "") {
             if (typeof productData.subcategory === "object") {
               subcategoryId =
                 productData.subcategory._id || productData.subcategory.id || "";
             } else {
               subcategoryId = productData.subcategory;
             }
+          }
+          // If subcategory is empty string, keep it as empty string
+          else {
+            subcategoryId = "";
           }
 
           const mappedVariants = (productData.variants || []).map((variant) => ({
@@ -251,6 +240,7 @@ const AddProduct = () => {
 
     fetchProductForEdit();
   }, [id]);
+
 
   const handleButtonClick = () => {
     fileInputRef.current.click();
@@ -354,30 +344,91 @@ const AddProduct = () => {
   };
 
   //  Handle field change for a specific variant
+  // Handle field change for a specific variant
   const handleVariantChange = (index, field, value) => {
-    const isNewVariant = isEditing ? (index >= formData.variants.length) : false;
+    // For add mode, always update formData.variants directly
+    if (!isEditing) {
+      // ADD MODE - Update formData.variants
+      setFormData((prev) => {
+        const variants = [...prev.variants];
+        const v = { ...variants[index], [field]: value };
 
-    if (isNewVariant && isEditing) {
+        const mrp = Number(v.variantMrp) || 0;
+        const cost = Number(v.variantCostPrice) || 0;
+
+        // Auto-calculate selling price when discount changes
+        if (field === "variantDiscount") {
+          const discount = Number(value);
+          if (mrp > 0 && discount >= 0 && discount <= 100) {
+            const calculatedSellingPrice = (mrp * (1 - discount / 100)).toFixed(2);
+            v.variantSellingPrice = calculatedSellingPrice;
+            v.variantDiscount = discount.toFixed(2);
+          }
+        }
+
+        // Auto-calculate discount when selling price changes
+        else if (field === "variantSellingPrice") {
+          const selling = Number(value);
+          if (mrp > 0 && selling > 0 && selling <= mrp) {
+            const calculatedDiscount = (((mrp - selling) / mrp) * 100).toFixed(2);
+            v.variantDiscount = calculatedDiscount;
+          }
+        }
+
+        // Auto-calculate when MRP changes (recalculate discount if selling price exists)
+        else if (field === "variantMrp" && mrp > 0) {
+          const selling = Number(v.variantSellingPrice) || 0;
+          if (selling > 0 && selling <= mrp) {
+            const calculatedDiscount = (((mrp - selling) / mrp) * 100).toFixed(2);
+            v.variantDiscount = calculatedDiscount;
+          }
+        }
+
+        // Calculate profit
+        const selling = Number(v.variantSellingPrice) || 0;
+        if (selling > 0 && cost > 0) {
+          v.variantProfit = (selling - cost).toFixed(2);
+        } else {
+          v.variantProfit = "";
+        }
+
+        variants[index] = v;
+        return { ...prev, variants };
+      });
+      return;
+    }
+
+    // EDIT MODE logic below...
+    const isNewVariant = index >= formData.variants.length;
+
+    if (isNewVariant) {
+      // EDIT MODE - New variant in newVariants array
       const newVariantIndex = index - formData.variants.length;
       const updated = [...newVariants];
+
       updated[newVariantIndex] = {
         ...updated[newVariantIndex],
         [field]: value,
       };
 
-      const mrp = Number(field === "variantMrp" ? value : updated[newVariantIndex].variantMrp);
-      const discount = Number(field === "variantDiscount" ? value : updated[newVariantIndex].variantDiscount);
+      const currentVariant = updated[newVariantIndex];
+      const mrp = Number(currentVariant.variantMrp) || 0;
+      const discount = Number(currentVariant.variantDiscount) || 0;
+      const sellingPrice = Number(currentVariant.variantSellingPrice) || 0;
 
       if (field === "variantDiscount" && mrp > 0) {
-        updated[newVariantIndex].variantSellingPrice = (mrp * (1 - discount / 100)).toFixed(2);
+        const calculatedSellingPrice = (mrp * (1 - discount / 100)).toFixed(2);
+        updated[newVariantIndex].variantSellingPrice = calculatedSellingPrice;
       }
-      if (field === "variantSellingPrice" && mrp > 0) {
-        const selling = Number(value);
-        updated[newVariantIndex].variantDiscount = (((mrp - selling) / mrp) * 100).toFixed(2);
+
+      if (field === "variantSellingPrice" && mrp > 0 && sellingPrice > 0) {
+        const calculatedDiscount = (((mrp - sellingPrice) / mrp) * 100).toFixed(2);
+        updated[newVariantIndex].variantDiscount = calculatedDiscount;
       }
 
       setNewVariants(updated);
     } else {
+      // EDIT MODE - Existing variant
       setFormData((prev) => {
         const variants = [...prev.variants];
         const v = { ...variants[index], [field]: value };
@@ -418,7 +469,6 @@ const AddProduct = () => {
   ]);
 
   //  Handle image upload per variant
-  //  Handle image upload per variant
   const handleVariantImageChange = async (e, index) => {
     let files = Array.from(e.target.files);
     if (!files.length) return;
@@ -446,31 +496,22 @@ const AddProduct = () => {
 
       const uploadedImages = res.data.data;
 
-      // Get the variant at this index from allVariants
-      const variantAtIndex = allVariants[index];
-      const isNewVariantAtIndex = variantAtIndex?.isNew === true;
+      // For add mode: all variants are in formData.variants
+      // For edit mode: check if index is beyond original variants length
+      const isNewVariant = isEditing ? index >= formData.variants.length : false;
 
-      if (isNewVariantAtIndex) {
-        // Find the variant in newVariants by its unique ID
-        const variantId = variantAtIndex.variantId || variantAtIndex.variantSkuId;
-        const newVariantIndex = newVariants.findIndex(
-          v => v.variantId === variantId || v.variantSkuId === variantId
-        );
-
-        if (newVariantIndex !== -1) {
-          const updated = [...newVariants];
-          const existingImages = updated[newVariantIndex]?.variantImage || [];
-          updated[newVariantIndex] = {
-            ...updated[newVariantIndex],
-            variantImage: [...existingImages, ...uploadedImages].slice(0, 10),
-          };
-          setNewVariants(updated);
-        } else {
-          // console.error("New variant not found in newVariants array");
-          toast.error("Failed to find variant for image upload");
-        }
+      if (isNewVariant && isEditing) {
+        // EDIT MODE - New variant
+        const newVariantIndex = index - formData.variants.length;
+        const updated = [...newVariants];
+        const existingImages = updated[newVariantIndex]?.variantImage || [];
+        updated[newVariantIndex] = {
+          ...updated[newVariantIndex],
+          variantImage: [...existingImages, ...uploadedImages].slice(0, 10),
+        };
+        setNewVariants(updated);
       } else {
-        // Update existing variant in formData
+        // ADD MODE OR EDIT MODE EXISTING - Update formData.variants
         setFormData((prev) => {
           const updatedVariants = [...prev.variants];
           const existingImages = updatedVariants[index]?.variantImage || [];
@@ -500,42 +541,41 @@ const AddProduct = () => {
 
   //  Remove a specific image from a specific variant
   const removeVariantImage = (variantIndex, imgIndex) => {
-    setFormData((prev) => {
-      const updatedVariants = [...prev.variants];
+    // Determine if this is a new variant or existing
+    const isNewVariant = isEditing ? variantIndex >= formData.variants.length : false;
 
-      if (!updatedVariants[variantIndex]) return prev;
-
-      const updatedImages = [...updatedVariants[variantIndex].variantImage];
+    if (isNewVariant && isEditing) {
+      // Remove from newVariants
+      const newVariantIndex = variantIndex - formData.variants.length;
+      const updated = [...newVariants];
+      const updatedImages = [...updated[newVariantIndex].variantImage];
       updatedImages.splice(imgIndex, 1);
+      updated[newVariantIndex].variantImage = updatedImages;
+      setNewVariants(updated);
+    } else {
+      // Remove from formData variants
+      setFormData((prev) => {
+        const updatedVariants = [...prev.variants];
+        if (!updatedVariants[variantIndex]) return prev;
 
-      updatedVariants[variantIndex].variantImage = updatedImages;
+        const updatedImages = [...updatedVariants[variantIndex].variantImage];
+        updatedImages.splice(imgIndex, 1);
+        updatedVariants[variantIndex].variantImage = updatedImages;
+        return { ...prev, variants: updatedVariants };
+      });
+    }
 
-      return { ...prev, variants: updatedVariants };
-    });
-
+    // Update modal state
     setSelectedImages((prev) => {
       const newImages = prev.filter((_, i) => i !== imgIndex);
-
       if (newImages.length > 0) {
-        const nextIndex =
-          imgIndex < newImages.length ? imgIndex : newImages.length - 1;
-
+        const nextIndex = imgIndex < newImages.length ? imgIndex : newImages.length - 1;
         const img = newImages[nextIndex];
-
-        const nextImage =
-          typeof img === "string"
-            ? img
-            : img.url
-              ? img.url
-              : img.preview
-                ? img.preview
-                : "";
-
+        const nextImage = typeof img === "string" ? img : img.url || img.preview || "";
         setCurrentImage(nextImage);
       } else {
         setIsModalOpen(false);
       }
-
       return newImages;
     });
   };
@@ -561,11 +601,11 @@ const AddProduct = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  //   console.log("=== Submit Debug ===");
-  // console.log("isEditing:", isEditing);
-  // console.log("productId:", productId);
-  // console.log("isProductDraft:", isProductDraft);
-  // console.log("draftId:", draftId);
+    //   console.log("=== Submit Debug ===");
+    // console.log("isEditing:", isEditing);
+    // console.log("productId:", productId);
+    // console.log("isProductDraft:", isProductDraft);
+    // console.log("draftId:", draftId);
 
     if (!formData.productTittle.trim()) {
       toast.error("Product name is required");
@@ -901,72 +941,72 @@ const AddProduct = () => {
 
   const [isDraftEnabled, setIsDraftEnabled] = useState(true);
 
-const handleSaveDraft = async () => {
-  if (!formData.productTittle.trim()) {
-    toast.error("Please enter product name before saving draft");
-    return;
-  }
-
-  const allVariantsToSubmit = [...formData.variants, ...newVariants];
-
-  try {
-    const payload = {
-      productTittle: formData.productTittle,
-      description: formData.description,
-      category: formData.category,
-      subcategory: formData.subcategory,
-      variants: allVariantsToSubmit.map((v) => ({
-        variantColor: v.variantColor,
-        variantName: v.variantName,
-        variantWeight: v.variantWeight,
-        variantWeightUnit: v.variantWeightUnit,
-        variantSkuId: v.variantSkuId,
-        variantImage: v.variantImage || [],
-        variantMrp: Number(v.variantMrp) || 0,
-        variantCostPrice: Number(v.variantCostPrice) || 0,
-        variantSellingPrice: Number(v.variantSellingPrice) || 0,
-        variantGST: Number(v.variantGST) || 0,
-        variantDiscount: Number(v.variantDiscount) || 0,
-        variantAvailableStock: Number(v.variantAvailableStock) || 0,
-        variantLowStockAlertStock: Number(v.variantLowStockAlertStock) || 0,
-        isSelected: v.isSelected || false,
-      })),
-      action: "draft",
-    };
-
-    let response;
-    let savedDraftId = draftId;
-    
-    if (draftId) {
-      response = await axiosInstance.patch(
-        `/product/admin/update-product/${draftId}`,
-        payload
-      );
-      toast.success("Draft updated successfully!");
-      savedDraftId = draftId;
-      setNewVariants([]);
-    } else {
-      response = await axiosInstance.post("/product/admin/add-product", payload);
-      savedDraftId = response.data.data._id;
-      setDraftId(savedDraftId);
-      toast.success("Draft saved successfully!");
+  const handleSaveDraft = async () => {
+    if (!formData.productTittle.trim() && !formData.category) {
+      toast.error("Please enter product name and category before saving draft");
+      return;
     }
-    
-    // Store draft info in localStorage with the database ID
-    const draftWithInfo = {
-      ...formData,
-      _id: savedDraftId,
-      _lastSaved: new Date().toISOString()
-    };
-    localStorage.setItem("addProductDraft", JSON.stringify(draftWithInfo));
-    localStorage.setItem("addProductDraft_lastSaved", new Date().toISOString());
-    localStorage.setItem("addProductDraft_id", savedDraftId);
-    setHasDraft(true);
-  } catch (err) {
-    console.error("Draft save error:", err);
-    toast.error(err?.response?.data?.message || "Failed to save draft");
-  }
-};
+
+    const allVariantsToSubmit = [...formData.variants, ...newVariants];
+
+    try {
+      const payload = {
+        productTittle: formData.productTittle,
+        description: formData.description,
+        category: formData.category,
+        subcategory: formData.subcategory,
+        variants: allVariantsToSubmit.map((v) => ({
+          variantColor: v.variantColor,
+          variantName: v.variantName,
+          variantWeight: v.variantWeight,
+          variantWeightUnit: v.variantWeightUnit,
+          variantSkuId: v.variantSkuId,
+          variantImage: v.variantImage || [],
+          variantMrp: Number(v.variantMrp) || 0,
+          variantCostPrice: Number(v.variantCostPrice) || 0,
+          variantSellingPrice: Number(v.variantSellingPrice) || 0,
+          variantGST: Number(v.variantGST) || 0,
+          variantDiscount: Number(v.variantDiscount) || 0,
+          variantAvailableStock: Number(v.variantAvailableStock) || 0,
+          variantLowStockAlertStock: Number(v.variantLowStockAlertStock) || 0,
+          isSelected: v.isSelected || false,
+        })),
+        action: "draft",
+      };
+
+      let response;
+      let savedDraftId = draftId;
+
+      if (draftId) {
+        response = await axiosInstance.patch(
+          `/product/admin/update-product/${draftId}`,
+          payload
+        );
+        toast.success("Draft updated successfully!");
+        savedDraftId = draftId;
+        setNewVariants([]);
+      } else {
+        response = await axiosInstance.post("/product/admin/add-product", payload);
+        savedDraftId = response.data.data._id;
+        setDraftId(savedDraftId);
+        toast.success("Draft saved successfully!");
+      }
+
+      // Store draft info in localStorage with the database ID
+      const draftWithInfo = {
+        ...formData,
+        _id: savedDraftId,
+        _lastSaved: new Date().toISOString()
+      };
+      localStorage.setItem("addProductDraft", JSON.stringify(draftWithInfo));
+      localStorage.setItem("addProductDraft_lastSaved", new Date().toISOString());
+      localStorage.setItem("addProductDraft_id", savedDraftId);
+      setHasDraft(true);
+    } catch (err) {
+      console.error("Draft save error:", err);
+      toast.error(err?.response?.data?.message || "Failed to save draft");
+    }
+  };
 
   // useEffect(() => {
   //   const savedDraft = localStorage.getItem("addProductDraft");
@@ -984,12 +1024,12 @@ const handleSaveDraft = async () => {
   // }, []);
 
   useEffect(() => {
-  // If we have an ID in the URL and we're not editing, set editing mode
-  if (id && !isEditing) {
-    // This will trigger the fetchProductForEdit effect
-    // The component will re-render with isEditing=true
-  }
-}, [id]);
+    // If we have an ID in the URL and we're not editing, set editing mode
+    if (id && !isEditing) {
+      // This will trigger the fetchProductForEdit effect
+      // The component will re-render with isEditing=true
+    }
+  }, [id]);
   const [hasDraft, setHasDraft] = useState(false);
 
   useEffect(() => {
@@ -1001,36 +1041,36 @@ const handleSaveDraft = async () => {
   }, []);
 
 
-const handleRestoreDraft = () => {
-  const savedDraftId = localStorage.getItem("addProductDraft_id");
-  if (savedDraftId) {
-    // Navigate to the draft edit page
-    navigate(`/admin/add-product/${savedDraftId}`);
-    // Clear the localStorage draft after navigation to prevent confusion
-    // Don't clear immediately - let the edit page load first
-  } else {
-    const savedDraft = localStorage.getItem("addProductDraft");
-    if (savedDraft) {
-      try {
-        const parsedData = JSON.parse(savedDraft);
-        if (parsedData._id) {
-          navigate(`/admin/add-product/${parsedData._id}`);
-        } else {
-          // Fallback: restore to form
-          delete parsedData._lastSaved;
-          delete parsedData._id;
-          delete parsedData.draftId;
-          setFormData(parsedData);
-          toast.success("Draft restored! Continue editing.");
-          setHasDraft(false);
+  const handleRestoreDraft = () => {
+    const savedDraftId = localStorage.getItem("addProductDraft_id");
+    if (savedDraftId) {
+      // Navigate to the draft edit page
+      navigate(`/admin/add-product/${savedDraftId}`);
+      // Clear the localStorage draft after navigation to prevent confusion
+      // Don't clear immediately - let the edit page load first
+    } else {
+      const savedDraft = localStorage.getItem("addProductDraft");
+      if (savedDraft) {
+        try {
+          const parsedData = JSON.parse(savedDraft);
+          if (parsedData._id) {
+            navigate(`/admin/add-product/${parsedData._id}`);
+          } else {
+            // Fallback: restore to form
+            delete parsedData._lastSaved;
+            delete parsedData._id;
+            delete parsedData.draftId;
+            setFormData(parsedData);
+            toast.success("Draft restored! Continue editing.");
+            setHasDraft(false);
+          }
+        } catch (error) {
+          console.error("Error restoring draft:", error);
+          toast.error("Failed to restore draft");
         }
-      } catch (error) {
-        console.error("Error restoring draft:", error);
-        toast.error("Failed to restore draft");
       }
     }
-  }
-};
+  };
 
   // ////////////////////
 
@@ -1129,19 +1169,25 @@ const handleRestoreDraft = () => {
   };
 
   const openVariantImages = (variantIndex) => {
-    // const imgs = formData.variants[variantIndex]?.variantImage || [];
-    const variant = allVariants[variantIndex];
-    const imgs = variant.variantImage || [];
+    // Determine if this is a new variant or existing
+    const isNewVariant = isEditing ? variantIndex >= formData.variants.length : false;
+
+    let imgs = [];
+    if (isNewVariant && isEditing) {
+      const newVariantIndex = variantIndex - formData.variants.length;
+      imgs = newVariants[newVariantIndex]?.variantImage || [];
+    } else {
+      imgs = formData.variants[variantIndex]?.variantImage || [];
+    }
 
     setActiveVariantIndex(variantIndex);
     setSelectedImages(imgs);
 
-    const first =
-      imgs.length > 0
-        ? typeof imgs[0] === "string"
-          ? imgs[0]
-          : imgs[0].url || imgs[0].preview || ""
-        : "";
+    const first = imgs.length > 0
+      ? typeof imgs[0] === "string"
+        ? imgs[0]
+        : imgs[0].url || imgs[0].preview || ""
+      : "";
 
     setCurrentImage(first);
     setIsModalOpen(true);
@@ -1216,32 +1262,47 @@ const handleRestoreDraft = () => {
   const [subCategories, setSubCategories] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const fetchCategories = async () => {
-    try {
-      setLoading(true);
-      let allCategories = [];
-      let page = 1;
-      let totalPages = 1;
-      do {
-        const res = await axiosInstance.get(
-          `/category/admin/all-categories?page=${page}&limit=10`,
-        );
-        const data = res?.data?.category || [];
-        totalPages = res?.data?.pagination?.pages || 1;
-        allCategories = [...allCategories, ...data];
+  // const fetchCategories = async () => {
+  //   try {
+  //     setLoading(true);
+  //     let allCategories = [];
+  //     let page = 1;
+  //     let totalPages = 1;
+  //     do {
+  //       const res = await axiosInstance.get(`/category/admin/all-categories?page=${page}&limit=10`,);
+  //       const data = res?.data?.category || [];
+  //       totalPages = res?.data?.pagination?.pages || 1;
+  //       allCategories = [...allCategories, ...data];
 
-        page++;
-      } while (page <= totalPages);
-      setCategories(allCategories);
-      setSubCategories([]);
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to load categories");
-    } finally {
-      setLoading(false);
+  //       page++;
+  //     } while (page <= totalPages);
+  //     setCategories(allCategories);
+  //     setSubCategories([]);
+  //   } catch (error) {
+  //     console.error(error);
+  //     toast.error("Failed to load categories");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+  // Replace your existing fetchCategories function with this:
+const fetchCategories = async () => {
+  try {
+    setLoading(true);
+    // Use the new filter endpoint that returns ALL categories without pagination
+    const response = await axiosInstance.get('/category/admin/all-categories-filter');
+    
+    if (response.data?.success) {
+      setCategories(response.data.data || []);
     }
-  };
-
+  } catch (error) {
+    console.error(error);
+    toast.error("Failed to load categories");
+  } finally {
+    setLoading(false);
+  }
+};
   useEffect(() => {
     fetchCategories();
   }, [setCategories]);
@@ -1265,6 +1326,35 @@ const handleRestoreDraft = () => {
 
     loadSubcategories();
   }, [formData.category, categories]);
+    // Load subcategories when editing a product with a category
+  useEffect(() => {
+    const loadSubcategoriesForEdit = async () => {
+      if (isEditing && formData.category && categories.length > 0) {
+        const selectedCategory = categories.find(
+          (cat) => cat._id === formData.category
+        );
+        if (selectedCategory && selectedCategory.subCategories) {
+          setSubCategories(selectedCategory.subCategories);
+        }
+      }
+    };
+
+    loadSubcategoriesForEdit();
+  }, [isEditing, formData.category, categories]);
+
+  // Debug effect for add mode
+  useEffect(() => {
+    if (!isEditing) {
+      console.log("=== Add Mode Variants Debug ===");
+      formData.variants.forEach((v, i) => {
+        console.log(`Variant ${i}:`, {
+          mrp: v.variantMrp,
+          sellingPrice: v.variantSellingPrice,
+          discount: v.variantDiscount,
+        });
+      });
+    }
+  }, [formData.variants, isEditing]);
 
 
   if (loadingProduct) {
@@ -1328,32 +1418,32 @@ const handleRestoreDraft = () => {
           </div>
 
           <div className="flex items-center gap-4 px-2">
-           <button
-  type="button"
-  onClick={() => {
-    if (isEditing) {
-      navigate("/admin/products");
-    } else {
-      if (hasDraft) {
-        if (window.confirm("You have an unsaved draft. Are you sure you want to discard it?")) {
-          localStorage.removeItem("addProductDraft");
-          localStorage.removeItem("addProductDraft_lastSaved");
-          localStorage.removeItem("addProductDraft_id");
-          setFormData(createInitialState());
-          setHasDraft(false);
-          setNewVariants([]);
-          toast.info("Draft cleared");
-          navigate("/admin/products");
-        }
-      } else {
-        navigate("/admin/products");
-      }
-    }
-  }}
-  className="py-1 px-3 rounded border border-[#737373] text-[#737373] hover:bg-[#706f6f] hover:text-white bg-[#F6F8F9] font-medium"
->
-  Cancel
-</button>
+            <button
+              type="button"
+              onClick={() => {
+                if (isEditing) {
+                  navigate("/admin/products");
+                } else {
+                  if (hasDraft) {
+                    if (window.confirm("You have an unsaved draft. Are you sure you want to discard it?")) {
+                      localStorage.removeItem("addProductDraft");
+                      localStorage.removeItem("addProductDraft_lastSaved");
+                      localStorage.removeItem("addProductDraft_id");
+                      setFormData(createInitialState());
+                      setHasDraft(false);
+                      setNewVariants([]);
+                      toast.info("Draft cleared");
+                      navigate("/admin/products");
+                    }
+                  } else {
+                    navigate("/admin/products");
+                  }
+                }
+              }}
+              className="py-1 px-3 rounded border border-[#737373] text-[#737373] hover:bg-[#706f6f] hover:text-white bg-[#F6F8F9] font-medium"
+            >
+              Cancel
+            </button>
             {!isEditing && (
               <button
                 type="button"
@@ -1399,19 +1489,19 @@ const handleRestoreDraft = () => {
                 Resume Draft
               </button>
               <button
-  onClick={() => {
-    localStorage.removeItem("addProductDraft");
-    localStorage.removeItem("addProductDraft_lastSaved");
-    localStorage.removeItem("addProductDraft_id");
-    setHasDraft(false);
-    setFormData(createInitialState());
-    setNewVariants([]);
-    toast.info("Draft discarded. You can start a new product.");
-  }}
-  className="px-3 py-1.5 text-sm bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors"
->
-  Discard
-</button>
+                onClick={() => {
+                  localStorage.removeItem("addProductDraft");
+                  localStorage.removeItem("addProductDraft_lastSaved");
+                  localStorage.removeItem("addProductDraft_id");
+                  setHasDraft(false);
+                  setFormData(createInitialState());
+                  setNewVariants([]);
+                  toast.info("Draft discarded. You can start a new product.");
+                }}
+                className="px-3 py-1.5 text-sm bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors"
+              >
+                Discard
+              </button>
             </div>
           </div>
         )}
@@ -1528,7 +1618,7 @@ const handleRestoreDraft = () => {
                   </h2>
 
                   <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-2 lg:grid-cols-1 gap-6">
-                    <div>
+                    {/* <div>
                       <label className="block text-black text-[14px] mb-2">
                         Category <span className="text-[#D53B35]">*</span>
                       </label>
@@ -1536,9 +1626,9 @@ const handleRestoreDraft = () => {
                       <div className="relative w-full">
                         {isEditing ? (
                           <div className="w-full h-[48px] px-4 rounded-xl bg-gray-100 text-gray-600 flex items-center border border-gray-200">
-                           {categories.find(
-      (cat) => cat._id === formData.category,
-    )?.name || "Not selected"}
+                            {categories.find(
+                              (cat) => cat._id === formData.category,
+                            )?.name || "Not selected"}
                           </div>
                         ) : (
                           <select
@@ -1568,7 +1658,85 @@ const handleRestoreDraft = () => {
                             {categories.map((cat) => (
                               <option key={cat._id} value={cat._id} className="bg-white">
                                 {cat.name}
-                                {/* {console.log(cat.name)} */}
+                                
+                              </option>
+                            ))}
+                          </select>
+                        )}
+
+                        <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center">
+                          <svg
+                            className="w-4 h-4 text-gray-500"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            viewBox="0 0 24 24"
+                          >
+                            <path d="M6 9l6 6 6-6" />
+                          </svg>
+                        </div>
+                      </div>
+                    </div> */}
+                    <div>
+                      <label className="block text-black text-[14px] mb-2">
+                        Category <span className="text-[#D53B35]">*</span>
+                      </label>
+
+                      <div className="relative w-full">
+                        {isEditing ? (
+                          <select
+                            name="category"
+                            value={formData.category || ""}
+                            onChange={(e) => {
+                              const selectedCategoryId = e.target.value;
+
+                              const selectedCategory = categories.find(
+                                (cat) => cat._id === selectedCategoryId,
+                              );
+
+                              setFormData((prev) => ({
+                                ...prev,
+                                category: selectedCategoryId,
+                                subcategory: "", // Reset subcategory when category changes
+                              }));
+
+                              setSubCategories(selectedCategory?.subCategories || []);
+                            }}
+                            className="w-full h-[48px] px-4 pr-10 rounded-xl bg-[#F8FBFC] border border-[#DEDEDE] text-[#6B7280] text-sm appearance-none outline-none focus:ring-2 focus:ring-[#1C3753]"
+                          >
+                            <option value="">Select category</option>
+                            {categories.map((cat) => (
+                              <option key={cat._id} value={cat._id} className="bg-white">
+                                {cat.name}
+                              </option>
+                            ))}
+                          </select>
+                        ) : (
+                          // Non-edit mode display (keep as is)
+                          <select
+                            name="category"
+                            value={formData.category}
+                            onChange={(e) => {
+                              const selectedCategoryId = e.target.value;
+
+                              const selectedCategory = categories.find(
+                                (cat) => cat._id === selectedCategoryId,
+                              );
+
+                              setFormData((prev) => ({
+                                ...prev,
+                                category: selectedCategoryId,
+                                subcategory: "",
+                              }));
+
+                              setSubCategories(selectedCategory?.subCategories || []);
+                            }}
+                            className="w-full h-[48px] px-4 pr-10 rounded-xl bg-[#F8FBFC] border border-[#DEDEDE] text-[#6B7280] text-sm appearance-none outline-none focus:ring-2 focus:ring-[#1C3753]"
+                          >
+                            <option value="">Select category</option>
+                            {categories.map((cat) => (
+                              <option key={cat._id} value={cat._id} className="bg-white">
+                                {cat.name}
                               </option>
                             ))}
                           </select>
@@ -1587,20 +1755,20 @@ const handleRestoreDraft = () => {
                         </div>
                       </div>
                     </div>
-                    <div>
+                    {/* <div>
                       <label className="block text-black text-[14px] mb-2">
                         Sub-Category
                       </label>
 
                       <div className="relative w-full">
-                       {isEditing ? (
-  <div className="w-full h-[48px] px-4 rounded-xl bg-gray-100 text-gray-600 flex items-center border border-gray-200">
-    {subCategories.find(sub => sub._id === formData.subcategory)?.name || "Not selected"}
+                        {isEditing ? (
+                          <div className="w-full h-[48px] px-4 rounded-xl bg-gray-100 text-gray-600 flex items-center border border-gray-200">
+                            {subCategories.find(sub => sub._id === formData.subcategory)?.name || "Not selected"}
                           </div>
                         ) : (
                           <select
                             name="subcategory"
-                            value={formData.subcategory}
+                            value={formData.subcategory || ""}
                             onChange={(e) => {
                               const selectedSubCategoryId = e.target.value;
 
@@ -1653,7 +1821,98 @@ const handleRestoreDraft = () => {
                           </svg>
                         </div>
                       </div>
+                    </div> */}
+                    <div>
+                      <label className="block text-black text-[14px] mb-2">
+                        Sub-Category
+                      </label>
+
+                      <div className="relative w-full">
+                        {isEditing ? (
+                          <select
+                            name="subcategory"
+                            value={formData.subcategory || ""}
+                            onChange={(e) => {
+                              const selectedSubCategoryId = e.target.value;
+
+                              if (selectedSubCategoryId === "__add_subcategory__") {
+                                if (!formData.category) {
+                                  toast.error("Select category first!");
+                                  return;
+                                }
+                                setShowSubCategoryModal(true);
+                                return;
+                              }
+
+                              setFormData((prev) => ({
+                                ...prev,
+                                subcategory: selectedSubCategoryId,
+                              }));
+                            }}
+                            className="w-full h-[48px] px-4 pr-10 rounded-xl bg-[#F8FBFC] border border-[#DEDEDE] text-[#6B7280] text-sm appearance-none outline-none focus:ring-2 focus:ring-[#1C3753]"
+                          >
+                            <option value="">Select sub-category</option>
+                            {subCategories.map((sub) => (
+                              <option key={sub._id} value={sub._id} className="bg-white">
+                                {sub.name}
+                              </option>
+                            ))}
+                          </select>
+                        ) : (
+                          // Non-edit mode select (keep as is)
+                          <select
+                            name="subcategory"
+                            value={formData.subcategory}
+                            onChange={(e) => {
+                              const selectedSubCategoryId = e.target.value;
+
+                              if (selectedSubCategoryId === "__add_subcategory__") {
+                                if (!formData.category) {
+                                  toast.error("Select category first!");
+                                  setFormData((prev) => ({
+                                    ...prev,
+                                    subcategory: "",
+                                  }));
+                                  return;
+                                }
+                                setShowSubCategoryModal(true);
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  subcategory: "",
+                                }));
+                                return;
+                              }
+
+                              setFormData((prev) => ({
+                                ...prev,
+                                subcategory: selectedSubCategoryId,
+                              }));
+                            }}
+                            className="w-full h-[48px] px-4 pr-10 rounded-xl bg-[#F8FBFC] border border-[#DEDEDE] text-[#6B7280] text-sm appearance-none outline-none focus:ring-2 focus:ring-[#1C3753]"
+                          >
+                            <option value="">Select sub-category</option>
+                            {subCategories.map((sub) => (
+                              <option key={sub._id} value={sub._id} className="bg-white">
+                                {sub.name}
+                              </option>
+                            ))}
+                          </select>
+                        )}
+
+                        <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center">
+                          <svg
+                            className="w-4 h-4 text-gray-500"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            viewBox="0 0 24 24"
+                          >
+                            <path d="M6 9l6 6 6-6" />
+                          </svg>
+                        </div>
+                      </div>
                     </div>
+
                     {!isEditing && (
                       <div className="flex flex-col items-start gap-1">
                         <button
@@ -1715,6 +1974,7 @@ const handleRestoreDraft = () => {
                             }
                           />
                         </th> */}
+                        <th></th>
                         <th className="px-3 py-2 text-left font-medium">
                           Color
                         </th>
@@ -1754,20 +2014,53 @@ const handleRestoreDraft = () => {
                       {allVariants.map((variant, index) => {
                         const isExisting = variant.isExisting === true;
                         const isNewVariant = variant.isNew === true;
+                        const isAddModeVariant = !isEditing && index > 0;
+                        const isReadOnly = isExisting && !isProductDraft;
                         const actualIndex = index;
+
+                        // dont show delete button for first variant(keep at least one variant)
+                        const canDelete = allVariants.length > 1;
                         return (
                           <tr
                             key={variant.variantSkuId || index}
-                            className="hover:bg-gray-50 border-b"
+                            className="hover:bg-gray-50 border-b-group"
                           >
-                            {/* Checkbox */}
-                            {/* <td className="px-3 py-2">
-                            <input
-                              type="checkbox"
-                              checked={!!variant.isSelected}
-                              onChange={() => toggleVariantSelect(index)}
-                            />
-                          </td> */}
+
+                            <td className="px-3 py-2">
+                              {canDelete && (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+
+                                    if (isEditing && (index >= formData.variants.length)) {
+                                      // Delete from newVariants (edit mode)
+                                      const newVariantIndex = index - formData.variants.length;
+                                      const updated = [...newVariants];
+                                      updated.splice(newVariantIndex, 1);
+                                      setNewVariants(updated);
+                                    } else {
+                                      // Delete from formData.variants (add mode or existing variant)
+                                      setFormData((prev) => {
+                                        const variants = [...prev.variants];
+                                        variants.splice(index, 1);
+                                        // Ensure at least one variant exists
+                                        if (variants.length === 0) {
+                                          variants.push(emptyVariant());
+                                        }
+                                        return { ...prev, variants };
+                                      });
+                                    }
+                                    toast.success("Variant deleted");
+
+                                  }}
+                                  className="delete-btn transition-all duration-200
+                 text-gray-400 hover:text-red-600 p-1 rounded-full 
+                 hover:bg-red-50 focus:outline-none"
+                                >
+                                  <RiDeleteBin6Line className="w-4 h-4" style={{ color: "red" }} />
+                                </button>
+                              )}
+                            </td>
 
                             <td className="px-3 py-1">
                               {(isExisting && !isProductDraft) ? (
@@ -2002,9 +2295,17 @@ const handleRestoreDraft = () => {
                                           />
                                         </div>
                                         <span className="text-sm text-[#1C3753]">
-                                          +{variant.variantImage.length} Image{variant.variantImage.length !== 1 ? "s" : ""}
+                                          {variant.variantImage.length} Image{variant.variantImage.length !== 1 ? "s" : ""}
                                         </span>
                                       </button>
+                                      {/* Add re-upload button for new variants */}
+                                      {/* <button
+            type="button"
+            onClick={() => triggerVariantUpload(actualIndex)}
+            className="text-xs text-blue-500 underline"
+          >
+            Re-upload
+          </button> */}
                                     </div>
                                   )}
 
@@ -2024,14 +2325,8 @@ const handleRestoreDraft = () => {
                               <input
                                 type="number"
                                 value={variant.variantMrp || ""}
-                                onChange={(e) =>
-                                  handleVariantChange(
-                                    index,
-                                    "variantMrp",
-                                    e.target.value,
-                                  )
-                                }
-                                className=" rounded border px-2 py-1 placeholder:text-[#6B6B6B]"
+                                onChange={(e) => handleVariantChange(actualIndex, "variantMrp", e.target.value)}
+                                className="rounded border px-2 py-1 placeholder:text-[#6B6B6B]"
                                 placeholder="Enter MRP"
                               />
                             </td>
@@ -2056,20 +2351,8 @@ const handleRestoreDraft = () => {
                               <input
                                 type="number"
                                 value={variant.variantSellingPrice || ""}
-                                onChange={(e) => {
-                                  if (isNewVariant) {
-                                    const updated = [...newVariants];
-                                    updated[actualIndex - formData.variants.length] = {
-                                      ...updated[actualIndex - formData.variants.length],
-                                      variantSellingPrice: e.target.value
-                                    };
-                                    setNewVariants(updated);
-                                  } else {
-                                    handleVariantChange(actualIndex, "variantSellingPrice", e.target.value);
-                                  }
-                                }}
-
-                                className=" rounded border px-2 py-1 placeholder:text-[#6B6B6B]"
+                                onChange={(e) => handleVariantChange(actualIndex, "variantSellingPrice", e.target.value)}
+                                className="rounded border px-2 py-1 placeholder:text-[#6B6B6B]"
                                 placeholder="Enter Selling Price"
                               />
                             </td>
@@ -2094,18 +2377,7 @@ const handleRestoreDraft = () => {
                                 <input
                                   type="number"
                                   value={variant.variantDiscount || ""}
-                                  onChange={(e) => {
-                                    if (isNewVariant) {
-                                      const updated = [...newVariants];
-                                      updated[actualIndex - formData.variants.length] = {
-                                        ...updated[actualIndex - formData.variants.length],
-                                        variantDiscount: e.target.value
-                                      };
-                                      setNewVariants(updated);
-                                    } else {
-                                      handleVariantChange(actualIndex, "variantDiscount", e.target.value);
-                                    }
-                                  }}
+                                  onChange={(e) => handleVariantChange(actualIndex, "variantDiscount", e.target.value)}
                                   placeholder="Discount"
                                   className="placeholder:text-[#6B6B6B] bg-white w-20"
                                 />

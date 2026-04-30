@@ -191,9 +191,22 @@ export const adminGetAllProducts = asyncHandler(async (req, res) => {
   const filter = {};
 
   // ✅ STATUS FILTER
-  if (status === "active") filter.isActive = true;
-  if (status === "inactive") filter.isActive = false;
-  if (status === "draft") filter.isDraft = true;
+  if (status === "active") {
+    filter.isActive = true;
+    filter.isDraft = { $ne: true }; // Exclude drafts from active
+  } 
+  else if (status === "inactive") {
+    filter.isActive = false;
+    filter.isDraft = { $ne: true }; // Exclude drafts from inactive
+  } 
+  else if (status === "draft") {
+    filter.isDraft = true;
+  }
+    // If no status filter, show all products (including drafts? usually you want to exclude drafts)
+  // Default: exclude drafts unless specifically requested
+  else {
+    filter.isDraft = { $ne: true };
+  }
 
   // 🔍 SEARCH (name, slug, sku)
   if (search) {
@@ -205,13 +218,34 @@ export const adminGetAllProducts = asyncHandler(async (req, res) => {
   }
 
   // ✅ CATEGORY FILTER (by category name)
-  let categoryFilter = {};
+  // let categoryFilter = {};
+  // if (category) {
+  //   const categoryDoc = await Category.findOne({
+  //     name: { $regex: category, $options: "i" },
+  //   });
+  //   if (categoryDoc) {
+  //     filter.category = categoryDoc._id;
+  //   }
+  // }
+  // ✅ CATEGORY FILTER - IMPROVED (handles both ID and name, single or multiple)
   if (category) {
-    const categoryDoc = await Category.findOne({
-      name: { $regex: category, $options: "i" },
-    });
-    if (categoryDoc) {
-      filter.category = categoryDoc._id;
+    // Split by comma if multiple categories
+    const categoryIds = category.split(',');
+    
+    // Check if all are valid ObjectIds
+    const allValidIds = categoryIds.every(id => mongoose.Types.ObjectId.isValid(id));
+    
+    if (allValidIds && categoryIds.length > 0) {
+      // Filter by multiple category IDs
+      filter.category = { $in: categoryIds };
+    } else if (categoryIds.length === 1 && !allValidIds) {
+      // Single category by name (for backward compatibility)
+      const categoryDoc = await Category.findOne({
+        name: { $regex: category, $options: "i" },
+      });
+      if (categoryDoc) {
+        filter.category = categoryDoc._id;
+      }
     }
   }
 
@@ -252,10 +286,12 @@ export const adminGetAllProducts = asyncHandler(async (req, res) => {
     Product.countDocuments(filter),
   ]);
 
+     // ✅ STATS COUNTS - independent counts for stats display
+  // These should count ALL products regardless of category/search filter
   const [activeCount, inactiveCount, draftCount] = await Promise.all([
-    Product.countDocuments({ ...filter, isActive: true }),
-    Product.countDocuments({ ...filter, isActive: false }),
-    Product.countDocuments({ ...filter, isDraft: true }),
+    Product.countDocuments({ isActive: true, isDraft: { $ne: true } }),
+    Product.countDocuments({ isActive: false, isDraft: { $ne: true } }),
+    Product.countDocuments({ isDraft: true }),
   ]);
 
   // ✅ PROCESS DATA (same structure as userGetAllProducts)
