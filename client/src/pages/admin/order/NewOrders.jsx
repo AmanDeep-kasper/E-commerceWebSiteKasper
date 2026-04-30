@@ -66,11 +66,6 @@ const NewOrders = () => {
     }
   };
 
-  // useEffect(() => {
-  //   if (!apiStatus) return;
-  //   handleOrderList();
-  // }, [page, apiStatus]);
-
   const columns = [
     "Order ID",
     "Quantity",
@@ -114,24 +109,24 @@ const NewOrders = () => {
       );
     }
 
-    if (paymentstatus !== "Payment Type") {
-      result = result.filter((item) => item.paymentType === paymentstatus);
-    }
+    // if (paymentstatus !== "Payment Type") {
+    //   result = result.filter((item) => item.paymentType === paymentstatus);
+    // }
 
     if (filterOne === "Latest Order Date") {
-      result.sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate));
+      result.sort((a, b) => new Date(b.placedAt) - new Date(a.placedAt));
     }
 
     if (filterOne === "Oldest Order Date") {
-      result.sort((a, b) => new Date(a.orderDate) - new Date(b.orderDate));
+      result.sort((a, b) => new Date(a.placedAt) - new Date(b.placedAt));
     }
 
     if (filterOne === "Order Value (Low-High)") {
-      result.sort((a, b) => a.orderValue - b.orderValue);
+      result.sort((a, b) => a.grandTotal - b.grandTotal);
     }
 
     if (filterOne === "Order Value (High-Low)") {
-      result.sort((a, b) => b.orderValue - a.orderValue);
+      result.sort((a, b) => b.grandTotal - a.grandTotal);
     }
 
     return result;
