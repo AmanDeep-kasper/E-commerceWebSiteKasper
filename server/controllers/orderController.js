@@ -18,7 +18,7 @@ import razorpay, {
 import mongoose from "mongoose";
 import { createInvoiceFromOrder } from "../service/invoiceService.js";
 import { generateInvoicePDF } from "../service/generateInvoice.js";
-import { uploadToCloudinary } from "../utils/uploader.js";
+import { uploadInvoicePDF, uploadToCloudinary } from "../utils/uploader.js";
 
 // Helper function
 const calculateShippingCharge = ({
@@ -338,11 +338,324 @@ export const checkout = asyncHandler(async (req, res) => {
   });
 });
 
+// export const verifyPayment = asyncHandler(async (req, res) => {
+//   const userId = req.user?.userId;
+//   const { razorpayOrderId, razorpayPaymentId, razorpaySignature } = req.body;
+
+//   const rewardConfig = await Reward.findOne({ isActive: true }).lean();
+
+//   // VERIFY SIGNATURE
+//   const isValid = verifyPaymentSignature({
+//     razorpayOrderId,
+//     razorpayPaymentId,
+//     razorpaySignature,
+//   });
+
+//   if (!isValid) {
+//     throw AppError.badRequest("Invalid signature", "INVALID_SIGNATURE");
+//   }
+
+//   // FETCH FROM RAZORPAY
+//   let razorpayPayment;
+
+//   try {
+//     razorpayPayment = await razorpay.payments.fetch(razorpayPaymentId);
+//   } catch (err) {
+//     throw AppError.badRequest(
+//       err?.error?.description || "Failed to fetch payment",
+//       "RAZORPAY_FETCH_FAILED",
+//     );
+//   }
+
+//   // VALIDATE PAYMENT
+//   if (razorpayPayment.status !== "captured") {
+//     throw AppError.badRequest("Payment not captured", "PAYMENT_NOT_CAPTURED");
+//   }
+
+//   if (razorpayPayment.order_id !== razorpayOrderId) {
+//     throw AppError.badRequest("Order mismatch", "ORDER_MISMATCH");
+//   }
+
+//   // FIND PAYMENT (IMPORTANT FIX)
+//   const payment = await Payment.findOne({
+//     razorpayOrderId,
+//   });
+
+//   if (!payment) {
+//     throw AppError.notFound("Payment not found", "PAYMENT_NOT_FOUND");
+//   }
+
+//   // ✅ Idempotency check
+//   if (payment.status === "captured") {
+//     return res.json({
+//       success: true,
+//       message: "Payment already verified",
+//       data: { orderId: payment.order },
+//     });
+//   }
+
+//   // VALIDATE AMOUNT
+//   if (razorpayPayment.amount !== payment.amount * 100) {
+//     throw AppError.badRequest("Amount mismatch", "AMOUNT_MISMATCH");
+//   }
+
+//   const order = await Order.findById(payment.order);
+
+//   if (!order) {
+//     throw AppError.notFound("Order not found", "ORDER_NOT_FOUND");
+//   }
+
+//   // START TRANSACTION
+//   const session = await mongoose.startSession();
+//   session.startTransaction();
+
+//   try {
+//     // PAYMENT UPDATE
+//     payment.status = "captured";
+//     payment.razorpayPaymentId = razorpayPaymentId;
+//     payment.razorpaySignature = razorpaySignature;
+//     payment.isVerified = true;
+//     payment.capturedAt = new Date();
+
+//     payment.method = razorpayPayment.method;
+//     payment.bank = razorpayPayment.bank || null;
+//     payment.wallet = razorpayPayment.wallet || null;
+//     payment.vpa = razorpayPayment.vpa || null;
+
+//     payment.card = {
+//       last4: razorpayPayment.card?.last4 || null,
+//       network: razorpayPayment.card?.network || null,
+//       issuer: razorpayPayment.card?.issuer || null,
+//     };
+
+//     payment.razorpayRawResponse = razorpayPayment;
+
+//     await payment.save({ session });
+
+//     // ORDER UPDATE
+//     order.paymentStatus = "paid";
+//     order.status = "placed";
+//     order.confirmedAt = new Date();
+
+//     await order.save({ session });
+
+//     // STOCK UPDATE (CRITICAL)
+//     for (const item of order.items) {
+//       const result = await Product.updateOne(
+//         {
+//           _id: item.product,
+//           "variants._id": item.variantId,
+//           "variants.variantAvailableStock": { $gte: item.quantity },
+//         },
+//         {
+//           $inc: {
+//             "variants.$.variantAvailableStock": -item.quantity,
+//             "stats.totalSold": item.quantity,
+//           },
+//         },
+//         { session },
+//       );
+
+//       if (result.modifiedCount === 0) {
+//         throw AppError.badRequest(
+//           `Insufficient stock for product ${item.product}`,
+//           "OUT_OF_STOCK",
+//         );
+//       }
+//     }
+
+//     // USER UPDATE (ATOMIC)
+//     let used = order.reward?.usedPoints || 0;
+//     const earned = order.reward?.earnedPoints || 0;
+
+//     if (used > 0) {
+//       let remainingToUse = used;
+
+//       const ledgerEntries = await RewardLedger.find({
+//         user: userId,
+//         type: "earn",
+//         remainingPoints: { $gt: 0 },
+//         expiresAt: { $gt: new Date() },
+//       })
+//         .sort({ createdAt: 1 })
+//         .session(session);
+
+//       for (const entry of ledgerEntries) {
+//         if (remainingToUse <= 0) break;
+
+//         const deduct = Math.min(entry.remainingPoints, remainingToUse);
+
+//         entry.remainingPoints -= deduct;
+//         remainingToUse -= deduct;
+
+//         await entry.save({ session });
+//       }
+
+//       // Create redeem log
+//       await RewardLedger.create(
+//         [
+//           {
+//             user: userId,
+//             type: "redeem",
+//             points: used,
+//             orderId: order._id,
+//           },
+//         ],
+//         { session },
+//       );
+
+//       // Update user points
+//       await User.updateOne(
+//         { _id: userId },
+//         {
+//           $inc: {
+//             points: -used,
+//           },
+//         },
+//         { session },
+//       );
+//     }
+
+//     if (earned > 0 && rewardConfig) {
+//       const expiresAt = new Date();
+//       expiresAt.setDate(expiresAt.getDate() + rewardConfig.validity);
+
+//       await RewardLedger.create(
+//         [
+//           {
+//             user: userId,
+//             type: "earn",
+//             points: earned,
+//             remainingPoints: earned,
+//             orderId: order._id,
+//             expiresAt,
+//           },
+//         ],
+//         { session },
+//       );
+
+//       await User.updateOne(
+//         { _id: userId },
+//         {
+//           $inc: {
+//             points: earned,
+//           },
+//         },
+//         { session },
+//       );
+//     }
+
+//     await User.updateOne(
+//       { _id: userId },
+//       {
+//         $inc: {
+//           totalOrders: 1,
+//           totalSpend: order.grandTotal,
+//         },
+//         $set: {
+//           lastOrderAt: new Date(),
+//         },
+//       },
+//       { session },
+//     );
+
+//     // CART UPDATE
+//     await Cart.updateOne(
+//       { userId, status: "active" },
+//       { status: "checked_out" },
+//       { session },
+//     );
+
+//     await session.commitTransaction();
+//     session.endSession();
+
+//     //  CREATE INVOICE
+//     let invoice = null;
+
+//     try {
+//       invoice = await createInvoiceFromOrder(order._id);
+
+//       const pdfBuffer = await generateInvoicePDF(invoice);
+
+//       // ← Puppeteer kabhi kabhi Uint8Array return karta hai, Buffer nahi
+//       const safeBuffer = Buffer.isBuffer(pdfBuffer)
+//         ? pdfBuffer
+//         : Buffer.from(pdfBuffer);
+
+//       if (safeBuffer.length < 1000) {
+//         throw new Error(`PDF buffer too small: ${safeBuffer.length} bytes`);
+//       }
+
+//       const uploadRes = await uploadInvoicePDF(
+//         pdfBuffer,
+//         invoice.invoiceNumber,
+//       );
+
+//       invoice.pdf = {
+//         publicId: uploadRes.publicId,
+//         url: uploadRes.url,
+//       };
+
+//       await invoice.save();
+
+//       // Update order with invoice reference
+//       order.invoice = {
+//         invoiceId: invoice._id,
+//         invoiceNumber: invoice.invoiceNumber,
+//         invoicePdf: {
+//           publicId: uploadRes.publicId,
+//           url: uploadRes.url,
+//         },
+//       };
+//       await order.save();
+//     } catch (error) {
+//       console.error("Invoice generation failed:", error.message);
+//     }
+
+//     // RESPONSE
+//     res.status(200).json({
+//       success: true,
+//       message: "Payment verified successfully",
+//       data: {
+//         orderId: order.orderNumber,
+//         invoice: invoice
+//           ? {
+//               id: invoice._id,
+//               invoiceNumber: invoice.invoiceNumber,
+//               pdfUrl: uploadRes.downloadUrl || null,
+//             }
+//           : null,
+//         shippingAddress: order.shippingAddress,
+//         placedAt: order.placedAt,
+//         paymentStatus: order.paymentStatus,
+//         paymentMethod: order.paymentMethod,
+//         items: order.items,
+//         reward: order.reward,
+//         orderSummary: {
+//           mrpTotal: order.mrpTotal,
+//           totalDiscount: order.totalDiscount,
+//           subtotal: order.subtotal,
+//           totalGST: order.totalGST,
+//           shippingCharge: order.shippingCharge,
+//           platformFee: order.platformFee,
+//           discount: order.discount,
+//           grandTotal: order.grandTotal,
+//         },
+//       },
+//     });
+//   } catch (err) {
+//     await session.abortTransaction();
+//     session.endSession();
+//     throw err;
+//   }
+// });
+
 export const verifyPayment = asyncHandler(async (req, res) => {
   const userId = req.user?.userId;
   const { razorpayOrderId, razorpayPaymentId, razorpaySignature } = req.body;
 
-  const rewardConfig = await Reward.findOne({ isActive: true }).lean();
+  const rewardConfig =
+    (await Reward.findOne({ isActive: true }).lean()) || null;
 
   // VERIFY SIGNATURE
   const isValid = verifyPaymentSignature({
@@ -357,7 +670,6 @@ export const verifyPayment = asyncHandler(async (req, res) => {
 
   // FETCH FROM RAZORPAY
   let razorpayPayment;
-
   try {
     razorpayPayment = await razorpay.payments.fetch(razorpayPaymentId);
   } catch (err) {
@@ -367,7 +679,6 @@ export const verifyPayment = asyncHandler(async (req, res) => {
     );
   }
 
-  // VALIDATE PAYMENT
   if (razorpayPayment.status !== "captured") {
     throw AppError.badRequest("Payment not captured", "PAYMENT_NOT_CAPTURED");
   }
@@ -376,16 +687,12 @@ export const verifyPayment = asyncHandler(async (req, res) => {
     throw AppError.badRequest("Order mismatch", "ORDER_MISMATCH");
   }
 
-  // FIND PAYMENT (IMPORTANT FIX)
-  const payment = await Payment.findOne({
-    razorpayOrderId,
-  });
-
+  const payment = await Payment.findOne({ razorpayOrderId });
   if (!payment) {
     throw AppError.notFound("Payment not found", "PAYMENT_NOT_FOUND");
   }
 
-  // ✅ Idempotency check
+  // Idempotency check
   if (payment.status === "captured") {
     return res.json({
       success: true,
@@ -394,13 +701,11 @@ export const verifyPayment = asyncHandler(async (req, res) => {
     });
   }
 
-  // VALIDATE AMOUNT
   if (razorpayPayment.amount !== payment.amount * 100) {
     throw AppError.badRequest("Amount mismatch", "AMOUNT_MISMATCH");
   }
 
   const order = await Order.findById(payment.order);
-
   if (!order) {
     throw AppError.notFound("Order not found", "ORDER_NOT_FOUND");
   }
@@ -408,6 +713,9 @@ export const verifyPayment = asyncHandler(async (req, res) => {
   // START TRANSACTION
   const session = await mongoose.startSession();
   session.startTransaction();
+
+  // FIX 2: track whether transaction is still active
+  let transactionCommitted = false;
 
   try {
     // PAYMENT UPDATE
@@ -439,7 +747,7 @@ export const verifyPayment = asyncHandler(async (req, res) => {
 
     await order.save({ session });
 
-    // STOCK UPDATE (CRITICAL)
+    // STOCK UPDATE
     for (const item of order.items) {
       const result = await Product.updateOne(
         {
@@ -464,8 +772,8 @@ export const verifyPayment = asyncHandler(async (req, res) => {
       }
     }
 
-    // USER UPDATE (ATOMIC)
-    let used = order.reward?.usedPoints || 0;
+    // USER REWARDS UPDATE
+    const used = order.reward?.usedPoints || 0;
     const earned = order.reward?.earnedPoints || 0;
 
     if (used > 0) {
@@ -482,36 +790,20 @@ export const verifyPayment = asyncHandler(async (req, res) => {
 
       for (const entry of ledgerEntries) {
         if (remainingToUse <= 0) break;
-
         const deduct = Math.min(entry.remainingPoints, remainingToUse);
-
         entry.remainingPoints -= deduct;
         remainingToUse -= deduct;
-
         await entry.save({ session });
       }
 
-      // Create redeem log
       await RewardLedger.create(
-        [
-          {
-            user: userId,
-            type: "redeem",
-            points: used,
-            orderId: order._id,
-          },
-        ],
+        [{ user: userId, type: "redeem", points: used, orderId: order._id }],
         { session },
       );
 
-      // Update user points
       await User.updateOne(
         { _id: userId },
-        {
-          $inc: {
-            points: -used,
-          },
-        },
+        { $inc: { points: -used } },
         { session },
       );
     }
@@ -536,11 +828,7 @@ export const verifyPayment = asyncHandler(async (req, res) => {
 
       await User.updateOne(
         { _id: userId },
-        {
-          $inc: {
-            points: earned,
-          },
-        },
+        { $inc: { points: earned } },
         { session },
       );
     }
@@ -548,13 +836,8 @@ export const verifyPayment = asyncHandler(async (req, res) => {
     await User.updateOne(
       { _id: userId },
       {
-        $inc: {
-          totalOrders: 1,
-          totalSpend: order.grandTotal,
-        },
-        $set: {
-          lastOrderAt: new Date(),
-        },
+        $inc: { totalOrders: 1, totalSpend: order.grandTotal },
+        $set: { lastOrderAt: new Date() },
       },
       { session },
     );
@@ -567,9 +850,10 @@ export const verifyPayment = asyncHandler(async (req, res) => {
     );
 
     await session.commitTransaction();
+    transactionCommitted = true; // FIX: mark committed
     session.endSession();
 
-    //  CREATE INVOICE
+    // ── CREATE INVOICE (outside transaction — failure won't rollback payment) ──
     let invoice = null;
 
     try {
@@ -577,8 +861,16 @@ export const verifyPayment = asyncHandler(async (req, res) => {
 
       const pdfBuffer = await generateInvoicePDF(invoice);
 
-      const uploadRes = await uploadToCloudinary(
-        pdfBuffer,
+      const safeBuffer = Buffer.isBuffer(pdfBuffer)
+        ? pdfBuffer
+        : Buffer.from(pdfBuffer);
+
+      if (safeBuffer.length < 1000) {
+        throw new Error(`PDF buffer too small: ${safeBuffer.length} bytes`);
+      }
+
+      const uploadRes = await uploadInvoicePDF(
+        safeBuffer,
         "raw",
         "invoices",
         `invoice-${invoice.invoiceNumber}.pdf`,
@@ -591,7 +883,6 @@ export const verifyPayment = asyncHandler(async (req, res) => {
 
       await invoice.save();
 
-      // Update order with invoice reference
       order.invoice = {
         invoiceId: invoice._id,
         invoiceNumber: invoice.invoiceNumber,
@@ -601,12 +892,12 @@ export const verifyPayment = asyncHandler(async (req, res) => {
         },
       };
       await order.save();
-    } catch (error) {
-      console.error("Invoice generation failed:", error);
+    } catch (invoiceErr) {
+      console.error("Invoice generation failed:", invoiceErr.message);
     }
 
     // RESPONSE
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       message: "Payment verified successfully",
       data: {
@@ -615,7 +906,7 @@ export const verifyPayment = asyncHandler(async (req, res) => {
           ? {
               id: invoice._id,
               invoiceNumber: invoice.invoiceNumber,
-              pdfUrl: invoice.pdf?.url || null,
+              pdfUrl: invoice.pdf?.url || null, // FIX: use outer-scope downloadUrl
             }
           : null,
         shippingAddress: order.shippingAddress,
@@ -637,8 +928,11 @@ export const verifyPayment = asyncHandler(async (req, res) => {
       },
     });
   } catch (err) {
-    await session.abortTransaction();
-    session.endSession();
+    // FIX: only abort if transaction was NOT already committed
+    if (!transactionCommitted) {
+      await session.abortTransaction();
+      session.endSession();
+    }
     throw err;
   }
 });
@@ -832,10 +1126,14 @@ export const getOrdersAdmin = asyncHandler(async (req, res) => {
   if (sortBy === "price-high") sortOptions = { grandTotal: -1 };
   if (sortBy === "price-low") sortOptions = { grandTotal: 1 };
 
-  if (status) {
-    query.status = status;
-  }
+  const statusMap = {
+    processing: ["processing", "ready_to_ship"],
+  };
 
+  if (status) {
+    query.status = statusMap[status] || status;
+  }
+  
   const orders = await Order.find(query)
     .skip(skip)
     .limit(Number(limit))
