@@ -152,16 +152,16 @@ const fetchOrders = async () => {
         limit: rowsPerPage,
       },
     });
-    console.log("Orders API Response:", response.data);
+    // console.log("Orders API Response:", response.data);
      if (response.data?.data && response.data.data.length > 0) {
-      console.log("=== FIRST ORDER DETAILS ===");
-      console.log("First order:", response.data.data[0]);
-      console.log("Items in first order:", response.data.data[0].items);
-      console.log("Number of items:", response.data.data[0].items?.length);
+      // console.log("=== FIRST ORDER DETAILS ===");
+      // console.log("First order:", response.data.data[0]);
+      // console.log("Items in first order:", response.data.data[0].items);
+      // console.log("Number of items:", response.data.data[0].items?.length);
       
       // Check if product is populated
       if (response.data.data[0].items && response.data.data[0].items.length > 0) {
-        console.log("First item product:", response.data.data[0].items[0].product);
+        // console.log("First item product:", response.data.data[0].items[0].product);
       }
     }
     

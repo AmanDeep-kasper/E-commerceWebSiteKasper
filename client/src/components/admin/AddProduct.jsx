@@ -1003,7 +1003,7 @@ const AddProduct = () => {
       localStorage.setItem("addProductDraft_id", savedDraftId);
       setHasDraft(true);
     } catch (err) {
-      console.error("Draft save error:", err);
+      // console.error("Draft save error:", err);
       toast.error(err?.response?.data?.message || "Failed to save draft");
     }
   };
@@ -1345,13 +1345,13 @@ const fetchCategories = async () => {
   // Debug effect for add mode
   useEffect(() => {
     if (!isEditing) {
-      console.log("=== Add Mode Variants Debug ===");
+      // console.log("=== Add Mode Variants Debug ===");
       formData.variants.forEach((v, i) => {
-        console.log(`Variant ${i}:`, {
-          mrp: v.variantMrp,
-          sellingPrice: v.variantSellingPrice,
-          discount: v.variantDiscount,
-        });
+        // console.log(`Variant ${i}:`, {
+        //   mrp: v.variantMrp,
+        //   sellingPrice: v.variantSellingPrice,
+        //   discount: v.variantDiscount,
+        // });
       });
     }
   }, [formData.variants, isEditing]);
