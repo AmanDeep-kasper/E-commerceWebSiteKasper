@@ -927,8 +927,10 @@ export const getAllOrdersByUser = asyncHandler(async (req, res) => {
 
       {
         $group: {
-          _id: "$category._id",
-          name: { $first: "$category.name" },
+          // _id: "$category._id",
+          // name: { $first: "$category.name" },
+           _id: "$items.category",
+          name: { $first: "$items.productTitle" }, // Use productTitle from items
           count: { $sum: 1 },
         },
       },
@@ -954,7 +956,6 @@ export const getAllOrdersByUser = asyncHandler(async (req, res) => {
 
     // clean orders
     data: orders,
-
     stats: {
       total,
       cancelled,
