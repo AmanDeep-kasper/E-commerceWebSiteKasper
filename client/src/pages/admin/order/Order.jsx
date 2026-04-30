@@ -24,7 +24,7 @@ const profileMenu = [
   { label: "Processing", path: "processing" },
   { label: "Shipped", path: "shipped" },
   { label: "Delivered", path: "delivered" },
-  { label: "Cancelled", path: "cancelled" },
+  // { label: "Cancelled", path: "cancelled" },
 ];
 
 function Order() {
@@ -118,7 +118,7 @@ function Order() {
               >
                 <span
                   className="absolute left-0 top-1/2 -translate-y-1/2
-                    w-[4px] h-10 bg-blue-500 rounded-r"
+                    w-[4px] h-12 bg-[#4EA7FF] rounded-r"
                 />
 
                 <div>

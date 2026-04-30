@@ -11,7 +11,7 @@ function RegisterForm({ onOtpSent }) {
     password: "",
     phoneNumber: "",
   });
- 
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
@@ -19,9 +19,33 @@ function RegisterForm({ onOtpSent }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     setLoading(true);
     setError(null);
 
+    // ✅ Name validation (no numbers allowed)
+    const nameRegex = /^[A-Za-z\s]+$/;
+    if (!nameRegex.test(formData.name.trim())) {
+      setError("Name should contain only letters");
+      setLoading(false);
+      return;
+    }
+
+    // ✅ Phone validation (move BEFORE API call)
+    // if (formData.phoneNumber.length !== 10) {
+    //   setError("Phone number must be exactly 10 digits");
+    //   setLoading(false);
+    //   return;
+    // }
+    const phoneRegex = /^[89]\d{9}$/;
+
+    if (!phoneRegex.test(formData.phoneNumber)) {
+      setError("Phone number must start with 8 or 9 and be exactly 10 digits");
+      setLoading(false);
+      return;
+    }
+
+    // ✅ Terms check
     if (!termsAccepted) {
       setError("Please accept the terms and conditions");
       setLoading(false);
@@ -36,9 +60,9 @@ function RegisterForm({ onOtpSent }) {
       payload.append("phoneNumber", formData.phoneNumber);
 
       const res = await userService.register(payload);
-      console.log("regsiter",res);
+
       localStorage.setItem("tempUserId", res.tempUserId);
-      
+
       onOtpSent(formData.email);
     } catch (err) {
       setError(
@@ -46,12 +70,6 @@ function RegisterForm({ onOtpSent }) {
       );
     } finally {
       setLoading(false);
-    }
-
-    if (formData.phoneNumber.length !== 10) {
-      setError("Phone number must be exactly 10 digits");
-      setLoading(false);
-      return;
     }
   };
 
@@ -80,12 +98,14 @@ function RegisterForm({ onOtpSent }) {
   ];
 
   const handlePhoneChange = (e) => {
-    let value = e.target.value;
+    let value = e.target.value.replace(/\D/g, "");
 
-    // Remove all non-numeric characters
-    value = value.replace(/\D/g, "");
+    // ❌ block if first digit is not 8 or 9
+    if (value.length === 1 && !/[89]/.test(value)) {
+      return;
+    }
 
-    // Limit to 10 digits
+    // ✅ allow only 10 digits
     if (value.length <= 10) {
       setFormData({
         ...formData,

@@ -6,52 +6,83 @@ import {
   WalletCards,
   X,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import axiosInstance from "../../../../api/axiosInstance";
 
 const OrderDetails = ({
   data,
   setSelectedOrderId,
   onAcceptOrder,
+  onReadyToShip,
   onSaveTracking,
-  onMarkDelivered,
+  // onMarkDelivered,
   setopenCancelModule,
 }) => {
   // //////////////////////////////////
-  const items = data?.items || [];
+  const items = data || [];
+  console.log(items);
 
-  const itemSubtotal = items.reduce(
-    (total, item) => total + item.price * item.quantity,
-    0,
-  );
+  const statusMap = {
+    placed: "New Orders",
+    processing: "Processing",
+    shipped: "Shipped",
+    delivered: "Delivered",
+    cancelled: "Cancelled",
+  };
+  const statusStyles = {
+    placed: "bg-[#D5E5F5] text-[#1C3753]",
+    processing: "bg-[#E6D3FF] text-[#8A38F5]",
+    shipped: "bg-[#FBDBF7] text-[#E91DD1]",
+    delivered: "bg-[#E0F4DE] text-[#00A63E]",
+    cancelled: "bg-[#EFEFEF] text-[#686868]",
+  };
 
-  const discount = data.discount ?? 0;
-  const shippingCost = data.shippingCost ?? 0;
+  // const itemSubtotal = items.reduce(
+  //   (total, item) => total + item.price * item.quantity,
+  //   0,
+  // );
 
-  const totalAmount = itemSubtotal - discount + shippingCost;
+  // const discount = data.discount ?? 0;
+  // const shippingCost = data.shippingCost ?? 0;
 
-  const deliveryPartners = ["Delhivery", "Blue Dart", "DTDC", "India Post"];
+  // const totalAmount = itemSubtotal - discount + shippingCost;
+  const [deliveryPartners, setDeliveryPartners] = useState([]);
+  useEffect(() => {
+    const fetchTransporters = async () => {
+      try {
+        const res = await axiosInstance.get("/dashboard/transport");
+        setDeliveryPartners(res?.data?.data || []);
+      } catch (error) {
+        console.error("Transport fetch error:", error);
+      }
+    };
 
-  const orderId = data?.orderId;
+    fetchTransporters();
+  }, []);
+
+  console.log(deliveryPartners);
 
   const [selectedPartner, setSelectedPartner] = useState(
     data?.deliveryPartner || "",
   );
-  const [trackingId, setTrackingId] = useState(data?.trackingId || "");
-  const [trackingUrl, setTrackingUrl] = useState(data?.trackingUrl || "");
 
-  // ✅ FIX: normalize status to avoid "pending", "Pending ", etc.
-  const status = (data?.orderStatus || "").trim().toLowerCase();
+  // const [trackingId, setTrackingId] = useState(data?.trackingId || "");
+  // const [trackingUrl, setTrackingUrl] = useState(data?.trackingUrl || "");
 
-  const isPending = status === "pending";
+  // // ✅ FIX: normalize status to avoid "pending", "Pending ", etc.
+  const status = (data?.status || "").trim().toLowerCase();
+
+  const isPending = status === "placed";
   const isProcessing = status === "processing";
   const isShipped = status === "shipped";
 
+  const orderId = data?._id;
   const canAccept = isPending;
 
-  const showTrackingSection = isProcessing || isShipped;
-  const trackingAlreadySaved = !!data?.trackingId;
+  // const showTrackingSection = isProcessing || isShipped;
+  // const trackingAlreadySaved = !!data?.trackingId;
 
-  console.log({ isPending, selectedPartner, canAccept });
+  // console.log({ isPending, selectedPartner, canAccept });
 
   return (
     <div className="bg-[#FFFFFF] w-full">
@@ -70,33 +101,26 @@ const OrderDetails = ({
       <div className="flex items-start border-b-[0.5px] w-full">
         <div className="flex mb-3 w-full justify-start flex-nowrap md:gap-4">
           <div className="min-w-0">
-            <span className="text-sm font-medium">
-              Order ID #{data.orderId}
-            </span>
+            <span className="text-sm font-medium">{data.orderNumber}</span>
             <div className="text-[#686868] text-sm flex items-start gap-1">
-              <span>{data.orderDate}</span>
+              <span>{new Date(data.createdAt).toLocaleDateString()}</span>
               <i className="text-[#DEDEDE]">●</i>
-              <span>{data.orderTime}</span>
+              <span>
+                {" "}
+                {new Date(data.placedAt).toLocaleTimeString("en-IN", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </span>
             </div>
           </div>
           <div>
             <span
-              className={`px-3 py-1 rounded-md text-xs font-medium shrink-0
-          ${
-            data.orderStatus === "Delivered"
-              ? "bg-green-100 text-green-600"
-              : data.orderStatus === "Cancelled"
-                ? "bg-[#EFEFEF] text-[#686868]"
-                : data.orderStatus === "Pending"
-                  ? "bg-[#FFF9E0] text-[#F8A14A]"
-                  : data.orderStatus === "Processing"
-                    ? "bg-[#E6D3FF] text-[#8A38F5]"
-                    : data.orderStatus === "Shipped"
-                      ? "bg-[#D5E5F5] text-[#1C3753]"
-                      : ""
-          }`}
+              className={`px-6 py-1 rounded-md text-xs font-medium ${
+                statusStyles[data.status] || ""
+              }`}
             >
-              {data.orderStatus}
+              {statusMap[data.status] || data.status}
             </span>
           </div>
         </div>
@@ -113,7 +137,7 @@ const OrderDetails = ({
                 <span>Total Items</span>
               </div>
               <div className="text-black font-medium shrink-0">
-                {data.quantity}
+                {data.items.length}
               </div>
             </div>
 
@@ -147,7 +171,7 @@ const OrderDetails = ({
                 <span>Payment Method</span>
               </div>
               <div className="text-black font-medium shrink-0">
-                {data.paymentType}
+                {data.paymentMethod}
               </div>
             </div>
           </div>
@@ -174,7 +198,7 @@ const OrderDetails = ({
       </div>
       */}
       {/* Delivery Partner */}
-      {isProcessing && (
+      {status === "processing" && (
         <div className="mt-2">
           <span className="text-sm mt-3 mb-3 block">Delivery Partner</span>
 
@@ -184,10 +208,11 @@ const OrderDetails = ({
               onChange={(e) => setSelectedPartner(e.target.value)}
               className="w-full px-3 py-2 text-sm border rounded-md bg-white text-black"
             >
-              <option value="">Select</option>
+              <option value="">Select delivery partner</option>
+
               {deliveryPartners.map((p) => (
-                <option key={p} value={p}>
-                  {p}
+                <option key={p._id} value={p.transporterName}>
+                  {p.transporterName}
                 </option>
               ))}
             </select>
@@ -294,22 +319,25 @@ const OrderDetails = ({
         <div className="w-full p-3 text-sm text-gray-600 border rounded-md">
           <div className="flex items-center gap-2 mb-3 w-full flex-nowrap">
             <div className="w-[40px] h-[40px] rounded-full bg-gray-500 flex items-center justify-center overflow-hidden">
-              {data?.deliveryAddress?.profileImage ? (
+              {data?.shippingAddress?.profileImage ? (
                 <img
-                  src={data.deliveryAddress.profileImage}
+                  src={data?.shippingAddress.profileImage}
                   alt=""
                   className="w-full h-full object-cover"
                   onError={(e) => (e.currentTarget.style.display = "none")}
                 />
               ) : (
                 <span className="text-white font-semibold text-lg">
-                  {data?.deliveryAddress?.name?.charAt(0)?.toUpperCase() || "?"}
+                  {data?.shippingAddress?.fullName?.charAt(0)?.toUpperCase() ||
+                    "?"}
                 </span>
               )}
             </div>
 
             <div className=" flex flex-col min-w-0">
-              <span className="text-black">{data.deliveryAddress.name}</span>
+              <span className="text-black">
+                {data?.shippingAddress?.fullName}
+              </span>
               <span>{data.customerId ?? "N/A"} </span>
             </div>
           </div>
@@ -318,21 +346,21 @@ const OrderDetails = ({
             <div className="flex items-center justify-between w-full flex-nowrap">
               <span>Phone Number</span>
               <span className="text-black font-medium shrink-0">
-                {data.deliveryAddress.mobile ?? "N/A"}
+                {data.shippingAddress.phone ?? "N/A"}
               </span>
             </div>
 
             <div className="flex items-center justify-between w-full flex-nowrap">
               <span>Email</span>
               <span className="text-black font-medium shrink-0">
-                {data.deliveryAddress.email ?? "N/A"}
+                {data.shippingAddress.email ?? "N/A"}
               </span>
             </div>
 
-            <div className="flex items-center justify-between w-full flex-nowrap">
+            <div className="flex items-center justify-between w-full gap-8">
               <span>Address</span>
-              <span className="text-black font-medium shrink-0">
-                {data.deliveryAddress.addressLine1 ?? "N/A"}
+              <span className="text-black font-medium shrink-3 overflow-hidden">
+                {data?.shippingAddress.address ?? "N/A"}
               </span>
             </div>
           </div>
@@ -343,7 +371,7 @@ const OrderDetails = ({
       <div className="mt-2">
         <span className="text-sm mt-3 mb-3">Items</span>
         <div className="w-full flex flex-col gap-3 p-3 text-sm text-gray-600 border rounded-md">
-          {[1, 2].map((_, i) => (
+          {data?.items.map((item, i) => (
             <div key={i}>
               <div className="flex items-center justify-between border-b pb-3 w-full flex-nowrap">
                 <div className="flex items-center gap-2 min-w-0">
@@ -351,27 +379,29 @@ const OrderDetails = ({
                     width={42}
                     height={42}
                     className="rounded-md shrink-0"
-                    src="https://plus.unsplash.com/premium_photo-1675896084254-dcb626387e1e"
+                    src={item?.image?.url}
                     alt=""
                   />
                   <div className="flex flex-col text-[16px] space-y-2 min-w-0">
                     <span>
-                      {"Flower Mandela Laser Cut Metal Wall Art"
-                        .split(" ")
-                        .slice(0, 4)
-                        .join(" ") + "..."}
+                      {item.productTitle.split(" ").slice(0, 5).join(" ") +
+                        "..."}
                     </span>
                     <div className="flex gap-2 text-[12px]">
-                      <span className="border px-2 rounded-lg">Red</span>
-                      <span className="border px-2 rounded-lg">25X12</span>
+                      <span className="border px-2 rounded-lg">
+                        {item?.variantColor}
+                      </span>
+                      <span className="border px-2 rounded-lg">
+                        {item?.variantName}
+                      </span>
                     </div>
                   </div>
                 </div>
 
                 <div className="flex flex-col items-end text-[12px] space-y-1 shrink-0">
-                  <span>SKU ID #SK-FLV1-391</span>
+                  <span>SKU ID- {item?.variantSkuId}</span>
                   <div className="text-sm p-1 bg-[#EFEFEF] text-[#686868] rounded-lg font-medium">
-                    Quantity 1
+                    Quantity- {item?.quantity}
                   </div>
                 </div>
               </div>
@@ -384,9 +414,9 @@ const OrderDetails = ({
       <div className="mt-2">
         <div className="flex items-center justify-between w-full flex-nowrap">
           <p className="text-sm mt-3 mb-2">Payment</p>
-          <button className="flex items-center gap-2 text-[#2C87E2] shrink-0">
+          {/* <button className="flex items-center gap-2 text-[#2C87E2] shrink-0">
             Download Invoice <Download size={18} />
-          </button>
+          </button> */}
         </div>
 
         <div className="w-full p-3 text-sm text-gray-600 border rounded-md">
@@ -395,62 +425,82 @@ const OrderDetails = ({
               <span>Item Subtotal</span>
               <span className="text-black font-medium shrink-0">
                 {" "}
-                ₹{itemSubtotal.toLocaleString("en-IN")}
+                ₹{data.mrpTotal ? data.mrpTotal : "--"}
               </span>
             </div>
 
             <div className="flex items-center justify-between w-full flex-nowrap">
               <span>Discount</span>
               <span className="text-black font-medium shrink-0">
-                ₹{discount.toLocaleString("en-IN")}
+                ₹{data.totalDiscount ? data.totalDiscount : "--"}
               </span>
             </div>
 
             <div className="flex items-center justify-between w-full flex-nowrap">
               <span>Shipping Cost</span>
               <span className="text-black font-medium shrink-0">
-                ₹{shippingCost.toLocaleString("en-IN")}
+                ₹{data?.shippingCharge}
+              </span>
+            </div>
+            <div className="flex items-center justify-between w-full flex-nowrap">
+              <span>Platform Fee</span>
+              <span className="text-black font-medium shrink-0">
+                ₹{data?.platformFee}
+              </span>
+            </div>
+            <div className="flex items-center justify-between w-full flex-nowrap">
+              <span>Applied Points</span>
+              <span className="text-black font-medium shrink-0">
+                ₹{data?.discount}
               </span>
             </div>
 
             <div className="flex items-center justify-between border-t py-2 w-full flex-nowrap">
               <span>Total</span>
               <span className="text-black font-medium shrink-0">
-                ₹{totalAmount.toLocaleString("en-IN")}
+                ₹{data?.grandTotal}
               </span>
             </div>
           </div>
         </div>
       </div>
       <div className="flex items-center justify-end gap-2 mt-4">
-        {isPending && (
+        {status === "placed" && (
           <>
             <button
               type="button"
               disabled={!canAccept}
-              onClick={() => onAcceptOrder({ orderId })}
+              onClick={async () => {
+                await onAcceptOrder(orderId);
+                setSelectedOrderId();
+              }}
               className={`px-6 py-1.5 rounded-md text-white
         ${canAccept ? "bg-[#1C3753]" : "bg-gray-300 cursor-not-allowed"}`}
             >
               Accept
             </button>
 
-            <button
+            {/* <button
               type="button"
               onClick={() => setopenCancelModule(orderId)}
               className="px-6 py-1.5 rounded-md text-[#1C3753] bg-white border border-[#1C3753]"
             >
               Reject
-            </button>
+            </button> */}
           </>
         )}
-
-        {isProcessing && (
-          <span className="px-6 py-1.5 rounded-md text-sm font-medium bg-green-100 text-green-600">
-            Accepted
-          </span>
+        {status === "processing" && (
+          <button
+            type="button"
+            onClick={() =>
+              onReadyToShip({ orderId: data._id, carrier: selectedPartner })
+            }
+            className="px-6 py-1.5 rounded-md text-sm font-medium bg-[#1C3753] text-white"
+          >
+            Ready to Ship
+          </button>
         )}
-        {isShipped && (
+        {/* {isShipped && (
           <button
             type="button"
             onClick={() => onMarkDelivered?.({ orderId: data.orderId })}
@@ -458,7 +508,7 @@ const OrderDetails = ({
           >
             Mark as Delivered
           </button>
-        )}
+        )} */}
       </div>
     </div>
   );
