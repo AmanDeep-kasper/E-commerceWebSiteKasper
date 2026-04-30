@@ -18,6 +18,7 @@ import DisplayVariantImg from "./DisplayVariantImg";
 import CategoriesPopOnClick from "../../pages/admin/CategoriesPopOnClick";
 import { LuAArrowDown, LuDelete } from "react-icons/lu";
 import { RiDeleteBin6Line } from "react-icons/ri";
+import { a } from "framer-motion/m";
 
 const AddProduct = () => {
   const fileInputRef = useRef(null);
@@ -1370,21 +1371,42 @@ const fetchCategories = async () => {
 
   // handle select all variants
   const handleSelectAllVariants = () => {
-    if(selectedVariants.length === allVariants.length) {
+    if(isEditing) {
+      // in edit mode only select new variants
+      const newVariantIndices = allVariants.map((variant, idx) => variant.isNew === true ? idx : -1).filter((idx) => idx !== -1);
+    if(selectedVariants.length === newVariantIndices.length && newVariantIndices.length > 0) {
       // if all are seelcted, deselect all
       setSelectedVariants([]);
     }else {
       // select all variants
+      setSelectedVariants(newVariantIndices)
+    }
+  } else {
+    // In add mode: select all variants
+    if (selectedVariants.length === allVariants.length) {
+      setSelectedVariants([]);
+    } else {
       const allVariantIds = allVariants.map((_, idx) => idx);
       setSelectedVariants(allVariantIds);
     }
   }
-
+};
+  
   // delete selected variant
   const deleteSelectedVariants = () => {
     if(selectedVariants.length === 0) {
       toast.error("Please select at least one varinat to delete")
       return;
+    }
+    if(isEditing) {
+      const hasExistingSelected = selectedVariants.some((index) => {
+        const variant = allVariants[index];
+        return variant && variant.isExisting === true;
+      })
+      if(hasExistingSelected) {
+        toast.error("You are only delete newly added variants in edit mode")
+        return;
+      }
     }
 
  // Sort indices in descending order to delete from the end first
@@ -1401,14 +1423,14 @@ const fetchCategories = async () => {
       // Remove from newVariants
       const newVariantIndex = index - formData.variants.length;
       updatedNewVariants = updatedNewVariants.filter((_, idx) => idx !== newVariantIndex);
-    } else {
+    } else if(!isEditing) {
       // Remove from formData.variants
       updatedFormDataVariants = updatedFormDataVariants.filter((_, idx) => idx !== index);
     }
   });
   
   // Ensure at least one variant exists
-  if (updatedFormDataVariants.length === 0 && updatedNewVariants.length === 0) {
+  if (!isEditing && updatedFormDataVariants.length === 0 && updatedNewVariants.length === 0) {
     updatedFormDataVariants = [emptyVariant()];
   }
   
@@ -2023,7 +2045,7 @@ Delete Selected
                   <table className="w-full min-w-[1200px] text-sm">
                     <thead className="bg-[#F5F8FA]">
                       <tr>
-                        {allVariants.length > 1 && (
+                        {(isEditing && newVariants.length > 0 ) || (!isEditing && allVariants.length > 1) ? (
                        <th className="px-3 py-2 text-left font-medium w-10">
       <input
         type="checkbox"
@@ -2032,6 +2054,8 @@ Delete Selected
         className="w-4 h-4 cursor-pointer"
       />
     </th>
+                        ): (
+                          <th className="px-3 py-2 text-left font-medium w-10"></th>
                         )}
                        
                         <th className="px-3 py-2 text-left font-medium">
@@ -2076,16 +2100,24 @@ Delete Selected
                         const isAddModeVariant = !isEditing && index > 0;
                         const isReadOnly = isExisting && !isProductDraft;
                         const actualIndex = index;
-                        const showCheckbox = allVariants.length > 1;
+                      let showCheckbox = false;
+                      if(isEditing) {
+                        // in edit mode only show checkbox for new varinat
+                        showCheckbox = isNewVariant;
+                      }else {
+                        // in add mode show checkbox only when multiple variant exist
+                        showCheckbox = allVariants.length > 1;
+                      }
 
                         // dont show delete button for first variant(keep at least one variant)
                         const canDelete = allVariants.length > 1;
                         return (
                           <tr
                             key={variant.variantSkuId || index}
-                            className="hover:bg-gray-50 border-b-group"
+                            className="hover:bg-gray-50 border-b"
                           >
-{showCheckbox && (
+                            {/* checkbox columns only show for new variants in edit mode or for all in add mode when multiple */}
+{showCheckbox ? (
           <td className="px-3 py-2 text-center">
             <input
               type="checkbox"
@@ -2094,6 +2126,8 @@ Delete Selected
               className="w-4 h-4 cursor-pointer"
             />
           </td>
+        ): (
+          <td className="px-3 py-2 text-center"></td>
         )}
                             <td className="px-3 py-1">
                               {(isExisting && !isProductDraft) ? (
