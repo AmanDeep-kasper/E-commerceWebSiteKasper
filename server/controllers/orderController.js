@@ -885,14 +885,14 @@ export const getAllOrdersByUser = asyncHandler(async (req, res) => {
 
   // 1. ORDERS
   const orders = await Order.find(query)
-        .select("orderNumber grandTotal createdAt status items paymentMethod paymentStatus shippingAddress")
+    .select(
+      "orderNumber grandTotal createdAt status items paymentMethod paymentStatus shippingAddress",
+    )
     .skip(skip)
     .limit(Number(limit))
     .sort({ createdAt: -1 })
     .lean();
-    console.log("First order items:", orders[0]?.items?.length || 0, "items");
-
-
+  console.log("First order items:", orders[0]?.items?.length || 0, "items");
 
   // 2. PARALLEL STATS (FAST)
   const [total, cancelled, totalSpendAgg, topCategoryAgg] = await Promise.all([
@@ -943,7 +943,7 @@ export const getAllOrdersByUser = asyncHandler(async (req, res) => {
         $group: {
           // _id: "$category._id",
           // name: { $first: "$category.name" },
-           _id: "$items.category",
+          _id: "$items.category",
           name: { $first: "$items.productTitle" }, // Use productTitle from items
           count: { $sum: 1 },
         },
@@ -1025,6 +1025,7 @@ export const readyToShip = asyncHandler(async (req, res) => {
 
   order.status = "ready_to_ship";
   order.tracking = {
+    ...order.tracking,
     carrier,
   };
   await order.save();
@@ -1053,7 +1054,8 @@ export const shipOrder = asyncHandler(async (req, res) => {
   }
 
   order.tracking = {
-    carrier,
+    ...order.tracking,
+    carrier: carrier || order.tracking?.carrier,
     trackingNumber,
     trackingUrl,
   };
