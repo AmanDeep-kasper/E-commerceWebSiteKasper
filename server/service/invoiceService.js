@@ -266,6 +266,7 @@ export async function createInvoiceFromOrder(orderId) {
       stateCode: sellerState,
       pinCode: business.address.pinCode,
       gstin: business.gstNumber,
+      logo: business.logo.url || null,
     },
 
     buyer: {

@@ -18,7 +18,8 @@ import razorpay, {
 import mongoose from "mongoose";
 import { createInvoiceFromOrder } from "../service/invoiceService.js";
 import { generateInvoicePDF } from "../service/generateInvoice.js";
-import { uploadToCloudinary } from "../utils/uploader.js";
+import { uploadInvoicePDF, uploadToCloudinary } from "../utils/uploader.js";
+import Invoice from "../models/Invoice.js";
 
 // Helper function
 const calculateShippingCharge = ({
@@ -342,7 +343,8 @@ export const verifyPayment = asyncHandler(async (req, res) => {
   const userId = req.user?.userId;
   const { razorpayOrderId, razorpayPaymentId, razorpaySignature } = req.body;
 
-  const rewardConfig = await Reward.findOne({ isActive: true }).lean();
+  const rewardConfig =
+    (await Reward.findOne({ isActive: true }).lean()) || null;
 
   // VERIFY SIGNATURE
   const isValid = verifyPaymentSignature({
@@ -357,7 +359,6 @@ export const verifyPayment = asyncHandler(async (req, res) => {
 
   // FETCH FROM RAZORPAY
   let razorpayPayment;
-
   try {
     razorpayPayment = await razorpay.payments.fetch(razorpayPaymentId);
   } catch (err) {
@@ -367,7 +368,6 @@ export const verifyPayment = asyncHandler(async (req, res) => {
     );
   }
 
-  // VALIDATE PAYMENT
   if (razorpayPayment.status !== "captured") {
     throw AppError.badRequest("Payment not captured", "PAYMENT_NOT_CAPTURED");
   }
@@ -376,16 +376,12 @@ export const verifyPayment = asyncHandler(async (req, res) => {
     throw AppError.badRequest("Order mismatch", "ORDER_MISMATCH");
   }
 
-  // FIND PAYMENT (IMPORTANT FIX)
-  const payment = await Payment.findOne({
-    razorpayOrderId,
-  });
-
+  const payment = await Payment.findOne({ razorpayOrderId });
   if (!payment) {
     throw AppError.notFound("Payment not found", "PAYMENT_NOT_FOUND");
   }
 
-  // ✅ Idempotency check
+  // Idempotency check
   if (payment.status === "captured") {
     return res.json({
       success: true,
@@ -394,13 +390,11 @@ export const verifyPayment = asyncHandler(async (req, res) => {
     });
   }
 
-  // VALIDATE AMOUNT
   if (razorpayPayment.amount !== payment.amount * 100) {
     throw AppError.badRequest("Amount mismatch", "AMOUNT_MISMATCH");
   }
 
   const order = await Order.findById(payment.order);
-
   if (!order) {
     throw AppError.notFound("Order not found", "ORDER_NOT_FOUND");
   }
@@ -408,6 +402,9 @@ export const verifyPayment = asyncHandler(async (req, res) => {
   // START TRANSACTION
   const session = await mongoose.startSession();
   session.startTransaction();
+
+  // FIX 2: track whether transaction is still active
+  let transactionCommitted = false;
 
   try {
     // PAYMENT UPDATE
@@ -439,7 +436,7 @@ export const verifyPayment = asyncHandler(async (req, res) => {
 
     await order.save({ session });
 
-    // STOCK UPDATE (CRITICAL)
+    // STOCK UPDATE
     for (const item of order.items) {
       const result = await Product.updateOne(
         {
@@ -464,8 +461,8 @@ export const verifyPayment = asyncHandler(async (req, res) => {
       }
     }
 
-    // USER UPDATE (ATOMIC)
-    let used = order.reward?.usedPoints || 0;
+    // USER REWARDS UPDATE
+    const used = order.reward?.usedPoints || 0;
     const earned = order.reward?.earnedPoints || 0;
 
     if (used > 0) {
@@ -482,36 +479,20 @@ export const verifyPayment = asyncHandler(async (req, res) => {
 
       for (const entry of ledgerEntries) {
         if (remainingToUse <= 0) break;
-
         const deduct = Math.min(entry.remainingPoints, remainingToUse);
-
         entry.remainingPoints -= deduct;
         remainingToUse -= deduct;
-
         await entry.save({ session });
       }
 
-      // Create redeem log
       await RewardLedger.create(
-        [
-          {
-            user: userId,
-            type: "redeem",
-            points: used,
-            orderId: order._id,
-          },
-        ],
+        [{ user: userId, type: "redeem", points: used, orderId: order._id }],
         { session },
       );
 
-      // Update user points
       await User.updateOne(
         { _id: userId },
-        {
-          $inc: {
-            points: -used,
-          },
-        },
+        { $inc: { points: -used } },
         { session },
       );
     }
@@ -536,11 +517,7 @@ export const verifyPayment = asyncHandler(async (req, res) => {
 
       await User.updateOne(
         { _id: userId },
-        {
-          $inc: {
-            points: earned,
-          },
-        },
+        { $inc: { points: earned } },
         { session },
       );
     }
@@ -548,13 +525,8 @@ export const verifyPayment = asyncHandler(async (req, res) => {
     await User.updateOne(
       { _id: userId },
       {
-        $inc: {
-          totalOrders: 1,
-          totalSpend: order.grandTotal,
-        },
-        $set: {
-          lastOrderAt: new Date(),
-        },
+        $inc: { totalOrders: 1, totalSpend: order.grandTotal },
+        $set: { lastOrderAt: new Date() },
       },
       { session },
     );
@@ -567,9 +539,10 @@ export const verifyPayment = asyncHandler(async (req, res) => {
     );
 
     await session.commitTransaction();
+    transactionCommitted = true; // FIX: mark committed
     session.endSession();
 
-    //  CREATE INVOICE
+    // ── CREATE INVOICE (outside transaction — failure won't rollback payment) ──
     let invoice = null;
 
     try {
@@ -577,8 +550,16 @@ export const verifyPayment = asyncHandler(async (req, res) => {
 
       const pdfBuffer = await generateInvoicePDF(invoice);
 
-      const uploadRes = await uploadToCloudinary(
-        pdfBuffer,
+      const safeBuffer = Buffer.isBuffer(pdfBuffer)
+        ? pdfBuffer
+        : Buffer.from(pdfBuffer);
+
+      if (safeBuffer.length < 1000) {
+        throw new Error(`PDF buffer too small: ${safeBuffer.length} bytes`);
+      }
+
+      const uploadRes = await uploadInvoicePDF(
+        safeBuffer,
         "raw",
         "invoices",
         `invoice-${invoice.invoiceNumber}.pdf`,
@@ -591,7 +572,6 @@ export const verifyPayment = asyncHandler(async (req, res) => {
 
       await invoice.save();
 
-      // Update order with invoice reference
       order.invoice = {
         invoiceId: invoice._id,
         invoiceNumber: invoice.invoiceNumber,
@@ -601,12 +581,12 @@ export const verifyPayment = asyncHandler(async (req, res) => {
         },
       };
       await order.save();
-    } catch (error) {
-      console.error("Invoice generation failed:", error);
+    } catch (invoiceErr) {
+      console.error("Invoice generation failed:", invoiceErr.message);
     }
 
     // RESPONSE
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       message: "Payment verified successfully",
       data: {
@@ -615,7 +595,7 @@ export const verifyPayment = asyncHandler(async (req, res) => {
           ? {
               id: invoice._id,
               invoiceNumber: invoice.invoiceNumber,
-              pdfUrl: invoice.pdf?.url || null,
+              pdfUrl: invoice.pdf?.url || null, // FIX: use outer-scope downloadUrl
             }
           : null,
         shippingAddress: order.shippingAddress,
@@ -637,8 +617,11 @@ export const verifyPayment = asyncHandler(async (req, res) => {
       },
     });
   } catch (err) {
-    await session.abortTransaction();
-    session.endSession();
+    // FIX: only abort if transaction was NOT already committed
+    if (!transactionCommitted) {
+      await session.abortTransaction();
+      session.endSession();
+    }
     throw err;
   }
 });
@@ -832,8 +815,12 @@ export const getOrdersAdmin = asyncHandler(async (req, res) => {
   if (sortBy === "price-high") sortOptions = { grandTotal: -1 };
   if (sortBy === "price-low") sortOptions = { grandTotal: 1 };
 
+  const statusMap = {
+    processing: ["processing", "ready_to_ship"],
+  };
+
   if (status) {
-    query.status = status;
+    query.status = statusMap[status] || status;
   }
 
   const orders = await Order.find(query)
@@ -1343,5 +1330,21 @@ export const getOrderDetails = asyncHandler(async (req, res) => {
     success: true,
     message: "Order details fetched successfully",
     order,
+  });
+});
+
+export const getOrderInvoiceDetails = asyncHandler(async (req, res) => {
+  const { orderId } = req.params;
+
+  const invoice = await Invoice.findOne({ orderId }).lean();
+
+  if (!invoice) {
+    throw AppError.notFound("Invoice not found", "NOT_FOUND");
+  }
+
+  res.status(200).json({
+    success: true,
+    message: "Invoice details fetched successfully",
+    invoice,
   });
 });

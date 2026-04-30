@@ -6,6 +6,7 @@ import {
   deliverOrder,
   getAllOrdersByUser,
   getOrderDetails,
+  getOrderInvoiceDetails,
   getOrders,
   getOrdersAdmin,
   getPayments,
@@ -63,5 +64,6 @@ router.get("/payments", authenticate, authorize("admin"), getPayments);
 
 // common routes
 router.get("/:orderId", authenticate, getOrderDetails);
+router.get("/:orderId/invoice", authenticate, getOrderInvoiceDetails);
 
 export default router;
