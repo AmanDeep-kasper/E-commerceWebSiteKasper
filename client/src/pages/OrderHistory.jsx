@@ -49,87 +49,105 @@ function OrderHistory() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [debouncedSearch, setDebouncedSearch] = useState("");
 
   const formatDate = (dateString) => {
     const options = { day: "numeric", month: "short", year: "numeric" };
     return new Date(dateString).toLocaleDateString("en-IN", options);
   };
 
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      let filtered = [...order];
-
-      if (status.trim()) {
-        filtered = filtered.filter(
-          (o) => o.status?.toLowerCase() === status.toLowerCase(),
-        );
-      }
-
-      if (time) {
-        const now = new Date();
-
-        filtered = filtered.filter((o) => {
-          const orderDate = new Date(o.placedAt);
-
-          if (time === "last30Days") {
-            const diffDays = (now - orderDate) / (1000 * 60 * 60 * 24);
-            return diffDays <= 30;
-          }
-
-          if (time.startsWith("year")) {
-            const selectedYear = Number(time.replace("year", ""));
-            return orderDate.getFullYear() === selectedYear;
-          }
-
-          if (time === "older") {
-            const olderThanYear = now.getFullYear() - 2;
-            return orderDate.getFullYear() < olderThanYear;
-          }
-
-          return true;
-        });
-      }
-
-      if (param.trim()) {
-        filtered = filtered.filter((o) =>
-          o.items?.some((item) =>
-            item.productTitle?.toLowerCase().includes(param.toLowerCase()),
-          ),
-        );
-      }
-
-      setFilteredOrders(filtered);
-    }, 300);
-
-    return () => clearTimeout(handler);
-  }, [param, status, time, order]);
-
   // fetch the latest orders on component mount
- const handleOrder = async () => {
-  try {
-    setLoading(true);
+  const handleOrder = async () => {
+    try {
+      setLoading(true);
 
-    const res = await axiosInstance.get("/order");
-    const ordersData = Array.isArray(res.data?.orders)
-      ? [...res.data.orders].reverse()
-      : [];
+      const res = await axiosInstance.get("/order", {
+        params: {
+          page: debouncedSearch ? 1 : page,
+          limit: debouncedSearch ? 1000 : 10,
+        },
+      });
 
-    setOrder(ordersData);
-    setFilteredOrders(ordersData);
-  } catch (err) {
-    console.error("Order fetch error:", err);
-    setOrder([]);
-    setFilteredOrders([]);
-  } finally {
-    setLoading(false);
-  }
-};
+      console.log(res);
+
+      const ordersData = res.data?.orders || [];
+
+      setOrder(ordersData);
+      setFilteredOrders(ordersData);
+
+      setTotalPages(res.data?.pagination?.pages || 1);
+    } catch (err) {
+      console.error("Order fetch error:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(param);
+      setPage(1);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [param]);
 
   useEffect(() => {
     handleOrder();
-  }, []);
+  }, [page, status, time, debouncedSearch]);
 
-  // console.log(order);
+  useEffect(() => {
+    let filtered = [...order];
+
+    // STATUS FILTER
+    if (status.trim()) {
+      filtered = filtered.filter(
+        (o) => o.status?.toLowerCase() === status.toLowerCase(),
+      );
+    }
+
+    // TIME FILTER
+    if (time) {
+      const now = new Date();
+
+      filtered = filtered.filter((o) => {
+        const orderDate = new Date(o.placedAt);
+
+        if (time === "last30Days") {
+          const diffDays = (now - orderDate) / (1000 * 60 * 60 * 24);
+          return diffDays <= 30;
+        }
+
+        if (time.startsWith("year")) {
+          const selectedYear = Number(time.replace("year", ""));
+          return orderDate.getFullYear() === selectedYear;
+        }
+
+        if (time === "older") {
+          return orderDate.getFullYear() < now.getFullYear() - 2;
+        }
+
+        return true;
+      });
+    }
+
+    // SEARCH FILTER
+    if (debouncedSearch.trim()) {
+      filtered = filtered.filter((o) =>
+        o.items?.some((item) =>
+          item.productTitle
+            ?.toLowerCase()
+            .includes(debouncedSearch.toLowerCase()),
+        ),
+      );
+    }
+
+    setFilteredOrders(filtered);
+  }, [order, status, time, debouncedSearch]);
+
+  console.log(order);
 
   return (
     <div className="w-full mt-5">
@@ -178,7 +196,7 @@ function OrderHistory() {
       </div>
 
       {/* Order Cards */}
-      <div className="flex flex-col gap-6 rounded-md">
+      <div className="flex flex-col gap-6 rounded-md max-h-[600px] overflow-y-auto pr-2">
         {loading ? (
           [1, 2, 3].map((item) => <OrderSkeleton key={item} />)
         ) : filteredOrders.length === 0 ? (
@@ -343,6 +361,35 @@ function OrderHistory() {
           })
         )}
       </div>
+        <div className="flex justify-center items-center gap-2 mt-6 flex-wrap">
+          <button
+            disabled={page === 1}
+            onClick={() => setPage((p) => p - 1)}
+            className="px-3 py-1 border rounded disabled:opacity-50"
+          >
+            Prev
+          </button>
+
+          {[...Array(totalPages)].map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setPage(i + 1)}
+              className={`px-3 py-1 border rounded ${
+                page === i + 1 ? "bg-[#1800AC] text-white" : ""
+              }`}
+            >
+              {i + 1}
+            </button>
+          ))}
+
+          <button
+            disabled={page === totalPages}
+            onClick={() => setPage((p) => p + 1)}
+            className="px-3 py-1 border rounded disabled:opacity-50"
+          >
+            Next
+          </button>
+        </div>
     </div>
   );
 }
