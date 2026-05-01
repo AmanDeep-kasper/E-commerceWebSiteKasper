@@ -71,6 +71,7 @@ const AllOrders = () => {
     processing: "Processing",
     shipped: "Shipped",
     delivered: "Delivered",
+    ready_to_ship: "Ready to Ship",
     cancelled: "Cancelled",
   };
   const statusStyles = {
@@ -78,6 +79,7 @@ const AllOrders = () => {
     processing: "bg-[#E6D3FF] text-[#8A38F5]",
     shipped: "bg-[#FBDBF7] text-[#E91DD1]",
     delivered: "bg-[#E0F4DE] text-[#00A63E]",
+    ready_to_ship: "bg-[#FFFBEB] text-[#F8A14A]",
     cancelled: "bg-[#EFEFEF] text-[#686868]",
   };
 
@@ -100,7 +102,6 @@ const AllOrders = () => {
     const timer = setTimeout(() => {
       setDebouncedValue(search);
     }, 500);
-
     return () => clearTimeout(timer);
   }, [search]);
 
@@ -236,11 +237,11 @@ const AllOrders = () => {
 
     /* ↕️ SORT */
     if (filterOne === "Latest Order Date") {
-      result.sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate));
+      result.sort((a, b) => new Date(b.placedAt) - new Date(a.placedAt));
     }
 
     if (filterOne === "Oldest Order Date") {
-      result.sort((a, b) => new Date(a.orderDate) - new Date(b.orderDate));
+      result.sort((a, b) => new Date(a.placedAt) - new Date(b.placedAt));
     }
 
     if (filterOne === "Order Value (Low-High)") {
@@ -256,7 +257,7 @@ const AllOrders = () => {
 
   useEffect(() => {
     setPage(1);
-  }, [debouncedValue, paymentstatus, filterOne]);
+  }, [debouncedValue, paymentstatus, filterOne, storeDate, range]);
 
   // ======================== Pops ==================
 

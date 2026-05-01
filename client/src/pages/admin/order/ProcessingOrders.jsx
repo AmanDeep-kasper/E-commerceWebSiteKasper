@@ -52,10 +52,24 @@ const ProcessingOrders = () => {
         carrier,
       });
 
-      setOrdersList((prev) => prev.filter((order) => order._id !== orderId));
+      setOrdersList((prev) =>
+        prev.map((order) =>
+          order._id === orderId
+            ? {
+                ...order,
+                status: "ready_to_ship",
+                tracking: {
+                  ...order.tracking,
+                  carrier,
+                },
+              }
+            : order,
+        ),
+      );
 
       toast.success("Order marked as Ready to Ship ✅");
-      setSelectedOrderId(null);
+      handleOrderList();
+      // setSelectedOrderId(null);
     } catch (error) {
       toast.error(
         error?.response?.data?.message || "Failed to mark ready to ship",
@@ -63,10 +77,38 @@ const ProcessingOrders = () => {
     }
   };
 
+  const handleShipOrder = async ({ orderId, trackingId, trackingUrl }) => {
+    try {
+      if (!trackingId) {
+        toast.error("Enter tracking number");
+        return;
+      }
+
+      if (!trackingUrl) {
+        toast.error("Enter tracking URL");
+        return;
+      }
+
+      await axiosInstance.patch(`/order/admin/${orderId}/ship`, {
+        trackingNumber: trackingId,
+        trackingUrl,
+      });
+
+      // remove from processing list
+      setOrdersList((prev) => prev.filter((order) => order._id !== orderId));
+
+      toast.success("Order moved to Shipped ✅");
+
+      setSelectedOrderId(null);
+      handleOrderList();
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Failed to ship order");
+    }
+  };
+
   useEffect(() => {
-    if (!apiStatus) return;
     handleOrderList();
-  }, [page, apiStatus]);
+  }, [page]);
 
   const columns = [
     "Order ID",
@@ -89,12 +131,12 @@ const ProcessingOrders = () => {
   }, [search]);
 
   const [paymentstatusOpen, setPaymentStatusOpen] = useState(false);
-  const [paymentstatus, setPaymentStatus] = useState("Label Generated");
-  const Paymentstatuses = ["Label Generated", "Generated", "Not Generated"];
+  const [paymentstatus, setPaymentStatus] = useState("Status");
+  const Paymentstatuses = ["Status", "processing", "ready_to_ship"];
   const [DeliveryPartner, setDeliveryPartner] = useState(
     "Select Delivery Partner",
   );
-  const DeliveryPartners = ["Kasper", "Other"];
+  // const DeliveryPartners = ["Kasper", "Other"];
 
   const [filterOne, setfilterOne] = useState("Latest Dispatch Date");
   const [filterOneOpen, setfilterOneOpen] = useState(false);
@@ -112,28 +154,34 @@ const ProcessingOrders = () => {
 
     if (debouncedValue.trim()) {
       result = result.filter((item) =>
-        item.orderNumber.toLowerCase().includes(debouncedValue.toLowerCase()),
+        item.orderNumber?.toLowerCase().includes(debouncedValue.toLowerCase()),
       );
     }
 
-    if (paymentstatus !== "Label Generated") {
-      result = result.filter((item) => item.labelGenerated === paymentstatus);
+    if (paymentstatus !== "Status") {
+      result = result.filter(
+        (item) => item.status?.toLowerCase() === paymentstatus.toLowerCase(),
+      );
     }
 
     if (filterOne === "Latest Dispatch Date") {
-      result.sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate));
+      result.sort((a, b) => new Date(b.placedAt) - new Date(a.placedAt));
     }
 
     if (filterOne === "Oldest Dispatch Date") {
-      result.sort((a, b) => new Date(a.orderDate) - new Date(b.orderDate));
+      result.sort((a, b) => new Date(a.placedAt) - new Date(b.placedAt));
     }
 
     if (filterOne === "Order Value (Low-High)") {
-      result.sort((a, b) => a.orderValue - b.orderValue);
+      result.sort(
+        (a, b) => Number(a.grandTotal || 0) - Number(b.grandTotal || 0),
+      );
     }
 
     if (filterOne === "Order Value (High-Low)") {
-      result.sort((a, b) => b.orderValue - a.orderValue);
+      result.sort(
+        (a, b) => Number(b.grandTotal || 0) - Number(a.grandTotal || 0),
+      );
     }
 
     return result;
@@ -157,19 +205,7 @@ const ProcessingOrders = () => {
               data={selectOrder}
               setSelectedOrderId={() => setSelectedOrderId(null)}
               onReadyToShip={handleReadyToShip}
-              onSaveTracking={({ orderId, trackingId, trackingUrl }) => {
-                updateOrder(orderId, {
-                  orderStatus: "Shipped",
-                  trackingId,
-                  trackingUrl,
-                });
-
-                toast.success("Order moved to Shipped", {
-                  style: { background: "#E0F4DE", color: "#1C1C1C" },
-                });
-
-                setSelectedOrderId(null);
-              }}
+              onSaveTracking={handleShipOrder}
               setopenCancelModule={setopenCancelModule}
             />
           </div>
@@ -218,7 +254,7 @@ const ProcessingOrders = () => {
               )}
             </div>
 
-            <div className="relative">
+            {/* <div className="relative">
               <button
                 className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 bg-[#F8FBFC] rounded-lg hover:bg-gray-100 border"
                 onClick={() => setDeliveryPartnerOpen((p) => !p)}
@@ -246,7 +282,7 @@ const ProcessingOrders = () => {
                   ))}
                 </div>
               )}
-            </div>
+            </div> */}
 
             <div className="relative">
               <button
@@ -292,7 +328,7 @@ const ProcessingOrders = () => {
           </thead>
 
           <tbody>
-            {ordersList.map((order, index) => (
+            {filteredOrders.map((order, index) => (
               <tr
                 key={index}
                 className="border-t hover:bg-gray-50 transition cursor-pointer"
@@ -311,7 +347,7 @@ const ProcessingOrders = () => {
 
                 <td className="px-4 py-3 text-xs">
                   <span className="bg-[#D5E5F5] inline-flex items-center justify-center min-w-[110px] px-4 py-1.5 rounded-lg font-medium text-center">
-                    {order.deliveryPartner || "Not Assigned"}
+                    {order?.tracking?.carrier || "Not Assigned"}
                   </span>
                 </td>
 

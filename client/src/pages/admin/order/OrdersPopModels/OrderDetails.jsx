@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import axiosInstance from "../../../../api/axiosInstance";
+import { toast } from "react-toastify";
 
 const OrderDetails = ({
   data,
@@ -15,7 +16,7 @@ const OrderDetails = ({
   onAcceptOrder,
   onReadyToShip,
   onSaveTracking,
-  // onMarkDelivered,
+  onMarkDelivered,
   setopenCancelModule,
 }) => {
   // //////////////////////////////////
@@ -25,6 +26,7 @@ const OrderDetails = ({
   const statusMap = {
     placed: "New Orders",
     processing: "Processing",
+    ready_to_ship: "Ready to Ship",
     shipped: "Shipped",
     delivered: "Delivered",
     cancelled: "Cancelled",
@@ -34,18 +36,10 @@ const OrderDetails = ({
     processing: "bg-[#E6D3FF] text-[#8A38F5]",
     shipped: "bg-[#FBDBF7] text-[#E91DD1]",
     delivered: "bg-[#E0F4DE] text-[#00A63E]",
+    ready_to_ship: "bg-[#FFFBEB] text-[#F8A14A]",
     cancelled: "bg-[#EFEFEF] text-[#686868]",
   };
 
-  // const itemSubtotal = items.reduce(
-  //   (total, item) => total + item.price * item.quantity,
-  //   0,
-  // );
-
-  // const discount = data.discount ?? 0;
-  // const shippingCost = data.shippingCost ?? 0;
-
-  // const totalAmount = itemSubtotal - discount + shippingCost;
   const [deliveryPartners, setDeliveryPartners] = useState([]);
   useEffect(() => {
     const fetchTransporters = async () => {
@@ -63,11 +57,11 @@ const OrderDetails = ({
   console.log(deliveryPartners);
 
   const [selectedPartner, setSelectedPartner] = useState(
-    data?.deliveryPartner || "",
+    data?.tracking?.carrier || "",
   );
 
-  // const [trackingId, setTrackingId] = useState(data?.trackingId || "");
-  // const [trackingUrl, setTrackingUrl] = useState(data?.trackingUrl || "");
+  const [trackingId, setTrackingId] = useState("");
+  const [trackingUrl, setTrackingUrl] = useState("");
 
   // // ✅ FIX: normalize status to avoid "pending", "Pending ", etc.
   const status = (data?.status || "").trim().toLowerCase();
@@ -141,14 +135,14 @@ const OrderDetails = ({
               </div>
             </div>
 
-            {data.deliveryPartner && (
+            {data?.tracking?.carrier && (
               <div className="flex items-center justify-between w-full flex-nowrap">
                 <div className="flex items-center gap-1 min-w-0">
                   <Truck size={15} />
                   <span>Shipping Partner</span>
                 </div>
                 <div className="text-black font-medium shrink-0">
-                  {data.deliveryPartner}
+                  {data?.tracking?.carrier}
                 </div>
               </div>
             )}
@@ -221,7 +215,7 @@ const OrderDetails = ({
       )}
 
       {/* traking details */}
-      {/* {data.trakingDeatils && (
+      {status === "ready_to_ship" && (
         <div className="mt-2 flex flex-col space-y-3">
           <span className="text-sm block">Tracking Details</span>
           <div className="w-full  text-sm text-gray-600 border rounded-md">
@@ -238,15 +232,19 @@ const OrderDetails = ({
           <div className="w-full  text-sm text-gray-600 border rounded-md">
             <div className="flex items-center justify-between w-full flex-nowrap">
               <input
+                value={trackingId}
+                onChange={(e) => setTrackingId(e.target.value)}
                 type="text"
                 className="p-2 w-full outline-none"
-                placeholder="Enter traking ID"
+                placeholder="Enter tracking ID"
               />
             </div>
           </div>
           <div className="w-full  text-sm text-gray-600 border rounded-md">
             <div className="flex items-center justify-between w-full flex-nowrap">
               <input
+                value={trackingUrl}
+                onChange={(e) => setTrackingUrl(e.target.value)}
                 type="text"
                 className="p-2 w-full outline-none"
                 placeholder="Enter tracking URL"
@@ -254,37 +252,46 @@ const OrderDetails = ({
             </div>
           </div>
         </div>
-      )} */}
-      {/* {showTrackingSection && (
+      )}
+
+      {status === "shipped" && (
         <div className="mt-3">
           <p className="text-sm font-medium mb-2">Tracking Details</p>
 
-          
-          {trackingAlreadySaved ? (
+          {status === "shipped" ? (
             <div className="p-3 border rounded-md bg-[#F8FAFB] text-sm space-y-1">
-              <div>
-                <span className="text-gray-600">Partner:</span>{" "}
-                {data.deliveryPartner}
+              <div className="flex items-center justify-between ">
+                <span className="text-gray-600">Partner</span>{" "}
+                <span>{data?.tracking?.carrier}</span>
               </div>
-              <div>
-                <span className="text-gray-600">Tracking ID:</span>{" "}
-                {data.trackingId}
+              <div className="flex items-center justify-between ">
+                <span className="text-gray-600">Tracking ID</span>{" "}
+                {data.tracking?.trackingNumber}
               </div>
-
-              {data.trackingUrl && (
-                <a
-                  href={data.trackingUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-[#2C87E2] underline"
-                >
-                  Open Tracking URL
-                </a>
-              )}
+              <div className="flex items-center justify-between ">
+                <span className="text-gray-600">Tracking URL:</span>{" "}
+                <span>
+                  {" "}
+                  {/* {data?.tracking?.trackingUrl && ( */}
+                  <a
+                    href={
+                      data?.tracking?.trackingUrl?.startsWith("http")
+                        ? data.tracking.trackingUrl
+                        : `https://${data.tracking.trackingUrl}`
+                    }
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-[#2C87E2] underline"
+                  >
+                    {data?.tracking?.trackingUrl}
+                  </a>
+                  {/* // )} */}
+                </span>
+              </div>
             </div>
           ) : (
-            <> 
-              {/* <input
+            <>
+              <input
                 value={trackingId}
                 onChange={(e) => setTrackingId(e.target.value)}
                 className="w-full border rounded-md p-2 text-sm mb-2"
@@ -295,7 +302,7 @@ const OrderDetails = ({
                 onChange={(e) => setTrackingUrl(e.target.value)}
                 className="w-full border rounded-md p-2 text-sm"
                 placeholder="Enter Tracking URL"
-              /> 
+              />
 
               <button
                 type="button"
@@ -311,7 +318,7 @@ const OrderDetails = ({
             </>
           )}
         </div>
-      )}*/}
+      )}
 
       {/* Customer Details */}
       <div className="mt-2">
@@ -338,7 +345,11 @@ const OrderDetails = ({
               <span className="text-black">
                 {data?.shippingAddress?.fullName}
               </span>
-              <span>{data.customerId ?? "N/A"} </span>
+              <span>
+                {data?.user
+                  ? `CID-AI-${data.user.slice(-6).toUpperCase()}`
+                  : "N/A"}
+              </span>
             </div>
           </div>
 
@@ -357,9 +368,9 @@ const OrderDetails = ({
               </span>
             </div>
 
-            <div className="flex items-center justify-between w-full gap-8">
+            <div className="flex items-start justify-between w-full gap-4">
               <span>Address</span>
-              <span className="text-black font-medium shrink-3 overflow-hidden">
+              <span className="text-black font-medium text-right break-words max-w-[70%]">
                 {data?.shippingAddress.address ?? "N/A"}
               </span>
             </div>
@@ -414,9 +425,48 @@ const OrderDetails = ({
       <div className="mt-2">
         <div className="flex items-center justify-between w-full flex-nowrap">
           <p className="text-sm mt-3 mb-2">Payment</p>
-          {/* <button className="flex items-center gap-2 text-[#2C87E2] shrink-0">
-            Download Invoice <Download size={18} />
-          </button> */}
+          {/* {(status === "shipped" || status === "delivered") && (
+            <button
+              className="flex items-center gap-2 text-[#2C87E2] shrink-0"
+              onClick={() => {
+                const url = data?.invoice?.invoicePdf?.url;
+
+                if (!url) {
+                  toast.error("Invoice not available");
+                  return;
+                }
+
+                const link = document.createElement("a");
+                link.href = url;
+                link.setAttribute(
+                  "download",
+                  `${data?.invoice?.invoiceNumber || "invoice"}.pdf`,
+                );
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+              }}
+            >
+              Download Invoice <Download size={18} />
+            </button>
+          )} */}
+          {(status === "shipped" || status === "delivered") && (
+            <a
+              href={data?.invoice?.invoicePdf?.url}
+              download
+              target="_blank"
+              rel="noreferrer"
+              className="flex items-center gap-2 text-[#2C87E2] shrink-0"
+              onClick={(e) => {
+                if (!data?.invoice?.invoicePdf?.url) {
+                  e.preventDefault();
+                  toast.error("Invoice not available");
+                }
+              }}
+            >
+              Download Invoice <Download size={18} />
+            </a>
+          )}
         </div>
 
         <div className="w-full p-3 text-sm text-gray-600 border rounded-md">
@@ -500,15 +550,41 @@ const OrderDetails = ({
             Ready to Ship
           </button>
         )}
-        {/* {isShipped && (
+        {status === "ready_to_ship" && (
           <button
             type="button"
-            onClick={() => onMarkDelivered?.({ orderId: data.orderId })}
+            onClick={() => {
+              if (!trackingId) {
+                toast.error("Enter tracking number");
+                return;
+              }
+
+              if (!trackingUrl) {
+                toast.error("Enter tracking URL");
+                return;
+              }
+
+              onSaveTracking({
+                orderId: data._id,
+                carrier: selectedPartner,
+                trackingId,
+                trackingUrl,
+              });
+            }}
+            className="px-6 py-1.5 rounded-md text-sm font-medium bg-[#1C3753] text-white"
+          >
+            Mark as Shipped
+          </button>
+        )}
+        {status === "shipped" && (
+          <button
+            type="button"
+            onClick={() => onMarkDelivered?.({ orderId: data._id })}
             className="px-3 py-1.5 text-sm rounded-md text-white bg-[#1C3753]"
           >
             Mark as Delivered
           </button>
-        )} */}
+        )}
       </div>
     </div>
   );

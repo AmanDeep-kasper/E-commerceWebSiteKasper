@@ -69,7 +69,7 @@ function Customer() {
       }
       setError(null);
     } catch (err) {
-      console.error("Error fetching users:", err);
+      // console.error("Error fetching users:", err);
       setError(err.response?.data?.message || "Failed to load users");
       setUsers([]);
     } finally {

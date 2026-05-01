@@ -268,6 +268,14 @@ const Products = () => {
   const [selectedStatus, setSelectedStatus] = useState("Status");
   const [selectedCategory, setSelectedCategory] = useState("Category");
   const [isFirstLoad, setIsFirstLoad] = useState(true);
+   const [allCategories, setAllCategories] = useState([]);
+  const [loadingCategories, setLoadingCategories] = useState(false);
+    const [originalStats, setOriginalStats] = useState({
+    total: 0,
+    active: 0,
+    inactive: 0,
+    draft: 0,
+  });
   const [stats, setStats] = useState({
     total: 0,
     active: 0,
@@ -295,7 +303,7 @@ const Products = () => {
                   ? "inactive"
                   : selectedStatus === "Draft"
                     ? "draft"
-                    : "all",
+                    : "undefined",
             category:
               selectedCategory !== "Category" ? selectedCategory : undefined,
           },
@@ -329,9 +337,37 @@ const Products = () => {
       setIsFirstLoad(false);
     }
   };
+
+  // fetch original unfiltered stats  on component mount
+  const fetchOriginalStats = async () => {
+    try {
+      const response = await axiosInstance.get(`/product/admin/get-all-products`, {
+         params: {
+          page: 1,
+          limit: 1,
+          status: undefined, // No status filter
+          category: undefined, // No category filter
+        },
+      })
+      if (response.data?.success && response.data?.stats) {
+        setOriginalStats({
+          total: response.data.stats.total || 0,
+          active: response.data.stats.active || 0,
+          inactive: response.data.stats.inactive || 0,
+          draft: response.data.stats.draft || 0,
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching original stats:", error);
+    }
+  };
   useEffect(() => {
     fetchProducts();
   }, [currentPage, debouncedSearch, selectedStatus, selectedCategory]);
+
+  useEffect(() => {
+    fetchOriginalStats();
+  },[]);
 
   // const Editproduct = useMemo(() => {
   //   if (!uuid || !productData?.length) return null;
@@ -394,17 +430,90 @@ const Products = () => {
 
   const [selectedSort, setSelectedSort] = useState("Price: Low → High");
 
-  // extract unique categories from actual product data
-  const categories = useMemo(() => {
-    const uniqueCategories = new Set();
-    product.forEach((p) => {
-      const catName = p.categoryName || p.category?.name;
+   // ✅ Fetch all categories from database (not from filtered products)
+const fetchAllCategories = async () => {
+  try {
+    setLoadingCategories(true);
+    
+    // Fetch all categories
+    const categoriesResponse = await axiosInstance.get('/category/admin/all-categories-filter');
+    const allCategoriesData = categoriesResponse.data?.data || [];
+    
+    // Fetch products to know which categories have products
+    const productsResponse = await axiosInstance.get(`/product/admin/get-all-products`, {
+      params: {
+        page: 1,
+        limit: 1000,
+      },
+    });
+    
+    const allProducts = productsResponse.data?.data || [];
+    
+    // Get unique category names from products
+    const categoryNamesWithProducts = new Set();
+    allProducts.forEach(product => {
+      const catName = product.categoryName || product.category?.name;
       if (catName) {
-        uniqueCategories.add(catName);
+        categoryNamesWithProducts.add(catName);
       }
     });
-    return [...uniqueCategories];
-  }, [product]);
+    
+    // Filter categories to only those with products
+    const filteredCategories = allCategoriesData
+      .filter(cat => categoryNamesWithProducts.has(cat.name))
+      .map(cat => cat.name);
+    
+    setAllCategories(filteredCategories);
+    
+  } catch (error) {
+    console.error("Error fetching categories:", error);
+    fetchCategoriesFromProducts(); // fallback
+  } finally {
+    setLoadingCategories(false);
+  }
+};
+
+  // ✅ Fallback: Fetch from all products (without pagination)
+  const fetchCategoriesFromProducts = async () => {
+    try {
+      const response = await axiosInstance.get(`/product/admin/get-all-products`, {
+        params: {
+          page: 1,
+          limit: 1000, // Large limit to get all products
+        },
+      });
+      
+      const allProducts = response.data?.data || [];
+      const uniqueCategories = new Set();
+      allProducts.forEach(product => {
+        const catName = product.categoryName || product.category?.name;
+        if (catName) {
+          uniqueCategories.add(catName);
+        }
+      });
+      setAllCategories([...uniqueCategories]);
+    } catch (error) {
+      console.error("Error fetching products for categories:", error);
+    }
+  };
+
+  // ✅ Call this on component mount
+  useEffect(() => {
+    fetchAllCategories();
+  }, []);
+
+
+  // // extract unique categories from actual product data
+  // const categories = useMemo(() => {
+  //   const uniqueCategories = new Set();
+  //   product.forEach((p) => {
+  //     const catName = p.categoryName || p.category?.name;
+  //     if (catName) {
+  //       uniqueCategories.add(catName);
+  //     }
+  //   });
+  //   return [...uniqueCategories];
+  // }, [product]);
 
   // Sorting options
   const priceOptions = [
@@ -480,28 +589,28 @@ const Products = () => {
   const kpicardData = [
     {
       name: "Total Products",
-      data: totalItems,
+      data: originalStats.total,
       icon: <Package />,
       iconbg: "bg-[#D5E5F5]",
       iconColor: "text-[#1C3753]",
     },
     {
       name: "Total Categories",
-      data: categories.length,
+      data: allCategories?.length,
       icon: <Layers />,
       iconbg: "bg-[#E5DBFB]",
       iconColor: "text-[#713CE8]",
     },
     {
       name: "Active Products",
-      data: stats?.active || 0,
+      data: originalStats?.active || 0,
       icon: <PackageCheck />,
       iconbg: "bg-[#F0FDF4]",
       iconColor: "text-[#00A63E]",
     },
     {
       name: "Draft",
-      data: stats?.draft || 0,
+      data: originalStats?.draft || 0,
       //  product.filter((p) => p.isActive === false).length,
       icon: <FileText />,
       iconbg: "bg-[#EFEFEF]",
@@ -510,7 +619,7 @@ const Products = () => {
     {
       name: "Inactive",
       // data: product.filter((p) => p.isActive === false).length,
-      data: stats?.inactive || 0,
+      data: originalStats?.inactive || 0,
       icon: <Archive />,
       iconbg: "bg-[#FFFBEB]",
       iconColor: "text-[#F8A14A]",
@@ -719,18 +828,38 @@ const Products = () => {
               {activeFilter === "category" && (
                 <div className="absolute left-40 top-11 ml-2 w-64 z-30">
                   <ul className="bg-white border rounded-lg shadow max-h-60 overflow-auto">
-                    {categories.map((cat) => (
-                      <li
-                        key={cat}
-                        onClick={() => {
-                          setSelectedCategory(cat);
-                          setActiveFilter(null);
-                        }}
-                        className="px-4 py-2 cursor-pointer hover:bg-[#F5F8FA]"
-                      >
-                        {cat}
-                      </li>
-                    ))}
+                     {/* Add "All Categories" option */}
+          <li
+            onClick={() => {
+              setSelectedCategory("Category");
+              setActiveFilter(null);
+              setCurrentPage(1);
+            }}
+            className="px-4 py-2 cursor-pointer hover:bg-[#F5F8FA] font-medium border-b"
+          >
+            All Categories
+          </li>
+          {loadingCategories ? (
+            <li className="px-4 py-2 text-gray-500 text-center">Loading...</li>
+          ) : allCategories.length === 0 ? (
+            <li className="px-4 py-2 text-gray-500 text-center">No categories found</li>
+          ) : (
+            allCategories.map((cat) => (
+              <li
+                key={cat}
+                onClick={() => {
+                  setSelectedCategory(cat);
+                  setActiveFilter(null);
+                  setCurrentPage(1); // Reset to first page when filtering
+                }}
+                className={`px-4 py-2 cursor-pointer hover:bg-[#F5F8FA] ${
+                  selectedCategory === cat ? "bg-[#E0F4DE] text-[#00A63E]" : ""
+                }`}
+              >
+                {cat}
+              </li>
+                    ))
+                  )}
                   </ul>
                 </div>
               )}

@@ -1,34 +1,55 @@
 import { useEffect, useMemo, useState } from "react";
 import { useOutletContext } from "react-router-dom";
-import {
-  ChevronDown,
-  ListFilter,
-  Search,
-} from "lucide-react";
+import { ChevronDown, ListFilter, Search } from "lucide-react";
 import OrderDetails from "./OrdersPopModels/OrderDetails";
 import { DayPicker } from "react-day-picker";
+import axiosInstance from "../../../api/axiosInstance";
 
 const DeliveredOrders = () => {
-  const { ordersList = [] } = useOutletContext();
+  const [ordersList, setOrdersList] = useState([]);
+  const [loading, setLoading] = useState(false);
+  /* ================= PAGINATION ================= */
+  const [page, setPage] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  const limit = 10;
+  const startIndex = (page - 1) * limit + 1;
+  const endIndex = Math.min(page * limit, totalItems);
 
-  // ✅ only delivered orders
-  const deliveredOrders = useMemo(() => {
-    return ordersList.filter(
-      (item) => item.orderStatus?.toLowerCase() === "delivered"
-    );
-  }, [ordersList]);
+  const apiStatus = "delivered";
+  const handleOrderList = async () => {
+    try {
+      setLoading(true);
+
+      const res = await axiosInstance.get("/order/admin", {
+        params: {
+          page,
+          limit,
+          status: apiStatus,
+        },
+      });
+      console.log(res);
+      setOrdersList(res?.data?.orders || []);
+      setTotalItems(res?.data?.pagination?.total || 0);
+      setTotalPages(res?.data?.pagination?.pages || 1);
+    } catch (error) {
+      console.error("Error fetching orders:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    handleOrderList();
+  }, [page]);
 
   const columns = [
     "Order ID",
     "Quantity",
     "Order Value",
-    // "Payment Status",
     "Delivered Date",
     "Action",
   ];
-
-  const [page, setPage] = useState(1);
-  const rowsPerPage = 10;
 
   const [search, setSearch] = useState("");
   const [debouncedValue, setDebouncedValue] = useState("");
@@ -43,14 +64,6 @@ const DeliveredOrders = () => {
 
   const [paymentstatusOpen, setPaymentStatusOpen] = useState(false);
   const [paymentstatus, setPaymentStatus] = useState("Payment Status");
-  // const Paymentstatuses = [
-  //   "Payment Status",
-  //   "Paid",
-  //   "Refund Initiated",
-  //   "Refunded",
-  //   "No Refund",
-  //   "COD Collected",
-  // ];
 
   const [filterOne, setfilterOne] = useState("Latest");
   const [filterOneOpen, setfilterOneOpen] = useState(false);
@@ -81,50 +94,60 @@ const DeliveredOrders = () => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
 
   const months = [
-    "January","February","March","April","May","June",
-    "July","August","September","October","November","December",
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
   ];
 
   const years = Array.from({ length: 40 }, (_, i) => 2000 + i);
 
   const filteredOrders = useMemo(() => {
-    let result = [...deliveredOrders];
+    let result = [...ordersList];
 
     // search
     if (debouncedValue.trim()) {
       result = result.filter((item) =>
-        item.orderId.toLowerCase().includes(debouncedValue.toLowerCase())
+        item.orderNumber.toLowerCase().includes(debouncedValue.toLowerCase()),
       );
     }
 
     // payment filter
-    if (paymentstatus !== "Payment Status") {
-      result = result.filter((item) => item.paymentStatus === paymentstatus);
-    }
+    // if (paymentstatus !== "Payment Status") {
+    //   result = result.filter((item) => item.paymentStatus === paymentstatus);
+    // }
 
     // sort
     if (filterOne === "Latest") {
-      result.sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate));
+      result.sort((a, b) => new Date(b.placedAt) - new Date(a.placedAt));
     }
 
     if (filterOne === "Latest Delivery Date") {
       result.sort(
-        (a, b) => new Date(b.deliveryDate) - new Date(a.deliveryDate)
+        (a, b) => new Date(b.deliveredAt) - new Date(a.deliveredAt),
       );
     }
 
     if (filterOne === "Oldest Delivery Date") {
       result.sort(
-        (a, b) => new Date(a.deliveryDate) - new Date(b.deliveryDate)
+        (a, b) => new Date(a.deliveredAt) - new Date(b.deliveredAt),
       );
     }
 
     if (filterOne === "Order Value (Low-High)") {
-      result.sort((a, b) => a.orderValue - b.orderValue);
+      result.sort((a, b) => a.grandTotal - b.grandTotal);
     }
 
     if (filterOne === "Order Value (High-Low)") {
-      result.sort((a, b) => b.orderValue - a.orderValue);
+      result.sort((a, b) => b.grandTotal - a.grandTotal);
     }
 
     // date filter
@@ -133,62 +156,50 @@ const DeliveredOrders = () => {
     if (storeDate === "Today") {
       result = result.filter(
         (item) =>
-          new Date(item.orderDate).toDateString() === today.toDateString()
+          new Date(item.deliveredAt).toDateString() === today.toDateString(),
       );
     }
 
     if (storeDate === "Last 7 days") {
       const past = new Date();
       past.setDate(today.getDate() - 7);
-      result = result.filter((item) => new Date(item.orderDate) >= past);
+      result = result.filter((item) => new Date(item.deliveredAt) >= past);
     }
 
     if (storeDate === "Last 30 days") {
       const past = new Date();
       past.setDate(today.getDate() - 30);
-      result = result.filter((item) => new Date(item.orderDate) >= past);
+      result = result.filter((item) => new Date(item.deliveredAt) >= past);
     }
 
     if (storeDate === "Last 6 months") {
       const past = new Date();
       past.setMonth(today.getMonth() - 6);
-      result = result.filter((item) => new Date(item.orderDate) >= past);
+      result = result.filter((item) => new Date(item.deliveredAt) >= past);
     }
 
     if (range?.from && range?.to && storeDate.includes("-")) {
       result = result.filter((item) => {
-        const d = new Date(item.orderDate);
+        const d = new Date(item.deliveredAt);
         return d >= range.from && d <= range.to;
       });
     }
 
     return result;
-  }, [deliveredOrders, debouncedValue, paymentstatus, filterOne, storeDate, range]);
+  }, [ordersList, debouncedValue, paymentstatus, filterOne, storeDate, range]);
 
   useEffect(() => {
     setPage(1);
   }, [debouncedValue, paymentstatus, filterOne, storeDate, range]);
 
-  const total = filteredOrders.length;
-  const totalPages = Math.ceil(total / rowsPerPage) || 1;
-
-  const startIndex = (page - 1) * rowsPerPage;
-  const endIndex = Math.min(startIndex + rowsPerPage, total);
-
-  const paginatedOrders = filteredOrders.slice(startIndex, endIndex);
-
   const [selectedOrderId, setSelectedOrderId] = useState(null);
-  const selectOrder = ordersList.find(
-    (order) => order.orderId === selectedOrderId
-  );
+  const selectOrder = ordersList.find((order) => order._id === selectedOrderId);
 
   return (
     <>
       {selectOrder && (
         <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center">
-          <div
-            className="bg-[#FFFFFF] w-[500px] max-w-[90vw] max-h-[90vh] p-[24px] rounded-xl relative md:w-[500px] overflow-y-auto overscroll-contain scrollbar-hide"
-          >
+          <div className="bg-[#FFFFFF] w-[500px] max-w-[90vw] max-h-[90vh] p-[24px] rounded-xl relative md:w-[500px] overflow-y-auto overscroll-contain scrollbar-hide">
             <OrderDetails
               data={selectOrder}
               setSelectedOrderId={() => setSelectedOrderId(null)}
@@ -279,8 +290,8 @@ const DeliveredOrders = () => {
                           setCurrentMonth(
                             new Date(
                               currentMonth.getFullYear(),
-                              Number(e.target.value)
-                            )
+                              Number(e.target.value),
+                            ),
                           )
                         }
                         className="flex-1 border rounded px-2 py-1 text-sm"
@@ -298,8 +309,8 @@ const DeliveredOrders = () => {
                           setCurrentMonth(
                             new Date(
                               Number(e.target.value),
-                              currentMonth.getMonth()
-                            )
+                              currentMonth.getMonth(),
+                            ),
                           )
                         }
                         className="flex-1 border rounded px-2 py-1 text-sm"
@@ -352,7 +363,7 @@ const DeliveredOrders = () => {
                         disabled={!range?.from || !range?.to}
                         onClick={() => {
                           setStoreDate(
-                            `${range.from.toLocaleDateString()} - ${range.to.toLocaleDateString()}`
+                            `${range.from.toLocaleDateString()} - ${range.to.toLocaleDateString()}`,
                           );
                           setOpenDatefilter(false);
                           setShowCustomDate(false);
@@ -450,14 +461,14 @@ const DeliveredOrders = () => {
           </thead>
 
           <tbody>
-            {paginatedOrders.map((order) => (
+            {filteredOrders.map((order) => (
               <tr
-                key={order.orderId}
+                key={order.orderNumber}
                 className="border-t hover:bg-gray-50 transition cursor-pointer text-center"
               >
-                <td className="px-4 py-3">{order.orderId}</td>
-                <td className="px-4 py-3">{order.quantity}</td>
-                <td className="px-4 py-3">₹{order.orderValue}</td>
+                <td className="px-4 py-3">{order.orderNumber}</td>
+                <td className="px-4 py-3">{order.items?.reduce((acc, item) => acc + item.quantity, 0)}</td>
+                <td className="px-4 py-3">₹{order.grandTotal}</td>
 
                 {/* <td className="px-4 py-3 font-medium text-xs">
                   <span
@@ -473,12 +484,14 @@ const DeliveredOrders = () => {
                   </span>
                 </td> */}
 
-                <td className="px-4 py-3">{order.deliveryDate || order.orderDate}</td>
+                <td className="px-4 py-3">
+                 {new Date(order.deliveredAt).toLocaleDateString()}
+                </td>
 
                 <td className="px-4 py-3 text-right relative">
                   <div className="flex items-center justify-center">
                     <p
-                      onClick={() => setSelectedOrderId(order.orderId)}
+                      onClick={() => setSelectedOrderId(order._id)}
                       className="hover:underline text-[#2C87E2]"
                     >
                       View
@@ -492,9 +505,9 @@ const DeliveredOrders = () => {
 
         <div className="flex items-center justify-between px-6 py-3 text-sm text-gray-600">
           <div>
-            Showing <span className="font-medium">{total === 0 ? 0 : startIndex + 1}</span>–
+            Showing <span className="font-medium">{startIndex}</span>–
             <span className="font-medium">{endIndex}</span> of{" "}
-            <span className="font-medium">{total}</span> results
+            <span className="font-medium">{totalItems}</span> results
           </div>
 
           <div className="flex items-center gap-2">
@@ -514,7 +527,7 @@ const DeliveredOrders = () => {
             <button
               className="px-3 py-1 border rounded disabled:opacity-40"
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              disabled={page === totalPages || total === 0}
+              disabled={page === totalPages}
             >
               ›
             </button>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ClipboardClock,
   PackageSearch,
@@ -7,8 +7,8 @@ import {
   Ban,
 } from "lucide-react";
 import { Outlet } from "react-router-dom";
-import orders from "../../../data/orders.json";
 import NavOrders from "./NavOrders";
+import axiosInstance from "../../../api/axiosInstance";
 
 const Badge = ({ children, tone }) => {
   return (
@@ -28,71 +28,78 @@ const profileMenu = [
 ];
 
 function Order() {
-  const [ordersList, setOrdersList] = useState(orders);
-
-  const updateOrder = (orderId, patch) => {
-    setOrdersList((prev) =>
-      prev.map((o) => (o.orderId === orderId ? { ...o, ...patch } : o)),
-    );
-  };
-
-  const getCount = (status) => {
-    if (status === "all") return ordersList.length;
-    return ordersList.filter(
-      (item) => item.orderStatus?.toLowerCase() === status.toLowerCase(),
-    ).length;
-  };
+  const [ordersList, setOrdersList] = useState([]);
+  const [stats, setStats] = useState({});
+  const [loading, setLoading] = useState(false);
 
   const [page, setPage] = useState(1);
-  const rowsPerPage = 10;
-  // const allRows = [...orders]; // old
-  const allRows = [...ordersList]; // edit by aman
-  const totalPages = Math.ceil(allRows.length / rowsPerPage);
-  const rows = allRows.slice((page - 1) * rowsPerPage, page * rowsPerPage);
+  const [totalItems, setTotalItems] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
 
-  const [param, setParam] = useState("all");
+  const limit = 10;
 
-  const filteredRows =
-    param.toLowerCase() === "all"
-      ? rows
-      : rows.filter(
-          (row) => row.orderStatus.toLowerCase() === param.toLowerCase(),
-        );
+  const handleOrderList = async () => {
+    try {
+      setLoading(true);
 
-  // /////////////////////////////////////////
+      const res = await axiosInstance.get("/order/admin", {
+        params: {
+          page,
+          limit,
+        },
+      });
+
+      setOrdersList(res?.data?.orders || []);
+      setStats(res?.data?.stats || {});
+      setTotalItems(res?.data?.pagination?.total || 0);
+      setTotalPages(res?.data?.pagination?.pages || 1);
+    } catch (error) {
+      console.error("Error fetching orders:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    handleOrderList();
+  }, [page]);
+
+  const refreshOrders = async () => {
+    await handleOrderList();
+  };
 
   const kpicardData = [
     {
       name: "New Orders",
-      data: "45",
+      data: stats.newOrders || 0,
       icon: <ClipboardClock />,
       iconbg: "bg-[#D5E5F5]",
       iconColor: "text-[#1C3753]",
     },
     {
       name: "Processing",
-      data: "15",
+      data: (stats.processingOrders || 0) + (stats.readyToShipOrders || 0),
       icon: <PackageSearch />,
       iconbg: "bg-[#E5DBFB]",
       iconColor: "text-[#713CE8]",
     },
     {
       name: "Shipped",
-      data: "42",
+      data: stats.shippedOrders || 0,
       icon: <Truck />,
       iconbg: "bg-[#F0FDF4]",
       iconColor: "text-[#00A63E]",
     },
     {
       name: "Delivered",
-      data: "1",
+      data: stats.deliveredOrders || 0,
       icon: <PackageCheck />,
       iconbg: "bg-[#FFFBEB]",
       iconColor: "text-[#F8A14A]",
     },
     {
       name: "Cancelled",
-      data: "10",
+      data: stats.cancelledOrders || 0,
       icon: <Ban />,
       iconbg: "bg-[#FFFBEB]",
       iconColor: "text-[#F8A14A]",
@@ -101,47 +108,38 @@ function Order() {
 
   return (
     <div className="p-[24px] bg-[#F6F8F9] min-h-screen">
-      <div>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center justify-between 16px px-2 rounded-md">
-            <h2 className="text-[20px] font-semibold text-gray-800">Orders</h2>
+      <h2 className="text-[20px] font-semibold text-gray-800">Orders</h2>
+
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 py-6">
+        {kpicardData.map((item, index) => (
+          <div
+            key={index}
+            className="relative flex items-center justify-between gap-9 p-4 border rounded-2xl bg-white shadow-sm"
+          >
+            <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[4px] h-12 bg-[#4EA7FF] rounded-r" />
+
+            <div>
+              <div className="text-sm text-gray-500">{item.name}</div>
+              <div className="text-2xl font-semibold">{item.data}</div>
+            </div>
+
+            <div className={`${item.iconbg} ${item.iconColor} p-[12px] rounded-lg`}>
+              {item.icon}
+            </div>
           </div>
-        </div>
+        ))}
+      </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4  py-6">
-          {kpicardData.map((item, index) => {
-            return (
-              <div
-                key={index}
-                className="relative flex items-center justify-between gap-9
-  p-4 border rounded-2xl bg-white shadow-sm"
-              >
-                <span
-                  className="absolute left-0 top-1/2 -translate-y-1/2
-                    w-[4px] h-12 bg-[#4EA7FF] rounded-r"
-                />
+      <div className="bg-white p-4 rounded-xl">
+        <NavOrders profileMenu={profileMenu} data={ordersList} />
 
-                <div>
-                  <div className="text-sm text-gray-500">{item.name}</div>
-                  <div className="text-2xl font-semibold">{item.data}</div>
-                </div>
-
-                <div
-                  className={`${item.iconbg} ${item.iconColor} p-[12px] rounded-lg`}
-                >
-                  {item.icon}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        <div className="bg-white p-4 rounded-xl">
-          <NavOrders profileMenu={profileMenu} data={ordersList} />
-          <div className="pt-4">
-            {/* <Outlet context={{ orders }} /> */}
-            <Outlet context={{ ordersList, updateOrder }} />
-          </div>
+        <div className="pt-4">
+          <Outlet
+            context={{
+              ordersList,
+              refreshOrders,
+            }}
+          />
         </div>
       </div>
     </div>
