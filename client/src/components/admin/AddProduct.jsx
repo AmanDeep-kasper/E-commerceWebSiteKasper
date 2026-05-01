@@ -9,6 +9,8 @@ import { v4 as uuidv4 } from "uuid";
 import imageCompression from "browser-image-compression";
 // import { IoIosArrowForward } from "react-icons/io";
 import { FiUpload } from "react-icons/fi";
+import ReactQuill from "react-quill-new";
+import "react-quill-new/dist/quill.snow.css";
 
 import { ChevronLeft } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -1622,7 +1624,7 @@ const fetchCategories = async () => {
                     />
                   </div>
 
-                  <div className="flex flex-col flex-1">
+                  {/* <div className="flex flex-col flex-1">
                     <label className="block text-black text-[14px] font-normal mb-2">
                       Description
                     </label>
@@ -1638,7 +1640,33 @@ const fetchCategories = async () => {
   focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400
   resize-none overflow-hidden transition-all duration-200"
                     />
-                  </div>
+                  </div> */}
+                  <div className="flex flex-col flex-1">
+  <label className="block text-black text-[14px] font-normal mb-2">
+    Description
+  </label>
+  <div className="border border-[#D1D5DB] rounded-md bg-white">
+    <ReactQuill
+      theme="snow"
+      value={formData.description}
+      onChange={(value) => {
+        setFormData(prev => ({ ...prev, description: value }));
+      }}
+      modules={{
+        toolbar: [
+          [{ header: [1, 2, 3, false] }],
+          ["bold", "italic", "underline"],
+          [{ list: "ordered" }, { list: "bullet" }],
+          ["link", "image"],
+          [{ align: [] }],
+          ["clean"],
+        ],
+      }}
+      className="bg-white"
+      style={{ height: '200px', marginBottom: '50px' }}
+    />
+  </div>
+</div>
                 </div>
               </div>
               <div className="flex flex-col space-y-3">
@@ -2362,17 +2390,10 @@ Delete Selected
                                           />
                                         </div>
                                         <span className="text-sm text-[#1C3753]">
-                                          {variant.variantImage.length} Image{variant.variantImage.length !== 1 ? "s" : ""}
+                                         + {variant.variantImage.length}  Image{variant.variantImage.length !== 1 ? "s" : ""}
                                         </span>
                                       </button>
-                                      {/* Add re-upload button for new variants */}
-                                      {/* <button
-            type="button"
-            onClick={() => triggerVariantUpload(actualIndex)}
-            className="text-xs text-blue-500 underline"
-          >
-            Re-upload
-          </button> */}
+    
                                     </div>
                                   )}
 
