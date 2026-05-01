@@ -428,7 +428,7 @@ const Products = () => {
   const [filterOpen, setFilterOpen] = useState(false); // main filter
   const [activeFilter, setActiveFilter] = useState(null); // "status" | "category"
 
-  const [selectedSort, setSelectedSort] = useState("Price: Low → High");
+  const [selectedSort, setSelectedSort] = useState("Latest First");
 
    // ✅ Fetch all categories from database (not from filtered products)
 const fetchAllCategories = async () => {
@@ -517,6 +517,7 @@ const fetchAllCategories = async () => {
 
   // Sorting options
   const priceOptions = [
+    "Latest First",
     "Price: Low → High",
     "Price: High → Low",
     "Alphabetical (A–Z)",
@@ -525,7 +526,15 @@ const fetchAllCategories = async () => {
 
   // Apply sorting
   const sortedProducts = [...product];
-  if (selectedSort === "Price: Low → High") {
+  if (selectedSort === "Latest First") {
+  // Sort by createdAt date - newest first
+  sortedProducts.sort((a, b) => {
+    const dateA = new Date(a.createdAt || a.created_at || a.date || 0);
+    const dateB = new Date(b.createdAt || b.created_at || b.date || 0);
+    return dateB - dateA; // Descending order (newest first)
+  });
+}
+ else if (selectedSort === "Price: Low → High") {
     sortedProducts.sort(
       (a, b) => (a.defaultPrice || 0) - (b.defaultPrice || 0),
     );
