@@ -16,7 +16,6 @@ function Footer() {
       <div className="relative z-10 flex justify-between lg:flex-nowrap flex-wrap gap-4">
         <div className="flex flex-col w-full">
           <div className="grid lg:grid-cols-4 md:grid-cols-2 sm:grid-cols-1 gap-6 lg:gap-16">
-
             <div className="flex flex-col gap-2">
               <Link to="/home">
                 <h1 className="font-[500] font-marcellus lg:text-[20px] text-[14.5px] text-[#44546C]">
@@ -24,18 +23,34 @@ function Footer() {
                 </h1>
               </Link>
               <p className="lg:text-[14px] text-[11.5px] font-[300] text-[#7D8694] font-">
-                Happy Art Supplies offers premium resin art materials across India.
-                Since 2021, we’ve helped creators with quality supplies, reliable
-                service, and everything needed to bring ideas to life. ✨
+                Happy Art Supplies offers premium resin art materials across
+                India. Since 2021, we’ve helped creators with quality supplies,
+                reliable service, and everything needed to bring ideas to life.
+                ✨
               </p>
               <div>
-                <p className="text-[#44546C] text-[16px]">Contact us on</p>
-                <p className="font-[400] lg:text-sm text-sm">Sangeetha Banerjee</p>
-                <span className="text-sm">(+91) 98868 94723</span>
-                <br />
-                <span className="text-sm">happyartsupplies@gmail.com</span>
+                <p className="text-[#44546C] text-[16px]">Contact us @</p>
+                <p className="font-[400] lg:text-sm text-sm">
+                  Sangeetha Banerjee
+                </p>
+                <a
+                  href="https://wa.me/919886894723"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm block text-blue-600"
+                >
+                  (+91) 98868 94723
+                </a>
+                <a
+                  href="https://mail.google.com/mail/?view=cm&fs=1&to=happyartsupplies@gmail.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm block text-blue-600"
+                >
+                  happyartsupplies@gmail.com
+                </a>
                 <p className="text-sm">
-                  B402, Unites Crossandra, Hormavu Agara Lake Road
+                  B402, United Crossandra, Hormavu Agara Lake Road
                 </p>
                 {/* <br /> */}
                 <p className="text-sm">
@@ -107,7 +122,7 @@ function Footer() {
                   <Link to="/accounts/details">My Account</Link>
                 </li>
                 <Link to="/bag">
-                <li>My Cart</li>
+                  <li>My Cart</li>
                 </Link>
                 <li>
                   <Link to="/accounts/order-history">My Orders</Link>
@@ -121,7 +136,7 @@ function Footer() {
               </ul>
             </div>
 
-           {/*  <div className="flex flex-col gap-8">
+            {/*  <div className="flex flex-col gap-8">
               <div className="lg:w-[437px] w-[310.5px] flex flex-col gap-4">
             <h1 className="font-[500] lg:text-[20px] text-[14.5px]">
               Stay Up to date
@@ -141,7 +156,7 @@ function Footer() {
             </div>
           </div> */}
 
-              {/* <div className="flex flex-col gap-4">
+            {/* <div className="flex flex-col gap-4">
             <h1 className="font-[500] lg:text-[25px] text-[17.5px]">
               Connect With Us
             </h1>
@@ -161,7 +176,6 @@ function Footer() {
             </div>
           </div> 
             </div> */}
-
           </div>
           <div className="flex justify-between py-[20px] border-t-[1px] border-[#ACACAC] mt-4">
             <p className="lg:text-sm text-xs text-[#2D2F31]">
@@ -169,7 +183,9 @@ function Footer() {
             </p>
             <ul className="flex md:gap-4 gap-1 font-[400] lg:text-[16px] text-[11.5px]">
               <li className="lg:text-sm text-xs text-[#2D2F31]">
-                <Link to="/termsconditions">Designed & Developed by Kasper Infotech Pvt. Ltd.</Link>
+                <Link to="/termsconditions">
+                  Designed & Developed by Kasper Infotech Pvt. Ltd.
+                </Link>
               </li>
             </ul>
           </div>

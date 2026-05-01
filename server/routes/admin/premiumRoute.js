@@ -1,0 +1,39 @@
+import express from "express";
+import { authenticate, authorize } from "../../middlewares/authMiddleware.js";
+import {
+  getAllSettings,
+  getHomepageFeatures,
+  updateHomepageFeatures,
+  addFeature,
+  deleteFeature,
+  toggleFeatureStatus,
+} from "../../controllers/admin/PremiumController.js"; // ← Fix path
+
+const router = express.Router();
+
+// Public routes
+router.get("/", getAllSettings);
+router.get("/homepage-features", getHomepageFeatures);
+
+// Admin only routes
+router.put(
+  "/homepage-features",
+  authenticate,
+  authorize("admin"),
+  updateHomepageFeatures,
+);
+router.post("/homepage-features", authenticate, authorize("admin"), addFeature);
+router.delete(
+  "/homepage-features/:featureId",
+  authenticate,
+  authorize("admin"),
+  deleteFeature,
+);
+router.patch(
+  "/homepage-features/:featureId/toggle",
+  authenticate,
+  authorize("admin"),
+  toggleFeatureStatus,
+);
+
+export default router; // ← Use export default
