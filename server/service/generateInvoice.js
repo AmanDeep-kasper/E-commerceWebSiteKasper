@@ -94,7 +94,7 @@ export function generateInvoiceHTML(invoice) {
     font-family: 'Courier New', Courier, monospace;
     font-size: 12.5px;
     color: #000;
-    padding: 24px;
+    padding: 10px;
   }
 
   .container {
