@@ -100,8 +100,6 @@ export function generateInvoiceHTML(invoice) {
   .container {
     max-width: 778px;
     margin: 0 auto;
-    border: 2px solid #9db2cc;
-    border-radius: 12px;
     padding: 18px 20px 28px;
     background: #fff;
   }
@@ -123,8 +121,6 @@ export function generateInvoiceHTML(invoice) {
   .logo-box {
     width: 44px;
     height: 44px;
-    border-radius: 8px;
-    border: 1.5px solid #e0b8d0;
     background: #fff0f6;
     display: flex;
     flex-direction: column;
@@ -134,19 +130,19 @@ export function generateInvoiceHTML(invoice) {
   }
 
   .logo-box span {
-    font-family: Arial, sans-serif;
+    font-family: "Happy Monkey", Arial, Helvetica, sans-serif;
     font-size: 7px;
     font-weight: bold;
-    color: #c2185b;
+    color: #1800AC;
     line-height: 1.4;
     text-align: center;
-  }
+  } 
 
   .brand {
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: "Happy Monkey", Arial, Helvetica, sans-serif;
     font-size: 15px;
     font-weight: bold;
-    color: #d63384;
+    color: #1800AC;
   }
 
   .inv-title {
@@ -405,10 +401,10 @@ export const generateInvoicePDF = async (invoice) => {
       format: "A4",
       printBackground: true,
       margin: {
-        top: "15mm",
-        right: "10mm",
-        bottom: "15mm",
-        left: "10mm",
+        top: "5mm",
+        right: "5mm",
+        bottom: "5mm",
+        left: "5mm",
       },
     });
 
