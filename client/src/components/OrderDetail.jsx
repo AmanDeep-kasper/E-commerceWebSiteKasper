@@ -6,7 +6,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { div } from "framer-motion/m";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, Download } from "lucide-react";
 import { toWords } from "number-to-words";
 import logo from "../assets/IconsUsed/HomeMainLogo.png";
 import axiosInstance from "../api/axiosInstance";
@@ -466,12 +466,42 @@ const OrderDetail = () => {
             <span>{order.orderNumber}</span>
           </div>
         </div>
-        <button
+        {/* <button
           onClick={() => generateInvoice(order)}
           className=" text-[#1C3753] px-6 py-2 border border-[#1C3753] rounded-lg text-sm hover:bg-[#1C3753] hover:text-white transition-colors"
         >
           Download Invoice
-        </button>
+        </button> */}
+        <a
+          // href={data?.invoice?.invoicePdf?.url}
+          download
+          target="_blank"
+          rel="noreferrer"
+          // onClick={(e) => {
+          //               if (!data?.invoice?.invoicePdf?.url) {
+          //                 e.preventDefault();
+          //                 toast.error("Invoice not available");
+          //               }
+          // onClick={() => generateInvoice(order)}
+          className=" text-[#1C3753] px-6 py-2 border border-[#1C3753] rounded-lg text-sm hover:bg-[#1C3753] hover:text-white transition-colors flex items-center gap-2"
+        >
+          Download Invoice <Download size={18} />
+        </a>
+        {/* <a
+                      href={data?.invoice?.invoicePdf?.url}
+                      download
+                      target="_blank"
+                      rel="noreferrer"
+                      className="flex items-center gap-2 text-[#2C87E2] shrink-0"
+                      onClick={(e) => {
+                        if (!data?.invoice?.invoicePdf?.url) {
+                          e.preventDefault();
+                          toast.error("Invoice not available");
+                        }
+                      }}
+                    >
+                      Download Invoice <Download size={18} />
+                    </a> */}
       </div>
 
       {/* just change the status  */}
