@@ -29,11 +29,11 @@ function OrderFilter({ setStatus, status, setTime, time }) {
         </h2>
         <div className="space-y-3">
           {[
-            { id: "processing", label: "Processing" },
+            { id: "placed", label: "placed" },
             { id: "shipped", label: "Shipped" },
             { id: "delivered", label: "Delivered" },
             { id: "cancelled", label: "Cancelled" },
-            { id: "returned", label: "Returned" },
+            // { id: "returned", label: "Returned" },
           ].map((item) => (
             <div key={item.id} className="flex items-center">
               <input
