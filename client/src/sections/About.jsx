@@ -17,7 +17,7 @@ function About() {
                 <p className="text-[20px] text-[#413F3F]">That’s why they keep coming back. 💛</p>
             </div>
             <div className='flex justify-evenly items-center py-[40px] mt-[100px] mb-[30px] border rounded-lg'>
-                <div className="w-[479px] h-[214px] flex flex-col justify-between">
+                <div className="flex flex-col justify-between">
                     <div className="flex flex-col gap-2">
                         <h1 className="text-[40px] text-[#1E1E1E] font-nova font-[600]">Customize Your Art</h1>
                         <p className="text-[#717171]">Upload your idea or request a design consultation.</p>
