@@ -137,6 +137,7 @@ const AddProduct = () => {
   // for editning status
   const [status, setStatus] = useState("active");
   const [selectedVariants, setSelectedVariants] = useState([]);
+  const [isUploadingMore, setIsUploadingMore] = useState(false);
   // Fetch product for editing from API
   useEffect(() => {
     // console.log("Fetching product for edit. ID:", id);
@@ -1182,7 +1183,7 @@ const AddProduct = () => {
       imgs = newVariants[newVariantIndex]?.variantImage || [];
     } else {
       imgs = formData.variants[variantIndex]?.variantImage || [];
-    }
+    } 
 
     setActiveVariantIndex(variantIndex);
     setSelectedImages(imgs);
@@ -1196,6 +1197,100 @@ const AddProduct = () => {
     setCurrentImage(first);
     setIsModalOpen(true);
   };
+
+  // Handle adding more images from the modal
+const handleAddMoreImages = async (e, variantIndex) => {
+  let files = Array.from(e.target.files);
+  if (!files.length) return;
+
+  // Check if adding these would exceed 10
+  const currentImageCount = selectedImages.length;
+  const remainingSlots = 10 - currentImageCount;
+  
+  if (files.length > remainingSlots) {
+    toast.error(`You can only add ${remainingSlots} more image(s). Maximum 10 images per variant.`);
+    files = files.slice(0, remainingSlots);
+  }
+
+  setIsUploadingMore(true);
+
+  try {
+    const formDataObj = new FormData();
+    
+    for (let file of files) {
+      const compressedBlob = await imageCompression(file, {
+        maxSizeMB: 2,
+        maxWidthOrHeight: 2000,
+        useWebWorker: true,
+      });
+      const compressed = blobToFile(compressedBlob, file.name);
+      formDataObj.append("productImages", compressed);
+    }
+
+    const res = await axiosInstance.post(
+      "/product/admin/add-product-images",
+      formDataObj,
+    );
+
+    const uploadedImages = res.data.data;
+
+    // Determine if this is a new variant or existing
+    const isNewVariant = isEditing ? variantIndex >= formData.variants.length : false;
+
+    if (isNewVariant && isEditing) {
+      // EDIT MODE - New variant
+      const newVariantIndex = variantIndex - formData.variants.length;
+      const updated = [...newVariants];
+      const existingImages = updated[newVariantIndex]?.variantImage || [];
+      const allImages = [...existingImages, ...uploadedImages];
+      updated[newVariantIndex] = {
+        ...updated[newVariantIndex],
+        variantImage: allImages.slice(0, 10),
+      };
+      setNewVariants(updated);
+      
+      // Update modal state
+      const updatedSelectedImages = [...selectedImages, ...uploadedImages].slice(0, 10);
+      setSelectedImages(updatedSelectedImages);
+      if (updatedSelectedImages.length > 0 && !currentImage) {
+        const firstImg = typeof updatedSelectedImages[0] === "string" 
+          ? updatedSelectedImages[0] 
+          : updatedSelectedImages[0].url || updatedSelectedImages[0].preview || "";
+        setCurrentImage(firstImg);
+      }
+    } else {
+      // ADD MODE OR EDIT MODE EXISTING - Update formData.variants
+      setFormData((prev) => {
+        const updatedVariants = [...prev.variants];
+        const existingImages = updatedVariants[variantIndex]?.variantImage || [];
+        const allImages = [...existingImages, ...uploadedImages];
+        updatedVariants[variantIndex] = {
+          ...updatedVariants[variantIndex],
+          variantImage: allImages.slice(0, 10),
+        };
+        
+        // Also update modal state
+        setSelectedImages(allImages.slice(0, 10));
+        if (allImages.length > 0 && !currentImage) {
+          const firstImg = typeof allImages[0] === "string" 
+            ? allImages[0] 
+            : allImages[0].url || allImages[0].preview || "";
+          setCurrentImage(firstImg);
+        }
+        
+        return { ...prev, variants: updatedVariants };
+      });
+    }
+
+    toast.success(`${uploadedImages.length} image(s) added successfully!`);
+  } catch (err) {
+    console.error("Upload error:", err);
+    toast.error(err?.response?.data?.message || "Failed to upload images");
+  } finally {
+    setIsUploadingMore(false);
+    e.target.value = "";
+  }
+};
 
   // single row select/unselect
   const toggleVariantSelect = (index) => {
@@ -1484,6 +1579,8 @@ const fetchCategories = async () => {
         setIsModalOpen={setIsModalOpen}
         variantIndex={activeVariantIndex}
         onRemoveImage={removeVariantImage}
+        onAddMoreImages={handleAddMoreImages}
+        isUploading={isUploadingMore}
       />
 
       <form
