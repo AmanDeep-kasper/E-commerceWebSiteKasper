@@ -35,11 +35,10 @@ export const getHomepageFeatures = async (req, res) => {
       });
     }
     
-    const activeFeatures = settings.homepageFeatures.filter(f => f.isActive);
-    
+    // Return all features (no filtering by active status)
     res.json({
       success: true,
-      data: activeFeatures.sort((a, b) => a.order - b.order)
+      data: settings.homepageFeatures
     });
   } catch (error) {
     console.error(error);
@@ -81,7 +80,7 @@ export const updateHomepageFeatures = async (req, res) => {
 
 export const addFeature = async (req, res) => {
   try {
-    const { text, order } = req.body;
+    const { text } = req.body;
     
     if (!text) {
       return res.status(400).json({
@@ -98,9 +97,7 @@ export const addFeature = async (req, res) => {
     }
     
     const newFeature = {
-      text,
-      isActive: true,
-      order: order || settings.homepageFeatures.length + 1
+      text
     };
     
     settings.homepageFeatures.push(newFeature);
@@ -150,41 +147,4 @@ export const deleteFeature = async (req, res) => {
   }
 };
 
-export const toggleFeatureStatus = async (req, res) => {
-  try {
-    const settings = await PremiumSettings.findOne();
-    
-    if (!settings) {
-      return res.status(404).json({
-        success: false,
-        message: 'Settings not found'
-      });
-    }
-    
-    const feature = settings.homepageFeatures.find(
-      f => f._id.toString() === req.params.featureId
-    );
-    
-    if (!feature) {
-      return res.status(404).json({
-        success: false,
-        message: 'Feature not found'
-      });
-    }
-    
-    feature.isActive = !feature.isActive;
-    await settings.save();
-    
-    res.json({
-      success: true,
-      data: feature,
-      message: `Feature ${feature.isActive ? 'activated' : 'deactivated'} successfully`
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      success: false,
-      message: 'Server Error'
-    });
-  }
-};
+// Remove toggleFeatureStatus function completely (no longer needed)

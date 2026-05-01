@@ -8,14 +8,6 @@ const premiumsettingsSchema = new mongoose.Schema({
           type: String,
           required: true,
           trim: true
-        },
-        isActive: {
-          type: Boolean,
-          default: true
-        },
-        order: {
-          type: Number,
-          default: 0
         }
       }
     ],

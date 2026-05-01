@@ -26,7 +26,7 @@ const BannersSettings = () => {
     fetchFeatures();
   }, []);
 
-  const fetchFeatures = async () => {
+const fetchFeatures = async () => {
     try {
       setLoading(true);
       const response = await axiosInstance.get("/settings/homepage-features");
@@ -91,19 +91,6 @@ const BannersSettings = () => {
     } catch (error) {
       console.error("Error deleting feature:", error);
       toast.error("Failed to delete feature");
-    }
-  };
-
-  const handleToggleStatus = async (featureId) => {
-    try {
-      const response = await axiosInstance.patch(`/settings/homepage-features/${featureId}/toggle`);
-      if (response.data.success) {
-        toast.success(response.data.message);
-        fetchFeatures();
-      }
-    } catch (error) {
-      console.error("Error toggling feature:", error);
-      toast.error("Failed to update feature status");
     }
   };
 
@@ -239,7 +226,7 @@ const BannersSettings = () => {
           </div>
         )}
 
-        {/* Features Table */}
+        {/* Features Table - Removed Status and Order columns */}
         {loading ? (
           <div className="flex justify-center items-center h-32">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#1C3753]"></div>
@@ -254,12 +241,6 @@ const BannersSettings = () => {
                   </th>
                   <th className="text-left px-6 py-4 text-[14px] font-medium text-[#111827] border-b border-[#E5E7EB]">
                     Text
-                  </th>
-                  <th className="text-left px-6 py-4 text-[14px] font-medium text-[#111827] border-b border-[#E5E7EB]">
-                    Status
-                  </th>
-                  <th className="text-left px-6 py-4 text-[14px] font-medium text-[#111827] border-b border-[#E5E7EB]">
-                    Order
                   </th>
                   <th className="text-left px-6 py-4 text-[14px] font-medium text-[#111827] border-b border-[#E5E7EB]">
                     Actions
@@ -284,21 +265,6 @@ const BannersSettings = () => {
                       ) : (
                         feature.text
                       )}
-                    </td>
-                    <td className="px-6 py-5">
-                      <button
-                        onClick={() => handleToggleStatus(feature._id)}
-                        className={`px-3 py-1 rounded-full text-xs font-medium ${
-                          feature.isActive
-                            ? 'bg-green-100 text-green-700'
-                            : 'bg-gray-100 text-gray-700'
-                        }`}
-                      >
-                        {feature.isActive ? 'Active' : 'Inactive'}
-                      </button>
-                    </td>
-                    <td className="px-6 py-5 text-[14px] text-[#111827]">
-                      {feature.order}
                     </td>
                     <td className="px-6 py-5">
                       <div className="flex items-center gap-2">
@@ -348,6 +314,7 @@ const BannersSettings = () => {
           </div>
         )}
       </div>
+      {/* for premium text form end */}
       {/* for premium text form end */}
 
       {/* Banner Modal */}

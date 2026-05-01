@@ -6,7 +6,6 @@ import {
   updateHomepageFeatures,
   addFeature,
   deleteFeature,
-  toggleFeatureStatus
 } from '../../controllers/admin/PremiumController.js'; // ← Fix path
 
 const router = express.Router();
@@ -19,6 +18,5 @@ router.get('/homepage-features', getHomepageFeatures);
 router.put('/homepage-features', protect, admin, updateHomepageFeatures);
 router.post('/homepage-features', protect, admin, addFeature);
 router.delete('/homepage-features/:featureId', protect, admin, deleteFeature);
-router.patch('/homepage-features/:featureId/toggle', protect, admin, toggleFeatureStatus);
 
 export default router; // ← Use export default
