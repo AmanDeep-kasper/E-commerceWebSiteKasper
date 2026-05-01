@@ -310,18 +310,22 @@ if(loading && page === 1) {
                 label="Total Spend"
                 value={`₹${(stats?.totalSpend || 0).toFixed(2)}`}
               />
-              <InfoRow
+              {/* <InfoRow
                 label="Cancelled Orders"
                 value={stats?.cancelled || 0}
+              /> */}
+              <InfoRow
+                label="Top Category Purchased"
+                value={stats?.topCategory || "N/A"}
               />
               <InfoRow
                 label="Last Order Date"
                 value={formatLastOrderDate(stats?.lastOrderDate) || "N/A"}
               />
-              <InfoRow
+              {/* <InfoRow
                 label="Top Category Purchased"
                 value={stats?.topCategory || "N/A"}
-              />
+              /> */}
             </div>
           </div>
         </Card>

@@ -9,6 +9,8 @@ import { v4 as uuidv4 } from "uuid";
 import imageCompression from "browser-image-compression";
 // import { IoIosArrowForward } from "react-icons/io";
 import { FiUpload } from "react-icons/fi";
+import ReactQuill from "react-quill-new";
+import "react-quill-new/dist/quill.snow.css";
 
 import { ChevronLeft } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -135,6 +137,7 @@ const AddProduct = () => {
   // for editning status
   const [status, setStatus] = useState("active");
   const [selectedVariants, setSelectedVariants] = useState([]);
+  const [isUploadingMore, setIsUploadingMore] = useState(false);
   // Fetch product for editing from API
   useEffect(() => {
     // console.log("Fetching product for edit. ID:", id);
@@ -260,22 +263,45 @@ const AddProduct = () => {
     // -----------------------------------
     // Auto-generate SKU when title changes
     // -----------------------------------
-    if (name === "productTittle") {
-      const words = value.trim().split(" ");
-      // Remove extra spaces
-      const cleanValue = value.replace(/\s+/g, " ").trimStart();
+    // if (name === "productTittle") {
+    //   const words = value.trim().split(" ");
+    //   // Remove extra spaces
+    //   const cleanValue = value.replace(/\s+/g, " ").trimStart();
 
-      // Allow only letters + numbers + space
-      if (!/^[a-zA-Z0-9 ]*$/.test(cleanValue)) return;
+    //   // Allow only letters + numbers + space
+    //   if (!/^[a-zA-Z0-9 ]*$/.test(cleanValue)) return;
 
-      // Take first letters of first 3 words
-      const initials = words
+    //   // Take first letters of first 3 words
+    //   const initials = words
+    //     .slice(0, 3)
+    //     .map((w) => w[0]?.toUpperCase())
+    //     .join("");
+
+    //   // Random 3-digit number
+    //   const randomNum = Math.floor(100 + Math.random() * 900);
+      if (name === "productTittle") {
+    // Allow any characters in the product name - NO VALIDATION
+    const cleanValue = value; // Keep original value with special characters
+    
+    // For SKU generation, we need to sanitize to alphanumeric only
+    // This ensures SKU remains valid even with special characters in product name
+    const sanitizedName = cleanValue.replace(/[^a-zA-Z0-9\s]/g, '');
+    const words = sanitizedName.trim().split(" ");
+    
+    // If after sanitization there are no valid characters, use a default
+    let initials = "PRD";
+    if (words.length > 0 && words[0].length > 0) {
+      initials = words
         .slice(0, 3)
         .map((w) => w[0]?.toUpperCase())
         .join("");
+    }
+    
+    // If initials is empty after mapping, use default
+    if (!initials) initials = "PRD";
 
-      // Random 3-digit number
-      const randomNum = Math.floor(100 + Math.random() * 900);
+    // Random 3-digit number
+    const randomNum = Math.floor(100 + Math.random() * 900);
 
       // SKU format: ABC-ART-123
       const sku = `${initials}-ART-${randomNum}`;
@@ -1180,7 +1206,7 @@ const AddProduct = () => {
       imgs = newVariants[newVariantIndex]?.variantImage || [];
     } else {
       imgs = formData.variants[variantIndex]?.variantImage || [];
-    }
+    } 
 
     setActiveVariantIndex(variantIndex);
     setSelectedImages(imgs);
@@ -1194,6 +1220,100 @@ const AddProduct = () => {
     setCurrentImage(first);
     setIsModalOpen(true);
   };
+
+  // Handle adding more images from the modal
+const handleAddMoreImages = async (e, variantIndex) => {
+  let files = Array.from(e.target.files);
+  if (!files.length) return;
+
+  // Check if adding these would exceed 10
+  const currentImageCount = selectedImages.length;
+  const remainingSlots = 10 - currentImageCount;
+  
+  if (files.length > remainingSlots) {
+    toast.error(`You can only add ${remainingSlots} more image(s). Maximum 10 images per variant.`);
+    files = files.slice(0, remainingSlots);
+  }
+
+  setIsUploadingMore(true);
+
+  try {
+    const formDataObj = new FormData();
+    
+    for (let file of files) {
+      const compressedBlob = await imageCompression(file, {
+        maxSizeMB: 2,
+        maxWidthOrHeight: 2000,
+        useWebWorker: true,
+      });
+      const compressed = blobToFile(compressedBlob, file.name);
+      formDataObj.append("productImages", compressed);
+    }
+
+    const res = await axiosInstance.post(
+      "/product/admin/add-product-images",
+      formDataObj,
+    );
+
+    const uploadedImages = res.data.data;
+
+    // Determine if this is a new variant or existing
+    const isNewVariant = isEditing ? variantIndex >= formData.variants.length : false;
+
+    if (isNewVariant && isEditing) {
+      // EDIT MODE - New variant
+      const newVariantIndex = variantIndex - formData.variants.length;
+      const updated = [...newVariants];
+      const existingImages = updated[newVariantIndex]?.variantImage || [];
+      const allImages = [...existingImages, ...uploadedImages];
+      updated[newVariantIndex] = {
+        ...updated[newVariantIndex],
+        variantImage: allImages.slice(0, 10),
+      };
+      setNewVariants(updated);
+      
+      // Update modal state
+      const updatedSelectedImages = [...selectedImages, ...uploadedImages].slice(0, 10);
+      setSelectedImages(updatedSelectedImages);
+      if (updatedSelectedImages.length > 0 && !currentImage) {
+        const firstImg = typeof updatedSelectedImages[0] === "string" 
+          ? updatedSelectedImages[0] 
+          : updatedSelectedImages[0].url || updatedSelectedImages[0].preview || "";
+        setCurrentImage(firstImg);
+      }
+    } else {
+      // ADD MODE OR EDIT MODE EXISTING - Update formData.variants
+      setFormData((prev) => {
+        const updatedVariants = [...prev.variants];
+        const existingImages = updatedVariants[variantIndex]?.variantImage || [];
+        const allImages = [...existingImages, ...uploadedImages];
+        updatedVariants[variantIndex] = {
+          ...updatedVariants[variantIndex],
+          variantImage: allImages.slice(0, 10),
+        };
+        
+        // Also update modal state
+        setSelectedImages(allImages.slice(0, 10));
+        if (allImages.length > 0 && !currentImage) {
+          const firstImg = typeof allImages[0] === "string" 
+            ? allImages[0] 
+            : allImages[0].url || allImages[0].preview || "";
+          setCurrentImage(firstImg);
+        }
+        
+        return { ...prev, variants: updatedVariants };
+      });
+    }
+
+    toast.success(`${uploadedImages.length} image(s) added successfully!`);
+  } catch (err) {
+    console.error("Upload error:", err);
+    toast.error(err?.response?.data?.message || "Failed to upload images");
+  } finally {
+    setIsUploadingMore(false);
+    e.target.value = "";
+  }
+};
 
   // single row select/unselect
   const toggleVariantSelect = (index) => {
@@ -1482,6 +1602,8 @@ const fetchCategories = async () => {
         setIsModalOpen={setIsModalOpen}
         variantIndex={activeVariantIndex}
         onRemoveImage={removeVariantImage}
+        onAddMoreImages={handleAddMoreImages}
+        isUploading={isUploadingMore}
       />
 
       <form
@@ -1622,7 +1744,7 @@ const fetchCategories = async () => {
                     />
                   </div>
 
-                  <div className="flex flex-col flex-1">
+                  {/* <div className="flex flex-col flex-1">
                     <label className="block text-black text-[14px] font-normal mb-2">
                       Description
                     </label>
@@ -1638,7 +1760,33 @@ const fetchCategories = async () => {
   focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400
   resize-none overflow-hidden transition-all duration-200"
                     />
-                  </div>
+                  </div> */}
+                  <div className="flex flex-col flex-1">
+  <label className="block text-black text-[14px] font-normal mb-2">
+    Description
+  </label>
+  <div className="border border-[#D1D5DB] rounded-md bg-white">
+    <ReactQuill
+      theme="snow"
+      value={formData.description}
+      onChange={(value) => {
+        setFormData(prev => ({ ...prev, description: value }));
+      }}
+      modules={{
+        toolbar: [
+          [{ header: [1, 2, 3, false] }],
+          ["bold", "italic", "underline"],
+          [{ list: "ordered" }, { list: "bullet" }],
+          ["link", "image"],
+          [{ align: [] }],
+          ["clean"],
+        ],
+      }}
+      className="bg-white"
+      style={{ height: '65px', marginBottom: '50px' }}
+    />
+  </div>
+</div>
                 </div>
               </div>
               <div className="flex flex-col space-y-3">
@@ -2362,17 +2510,10 @@ Delete Selected
                                           />
                                         </div>
                                         <span className="text-sm text-[#1C3753]">
-                                          {variant.variantImage.length} Image{variant.variantImage.length !== 1 ? "s" : ""}
+                                         + {variant.variantImage.length}  Image{variant.variantImage.length !== 1 ? "s" : ""}
                                         </span>
                                       </button>
-                                      {/* Add re-upload button for new variants */}
-                                      {/* <button
-            type="button"
-            onClick={() => triggerVariantUpload(actualIndex)}
-            className="text-xs text-blue-500 underline"
-          >
-            Re-upload
-          </button> */}
+    
                                     </div>
                                   )}
 
