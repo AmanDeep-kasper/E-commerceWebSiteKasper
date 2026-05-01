@@ -1,9 +1,6 @@
-import PremiumSettings from '../models/PremiumSettings.js'; // ← Fix path and use import
+import PremiumSettings from '../../models/PremiumSettings';
 
-// @desc    Get all settings
-// @route   GET /api/v1/settings
-// @access  Public
-const getAllSettings = async (req, res) => {
+export const getAllSettings = async (req, res) => {
   try {
     let settings = await PremiumSettings.findOne();
     
@@ -24,10 +21,7 @@ const getAllSettings = async (req, res) => {
   }
 };
 
-// @desc    Get homepage features only
-// @route   GET /api/v1/settings/homepage-features
-// @access  Public
-const getHomepageFeatures = async (req, res) => {
+export const getHomepageFeatures = async (req, res) => {
   try {
     let settings = await PremiumSettings.findOne();
     
@@ -50,10 +44,7 @@ const getHomepageFeatures = async (req, res) => {
   }
 };
 
-// @desc    Update homepage features
-// @route   PUT /api/v1/settings/homepage-features
-// @access  Private/Admin
-const updateHomepageFeatures = async (req, res) => {
+export const updateHomepageFeatures = async (req, res) => {
   try {
     const { features } = req.body;
     
@@ -82,10 +73,7 @@ const updateHomepageFeatures = async (req, res) => {
   }
 };
 
-// @desc    Add a new feature
-// @route   POST /api/v1/settings/homepage-features
-// @access  Private/Admin
-const addFeature = async (req, res) => {
+export const addFeature = async (req, res) => {
   try {
     const { icon, text, order } = req.body;
     
@@ -103,7 +91,7 @@ const addFeature = async (req, res) => {
     }
     
     const newFeature = {
-      icon: icon || 'diamond',
+      icon: icon || '💎',
       text,
       isActive: true,
       order: order || settings.homepageFeatures.length + 1
@@ -126,10 +114,7 @@ const addFeature = async (req, res) => {
   }
 };
 
-// @desc    Delete a feature
-// @route   DELETE /api/v1/settings/homepage-features/:featureId
-// @access  Private/Admin
-const deleteFeature = async (req, res) => {
+export const deleteFeature = async (req, res) => {
   try {
     const settings = await PremiumSettings.findOne();
     
@@ -159,10 +144,7 @@ const deleteFeature = async (req, res) => {
   }
 };
 
-// @desc    Toggle feature active status
-// @route   PATCH /api/v1/settings/homepage-features/:featureId/toggle
-// @access  Private/Admin
-const toggleFeatureStatus = async (req, res) => {
+export const toggleFeatureStatus = async (req, res) => {
   try {
     const settings = await PremiumSettings.findOne();
     
@@ -199,13 +181,4 @@ const toggleFeatureStatus = async (req, res) => {
       message: 'Server Error'
     });
   }
-};
-
-export {
-  getAllSettings,
-  getHomepageFeatures,
-  updateHomepageFeatures,
-  addFeature,
-  deleteFeature,
-  toggleFeatureStatus
 };

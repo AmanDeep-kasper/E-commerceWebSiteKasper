@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const premiumsettingsSchema = new mongoose.Schema({
   homepageFeatures: {
@@ -6,8 +6,7 @@ const premiumsettingsSchema = new mongoose.Schema({
       {
         icon: {
           type: String,
-          enum: ['diamond', 'star', 'earth', 'truck', 'shield', 'heart', 'clock'],
-          default: 'diamond'
+          default: '💎'
         },
         text: {
           type: String,
@@ -25,9 +24,9 @@ const premiumsettingsSchema = new mongoose.Schema({
       }
     ],
     default: [
-      { icon: 'diamond', text: 'Premium Quality Resin', isActive: true, order: 1 },
-      { icon: 'star', text: 'Bubble Free Finish', isActive: true, order: 2 },
-      { icon: 'earth', text: 'Pan India Delivery', isActive: true, order: 3 }
+      { icon: '💎', text: 'Premium Quality Resin', isActive: true, order: 1 },
+      { icon: '⭐', text: 'Bubble Free Finish', isActive: true, order: 2 },
+      { icon: '🌍', text: 'Pan India Delivery', isActive: true, order: 3 }
     ]
   },
   
@@ -46,4 +45,4 @@ premiumsettingsSchema.pre('save', function(next) {
   next();
 });
 
-module.exports = mongoose.model('PremiumSettings', premiumsettingsSchema);
+export default mongoose.model('PremiumSettings', premiumsettingsSchema);
