@@ -23,6 +23,7 @@ import {
 import { IoDiamond } from "react-icons/io5";
 import { GoStarFill } from "react-icons/go";
 import { IoEarthSharp } from "react-icons/io5";
+import { FaTruck, FaShieldAlt, FaHeart, FaClock } from "react-icons/fa";
 import {
   MdOutlineKeyboardArrowLeft,
   MdOutlineKeyboardArrowRight,
@@ -38,6 +39,26 @@ import tool from "../../assets/img/4.png";
 import brush from "../../assets/img/5.png";
 import glitter from "../../assets/img/6.jpg";
 
+// Icon mapping for dynamic icons
+// const iconMap = {
+//   '💎': IoDiamond,
+//   '⭐': GoStarFill,
+//   '🌍': IoEarthSharp,
+//   '🚚': FaTruck,
+//   '🛡️': FaShieldAlt,
+//   '❤️': FaHeart,
+//   '⏰': FaClock,
+//   // Also support text-based icons
+//   'diamond': IoDiamond,
+//   'star': GoStarFill,
+//   'earth': IoEarthSharp,
+//   'truck': FaTruck,
+//   'shield': FaShieldAlt,
+//   'heart': FaHeart,
+//   'clock': FaClock,
+// };
+
+
 function Collection() {
   const ref = useRef(null);
   const sliderRef = useRef(null);
@@ -51,6 +72,36 @@ function Collection() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // State for dynamic premium features
+  const [features, setFeatures] = useState([]);
+  const [featuresLoading, setFeaturesLoading] = useState(true);
+
+
+  // fetch premium features from settings
+  useEffect(() => {
+    const fetchFeatures = async () => {
+      try {
+        setFeaturesLoading(true);
+        const response = await axiosInstance.get("/settings/homepage-features");
+        if(response.data.success && response.data.data) {
+          setFeatures(response.data.data);
+        }
+      }catch (err) {
+        console.error("Error fetching premium features:", err);
+        // Fallback to default features if API fails
+        // setFeatures([
+        //   { icon: '💎', text: 'Premium Quality Resin' },
+        //   { icon: '⭐', text: 'Bubble Free Finish' },
+        //   { icon: '🌍', text: 'Pan India Delivery' },
+        // ]);
+      } finally {
+        setFeaturesLoading(false);
+      }
+    };
+    fetchFeatures();
+  }, []);
+
 
   const slideToEnd = () => {
     if (ref.current) {
@@ -266,24 +317,34 @@ function Collection() {
     });
   };
 
+   // Function to render the appropriate icon component
+ const renderIcon = (icon) => {
+  if (!icon || icon.trim() === '') {
+    return <IoDiamond />; // Fallback icon
+  }
+    
+    // Check if icon is in the map
+    // if (iconMap[icon]) {
+    //   const IconComponent = iconMap[icon];
+    //   return <IconComponent />;
+    // }
+    
+    // If icon is an emoji or text, render as text
+    return <span className="text-[18px]">{icon}</span>;
+  };
+
+
   return (
     <section className="relative group bg-[#F6F8F9]">
-      <div className="flex flex-wrap justify-center sm:justify-between items-center gap-4 mt-8 px-4 sm:px-6 lg:px-48 py-3 bg-[#E6FFD9] rounded-lg">
-        <div className="flex items-center gap-2 text-[12px] sm:text-[14px] text-[#1B4C00]">
-          <IoDiamond />
-          <span>Premium Quality Resin</span>
-        </div>
-
-        <div className="flex items-center gap-2 text-[12px] sm:text-[14px] text-[#1B4C00]">
-          <GoStarFill />
-          <span>Bubble Free Finish</span>
-        </div>
-
-        <div className="flex items-center gap-2 text-[12px] sm:text-[14px] text-[#1B4C00]">
-          <IoEarthSharp />
-          <span>Pan India Delivery</span>
-        </div>
+      {!featuresLoading && features.length === 3 && (
+  <div className="flex flex-wrap justify-center sm:justify-between items-center gap-4 mt-8 px-4 sm:px-6 lg:px-48 py-3 bg-[#E6FFD9] rounded-lg">
+    {features.map((feature, index) => (
+      <div key={feature._id || index} className="flex items-center gap-2 text-[12px] sm:text-[14px] text-[#1B4C00]">
+        <span>{feature.text}</span>
       </div>
+    ))}
+  </div>
+)}
       {/* <========------ slider -------=========> */}
       <div className="mx-auto bg-white px-4 py-10">
         <div className="max-w-4xl mx-auto text-center mb-12">

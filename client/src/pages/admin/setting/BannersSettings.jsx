@@ -14,7 +14,7 @@ const BannersSettings = () => {
   const [loading, setLoading] = useState(true);
   const [editingFeature, setEditingFeature] = useState(null);
   const [isAddingNew, setIsAddingNew] = useState(false);
-  const [newFeature, setNewFeature] = useState({ icon: '💎', text: '' });
+  const [newFeature, setNewFeature] = useState({ text: '' });
 
   const banners = [
     { id: 1, name: "Banner 1" },
@@ -26,16 +26,18 @@ const BannersSettings = () => {
     fetchFeatures();
   }, []);
 
-  const fetchFeatures = async () => {
+const fetchFeatures = async () => {
     try {
       setLoading(true);
       const response = await axiosInstance.get("/settings/homepage-features");
       if (response.data.success) {
         setFeatures(response.data.data);
+      } else {
+        setFeatures([]);
       }
     } catch (error) {
       console.error("Error fetching features:", error);
-      toast.error("Failed to load features");
+      setFeatures([]);
     } finally {
       setLoading(false);
     }
@@ -47,16 +49,11 @@ const BannersSettings = () => {
       return;
     }
 
-    if (!newFeature.icon.trim()) {
-      toast.error("Please enter an icon");
-      return;
-    }
-
     try {
       const response = await axiosInstance.post("/settings/homepage-features", newFeature);
       if (response.data.success) {
         toast.success("Feature added successfully");
-        setNewFeature({ icon: '💎', text: '' });
+        setNewFeature({ text: '' });
         setIsAddingNew(false);
         fetchFeatures();
       }
@@ -85,30 +82,15 @@ const BannersSettings = () => {
   };
 
   const handleDeleteFeature = async (featureId) => {
-    if (window.confirm("Are you sure you want to delete this feature?")) {
-      try {
-        const response = await axiosInstance.delete(`/settings/homepage-features/${featureId}`);
-        if (response.data.success) {
-          toast.success("Feature deleted successfully");
-          fetchFeatures();
-        }
-      } catch (error) {
-        console.error("Error deleting feature:", error);
-        toast.error("Failed to delete feature");
-      }
-    }
-  };
-
-  const handleToggleStatus = async (featureId) => {
     try {
-      const response = await axiosInstance.patch(`/settings/homepage-features/${featureId}/toggle`);
+      const response = await axiosInstance.delete(`/settings/homepage-features/${featureId}`);
       if (response.data.success) {
-        toast.success(response.data.message);
+        toast.success("Feature deleted successfully");
         fetchFeatures();
       }
     } catch (error) {
-      console.error("Error toggling feature:", error);
-      toast.error("Failed to update feature status");
+      console.error("Error deleting feature:", error);
+      toast.error("Failed to delete feature");
     }
   };
 
@@ -210,28 +192,6 @@ const BannersSettings = () => {
                 Add New Feature
               </h2>
 
-              <div className="mb-4">
-                <label className="block text-[14px] text-[#374151] mb-2">
-                  Icon (Emoji or Text) <span className="text-red-500">*</span>
-                </label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    value={newFeature.icon}
-                    onChange={(e) => setNewFeature({ ...newFeature, icon: e.target.value })}
-                    placeholder="Enter icon (e.g., 💎, 🚚, ⭐, or text)"
-                    className="w-full h-[42px] rounded-[6px] border border-[#D1D5DB] px-3 text-[20px] outline-none focus:border-[#2563EB]"
-                    maxLength={5}
-                  />
-                  <div className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-400">
-                    {newFeature.icon && <span className="text-[24px]">{newFeature.icon}</span>}
-                  </div>
-                </div>
-                <p className="text-[12px] text-gray-500 mt-1">
-                  Tip: You can use any emoji (💎, ⭐, 🚚) or simple text (✓, $, #)
-                </p>
-              </div>
-
               <div className="mb-5">
                 <label className="block text-[14px] text-[#374151] mb-2">
                   Text <span className="text-red-500">*</span>
@@ -239,7 +199,7 @@ const BannersSettings = () => {
                 <input
                   type="text"
                   value={newFeature.text}
-                  onChange={(e) => setNewFeature({ ...newFeature, text: e.target.value })}
+                  onChange={(e) => setNewFeature({ text: e.target.value })}
                   placeholder="Enter feature text"
                   className="w-full h-[42px] rounded-[6px] border border-[#D1D5DB] px-3 text-[14px] outline-none focus:border-[#2563EB]"
                 />
@@ -255,7 +215,7 @@ const BannersSettings = () => {
                 <button
                   onClick={() => {
                     setIsAddingNew(false);
-                    setNewFeature({ icon: '💎', text: '' });
+                    setNewFeature({ text: '' });
                   }}
                   className="border border-[#94A3B8] text-[#183B63] text-[14px] font-medium px-5 py-2 rounded-[6px]"
                 >
@@ -266,7 +226,7 @@ const BannersSettings = () => {
           </div>
         )}
 
-        {/* Features Table */}
+        {/* Features Table - Removed Status and Order columns */}
         {loading ? (
           <div className="flex justify-center items-center h-32">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#1C3753]"></div>
@@ -280,16 +240,7 @@ const BannersSettings = () => {
                     Serial No.
                   </th>
                   <th className="text-left px-6 py-4 text-[14px] font-medium text-[#111827] border-b border-[#E5E7EB]">
-                    Icon
-                  </th>
-                  <th className="text-left px-6 py-4 text-[14px] font-medium text-[#111827] border-b border-[#E5E7EB]">
                     Text
-                  </th>
-                  <th className="text-left px-6 py-4 text-[14px] font-medium text-[#111827] border-b border-[#E5E7EB]">
-                    Status
-                  </th>
-                  <th className="text-left px-6 py-4 text-[14px] font-medium text-[#111827] border-b border-[#E5E7EB]">
-                    Order
                   </th>
                   <th className="text-left px-6 py-4 text-[14px] font-medium text-[#111827] border-b border-[#E5E7EB]">
                     Actions
@@ -303,19 +254,6 @@ const BannersSettings = () => {
                     <td className="px-6 py-5 text-[14px] text-[#111827]">
                       {index + 1}.
                     </td>
-                    <td className="px-6 py-5 text-[28px] text-center">
-                      {editingFeature?._id === feature._id ? (
-                        <input
-                          type="text"
-                          value={editingFeature.icon}
-                          onChange={(e) => setEditingFeature({ ...editingFeature, icon: e.target.value })}
-                          className="border rounded px-2 py-1 w-20 text-center text-[20px]"
-                          maxLength={5}
-                        />
-                      ) : (
-                        <span className="text-[28px]">{feature.icon || '💎'}</span>
-                      )}
-                     </td>
                     <td className="px-6 py-5 text-[14px] text-[#111827]">
                       {editingFeature?._id === feature._id ? (
                         <input
@@ -327,22 +265,7 @@ const BannersSettings = () => {
                       ) : (
                         feature.text
                       )}
-                     </td>
-                    <td className="px-6 py-5">
-                      <button
-                        onClick={() => handleToggleStatus(feature._id)}
-                        className={`px-3 py-1 rounded-full text-xs font-medium ${
-                          feature.isActive
-                            ? 'bg-green-100 text-green-700'
-                            : 'bg-gray-100 text-gray-700'
-                        }`}
-                      >
-                        {feature.isActive ? 'Active' : 'Inactive'}
-                      </button>
-                     </td>
-                    <td className="px-6 py-5 text-[14px] text-[#111827]">
-                      {feature.order}
-                     </td>
+                    </td>
                     <td className="px-6 py-5">
                       <div className="flex items-center gap-2">
                         {editingFeature?._id === feature._id ? (
@@ -377,8 +300,8 @@ const BannersSettings = () => {
                           </>
                         )}
                       </div>
-                     </td>
-                   </tr>
+                    </td>
+                  </tr>
                 ))}
               </tbody>
             </table>
@@ -391,6 +314,7 @@ const BannersSettings = () => {
           </div>
         )}
       </div>
+      {/* for premium text form end */}
       {/* for premium text form end */}
 
       {/* Banner Modal */}
