@@ -263,22 +263,45 @@ const AddProduct = () => {
     // -----------------------------------
     // Auto-generate SKU when title changes
     // -----------------------------------
-    if (name === "productTittle") {
-      const words = value.trim().split(" ");
-      // Remove extra spaces
-      const cleanValue = value.replace(/\s+/g, " ").trimStart();
+    // if (name === "productTittle") {
+    //   const words = value.trim().split(" ");
+    //   // Remove extra spaces
+    //   const cleanValue = value.replace(/\s+/g, " ").trimStart();
 
-      // Allow only letters + numbers + space
-      if (!/^[a-zA-Z0-9 ]*$/.test(cleanValue)) return;
+    //   // Allow only letters + numbers + space
+    //   if (!/^[a-zA-Z0-9 ]*$/.test(cleanValue)) return;
 
-      // Take first letters of first 3 words
-      const initials = words
+    //   // Take first letters of first 3 words
+    //   const initials = words
+    //     .slice(0, 3)
+    //     .map((w) => w[0]?.toUpperCase())
+    //     .join("");
+
+    //   // Random 3-digit number
+    //   const randomNum = Math.floor(100 + Math.random() * 900);
+      if (name === "productTittle") {
+    // Allow any characters in the product name - NO VALIDATION
+    const cleanValue = value; // Keep original value with special characters
+    
+    // For SKU generation, we need to sanitize to alphanumeric only
+    // This ensures SKU remains valid even with special characters in product name
+    const sanitizedName = cleanValue.replace(/[^a-zA-Z0-9\s]/g, '');
+    const words = sanitizedName.trim().split(" ");
+    
+    // If after sanitization there are no valid characters, use a default
+    let initials = "PRD";
+    if (words.length > 0 && words[0].length > 0) {
+      initials = words
         .slice(0, 3)
         .map((w) => w[0]?.toUpperCase())
         .join("");
+    }
+    
+    // If initials is empty after mapping, use default
+    if (!initials) initials = "PRD";
 
-      // Random 3-digit number
-      const randomNum = Math.floor(100 + Math.random() * 900);
+    // Random 3-digit number
+    const randomNum = Math.floor(100 + Math.random() * 900);
 
       // SKU format: ABC-ART-123
       const sku = `${initials}-ART-${randomNum}`;
@@ -1760,7 +1783,7 @@ const fetchCategories = async () => {
         ],
       }}
       className="bg-white"
-      style={{ height: '200px', marginBottom: '50px' }}
+      style={{ height: '65px', marginBottom: '50px' }}
     />
   </div>
 </div>
