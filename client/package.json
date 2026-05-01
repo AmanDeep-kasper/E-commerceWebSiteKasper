@@ -38,6 +38,7 @@
     "react-quill-new": "^3.7.0",
     "react-redux": "^9.2.0",
     "react-router-dom": "^6.26.2",
+    "react-select": "^5.10.2",
     "react-toastify": "^11.0.5",
     "recharts": "^3.7.0",
     "resend": "^6.9.4",
