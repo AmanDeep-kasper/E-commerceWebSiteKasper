@@ -1,0 +1,211 @@
+const PremiumSettings = require('../models/Premiumtext'); // Make sure path is correct
+
+// @desc    Get all settings
+// @route   GET /api/v1/settings
+// @access  Public
+const getAllSettings = async (req, res) => {
+  try {
+    let settings = await PremiumSettings.findOne();
+    
+    if (!settings) {
+      settings = await PremiumSettings.create({});
+    }
+    
+    res.json({
+      success: true,
+      data: settings
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: 'Server Error'
+    });
+  }
+};
+
+// @desc    Get homepage features only
+// @route   GET /api/v1/settings/homepage-features
+// @access  Public
+const getHomepageFeatures = async (req, res) => {
+  try {
+    let settings = await PremiumSettings.findOne(); // Changed from Settings to PremiumSettings
+    
+    if (!settings) {
+      settings = await PremiumSettings.create({}); // Changed from Settings to PremiumSettings
+    }
+    
+    const activeFeatures = settings.homepageFeatures.filter(f => f.isActive);
+    
+    res.json({
+      success: true,
+      data: activeFeatures.sort((a, b) => a.order - b.order)
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: 'Server Error'
+    });
+  }
+};
+
+// @desc    Update homepage features
+// @route   PUT /api/v1/settings/homepage-features
+// @access  Private/Admin
+const updateHomepageFeatures = async (req, res) => {
+  try {
+    const { features } = req.body;
+    
+    let settings = await PremiumSettings.findOne(); // Changed from Settings to PremiumSettings
+    
+    if (!settings) {
+      settings = new PremiumSettings(); // Changed from Settings to PremiumSettings
+    }
+    
+    settings.homepageFeatures = features;
+    settings.updatedAt = Date.now();
+    
+    await settings.save();
+    
+    res.json({
+      success: true,
+      data: settings.homepageFeatures,
+      message: 'Homepage features updated successfully'
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: 'Server Error'
+    });
+  }
+};
+
+// @desc    Add a new feature
+// @route   POST /api/v1/settings/homepage-features
+// @access  Private/Admin
+const addFeature = async (req, res) => {
+  try {
+    const { icon, text, order } = req.body;
+    
+    if (!text) {
+      return res.status(400).json({
+        success: false,
+        message: 'Text is required'
+      });
+    }
+    
+    let settings = await PremiumSettings.findOne(); // Changed from Settings to PremiumSettings
+    
+    if (!settings) {
+      settings = new PremiumSettings(); // Changed from Settings to PremiumSettings
+    }
+    
+    const newFeature = {
+      icon: icon || 'diamond',
+      text,
+      isActive: true,
+      order: order || settings.homepageFeatures.length + 1
+    };
+    
+    settings.homepageFeatures.push(newFeature);
+    await settings.save();
+    
+    res.json({
+      success: true,
+      data: newFeature,
+      message: 'Feature added successfully'
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: 'Server Error'
+    });
+  }
+};
+
+// @desc    Delete a feature
+// @route   DELETE /api/v1/settings/homepage-features/:featureId
+// @access  Private/Admin
+const deleteFeature = async (req, res) => {
+  try {
+    const settings = await PremiumSettings.findOne(); // Changed from Settings to PremiumSettings
+    
+    if (!settings) {
+      return res.status(404).json({
+        success: false,
+        message: 'Settings not found'
+      });
+    }
+    
+    settings.homepageFeatures = settings.homepageFeatures.filter(
+      f => f._id.toString() !== req.params.featureId
+    );
+    
+    await settings.save();
+    
+    res.json({
+      success: true,
+      message: 'Feature deleted successfully'
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: 'Server Error'
+    });
+  }
+};
+
+// @desc    Toggle feature active status
+// @route   PATCH /api/v1/settings/homepage-features/:featureId/toggle
+// @access  Private/Admin
+const toggleFeatureStatus = async (req, res) => {
+  try {
+    const settings = await PremiumSettings.findOne(); // Changed from Settings to PremiumSettings
+    
+    if (!settings) {
+      return res.status(404).json({
+        success: false,
+        message: 'Settings not found'
+      });
+    }
+    
+    const feature = settings.homepageFeatures.find(
+      f => f._id.toString() === req.params.featureId
+    );
+    
+    if (!feature) {
+      return res.status(404).json({
+        success: false,
+        message: 'Feature not found'
+      });
+    }
+    
+    feature.isActive = !feature.isActive;
+    await settings.save();
+    
+    res.json({
+      success: true,
+      data: feature,
+      message: `Feature ${feature.isActive ? 'activated' : 'deactivated'} successfully`
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: 'Server Error'
+    });
+  }
+};
+
+module.exports = {
+  getAllSettings,
+  getHomepageFeatures,
+  updateHomepageFeatures,
+  addFeature,
+  deleteFeature,
+  toggleFeatureStatus
+};
