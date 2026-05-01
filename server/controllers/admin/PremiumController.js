@@ -1,4 +1,4 @@
-import PremiumSettings from '../../models/PremiumSettings';
+import PremiumSettings from '../../models/PremiumSettings.js';
 
 export const getAllSettings = async (req, res) => {
   try {

@@ -121,7 +121,6 @@ app.use("/api/v1/order", orderRoutes);
 app.use("/api/v1/dashboard", dashboardRouter);
 app.use("/api/v1/inventory", inventoryRouter);
 app.use('/api/v1/settings', PremiumRoutes);
-console.log("sdsdsd", PremiumRoutes)
 
 // ============= Dashboard Setting Routes =============
 app.use("/api/v1/dashboard/business", businessRouter);
