@@ -8,7 +8,7 @@ const {
   addFeature,
   deleteFeature,
   toggleFeatureStatus
-} = require('../controllers/settingsController');
+} = require('../../controllers/admin/PremiumController');
 
 // Public routes
 router.get('/', getAllSettings);

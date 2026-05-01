@@ -36,7 +36,7 @@ import shippingRouter from "./routes/admin/shippingRoutes.js";
 import bannerRouter from "./routes/admin/bannerRoutes.js";
 import transportRouter from "./routes/admin/transportRoutes.js";
 import rewardRouter from "./routes/admin/rewardRoutes.js";
-import PremiumRoutes from "./routes/admin/PremiumRoutes.js"
+import PremiumRoutes from "./routes/admin/PremiumRoute.js"
 
 // ================== MIDDLEWARES ==================
 import { errorHandler, notFoundHandler } from "./middlewares/errorHandler.js";

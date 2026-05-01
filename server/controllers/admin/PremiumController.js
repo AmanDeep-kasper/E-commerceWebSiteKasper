@@ -1,4 +1,4 @@
-const PremiumSettings = require('../models/Premiumtext'); // Make sure path is correct
+const PremiumSettings = require('../../models/PremiumSettings'); // Make sure path is correct
 
 // @desc    Get all settings
 // @route   GET /api/v1/settings
