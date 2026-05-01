@@ -2,7 +2,11 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { Eye, EyeOff, Mail, Lock, Star, LogIn, ArrowRight } from "lucide-react";
-import { getUserDetails, loginUser, clearError } from "../../redux/cart/userSlice";
+import {
+  getUserDetails,
+  loginUser,
+  clearError,
+} from "../../redux/cart/userSlice";
 import MainLog from "../../assets/IconsUsed/HomeMainLogo.png";
 import MainVideo from "../../assets/FirstPageVideo/login.mp4";
 
@@ -58,7 +62,7 @@ function Login() {
       if (/^\d/.test(value)) {
         newValue = value.replace(/\D/g, "");
 
-        if (newValue.length > 10) return; // 🚫
+        if (newValue.length > 10) return; //
       }
     }
 
@@ -121,7 +125,12 @@ function Login() {
 
             <div className="relative z-10 flex flex-col justify-between h-full p-8">
               <div className="flex items-center gap-3 mb-8">
-                <img src={MainLog} alt="lazercut" />
+                <img
+                  className="cursor-pointer"
+                  onClick={() => navigate("/home")}
+                  src={MainLog}
+                  alt="lazercut"
+                />
               </div>
 
               {/*  */}
@@ -142,7 +151,7 @@ function Login() {
                   />
                 </div> */}
                 {/* <h1 className="text-2xl font-bold text-gray-900">LaserCut</h1> */}
-               <img src={MainLog} alt="lazercut" />
+                <img src={MainLog} alt="lazercut" />
               </div>
               <p className="text-gray-600">Enter the World of Precision Art</p>
             </div>
