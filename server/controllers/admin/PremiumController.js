@@ -1,11 +1,14 @@
-import PremiumSettings from '../../models/PremiumSettings';
+import PremiumSettings from '../../models/PremiumSettings.js';
 
 export const getAllSettings = async (req, res) => {
   try {
     let settings = await PremiumSettings.findOne();
     
     if (!settings) {
-      settings = await PremiumSettings.create({});
+      return res.json({
+        success: true,
+        data: { homepageFeatures: [] }
+      });
     }
     
     res.json({
@@ -26,7 +29,10 @@ export const getHomepageFeatures = async (req, res) => {
     let settings = await PremiumSettings.findOne();
     
     if (!settings) {
-      settings = await PremiumSettings.create({});
+      return res.json({
+        success: true,
+        data: []
+      });
     }
     
     const activeFeatures = settings.homepageFeatures.filter(f => f.isActive);
@@ -75,7 +81,7 @@ export const updateHomepageFeatures = async (req, res) => {
 
 export const addFeature = async (req, res) => {
   try {
-    const { icon, text, order } = req.body;
+    const { text, order } = req.body;
     
     if (!text) {
       return res.status(400).json({
@@ -88,10 +94,10 @@ export const addFeature = async (req, res) => {
     
     if (!settings) {
       settings = new PremiumSettings();
+      settings.homepageFeatures = [];
     }
     
     const newFeature = {
-      icon: icon || '💎',
       text,
       isActive: true,
       order: order || settings.homepageFeatures.length + 1
