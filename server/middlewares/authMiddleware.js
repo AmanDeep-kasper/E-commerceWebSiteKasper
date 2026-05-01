@@ -77,7 +77,7 @@ export const authenticate = async (req, res, next) => {
       });
     }
 
-     if (!user.activeSessions?.includes(decoded.sessionId)) {
+    if (!user.activeSessions?.includes(decoded.sessionId)) {
       return res.status(401).json({
         success: false,
         message: "Session expired. Please login again.",
