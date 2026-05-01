@@ -1,4 +1,4 @@
-const PremiumSettings = require('../../models/PremiumSettings'); // Make sure path is correct
+import PremiumSettings from '../models/PremiumSettings.js'; // ← Fix path and use import
 
 // @desc    Get all settings
 // @route   GET /api/v1/settings
@@ -29,10 +29,10 @@ const getAllSettings = async (req, res) => {
 // @access  Public
 const getHomepageFeatures = async (req, res) => {
   try {
-    let settings = await PremiumSettings.findOne(); // Changed from Settings to PremiumSettings
+    let settings = await PremiumSettings.findOne();
     
     if (!settings) {
-      settings = await PremiumSettings.create({}); // Changed from Settings to PremiumSettings
+      settings = await PremiumSettings.create({});
     }
     
     const activeFeatures = settings.homepageFeatures.filter(f => f.isActive);
@@ -57,10 +57,10 @@ const updateHomepageFeatures = async (req, res) => {
   try {
     const { features } = req.body;
     
-    let settings = await PremiumSettings.findOne(); // Changed from Settings to PremiumSettings
+    let settings = await PremiumSettings.findOne();
     
     if (!settings) {
-      settings = new PremiumSettings(); // Changed from Settings to PremiumSettings
+      settings = new PremiumSettings();
     }
     
     settings.homepageFeatures = features;
@@ -96,10 +96,10 @@ const addFeature = async (req, res) => {
       });
     }
     
-    let settings = await PremiumSettings.findOne(); // Changed from Settings to PremiumSettings
+    let settings = await PremiumSettings.findOne();
     
     if (!settings) {
-      settings = new PremiumSettings(); // Changed from Settings to PremiumSettings
+      settings = new PremiumSettings();
     }
     
     const newFeature = {
@@ -131,7 +131,7 @@ const addFeature = async (req, res) => {
 // @access  Private/Admin
 const deleteFeature = async (req, res) => {
   try {
-    const settings = await PremiumSettings.findOne(); // Changed from Settings to PremiumSettings
+    const settings = await PremiumSettings.findOne();
     
     if (!settings) {
       return res.status(404).json({
@@ -164,7 +164,7 @@ const deleteFeature = async (req, res) => {
 // @access  Private/Admin
 const toggleFeatureStatus = async (req, res) => {
   try {
-    const settings = await PremiumSettings.findOne(); // Changed from Settings to PremiumSettings
+    const settings = await PremiumSettings.findOne();
     
     if (!settings) {
       return res.status(404).json({
@@ -201,7 +201,7 @@ const toggleFeatureStatus = async (req, res) => {
   }
 };
 
-module.exports = {
+export {
   getAllSettings,
   getHomepageFeatures,
   updateHomepageFeatures,
