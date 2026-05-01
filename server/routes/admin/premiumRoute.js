@@ -1,5 +1,5 @@
-import express from 'express';
-import { protect, admin } from '../../middlewares/authMiddleware.js';
+import express from "express";
+import { authenticate, authorize } from "../../middlewares/authMiddleware.js";
 import {
   getAllSettings,
   getHomepageFeatures,
@@ -11,8 +11,8 @@ import {
 const router = express.Router();
 
 // Public routes
-router.get('/', getAllSettings);
-router.get('/homepage-features', getHomepageFeatures);
+router.get("/", getAllSettings);
+router.get("/homepage-features", getHomepageFeatures);
 
 // Admin only routes
 router.put('/homepage-features', protect, admin, updateHomepageFeatures);

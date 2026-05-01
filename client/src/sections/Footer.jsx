@@ -101,9 +101,8 @@ function Footer() {
                   <li>
                     <Link to="/products">Best Selling Products</Link>
                   </li>
-                  <li>
-                    <Link to="/">Bestseller Collection</Link>
-                  </li>
+                  {/* <li>
+                    <Link to="/">Bestseller Collection</Link></li> */}
                   <li>
                     <Link to="/products/top-products">Featured Collection</Link>
                   </li>

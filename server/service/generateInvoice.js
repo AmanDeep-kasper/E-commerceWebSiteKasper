@@ -1,4 +1,6 @@
-import puppeteer from "puppeteer";
+import puppeteer from "puppeteer-core";
+import chromium from "@sparticuz/chromium";
+import env from "../config/env.js";
 
 function formatCurrency(val) {
   return `₹${Number(val).toFixed(2)}`;
@@ -372,45 +374,65 @@ export function generateInvoiceHTML(invoice) {
 </html>`;
 }
 
-let browser;
-
-export const getBrowser = async () => {
-  if (!browser) {
-    browser = await puppeteer.launch({
-      headless: "new",
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
-    });
+// Works on: localhost, Render, EC2, Lambda — everywhere
+const getExecutablePath = async () => {
+  // Production (Render, EC2, any Linux server)
+  if (env.NODE_ENV === "production") {
+    return await chromium.executablePath();
   }
-  return browser;
+
+  // Local Mac
+  if (process.platform === "darwin") {
+    return "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
+  }
+
+  // Local Windows
+  if (process.platform === "win32") {
+    return "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
+  }
+
+  // Local Linux
+  return "/usr/bin/google-chrome";
 };
 
+// let browser;
+
+// export const getBrowser = async () => {
+//   if (!browser) {
+//     browser = await puppeteer.launch({
+//       headless: "new",
+//       args: ["--no-sandbox", "--disable-setuid-sandbox"],
+//     });
+//   }
+//   return browser;
+// };
+
 export const generateInvoicePDF = async (invoice) => {
-  const browser = await getBrowser();
+  const executablePath = await getExecutablePath();
+
+  const browser = await puppeteer.launch({
+    args: [
+      ...chromium.args,
+      "--no-sandbox",
+      "--disable-setuid-sandbox",
+      "--disable-dev-shm-usage",
+    ],
+    defaultViewport: chromium.defaultViewport,
+    executablePath,
+    headless: true,
+  });
+
   const page = await browser.newPage();
 
   try {
     const html = generateInvoiceHTML(invoice);
-
-    // ← ADD: HTML theek ban raha hai?
-    console.log("HTML length:", html.length);
-    console.log("HTML preview:", html.slice(0, 200));
 
     await page.setContent(html, { waitUntil: "networkidle0" });
 
     const buffer = await page.pdf({
       format: "A4",
       printBackground: true,
-      margin: {
-        top: "5mm",
-        right: "5mm",
-        bottom: "5mm",
-        left: "5mm",
-      },
     });
-
-    // ← ADD: Buffer valid hai?
-    console.log("PDF buffer size:", buffer?.length);
-    console.log("PDF header:", buffer?.slice(0, 5).toString()); // should be "%PDF-"
 
     if (!buffer || buffer.length < 1000) {
       throw new Error(`Invalid PDF buffer: ${buffer?.length} bytes`);
@@ -421,6 +443,7 @@ export const generateInvoicePDF = async (invoice) => {
     console.error("PDF generation error:", error);
     throw error;
   } finally {
-    await page.close(); // IMPORTANT
+    await page.close();
+    await browser.close();
   }
 };
