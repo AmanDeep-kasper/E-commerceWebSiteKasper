@@ -643,11 +643,11 @@ const AddProduct = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    //   console.log("=== Submit Debug ===");
-    // console.log("isEditing:", isEditing);
-    // console.log("productId:", productId);
-    // console.log("isProductDraft:", isProductDraft);
-    // console.log("draftId:", draftId);
+   const stripHtmlTags = (html) => {
+    const temp = document.createElement('div');
+    temp.innerHTML = html;
+    return temp.textContent || temp.innerText || '';
+  };
 
     if (!formData.productTittle.trim()) {
       toast.error("Product name is required");
@@ -707,7 +707,7 @@ const AddProduct = () => {
     // Prepare payload - same structure for both add and edit
     const payload = {
       productTittle: formData.productTittle,
-      description: formData.description,
+      description: stripHtmlTags(formData.description),
       category: formData.category,
       subcategory: formData.subcategory,
       isActive: status === "active",
@@ -1825,34 +1825,31 @@ const AddProduct = () => {
                     />
                   </div> */}
                   <div className="flex flex-col flex-1">
-                    <label className="block text-black text-[14px] font-normal mb-2">
-                      Description
-                    </label>
-                    <div className="border border-[#D1D5DB] rounded-md bg-white">
-                      <ReactQuill
-                        theme="snow"
-                        value={formData.description}
-                        onChange={(value) => {
-                          setFormData((prev) => ({
-                            ...prev,
-                            description: value,
-                          }));
-                        }}
-                        modules={{
-                          toolbar: [
-                            [{ header: [1, 2, 3, false] }],
-                            ["bold", "italic", "underline"],
-                            [{ list: "ordered" }, { list: "bullet" }],
-                            ["link", "image"],
-                            [{ align: [] }],
-                            ["clean"],
-                          ],
-                        }}
-                        className="bg-white"
-                        style={{ height: "65px", marginBottom: "50px" }}
-                      />
-                    </div>
-                  </div>
+  <label className="block text-black text-[14px] font-normal mb-2">
+    Description
+  </label>
+  <div className="border border-none rounded-md bg-white">
+    <ReactQuill
+      theme="snow"
+      value={formData.description}
+      onChange={(value) => {
+        setFormData(prev => ({ ...prev, description: value }));
+      }}
+      modules={{
+        toolbar: [
+          [{ header: [1, 2, 3, false] }],
+          ["bold", "italic", "underline"],
+          [{ list: "ordered" }, { list: "bullet" }],
+          ["link", "image"],
+          [{ align: [] }],
+          ["clean"],
+        ],
+      }}
+      className="bg-white"
+      style={{ height: '65px', marginBottom:0 }}
+    />
+  </div>
+</div>
                 </div>
               </div>
               <div className="flex flex-col space-y-3">
@@ -2611,7 +2608,7 @@ const AddProduct = () => {
                             </td>
                             {/* images */}
                             <td className="px-3 py-2">
-                              {isExisting && !isProductDraft ? (
+                              {/* {isExisting && !isProductDraft ? (
                                 // VIEW-ONLY MODE FOR EXISTING VARIANTS
                                 <div className="flex items-center gap-3">
                                   {variant.variantImage &&
@@ -2640,7 +2637,61 @@ const AddProduct = () => {
                                     </div>
                                   )}
                                 </div>
-                              ) : (
+                              ) : ( */}
+                              {isExisting && !isProductDraft ? (
+    // EDITABLE MODE FOR EXISTING VARIANTS (allow adding/deleting images)
+    <div className="flex items-center gap-4 whitespace-nowrap">
+      {/* Always show Add Images button for existing variants */}
+      <button
+        type="button"
+        onClick={() => triggerVariantUpload(actualIndex)}
+        disabled={uploadingVariantIndex === actualIndex}
+        className="flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+      >
+        <div className="h-9 w-9 rounded-md border bg-[#EFEFEF] flex items-center justify-center">
+          {uploadingVariantIndex === actualIndex ? (
+            <div className="h-5 w-5 rounded-full border-2 border-gray-300 border-t-[#1C3753] animate-spin" />
+          ) : (
+            <FiUpload className="h-5 w-5 text-[#1C3753]" />
+          )}
+        </div>
+        <span className="text-sm text-[#1C3753]">
+          {uploadingVariantIndex === actualIndex ? "Uploading..." : "Add Images"}
+        </span>
+      </button>
+
+      {/* Show existing images with option to view/delete */}
+      {variant.variantImage && variant.variantImage.length > 0 && (
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => openVariantImages(actualIndex)}
+            className="flex items-center gap-2"
+          >
+            <div className="h-9 w-9 rounded-md overflow-hidden border bg-gray-100">
+              <img
+                src={variant.variantImage[0]?.url || variant.variantImage[0]?.preview || "/placeholder.png"}
+                alt=""
+                className="h-full w-full object-cover"
+              />
+            </div>
+            <span className="text-sm text-[#1C3753]">
+              {variant.variantImage.length} Image{variant.variantImage.length !== 1 ? "s" : ""}
+            </span>
+          </button>
+        </div>
+      )}
+
+      <input
+        type="file"
+        multiple
+        accept=".png,.jpg,.jpeg,.webp,.svg"
+        className="hidden"
+        ref={(el) => (variantFileRefs.current[actualIndex] = el)}
+        onChange={(e) => handleVariantImageChange(e, actualIndex)}
+      />
+    </div>
+  ) : (
                                 // EDITABLE FOR NEW VARIANTS
                                 <div className="flex items-center gap-4 whitespace-nowrap">
                                   {(!variant.variantImage ||
@@ -2723,15 +2774,10 @@ const AddProduct = () => {
 
                             <td className="px-3 py-2">
                               <input
-                                type="number"
+                                type="text"
+                                inputMode="numeric"
                                 value={variant.variantMrp || ""}
-                                onChange={(e) =>
-                                  handleVariantChange(
-                                    actualIndex,
-                                    "variantMrp",
-                                    e.target.value,
-                                  )
-                                }
+                                onChange={(e) => handleVariantChange(actualIndex, "variantMrp", e.target.value.replace(/[^0-9]/g,''))}
                                 className="rounded border px-2 py-1 placeholder:text-[#6B6B6B]"
                                 placeholder="Enter MRP"
                               />
@@ -2739,13 +2785,13 @@ const AddProduct = () => {
 
                             <td className=" px-3 py-2">
                               <input
-                                type="number"
+                                type="text"
                                 value={variant.variantCostPrice || ""}
                                 onChange={(e) =>
                                   handleVariantChange(
                                     index,
                                     "variantCostPrice",
-                                    e.target.value,
+                                    e.target.value.replace(/[^0-9]/g,''),
                                   )
                                 }
                                 className=" rounded border px-2 py-1 placeholder:text-[#6B6B6B]"
@@ -2755,22 +2801,16 @@ const AddProduct = () => {
 
                             <td className="px-3 py-2">
                               <input
-                                type="number"
+                                type="text"
                                 value={variant.variantSellingPrice || ""}
-                                onChange={(e) =>
-                                  handleVariantChange(
-                                    actualIndex,
-                                    "variantSellingPrice",
-                                    e.target.value,
-                                  )
-                                }
+                                onChange={(e) => handleVariantChange(actualIndex, "variantSellingPrice", e.target.value.replace(/[^0-9]/g,''))}
                                 className="rounded border px-2 py-1 placeholder:text-[#6B6B6B]"
                                 placeholder="Enter Selling Price"
                               />
                             </td>
                             <td className="px-3 py-2">
                               <input
-                                type="number"
+                                type="text"
                                 value={variant.variantGST || ""}
                                 onChange={(e) =>
                                   handleVariantChange(
@@ -2787,15 +2827,9 @@ const AddProduct = () => {
                             <td className="px-3 py-2">
                               <div className="flex items-center justify-center rounded-md gap-2 border px-3 py-1">
                                 <input
-                                  type="number"
+                                  type="text"
                                   value={variant.variantDiscount || ""}
-                                  onChange={(e) =>
-                                    handleVariantChange(
-                                      actualIndex,
-                                      "variantDiscount",
-                                      e.target.value,
-                                    )
-                                  }
+                                  onChange={(e) => handleVariantChange(actualIndex, "variantDiscount", e.target.value.replace(/[^0-9]/g,''))}
                                   placeholder="Discount"
                                   className="placeholder:text-[#6B6B6B] bg-white w-20"
                                 />
@@ -2813,7 +2847,7 @@ const AddProduct = () => {
                                 </div>
                               ) : (
                                 <input
-                                  type="number"
+                                  type="text"
                                   value={variant.variantAvailableStock || ""}
                                   onChange={(e) => {
                                     if (isEditing && isNewVariant) {
@@ -2827,14 +2861,12 @@ const AddProduct = () => {
                                         variantAvailableStock: e.target.value,
                                       };
                                       setNewVariants(updated);
-                                    } else {
-                                      handleVariantChange(
-                                        actualIndex,
-                                        "variantAvailableStock",
-                                        e.target.value,
-                                      );
                                     }
-                                  }}
+                                    else {
+                                      handleVariantChange(actualIndex, "variantAvailableStock", e.target.value.replace(/[^0-9]/g,''));
+                                    }
+                                  }
+                                  }
                                   className="rounded border px-2 py-1 placeholder:text-[#6B6B6B]"
                                   placeholder="Enter Stock"
                                 />
@@ -2842,13 +2874,13 @@ const AddProduct = () => {
                             </td>
                             <td className="px-3 py-2">
                               <input
-                                type="number"
+                                type="text"
                                 value={variant.variantLowStockAlertStock || ""}
                                 onChange={(e) =>
                                   handleVariantChange(
                                     index,
                                     "variantLowStockAlertStock",
-                                    e.target.value,
+                                    e.target.value.replace(/[^0-9]/g,''),
                                   )
                                 }
                                 placeholder="Enter Low Stock Alert"
