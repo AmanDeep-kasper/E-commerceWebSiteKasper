@@ -170,8 +170,7 @@ const AddProduct = () => {
             } else {
               categoryId = productData.category;
             }
-          }
-          else {
+          } else {
             categoryId = "";
           }
 
@@ -189,25 +188,28 @@ const AddProduct = () => {
             subcategoryId = "";
           }
 
-          const mappedVariants = (productData.variants || []).map((variant) => ({
-            variantColor: variant.variantColor || "",
-            variantName: variant.variantName || "",
-            variantWeight: variant.variantWeight || "",
-            variantWeightUnit: variant.variantWeightUnit || "kg",
-            variantSkuId: variant.variantSkuId || "",
-            variantImage: variant.variantImage || [],
-            variantMrp: variant.variantMrp || "",
-            variantCostPrice: variant.variantCostPrice || "",
-            variantGST: variant.variantGST || "",
-            variantDiscount: variant.variantDiscount || "",
-            variantDiscountUnit: "%",
-            variantSellingPrice: variant.variantSellingPrice || "",
-            variantAvailableStock: variant.variantAvailableStock || "",
-            variantLowStockAlertStock: variant.variantLowStockAlertStock || "",
-            isSelected: variant.isSelected || false,
-            isNew: false, // Mark existing variants(read only)
-            isExisting: true, // flag for exisitng variant
-          }));
+          const mappedVariants = (productData.variants || []).map(
+            (variant) => ({
+              variantColor: variant.variantColor || "",
+              variantName: variant.variantName || "",
+              variantWeight: variant.variantWeight || "",
+              variantWeightUnit: variant.variantWeightUnit || "kg",
+              variantSkuId: variant.variantSkuId || "",
+              variantImage: variant.variantImage || [],
+              variantMrp: variant.variantMrp || "",
+              variantCostPrice: variant.variantCostPrice || "",
+              variantGST: variant.variantGST || "",
+              variantDiscount: variant.variantDiscount || "",
+              variantDiscountUnit: "%",
+              variantSellingPrice: variant.variantSellingPrice || "",
+              variantAvailableStock: variant.variantAvailableStock || "",
+              variantLowStockAlertStock:
+                variant.variantLowStockAlertStock || "",
+              isSelected: variant.isSelected || false,
+              isNew: false, // Mark existing variants(read only)
+              isExisting: true, // flag for exisitng variant
+            }),
+          );
 
           setFormData({
             productTittle: productData.productTittle || "",
@@ -221,7 +223,6 @@ const AddProduct = () => {
           setIsProductDraft(productData.isDraft === true);
 
           setStatus(productData.isActive ? "active" : "inactive");
-
 
           if (productData.SKU) {
             setFormData((prev) => ({ ...prev, SKU: productData.SKU }));
@@ -245,7 +246,6 @@ const AddProduct = () => {
 
     fetchProductForEdit();
   }, [id]);
-
 
   const handleButtonClick = () => {
     fileInputRef.current.click();
@@ -279,29 +279,29 @@ const AddProduct = () => {
 
     //   // Random 3-digit number
     //   const randomNum = Math.floor(100 + Math.random() * 900);
-      if (name === "productTittle") {
-    // Allow any characters in the product name - NO VALIDATION
-    const cleanValue = value; // Keep original value with special characters
-    
-    // For SKU generation, we need to sanitize to alphanumeric only
-    // This ensures SKU remains valid even with special characters in product name
-    const sanitizedName = cleanValue.replace(/[^a-zA-Z0-9\s]/g, '');
-    const words = sanitizedName.trim().split(" ");
-    
-    // If after sanitization there are no valid characters, use a default
-    let initials = "PRD";
-    if (words.length > 0 && words[0].length > 0) {
-      initials = words
-        .slice(0, 3)
-        .map((w) => w[0]?.toUpperCase())
-        .join("");
-    }
-    
-    // If initials is empty after mapping, use default
-    if (!initials) initials = "PRD";
+    if (name === "productTittle") {
+      // Allow any characters in the product name - NO VALIDATION
+      const cleanValue = value; // Keep original value with special characters
 
-    // Random 3-digit number
-    const randomNum = Math.floor(100 + Math.random() * 900);
+      // For SKU generation, we need to sanitize to alphanumeric only
+      // This ensures SKU remains valid even with special characters in product name
+      const sanitizedName = cleanValue.replace(/[^a-zA-Z0-9\s]/g, "");
+      const words = sanitizedName.trim().split(" ");
+
+      // If after sanitization there are no valid characters, use a default
+      let initials = "PRD";
+      if (words.length > 0 && words[0].length > 0) {
+        initials = words
+          .slice(0, 3)
+          .map((w) => w[0]?.toUpperCase())
+          .join("");
+      }
+
+      // If initials is empty after mapping, use default
+      if (!initials) initials = "PRD";
+
+      // Random 3-digit number
+      const randomNum = Math.floor(100 + Math.random() * 900);
 
       // SKU format: ABC-ART-123
       const sku = `${initials}-ART-${randomNum}`;
@@ -388,7 +388,9 @@ const AddProduct = () => {
         if (field === "variantDiscount") {
           const discount = Number(value);
           if (mrp > 0 && discount >= 0 && discount <= 100) {
-            const calculatedSellingPrice = (mrp * (1 - discount / 100)).toFixed(2);
+            const calculatedSellingPrice = (mrp * (1 - discount / 100)).toFixed(
+              2,
+            );
             v.variantSellingPrice = calculatedSellingPrice;
             v.variantDiscount = discount.toFixed(2);
           }
@@ -398,7 +400,9 @@ const AddProduct = () => {
         else if (field === "variantSellingPrice") {
           const selling = Number(value);
           if (mrp > 0 && selling > 0 && selling <= mrp) {
-            const calculatedDiscount = (((mrp - selling) / mrp) * 100).toFixed(2);
+            const calculatedDiscount = (((mrp - selling) / mrp) * 100).toFixed(
+              2,
+            );
             v.variantDiscount = calculatedDiscount;
           }
         }
@@ -407,7 +411,9 @@ const AddProduct = () => {
         else if (field === "variantMrp" && mrp > 0) {
           const selling = Number(v.variantSellingPrice) || 0;
           if (selling > 0 && selling <= mrp) {
-            const calculatedDiscount = (((mrp - selling) / mrp) * 100).toFixed(2);
+            const calculatedDiscount = (((mrp - selling) / mrp) * 100).toFixed(
+              2,
+            );
             v.variantDiscount = calculatedDiscount;
           }
         }
@@ -450,7 +456,9 @@ const AddProduct = () => {
       }
 
       if (field === "variantSellingPrice" && mrp > 0 && sellingPrice > 0) {
-        const calculatedDiscount = (((mrp - sellingPrice) / mrp) * 100).toFixed(2);
+        const calculatedDiscount = (((mrp - sellingPrice) / mrp) * 100).toFixed(
+          2,
+        );
         updated[newVariantIndex].variantDiscount = calculatedDiscount;
       }
 
@@ -491,10 +499,10 @@ const AddProduct = () => {
       });
     }
   };
-  const allVariants = useMemo(() => [...formData.variants, ...newVariants], [
-    formData.variants,
-    newVariants,
-  ]);
+  const allVariants = useMemo(
+    () => [...formData.variants, ...newVariants],
+    [formData.variants, newVariants],
+  );
 
   //  Handle image upload per variant
   const handleVariantImageChange = async (e, index) => {
@@ -526,7 +534,9 @@ const AddProduct = () => {
 
       // For add mode: all variants are in formData.variants
       // For edit mode: check if index is beyond original variants length
-      const isNewVariant = isEditing ? index >= formData.variants.length : false;
+      const isNewVariant = isEditing
+        ? index >= formData.variants.length
+        : false;
 
       if (isNewVariant && isEditing) {
         // EDIT MODE - New variant
@@ -570,7 +580,9 @@ const AddProduct = () => {
   //  Remove a specific image from a specific variant
   const removeVariantImage = (variantIndex, imgIndex) => {
     // Determine if this is a new variant or existing
-    const isNewVariant = isEditing ? variantIndex >= formData.variants.length : false;
+    const isNewVariant = isEditing
+      ? variantIndex >= formData.variants.length
+      : false;
 
     if (isNewVariant && isEditing) {
       // Remove from newVariants
@@ -597,9 +609,11 @@ const AddProduct = () => {
     setSelectedImages((prev) => {
       const newImages = prev.filter((_, i) => i !== imgIndex);
       if (newImages.length > 0) {
-        const nextIndex = imgIndex < newImages.length ? imgIndex : newImages.length - 1;
+        const nextIndex =
+          imgIndex < newImages.length ? imgIndex : newImages.length - 1;
         const img = newImages[nextIndex];
-        const nextImage = typeof img === "string" ? img : img.url || img.preview || "";
+        const nextImage =
+          typeof img === "string" ? img : img.url || img.preview || "";
         setCurrentImage(nextImage);
       } else {
         setIsModalOpen(false);
@@ -731,20 +745,21 @@ const AddProduct = () => {
               isDraft: false,
               isActive: true,
             }),
-          }
+          },
         );
-        toast.success(isPublishingDraft ? "Product published successfully!" : "Product updated successfully!");
+        toast.success(
+          isPublishingDraft
+            ? "Product published successfully!"
+            : "Product updated successfully!",
+        );
         // Clear newVariants after successful update
         setNewVariants([]);
       } else {
         // CREATE new product
-        response = await axiosInstance.post(
-          "/product/admin/add-product",
-          {
-            ...payload,
-            action: "add",
-          }
-        );
+        response = await axiosInstance.post("/product/admin/add-product", {
+          ...payload,
+          action: "add",
+        });
         toast.success("Product added successfully!");
       }
 
@@ -1008,13 +1023,16 @@ const AddProduct = () => {
       if (draftId) {
         response = await axiosInstance.patch(
           `/product/admin/update-product/${draftId}`,
-          payload
+          payload,
         );
         toast.success("Draft updated successfully!");
         savedDraftId = draftId;
         setNewVariants([]);
       } else {
-        response = await axiosInstance.post("/product/admin/add-product", payload);
+        response = await axiosInstance.post(
+          "/product/admin/add-product",
+          payload,
+        );
         savedDraftId = response.data.data._id;
         setDraftId(savedDraftId);
         toast.success("Draft saved successfully!");
@@ -1024,10 +1042,13 @@ const AddProduct = () => {
       const draftWithInfo = {
         ...formData,
         _id: savedDraftId,
-        _lastSaved: new Date().toISOString()
+        _lastSaved: new Date().toISOString(),
       };
       localStorage.setItem("addProductDraft", JSON.stringify(draftWithInfo));
-      localStorage.setItem("addProductDraft_lastSaved", new Date().toISOString());
+      localStorage.setItem(
+        "addProductDraft_lastSaved",
+        new Date().toISOString(),
+      );
       localStorage.setItem("addProductDraft_id", savedDraftId);
       setHasDraft(true);
     } catch (err) {
@@ -1067,7 +1088,6 @@ const AddProduct = () => {
       setHasDraft(true); // only mark, don't restore
     }
   }, []);
-
 
   const handleRestoreDraft = () => {
     const savedDraftId = localStorage.getItem("addProductDraft_id");
@@ -1198,7 +1218,9 @@ const AddProduct = () => {
 
   const openVariantImages = (variantIndex) => {
     // Determine if this is a new variant or existing
-    const isNewVariant = isEditing ? variantIndex >= formData.variants.length : false;
+    const isNewVariant = isEditing
+      ? variantIndex >= formData.variants.length
+      : false;
 
     let imgs = [];
     if (isNewVariant && isEditing) {
@@ -1206,114 +1228,127 @@ const AddProduct = () => {
       imgs = newVariants[newVariantIndex]?.variantImage || [];
     } else {
       imgs = formData.variants[variantIndex]?.variantImage || [];
-    } 
+    }
 
     setActiveVariantIndex(variantIndex);
     setSelectedImages(imgs);
 
-    const first = imgs.length > 0
-      ? typeof imgs[0] === "string"
-        ? imgs[0]
-        : imgs[0].url || imgs[0].preview || ""
-      : "";
+    const first =
+      imgs.length > 0
+        ? typeof imgs[0] === "string"
+          ? imgs[0]
+          : imgs[0].url || imgs[0].preview || ""
+        : "";
 
     setCurrentImage(first);
     setIsModalOpen(true);
   };
 
   // Handle adding more images from the modal
-const handleAddMoreImages = async (e, variantIndex) => {
-  let files = Array.from(e.target.files);
-  if (!files.length) return;
+  const handleAddMoreImages = async (e, variantIndex) => {
+    let files = Array.from(e.target.files);
+    if (!files.length) return;
 
-  // Check if adding these would exceed 10
-  const currentImageCount = selectedImages.length;
-  const remainingSlots = 10 - currentImageCount;
-  
-  if (files.length > remainingSlots) {
-    toast.error(`You can only add ${remainingSlots} more image(s). Maximum 10 images per variant.`);
-    files = files.slice(0, remainingSlots);
-  }
+    // Check if adding these would exceed 10
+    const currentImageCount = selectedImages.length;
+    const remainingSlots = 10 - currentImageCount;
 
-  setIsUploadingMore(true);
-
-  try {
-    const formDataObj = new FormData();
-    
-    for (let file of files) {
-      const compressedBlob = await imageCompression(file, {
-        maxSizeMB: 2,
-        maxWidthOrHeight: 2000,
-        useWebWorker: true,
-      });
-      const compressed = blobToFile(compressedBlob, file.name);
-      formDataObj.append("productImages", compressed);
+    if (files.length > remainingSlots) {
+      toast.error(
+        `You can only add ${remainingSlots} more image(s). Maximum 10 images per variant.`,
+      );
+      files = files.slice(0, remainingSlots);
     }
 
-    const res = await axiosInstance.post(
-      "/product/admin/add-product-images",
-      formDataObj,
-    );
+    setIsUploadingMore(true);
 
-    const uploadedImages = res.data.data;
+    try {
+      const formDataObj = new FormData();
 
-    // Determine if this is a new variant or existing
-    const isNewVariant = isEditing ? variantIndex >= formData.variants.length : false;
-
-    if (isNewVariant && isEditing) {
-      // EDIT MODE - New variant
-      const newVariantIndex = variantIndex - formData.variants.length;
-      const updated = [...newVariants];
-      const existingImages = updated[newVariantIndex]?.variantImage || [];
-      const allImages = [...existingImages, ...uploadedImages];
-      updated[newVariantIndex] = {
-        ...updated[newVariantIndex],
-        variantImage: allImages.slice(0, 10),
-      };
-      setNewVariants(updated);
-      
-      // Update modal state
-      const updatedSelectedImages = [...selectedImages, ...uploadedImages].slice(0, 10);
-      setSelectedImages(updatedSelectedImages);
-      if (updatedSelectedImages.length > 0 && !currentImage) {
-        const firstImg = typeof updatedSelectedImages[0] === "string" 
-          ? updatedSelectedImages[0] 
-          : updatedSelectedImages[0].url || updatedSelectedImages[0].preview || "";
-        setCurrentImage(firstImg);
+      for (let file of files) {
+        const compressedBlob = await imageCompression(file, {
+          maxSizeMB: 2,
+          maxWidthOrHeight: 2000,
+          useWebWorker: true,
+        });
+        const compressed = blobToFile(compressedBlob, file.name);
+        formDataObj.append("productImages", compressed);
       }
-    } else {
-      // ADD MODE OR EDIT MODE EXISTING - Update formData.variants
-      setFormData((prev) => {
-        const updatedVariants = [...prev.variants];
-        const existingImages = updatedVariants[variantIndex]?.variantImage || [];
+
+      const res = await axiosInstance.post(
+        "/product/admin/add-product-images",
+        formDataObj,
+      );
+
+      const uploadedImages = res.data.data;
+
+      // Determine if this is a new variant or existing
+      const isNewVariant = isEditing
+        ? variantIndex >= formData.variants.length
+        : false;
+
+      if (isNewVariant && isEditing) {
+        // EDIT MODE - New variant
+        const newVariantIndex = variantIndex - formData.variants.length;
+        const updated = [...newVariants];
+        const existingImages = updated[newVariantIndex]?.variantImage || [];
         const allImages = [...existingImages, ...uploadedImages];
-        updatedVariants[variantIndex] = {
-          ...updatedVariants[variantIndex],
+        updated[newVariantIndex] = {
+          ...updated[newVariantIndex],
           variantImage: allImages.slice(0, 10),
         };
-        
-        // Also update modal state
-        setSelectedImages(allImages.slice(0, 10));
-        if (allImages.length > 0 && !currentImage) {
-          const firstImg = typeof allImages[0] === "string" 
-            ? allImages[0] 
-            : allImages[0].url || allImages[0].preview || "";
+        setNewVariants(updated);
+
+        // Update modal state
+        const updatedSelectedImages = [
+          ...selectedImages,
+          ...uploadedImages,
+        ].slice(0, 10);
+        setSelectedImages(updatedSelectedImages);
+        if (updatedSelectedImages.length > 0 && !currentImage) {
+          const firstImg =
+            typeof updatedSelectedImages[0] === "string"
+              ? updatedSelectedImages[0]
+              : updatedSelectedImages[0].url ||
+                updatedSelectedImages[0].preview ||
+                "";
           setCurrentImage(firstImg);
         }
-        
-        return { ...prev, variants: updatedVariants };
-      });
-    }
+      } else {
+        // ADD MODE OR EDIT MODE EXISTING - Update formData.variants
+        setFormData((prev) => {
+          const updatedVariants = [...prev.variants];
+          const existingImages =
+            updatedVariants[variantIndex]?.variantImage || [];
+          const allImages = [...existingImages, ...uploadedImages];
+          updatedVariants[variantIndex] = {
+            ...updatedVariants[variantIndex],
+            variantImage: allImages.slice(0, 10),
+          };
 
-    toast.success(`${uploadedImages.length} image(s) added successfully!`);
-  } catch (err) {
-    console.error("Upload error:", err);
-    toast.error(err?.response?.data?.message || "Failed to upload images");
-  } finally {
-    setIsUploadingMore(false);
-    e.target.value = "";
-  }
-};
+          // Also update modal state
+          setSelectedImages(allImages.slice(0, 10));
+          if (allImages.length > 0 && !currentImage) {
+            const firstImg =
+              typeof allImages[0] === "string"
+                ? allImages[0]
+                : allImages[0].url || allImages[0].preview || "";
+            setCurrentImage(firstImg);
+          }
+
+          return { ...prev, variants: updatedVariants };
+        });
+      }
+
+      toast.success(`${uploadedImages.length} image(s) added successfully!`);
+    } catch (err) {
+      console.error("Upload error:", err);
+      toast.error(err?.response?.data?.message || "Failed to upload images");
+    } finally {
+      setIsUploadingMore(false);
+      e.target.value = "";
+    }
+  };
 
   // single row select/unselect
   const toggleVariantSelect = (index) => {
@@ -1409,22 +1444,24 @@ const handleAddMoreImages = async (e, variantIndex) => {
   // };
 
   // Replace your existing fetchCategories function with this:
-const fetchCategories = async () => {
-  try {
-    setLoading(true);
-    // Use the new filter endpoint that returns ALL categories without pagination
-    const response = await axiosInstance.get('/category/admin/all-categories-filter');
-    
-    if (response.data?.success) {
-      setCategories(response.data.data || []);
+  const fetchCategories = async () => {
+    try {
+      setLoading(true);
+      // Use the new filter endpoint that returns ALL categories without pagination
+      const response = await axiosInstance.get(
+        "/category/admin/all-categories-filter",
+      );
+
+      if (response.data?.success) {
+        setCategories(response.data.data || []);
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to load categories");
+    } finally {
+      setLoading(false);
     }
-  } catch (error) {
-    console.error(error);
-    toast.error("Failed to load categories");
-  } finally {
-    setLoading(false);
-  }
-};
+  };
   useEffect(() => {
     fetchCategories();
   }, [setCategories]);
@@ -1448,12 +1485,12 @@ const fetchCategories = async () => {
 
     loadSubcategories();
   }, [formData.category, categories]);
-    // Load subcategories when editing a product with a category
+  // Load subcategories when editing a product with a category
   useEffect(() => {
     const loadSubcategoriesForEdit = async () => {
       if (isEditing && formData.category && categories.length > 0) {
         const selectedCategory = categories.find(
-          (cat) => cat._id === formData.category
+          (cat) => cat._id === formData.category,
         );
         if (selectedCategory && selectedCategory.subCategories) {
           setSubCategories(selectedCategory.subCategories);
@@ -1481,85 +1518,99 @@ const fetchCategories = async () => {
   // handle individual variant checkbox change
   const handleVariantCheckboxChange = (index, variantId) => {
     setSelectedVariants((prev) => {
-      if(prev.includes(variantId)) {
+      if (prev.includes(variantId)) {
         return prev.filter((id) => id !== variantId);
-      }else {
+      } else {
         return [...prev, variantId];
       }
-    })
+    });
   };
 
   // handle select all variants
   const handleSelectAllVariants = () => {
-    if(isEditing) {
+    if (isEditing) {
       // in edit mode only select new variants
-      const newVariantIndices = allVariants.map((variant, idx) => variant.isNew === true ? idx : -1).filter((idx) => idx !== -1);
-    if(selectedVariants.length === newVariantIndices.length && newVariantIndices.length > 0) {
-      // if all are seelcted, deselect all
-      setSelectedVariants([]);
-    }else {
-      // select all variants
-      setSelectedVariants(newVariantIndices)
-    }
-  } else {
-    // In add mode: select all variants
-    if (selectedVariants.length === allVariants.length) {
-      setSelectedVariants([]);
+      const newVariantIndices = allVariants
+        .map((variant, idx) => (variant.isNew === true ? idx : -1))
+        .filter((idx) => idx !== -1);
+      if (
+        selectedVariants.length === newVariantIndices.length &&
+        newVariantIndices.length > 0
+      ) {
+        // if all are seelcted, deselect all
+        setSelectedVariants([]);
+      } else {
+        // select all variants
+        setSelectedVariants(newVariantIndices);
+      }
     } else {
-      const allVariantIds = allVariants.map((_, idx) => idx);
-      setSelectedVariants(allVariantIds);
+      // In add mode: select all variants
+      if (selectedVariants.length === allVariants.length) {
+        setSelectedVariants([]);
+      } else {
+        const allVariantIds = allVariants.map((_, idx) => idx);
+        setSelectedVariants(allVariantIds);
+      }
     }
-  }
-};
-  
+  };
+
   // delete selected variant
   const deleteSelectedVariants = () => {
-    if(selectedVariants.length === 0) {
-      toast.error("Please select at least one varinat to delete")
+    if (selectedVariants.length === 0) {
+      toast.error("Please select at least one varinat to delete");
       return;
     }
-    if(isEditing) {
+    if (isEditing) {
       const hasExistingSelected = selectedVariants.some((index) => {
         const variant = allVariants[index];
         return variant && variant.isExisting === true;
-      })
-      if(hasExistingSelected) {
-        toast.error("You are only delete newly added variants in edit mode")
+      });
+      if (hasExistingSelected) {
+        toast.error("You are only delete newly added variants in edit mode");
         return;
       }
     }
 
- // Sort indices in descending order to delete from the end first
-  const sortedIndices = [...selectedVariants].sort((a, b) => b - a);
-  
-  // Filter out variants from both formData.variants and newVariants
-  let updatedFormDataVariants = [...formData.variants];
-  let updatedNewVariants = [...newVariants];
-  
-  sortedIndices.forEach(index => {
-    const isNewVariant = isEditing ? index >= formData.variants.length : false;
-    
-    if (isNewVariant && isEditing) {
-      // Remove from newVariants
-      const newVariantIndex = index - formData.variants.length;
-      updatedNewVariants = updatedNewVariants.filter((_, idx) => idx !== newVariantIndex);
-    } else if(!isEditing) {
-      // Remove from formData.variants
-      updatedFormDataVariants = updatedFormDataVariants.filter((_, idx) => idx !== index);
-    }
-  });
-  
-  // Ensure at least one variant exists
-  if (!isEditing && updatedFormDataVariants.length === 0 && updatedNewVariants.length === 0) {
-    updatedFormDataVariants = [emptyVariant()];
-  }
-  
-  setFormData(prev => ({ ...prev, variants: updatedFormDataVariants }));
-  setNewVariants(updatedNewVariants);
-  setSelectedVariants([]);
-  toast.success(`${selectedVariants.length} variant(s) deleted successfully`);
-};
+    // Sort indices in descending order to delete from the end first
+    const sortedIndices = [...selectedVariants].sort((a, b) => b - a);
 
+    // Filter out variants from both formData.variants and newVariants
+    let updatedFormDataVariants = [...formData.variants];
+    let updatedNewVariants = [...newVariants];
+
+    sortedIndices.forEach((index) => {
+      const isNewVariant = isEditing
+        ? index >= formData.variants.length
+        : false;
+
+      if (isNewVariant && isEditing) {
+        // Remove from newVariants
+        const newVariantIndex = index - formData.variants.length;
+        updatedNewVariants = updatedNewVariants.filter(
+          (_, idx) => idx !== newVariantIndex,
+        );
+      } else if (!isEditing) {
+        // Remove from formData.variants
+        updatedFormDataVariants = updatedFormDataVariants.filter(
+          (_, idx) => idx !== index,
+        );
+      }
+    });
+
+    // Ensure at least one variant exists
+    if (
+      !isEditing &&
+      updatedFormDataVariants.length === 0 &&
+      updatedNewVariants.length === 0
+    ) {
+      updatedFormDataVariants = [emptyVariant()];
+    }
+
+    setFormData((prev) => ({ ...prev, variants: updatedFormDataVariants }));
+    setNewVariants(updatedNewVariants);
+    setSelectedVariants([]);
+    toast.success(`${selectedVariants.length} variant(s) deleted successfully`);
+  };
 
   if (loadingProduct) {
     return (
@@ -1631,7 +1682,11 @@ const fetchCategories = async () => {
                   navigate("/admin/products");
                 } else {
                   if (hasDraft) {
-                    if (window.confirm("You have an unsaved draft. Are you sure you want to discard it?")) {
+                    if (
+                      window.confirm(
+                        "You have an unsaved draft. Are you sure you want to discard it?",
+                      )
+                    ) {
                       localStorage.removeItem("addProductDraft");
                       localStorage.removeItem("addProductDraft_lastSaved");
                       localStorage.removeItem("addProductDraft_id");
@@ -1683,8 +1738,16 @@ const fetchCategories = async () => {
             <div className="flex items-center gap-2">
               <span className="text-amber-600 text-xl">📝</span>
               <div>
-                <span className="text-sm font-medium text-amber-800">You have an unfinished draft product.</span>
-                <p className="text-xs text-amber-600 mt-0.5">Last saved: {new Date(localStorage.getItem("addProductDraft_lastSaved") || Date.now()).toLocaleString()}</p>
+                <span className="text-sm font-medium text-amber-800">
+                  You have an unfinished draft product.
+                </span>
+                <p className="text-xs text-amber-600 mt-0.5">
+                  Last saved:{" "}
+                  {new Date(
+                    localStorage.getItem("addProductDraft_lastSaved") ||
+                      Date.now(),
+                  ).toLocaleString()}
+                </p>
               </div>
             </div>
             <div className="flex gap-2">
@@ -1762,31 +1825,34 @@ const fetchCategories = async () => {
                     />
                   </div> */}
                   <div className="flex flex-col flex-1">
-  <label className="block text-black text-[14px] font-normal mb-2">
-    Description
-  </label>
-  <div className="border border-[#D1D5DB] rounded-md bg-white">
-    <ReactQuill
-      theme="snow"
-      value={formData.description}
-      onChange={(value) => {
-        setFormData(prev => ({ ...prev, description: value }));
-      }}
-      modules={{
-        toolbar: [
-          [{ header: [1, 2, 3, false] }],
-          ["bold", "italic", "underline"],
-          [{ list: "ordered" }, { list: "bullet" }],
-          ["link", "image"],
-          [{ align: [] }],
-          ["clean"],
-        ],
-      }}
-      className="bg-white"
-      style={{ height: '65px', marginBottom: '50px' }}
-    />
-  </div>
-</div>
+                    <label className="block text-black text-[14px] font-normal mb-2">
+                      Description
+                    </label>
+                    <div className="border border-[#D1D5DB] rounded-md bg-white">
+                      <ReactQuill
+                        theme="snow"
+                        value={formData.description}
+                        onChange={(value) => {
+                          setFormData((prev) => ({
+                            ...prev,
+                            description: value,
+                          }));
+                        }}
+                        modules={{
+                          toolbar: [
+                            [{ header: [1, 2, 3, false] }],
+                            ["bold", "italic", "underline"],
+                            [{ list: "ordered" }, { list: "bullet" }],
+                            ["link", "image"],
+                            [{ align: [] }],
+                            ["clean"],
+                          ],
+                        }}
+                        className="bg-white"
+                        style={{ height: "65px", marginBottom: "50px" }}
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
               <div className="flex flex-col space-y-3">
@@ -1805,9 +1871,23 @@ const fetchCategories = async () => {
                       Product Status
                     </h2>
 
-                    <div style={{ display: "flex", gap: "30px", alignItems: "center" }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: "30px",
+                        alignItems: "center",
+                      }}
+                    >
                       {/* Active */}
-                      <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", color: "#1d4ed8" }}>
+                      <label
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "8px",
+                          cursor: "pointer",
+                          color: "#1d4ed8",
+                        }}
+                      >
                         <input
                           type="radio"
                           name="status"
@@ -1825,7 +1905,15 @@ const fetchCategories = async () => {
                       </label>
 
                       {/* Inactive */}
-                      <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", color: "#1d4ed8" }}>
+                      <label
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "8px",
+                          cursor: "pointer",
+                          color: "#1d4ed8",
+                        }}
+                      >
                         <input
                           type="radio"
                           name="status"
@@ -1932,13 +2020,19 @@ const fetchCategories = async () => {
                                 subcategory: "", // Reset subcategory when category changes
                               }));
 
-                              setSubCategories(selectedCategory?.subCategories || []);
+                              setSubCategories(
+                                selectedCategory?.subCategories || [],
+                              );
                             }}
                             className="w-full h-[48px] px-4 pr-10 rounded-xl bg-[#F8FBFC] border border-[#DEDEDE] text-[#6B7280] text-sm appearance-none outline-none focus:ring-2 focus:ring-[#1C3753]"
                           >
                             <option value="">Select category</option>
                             {categories.map((cat) => (
-                              <option key={cat._id} value={cat._id} className="bg-white">
+                              <option
+                                key={cat._id}
+                                value={cat._id}
+                                className="bg-white"
+                              >
                                 {cat.name}
                               </option>
                             ))}
@@ -1961,13 +2055,19 @@ const fetchCategories = async () => {
                                 subcategory: "",
                               }));
 
-                              setSubCategories(selectedCategory?.subCategories || []);
+                              setSubCategories(
+                                selectedCategory?.subCategories || [],
+                              );
                             }}
                             className="w-full h-[48px] px-4 pr-10 rounded-xl bg-[#F8FBFC] border border-[#DEDEDE] text-[#6B7280] text-sm appearance-none outline-none focus:ring-2 focus:ring-[#1C3753]"
                           >
                             <option value="">Select category</option>
                             {categories.map((cat) => (
-                              <option key={cat._id} value={cat._id} className="bg-white">
+                              <option
+                                key={cat._id}
+                                value={cat._id}
+                                className="bg-white"
+                              >
                                 {cat.name}
                               </option>
                             ))}
@@ -2067,7 +2167,9 @@ const fetchCategories = async () => {
                             onChange={(e) => {
                               const selectedSubCategoryId = e.target.value;
 
-                              if (selectedSubCategoryId === "__add_subcategory__") {
+                              if (
+                                selectedSubCategoryId === "__add_subcategory__"
+                              ) {
                                 if (!formData.category) {
                                   toast.error("Select category first!");
                                   return;
@@ -2085,7 +2187,11 @@ const fetchCategories = async () => {
                           >
                             <option value="">Select sub-category</option>
                             {subCategories.map((sub) => (
-                              <option key={sub._id} value={sub._id} className="bg-white">
+                              <option
+                                key={sub._id}
+                                value={sub._id}
+                                className="bg-white"
+                              >
                                 {sub.name}
                               </option>
                             ))}
@@ -2098,7 +2204,9 @@ const fetchCategories = async () => {
                             onChange={(e) => {
                               const selectedSubCategoryId = e.target.value;
 
-                              if (selectedSubCategoryId === "__add_subcategory__") {
+                              if (
+                                selectedSubCategoryId === "__add_subcategory__"
+                              ) {
                                 if (!formData.category) {
                                   toast.error("Select category first!");
                                   setFormData((prev) => ({
@@ -2124,7 +2232,11 @@ const fetchCategories = async () => {
                           >
                             <option value="">Select sub-category</option>
                             {subCategories.map((sub) => (
-                              <option key={sub._id} value={sub._id} className="bg-white">
+                              <option
+                                key={sub._id}
+                                value={sub._id}
+                                className="bg-white"
+                              >
                                 {sub.name}
                               </option>
                             ))}
@@ -2170,12 +2282,12 @@ const fetchCategories = async () => {
                   <div className="flex items-center justify-end gap-3">
                     {allVariants.length > 1 && selectedVariants.length > 0 && (
                       <button
-                      type="button"
-                      onClick={deleteSelectedVariants}
-                      className="rounded-md bg-red-600 px-4 py-1 text-sm text-white hover:bg-red-700 transition-colors flex items-center gap-2"
+                        type="button"
+                        onClick={deleteSelectedVariants}
+                        className="rounded-md bg-red-600 px-4 py-1 text-sm text-white hover:bg-red-700 transition-colors flex items-center gap-2"
                       >
-Delete Selected
-{/* ({selectedVariants.length}) */}
+                        Delete Selected
+                        {/* ({selectedVariants.length}) */}
                       </button>
                     )}
 
@@ -2193,19 +2305,23 @@ Delete Selected
                   <table className="w-full min-w-[1200px] text-sm">
                     <thead className="bg-[#F5F8FA]">
                       <tr>
-                        {(isEditing && newVariants.length > 0 ) || (!isEditing && allVariants.length > 1) ? (
-                       <th className="px-3 py-2 text-left font-medium w-10">
-      <input
-        type="checkbox"
-        checked={allVariants.length > 0 && selectedVariants.length === allVariants.length}
-        onChange={handleSelectAllVariants}
-        className="w-4 h-4 cursor-pointer"
-      />
-    </th>
-                        ): (
+                        {(isEditing && newVariants.length > 0) ||
+                        (!isEditing && allVariants.length > 1) ? (
+                          <th className="px-3 py-2 text-left font-medium w-10">
+                            <input
+                              type="checkbox"
+                              checked={
+                                allVariants.length > 0 &&
+                                selectedVariants.length === allVariants.length
+                              }
+                              onChange={handleSelectAllVariants}
+                              className="w-4 h-4 cursor-pointer"
+                            />
+                          </th>
+                        ) : (
                           <th className="px-3 py-2 text-left font-medium w-10"></th>
                         )}
-                       
+
                         <th className="px-3 py-2 text-left font-medium">
                           Color
                         </th>
@@ -2248,14 +2364,14 @@ Delete Selected
                         const isAddModeVariant = !isEditing && index > 0;
                         const isReadOnly = isExisting && !isProductDraft;
                         const actualIndex = index;
-                      let showCheckbox = false;
-                      if(isEditing) {
-                        // in edit mode only show checkbox for new varinat
-                        showCheckbox = isNewVariant;
-                      }else {
-                        // in add mode show checkbox only when multiple variant exist
-                        showCheckbox = allVariants.length > 1;
-                      }
+                        let showCheckbox = false;
+                        if (isEditing) {
+                          // in edit mode only show checkbox for new varinat
+                          showCheckbox = isNewVariant;
+                        } else {
+                          // in add mode show checkbox only when multiple variant exist
+                          showCheckbox = allVariants.length > 1;
+                        }
 
                         // dont show delete button for first variant(keep at least one variant)
                         const canDelete = allVariants.length > 1;
@@ -2265,20 +2381,22 @@ Delete Selected
                             className="hover:bg-gray-50 border-b"
                           >
                             {/* checkbox columns only show for new variants in edit mode or for all in add mode when multiple */}
-{showCheckbox ? (
-          <td className="px-3 py-2 text-center">
-            <input
-              type="checkbox"
-              checked={selectedVariants.includes(index)}
-              onChange={() => handleVariantCheckboxChange(index, index)}
-              className="w-4 h-4 cursor-pointer"
-            />
-          </td>
-        ): (
-          <td className="px-3 py-2 text-center"></td>
-        )}
+                            {showCheckbox ? (
+                              <td className="px-3 py-2 text-center">
+                                <input
+                                  type="checkbox"
+                                  checked={selectedVariants.includes(index)}
+                                  onChange={() =>
+                                    handleVariantCheckboxChange(index, index)
+                                  }
+                                  className="w-4 h-4 cursor-pointer"
+                                />
+                              </td>
+                            ) : (
+                              <td className="px-3 py-2 text-center"></td>
+                            )}
                             <td className="px-3 py-1">
-                              {(isExisting && !isProductDraft) ? (
+                              {isExisting && !isProductDraft ? (
                                 <div className="w-[140px] rounded-md border px-3 py-1 text-sm bg-gray-100 text-gray-600 min-h-[36px]">
                                   {variant.variantColor || "-"}
                                 </div>
@@ -2290,13 +2408,21 @@ Delete Selected
                                     onChange={(e) => {
                                       if (isEditing && isNewVariant) {
                                         const updated = [...newVariants];
-                                        updated[index - formData.variants.length] = {
-                                          ...updated[index - formData.variants.length],
+                                        updated[
+                                          index - formData.variants.length
+                                        ] = {
+                                          ...updated[
+                                            index - formData.variants.length
+                                          ],
                                           variantColor: e.target.value,
                                         };
                                         setNewVariants(updated);
                                       } else {
-                                        handleVariantChange(index, "variantColor", e.target.value);
+                                        handleVariantChange(
+                                          index,
+                                          "variantColor",
+                                          e.target.value,
+                                        );
                                       }
                                     }}
                                     className="w-[140px] rounded-md border px-3 py-1 text-sm focus:outline-none "
@@ -2315,7 +2441,7 @@ Delete Selected
                             </td>
 
                             <td className="px-3 py-1">
-                              {(isExisting && !isProductDraft) ? (
+                              {isExisting && !isProductDraft ? (
                                 <div className="border px-3 py-2 rounded bg-gray-100 text-gray-600 min-w-[120px]">
                                   {variant.variantName || "-"}
                                 </div>
@@ -2328,13 +2454,21 @@ Delete Selected
                                       // in edit mode and this is new variant
                                       if (isEditing && isNewVariant) {
                                         const updated = [...newVariants];
-                                        updated[index - formData.variants.length] = {
-                                          ...updated[index - formData.variants.length],
-                                          variantName: e.target.value
+                                        updated[
+                                          index - formData.variants.length
+                                        ] = {
+                                          ...updated[
+                                            index - formData.variants.length
+                                          ],
+                                          variantName: e.target.value,
                                         };
                                         setNewVariants(updated);
                                       } else {
-                                        handleVariantChange(actualIndex, "variantName", e.target.value);
+                                        handleVariantChange(
+                                          actualIndex,
+                                          "variantName",
+                                          e.target.value,
+                                        );
                                       }
                                     }}
                                     placeholder="Enter Variant"
@@ -2345,9 +2479,12 @@ Delete Selected
                             </td>
 
                             <td className="px-3 py-1">
-                              {(isExisting && !isProductDraft) ? (
+                              {isExisting && !isProductDraft ? (
                                 <div className="flex items-center gap-2 border rounded px-3 py-1 bg-gray-100 text-gray-600 min-w-[140px]">
-                                  <span>{variant.variantWeight || "-"} {variant.variantWeightUnit || "kg"}</span>
+                                  <span>
+                                    {variant.variantWeight || "-"}{" "}
+                                    {variant.variantWeightUnit || "kg"}
+                                  </span>
                                 </div>
                               ) : (
                                 <div className="flex items-center justify-center gap-2 border rounded px-3 py-1">
@@ -2360,17 +2497,23 @@ Delete Selected
                                     onChange={(e) => {
                                       if (isEditing && isNewVariant) {
                                         const updated = [...newVariants];
-                                        updated[index - formData.variants.length] = {
-                                          ...updated[index - formData.variants.length],
-                                          variantWeight: e.target.value
+                                        updated[
+                                          index - formData.variants.length
+                                        ] = {
+                                          ...updated[
+                                            index - formData.variants.length
+                                          ],
+                                          variantWeight: e.target.value,
                                         };
                                         setNewVariants(updated);
+                                      } else {
+                                        handleVariantChange(
+                                          actualIndex,
+                                          "variantWeight",
+                                          e.target.value,
+                                        );
                                       }
-                                      else {
-                                        handleVariantChange(actualIndex, "variantWeight", e.target.value);
-                                      }
-                                    }
-                                    }
+                                    }}
                                     placeholder="Enter Weight"
                                     className="px-2 py-1 placeholder:text-[#6B6B6B] outline-none"
                                   />
@@ -2379,21 +2522,28 @@ Delete Selected
                                     onChange={(e) => {
                                       if (isEditing && isNewVariant) {
                                         const updated = [...newVariants];
-                                        updated[index - formData.variants.length] = {
-                                          ...updated[index - formData.variants.length],
-                                          variantWeightUnit: e.target.value
+                                        updated[
+                                          index - formData.variants.length
+                                        ] = {
+                                          ...updated[
+                                            index - formData.variants.length
+                                          ],
+                                          variantWeightUnit: e.target.value,
                                         };
                                         setNewVariants(updated);
+                                      } else {
+                                        handleVariantChange(
+                                          actualIndex,
+                                          "variantWeightUnit",
+                                          e.target.value,
+                                        );
                                       }
-                                      else {
-                                        handleVariantChange(actualIndex, "variantWeightUnit", e.target.value);
-                                      }
-                                    }
-                                    }
+                                    }}
                                     className="border rounded-lg px-3 bg-[#264464] text-white text-sm"
                                   >
                                     <option value="kg">kg</option>
-                                    <option value="gm">g</option>
+                                    <option value="g">g</option>
+                                    <option value="mg">mg</option>
                                   </select>
                                 </div>
                               )}
@@ -2401,7 +2551,7 @@ Delete Selected
 
                             <td className="px-3 py-2">
                               <div>
-                                {(isExisting && !isProductDraft) ? (
+                                {isExisting && !isProductDraft ? (
                                   <div className="w-[274px] h-[28px] border rounded px-3 bg-gray-100 text-gray-600 flex items-center">
                                     {variant.variantSkuId || "N/A"}
                                   </div>
@@ -2429,13 +2579,22 @@ Delete Selected
                                         type="button"
                                         // onClick={() => generateVariantSKU(index)}
                                         onClick={() => {
-                                          const productSKU = formData.SKU?.trim();
-                                          const randomNum = Math.floor(100 + Math.random() * 900);
+                                          const productSKU =
+                                            formData.SKU?.trim();
+                                          const randomNum = Math.floor(
+                                            100 + Math.random() * 900,
+                                          );
                                           const newSku = `${productSKU}-V-${randomNum}`;
                                           const updated = [...newVariants];
-                                          updated[actualIndex - formData.variants.length] = {
-                                            ...updated[actualIndex - formData.variants.length],
-                                            variantSkuId: newSku
+                                          updated[
+                                            actualIndex -
+                                              formData.variants.length
+                                          ] = {
+                                            ...updated[
+                                              actualIndex -
+                                                formData.variants.length
+                                            ],
+                                            variantSkuId: newSku,
                                           };
                                           setNewVariants(updated);
                                         }}
@@ -2452,78 +2611,111 @@ Delete Selected
                             </td>
                             {/* images */}
                             <td className="px-3 py-2">
-                              {(isExisting && !isProductDraft) ? (
+                              {isExisting && !isProductDraft ? (
                                 // VIEW-ONLY MODE FOR EXISTING VARIANTS
                                 <div className="flex items-center gap-3">
-                                  {variant.variantImage && variant.variantImage.length > 0 ? (
+                                  {variant.variantImage &&
+                                  variant.variantImage.length > 0 ? (
                                     <div className="flex items-center gap-2">
                                       <div className="h-9 w-9 rounded-md overflow-hidden border bg-gray-100">
                                         <img
-                                          src={variant.variantImage[0]?.url || "/placeholder.png"}
+                                          src={
+                                            variant.variantImage[0]?.url ||
+                                            "/placeholder.png"
+                                          }
                                           className="h-full w-full object-cover"
                                           alt="product"
                                         />
                                       </div>
                                       <span className="text-sm text-gray-500">
-                                        {variant.variantImage.length} image{variant.variantImage.length !== 1 ? "s" : ""}
+                                        {variant.variantImage.length} image
+                                        {variant.variantImage.length !== 1
+                                          ? "s"
+                                          : ""}
                                       </span>
                                     </div>
                                   ) : (
-                                    <div className="text-sm text-gray-400">No images</div>
+                                    <div className="text-sm text-gray-400">
+                                      No images
+                                    </div>
                                   )}
                                 </div>
                               ) : (
                                 // EDITABLE FOR NEW VARIANTS
                                 <div className="flex items-center gap-4 whitespace-nowrap">
-                                  {(!variant.variantImage || variant.variantImage.length === 0) && (
+                                  {(!variant.variantImage ||
+                                    variant.variantImage.length === 0) && (
                                     <button
                                       type="button"
-                                      onClick={() => triggerVariantUpload(actualIndex)}
-                                      disabled={uploadingVariantIndex === actualIndex}
+                                      onClick={() =>
+                                        triggerVariantUpload(actualIndex)
+                                      }
+                                      disabled={
+                                        uploadingVariantIndex === actualIndex
+                                      }
                                       className="flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
                                     >
                                       <div className="h-9 w-9 rounded-md border bg-[#EFEFEF] flex items-center justify-center">
-                                        {uploadingVariantIndex === actualIndex ? (
+                                        {uploadingVariantIndex ===
+                                        actualIndex ? (
                                           <div className="h-5 w-5 rounded-full border-2 border-gray-300 border-t-[#1C3753] animate-spin" />
                                         ) : (
                                           <FiUpload className="h-5 w-5 text-[#1C3753]" />
                                         )}
                                       </div>
                                       <span className="text-sm text-[#1C3753]">
-                                        {uploadingVariantIndex === actualIndex ? "Uploading..." : "Add Images"}
+                                        {uploadingVariantIndex === actualIndex
+                                          ? "Uploading..."
+                                          : "Add Images"}
                                       </span>
                                     </button>
                                   )}
 
-                                  {variant.variantImage && variant.variantImage.length > 0 && (
-                                    <div className="flex items-center gap-3">
-                                      <button
-                                        type="button"
-                                        onClick={() => openVariantImages(actualIndex)}
-                                        className="flex items-center gap-2"
-                                      >
-                                        <div className="h-9 w-9 rounded-md overflow-hidden border bg-gray-100">
-                                          <img
-                                            src={variant.variantImage[0]?.url || variant.variantImage[0]?.preview || "/placeholder.png"}
-                                            alt=""
-                                            className="h-full w-full object-cover"
-                                          />
-                                        </div>
-                                        <span className="text-sm text-[#1C3753]">
-                                         + {variant.variantImage.length}  Image{variant.variantImage.length !== 1 ? "s" : ""}
-                                        </span>
-                                      </button>
-    
-                                    </div>
-                                  )}
+                                  {variant.variantImage &&
+                                    variant.variantImage.length > 0 && (
+                                      <div className="flex items-center gap-3">
+                                        <button
+                                          type="button"
+                                          onClick={() =>
+                                            openVariantImages(actualIndex)
+                                          }
+                                          className="flex items-center gap-2"
+                                        >
+                                          <div className="h-9 w-9 rounded-md overflow-hidden border bg-gray-100">
+                                            <img
+                                              src={
+                                                variant.variantImage[0]?.url ||
+                                                variant.variantImage[0]
+                                                  ?.preview ||
+                                                "/placeholder.png"
+                                              }
+                                              alt=""
+                                              className="h-full w-full object-cover"
+                                            />
+                                          </div>
+                                          <span className="text-sm text-[#1C3753]">
+                                            + {variant.variantImage.length}{" "}
+                                            Image
+                                            {variant.variantImage.length !== 1
+                                              ? "s"
+                                              : ""}
+                                          </span>
+                                        </button>
+                                      </div>
+                                    )}
 
                                   <input
                                     type="file"
                                     multiple
                                     accept=".png,.jpg,.jpeg,.webp,.svg"
                                     className="hidden"
-                                    ref={(el) => (variantFileRefs.current[actualIndex] = el)}
-                                    onChange={(e) => handleVariantImageChange(e, actualIndex)}
+                                    ref={(el) =>
+                                      (variantFileRefs.current[actualIndex] =
+                                        el)
+                                    }
+                                    onChange={(e) =>
+                                      handleVariantImageChange(e, actualIndex)
+                                    }
                                   />
                                 </div>
                               )}
@@ -2533,7 +2725,13 @@ Delete Selected
                               <input
                                 type="number"
                                 value={variant.variantMrp || ""}
-                                onChange={(e) => handleVariantChange(actualIndex, "variantMrp", e.target.value)}
+                                onChange={(e) =>
+                                  handleVariantChange(
+                                    actualIndex,
+                                    "variantMrp",
+                                    e.target.value,
+                                  )
+                                }
                                 className="rounded border px-2 py-1 placeholder:text-[#6B6B6B]"
                                 placeholder="Enter MRP"
                               />
@@ -2559,7 +2757,13 @@ Delete Selected
                               <input
                                 type="number"
                                 value={variant.variantSellingPrice || ""}
-                                onChange={(e) => handleVariantChange(actualIndex, "variantSellingPrice", e.target.value)}
+                                onChange={(e) =>
+                                  handleVariantChange(
+                                    actualIndex,
+                                    "variantSellingPrice",
+                                    e.target.value,
+                                  )
+                                }
                                 className="rounded border px-2 py-1 placeholder:text-[#6B6B6B]"
                                 placeholder="Enter Selling Price"
                               />
@@ -2585,7 +2789,13 @@ Delete Selected
                                 <input
                                   type="number"
                                   value={variant.variantDiscount || ""}
-                                  onChange={(e) => handleVariantChange(actualIndex, "variantDiscount", e.target.value)}
+                                  onChange={(e) =>
+                                    handleVariantChange(
+                                      actualIndex,
+                                      "variantDiscount",
+                                      e.target.value,
+                                    )
+                                  }
                                   placeholder="Discount"
                                   className="placeholder:text-[#6B6B6B] bg-white w-20"
                                 />
@@ -2597,7 +2807,7 @@ Delete Selected
 
                             {/* Available Stock */}
                             <td className="px-3 py-2">
-                              {(isExisting && !isProductDraft) ? (
+                              {isExisting && !isProductDraft ? (
                                 <div className="rounded border px-2 py-1 bg-gray-100 text-gray-600">
                                   {variant.variantAvailableStock || 0}
                                 </div>
@@ -2608,17 +2818,23 @@ Delete Selected
                                   onChange={(e) => {
                                     if (isEditing && isNewVariant) {
                                       const updated = [...newVariants];
-                                      updated[index - formData.variants.length] = {
-                                        ...updated[index - formData.variants.length],
-                                        variantAvailableStock: e.target.value
+                                      updated[
+                                        index - formData.variants.length
+                                      ] = {
+                                        ...updated[
+                                          index - formData.variants.length
+                                        ],
+                                        variantAvailableStock: e.target.value,
                                       };
                                       setNewVariants(updated);
+                                    } else {
+                                      handleVariantChange(
+                                        actualIndex,
+                                        "variantAvailableStock",
+                                        e.target.value,
+                                      );
                                     }
-                                    else {
-                                      handleVariantChange(actualIndex, "variantAvailableStock", e.target.value);
-                                    }
-                                  }
-                                  }
+                                  }}
                                   className="rounded border px-2 py-1 placeholder:text-[#6B6B6B]"
                                   placeholder="Enter Stock"
                                 />
