@@ -7,7 +7,7 @@ import {
   addFeature,
   deleteFeature,
   toggleFeatureStatus
-} from '../../controllers/settingsController.js'; // ← Fix path
+} from '../../controllers/admin/PremiumController.js'; // ← Fix path
 
 const router = express.Router();
 
