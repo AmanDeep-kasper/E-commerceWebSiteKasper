@@ -7,6 +7,16 @@ import "react-quill-new/dist/quill.snow.css";
 const ReturnRefundPolicy = () => {
   const [refundData, setRefundData] = useState(null);
 
+  const cleanHTML = (html) => {
+    if (!html) return "";
+
+    return html
+      .replace(/&nbsp;/g, " ") // remove nbsp
+      .replace(/&shy;/g, "") // remove soft hyphen
+      .replace(/\u200B/g, "") // remove zero-width space
+      .replace(/\s+/g, " "); // normalize spaces
+  };
+
   useEffect(() => {
     const fetchRefundPolicy = async () => {
       try {
@@ -35,9 +45,12 @@ const ReturnRefundPolicy = () => {
           </div>
 
           <div
-            className="ql-editor p-0 text-[#1C1C1C] text-sm sm:text-base leading-relaxed w-full overflow-hidden [&_p]:!mb-6 [&_ul]:!mb-6 [&_ol]:!mb-6 [&_li]:!mb-2"
+            className="ql-editor p-0 text-[#1C1C1C] text-sm sm:text-base leading-relaxed w-full overflow-hidden whitespace-normal break-normal [overflow-wrap:anywhere] [&_p]:!mb-6 [&_ul]:!mb-6 [&_ol]:!mb-6 [&_li]:!mb-2"
             dangerouslySetInnerHTML={{
-              __html: refundData?.content || "<p>At Happy Art Supplies, we strive to provide high-quality resin art materials and supplies. Due to the nature of our products, we maintain a strict policy of no returns, no exchanges, and no cancellations once an order has been placed.</p>",
+              __html: cleanHTML(
+                refundData?.content ||
+                  "<p>At Happy Art Supplies, we strive to provide high-quality resin art materials and supplies. Due to the nature of our products, we maintain a strict policy of no returns, no exchanges, and no cancellations once an order has been placed.</p>",
+              ),
             }}
           />
         </div>
