@@ -1,14 +1,15 @@
-const express = require('express');
-const router = express.Router();
-const { protect, admin } = require('../../middlewares/authMiddleware');
-const {
+import express from 'express';
+import { protect, admin } from '../../middlewares/authMiddleware.js';
+import {
   getAllSettings,
   getHomepageFeatures,
   updateHomepageFeatures,
   addFeature,
   deleteFeature,
   toggleFeatureStatus
-} = require('../../controllers/admin/PremiumController');
+} from '../../controllers/settingsController.js'; // ← Fix path
+
+const router = express.Router();
 
 // Public routes
 router.get('/', getAllSettings);
@@ -20,4 +21,4 @@ router.post('/homepage-features', protect, admin, addFeature);
 router.delete('/homepage-features/:featureId', protect, admin, deleteFeature);
 router.patch('/homepage-features/:featureId/toggle', protect, admin, toggleFeatureStatus);
 
-module.exports = router;
+export default router; // ← Use export default
