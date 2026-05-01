@@ -413,7 +413,7 @@ const OrderDetail = () => {
   const currentIndex = steps.indexOf(currentStatus);
 
   return (
-    <div className="w-full p-6 sm:p-10 bg-white shadow rounded-lg font-inter">
+    <div className="w-full p-6 sm:p-10 bg-white shadow rounded-lg font-inter mt-5">
       {/* model */}
       {openCancelModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
@@ -473,15 +473,16 @@ const OrderDetail = () => {
           Download Invoice
         </button> */}
         <a
-          // href={data?.invoice?.invoicePdf?.url}
+          href={order?.invoice?.invoicePdf?.url}
           download
           target="_blank"
           rel="noreferrer"
-          // onClick={(e) => {
-          //               if (!data?.invoice?.invoicePdf?.url) {
-          //                 e.preventDefault();
-          //                 toast.error("Invoice not available");
-          //               }
+          onClick={(e) => {
+            if (!data?.invoice?.invoicePdf?.url) {
+              e.preventDefault();
+              toast.error("Invoice not available");
+            }
+          }}
           // onClick={() => generateInvoice(order)}
           className=" text-[#1C3753] px-6 py-2 border border-[#1C3753] rounded-lg text-sm hover:bg-[#1C3753] hover:text-white transition-colors flex items-center gap-2"
         >
@@ -827,12 +828,28 @@ shippingAddress.landmark && (
         {/* When Shipped */}
         {currentStatus === "shipped" && (
           <>
-            <button
+            {/* <button
               onClick={() => generateInvoice(order)}
               className="bg-gray-800 text-white px-6 py-2 rounded-full text-sm hover:bg-gray-900 transition-colors"
             >
               Download Invoice
-            </button>
+            </button> */}
+            <a
+              href={order?.invoice?.invoicePdf?.url}
+              download
+              target="_blank"
+              rel="noreferrer"
+              onClick={(e) => {
+                if (!data?.invoice?.invoicePdf?.url) {
+                  e.preventDefault();
+                  toast.error("Invoice not available");
+                }
+              }}
+              // onClick={() => generateInvoice(order)}
+              className=" text-[#1C3753] px-6 py-2 border border-[#1C3753] rounded-lg text-sm hover:bg-[#1C3753] hover:text-white transition-colors flex items-center gap-2"
+            >
+              Download Invoice <Download size={18} />
+            </a>
           </>
         )}
 
