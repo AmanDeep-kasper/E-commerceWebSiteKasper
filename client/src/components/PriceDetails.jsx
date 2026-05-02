@@ -31,6 +31,7 @@ function PriceDetails({
   rewardConfig,
   onApplyPoints,
   appliedPoints,
+  selected,
 }) {
   const [showPrice, setShowPrice] = useState(false);
 
@@ -52,7 +53,7 @@ function PriceDetails({
             </h2>
             <button
               onClick={() => setShowPrice(!showPrice)}
-              className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              className="p-2 rounded-lg transition-colors"
               aria-expanded={showPrice}
             >
               <ChevronDown
@@ -231,7 +232,7 @@ function PriceDetails({
                 ) : (
                   <Link
                     to="/checkout/delivery"
-                    className="bg-[#0C0057] rounded-lg hover:bg-black text-white md:px-8 md:py-3 px-4 py-2 text-base font-medium transition-colors flex items-center gap-2"
+                    className="bg-[#0C0057] rounded-lg text-white md:px-8 md:py-3 px-4 py-2 font-medium transition-colors flex items-center gap-2 text-[14px]"
                   >
                     Proceed to Checkout
                   </Link>
@@ -246,13 +247,13 @@ function PriceDetails({
                 </button>
               )}
 
-              {step === "payment" && (
+              {step === "payment" && selected === "Razorpay" && (
                 <button
                   onClick={handlePlaceOrder}
-                  className="bg-[#0C0057] rounded-lg hover:bg-black text-white md:px-8 md:py-3 px-4 py-2 text-base font-medium transition-colors flex items-center gap-2 whitespace-nowrap"
+                  className="bg-[#0C0057] rounded-lg text-white md:px-8 md:py-3 px-4 py-2 text-base font-medium transition-colors flex items-center gap-2 whitespace-nowrap"
                 >
-                  {buyNowMode ? "Buy Now & Pay" : "Place Order"}{" "}
-                  <ArrowRight size={16}></ArrowRight>
+                  {buyNowMode ? "Buy Now & Pay" : "Place Order"}
+                  <ArrowRight size={16} />
                 </button>
               )}
             </div>

@@ -140,8 +140,8 @@ function Delivery() {
   return (
     <>
       <Navbar />
-      <section className="lg:px-20 md:px-[60px] md:py-4 bg-gray-50 min-h-screen mt-20">
-        <div className="flex flex-col lg:flex-row justify-between md:gap-6 ">
+      <section className="lg:px-20 md:px-[60px] md:py-4 bg-gray-50 mt-24">
+        <div className="flex flex-col lg:flex-row justify-between lg:gap-6 font-inter gap-6">
           {/* Address Section */}
           <div className="w-full lg:w-2/3 p-4 md:p-6 md:shadow-sm bg-white md:rounded-md">
             <div className="flex justify-between items-center mb-6">

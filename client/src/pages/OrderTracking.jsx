@@ -117,14 +117,17 @@ function OrderTracking() {
                   </Link>{" "}
                   Track Order
                 </span>
-                <div>
-                  <span className="text-sm">
-                    {" "}
+                <div className="flex flex-col sm:flex-row sm:gap-2 text-sm text-gray-600 items-start text-left">
+                  <span>
                     Order placed -{" "}
-                    {new Date(order.createdAt).toLocaleDateString()}{" "}
+                    {new Date(order.createdAt).toLocaleDateString()}
                   </span>
-                  <span className="text-sm">| </span>
-                  <span className="text-sm">{order.orderNumber}</span>
+
+                  <span className="hidden sm:inline">|</span>
+
+                  <span className="break-all sm:break-normal">
+                    {order.orderNumber}
+                  </span>
                 </div>
               </h2>
               {/* <div className="mb-2">
@@ -242,7 +245,9 @@ function OrderTracking() {
                 <div className="space-y-3 text-sm">
                   <div>
                     <p className="text-gray-500">Carrier:</p>
-                    <p className="font-medium">{order?.tracking?.carrier || "soon available"}</p>
+                    <p className="font-medium">
+                      {order?.tracking?.carrier || "soon available"}
+                    </p>
                   </div>
                   <div>
                     <p className="text-gray-500">Shipping Address</p>
@@ -308,16 +313,12 @@ function OrderTracking() {
                       </p>
                       {/* <p className="text-xs text-gray-500">Today, 9:42 AM</p> */}
                       <a
-                        href={
-                          order.tracking?.trackingUrl ||
-                          ""
-                        }
+                        href={order.tracking?.trackingUrl || ""}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-xs mt-1 text-blue-600"
                       >
-                        {order.tracking?.trackingUrl ||
-                          "soon available"}
+                        {order.tracking?.trackingUrl || "soon available"}
                       </a>
                     </div>
                   </div>

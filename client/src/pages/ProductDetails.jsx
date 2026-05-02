@@ -544,7 +544,7 @@ function ProductDetails() {
             handleCloseReview();
           }}
         />
-        <div className="flex lg:flex-row flex-col gap-8 items-start max-lg:items-center">
+        <div className="flex lg:flex-row flex-col gap-8 items-start max-lg:items-center lg:mt-0.5 mt-12 p-8">
           {/* Thumbnails */}
           <div className="lg:sticky top-20 flex md:gap-8 gap-4 max-md:flex-col-reverse max-lg:w-full">
             {/* Thumbnails Swiper */}

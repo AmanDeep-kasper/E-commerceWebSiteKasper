@@ -232,7 +232,7 @@ function Cart() {
     <>
       <Navbar />
       <section className="lg:px-20 md:px-[60px] md:py-4 bg-gray-50 mt-24">
-        <div className="flex flex-col lg:flex-row justify-between lg:gap-6 font-inter">
+        <div className="flex flex-col lg:flex-row justify-between lg:gap-6 font-inter gap-6">
           {/* Main Cart Content */}
           <div
             className={`w-full ${cart?.totalQuantity > 0 ? "lg:w-2/3" : "w-full "}`}
@@ -438,7 +438,7 @@ function Cart() {
                                   </div>
                                 </div>
                                 {/* Actions */}
-                                <div className="flex w-[20%] items-center gap-2 text-sm font-medium">
+                                <div className="flex md:flex-row tems-center gap-2 text-sm font-medium">
                                   <button
                                     className="text-[#0C0057]"
                                     onClick={() => handleRemoveItem(item)}
@@ -449,7 +449,7 @@ function Cart() {
                                   <span className="hidden sm:inline">|</span>
 
                                   <button
-                                    className="text-[#0C0057]"
+                                    className="text-[#0C0057] whitespace-nowrap"
                                     onClick={() => moveToWishlist(item)}
                                   >
                                     Save later
