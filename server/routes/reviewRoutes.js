@@ -3,10 +3,13 @@ import { authenticate, authorize } from "../middlewares/authMiddleware.js";
 import { upload } from "../middlewares/multer.js";
 import {
   addReview,
+  deleteReply,
   deleteReview,
   getAllProductReviews,
   getAllUserReviews,
   getReview,
+  replyToReview,
+  updateReply,
   updateReview,
   // newone
    addReplyToReview,
@@ -102,6 +105,25 @@ router.delete(
 router.get(
   "/get-replies/:reviewId",
   getReviewReplies
+);
+
+router.patch(
+  "/reply-review/:reviewId",
+  authenticate,
+  authorize("admin"),
+  replyToReview,
+);
+router.delete(
+  "/delete-reply/:reviewId",
+  authenticate,
+  authorize("admin"),
+  deleteReply,
+);
+router.patch(
+  "/update-reply/:reviewId",
+  authenticate,
+  authorize("admin"),
+  updateReply,
 );
 
 export default router;

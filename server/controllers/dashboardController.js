@@ -614,6 +614,83 @@ export const topSellingProducts = asyncHandler(async (req, res) => {
     createdAt: { $gte: startDate },
   };
 
+  // const [products, totalAgg] = await Promise.all([
+  //   Order.aggregate([
+  //     {
+  //       $match: matchStage,
+  //     },
+
+  //     {
+  //       $unwind: "$items",
+  //     },
+
+  //     // group product sales
+  //     {
+  //       $group: {
+  //         _id: "$items.product",
+
+  //         productTitle: {
+  //           $first: "$items.productTitle",
+  //         },
+
+  //         category:{
+  //           $first: "$items.category",
+  //         },
+
+  //         image: {
+  //           $first: "$items.image.url",
+  //         },
+
+  //         totalSales: {
+  //           $sum: "$grandTotal",
+  //         },
+
+  //         totalOrders: {
+  //           $sum: "$items.quantity",
+  //         },
+  //       },
+  //     },
+
+  //     {
+  //       $sort: {
+  //         totalSales: -1,
+  //       },
+  //     },
+
+  //     {
+  //       $facet: {
+  //         data: [{ $skip: skip }, { $limit: pageSize }],
+
+  //         meta: [
+  //           {
+  //             $count: "total",
+  //           },
+  //         ],
+  //       },
+  //     },
+  //   ]),
+
+  //   Order.aggregate([
+  //     {
+  //       $match: matchStage,
+  //     },
+  //     {
+  //       $unwind: "$items",
+  //     },
+  //     {
+  //       $group: {
+  //         _id: null,
+  //         totalRevenue: {
+  //           $sum: "$grandTotal",
+  //         },
+  //         totalUnitsSold: {
+  //           $sum: "$items.quantity",
+  //         },
+  //       },
+  //     },
+  //   ]),
+  // ]);
+
   const [products, totalAgg] = await Promise.all([
     Order.aggregate([
       {
@@ -624,6 +701,22 @@ export const topSellingProducts = asyncHandler(async (req, res) => {
         $unwind: "$items",
       },
 
+      // ✅ ADD THIS LOOKUP
+      {
+        $lookup: {
+          from: "categories",
+          localField: "items.category",
+          foreignField: "_id",
+          as: "categoryData",
+        },
+      },
+      {
+        $unwind: {
+          path: "$categoryData",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+
       // group product sales
       {
         $group: {
@@ -631,6 +724,11 @@ export const topSellingProducts = asyncHandler(async (req, res) => {
 
           productTitle: {
             $first: "$items.productTitle",
+          },
+
+          // ✅ FIX HERE (name instead of id)
+          category: {
+            $first: "$categoryData.name",
           },
 
           image: {
@@ -656,7 +754,6 @@ export const topSellingProducts = asyncHandler(async (req, res) => {
       {
         $facet: {
           data: [{ $skip: skip }, { $limit: pageSize }],
-
           meta: [
             {
               $count: "total",
@@ -666,6 +763,7 @@ export const topSellingProducts = asyncHandler(async (req, res) => {
       },
     ]),
 
+    // 🔹 SECOND AGGREGATION (NO CHANGE)
     Order.aggregate([
       {
         $match: matchStage,
@@ -697,6 +795,7 @@ export const topSellingProducts = asyncHandler(async (req, res) => {
     data: rows.map((item) => ({
       productId: item._id,
       title: item.productTitle,
+      category: item.category,
       image: item.image || "",
       sales: item.totalSales,
       orders: item.totalOrders,
