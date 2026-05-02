@@ -149,7 +149,7 @@ function Login() {
 
     // 🔴 Identifier validation
     if (!identifier) {
-      newErrors.identifier = "Identifier is required";
+      newErrors.identifier = "Email or Phone number is required";
     } else if (isNumeric) {
       // 👉 If user entered number → STRICT phone validation
       if (!isPhone) {
@@ -243,6 +243,7 @@ function Login() {
                   <Mail className="w-4 h-4" />
                   Email/Phone
                 </label>
+
                 <div className="relative">
                   <input
                     type="text"
@@ -250,16 +251,23 @@ function Login() {
                     placeholder="Enter Phone Number or Email"
                     value={formData.identifier}
                     onChange={handleChange}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent transition-all"
+                    className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:border-transparent transition-all ${
+                      errors.identifier
+                        ? "border-red-500 focus:ring-red-200"
+                        : "border-gray-300"
+                    }`}
                     disabled={authLoading}
                   />
-                  {errors.identifier && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.identifier}
-                    </p>
-                  )}
+
                   <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                 </div>
+
+                {/* ✅ OUTSIDE */}
+                {errors.identifier && (
+                  <p className="text-red-500 text-sm min-h-[18px]">
+                    {errors.identifier}
+                  </p>
+                )}
               </div>
 
               {/* Password Field */}
