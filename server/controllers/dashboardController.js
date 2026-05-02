@@ -169,10 +169,168 @@ export const kpiCardController = asyncHandler(async (req, res) => {
   });
 });
 
+// export const salesOverviewController = asyncHandler(async (req, res) => {
+//   const {
+//     type = "orders", // orders | revenue
+//     range = "weekly", // weekly | monthly | yearly
+//   } = req.query;
+
+//   if (!["orders", "revenue"].includes(type)) {
+//     throw AppError.badRequest("Invalid type", "INVALID_TYPE");
+//   }
+
+//   if (!["weekly", "monthly", "yearly"].includes(range)) {
+//     throw AppError.badRequest("Invalid range", "INVALID_RANGE");
+//   }
+
+//   const Model = type === "orders" ? Order : Payment;
+
+//   const match =
+//     type === "orders"
+//       ? {}
+//       : {
+//           status: "captured",
+//         };
+
+//   let groupStage;
+//   let labels = [];
+//   let totalLabel = "";
+
+//   // WEEKLY → Mon Tue Wed...
+//   if (range === "weekly") {
+//     labels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+//     totalLabel = type === "orders" ? "Total Order" : "Total Revenue";
+
+//     groupStage = {
+//       _id: {
+//         $isoDayOfWeek: "$createdAt",
+//       },
+//       value: type === "orders" ? { $sum: 1 } : { $sum: "$amount" },
+//     };
+//   }
+
+//   // MONTHLY → 1 5 10 15 20 25 30
+//   if (range === "monthly") {
+//     labels = ["1", "5", "10", "15", "20", "25", "30"];
+//     totalLabel = type === "orders" ? "Total Order" : "Total Revenue";
+
+//     groupStage = {
+//       _id: {
+//         $switch: {
+//           branches: [
+//             { case: { $lte: [{ $dayOfMonth: "$createdAt" }, 5] }, then: 1 },
+//             { case: { $lte: [{ $dayOfMonth: "$createdAt" }, 10] }, then: 5 },
+//             { case: { $lte: [{ $dayOfMonth: "$createdAt" }, 15] }, then: 10 },
+//             { case: { $lte: [{ $dayOfMonth: "$createdAt" }, 20] }, then: 15 },
+//             { case: { $lte: [{ $dayOfMonth: "$createdAt" }, 25] }, then: 20 },
+//             { case: { $lte: [{ $dayOfMonth: "$createdAt" }, 30] }, then: 25 },
+//           ],
+//           default: 30,
+//         },
+//       },
+//       value: type === "orders" ? { $sum: 1 } : { $sum: "$amount" },
+//     };
+//   }
+
+//   // YEARLY → Jan Dec
+//   if (range === "yearly") {
+//     labels = [
+//       "Jan",
+//       "Feb",
+//       "Mar",
+//       "Apr",
+//       "May",
+//       "Jun",
+//       "Jul",
+//       "Aug",
+//       "Sep",
+//       "Oct",
+//       "Nov",
+//       "Dec",
+//     ];
+
+//     totalLabel = type === "orders" ? "Total Order" : "Total Revenue";
+
+//     groupStage = {
+//       _id: {
+//         $month: "$createdAt",
+//       },
+//       value: type === "orders" ? { $sum: 1 } : { $sum: "$amount" },
+//     };
+//   }
+
+//   const now = new Date();
+
+//   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+//   const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+
+//   const matchWithDate = {
+//     ...match,
+//     createdAt: {
+//       $gte: startOfMonth,
+//       $lt: endOfMonth,
+//     },
+//   };
+
+//   const [chartAgg, totalAgg] = await Promise.all([
+//     Model.aggregate([
+//       { $match: matchWithDate  },
+//       {
+//         $group: groupStage,
+//       },
+//       {
+//         $sort: { _id: 1 },
+//       },
+//     ]),
+
+//     Model.aggregate([
+//       { $match: matchWithDate },
+//       {
+//         $group: {
+//           _id: null,
+//           total: type === "orders" ? { $sum: 1 } : { $sum: "$amount" },
+//         },
+//       },
+//     ]),
+//   ]);
+
+//   // fast lookup map
+//   const chartMap = new Map();
+//   chartAgg.forEach((item) => {
+//     chartMap.set(item._id, item.value);
+//   });
+
+//   // frontend-ready chart
+//   const chartData = labels.map((label, index) => {
+//     let key;
+
+//     if (range === "weekly") key = index + 1;
+//     if (range === "monthly") key = [1, 5, 10, 15, 20, 25, 30][index];
+//     if (range === "yearly") key = index + 1;
+
+//     return {
+//       label,
+//       value: chartMap.get(key) || 0,
+//     };
+//   });
+
+//   res.status(200).json({
+//     success: true,
+//     message: "Sales overview fetched successfully",
+//     data: {
+//       type,
+//       range,
+//       total: totalAgg[0]?.total || 0,
+//       totalLabel,
+//       chart: chartData,
+//     },
+//   });
+// });
+
 export const salesOverviewController = asyncHandler(async (req, res) => {
   const {
-    type = "orders", // orders | revenue
-    range = "weekly", // weekly | monthly | yearly
+    type = "orders",
+    range = "weekly",
   } = req.query;
 
   if (!["orders", "revenue"].includes(type)) {
@@ -185,34 +343,47 @@ export const salesOverviewController = asyncHandler(async (req, res) => {
 
   const Model = type === "orders" ? Order : Payment;
 
-  const match =
+  const baseMatch =
     type === "orders"
       ? {}
-      : {
-          status: "captured",
-        };
+      : { status: "captured" };
 
   let groupStage;
   let labels = [];
   let totalLabel = "";
 
-  // WEEKLY → Mon Tue Wed...
+  const now = new Date();
+  let dateFilter = {};
+
+  // ✅ WEEKLY
   if (range === "weekly") {
     labels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
     totalLabel = type === "orders" ? "Total Order" : "Total Revenue";
 
+    const startOfWeek = new Date(now);
+    startOfWeek.setDate(now.getDate() - now.getDay() + 1); // Monday
+    startOfWeek.setHours(0, 0, 0, 0);
+
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(startOfWeek.getDate() + 7);
+
+    dateFilter = { $gte: startOfWeek, $lt: endOfWeek };
+
     groupStage = {
-      _id: {
-        $isoDayOfWeek: "$createdAt",
-      },
+      _id: { $isoDayOfWeek: "$createdAt" },
       value: type === "orders" ? { $sum: 1 } : { $sum: "$amount" },
     };
   }
 
-  // MONTHLY → 1 5 10 15 20 25 30
+  // ✅ MONTHLY
   if (range === "monthly") {
     labels = ["1", "5", "10", "15", "20", "25", "30"];
     totalLabel = type === "orders" ? "Total Order" : "Total Revenue";
+
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+
+    dateFilter = { $gte: startOfMonth, $lt: endOfMonth };
 
     groupStage = {
       _id: {
@@ -232,46 +403,40 @@ export const salesOverviewController = asyncHandler(async (req, res) => {
     };
   }
 
-  // YEARLY → Jan Dec
+  // ✅ YEARLY
   if (range === "yearly") {
     labels = [
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "May",
-      "Jun",
-      "Jul",
-      "Aug",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dec",
+      "Jan","Feb","Mar","Apr","May","Jun",
+      "Jul","Aug","Sep","Oct","Nov","Dec"
     ];
 
     totalLabel = type === "orders" ? "Total Order" : "Total Revenue";
 
+    const startOfYear = new Date(now.getFullYear(), 0, 1);
+    const endOfYear = new Date(now.getFullYear() + 1, 0, 1);
+
+    dateFilter = { $gte: startOfYear, $lt: endOfYear };
+
     groupStage = {
-      _id: {
-        $month: "$createdAt",
-      },
+      _id: { $month: "$createdAt" },
       value: type === "orders" ? { $sum: 1 } : { $sum: "$amount" },
     };
   }
 
+  const finalMatch = {
+    ...baseMatch,
+    createdAt: dateFilter,
+  };
+
   const [chartAgg, totalAgg] = await Promise.all([
     Model.aggregate([
-      { $match: match },
-      {
-        $group: groupStage,
-      },
-      {
-        $sort: { _id: 1 },
-      },
+      { $match: finalMatch },
+      { $group: groupStage },
+      { $sort: { _id: 1 } },
     ]),
 
     Model.aggregate([
-      { $match: match },
+      { $match: finalMatch },
       {
         $group: {
           _id: null,
@@ -281,13 +446,11 @@ export const salesOverviewController = asyncHandler(async (req, res) => {
     ]),
   ]);
 
-  // fast lookup map
   const chartMap = new Map();
   chartAgg.forEach((item) => {
     chartMap.set(item._id, item.value);
   });
 
-  // frontend-ready chart
   const chartData = labels.map((label, index) => {
     let key;
 
@@ -313,6 +476,7 @@ export const salesOverviewController = asyncHandler(async (req, res) => {
     },
   });
 });
+
 
 export const dashboardSummaryController = asyncHandler(async (req, res) => {
   const now = new Date();
