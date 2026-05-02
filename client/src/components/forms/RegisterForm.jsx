@@ -30,17 +30,18 @@ function RegisterForm({ onOtpSent }) {
       setLoading(false);
       return;
     }
+    const phoneRegex = /^[6-9]\d{9}$/;
+    const passwordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
-    // ✅ Phone validation (move BEFORE API call)
-    // if (formData.phoneNumber.length !== 10) {
-    //   setError("Phone number must be exactly 10 digits");
-    //   setLoading(false);
-    //   return;
-    // }
-    const phoneRegex = /^[89]\d{9}$/;
+    if (!passwordRegex.test(formData.password)) {
+      setError("Password must contain at least 8 characters, including uppercase, lowercase, number, and special character");
+      setLoading(false);
+      return;
+    }
 
     if (!phoneRegex.test(formData.phoneNumber)) {
-      setError("Phone number must start with 8 or 9 and be exactly 10 digits");
+      setError("Enter valid 10-digit Indian number (starts with 6-9)");
       setLoading(false);
       return;
     }
@@ -100,8 +101,8 @@ function RegisterForm({ onOtpSent }) {
   const handlePhoneChange = (e) => {
     let value = e.target.value.replace(/\D/g, "");
 
-    // ❌ block if first digit is not 8 or 9
-    if (value.length === 1 && !/[89]/.test(value)) {
+    // ❌ block if first digit is not 6, 7, 8, or 9
+    if (value.length === 1 && !/[6-9]/.test(value)) {
       return;
     }
 
