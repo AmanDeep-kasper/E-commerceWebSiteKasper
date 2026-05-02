@@ -14,6 +14,8 @@ function ProductInformation() {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+   const [reviews, setReviews] = useState([]);
+    const [reviewsLoading, setReviewsLoading] = useState(false);
 
   // Fetch product from API
   useEffect(() => {
@@ -47,6 +49,39 @@ function ProductInformation() {
       fetchProduct();
     }
   }, [uuid]);
+
+   // Fetch reviews separately when product is loaded
+useEffect(() => {
+  const fetchReviews = async () => {
+    if (!product?._id) {
+      setReviews([]);
+      return;
+    }
+
+    try {
+      setReviewsLoading(true);
+      // Use the correct endpoint - all-product-reviews with productId
+      const response = await axiosInstance.get(
+        `/review/all-product-reviews/${product._id}`
+      );
+      
+      if (response.data?.success && response.data?.data) {
+        setReviews(response.data.data);
+      } else if (Array.isArray(response.data)) {
+        setReviews(response.data);
+      } else {
+        setReviews([]);
+      }
+    } catch (err) {
+      console.error("Error fetching reviews:", err);
+      setReviews([]);
+    } finally {
+      setReviewsLoading(false);
+    }
+  };
+
+  fetchReviews();
+}, [product?._id]);
 
   // Get default variant
   const defaultVariant = useMemo(() => {
@@ -89,14 +124,11 @@ function ProductInformation() {
   }, [searchData]);
 
   // Calculate average rating
-  const avgRating = useMemo(() => {
-    if (!product?.reviews || product.reviews.length === 0) return 0;
-    const total = product.reviews.reduce(
-      (sum, review) => sum + (review.rating || 0),
-      0,
-    );
-    return total / product.reviews.length;
-  }, [product?.reviews]);
+const avgRating = useMemo(() => {
+    if (!reviews || reviews.length === 0) return 0;
+    const total = reviews.reduce((sum, review) => sum + (review.rating || 0), 0);
+    return total / reviews.length;
+  }, [reviews]);
 
   // search logic
   const text = debouncedSearch?.toLowerCase() || "";
@@ -250,14 +282,20 @@ function ProductInformation() {
 
                   <div className="flex justify-between text-xs text-gray-600 mt-0.5">
                     <div className="flex gap-2">
-                      {defaultVariant?.variantColor && (
-                        <p className="border border-[#495F75] px-1 rounded-md">
-                          {defaultVariant.variantColor}
-                        </p>
+                    {currentVariant?.variantName && (
+                     <span className="border border-[#495F75] px-1 rounded-md">
+                      {currentVariant?.variantName 
+                        ? `${currentVariant.variantName}`
+                        : ""}
+                    </span>
                       )}
-                      {/* <p className="border border-[#495F75] px-1 rounded-md">
-                        20×20
-                      </p> */}
+                    {(currentVariant?.variantWeight || currentVariant?.variantWeightUnit) && (
+                      <span className="border border-[#495F75] px-1 rounded-md">
+                       {currentVariant?.variantWeight 
+            ? `${currentVariant.variantWeight} ${currentVariant.variantWeightUnit || ''}`
+            : currentVariant?.variantWeightUnit || ''}
+                    </span>
+                    )}
                     </div>
                     <p>{defaultVariant?.variantAvailableStock || 0} in stock</p>
                   </div>
@@ -293,11 +331,11 @@ function ProductInformation() {
 
                   <div className="flex justify-between text-xs text-gray-600 mt-0.5">
                     <div className="flex gap-2">
-                      {item.variantColor && (
+                      {/* {item.variantColor && (
                         <p className="border border-[#495F75] px-1 rounded-md">
                           {item.variantColor}
                         </p>
-                      )}
+                      )} */}
 
                       {/* <p className="border border-[#495F75] px-1 rounded-md">
                         20×20
@@ -393,14 +431,16 @@ function ProductInformation() {
                       55L x 35W cm
                     </span>
                   </div> */}
+                  {currentVariant?.variantColor && (
                   <div>
                     <p className="text-sm text-[#686868] font-medium">
                       Product Color
                     </p>
                     <span className="text-base text-[#2C2C2C] font-medium">
-                      {currentVariant?.variantColor || "N/A"}
+                      {currentVariant?.variantColor}
                     </span>
                   </div>
+                  )}
                 </div>
                 <div className="flex flex-col flex-wrap  justify-start space-y-[10px]">
                   {/* <div>
@@ -428,6 +468,16 @@ function ProductInformation() {
                       {product?.subcategory?.name || "N/A"}
                     </span>
                   </div>
+                  {currentVariant?.variantName && (
+                  <div>
+                    <p className="text-sm text-[#686868] font-medium">
+                      Variant Name
+                    </p>
+                    <span className="text-base text-[#2C2C2C] font-medium">
+                      {currentVariant?.variantName || ""}
+                    </span>
+                  </div>
+                  )}
                   {/* <div>
                     <p className="text-sm text-[#686868] font-medium">
                       Dimension
@@ -539,10 +589,8 @@ function ProductInformation() {
       </div>
 
       {/* Customer Reviews */}
-      <div className="mt-6 bg-white rounded-xl p-4">
+      {/* <div className="mt-6 bg-white rounded-xl p-4">
         <h2 className="text-lg font-medium mb-2">Rating & Reviews</h2>
-
-        {/* <Reviews reviews={product?.reviews} avgRating={avgRating} /> */}
 
         {product?.reviews && product.reviews.length > 0 ? (
           <div className="max-h-[450px] overflow-y-auto pr-2">
@@ -578,14 +626,6 @@ function ProductInformation() {
                       </div>
                     </div>
                   </div>
-                  {/* <div className="flex items-center justify-center gap-2">
-                    <button className="bg-gray-200 p-1 rounded-lg">
-                      <Eye size={20} color="#1C1C1C" />
-                    </button>
-                    <button className="bg-gray-200 p-1 rounded-lg">
-                      <Pin size={20} color="#1C1C1C" />
-                    </button>
-                  </div> */}
                 </div>
                 <p className="text-sm">{review.comment || "No comment"}</p>
                 {review.images && review.images.length > 0 && (
@@ -620,7 +660,82 @@ function ProductInformation() {
             </h3>
           </div>
         )}
-      </div>
+      </div> */}
+       {/* Customer Reviews */}
+      <div className="mt-6 bg-white rounded-xl p-4">
+        <h2 className="text-lg font-medium mb-2">Rating & Reviews</h2>
+
+        {reviewsLoading ? (
+          <div className="flex justify-center items-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#1C3753]"></div>
+          </div>
+        ) : reviews && reviews.length > 0 ? (
+          <div className="max-h-[450px] overflow-y-auto pr-2">
+            {reviews.map((review, index) => (
+              <div
+                key={review._id || index}
+                className="py-4 flex gap-3 flex-col border border-[#CBCACA] px-4 rounded-xl mb-4"
+              >
+                <div className="flex justify-between">
+                  <div className="flex gap-4">
+                    <div className="w-11 h-11 rounded-full bg-gray-400 flex items-center justify-center text-white font-bold">
+                      <h1 className="text-white">
+                        {(review.reviewerName || review.user || "U").charAt(0).toUpperCase()}
+                      </h1>
+                    </div>
+                    <div className="flex flex-col">
+                      <h1 className="text-[14px]">
+                        {review.reviewerName || review.user || "Anonymous"}
+                      </h1>
+                      <div className="flex items-center gap-1">
+                        <Ratings
+                          reviews={reviews}
+                          avgRating={review.rating}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <p className="text-sm">{review.reviewText || review.comment || "No comment"}</p>
+                
+                {review.reviewImages && review.reviewImages.length > 0 && (
+                  <div className="flex gap-3">
+                    {review.reviewImages.map((img, imgIndex) => (
+                      <img
+                        className="w-[60px] h-[60px] rounded-md object-cover"
+                        src={img.url || img}
+                        alt="product review"
+                        key={imgIndex}
+                        onError={(e) => {
+                          e.target.src = "/placeholder.png";
+                        }}
+                      />
+                    ))}
+                  </div>
+                )}
+                
+                <div className="flex items-end justify-end gap-2 text-[#6C6B6B] text-[14px]">
+                  <span className="text-[#6C6B6B] text-[12px]">
+                    {review.createdAt
+                      ? `Reviewed ${new Date(review.createdAt).toISOString().split("T")[0]}`
+                      : ""}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center text-center">
+            <div className="w-20 h-20 bg-[#FFF4EB] rounded-full flex items-center justify-center mb-4">
+              <img src={ReviewIcon} alt="" />
+            </div>
+            <h3 className="text-lg font-medium text-gray-700 mb-1">
+              No Reviews Yet
+            </h3>
+          </div>
+        )}
+        </div>
     </div>
   );
 }
