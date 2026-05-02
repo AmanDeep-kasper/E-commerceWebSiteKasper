@@ -321,9 +321,6 @@ export const dashboardSummaryController = asyncHandler(async (req, res) => {
   startOfLast7Days.setDate(now.getDate() - 6);
   startOfLast7Days.setHours(0, 0, 0, 0);
 
-  // const endOfToday = new Date(now);
-  // endOfToday.setHours(23, 59, 59, 999);
-
   const [
     // TOP CATEGORIES
     topCategoriesAgg,
@@ -422,7 +419,23 @@ export const dashboardSummaryController = asyncHandler(async (req, res) => {
           _id: null,
 
           totalStock: {
-            $sum: "$variants.variantAvailableStock",
+            $sum: {
+              $cond: [
+                {
+                  $and: [
+                    { $eq: ["$isActive", true] },
+                    {
+                      $gt: [
+                        "$variants.variantAvailableStock",
+                        0, // ✅ in stock condition
+                      ],
+                    },
+                  ],
+                },
+                1, // ✅ count 1 product (not quantity)
+                0,
+              ],
+            },
           },
 
           inStock: {
@@ -434,7 +447,7 @@ export const dashboardSummaryController = asyncHandler(async (req, res) => {
                     "$variants.variantLowStockAlertStock",
                   ],
                 },
-                "$variants.variantAvailableStock",
+                1, // ✅ count 1 product
                 0,
               ],
             },
@@ -613,83 +626,6 @@ export const topSellingProducts = asyncHandler(async (req, res) => {
     paymentStatus: "paid",
     createdAt: { $gte: startDate },
   };
-
-  // const [products, totalAgg] = await Promise.all([
-  //   Order.aggregate([
-  //     {
-  //       $match: matchStage,
-  //     },
-
-  //     {
-  //       $unwind: "$items",
-  //     },
-
-  //     // group product sales
-  //     {
-  //       $group: {
-  //         _id: "$items.product",
-
-  //         productTitle: {
-  //           $first: "$items.productTitle",
-  //         },
-
-  //         category:{
-  //           $first: "$items.category",
-  //         },
-
-  //         image: {
-  //           $first: "$items.image.url",
-  //         },
-
-  //         totalSales: {
-  //           $sum: "$grandTotal",
-  //         },
-
-  //         totalOrders: {
-  //           $sum: "$items.quantity",
-  //         },
-  //       },
-  //     },
-
-  //     {
-  //       $sort: {
-  //         totalSales: -1,
-  //       },
-  //     },
-
-  //     {
-  //       $facet: {
-  //         data: [{ $skip: skip }, { $limit: pageSize }],
-
-  //         meta: [
-  //           {
-  //             $count: "total",
-  //           },
-  //         ],
-  //       },
-  //     },
-  //   ]),
-
-  //   Order.aggregate([
-  //     {
-  //       $match: matchStage,
-  //     },
-  //     {
-  //       $unwind: "$items",
-  //     },
-  //     {
-  //       $group: {
-  //         _id: null,
-  //         totalRevenue: {
-  //           $sum: "$grandTotal",
-  //         },
-  //         totalUnitsSold: {
-  //           $sum: "$items.quantity",
-  //         },
-  //       },
-  //     },
-  //   ]),
-  // ]);
 
   const [products, totalAgg] = await Promise.all([
     Order.aggregate([
