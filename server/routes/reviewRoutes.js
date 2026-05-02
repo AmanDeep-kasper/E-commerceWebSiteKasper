@@ -8,14 +8,14 @@ import {
   getAllProductReviews,
   getAllUserReviews,
   getReview,
-  replyToReview,
+  // replyToReview,
   updateReply,
   updateReview,
   // newone
-   addReplyToReview,
-  updateReply,
-  deleteReply,
-  getReviewReplies,
+  addReplyToReview,
+  // updateReply,
+  // deleteReply,
+  // getReviewReplies,
 } from "../controllers/reviewController.js";
 import { validateRequest } from "../validation/validator.js";
 import {
@@ -85,45 +85,45 @@ router.post(
   "/add-reply/:reviewId",
   authenticate,
   authorize("admin", "seller"),
-  addReplyToReview
+  addReplyToReview,
 );
 
 router.patch(
   "/update-reply/:reviewId/:replyId",
   authenticate,
   authorize("admin", "seller"),
-  updateReply
+  updateReply,
 );
 
 router.delete(
   "/delete-reply/:reviewId/:replyId",
   authenticate,
   authorize("admin", "seller"),
-  deleteReply
-);
-
-router.get(
-  "/get-replies/:reviewId",
-  getReviewReplies
-);
-
-router.patch(
-  "/reply-review/:reviewId",
-  authenticate,
-  authorize("admin"),
-  replyToReview,
-);
-router.delete(
-  "/delete-reply/:reviewId",
-  authenticate,
-  authorize("admin"),
   deleteReply,
 );
-router.patch(
-  "/update-reply/:reviewId",
-  authenticate,
-  authorize("admin"),
-  updateReply,
-);
+
+// router.get(
+//   "/get-replies/:reviewId",
+//   getReviewReplies
+// );
+
+// router.patch(
+//   "/reply-review/:reviewId",
+//   authenticate,
+//   authorize("admin"),
+//   replyToReview,
+// );
+// router.delete(
+//   "/delete-reply/:reviewId",
+//   authenticate,
+//   authorize("admin"),
+//   deleteReply,
+// );
+// router.patch(
+//   "/update-reply/:reviewId",
+//   authenticate,
+//   authorize("admin"),
+//   updateReply,
+// );
 
 export default router;

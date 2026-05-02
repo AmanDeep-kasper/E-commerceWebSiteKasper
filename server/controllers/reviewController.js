@@ -450,19 +450,19 @@ export const deleteReply = asyncHandler(async (req, res) => {
   });
 });
 
-// Get all replies for a review
-export const getReviewReplies = asyncHandler(async (req, res) => {
-  const { reviewId } = req.params;
+// // Get all replies for a review
+// export const getReviewReplies = asyncHandler(async (req, res) => {
+//   const { reviewId } = req.params;
 
-  const review = await Review.findById(reviewId).select('replies');
+//   const review = await Review.findById(reviewId).select('replies');
 
-  if (!review) {
-    throw new AppError("Review not found", 404, "NOT_FOUND");
-  }
+//   if (!review) {
+//     throw new AppError("Review not found", 404, "NOT_FOUND");
+//   }
 
-  res.status(200).json({
-    success: true,
-    message: "Replies fetched successfully",
-    data: review.replies
-  });
-});
+//   res.status(200).json({
+//     success: true,
+//     message: "Replies fetched successfully",
+//     data: review.replies
+//   });
+// });
