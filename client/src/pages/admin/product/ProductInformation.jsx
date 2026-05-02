@@ -299,9 +299,9 @@ function ProductInformation() {
                         </p>
                       )}
 
-                      <p className="border border-[#495F75] px-1 rounded-md">
+                      {/* <p className="border border-[#495F75] px-1 rounded-md">
                         20×20
-                      </p>
+                      </p> */}
                     </div>
                     <p>{item.variantAvailableStock || 0} in stock</p>
                   </div>
