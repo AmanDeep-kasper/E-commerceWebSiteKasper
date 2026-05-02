@@ -84,22 +84,11 @@ export const getAllUserReviews = asyncHandler(async (req, res) => {
 
   const skip = (page - 1) * limit;
 
-  const [reviews, business] = await Promise.all([
-    Review.find({ userId })
-      .populate("productId", "productTittle variants.variantImage")
-      .skip(skip)
-      .limit(limit)
-      .lean(),
-    BusinessSetting.findOne({ isActive: true })
-      .select("businessName logo.url")
-      .lean(),
-  ]);
-
-  // const reviews = await Review.find({ userId })
-  //   .populate("productId", "productTittle variants.variantImage")
-  //   .skip(skip)
-  //   .limit(limit)
-  //   .lean();
+  const reviews = await Review.find({ userId })
+    .populate("productId", "productTittle variants.variantImage")
+    .skip(skip)
+    .limit(limit)
+    .lean();
 
   const total = await Review.countDocuments({ userId });
 
@@ -122,7 +111,6 @@ export const getAllUserReviews = asyncHandler(async (req, res) => {
   res.status(200).json({
     success: true,
     message: "Reviews fetched successfully",
-    business,
     data: formattedReviews,
     pagination: {
       page,
@@ -132,37 +120,6 @@ export const getAllUserReviews = asyncHandler(async (req, res) => {
     },
   });
 });
-
-// export const getAllProductReviews = asyncHandler(async (req, res) => {
-//   const page = parseInt(req.query.page) || 1;
-//   const limit = parseInt(req.query.limit) || 20;
-//   const { sortBy } = req.query;
-//   const { productId } = req.params;
-
-//   const skip = (page - 1) * limit;
-
-//   let sort = { createdAt: -1 };
-
-//   if (sortBy === "mostOldest") {
-//     sort = { createdAt: 1 };
-//   } else if (sortBy === "highestRated") {
-//     sort = { rating: -1, createdAt: -1 };
-//   } else if (sortBy === "lowestRated") {
-//     sort = { rating: 1, createdAt: -1 };
-//   }
-
-//   const reviews = await Review.find({ productId })
-//     .sort(sort)
-//     .skip(skip)
-//     .limit(limit)
-//     .lean();
-
-//   res.status(200).json({
-//     success: true,
-//     message: "Reviews fetched successfully",
-//     data: reviews,
-//   });
-// });
 
 export const getAllProductReviews = asyncHandler(async (req, res) => {
   const page = parseInt(req.query.page) || 1;
@@ -174,22 +131,23 @@ export const getAllProductReviews = asyncHandler(async (req, res) => {
 
   let sort = { createdAt: -1 };
 
-  if (sortBy === "mostOldest") sort = { createdAt: 1 };
-  else if (sortBy === "highestRated") sort = { rating: -1, createdAt: -1 };
-  else if (sortBy === "lowestRated") sort = { rating: 1, createdAt: -1 };
+  if (sortBy === "mostOldest") {
+    sort = { createdAt: 1 };
+  } else if (sortBy === "highestRated") {
+    sort = { rating: -1, createdAt: -1 };
+  } else if (sortBy === "lowestRated") {
+    sort = { rating: 1, createdAt: -1 };
+  }
 
-  const [reviews, business] = await Promise.all([
-    Review.find({ productId }).sort(sort).skip(skip).limit(limit).lean(),
-
-    BusinessSetting.findOne({ isActive: true })
-      .select("businessName logo.url")
-      .lean(),
-  ]);
+  const reviews = await Review.find({ productId })
+    .sort(sort)
+    .skip(skip)
+    .limit(limit)
+    .lean();
 
   res.status(200).json({
     success: true,
     message: "Reviews fetched successfully",
-    business,
     data: reviews,
   });
 });
@@ -197,15 +155,7 @@ export const getAllProductReviews = asyncHandler(async (req, res) => {
 export const getReview = asyncHandler(async (req, res) => {
   const { reviewId } = req.params;
 
-  const [review] = await Promise.all([
-    Review.findById(reviewId).lean(),
-
-    BusinessSetting.findOne({ isActive: true })
-      .select("businessName logo.url")
-      .lean(),
-  ]);
-
-  // const review = await Review.findById(reviewId).lean();
+  const review = await Review.findById(reviewId).lean();
 
   if (!review) {
     throw AppError.notFound("Review not found", "NOT_FOUND");
@@ -214,7 +164,6 @@ export const getReview = asyncHandler(async (req, res) => {
   res.status(200).json({
     success: true,
     message: "Review fetched successfully",
-    business,
     data: review,
   });
 });
@@ -352,121 +301,99 @@ export const deleteReview = asyncHandler(async (req, res) => {
   });
 });
 
-// Add a reply to a review (Admin/Seller only)
-export const addReplyToReview = asyncHandler(async (req, res) => {
+// Admin controllers for replying to reviews
+export const replyToReview = asyncHandler(async (req, res) => {
   const { reviewId } = req.params;
   const { replyText } = req.body;
   const userId = req.user?.userId;
-  const userRole = req.user?.role;
-  const userName = req.user?.name;
-
-  // Check if user is admin or seller (authorized to reply)
-  if (userRole !== "admin" && userRole !== "seller") {
-    throw new AppError(
-      "Only admins and sellers can reply to reviews",
-      403,
-      "FORBIDDEN",
-    );
-  }
-
-  if (!replyText || replyText.trim() === "") {
-    throw new AppError("Reply text is required", 400, "MISSING_REPLY_TEXT");
-  }
 
   const review = await Review.findById(reviewId);
 
   if (!review) {
-    throw new AppError("Review not found", 404, "NOT_FOUND");
+    throw AppError.notFound("Review not found", "NOT_FOUND");
   }
 
-  // Add reply
-  review.replies.push({
-    userId,
-    reviewerName: userName || (userRole === "admin" ? "Admin" : "Seller"),
-    replyText: replyText.trim(),
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  });
+  const [product, businessConfig] = await Promise.all([
+    Product.findById(review.productId),
+    BusinessSetting.findOne(),
+  ]);
 
-  review.adminReplied = true;
+  if (!product) {
+    throw AppError.notFound("Product not found", "NOT_FOUND");
+  }
+
+  if (!businessConfig) {
+    throw AppError.notFound("Business configuration not found", "NOT_FOUND");
+  }
+
+  // check if already replied
+  if (review.repliedBy && review.repliedBy.replyText) {
+    throw AppError.conflict("Review already has a reply", "ALREADY_REPLIED");
+  }
+
+  review.repliedBy = {
+    replyText,
+    bussinessLogo: businessConfig.logo.url,
+    businessName: businessConfig.businessName,
+  };
+
   await review.save();
 
   res.status(200).json({
     success: true,
     message: "Reply added successfully",
-    data: review.replies[review.replies.length - 1],
+    data: review,
   });
 });
 
-// Update a reply
 export const updateReply = asyncHandler(async (req, res) => {
-  const { reviewId, replyId } = req.params;
+  const { reviewId } = req.params;
   const { replyText } = req.body;
-  const userId = req.user?.userId;
-  const userRole = req.user?.role;
 
   const review = await Review.findById(reviewId);
-
   if (!review) {
-    throw new AppError("Review not found", 404, "NOT_FOUND");
+    throw AppError.notFound("Review not found", "NOT_FOUND");
   }
 
-  const reply = review.replies.id(replyId);
-
-  if (!reply) {
-    throw new AppError("Reply not found", 404, "NOT_FOUND");
+  const product = await Product.findById(review.productId);
+  if (!product) {
+    throw AppError.notFound("Product not found", "NOT_FOUND");
   }
 
-  // Check ownership or admin role
-  if (reply.userId.toString() !== userId && userRole !== "admin") {
-    throw new AppError("You can only edit your own replies", 403, "FORBIDDEN");
+  // Check if reply exists
+  if (!review.repliedBy || !review.repliedBy.replyText) {
+    throw AppError.notFound("Reply not found", "NOT_FOUND");
   }
 
-  reply.replyText = replyText.trim();
-  reply.updatedAt = new Date();
+  // Update reply text
+  review.repliedBy.replyText = replyText;
 
   await review.save();
 
   res.status(200).json({
     success: true,
     message: "Reply updated successfully",
-    data: reply,
   });
 });
 
-// Delete a reply
 export const deleteReply = asyncHandler(async (req, res) => {
-  const { reviewId, replyId } = req.params;
-  const userId = req.user?.userId;
-  const userRole = req.user?.role;
+  const { reviewId } = req.params;
 
   const review = await Review.findById(reviewId);
-
   if (!review) {
-    throw new AppError("Review not found", 404, "NOT_FOUND");
+    throw AppError.notFound("Review not found", "NOT_FOUND");
+  }
+  const product = await Product.findById(review.productId);
+  if (!product) {
+    throw AppError.notFound("Product not found", "NOT_FOUND");
   }
 
-  const reply = review.replies.id(replyId);
-
-  if (!reply) {
-    throw new AppError("Reply not found", 404, "NOT_FOUND");
+  // Check if reply exists
+  if (!review.repliedBy || !review.repliedBy.replyText) {
+    throw AppError.notFound("Reply not found", "NOT_FOUND");
   }
 
-  // Check ownership or admin role
-  if (reply.userId.toString() !== userId && userRole !== "admin") {
-    throw new AppError(
-      "You can only delete your own replies",
-      403,
-      "FORBIDDEN",
-    );
-  }
-
-  review.replies.pull(replyId);
-
-  // If no replies left, set adminReplied to false
-  if (review.replies.length === 0) {
-    review.adminReplied = false;
-  }
+  review.repliedBy = undefined;
 
   await review.save();
 
@@ -475,20 +402,3 @@ export const deleteReply = asyncHandler(async (req, res) => {
     message: "Reply deleted successfully",
   });
 });
-
-// // Get all replies for a review
-// export const getReviewReplies = asyncHandler(async (req, res) => {
-//   const { reviewId } = req.params;
-
-//   const review = await Review.findById(reviewId).select('replies');
-
-//   if (!review) {
-//     throw new AppError("Review not found", 404, "NOT_FOUND");
-//   }
-
-//   res.status(200).json({
-//     success: true,
-//     message: "Replies fetched successfully",
-//     data: review.replies
-//   });
-// });
