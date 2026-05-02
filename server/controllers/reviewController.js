@@ -84,11 +84,22 @@ export const getAllUserReviews = asyncHandler(async (req, res) => {
 
   const skip = (page - 1) * limit;
 
-  const reviews = await Review.find({ userId })
-    .populate("productId", "productTittle variants.variantImage")
-    .skip(skip)
-    .limit(limit)
-    .lean();
+  const [reviews, business] = await Promise.all([
+    Review.find({ userId })
+      .populate("productId", "productTittle variants.variantImage")
+      .skip(skip)
+      .limit(limit)
+      .lean(),
+    BusinessSetting.findOne({ isActive: true })
+      .select("businessName logo.url")
+      .lean(),
+  ]);
+
+  // const reviews = await Review.find({ userId })
+  //   .populate("productId", "productTittle variants.variantImage")
+  //   .skip(skip)
+  //   .limit(limit)
+  //   .lean();
 
   const total = await Review.countDocuments({ userId });
 
@@ -111,6 +122,7 @@ export const getAllUserReviews = asyncHandler(async (req, res) => {
   res.status(200).json({
     success: true,
     message: "Reviews fetched successfully",
+    business,
     data: formattedReviews,
     pagination: {
       page,
@@ -185,7 +197,15 @@ export const getAllProductReviews = asyncHandler(async (req, res) => {
 export const getReview = asyncHandler(async (req, res) => {
   const { reviewId } = req.params;
 
-  const review = await Review.findById(reviewId).lean();
+  const [review] = await Promise.all([
+    Review.findById(reviewId).lean(),
+
+    BusinessSetting.findOne({ isActive: true })
+      .select("businessName logo.url")
+      .lean(),
+  ]);
+
+  // const review = await Review.findById(reviewId).lean();
 
   if (!review) {
     throw AppError.notFound("Review not found", "NOT_FOUND");
@@ -194,6 +214,7 @@ export const getReview = asyncHandler(async (req, res) => {
   res.status(200).json({
     success: true,
     message: "Review fetched successfully",
+    business,
     data: review,
   });
 });
@@ -331,9 +352,6 @@ export const deleteReview = asyncHandler(async (req, res) => {
   });
 });
 
-
-// Add these functions to your reviewController.js
-
 // Add a reply to a review (Admin/Seller only)
 export const addReplyToReview = asyncHandler(async (req, res) => {
   const { reviewId } = req.params;
@@ -344,7 +362,11 @@ export const addReplyToReview = asyncHandler(async (req, res) => {
 
   // Check if user is admin or seller (authorized to reply)
   if (userRole !== "admin" && userRole !== "seller") {
-    throw new AppError("Only admins and sellers can reply to reviews", 403, "FORBIDDEN");
+    throw new AppError(
+      "Only admins and sellers can reply to reviews",
+      403,
+      "FORBIDDEN",
+    );
   }
 
   if (!replyText || replyText.trim() === "") {
@@ -363,7 +385,7 @@ export const addReplyToReview = asyncHandler(async (req, res) => {
     reviewerName: userName || (userRole === "admin" ? "Admin" : "Seller"),
     replyText: replyText.trim(),
     createdAt: new Date(),
-    updatedAt: new Date()
+    updatedAt: new Date(),
   });
 
   review.adminReplied = true;
@@ -372,7 +394,7 @@ export const addReplyToReview = asyncHandler(async (req, res) => {
   res.status(200).json({
     success: true,
     message: "Reply added successfully",
-    data: review.replies[review.replies.length - 1]
+    data: review.replies[review.replies.length - 1],
   });
 });
 
@@ -402,13 +424,13 @@ export const updateReply = asyncHandler(async (req, res) => {
 
   reply.replyText = replyText.trim();
   reply.updatedAt = new Date();
-  
+
   await review.save();
 
   res.status(200).json({
     success: true,
     message: "Reply updated successfully",
-    data: reply
+    data: reply,
   });
 });
 
@@ -432,21 +454,25 @@ export const deleteReply = asyncHandler(async (req, res) => {
 
   // Check ownership or admin role
   if (reply.userId.toString() !== userId && userRole !== "admin") {
-    throw new AppError("You can only delete your own replies", 403, "FORBIDDEN");
+    throw new AppError(
+      "You can only delete your own replies",
+      403,
+      "FORBIDDEN",
+    );
   }
 
   review.replies.pull(replyId);
-  
+
   // If no replies left, set adminReplied to false
   if (review.replies.length === 0) {
     review.adminReplied = false;
   }
-  
+
   await review.save();
 
   res.status(200).json({
     success: true,
-    message: "Reply deleted successfully"
+    message: "Reply deleted successfully",
   });
 });
 
