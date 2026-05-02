@@ -102,7 +102,7 @@ router.delete(
   "/delete-reply/:reviewId/:replyId",
   authenticate,
   authorize("admin", "seller"),
-  deleteReply,
+  deleteReply
 );
 
 // Get all replies for a review (Public)
