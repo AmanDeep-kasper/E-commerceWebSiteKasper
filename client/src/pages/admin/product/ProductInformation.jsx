@@ -282,6 +282,13 @@ const avgRating = useMemo(() => {
 
                   <div className="flex justify-between text-xs text-gray-600 mt-0.5">
                     <div className="flex gap-2">
+                      {currentVariant?.variantColor && (
+                     <span className="border border-[#495F75] px-1 rounded-md">
+                      {currentVariant?.variantColor 
+                        ? `${currentVariant.variantColor}`
+                        : ""}
+                    </span>
+                      )}
                     {currentVariant?.variantName && (
                      <span className="border border-[#495F75] px-1 rounded-md">
                       {currentVariant?.variantName 
@@ -289,11 +296,9 @@ const avgRating = useMemo(() => {
                         : ""}
                     </span>
                       )}
-                    {(currentVariant?.variantWeight || currentVariant?.variantWeightUnit) && (
+                    {currentVariant?.variantWeight && (
                       <span className="border border-[#495F75] px-1 rounded-md">
-                       {currentVariant?.variantWeight 
-            ? `${currentVariant.variantWeight} ${currentVariant.variantWeightUnit || ''}`
-            : currentVariant?.variantWeightUnit || ''}
+                      {`${currentVariant.variantWeight} ${currentVariant.variantWeightUnit || 'kg'}`}
                     </span>
                     )}
                     </div>
@@ -716,11 +721,6 @@ const avgRating = useMemo(() => {
                 )}
                 
                 <div className="flex items-end justify-end gap-2 text-[#6C6B6B] text-[14px]">
-                  <span className="text-[#6C6B6B] text-[12px]">
-                    {review.createdAt
-                      ? `Reviewed ${new Date(review.createdAt).toISOString().split("T")[0]}`
-                      : ""}
-                  </span>
                 </div>
               </div>
             ))}
