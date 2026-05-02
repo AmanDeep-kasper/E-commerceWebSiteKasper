@@ -57,9 +57,25 @@ function Footer() {
                   Horamavu, Bengaluru 560043, Karnataka, India
                 </p>
                 <div className="flex gap-3 font-[200] mt-2">
-                  <img src={instagram} alt="" />
-                  <img src={facebook} alt="" />
-                  <img src={map} alt="" />
+                  <a
+                    target="_"
+                    href=" https://www.instagram.com/happyartsupplies/"
+                  >
+                    {" "}
+                    <img src={instagram} alt="" />
+                  </a>
+                  <a
+                    target="_"
+                    href="https://www.facebook.com/HappyArtSupplies/"
+                  >
+                    <img src={facebook} alt="" />
+                  </a>
+                  <a
+                    target="_"
+                    href="https://maps.app.goo.gl/uc4USne66zUHXuWe9"
+                  >
+                    <img src={map} alt="" />
+                  </a>
                 </div>
               </div>
             </div>

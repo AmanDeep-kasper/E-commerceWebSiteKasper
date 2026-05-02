@@ -50,6 +50,8 @@ function MyReviews({ totalItems = 0 }) {
     fetchReviews();
   }, []);
 
+  console.log(reviews);
+
   const handleConfirmDelete = async () => {
     if (!selectedReviewId) return;
 
@@ -251,6 +253,33 @@ function MyReviews({ totalItems = 0 }) {
                   <p className="text-gray-600 mb-4 text-sm sm:text-base">
                     {item.reviewText || "No Reviews"}
                   </p>
+                     {item?.repliedBy && (
+                <div className="bg-[#F0EEFF] px-[10px] py-[12px] rounded-md mt-3">
+                  <div className="flex items-center gap-2">
+                    <img
+                      className="w-[24px] h-[24px] rounded-full object-cover"
+                      src={
+                        item?.repliedBy?.bussinessLogo ||
+                        item?.repliedBy?.businessLogo ||
+                        "/placeholder.png"
+                      }
+                      alt="logo"
+                    />
+
+                    <span className="text-[14px] font-semibold text-[#1C1C1C]">
+                      {item?.repliedBy?.businessName || "Seller"}
+                    </span>
+
+                    <span className="text-[12px] text-[#686868]">
+                      • Seller Response
+                    </span>
+                  </div>
+
+                  <p className="mt-2 text-sm text-[#3A3A3A] leading-5">
+                    {item?.repliedBy?.replyText}
+                  </p>
+                </div>
+              )}
 
                   {/* Actions */}
                   <div className="flex flex-wrap gap-4 text-xs sm:text-sm border-t border-gray-200 pt-4">
@@ -275,8 +304,37 @@ function MyReviews({ totalItems = 0 }) {
                       Delete
                     </button>
                   </div>
+
+                  
                 </div>
               </div>
+              {/* {item?.repliedBy && (
+                <div className="bg-[#F0EEFF] px-[10px] py-[12px] rounded-md mt-3">
+                  <div className="flex items-center gap-2">
+                    <img
+                      className="w-[24px] h-[24px] rounded-full object-cover"
+                      src={
+                        item?.repliedBy?.bussinessLogo ||
+                        item?.repliedBy?.businessLogo ||
+                        "/placeholder.png"
+                      }
+                      alt="logo"
+                    />
+
+                    <span className="text-[14px] font-semibold text-[#1C1C1C]">
+                      {item?.repliedBy?.businessName || "Seller"}
+                    </span>
+
+                    <span className="text-[12px] text-[#686868]">
+                      • Seller Response
+                    </span>
+                  </div>
+
+                  <p className="mt-2 text-sm text-[#3A3A3A] leading-5">
+                    {item?.repliedBy?.replyText}
+                  </p>
+                </div>
+              )} */}
             </div>
           ))}
         </div>
