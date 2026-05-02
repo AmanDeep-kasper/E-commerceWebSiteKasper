@@ -1,6 +1,7 @@
 import { Star, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import axiosInstance from "../api/axiosInstance";
+import { toast } from "react-toastify";
 
 function AddReviewsModel({ open, review, onClose, onSave, product }) {
   const [rating, setRating] = useState(0);
@@ -60,7 +61,7 @@ function AddReviewsModel({ open, review, onClose, onSave, product }) {
 
     // ✅ optional constraints
     const MAX_FILES = 5;
-    const MAX_SIZE_MB = 5;
+    const MAX_SIZE_MB = 2; // Changed from 5 to 2 as per validation requirement
 
     // filter only image
     const valid = files.filter((f) => f.type.startsWith("image/"));
@@ -68,8 +69,26 @@ function AddReviewsModel({ open, review, onClose, onSave, product }) {
     // size filter
     const sizeOk = valid.filter((f) => f.size <= MAX_SIZE_MB * 1024 * 1024);
 
+    // Show toast for files exceeding 2MB
+    const exceededFiles = valid.filter(
+      (f) => f.size > MAX_SIZE_MB * 1024 * 1024,
+    );
+    if (exceededFiles.length > 0) {
+      toast.error(
+        `Each image must be within 2MB. ${exceededFiles.length} file(s) exceeded limit.`,
+      );
+    }
+
     // create preview urls
     const newUrls = sizeOk.map((f) => URL.createObjectURL(f));
+
+    // Check if adding these would exceed MAX_FILES
+    if (images.length + newUrls.length > MAX_FILES) {
+      toast.error(
+        `Maximum ${MAX_FILES} images allowed. You can only add ${MAX_FILES - images.length} more.`,
+      );
+      return;
+    }
 
     // append but limit
     setImages((prev) => {
@@ -101,13 +120,40 @@ function AddReviewsModel({ open, review, onClose, onSave, product }) {
 
   const handleSave = async () => {
     try {
-      if (!rating) {
-        alert("Please select rating");
+      // Validation: rating must be selected
+      if (!rating || rating === 0) {
+        toast.error("Please select a rating");
+        return;
+      }
+
+      // Validation: review text minimum 10 chars, maximum 2000 chars
+      const trimmedText = text.trim();
+      if (!trimmedText || trimmedText.length < 10) {
+        toast.error("Review text must be at least 10 characters");
+        return;
+      }
+      if (trimmedText.length > 2000) {
+        toast.error("Review text cannot exceed 2000 characters");
+        return;
+      }
+
+      // Validation: images count (max 5)
+      if (imageFiles.length > 5) {
+        toast.error("Maximum 5 images allowed");
+        return;
+      }
+
+      // Validation: each image size within 2MB (already validated on add, but double-check)
+      const oversizedImages = imageFiles.filter(
+        (file) => file.size > 2 * 1024 * 1024,
+      );
+      if (oversizedImages.length > 0) {
+        toast.error("Each image must be within 2MB");
         return;
       }
 
       if (!product?._id) {
-        alert("Product id missing");
+        toast.error("Product id missing");
         return;
       }
 
@@ -121,7 +167,7 @@ function AddReviewsModel({ open, review, onClose, onSave, product }) {
         formData.append("reviewImages", file);
       });
 
-      const res = await axiosInstance.post(
+      const promise = axiosInstance.post(
         `/review/add-review/${product._id}`,
         formData,
         {
@@ -131,11 +177,24 @@ function AddReviewsModel({ open, review, onClose, onSave, product }) {
         },
       );
 
-      const savedReview = res?.data?.data;
-      onSave(savedReview);
+      toast.promise(promise, {
+        pending: review ? "Updating review..." : "Adding review...",
+        success: review
+          ? "Review updated successfully"
+          : "Review added successfully",
+        error: "Something went wrong while saving review",
+      });
+
+      try {
+        const res = await promise;
+        const savedReview = res?.data?.data;
+        onSave(savedReview);
+      } catch (err) {
+        console.error(err);
+      }
     } catch (error) {
       console.error("Error adding review:", error);
-      alert(error?.response?.data?.message || "Failed to add review");
+      toast.error(error?.response?.data?.message || "Failed to add review");
     } finally {
       setIsSubmitting(false);
     }

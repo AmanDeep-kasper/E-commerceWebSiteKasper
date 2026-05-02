@@ -52,6 +52,26 @@ function Login() {
     }
   }, [isAuthenticated, user, navigate]);
 
+  // const handleChange = (e) => {
+  //   const { name, value } = e.target;
+
+  //   let newValue = value;
+
+  //   if (name === "identifier") {
+  //     // If starts with number → treat as phone
+  //     if (/^\d/.test(value)) {
+  //       newValue = value.replace(/\D/g, "");
+
+  //       if (newValue.length > 10) return; //
+  //     }
+  //   }
+
+  //   setFormData({
+  //     ...formData,
+  //     [name]: newValue,
+  //   });
+  // };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -62,18 +82,59 @@ function Login() {
       if (/^\d/.test(value)) {
         newValue = value.replace(/\D/g, "");
 
-        if (newValue.length > 10) return; //
+        // ❌ block first digit not 6-9
+        if (newValue.length === 1 && !/[6-9]/.test(newValue)) {
+          return;
+        }
+
+        // ❌ max 10 digits
+        if (newValue.length > 10) return;
       }
     }
 
-    setFormData({
-      ...formData,
+    setFormData((prev) => ({
+      ...prev,
       [name]: newValue,
-    });
+    }));
   };
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const phoneRegex = /^[0-9]{10}$/;
+  const phoneRegex = /^[6-9]\d{9}$/;
+  const passwordRegex =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+  // const validate = () => {
+  //   let newErrors = {};
+
+  //   const { identifier, password } = formData;
+
+  //   const cleanPhone = identifier.replace(/\D/g, "");
+
+  //   // ❌ block if first digit is not 6, 7, 8, or 9
+  //   if (cleanPhone.length === 1 && !/[6-9]/.test(cleanPhone)) {
+  //     return;
+  //   }
+
+  //   const isEmail = emailRegex.test(identifier);
+  //   const isPhone = phoneRegex.test(cleanPhone);
+
+  //   // 🔴 Identifier validation
+  //   if (!identifier) {
+  //     newErrors.identifier = "Identifier is required";
+  //   } else if (!isEmail && !isPhone) {
+  //     newErrors.identifier = "Enter a valid email or phone number";
+  //   }
+
+  //   // 🔴 Password validation
+  //   if (!password) {
+  //     newErrors.password = "Password is required";
+  //   } else if (password.length < 6) {
+  //     newErrors.password = "Password must be at least 6 characters";
+  //   }
+
+  //   setErrors(newErrors);
+  //   return Object.keys(newErrors).length === 0;
+  // };
 
   const validate = () => {
     let newErrors = {};
@@ -82,27 +143,37 @@ function Login() {
 
     const cleanPhone = identifier.replace(/\D/g, "");
 
+    const isNumeric = /^\d+$/.test(identifier);
     const isEmail = emailRegex.test(identifier);
-    const isPhone = /^[6-9]\d{9}$/.test(cleanPhone);
+    const isPhone = phoneRegex.test(cleanPhone);
 
     // 🔴 Identifier validation
     if (!identifier) {
       newErrors.identifier = "Identifier is required";
-    } else if (!isEmail && !isPhone) {
-      newErrors.identifier = "Enter a valid email or phone number";
+    } else if (isNumeric) {
+      // 👉 If user entered number → STRICT phone validation
+      if (!isPhone) {
+        newErrors.identifier =
+          "Enter valid 10-digit Indian number (starts with 6-9)";
+      }
+    } else {
+      // 👉 Otherwise treat as email
+      if (!isEmail) {
+        newErrors.identifier = "Enter a valid email address";
+      }
     }
 
     // 🔴 Password validation
     if (!password) {
       newErrors.password = "Password is required";
-    } else if (password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters";
+    } else if (!passwordRegex.test(password)) {
+      newErrors.password =
+        "Password must be at least 8 characters and include uppercase, lowercase, number, and special character";
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-
   return (
     <div className="flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
       <div className="w-full h-screen flex bg-white shadow-2xl overflow-y-auto ">
@@ -198,6 +269,7 @@ function Login() {
                     <Lock className="w-4 h-4" />
                     Password
                   </label>
+
                   <Link
                     to="/forgot-password"
                     className="text-sm text-[#F8A14A] hover:text-amber-700 font-medium transition-colors"
@@ -205,6 +277,8 @@ function Login() {
                     Forgot Password?
                   </Link>
                 </div>
+
+                {/* Input Box */}
                 <div className="relative">
                   <input
                     type={showPassword ? "text" : "password"}
@@ -212,16 +286,17 @@ function Login() {
                     placeholder="Enter your password"
                     value={formData.password}
                     onChange={handleChange}
-                    className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent transition-all"
+                    className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:ring-2 focus:border-transparent transition-all ${
+                      errors.password
+                        ? "border-red-500 focus:ring-red-200"
+                        : "border-gray-300 focus:ring-blue-200"
+                    }`}
                     required
                     disabled={authLoading}
                   />
-                  {errors.password && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.password}
-                    </p>
-                  )}
+
                   <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
@@ -234,6 +309,11 @@ function Login() {
                     )}
                   </button>
                 </div>
+
+                {/* ✅ Error OUTSIDE */}
+                {errors.password && (
+                  <p className="text-red-500 text-sm">{errors.password}</p>
+                )}
               </div>
 
               {/* Error/Success Messages */}
