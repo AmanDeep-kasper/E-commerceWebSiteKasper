@@ -12,6 +12,7 @@ import { Send } from "lucide-react";
 function ProductInformation() {
   const { uuid } = useParams();
   const navigate = useNavigate();
+  const [expanded, setExpanded] = useState(false);
 
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -434,9 +435,13 @@ const avgRating = useMemo(() => {
             </div>
             <div className="mb-4">
               <p className="text-md font-medium mb-1">Description</p>
-              <p className="text-[#2C2C2C] text-sm leading-relaxed break-words whitespace-pre-line">
-                {product.description || "No description available"}
-              </p>
+             <p className={`text-[#2C2C2C] text-sm leading-relaxed break-words whitespace-pre-line ${expanded ? "" : "clamped-text"}`}>
+  {product.description || "No description available"}
+</p>
+{product.description && (
+  <button onClick={() => setExpanded(!expanded)} className="text-blue-600 text-xs mt-1">{expanded ? "Show less" : "Show more"}</button>
+)}
+
             </div>
           </div>
 
