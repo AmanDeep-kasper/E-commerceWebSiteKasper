@@ -721,7 +721,10 @@ export const userGetAllProducts = asyncHandler(async (req, res) => {
   const limitNum = parseInt(limit);
   const skip = (pageNum - 1) * limitNum;
 
-  const filter = {};
+  const filter = {
+    isActive:true, 
+    isDraft:{$ne:true} 
+  };
 
   // ✅ CATEGORY FILTER (by ID or by name from URL)
   if (category) {

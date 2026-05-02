@@ -6,6 +6,8 @@ import ReviewIcon from "../../../assets/review.svg";
 import Ratings from "../../../components/Ratings";
 import Reviews from "../../../components/Reviews";
 import axiosInstance from "../../../api/axiosInstance";
+import { GoReply } from "react-icons/go";
+import { Send } from "lucide-react";
 
 function ProductInformation() {
   const { uuid } = useParams();
@@ -16,6 +18,11 @@ function ProductInformation() {
   const [error, setError] = useState(null);
    const [reviews, setReviews] = useState([]);
     const [reviewsLoading, setReviewsLoading] = useState(false);
+
+      // Reply states
+  const [replyingTo, setReplyingTo] = useState(null);
+  const [replyText, setReplyText] = useState("");
+  const [submittingReply, setSubmittingReply] = useState(false);
 
   // Fetch product from API
   useEffect(() => {
@@ -50,38 +57,80 @@ function ProductInformation() {
     }
   }, [uuid]);
 
-   // Fetch reviews separately when product is loaded
-useEffect(() => {
-  const fetchReviews = async () => {
-    if (!product?._id) {
-      setReviews([]);
+ // Fetch reviews separately when product is loaded
+  useEffect(() => {
+    const fetchReviews = async () => {
+      if (!product?._id) {
+        setReviews([]);
+        return;
+      }
+
+      try {
+        setReviewsLoading(true);
+        const response = await axiosInstance.get(
+          `/review/all-product-reviews/${product._id}`
+        );
+        
+        if (response.data?.success && response.data?.data) {
+          setReviews(response.data.data);
+        } else if (Array.isArray(response.data)) {
+          setReviews(response.data);
+        } else {
+          setReviews([]);
+        }
+      } catch (err) {
+        console.error("Error fetching reviews:", err);
+        setReviews([]);
+      } finally {
+        setReviewsLoading(false);
+      }
+    };
+
+    fetchReviews();
+  }, [product?._id]);
+
+  // Handle reply submission
+  const handleReplySubmit = async (reviewId) => {
+    if (!replyText.trim()) {
+      alert("Please enter a reply");
       return;
     }
 
     try {
-      setReviewsLoading(true);
-      // Use the correct endpoint - all-product-reviews with productId
-      const response = await axiosInstance.get(
-        `/review/all-product-reviews/${product._id}`
+      setSubmittingReply(true);
+      const response = await axiosInstance.post(
+        `/review/add-reply/${reviewId}`,
+        { replyText: replyText.trim() }
       );
-      
-      if (response.data?.success && response.data?.data) {
-        setReviews(response.data.data);
-      } else if (Array.isArray(response.data)) {
-        setReviews(response.data);
-      } else {
-        setReviews([]);
+
+      if (response.data?.success) {
+        // Update the review in the local state with the new reply
+        setReviews(prevReviews => 
+          prevReviews.map(review => 
+            review._id === reviewId 
+              ? { 
+                  ...review, 
+                  replies: [...(review.replies || []), response.data.data],
+                  adminReplied: true 
+                }
+              : review
+          )
+        );
+        
+        // Reset reply form
+        setReplyingTo(null);
+        setReplyText("");
+        
+        // Show success message
+        alert("Reply added successfully!");
       }
     } catch (err) {
-      console.error("Error fetching reviews:", err);
-      setReviews([]);
+      console.error("Error submitting reply:", err);
+      alert(err.response?.data?.message || "Failed to submit reply");
     } finally {
-      setReviewsLoading(false);
+      setSubmittingReply(false);
     }
   };
-
-  fetchReviews();
-}, [product?._id]);
 
   // Get default variant
   const defaultVariant = useMemo(() => {
@@ -667,6 +716,7 @@ const avgRating = useMemo(() => {
         )}
       </div> */}
        {/* Customer Reviews */}
+     {/* Customer Reviews with Reply Feature */}
       <div className="mt-6 bg-white rounded-xl p-4">
         <h2 className="text-lg font-medium mb-2">Rating & Reviews</h2>
 
@@ -689,21 +739,21 @@ const avgRating = useMemo(() => {
                       </h1>
                     </div>
                     <div className="flex flex-col">
-                      <h1 className="text-[14px]">
-                        {review.reviewerName || review.user || "Anonymous"}
-                      </h1>
-                      <div className="flex items-center gap-1">
-                        <Ratings
-                          reviews={reviews}
-                          avgRating={review.rating}
-                        />
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h1 className="text-[14px] font-medium">
+                          {review.reviewerName || review.user || "Anonymous"}
+                        </h1>
+                        <Ratings reviews={reviews} avgRating={review.rating} />
+                        <span className="text-xs text-gray-400">
+                          {new Intl.DateTimeFormat('en-US', { dateStyle: 'medium' }).format(new Date(review.createdAt))}
+                        </span>
                       </div>
                     </div>
                   </div>
                 </div>
-                
-                <p className="text-sm">{review.reviewText || review.comment || "No comment"}</p>
-                
+
+                <p className="text-sm text-gray-700">{review.reviewText || review.comment || "No comment"}</p>
+
                 {review.reviewImages && review.reviewImages.length > 0 && (
                   <div className="flex gap-3">
                     {review.reviewImages.map((img, imgIndex) => (
@@ -719,9 +769,77 @@ const avgRating = useMemo(() => {
                     ))}
                   </div>
                 )}
-                
-                <div className="flex items-end justify-end gap-2 text-[#6C6B6B] text-[14px]">
-                </div>
+
+                {/* Display existing replies */}
+               {/* Admin Replies (Redesigned) */}
+{review.replies && review.replies.length > 0 && (
+  <div className="ml-10 mt-3 space-y-2">
+    {review.replies.map((reply, replyIndex) => (
+      <div
+        key={reply._id || replyIndex}
+        className="bg-[#EEF2FF] border border-[#D9E1FF] p-3 rounded-lg"
+      >
+        <div className="flex justify-between items-center mb-1">
+          <span className="text-sm font-medium text-[#1C3753]">
+            Admin Reply
+          </span>
+          <span className="text-xs text-gray-400">
+            {new Date(reply.createdAt).toLocaleDateString()}
+          </span>
+        </div>
+
+        <p className="text-sm text-gray-700">
+          {reply.replyText}
+        </p>
+      </div>
+    ))}
+  </div>
+)}
+
+                {/* Reply button and form */}
+             <div className="flex items-center justify-between mt-3">
+  <button
+    onClick={() =>
+      setReplyingTo(replyingTo === review._id ? null : review._id)
+    }
+    className="text-sm text-gray-600 hover:text-[#1C3753] flex items-center gap-1"
+  >
+    <GoReply size={16} />
+    {replyingTo === review._id ? "Cancel" : "Reply"}
+  </button>
+</div>
+
+                {/* Reply input form */}
+              {replyingTo === review._id && (
+  <div className="mt-3 border rounded-xl bg-[#F9FAFB] p-3">
+    <label className="text-sm text-gray-600 mb-1 block">Reply</label>
+
+    <textarea
+      value={replyText}
+      onChange={(e) => setReplyText(e.target.value)}
+      placeholder="Reply to customer’s review."
+      className="w-full bg-transparent outline-none text-sm resize-none"
+      rows={3}
+    />
+
+    <div className="flex justify-end gap-2 mt-3">
+      <button
+        onClick={() => setReplyingTo(null)}
+        className="px-4 py-1.5 text-sm border border-[#1C3753] text-[#1C3753] rounded-md hover:bg-gray-100"
+      >
+        Cancel
+      </button>
+
+      <button
+        onClick={() => handleReplySubmit(review._id)}
+        disabled={!replyText || submittingReply}
+        className="px-4 py-1.5 text-sm bg-[#1C3753] text-white rounded-md hover:bg-[#162c44] disabled:opacity-50"
+      >
+        {submittingReply ? "Replying..." : "Reply"}
+      </button>
+    </div>
+  </div>
+)}
               </div>
             ))}
           </div>
@@ -735,8 +853,9 @@ const avgRating = useMemo(() => {
             </h3>
           </div>
         )}
-        </div>
+      </div>
     </div>
+
   );
 }
 
