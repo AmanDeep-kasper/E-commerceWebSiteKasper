@@ -86,7 +86,7 @@ router.post(
   "/add-reply/:reviewId",
   authenticate,
   authorize("admin", "seller"),
-  addReplyToReview
+  addReplyToReview,
 );
 
 // Update a reply
@@ -94,7 +94,7 @@ router.patch(
   "/update-reply/:reviewId/:replyId",
   authenticate,
   authorize("admin", "seller"),
-  updateReply
+  updateReply,
 );
 
 // Delete a reply
@@ -102,7 +102,7 @@ router.delete(
   "/delete-reply/:reviewId/:replyId",
   authenticate,
   authorize("admin", "seller"),
-  deleteReply
+  deleteReply,
 );
 
 // Get all replies for a review (Public)

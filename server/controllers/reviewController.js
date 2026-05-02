@@ -1,5 +1,6 @@
 import Review from "../models/Review.js";
 import Product from "../models/Product.js";
+import BusinessSetting from "../models/admin/BusinessConfig.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import AppError from "../utils/AppError.js";
 import { uploadToCloudinary, deleteFromCloudinary } from "../utils/uploader.js";
@@ -120,6 +121,37 @@ export const getAllUserReviews = asyncHandler(async (req, res) => {
   });
 });
 
+// export const getAllProductReviews = asyncHandler(async (req, res) => {
+//   const page = parseInt(req.query.page) || 1;
+//   const limit = parseInt(req.query.limit) || 20;
+//   const { sortBy } = req.query;
+//   const { productId } = req.params;
+
+//   const skip = (page - 1) * limit;
+
+//   let sort = { createdAt: -1 };
+
+//   if (sortBy === "mostOldest") {
+//     sort = { createdAt: 1 };
+//   } else if (sortBy === "highestRated") {
+//     sort = { rating: -1, createdAt: -1 };
+//   } else if (sortBy === "lowestRated") {
+//     sort = { rating: 1, createdAt: -1 };
+//   }
+
+//   const reviews = await Review.find({ productId })
+//     .sort(sort)
+//     .skip(skip)
+//     .limit(limit)
+//     .lean();
+
+//   res.status(200).json({
+//     success: true,
+//     message: "Reviews fetched successfully",
+//     data: reviews,
+//   });
+// });
+
 export const getAllProductReviews = asyncHandler(async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 20;
@@ -130,23 +162,22 @@ export const getAllProductReviews = asyncHandler(async (req, res) => {
 
   let sort = { createdAt: -1 };
 
-  if (sortBy === "mostOldest") {
-    sort = { createdAt: 1 };
-  } else if (sortBy === "highestRated") {
-    sort = { rating: -1, createdAt: -1 };
-  } else if (sortBy === "lowestRated") {
-    sort = { rating: 1, createdAt: -1 };
-  }
+  if (sortBy === "mostOldest") sort = { createdAt: 1 };
+  else if (sortBy === "highestRated") sort = { rating: -1, createdAt: -1 };
+  else if (sortBy === "lowestRated") sort = { rating: 1, createdAt: -1 };
 
-  const reviews = await Review.find({ productId })
-    .sort(sort)
-    .skip(skip)
-    .limit(limit)
-    .lean();
+  const [reviews, business] = await Promise.all([
+    Review.find({ productId }).sort(sort).skip(skip).limit(limit).lean(),
+
+    BusinessSetting.findOne({ isActive: true })
+      .select("businessName logo.url")
+      .lean(),
+  ]);
 
   res.status(200).json({
     success: true,
     message: "Reviews fetched successfully",
+    business,
     data: reviews,
   });
 });
@@ -419,19 +450,19 @@ export const deleteReply = asyncHandler(async (req, res) => {
   });
 });
 
-// Get all replies for a review
-export const getReviewReplies = asyncHandler(async (req, res) => {
-  const { reviewId } = req.params;
+// // Get all replies for a review
+// export const getReviewReplies = asyncHandler(async (req, res) => {
+//   const { reviewId } = req.params;
 
-  const review = await Review.findById(reviewId).select('replies');
+//   const review = await Review.findById(reviewId).select('replies');
 
-  if (!review) {
-    throw new AppError("Review not found", 404, "NOT_FOUND");
-  }
+//   if (!review) {
+//     throw new AppError("Review not found", 404, "NOT_FOUND");
+//   }
 
-  res.status(200).json({
-    success: true,
-    message: "Replies fetched successfully",
-    data: review.replies
-  });
-});
+//   res.status(200).json({
+//     success: true,
+//     message: "Replies fetched successfully",
+//     data: review.replies
+//   });
+// });

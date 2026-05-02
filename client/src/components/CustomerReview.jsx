@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import Ratings from "./Ratings";
 import axiosInstance from "../api/axiosInstance";
 import { useNavigate } from "react-router-dom";
+import hardCompanylogo from "../assets/IconsUsed/fabicon.png";
 
 function CustomerReview({ reviews = [], id, allReviews = false }) {
   const [moreReview] = useState(2);
@@ -12,9 +13,10 @@ function CustomerReview({ reviews = [], id, allReviews = false }) {
   const navigate = useNavigate();
 
   useEffect(() => {
-    setFetchedReviews(reviews || []);
-    setHasFetchedAll(false);
-  }, [reviews]);
+    if (!hasFetchedAll) {
+      setFetchedReviews(reviews || []);
+    }
+  }, [reviews, hasFetchedAll]);
 
   const productReview = useMemo(() => {
     if (!fetchedReviews) return [];
@@ -27,19 +29,24 @@ function CustomerReview({ reviews = [], id, allReviews = false }) {
     try {
       setLoadingMore(true);
 
-      const res = await axiosInstance.get(`/review/all-product-reviews/${id}`);
-      const allProductReviews = res?.data?.data || [];
+      if (!hasFetchedAll) {
+        const res = await axiosInstance.get(
+          `/review/all-product-reviews/${id}`,
+        );
 
-      console.log("Fetched reviews:", allProductReviews);
-
-      setFetchedReviews(allProductReviews);
-      setHasFetchedAll(true);
+        setFetchedReviews(res?.data?.data || []);
+        setHasFetchedAll(true);
+      } else {
+        navigate(`/all-reviews/${id}`);
+      }
     } catch (error) {
-      console.error("Error fetching reviews:", error);
+      console.error(error);
     } finally {
       setLoadingMore(false);
     }
   };
+
+  // console.log(fetchedReviews);
 
   if (!fetchedReviews || fetchedReviews.length === 0) {
     return (
@@ -83,6 +90,8 @@ function CustomerReview({ reviews = [], id, allReviews = false }) {
               rating,
               reviewImages,
               createdAt,
+              replyText,
+              replyDate,
             },
             index,
           ) => (
@@ -144,6 +153,24 @@ function CustomerReview({ reviews = [], id, allReviews = false }) {
               <p className="text-sm text-[#3A3A3A] mt-3 leading-6">
                 {reviewText}
               </p>
+              {replyText ? (
+                <div className="bg-[#F0EEFF] px-[10px] py-[12px] rounded-md">
+                  <div className="flex items-center justify-start gap-2">
+                    <img
+                      className="w-[24px] h-[24px] rounded-full"
+                      src={hardCompanylogo}
+                      alt=""
+                    />
+                    <span className="text-[16px]">Happy Art Supplies</span>
+                    <span className="text-[14px] text-[#686868]">
+                      {replyText ? "Replied:" : ""}
+                    </span>
+                  </div>
+                  <p className="mt-2">{reviewText}</p>
+                </div>
+              ) : (
+                ""
+              )}
             </div>
           ),
         )}
@@ -153,7 +180,8 @@ function CustomerReview({ reviews = [], id, allReviews = false }) {
         <button
           type="button"
           className="py-2 mt-3 font-medium text-[#1800AC]"
-          onClick={() => navigate(`/all-reviews/${id}`)}
+          // onClick={() => navigate(`/all-reviews/${id}`)}
+          onClick={handleSeeMoreReviews}
         >
           See more reviews ›
         </button>
