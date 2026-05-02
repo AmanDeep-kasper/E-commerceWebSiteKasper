@@ -3,16 +3,13 @@ import { authenticate, authorize } from "../middlewares/authMiddleware.js";
 import { upload } from "../middlewares/multer.js";
 import {
   addReview,
-  deleteReply,
   deleteReview,
   getAllProductReviews,
   getAllUserReviews,
   getReview,
-  replyToReview,
-  updateReply,
   updateReview,
-  // newone
-   addReplyToReview,
+  // Reply functions
+  addReplyToReview,
   updateReply,
   deleteReply,
   getReviewReplies,
@@ -28,6 +25,7 @@ import {
 
 const router = express.Router();
 
+// Review routes
 router.post(
   "/add-review/:productId",
   authenticate,
@@ -81,6 +79,9 @@ router.patch(
   validateRequest,
   updateReview,
 );
+
+// ============ REPLY ROUTES ============
+// Add a reply to a review (Admin/Seller only)
 router.post(
   "/add-reply/:reviewId",
   authenticate,
@@ -88,6 +89,7 @@ router.post(
   addReplyToReview
 );
 
+// Update a reply
 router.patch(
   "/update-reply/:reviewId/:replyId",
   authenticate,
@@ -95,6 +97,7 @@ router.patch(
   updateReply
 );
 
+// Delete a reply
 router.delete(
   "/delete-reply/:reviewId/:replyId",
   authenticate,
@@ -102,28 +105,10 @@ router.delete(
   deleteReply
 );
 
+// Get all replies for a review (Public)
 router.get(
   "/get-replies/:reviewId",
   getReviewReplies
-);
-
-router.patch(
-  "/reply-review/:reviewId",
-  authenticate,
-  authorize("admin"),
-  replyToReview,
-);
-router.delete(
-  "/delete-reply/:reviewId",
-  authenticate,
-  authorize("admin"),
-  deleteReply,
-);
-router.patch(
-  "/update-reply/:reviewId",
-  authenticate,
-  authorize("admin"),
-  updateReply,
 );
 
 export default router;
