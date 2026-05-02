@@ -61,7 +61,6 @@ function Address() {
     dispatch(fetchAddresses());
   }, [dispatch]);
 
-  
   const handleMakeDefault = async (addressId) => {
     if (updatingDefaultId) return;
 
@@ -72,7 +71,7 @@ function Address() {
 
       if (!result.error) {
         toast.success("Default address updated");
-         await dispatch(fetchAddresses());
+        await dispatch(fetchAddresses());
       }
     } finally {
       setUpdatingDefaultId(null);
@@ -80,28 +79,37 @@ function Address() {
   };
 
   const handleRemoveAddress = async (addressId) => {
-  if (removingId) return;
+    if (removingId) return;
 
-  setRemovingId(addressId);
+    setRemovingId(addressId);
 
-  try {
-    const result = await dispatch(removeAddress(addressId));
+    try {
+      const result = await dispatch(removeAddress(addressId));
 
-    if (!result.error) {
-      toast.success("Address removed successfully");
-      await dispatch(fetchAddresses());
+      if (!result.error) {
+        toast.success("Address removed successfully");
+        await dispatch(fetchAddresses());
+      }
+    } finally {
+      setRemovingId(null);
     }
-  } finally {
-    setRemovingId(null);
-  }
-};
+  };
 
   const getAddressTypeIcon = (type) => {
     return type === "home" ? <Home size={14} /> : <Building size={14} />;
   };
 
   // Get addresses array safely
- const addressesList = Array.isArray(addresses) ? addresses : [];
+  const addressesList = Array.isArray(addresses) ? addresses : [];
+
+  const handleModalClose = (shouldRefresh = false) => {
+    setOpen(false);
+    setEditingAddress(null);
+    // Only fetch if address was actually added/edited/deleted
+    if (shouldRefresh) {
+      dispatch(fetchAddresses());
+    }
+  };
 
   // Show loading overlay while fetching addresses
   if (loading) {
@@ -112,7 +120,7 @@ function Address() {
             <div className="h-7 w-40 bg-gray-200 rounded animate-pulse"></div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {[addressesList].map((i) => (
+            {[1, 2, 3].map((i) => (
               <AddressCardSkeleton key={i} />
             ))}
           </div>
@@ -300,11 +308,7 @@ function Address() {
       {open && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <AddressForm
-            onClose={() => {
-              setOpen(false);
-              setEditingAddress(null);
-              dispatch(fetchAddresses());
-            }}
+            onClose={handleModalClose}
             initialData={editingAddress}
           />
         </div>
