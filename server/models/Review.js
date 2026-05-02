@@ -28,17 +28,16 @@ const reviewSchema = new mongoose.Schema(
       index: true,
     },
 
+    repliedBy: {
+      replyText: String,
+      bussinessLogo: String,
+      businessName: String,
+    },
+
     reviewText: {
       type: String,
       required: true,
     },
-
-    repliedBySeller: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-    },
-
-    replyText: String,
 
     reviewImages: [
       {
@@ -47,38 +46,38 @@ const reviewSchema = new mongoose.Schema(
       },
     ],
 
-    // Add replies field for admin/seller responses
-    replies: [
-      {
-        userId: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "User",
-          required: true,
-        },
-        reviewerName: {
-          type: String,
-          required: true,
-        },
-        replyText: {
-          type: String,
-          required: true,
-        },
-        createdAt: {
-          type: Date,
-          default: Date.now,
-        },
-        updatedAt: {
-          type: Date,
-          default: Date.now,
-        },
-      },
-    ],
+    // // Add replies field for admin/seller responses
+    // replies: [
+    //   {
+    //     userId: {
+    //       type: mongoose.Schema.Types.ObjectId,
+    //       ref: "User",
+    //       required: true,
+    //     },
+    //     reviewerName: {
+    //       type: String,
+    //       required: true,
+    //     },
+    //     replyText: {
+    //       type: String,
+    //       required: true,
+    //     },
+    //     createdAt: {
+    //       type: Date,
+    //       default: Date.now,
+    //     },
+    //     updatedAt: {
+    //       type: Date,
+    //       default: Date.now,
+    //     },
+    //   },
+    // ],
 
-    // Optional: Track if admin has replied
-    adminReplied: {
-      type: Boolean,
-      default: false,
-    },
+    // // Optional: Track if admin has replied
+    // adminReplied: {
+    //   type: Boolean,
+    //   default: false,
+    // },
   },
   {
     timestamps: true,
