@@ -250,14 +250,20 @@ function ProductInformation() {
 
                   <div className="flex justify-between text-xs text-gray-600 mt-0.5">
                     <div className="flex gap-2">
-                      {defaultVariant?.variantColor && (
-                        <p className="border border-[#495F75] px-1 rounded-md">
-                          {defaultVariant.variantColor}
-                        </p>
+                    {currentVariant?.variantName && (
+                     <span className="border border-[#495F75] px-1 rounded-md">
+                      {currentVariant?.variantName 
+                        ? `${currentVariant.variantName}`
+                        : ""}
+                    </span>
                       )}
-                      {/* <p className="border border-[#495F75] px-1 rounded-md">
-                        20×20
-                      </p> */}
+                    {(currentVariant?.variantWeight || currentVariant?.variantWeightUnit) && (
+                      <span className="border border-[#495F75] px-1 rounded-md">
+                       {currentVariant?.variantWeight 
+            ? `${currentVariant.variantWeight} ${currentVariant.variantWeightUnit || ''}`
+            : currentVariant?.variantWeightUnit || ''}
+                    </span>
+                    )}
                     </div>
                     <p>{defaultVariant?.variantAvailableStock || 0} in stock</p>
                   </div>
@@ -293,11 +299,11 @@ function ProductInformation() {
 
                   <div className="flex justify-between text-xs text-gray-600 mt-0.5">
                     <div className="flex gap-2">
-                      {item.variantColor && (
+                      {/* {item.variantColor && (
                         <p className="border border-[#495F75] px-1 rounded-md">
                           {item.variantColor}
                         </p>
-                      )}
+                      )} */}
 
                       {/* <p className="border border-[#495F75] px-1 rounded-md">
                         20×20
@@ -393,14 +399,16 @@ function ProductInformation() {
                       55L x 35W cm
                     </span>
                   </div> */}
+                  {currentVariant?.variantColor && (
                   <div>
                     <p className="text-sm text-[#686868] font-medium">
                       Product Color
                     </p>
                     <span className="text-base text-[#2C2C2C] font-medium">
-                      {currentVariant?.variantColor || "N/A"}
+                      {currentVariant?.variantColor}
                     </span>
                   </div>
+                  )}
                 </div>
                 <div className="flex flex-col flex-wrap  justify-start space-y-[10px]">
                   {/* <div>
@@ -428,6 +436,16 @@ function ProductInformation() {
                       {product?.subcategory?.name || "N/A"}
                     </span>
                   </div>
+                  {currentVariant?.variantName && (
+                  <div>
+                    <p className="text-sm text-[#686868] font-medium">
+                      Variant Name
+                    </p>
+                    <span className="text-base text-[#2C2C2C] font-medium">
+                      {currentVariant?.variantName || ""}
+                    </span>
+                  </div>
+                  )}
                   {/* <div>
                     <p className="text-sm text-[#686868] font-medium">
                       Dimension
