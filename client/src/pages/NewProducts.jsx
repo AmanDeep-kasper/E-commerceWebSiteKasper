@@ -124,11 +124,12 @@ function NewProducts() {
   return (
     <>
       <Navbar />
-      <Breadcrumbs title={"Best Selling Products"}></Breadcrumbs>
-      <section className="lg:px-20 md:px-[60px] px-4 pb-[23px] bg-gray-50">
-        <FilterProducts text={"Best Selling Products"} sort={sort} />
+  <Breadcrumbs title={"Best Selling Products"} />
 
-        <div className="flex lg:gap-6 items-start">
+  <section className="lg:px-20 md:px-[60px] px-4 pb-[23px] bg-gray-50">
+    <FilterProducts text={"Best Selling Products"} sort={sort} />
+
+        <div className="flex lg:gap-6 justify-center">
           <Skeleton name="product-grid" loading={loading}>
             {error ? (
               <p className="text-red-500">{error}</p>
@@ -140,6 +141,7 @@ function NewProducts() {
           </Skeleton>
         </div>
       </section>
+      
       <Footer />
     </>
   );

@@ -2,7 +2,7 @@ import AccountSidebar from "../components/AccountSidebar";
 import { Link, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../sections/Footer";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { buyNow } from "../redux/cart/cartSlice";
 import OrderFilter from "../components/OrderFilter";
@@ -52,6 +52,7 @@ function OrderHistory() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [debouncedSearch, setDebouncedSearch] = useState("");
+  const filterRef = useRef(null);
 
   const formatDate = (dateString) => {
     const options = { day: "numeric", month: "short", year: "numeric" };
@@ -149,6 +150,20 @@ function OrderHistory() {
 
   console.log(order);
 
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (filterRef.current && !filterRef.current.contains(e.target)) {
+        setIsFilterOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   return (
     <div className="w-full mt-5">
       <div className="md:mb-6 relative flex flex-row justify-between items-center border border-gray-200 bg-white md:rounded-lg p-3 gap-3 sm:gap-4">
@@ -182,7 +197,10 @@ function OrderHistory() {
             </div>
 
             {isFilterOpen && (
-              <div className="absolute top-16 z-30 right-0 w-64 max-w-[90vw]">
+              <div
+                ref={filterRef}
+                className="absolute top-27 z-50 right-0 w-64 max-w-[90vw]"
+              >
                 <OrderFilter
                   setStatus={setStatus}
                   status={status}
@@ -361,35 +379,35 @@ function OrderHistory() {
           })
         )}
       </div>
-        <div className="flex justify-center items-center gap-2 mt-6 flex-wrap">
-          <button
-            disabled={page === 1}
-            onClick={() => setPage((p) => p - 1)}
-            className="px-3 py-1 border rounded disabled:opacity-50"
-          >
-            Prev
-          </button>
+      <div className="flex justify-center items-center gap-2 mt-6 flex-wrap">
+        <button
+          disabled={page === 1}
+          onClick={() => setPage((p) => p - 1)}
+          className="px-3 py-1 border rounded disabled:opacity-50"
+        >
+          Prev
+        </button>
 
-          {[...Array(totalPages)].map((_, i) => (
-            <button
-              key={i}
-              onClick={() => setPage(i + 1)}
-              className={`px-3 py-1 border rounded ${
-                page === i + 1 ? "bg-[#1800AC] text-white" : ""
-              }`}
-            >
-              {i + 1}
-            </button>
-          ))}
-
+        {[...Array(totalPages)].map((_, i) => (
           <button
-            disabled={page === totalPages}
-            onClick={() => setPage((p) => p + 1)}
-            className="px-3 py-1 border rounded disabled:opacity-50"
+            key={i}
+            onClick={() => setPage(i + 1)}
+            className={`px-3 py-1 border rounded ${
+              page === i + 1 ? "bg-[#1800AC] text-white" : ""
+            }`}
           >
-            Next
+            {i + 1}
           </button>
-        </div>
+        ))}
+
+        <button
+          disabled={page === totalPages}
+          onClick={() => setPage((p) => p + 1)}
+          className="px-3 py-1 border rounded disabled:opacity-50"
+        >
+          Next
+        </button>
+      </div>
     </div>
   );
 }

@@ -28,8 +28,8 @@ function Filter({
   const [showModal, setShowModal] = useState(false);
   // for show more
   const [showAllSubcategories, setShowAllSubcategories] = useState(false);
-const [showAllColors, setShowAllColors] = useState(false);
-const [showAllSortOptions, setShowAllSortOptions] = useState(false);
+  const [showAllColors, setShowAllColors] = useState(false);
+  const [showAllSortOptions, setShowAllSortOptions] = useState(false);
 
   const [tempCategory, setTempCategory] = useState("All");
   const [tempColor, setTempColor] = useState("");
@@ -37,15 +37,15 @@ const [showAllSortOptions, setShowAllSortOptions] = useState(false);
   const { categoryName } = useParams();
 
   const INITIAL_SUBCATEGORIES_COUNT = 5;
-const INITIAL_COLORS_COUNT = 5;
-const INITIAL_SORT_COUNT = 5;
+  const INITIAL_COLORS_COUNT = 5;
+  const INITIAL_SORT_COUNT = 5;
 
   // Fetch subcategories based on category
   useEffect(() => {
     const fetchSubcategories = async () => {
       try {
         const res = await axiosInstance.get("/product/all");
-        
+
         let allProducts = [];
         if (res.data?.success && res.data?.data) {
           allProducts = res.data.data;
@@ -55,21 +55,24 @@ const INITIAL_SORT_COUNT = 5;
           allProducts = res.data.products;
         }
 
-        const decodedCategory = decodeURIComponent(categoryName || "").trim().toLowerCase();
-        
+        const decodedCategory = decodeURIComponent(categoryName || "")
+          .trim()
+          .toLowerCase();
+
         // Filter products by categoryName (string) NOT category (object)
         const productsInCategory = allProducts.filter(
-          (item) => (item.categoryName || "").trim().toLowerCase() === decodedCategory
+          (item) =>
+            (item.categoryName || "").trim().toLowerCase() === decodedCategory,
         );
-        
+
         // Extract subcategoryName from matching products
         const subcategoryNames = productsInCategory
           .map((item) => item.subcategoryName || "")
           .filter(Boolean);
-        
+
         const uniqueSubcategories = [...new Set(subcategoryNames)];
         const matchedSubcategories = ["All", ...uniqueSubcategories];
-        
+
         setFilterSubcategories(matchedSubcategories);
       } catch (error) {
         // console.log("Subcategory fetch error:", error);
@@ -141,11 +144,12 @@ const INITIAL_SORT_COUNT = 5;
             {/* show more and less */}
             {sortOptions.length > INITIAL_SORT_COUNT && (
               <button
-              onClick={() => setShowAllSortOptions(!showAllSortOptions)}
-                className="px-3 py-1.5 whitespace-nowrap rounded-full text-sm transition bg-transparent text-[#1800ac] hover:underline">
+                onClick={() => setShowAllSortOptions(!showAllSortOptions)}
+                className="px-3 py-1.5 whitespace-nowrap rounded-full text-sm transition bg-transparent text-[#1800ac] hover:underline"
+              >
                 {showAllSortOptions ? "Show Less" : "Show More"}
                 {/* (${sortOptions.length - INITIAL_SORT_COUNT} */}
-                </button>
+              </button>
             )}
           </div>
         )}
@@ -191,11 +195,12 @@ const INITIAL_SORT_COUNT = 5;
             {/* show more and less */}
             {filterSubcategories.length > INITIAL_SUBCATEGORIES_COUNT && (
               <button
-              onClick={() => setShowAllSubcategories(!showAllSubcategories)}
-                className="px-3 py-1.5 whitespace-nowrap rounded-full text-sm transition bg-transparent text-[#1800ac] hover:underline">
+                onClick={() => setShowAllSubcategories(!showAllSubcategories)}
+                className="px-3 py-1.5 whitespace-nowrap rounded-full text-sm transition bg-transparent text-[#1800ac] hover:underline"
+              >
                 {showAllSubcategories ? "Show Less" : "Show More"}
-                 {/* (${filterSubcategories.length - INITIAL_SUBCATEGORIES_COUNT}  */}
-                </button>
+                {/* (${filterSubcategories.length - INITIAL_SUBCATEGORIES_COUNT}  */}
+              </button>
             )}
           </div>
         )}
@@ -217,50 +222,55 @@ const INITIAL_SORT_COUNT = 5;
         </button>
 
         {open && (
-          <div className="flex flex-wrap gap-2 mt-3" style={{display:"flex", flexDirection:"column"}}>
+          <div
+            className="flex flex-wrap gap-2 mt-3"
+            style={{ display: "flex", flexDirection: "column" }}
+          >
             <div>
-            {(showAllColors
-              ? colors
-              : colors.slice(0, INITIAL_COLORS_COUNT)
-            ).map(({ colorName }) => {
-              const isActive = isMobile 
-                ? tempColor === colorName 
-                : val === colorName;
-              return (
-                <button
-                  key={colorName}
-                  type="button"
-                  className={twMerge(
-                    "text-left px-2 py-1 border rounded-md transition text-xs",
-                    isActive
-                      ? "bg-[#D5E5F5] text-black font-medium"
-                      : "border-gray-300 hover:bg-gray-100"
-                  )}
-                  onClick={() =>
-                    isMobile
-                      ? setTempColor((prev) =>
-                          prev === colorName ? "" : colorName
-                        )
-                      : setColor((prev) => {
-                          if (prev.includes(colorName)) {
-                            return prev.filter((c) => c !== colorName);
-                          }
-                          return [...prev, colorName];
-                        })
-                  }
-                >
-                  {colorName}
-                </button>
-              );
-            })}
+              {(showAllColors
+                ? colors
+                : colors.slice(0, INITIAL_COLORS_COUNT)
+              ).map(({ colorName }) => {
+                const isActive = isMobile
+                  ? tempColor === colorName
+                  : val === colorName;
+                return (
+                  <button
+                    key={colorName}
+                    type="button"
+                    className={twMerge(
+                      "text-left px-2 py-1 border rounded-md transition text-xs",
+                      isActive
+                        ? "bg-[#D5E5F5] text-black font-medium"
+                        : "border-gray-300 hover:bg-gray-100",
+                    )}
+                    onClick={() =>
+                      isMobile
+                        ? setTempColor((prev) =>
+                            prev === colorName ? "" : colorName,
+                          )
+                        : setColor((prev) => {
+                            if (prev.includes(colorName)) {
+                              return prev.filter((c) => c !== colorName);
+                            }
+                            return [...prev, colorName];
+                          })
+                    }
+                  >
+                    {colorName}
+                  </button>
+                );
+              })}
             </div>
             {/* show more and less */}
             {colors.length > INITIAL_COLORS_COUNT && (
               <button
                 onClick={() => setShowAllColors(!showAllColors)}
-                className="px-3 py-1.5 whitespace-nowrap rounded-full text-sm transition bg-transparent text-[#1800ac]" style={{fontSize:"12px"}}>
+                className="px-3 py-1.5 whitespace-nowrap rounded-full text-sm transition bg-transparent text-[#1800ac]"
+                style={{ fontSize: "12px" }}
+              >
                 {showAllColors ? "Show Less" : "Show More"}
-                  {/* (${colors.length - INITIAL_COLORS_COUNT}  */}
+                {/* (${colors.length - INITIAL_COLORS_COUNT}  */}
               </button>
             )}
           </div>
@@ -327,18 +337,18 @@ const INITIAL_SORT_COUNT = 5;
               animate={{ y: 0 }}
               exit={{ y: "100%" }}
               transition={{ duration: 0.35, ease: "easeOut" }}
-              className="relative bg-white w-full rounded-t-2xl p-5 shadow-lg z-50"
+              className="relative bg-white w-full rounded-t-2xl p-5 pb-10 shadow-lg z-50 max-h-[90vh] overflow-y-auto"
             >
-              <button
+              {/* <button
                 className="absolute top-3 right-3 text-gray-600"
                 onClick={() => setShowModal(false)}
               >
                 <X className="h-6 w-6" />
-              </button>
+              </button> */}
 
-              <FiltersContent isMobile />
+              <FiltersContent isMobile className="mb-5" />
 
-              <div className="flex justify-between gap-3 border-t pt-4 mt-6">
+              <div className="flex justify-between gap-3 border-t pt-4">
                 <button
                   className="flex-1 py-2 border rounded-md text-gray-600"
                   onClick={() => {
@@ -562,8 +572,8 @@ export default Filter;
 //         {open && (
 //           <div className="flex flex-wrap gap-2 mt-3">
 //             {colors.map(({ colorName }) => {
-//              const isActive = isMobile 
-//   ? tempColor === colorName 
+//              const isActive = isMobile
+//   ? tempColor === colorName
 //   : colors.includes(colorName);
 //               return (
 //                 <button

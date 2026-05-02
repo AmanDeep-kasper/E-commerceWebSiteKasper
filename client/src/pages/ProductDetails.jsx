@@ -7,7 +7,15 @@ import Ratings from "../components/Ratings";
 import Reviews from "../components/Reviews";
 import CustomerReview from "../components/CustomerReview";
 import Card from "../components/Card";
-import { Heart, Minus, PackageOpen, Plus, Trash2 } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronUp,
+  Heart,
+  Minus,
+  PackageOpen,
+  Plus,
+  Trash2,
+} from "lucide-react";
 
 import { useDispatch, useSelector } from "react-redux";
 
@@ -61,6 +69,8 @@ function ProductDetails() {
   const [localQty, setLocalQty] = useState(0);
   const [Loding, setLoading] = useState(false);
   const [FetchedReviews, setFetchedReviews] = useState(null);
+  const [showMagnifier, setShowMagnifier] = useState(false);
+  const [zoomPosition, setZoomPosition] = useState({ x: 0, y: 0 });
 
   const syncCartFromBackend = async () => {
     try {
@@ -534,12 +544,18 @@ function ProductDetails() {
             handleCloseReview();
           }}
         />
-        <div className="flex lg:flex-row flex-col gap-8 items-start max-lg:items-center">
+        <div className="flex lg:flex-row flex-col gap-8 items-start max-lg:items-center lg:mt-0.5 mt-12 p-8">
           {/* Thumbnails */}
           <div className="lg:sticky top-20 flex md:gap-8 gap-4 max-md:flex-col-reverse max-lg:w-full">
             {/* Thumbnails Swiper */}
             <div className="flex flex-col max-md:flex-row md:gap-4 max-md:justify-between rounded-lg">
+              
               <Swiper
+                modules={[Navigation]}
+                navigation={{
+                  nextEl: ".thumb-next",
+                  prevEl: ".thumb-prev",
+                }}
                 onSwiper={setThumbsSwiper}
                 spaceBetween={10}
                 slidesPerView="auto"
@@ -551,6 +567,9 @@ function ProductDetails() {
                 }}
                 className="!w-full !h-auto md:!h-[460px]"
               >
+                <button className="thumb-next absolute bottom-0 left-1/2 -translate-x-1/2 z-10 bg-white shadow-md p-1 rounded-full">
+                  <ChevronDown size={18} />
+                </button>
                 {images.map((img, idx) => (
                   <SwiperSlide key={idx} className="!w-auto !h-auto">
                     <div
@@ -579,6 +598,9 @@ function ProductDetails() {
                     </div>
                   </SwiperSlide>
                 ))}
+                <button className="thumb-prev absolute top-0 left-1/2 -translate-x-1/2 z-10 bg-white shadow-md p-1 rounded-full">
+                <ChevronUp size={18} />
+              </button>
               </Swiper>
             </div>
 
@@ -600,13 +622,55 @@ function ProductDetails() {
                 initialSlide={mainImageIndex}
                 className="xl:min-w-[600px] xl:h-[600px] md:!w-[500px] w-full"
               >
-                {images.map((img, idx) => (
+                {/* normal swiper  */}
+                {/* {images.map((img, idx) => (
                   <SwiperSlide key={idx}>
                     <img
                       src={getImageUrl(img?.url)}
                       alt={`${product.title} ${idx}`}
                       className="w-full h-full object-cover"
                     />
+                  </SwiperSlide>
+                ))} */}
+
+                {/* add magnifier */}
+
+                {images.map((img, idx) => (
+                  <SwiperSlide key={idx}>
+                    <div
+                      className="relative w-full h-full overflow-hidden cursor-zoom-in"
+                      onMouseEnter={() => setShowMagnifier(true)}
+                      onMouseLeave={() => setShowMagnifier(false)}
+                      onMouseMove={(e) => {
+                        const { left, top, width, height } =
+                          e.currentTarget.getBoundingClientRect();
+
+                        const x = ((e.clientX - left) / width) * 100;
+                        const y = ((e.clientY - top) / height) * 100;
+
+                        setZoomPosition({ x, y });
+                      }}
+                    >
+                      {/* MAIN IMAGE */}
+                      <img
+                        src={getImageUrl(img?.url)}
+                        alt={`${product.title} ${idx}`}
+                        className="w-full h-full object-cover"
+                      />
+
+                      {/* 🔍 MAGNIFIER LAYER */}
+                      {showMagnifier && (
+                        <div
+                          className="absolute inset-0 pointer-events-none"
+                          style={{
+                            backgroundImage: `url(${getImageUrl(img?.url)})`,
+                            backgroundRepeat: "no-repeat",
+                            backgroundSize: "250%",
+                            backgroundPosition: `${zoomPosition.x}% ${zoomPosition.y}%`,
+                          }}
+                        />
+                      )}
+                    </div>
                   </SwiperSlide>
                 ))}
               </Swiper>
