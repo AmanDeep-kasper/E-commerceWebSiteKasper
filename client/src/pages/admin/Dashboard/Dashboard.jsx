@@ -38,10 +38,12 @@ function Dashboard() {
   const [activities, setActivities] = useState([]);
   const [recentOrders, setRecentOrders] = useState([]);
   const [range, setRange] = useState("weekly");
+  // ////////
+  const [type, setType] = useState("orders");
 
   useEffect(() => {
     fetchDashboard();
-  }, [range]);
+  }, [range, type]);
 
   const fetchDashboard = async () => {
     try {
@@ -54,7 +56,7 @@ function Dashboard() {
         recentOrdersRes,
       ] = await Promise.all([
         getKpiCards(),
-        getSalesOverview("orders", range),
+        getSalesOverview(type, range),
         getDashboardSummary(),
         getTopSellingProducts(range),
         getRecentActivities(),
@@ -62,7 +64,7 @@ function Dashboard() {
       ]);
 
       setKpi(kpiRes.data.data);
-      setSales(salesRes.data.data.chart);
+      setSales(salesRes.data.data);
       setSummary(summaryRes.data.data);
       setTopProducts(topProductsRes.data.data);
       setActivities(activitiesRes.data.data);
@@ -71,6 +73,8 @@ function Dashboard() {
       console.error(err);
     }
   };
+
+  // console.log(sales);
   // aman
   // const totalValue = data.reduce((sum, item) => sum + item.value, 0);
   const paymentData = [
@@ -364,7 +368,12 @@ function Dashboard() {
 
       <div className=" flex flex-col lg:flex-row gap-4 items-stretch">
         <div className="w-2/3 lg:w-full border rounded-lg bg-white h-full">
-          <SalesChart data={sales} />
+          <SalesChart
+            data={sales}
+            setType={setType}
+            range={range}
+            setRange={setRange}
+          />
         </div>
 
         {/* recent activity */}
