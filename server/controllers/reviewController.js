@@ -102,7 +102,7 @@ export const getAllUserReviews = asyncHandler(async (req, res) => {
       productId: {
         _id: product?._id,
         productTittle: product?.productTittle,
-        image: firstImage, 
+        image: firstImage,
       },
     };
   });
@@ -114,7 +114,7 @@ export const getAllUserReviews = asyncHandler(async (req, res) => {
     pagination: {
       page,
       limit,
-      total, 
+      total,
       totalPages: Math.ceil(total / limit),
     },
   });

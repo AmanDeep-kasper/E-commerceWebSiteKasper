@@ -52,8 +52,9 @@ function UserProfile({ setIsProfileOpen }) {
             )}
           </div>
           <div>
+            
             <p className="font-medium text-gray-900">
-              {user?.user?.name || "Guest"}
+              {user?.user?.name || "Guest User"}
             </p>
             <p className="text-sm text-gray-500">
               {isAuthenticated ? "Welcome back!" : "Please log in"}

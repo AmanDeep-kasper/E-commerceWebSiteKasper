@@ -1,6 +1,7 @@
 import { Star, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import axiosInstance from "../api/axiosInstance";
+import { toast } from "react-toastify";
 
 function AddReviewsModel({ open, review, onClose, onSave, product }) {
   const [rating, setRating] = useState(0);
@@ -60,7 +61,7 @@ function AddReviewsModel({ open, review, onClose, onSave, product }) {
 
     // ✅ optional constraints
     const MAX_FILES = 5;
-    const MAX_SIZE_MB = 5;
+    const MAX_SIZE_MB = 2; // Changed from 5 to 2 as per validation requirement
 
     // filter only image
     const valid = files.filter((f) => f.type.startsWith("image/"));
@@ -68,8 +69,26 @@ function AddReviewsModel({ open, review, onClose, onSave, product }) {
     // size filter
     const sizeOk = valid.filter((f) => f.size <= MAX_SIZE_MB * 1024 * 1024);
 
+    // Show toast for files exceeding 2MB
+    const exceededFiles = valid.filter(
+      (f) => f.size > MAX_SIZE_MB * 1024 * 1024,
+    );
+    if (exceededFiles.length > 0) {
+      toast.error(
+        `Each image must be within 2MB. ${exceededFiles.length} file(s) exceeded limit.`,
+      );
+    }
+
     // create preview urls
     const newUrls = sizeOk.map((f) => URL.createObjectURL(f));
+
+    // Check if adding these would exceed MAX_FILES
+    if (images.length + newUrls.length > MAX_FILES) {
+      toast.error(
+        `Maximum ${MAX_FILES} images allowed. You can only add ${MAX_FILES - images.length} more.`,
+      );
+      return;
+    }
 
     // append but limit
     setImages((prev) => {
@@ -101,13 +120,40 @@ function AddReviewsModel({ open, review, onClose, onSave, product }) {
 
   const handleSave = async () => {
     try {
-      if (!rating) {
-        alert("Please select rating");
+      // Validation: rating must be selected
+      if (!rating || rating === 0) {
+        toast.error("Please select a rating");
+        return;
+      }
+
+      // Validation: review text minimum 10 chars, maximum 2000 chars
+      const trimmedText = text.trim();
+      if (!trimmedText || trimmedText.length < 10) {
+        toast.error("Review text must be at least 10 characters");
+        return;
+      }
+      if (trimmedText.length > 2000) {
+        toast.error("Review text cannot exceed 2000 characters");
+        return;
+      }
+
+      // Validation: images count (max 5)
+      if (imageFiles.length > 5) {
+        toast.error("Maximum 5 images allowed");
+        return;
+      }
+
+      // Validation: each image size within 2MB (already validated on add, but double-check)
+      const oversizedImages = imageFiles.filter(
+        (file) => file.size > 2 * 1024 * 1024,
+      );
+      if (oversizedImages.length > 0) {
+        toast.error("Each image must be within 2MB");
         return;
       }
 
       if (!product?._id) {
-        alert("Product id missing");
+        toast.error("Product id missing");
         return;
       }
 
@@ -121,7 +167,7 @@ function AddReviewsModel({ open, review, onClose, onSave, product }) {
         formData.append("reviewImages", file);
       });
 
-      const res = await axiosInstance.post(
+      const promise = axiosInstance.post(
         `/review/add-review/${product._id}`,
         formData,
         {
@@ -131,11 +177,24 @@ function AddReviewsModel({ open, review, onClose, onSave, product }) {
         },
       );
 
-      const savedReview = res?.data?.data;
-      onSave(savedReview);
+      toast.promise(promise, {
+        pending: review ? "Updating review..." : "Adding review...",
+        success: review
+          ? "Review updated successfully"
+          : "Review added successfully",
+        error: "Something went wrong while saving review",
+      });
+
+      try {
+        const res = await promise;
+        const savedReview = res?.data?.data;
+        onSave(savedReview);
+      } catch (err) {
+        console.error(err);
+      }
     } catch (error) {
       console.error("Error adding review:", error);
-      alert(error?.response?.data?.message || "Failed to add review");
+      toast.error(error?.response?.data?.message || "Failed to add review");
     } finally {
       setIsSubmitting(false);
     }
@@ -258,7 +317,7 @@ function AddReviewsModel({ open, review, onClose, onSave, product }) {
           </div>
 
           {/* Footer */}
-          <div className="mt-6 flex items-center gap-4">
+          {/* <div className="mt-6 flex items-center gap-4">
             <button
               type="button"
               onClick={handleSave}
@@ -271,6 +330,53 @@ function AddReviewsModel({ open, review, onClose, onSave, product }) {
               type="button"
               onClick={onClose}
               className="min-w-[140px] rounded-lg border border-[#1C3753] px-6 py-3 text-[#1C3753] text-sm font-medium hover:bg-[#1C3753]/5"
+            >
+              Cancel
+            </button>
+          </div> */}
+          <div className="mt-6 flex items-center gap-4">
+            <button
+              type="button"
+              onClick={handleSave}
+              disabled={isSubmitting}
+              className="min-w-[140px] rounded-lg bg-[#1800AC] px-6 py-3 text-white text-sm font-medium hover:opacity-95 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              {isSubmitting ? (
+                <>
+                  <svg
+                    className="animate-spin h-4 w-4 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                  {review ? "Updating..." : "Creating..."}
+                </>
+              ) : review ? (
+                "Update"
+              ) : (
+                "Save"
+              )}
+            </button>
+
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={isSubmitting}
+              className="min-w-[140px] rounded-lg border border-[#1C3753] px-6 py-3 text-[#1C3753] text-sm font-medium hover:bg-[#1C3753]/5 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Cancel
             </button>

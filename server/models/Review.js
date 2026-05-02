@@ -33,6 +33,13 @@ const reviewSchema = new mongoose.Schema(
       required: true,
     },
 
+    repliedBySeller: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+
+    replyText: String,
+
     reviewImages: [
       {
         url: String,
