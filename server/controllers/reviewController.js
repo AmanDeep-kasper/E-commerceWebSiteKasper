@@ -102,7 +102,7 @@ export const getAllUserReviews = asyncHandler(async (req, res) => {
       productId: {
         _id: product?._id,
         productTittle: product?.productTittle,
-        image: firstImage, 
+        image: firstImage,
       },
     };
   });
@@ -114,7 +114,7 @@ export const getAllUserReviews = asyncHandler(async (req, res) => {
     pagination: {
       page,
       limit,
-      total, 
+      total,
       totalPages: Math.ceil(total / limit),
     },
   });
@@ -297,5 +297,80 @@ export const deleteReview = asyncHandler(async (req, res) => {
   res.status(200).json({
     success: true,
     message: "Review deleted successfully",
+  });
+});
+
+// admin controller
+export const replyToReview = asyncHandler(async (req, res) => {
+  const { reviewId } = req.params;
+  const { replyText } = req.body;
+  const userId = req.user?.userId;
+
+  const review = await Review.findById(reviewId);
+
+  if (!review) {
+    throw AppError.notFound("Review not found", "NOT_FOUND");
+  }
+
+  const product = await Product.findById(review.productId);
+  if (!product) {
+    throw AppError.notFound("Product not found", "NOT_FOUND");
+  }
+
+  review.replyText = replyText;
+  review.repliedBySeller = userId;
+
+  await review.save();
+
+  res.status(200).json({
+    success: true,
+    message: "Reply added successfully",
+    data: review,
+  });
+});
+
+export const deleteReply = asyncHandler(async (req, res) => {
+  const { reviewId } = req.params;
+
+  const review = await Review.findById(reviewId);
+  if (!review) {
+    throw AppError.notFound("Review not found", "NOT_FOUND");
+  }
+  const product = await Product.findById(review.productId);
+  if (!product) {
+    throw AppError.notFound("Product not found", "NOT_FOUND");
+  }
+  review.replyText = undefined;
+  review.repliedBySeller = undefined;
+
+  await review.save();
+
+  res.status(200).json({
+    success: true,
+    message: "Reply deleted successfully",
+  });
+});
+
+export const updateReply = asyncHandler(async (req, res) => {
+  const { reviewId } = req.params;
+  const { replyText } = req.body;
+
+  const review = await Review.findById(reviewId);
+  if (!review) {
+    throw AppError.notFound("Review not found", "NOT_FOUND");
+  }
+
+  const product = await Product.findById(review.productId);
+  if (!product) {
+    throw AppError.notFound("Product not found", "NOT_FOUND");
+  }
+
+  review.replyText = replyText;
+
+  await review.save();
+
+  res.status(200).json({
+    success: true,
+    message: "Reply updated successfully",
   });
 });
