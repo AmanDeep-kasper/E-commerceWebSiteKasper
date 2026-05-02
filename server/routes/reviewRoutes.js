@@ -8,6 +8,11 @@ import {
   getAllUserReviews,
   getReview,
   updateReview,
+  // newone
+   addReplyToReview,
+  updateReply,
+  deleteReply,
+  getReviewReplies,
 } from "../controllers/reviewController.js";
 import { validateRequest } from "../validation/validator.js";
 import {
@@ -72,6 +77,31 @@ router.patch(
   updateReviewValidation,
   validateRequest,
   updateReview,
+);
+router.post(
+  "/add-reply/:reviewId",
+  authenticate,
+  authorize("admin", "seller"),
+  addReplyToReview
+);
+
+router.patch(
+  "/update-reply/:reviewId/:replyId",
+  authenticate,
+  authorize("admin", "seller"),
+  updateReply
+);
+
+router.delete(
+  "/delete-reply/:reviewId/:replyId",
+  authenticate,
+  authorize("admin", "seller"),
+  deleteReply
+);
+
+router.get(
+  "/get-replies/:reviewId",
+  getReviewReplies
 );
 
 export default router;
