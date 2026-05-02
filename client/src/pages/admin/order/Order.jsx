@@ -108,7 +108,7 @@ function Order() {
 
   return (
     <div className="p-[24px] bg-[#F6F8F9] min-h-screen">
-      <h2 className="text-[20px] font-semibold text-gray-800">Orders</h2>
+      <h2 className="text-[20px] font-semibold text-gray-800">Manage Orders</h2>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 py-6">
         {kpicardData.map((item, index) => (
