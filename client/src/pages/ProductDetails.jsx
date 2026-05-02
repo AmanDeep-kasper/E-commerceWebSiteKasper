@@ -59,6 +59,8 @@ function ProductDetails() {
   const [openAddReviewModal, setOpenAddReviewModal] = useState(false);
   const [selectedReview, setSelectedReview] = useState(null);
   const [localQty, setLocalQty] = useState(0);
+  const [Loding, setLoading] = useState(false);
+  const [FetchedReviews, setFetchedReviews] = useState(null);
 
   const syncCartFromBackend = async () => {
     try {
@@ -203,6 +205,33 @@ function ProductDetails() {
       String(i.productId || i.uuid) === String(product?._id) &&
       String(i.variantId) === String(variantId),
   );
+
+  const handleSeeReviews = async () => {
+    try {
+      setLoading(true);
+
+      const res = await axiosInstance.get(
+        `/review/all-product-reviews/${product?._id}`,
+      );
+      const allProductReviews = res?.data?.data || [];
+
+      // console.log("Fetched reviews:", allProductReviews);
+
+      setFetchedReviews(allProductReviews);
+      // setFetchedAll(true);
+    } catch (error) {
+      console.error("Error fetching reviews:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
+    if (product?._id) {
+      handleSeeReviews();
+    }
+  }, [product?._id]);
+
+  // console.log(FetchedReviews);
 
   const cartItemId = currentCartItem?._id;
 
@@ -931,7 +960,7 @@ function ProductDetails() {
           </h3>
 
           {/* 👉 If NO reviews */}
-          {(!product?.reviews || product.reviews.length === 0) && (
+          {(!FetchedReviews || FetchedReviews.length === 0) && (
             <div className="flex flex-col items-center justify-center py-10 text-center">
               <p className="text-gray-500 mb-4">
                 No reviews yet. Be the first to review this product!
@@ -947,17 +976,20 @@ function ProductDetails() {
           )}
 
           {/* 👉 If reviews exist */}
-          {product?.reviews?.length > 0 && (
+          {FetchedReviews?.length > 0 && (
             <div className="mt-4 grid grid-cols-1 lg:grid-cols-[580px_minmax(0,1fr)] gap-6 items-start">
               <div className="w-full">
                 <Reviews
                   onAddReview={handleOpenAddReview}
-                  reviews={product?.reviews}
+                  reviews={FetchedReviews || product?.reviews}
                 />
               </div>
 
               <div className="w-full">
-                <CustomerReview reviews={product?.reviews} id={product?._id} />
+                <CustomerReview
+                  reviews={FetchedReviews || product?.reviews}
+                  id={product?._id}
+                />
               </div>
             </div>
           )}
