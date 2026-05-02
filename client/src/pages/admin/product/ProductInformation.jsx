@@ -8,6 +8,7 @@ import Reviews from "../../../components/Reviews";
 import axiosInstance from "../../../api/axiosInstance";
 import { GoReply } from "react-icons/go";
 import { Send } from "lucide-react";
+import { Edit2, Trash2 } from "lucide-react";
 
 function ProductInformation() {
   const { uuid } = useParams();
@@ -24,6 +25,12 @@ function ProductInformation() {
   const [replyingTo, setReplyingTo] = useState(null);
   const [replyText, setReplyText] = useState("");
   const [submittingReply, setSubmittingReply] = useState(false);
+    // Edit reply states
+  const [editingReply, setEditingReply] = useState(null);
+  const [editReplyText, setEditReplyText] = useState("");
+  const [submittingEdit, setSubmittingEdit] = useState(false);
+   // Delete reply state
+  const [deletingReply, setDeletingReply] = useState(null);
 
   // Fetch product from API
   useEffect(() => {
@@ -58,7 +65,8 @@ function ProductInformation() {
     }
   }, [uuid]);
 
- // Fetch reviews separately when product is loaded
+ 
+  // Fetch reviews separately when product is loaded
   useEffect(() => {
     const fetchReviews = async () => {
       if (!product?._id) {
@@ -99,30 +107,26 @@ function ProductInformation() {
 
     try {
       setSubmittingReply(true);
-      const response = await axiosInstance.post(
-        `/review/add-reply/${reviewId}`,
-        { replyText: replyText.trim() }
-      );
-
+      const response = await axiosInstance.patch(
+  `/review/reply-review/${reviewId}`,
+  { replyText: replyText.trim() }
+);
       if (response.data?.success) {
-        // Update the review in the local state with the new reply
         setReviews(prevReviews => 
           prevReviews.map(review => 
             review._id === reviewId 
               ? { 
                   ...review, 
-                  replies: [...(review.replies || []), response.data.data],
+                  // replies: [...(review.replies || []), response.data.data],
+                  repliedBy: response.data.data,
                   adminReplied: true 
                 }
               : review
           )
         );
         
-        // Reset reply form
         setReplyingTo(null);
         setReplyText("");
-        
-        // Show success message
         alert("Reply added successfully!");
       }
     } catch (err) {
@@ -130,6 +134,88 @@ function ProductInformation() {
       alert(err.response?.data?.message || "Failed to submit reply");
     } finally {
       setSubmittingReply(false);
+    }
+  };
+
+  // Handle edit reply
+  const handleEditReply = async (reviewId, replyId) => {
+    if (!editReplyText.trim()) {
+      alert("Please enter reply text");
+      return;
+    }
+
+    try {
+      setSubmittingEdit(true);
+     const response = await axiosInstance.patch(
+  `/review/update-reply/${reviewId}`,
+  { replyText: editReplyText.trim() }
+);
+
+      if (response.data?.success) {
+        setReviews(prevReviews =>
+          prevReviews.map(review => {
+            if (review._id === reviewId) {
+              const updatedReplies = 
+           setReviews(prev =>
+  prev.map(r =>
+    r._id === reviewId
+      ? {
+          ...r,
+          repliedBy: {
+            ...r.repliedBy,
+            replyText: editReplyText.trim()
+          }
+        }
+      : r
+  )
+);
+              return { ...review, replies: updatedReplies };
+            }
+            return review;
+          })
+        );
+        
+        setEditingReply(null);
+        setEditReplyText("");
+        alert("Reply updated successfully!");
+      }
+    } catch (err) {
+      console.error("Error updating reply:", err);
+      alert(err.response?.data?.message || "Failed to update reply");
+    } finally {
+      setSubmittingEdit(false);
+    }
+  };
+
+  // Handle delete reply
+  const handleDeleteReply = async (reviewId, replyId) => {
+    if (!window.confirm("Are you sure you want to delete this reply?")) {
+      return;
+    }
+
+    try {
+      setDeletingReply(replyId);
+      await axiosInstance.delete(`/review/delete-reply/${reviewId}`);
+
+      setReviews(prevReviews =>
+  prevReviews.map(review => {
+    if (review._id === reviewId) {
+      return {
+        ...review,
+        repliedBy: null,
+        adminReplied: false
+      };
+    }
+    return review;
+  })
+);
+      
+      alert("Reply deleted successfully!");
+    } catch (err) {
+      console.error("Error deleting reply:", err);
+      alert(err.response?.data?.message || "Failed to delete reply");
+    } finally {
+      setDeletingReply(null);
     }
   };
 
@@ -722,7 +808,7 @@ const avgRating = useMemo(() => {
       </div> */}
        {/* Customer Reviews */}
      {/* Customer Reviews with Reply Feature */}
-      <div className="mt-6 bg-white rounded-xl p-4">
+      {/* <div className="mt-6 bg-white rounded-xl p-4">
         <h2 className="text-lg font-medium mb-2">Rating & Reviews</h2>
 
         {reviewsLoading ? (
@@ -775,8 +861,7 @@ const avgRating = useMemo(() => {
                   </div>
                 )}
 
-                {/* Display existing replies */}
-               {/* Admin Replies (Redesigned) */}
+               
 {review.replies && review.replies.length > 0 && (
   <div className="ml-10 mt-3 space-y-2">
     {review.replies.map((reply, replyIndex) => (
@@ -801,7 +886,7 @@ const avgRating = useMemo(() => {
   </div>
 )}
 
-                {/* Reply button and form */}
+               
              <div className="flex items-center justify-between mt-3">
   <button
     onClick={() =>
@@ -814,7 +899,7 @@ const avgRating = useMemo(() => {
   </button>
 </div>
 
-                {/* Reply input form */}
+               
               {replyingTo === review._id && (
   <div className="mt-3 border rounded-xl bg-[#F9FAFB] p-3">
     <label className="text-sm text-gray-600 mb-1 block">Reply</label>
@@ -858,7 +943,203 @@ const avgRating = useMemo(() => {
             </h3>
           </div>
         )}
+      </div> */}
+       <div className="mt-6 bg-white rounded-xl p-4">
+        <h2 className="text-lg font-medium mb-2">Rating & Reviews</h2>
+
+        {reviewsLoading ? (
+          <div className="flex justify-center items-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#1C3753]"></div>
+          </div>
+        ) : reviews && reviews.length > 0 ? (
+          <div className="max-h-[450px] overflow-y-auto pr-2">
+            {reviews.map((review, index) => (
+              <div
+                key={review._id || index}
+                className="py-4 flex gap-3 flex-col border border-[#CBCACA] px-4 rounded-xl mb-4"
+              >
+                <div className="flex justify-between">
+                  <div className="flex gap-4">
+                    <div className="w-11 h-11 rounded-full bg-gray-400 flex items-center justify-center text-white font-bold">
+                      <h1 className="text-white">
+                        {(review.reviewerName || review.user || "U").charAt(0).toUpperCase()}
+                      </h1>
+                    </div>
+                    <div className="flex flex-col">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h1 className="text-[14px] font-medium">
+                          {review.reviewerName || review.user || "Anonymous"}
+                        </h1>
+                        <Ratings reviews={reviews} avgRating={review.rating} />
+                        <span className="text-xs text-gray-400">
+                          {new Intl.DateTimeFormat('en-US', { dateStyle: 'medium' }).format(new Date(review.createdAt))}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <p className="text-sm text-gray-700">{review.reviewText || review.comment || "No comment"}</p>
+
+                {review.reviewImages && review.reviewImages.length > 0 && (
+                  <div className="flex gap-3">
+                    {review.reviewImages.map((img, imgIndex) => (
+                      <img
+                        className="w-[60px] h-[60px] rounded-md object-cover"
+                        src={img.url || img}
+                        alt="product review"
+                        key={imgIndex}
+                        onError={(e) => {
+                          e.target.src = "/placeholder.png";
+                        }}
+                      />
+                    ))}
+                  </div>
+                )}
+
+                {/* Admin Replies with Edit/Delete */}
+                {/* Admin Replies */}
+{/* Admin Reply (Single) */}
+{review.repliedBy && (
+  <div className="ml-10 mt-3">
+    <div className="bg-[#EEF2FF] border border-[#D9E1FF] p-3 rounded-lg">
+      
+      {editingReply === review._id ? (
+        // ✏️ EDIT MODE
+        <div>
+          <textarea
+            value={editReplyText}
+            onChange={(e) => setEditReplyText(e.target.value)}
+            className="w-full p-2 border rounded-md text-sm"
+            rows={3}
+          />
+
+          <div className="flex justify-end gap-2 mt-2">
+            <button
+              onClick={() => {
+                setEditingReply(null);
+                setEditReplyText("");
+              }}
+              className="px-3 py-1 text-sm border rounded-md"
+            >
+              Cancel
+            </button>
+
+            <button
+              onClick={() =>
+                handleEditReply(review._id, review.repliedBy._id)
+              }
+              className="px-3 py-1 text-sm bg-[#1C3753] text-white rounded-md"
+            >
+              Save
+            </button>
+          </div>
+        </div>
+      ) : (
+        // 👁 VIEW MODE
+        <>
+          <div className="flex justify-between items-center mb-1">
+            <span className="text-sm font-medium text-[#1C3753]">
+              Admin Reply
+            </span>
+
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-gray-400">
+                {new Date(review.updatedAt).toLocaleDateString()}
+              </span>
+
+              {/* EDIT */}
+              <button
+                onClick={() => {
+                  setEditingReply(review._id);
+                  setEditReplyText(review.repliedBy.replyText);
+                }}
+              >
+                ✏️
+              </button>
+
+              {/* DELETE */}
+              <button
+                onClick={() =>
+                  handleDeleteReply(review._id, review.repliedBy._id)
+                }
+              >
+                🗑
+              </button>
+            </div>
+          </div>
+
+          <p className="text-sm text-gray-700">
+            {review.repliedBy.replyText}
+          </p>
+        </>
+      )}
+    </div>
+  </div>
+)}
+
+                {/* Reply button */}
+                <div className="flex items-center justify-between mt-3">
+                  <button
+                    onClick={() =>
+                      setReplyingTo(replyingTo === review._id ? null : review._id)
+                    }
+                    className="text-sm text-gray-600 hover:text-[#1C3753] flex items-center gap-1"
+                  >
+                    <GoReply size={16} />
+                    {replyingTo === review._id ? "Cancel" : "Reply"}
+                  </button>
+                </div>
+
+                {/* Reply input form */}
+                {replyingTo === review._id && (
+                  <div className="mt-3 border rounded-xl bg-[#F9FAFB] p-3">
+                    <label className="text-sm text-gray-600 mb-1 block">Reply</label>
+
+                    <textarea
+                      value={replyText}
+                      onChange={(e) => setReplyText(e.target.value)}
+                      placeholder="Reply to customer's review."
+                      className="w-full bg-transparent outline-none text-sm resize-none"
+                      rows={3}
+                    />
+
+                    <div className="flex justify-end gap-2 mt-3">
+                      <button
+                        onClick={() => {
+                          setReplyingTo(null);
+                          setReplyText("");
+                        }}
+                        className="px-4 py-1.5 text-sm border border-[#1C3753] text-[#1C3753] rounded-md hover:bg-gray-100"
+                      >
+                        Cancel
+                      </button>
+
+                      <button
+                        onClick={() => handleReplySubmit(review._id)}
+                        disabled={!replyText || submittingReply}
+                        className="px-4 py-1.5 text-sm bg-[#1C3753] text-white rounded-md hover:bg-[#162c44] disabled:opacity-50"
+                      >
+                        {submittingReply ? "Replying..." : "Reply"}
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center text-center">
+            <div className="w-20 h-20 bg-[#FFF4EB] rounded-full flex items-center justify-center mb-4">
+              <img src={ReviewIcon} alt="" />
+            </div>
+            <h3 className="text-lg font-medium text-gray-700 mb-1">
+              No Reviews Yet
+            </h3>
+          </div>
+        )}
       </div>
+
     </div>
 
   );
