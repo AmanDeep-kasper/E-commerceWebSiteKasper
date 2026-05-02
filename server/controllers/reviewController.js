@@ -300,77 +300,138 @@ export const deleteReview = asyncHandler(async (req, res) => {
   });
 });
 
-// admin controller
-export const replyToReview = asyncHandler(async (req, res) => {
+
+// Add these functions to your reviewController.js
+
+// Add a reply to a review (Admin/Seller only)
+export const addReplyToReview = asyncHandler(async (req, res) => {
   const { reviewId } = req.params;
   const { replyText } = req.body;
   const userId = req.user?.userId;
+  const userRole = req.user?.role;
+  const userName = req.user?.name;
+
+  // Check if user is admin or seller (authorized to reply)
+  if (userRole !== "admin" && userRole !== "seller") {
+    throw new AppError("Only admins and sellers can reply to reviews", 403, "FORBIDDEN");
+  }
+
+  if (!replyText || replyText.trim() === "") {
+    throw new AppError("Reply text is required", 400, "MISSING_REPLY_TEXT");
+  }
 
   const review = await Review.findById(reviewId);
 
   if (!review) {
-    throw AppError.notFound("Review not found", "NOT_FOUND");
+    throw new AppError("Review not found", 404, "NOT_FOUND");
   }
 
-  const product = await Product.findById(review.productId);
-  if (!product) {
-    throw AppError.notFound("Product not found", "NOT_FOUND");
-  }
+  // Add reply
+  review.replies.push({
+    userId,
+    reviewerName: userName || (userRole === "admin" ? "Admin" : "Seller"),
+    replyText: replyText.trim(),
+    createdAt: new Date(),
+    updatedAt: new Date()
+  });
 
-  review.replyText = replyText;
-  review.repliedBySeller = userId;
-
+  review.adminReplied = true;
   await review.save();
 
   res.status(200).json({
     success: true,
     message: "Reply added successfully",
-    data: review,
+    data: review.replies[review.replies.length - 1]
   });
 });
 
-export const deleteReply = asyncHandler(async (req, res) => {
-  const { reviewId } = req.params;
-
-  const review = await Review.findById(reviewId);
-  if (!review) {
-    throw AppError.notFound("Review not found", "NOT_FOUND");
-  }
-  const product = await Product.findById(review.productId);
-  if (!product) {
-    throw AppError.notFound("Product not found", "NOT_FOUND");
-  }
-  review.replyText = undefined;
-  review.repliedBySeller = undefined;
-
-  await review.save();
-
-  res.status(200).json({
-    success: true,
-    message: "Reply deleted successfully",
-  });
-});
-
+// Update a reply
 export const updateReply = asyncHandler(async (req, res) => {
-  const { reviewId } = req.params;
+  const { reviewId, replyId } = req.params;
   const { replyText } = req.body;
+  const userId = req.user?.userId;
+  const userRole = req.user?.role;
 
   const review = await Review.findById(reviewId);
+
   if (!review) {
-    throw AppError.notFound("Review not found", "NOT_FOUND");
+    throw new AppError("Review not found", 404, "NOT_FOUND");
   }
 
-  const product = await Product.findById(review.productId);
-  if (!product) {
-    throw AppError.notFound("Product not found", "NOT_FOUND");
+  const reply = review.replies.id(replyId);
+
+  if (!reply) {
+    throw new AppError("Reply not found", 404, "NOT_FOUND");
   }
 
-  review.replyText = replyText;
+  // Check ownership or admin role
+  if (reply.userId.toString() !== userId && userRole !== "admin") {
+    throw new AppError("You can only edit your own replies", 403, "FORBIDDEN");
+  }
 
+  reply.replyText = replyText.trim();
+  reply.updatedAt = new Date();
+  
   await review.save();
 
   res.status(200).json({
     success: true,
     message: "Reply updated successfully",
+    data: reply
+  });
+});
+
+// Delete a reply
+export const deleteReply = asyncHandler(async (req, res) => {
+  const { reviewId, replyId } = req.params;
+  const userId = req.user?.userId;
+  const userRole = req.user?.role;
+
+  const review = await Review.findById(reviewId);
+
+  if (!review) {
+    throw new AppError("Review not found", 404, "NOT_FOUND");
+  }
+
+  const reply = review.replies.id(replyId);
+
+  if (!reply) {
+    throw new AppError("Reply not found", 404, "NOT_FOUND");
+  }
+
+  // Check ownership or admin role
+  if (reply.userId.toString() !== userId && userRole !== "admin") {
+    throw new AppError("You can only delete your own replies", 403, "FORBIDDEN");
+  }
+
+  review.replies.pull(replyId);
+  
+  // If no replies left, set adminReplied to false
+  if (review.replies.length === 0) {
+    review.adminReplied = false;
+  }
+  
+  await review.save();
+
+  res.status(200).json({
+    success: true,
+    message: "Reply deleted successfully"
+  });
+});
+
+// Get all replies for a review
+export const getReviewReplies = asyncHandler(async (req, res) => {
+  const { reviewId } = req.params;
+
+  const review = await Review.findById(reviewId).select('replies');
+
+  if (!review) {
+    throw new AppError("Review not found", 404, "NOT_FOUND");
+  }
+
+  res.status(200).json({
+    success: true,
+    message: "Replies fetched successfully",
+    data: review.replies
   });
 });
