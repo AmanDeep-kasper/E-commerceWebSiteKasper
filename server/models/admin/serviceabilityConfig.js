@@ -10,9 +10,9 @@ const serviceabilitySchema = new mongoose.Schema(
     },
 
     value: {
-      type: String,
+      type: Number,
       required: true,
-      index: true,
+      unique: true,
     },
 
     isServiceable: {
@@ -37,15 +37,7 @@ const serviceabilitySchema = new mongoose.Schema(
   { timestamps: true, versionKey: false },
 );
 
-serviceabilitySchema.index(
-  { value: 1, type: 1, warehouse: 1, isActive: 1 },
-  { name: "serviceability_lookup_idx" },
-);
-
-serviceabilitySchema.index(
-  { value: 1, type: 1, warehouse: 1 },
-  { unique: true, partialFilterExpression: { isActive: true } },
-);
+serviceabilitySchema.index({ value: 1, type: 1, warehouse: 1, isActive: 1 });
 
 const ServiceabilityConfig = mongoose.model(
   "ServiceabilityConfig",

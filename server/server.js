@@ -36,7 +36,8 @@ import shippingRouter from "./routes/admin/shippingRoutes.js";
 import bannerRouter from "./routes/admin/bannerRoutes.js";
 import transportRouter from "./routes/admin/transportRoutes.js";
 import rewardRouter from "./routes/admin/rewardRoutes.js";
-import PremiumRoutes from  "./routes/admin/premiumRoute.js";
+import PremiumRoutes from "./routes/admin/premiumRoute.js";
+import ServiceabilityRoutes from "./routes/admin/serviceabilityRoutes.js";
 
 // ================== MIDDLEWARES ==================
 import { errorHandler, notFoundHandler } from "./middlewares/errorHandler.js";
@@ -130,6 +131,7 @@ app.use("/api/v1/dashboard/shipping", shippingRouter);
 app.use("/api/v1/dashboard/banner", bannerRouter);
 app.use("/api/v1/dashboard/transport", transportRouter);
 app.use("/api/v1/dashboard/reward", rewardRouter);
+app.use("/api/v1/dashboard/serviceability", ServiceabilityRoutes);
 
 // ================== ERROR HANDLING ==================
 app.use(notFoundHandler);
