@@ -8,12 +8,15 @@ import Payment from "../models/Payment.js";
 import Reward from "../models/admin/RewardConfig.js";
 import RewardLedger from "../models/RewardLedger.js";
 import User from "../models/User.js";
+import Serviceability from "../models/admin/serviceabilityConfig.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import AppError from "../utils/AppError.js";
 import env from "../config/env.js";
 import razorpay, {
+  createOrder,
   createRazorpayOrder,
   verifyPaymentSignature,
+  verifyWebhookSignature,
 } from "../service/razorpayService.js";
 import mongoose from "mongoose";
 import { createInvoiceFromOrder } from "../service/invoiceService.js";
@@ -139,6 +142,26 @@ const calculateOrderSummary = ({
   };
 };
 
+const checkPincodeServiceability = async (pincode) => {
+  const pin = String(pincode);
+
+  const prefixes = [pin.slice(0, 4), pin.slice(0, 3), pin.slice(0, 2)];
+
+  const configs = await Serviceability.find({
+    isActive: true,
+    $or: [
+      { type: "exact", value: pin },
+      { type: "prefix", value: { $in: prefixes } },
+    ],
+  })
+    .sort({ type: -1, value: -1 }) // exact > prefix
+    .lean();
+
+  if (!configs.length) return false;
+
+  return configs[0].isServiceable;
+};
+
 // user controllers
 export const checkoutSummary = asyncHandler(async (req, res) => {
   const userId = req.user?.userId;
@@ -223,6 +246,21 @@ export const checkout = asyncHandler(async (req, res) => {
     );
   }
 
+  if (!shippingAddress?.pinCode || !/^\d{6}$/.test(shippingAddress.pinCode)) {
+    throw AppError.badRequest("Valid pincode is required", "INVALID_PINCODE");
+  }
+
+  const isServiceable = await checkPincodeServiceability(
+    shippingAddress.pinCode,
+  );
+
+  if (!isServiceable) {
+    throw AppError.badRequest(
+      "Delivery is not available at this pincode",
+      "NOT_SERVICEABLE",
+    );
+  }
+
   const [cart, config, warehouse, rewardConfig, user] = await Promise.all([
     Cart.findOne({ userId, status: "active" }),
     Shipping.findOne({ isActive: true }).lean(),
@@ -287,7 +325,8 @@ export const checkout = asyncHandler(async (req, res) => {
     earnedPoints,
   } = summary;
 
-  const razorpayOrder = await createRazorpayOrder(total, { userId });
+  // const razorpayOrder = await createRazorpayOrder(total, { userId });
+  const razorpayOrder = await createOrder(total, { userId });
 
   const order = await Order.create({
     user: userId,
@@ -625,6 +664,34 @@ export const verifyPayment = asyncHandler(async (req, res) => {
     throw err;
   }
 });
+
+// export const webhookPayment = asyncHandler(async (req, res) => {
+//   const signature = req.headers["x-razorpay-signature"];
+//   const rawBody = JSON.stringify(req.body);
+
+//   const isValid = await verifyWebhookSignature(rawBody, signature);
+
+//   if (!isValid) {
+//     return res.status(400).json({ success: false });
+//   }
+
+//   const event = req.body.event;
+
+//   if (event === "payment.captured") {
+//     const paymentId = req.body.payload.payment.entity.id;
+
+//     const payment = await Payment.findOne({ razorpayPaymentId: paymentId });
+
+//     if (!payment || payment.status === "captured") {
+//       return res.json({ success: true });
+//     }
+
+//     payment.status = "captured";
+//     await payment.save();
+//   }
+
+//   res.json({ success: true });
+// });
 
 export const paymentFailed = asyncHandler(async (req, res) => {
   const { razorpayPaymentId, razorpayOrderId, error } = req.body;

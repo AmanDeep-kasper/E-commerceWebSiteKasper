@@ -36,8 +36,9 @@ import shippingRouter from "./routes/admin/shippingRoutes.js";
 import bannerRouter from "./routes/admin/bannerRoutes.js";
 import transportRouter from "./routes/admin/transportRoutes.js";
 import rewardRouter from "./routes/admin/rewardRoutes.js";
-import PremiumRoutes from "./routes/admin/premiumRoute.js";
-import ServiceabilityRoutes from "./routes/admin/serviceabilityRoutes.js";
+import PremiumRouter from "./routes/admin/premiumRoute.js";
+import ServiceabilityRouter from "./routes/admin/serviceabilityRoutes.js";
+import paymentConfigRouter from "./routes/admin/paymentConfigRoutes.js"
 
 // ================== MIDDLEWARES ==================
 import { errorHandler, notFoundHandler } from "./middlewares/errorHandler.js";
@@ -121,7 +122,7 @@ app.use("/api/v1/cart", cartRouter);
 app.use("/api/v1/order", orderRoutes);
 app.use("/api/v1/dashboard", dashboardRouter);
 app.use("/api/v1/inventory", inventoryRouter);
-app.use("/api/v1/settings", PremiumRoutes);
+app.use("/api/v1/settings", PremiumRouter);
 
 // ============= Dashboard Setting Routes =============
 app.use("/api/v1/dashboard/business", businessRouter);
@@ -131,7 +132,8 @@ app.use("/api/v1/dashboard/shipping", shippingRouter);
 app.use("/api/v1/dashboard/banner", bannerRouter);
 app.use("/api/v1/dashboard/transport", transportRouter);
 app.use("/api/v1/dashboard/reward", rewardRouter);
-app.use("/api/v1/dashboard/serviceability", ServiceabilityRoutes);
+app.use("/api/v1/dashboard/serviceability", ServiceabilityRouter);
+app.use("/api/v1/dashboard/paymentConfig", paymentConfigRouter)
 
 // ================== ERROR HANDLING ==================
 app.use(notFoundHandler);
