@@ -2,10 +2,10 @@ import { Router } from "express";
 import { authenticate, authorize } from "../../middlewares/authMiddleware.js";
 import { upload } from "../../middlewares/multer.js";
 import {
-  deleteBanner,
-  getActiveBanners,
+  deleteBannerItem,
   getAllBanners,
-  updateBanner,
+  toggleBannerStatus,
+  updateBannerItem,
   uploadBanner,
 } from "../../controllers/admin/bannerController.js";
 
@@ -19,24 +19,28 @@ router.post(
   uploadBanner,
 );
 
-router.put(
+router.get("/get-all-banners", authenticate, getAllBanners);
+
+router.patch(
   "/update-banner/:bannerId",
   authenticate,
   authorize("admin"),
   upload.single("banner"),
-  updateBanner,
+  updateBannerItem,
 );
-
-router.get("/get-all-banners", authenticate, authorize("admin"), getAllBanners);
 
 router.delete(
   "/delete-banner/:bannerId",
   authenticate,
   authorize("admin"),
-  deleteBanner,
+  deleteBannerItem,
 );
 
-// user routes
-router.get("/get-banners", getActiveBanners);
+router.patch(
+  "/toggle-banner/:bannerId",
+  authenticate,
+  authorize("admin"),
+  toggleBannerStatus,
+);
 
 export default router;
