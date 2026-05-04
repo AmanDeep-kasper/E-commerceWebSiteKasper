@@ -20,11 +20,47 @@ import axiosInstance from "../api/axiosInstance";
 import { img } from "framer-motion/m";
 
 function Hero() {
-  const [isHovered, setIsHovered] = useState(false);
+  // const [isHovered, setIsHovered] = useState(false);
   const controls = useAnimation();
   const [imageIndex, setImageIndex] = useState(0);
+  const defaultImages = [img1, img2, img3, img4];
+  const [images, setImages] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const images = [img1, img2, img3, img4];
+  useEffect(() => {
+    const fetchBanners = async () => {
+      try {
+        const res = await axiosInstance.get("/banner/get-all-banners", {
+          params: { sectionType: "hero" },
+        });
+
+        console.log(res)
+
+        const banners = res.data?.data || [];
+
+        const heroImages = banners.flatMap((banner) =>
+          (banner.items || [])
+            .filter((item) => item.isActive !== false)
+            .map((item) => item.image)
+            .filter(Boolean),
+        );
+
+        // ✅ If backend has images → use them
+        if (heroImages.length > 0) {
+          setImages(heroImages);
+        } else {
+          setImages(defaultImages);
+        }
+      } catch (err) {
+        console.log("Banner fetch error:", err);
+        setImages(defaultImages);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBanners();
+  }, []);
 
   // useEffect(() => {
   //   const fetchProducts = async () => {
