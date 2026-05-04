@@ -2,6 +2,7 @@ import PaymentConfig from "../../models/admin/paymentConfig.js";
 import AppError from "../../utils/AppError.js";
 import asyncHandler from "../../utils/asyncHandler.js";
 import { encrypt } from "../../utils/paymentConfig.js";
+import { loadPaymentGateway } from "../../service/paymentManager.js";
 
 export const addPaymentGateway = asyncHandler(async (req, res) => {
   const {
@@ -53,6 +54,9 @@ export const addPaymentGateway = asyncHandler(async (req, res) => {
     webhookSecret: encryptedWebhookSecret,
     extraConfig,
   });
+
+  // after saving config
+  await loadPaymentGateway(true);
 
   res.status(201).json({
     success: true,

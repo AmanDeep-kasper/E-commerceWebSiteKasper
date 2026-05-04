@@ -13,8 +13,10 @@ import asyncHandler from "../utils/asyncHandler.js";
 import AppError from "../utils/AppError.js";
 import env from "../config/env.js";
 import razorpay, {
+  createOrder,
   createRazorpayOrder,
   verifyPaymentSignature,
+  verifyWebhookSignature,
 } from "../service/razorpayService.js";
 import mongoose from "mongoose";
 import { createInvoiceFromOrder } from "../service/invoiceService.js";
@@ -159,15 +161,6 @@ const checkPincodeServiceability = async (pincode) => {
 
   return configs[0].isServiceable;
 };
-
-// const verifySignature = (body, signature) => {
-//   const expected = crypto
-//     .createHmac("sha256", env.RAZORPAY_WEBHOOK_SECRET)
-//     .update(body)
-//     .digest("hex");
-
-//   return expected === signature;
-// };
 
 // user controllers
 export const checkoutSummary = asyncHandler(async (req, res) => {
@@ -332,7 +325,8 @@ export const checkout = asyncHandler(async (req, res) => {
     earnedPoints,
   } = summary;
 
-  const razorpayOrder = await createRazorpayOrder(total, { userId });
+  // const razorpayOrder = await createRazorpayOrder(total, { userId });
+  const razorpayOrder = await createOrder(total, { userId });
 
   const order = await Order.create({
     user: userId,
@@ -673,62 +667,30 @@ export const verifyPayment = asyncHandler(async (req, res) => {
 
 // export const webhookPayment = asyncHandler(async (req, res) => {
 //   const signature = req.headers["x-razorpay-signature"];
+//   const rawBody = JSON.stringify(req.body);
 
-//   // 🔴 VERY IMPORTANT → raw body
-//   const rawBody = req.rawBody;
+//   const isValid = await verifyWebhookSignature(rawBody, signature);
 
-//   if (!verifySignature(rawBody, signature)) {
-//     throw AppError.badRequest("Invalid webhook signature", "INVALID_SIGNATURE");
+//   if (!isValid) {
+//     return res.status(400).json({ success: false });
 //   }
 
-//   const event = req.body;
+//   const event = req.body.event;
 
-//   // we only care about captured payments
-//   if (event.event !== "payment.captured") {
-//     return res.status(200).json({ success: true });
+//   if (event === "payment.captured") {
+//     const paymentId = req.body.payload.payment.entity.id;
+
+//     const payment = await Payment.findOne({ razorpayPaymentId: paymentId });
+
+//     if (!payment || payment.status === "captured") {
+//       return res.json({ success: true });
+//     }
+
+//     payment.status = "captured";
+//     await payment.save();
 //   }
 
-//   const paymentEntity = event.payload.payment.entity;
-
-//   const razorpayOrderId = paymentEntity.order_id;
-//   const razorpayPaymentId = paymentEntity.id;
-
-//   const payment = await Payment.findOne({ razorpayOrderId });
-
-//   if (!payment) {
-//     return res.status(200).json({ success: true }); 
-//   }
-
-//   // ✅ IDEMPOTENCY (VERY IMPORTANT)
-//   if (payment.status === "captured") {
-//     return res.status(200).json({ success: true });
-//   }
-
-//   const order = await Order.findById(payment.order);
-
-//   if (!order) {
-//     return res.status(200).json({ success: true });
-//   }
-
-
-//   // 🔥 UPDATE ONLY (NO HEAVY LOGIC)
-//   payment.status = "captured";
-//   payment.razorpayPaymentId = razorpayPaymentId;
-//   payment.capturedAt = new Date();
-//   payment.method = paymentEntity.method;
-
-//   order.paymentStatus = "paid";
-
-//   if (order.status === "placed") {
-    
-//   }
-
-//   await Promise.all([payment.save(), order.save()]);
-
-//   return res.status(200).json({
-//     success: true,
-//     message: "Webhook processed",
-//   });
+//   res.json({ success: true });
 // });
 
 export const paymentFailed = asyncHandler(async (req, res) => {
