@@ -1,38 +1,7 @@
 import PaymentConfig from "../../models/admin/paymentConfig.js";
 import AppError from "../../utils/AppError.js";
 import asyncHandler from "../../utils/asyncHandler.js";
-import env from "../../config/env.js";
-import crypto from "crypto";
-
-const algorithm = "aes-256-cbc";
-const key = process.env.CONFIG_SECRET_KEY;
-
-const encrypt = (text) => {
-  const iv = crypto.randomBytes(16);
-  const cipher = crypto.createCipheriv(algorithm, Buffer.from(key), iv);
-
-  let encrypted = cipher.update(text);
-  encrypted = Buffer.concat([encrypted, cipher.final()]);
-
-  return iv.toString("hex") + ":" + encrypted.toString("hex");
-};
-
-export const decrypt = (text) => {
-  const parts = text.split(":");
-  const iv = Buffer.from(parts.shift(), "hex");
-  const encryptedText = Buffer.from(parts.join(":"), "hex");
-
-  const decipher = crypto.createDecipheriv(
-    algorithm,
-    Buffer.from(key),
-    iv
-  );
-
-  let decrypted = decipher.update(encryptedText);
-  decrypted = Buffer.concat([decrypted, decipher.final()]);
-
-  return decrypted.toString();
-};
+import { encrypt } from "../../utils/paymentConfig.js";
 
 export const addPaymentGateway = asyncHandler(async (req, res) => {
   const {
@@ -60,14 +29,13 @@ export const addPaymentGateway = asyncHandler(async (req, res) => {
     );
   }
 
-  // ENCRYPT SENSITIVE DATA 
+  // ENCRYPT SENSITIVE DATA
   const encryptedCredentials = {
     keyId: encrypt(keyId),
     keySecret: encrypt(keySecret),
   };
 
   const encryptedWebhookSecret = webhookSecret ? encrypt(webhookSecret) : null;
-
 
   // HANDLE ACTIVE SWITCH
   if (isActive) {
@@ -95,5 +63,142 @@ export const addPaymentGateway = asyncHandler(async (req, res) => {
       isActive: config.isActive,
       createdAt: config.createdAt,
     },
+  });
+});
+
+export const getAllPaymentGateways = asyncHandler(async (req, res) => {
+  const configs = await PaymentConfig.find({}).sort({ createdAt: -1 }).lean();
+
+  const masked = configs.map((item) => ({
+    _id: item._id,
+    provider: item.provider,
+    isActive: item.isActive,
+    keyId: item.credentials?.keyId
+      ? "****" + item.credentials.keyId.slice(-4)
+      : null,
+    hasWebhook: !!item.webhookSecret,
+    createdAt: item.createdAt,
+    updatedAt: item.updatedAt,
+  }));
+
+  res.status(200).json({
+    success: true,
+    data: masked,
+  });
+});
+
+export const getActivePaymentGateway = asyncHandler(async (req, res) => {
+  const config = await PaymentConfig.findOne({ isActive: true }).lean();
+
+  if (!config) {
+    throw AppError.notFound("No active payment gateway", "NOT_FOUND");
+  }
+
+  res.status(200).json({
+    success: true,
+    data: {
+      _id: config._id,
+      provider: config.provider,
+    },
+  });
+});
+
+export const updatePaymentGateway = asyncHandler(async (req, res) => {
+  const { PaymentConfigId } = req.params;
+
+  const { provider, keyId, keySecret, webhookSecret, isActive, extraConfig } =
+    req.body;
+
+  const existing = await PaymentConfig.findById(PaymentConfigId);
+
+  if (!existing) {
+    throw AppError.notFound("Payment config not found", "NOT_FOUND");
+  }
+
+  // handle active switch
+  if (isActive === true) {
+    await PaymentConfig.updateMany(
+      { _id: { $ne: PaymentConfigId }, isActive: true },
+      { $set: { isActive: false } },
+    );
+  }
+
+  // update fields safely
+  if (provider) existing.provider = provider;
+
+  if (keyId) {
+    existing.credentials.keyId = encrypt(keyId);
+  }
+
+  if (keySecret) {
+    existing.credentials.keySecret = encrypt(keySecret);
+  }
+
+  if (webhookSecret) {
+    existing.webhookSecret = encrypt(webhookSecret);
+  }
+
+  if (extraConfig) {
+    existing.extraConfig = extraConfig;
+  }
+
+  if (isActive !== undefined) {
+    existing.isActive = isActive;
+  }
+
+  await existing.save();
+
+  res.status(200).json({
+    success: true,
+    message: "Payment gateway updated successfully",
+  });
+});
+
+export const setActivePaymentGateway = asyncHandler(async (req, res) => {
+  const { PaymentConfigId } = req.params;
+
+  const config = await PaymentConfig.findById(PaymentConfigId);
+
+  if (!config) {
+    throw AppError.notFound("Payment config not found", "NOT_FOUND");
+  }
+
+  // deactivate all
+  await PaymentConfig.updateMany(
+    { isActive: true },
+    { $set: { isActive: false } },
+  );
+
+  // activate selected
+  config.isActive = true;
+  await config.save();
+
+  res.status(200).json({
+    success: true,
+    message: "Payment gateway activated",
+  });
+});
+
+export const deletePaymentGateway = asyncHandler(async (req, res) => {
+  const { PaymentConfigId } = req.params;
+
+  const config = await PaymentConfig.findById(PaymentConfigId);
+
+  if (!config) {
+    throw AppError.notFound("Payment config not found", "NOT_FOUND");
+  }
+
+  if (config.isActive) {
+    throw AppError.badRequest(
+      "Cannot delete active payment gateway",
+      "ACTIVE_DELETE_NOT_ALLOWED",
+    );
+  }
+
+  await config.deleteOne();
+
+  res.status(200).json({
+    success: true,
+    message: "Payment gateway deleted successfully",
   });
 });
