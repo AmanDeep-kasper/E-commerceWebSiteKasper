@@ -18,18 +18,18 @@ function ProductInformation() {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-   const [reviews, setReviews] = useState([]);
-    const [reviewsLoading, setReviewsLoading] = useState(false);
+  const [reviews, setReviews] = useState([]);
+  const [reviewsLoading, setReviewsLoading] = useState(false);
 
-      // Reply states
+  // Reply states
   const [replyingTo, setReplyingTo] = useState(null);
   const [replyText, setReplyText] = useState("");
   const [submittingReply, setSubmittingReply] = useState(false);
-    // Edit reply states
+  // Edit reply states
   const [editingReply, setEditingReply] = useState(null);
   const [editReplyText, setEditReplyText] = useState("");
   const [submittingEdit, setSubmittingEdit] = useState(false);
-   // Delete reply state
+  // Delete reply state
   const [deletingReply, setDeletingReply] = useState(null);
 
   // Fetch product from API
@@ -65,7 +65,6 @@ function ProductInformation() {
     }
   }, [uuid]);
 
- 
   // Fetch reviews separately when product is loaded
   useEffect(() => {
     const fetchReviews = async () => {
@@ -77,9 +76,9 @@ function ProductInformation() {
       try {
         setReviewsLoading(true);
         const response = await axiosInstance.get(
-          `/review/all-product-reviews/${product._id}`
+          `/review/all-product-reviews/${product._id}`,
         );
-        
+
         if (response.data?.success && response.data?.data) {
           setReviews(response.data.data);
         } else if (Array.isArray(response.data)) {
@@ -108,23 +107,23 @@ function ProductInformation() {
     try {
       setSubmittingReply(true);
       const response = await axiosInstance.patch(
-  `/review/reply-review/${reviewId}`,
-  { replyText: replyText.trim() }
-);
+        `/review/reply-review/${reviewId}`,
+        { replyText: replyText.trim() },
+      );
       if (response.data?.success) {
-        setReviews(prevReviews => 
-          prevReviews.map(review => 
-            review._id === reviewId 
-              ? { 
-                  ...review, 
+        setReviews((prevReviews) =>
+          prevReviews.map((review) =>
+            review._id === reviewId
+              ? {
+                  ...review,
                   // replies: [...(review.replies || []), response.data.data],
                   repliedBy: response.data.data,
-                  adminReplied: true 
+                  adminReplied: true,
                 }
-              : review
-          )
+              : review,
+          ),
         );
-        
+
         setReplyingTo(null);
         setReplyText("");
         alert("Reply added successfully!");
@@ -146,35 +145,34 @@ function ProductInformation() {
 
     try {
       setSubmittingEdit(true);
-     const response = await axiosInstance.patch(
-  `/review/update-reply/${reviewId}`,
-  { replyText: editReplyText.trim() }
-);
+      const response = await axiosInstance.patch(
+        `/review/update-reply/${reviewId}`,
+        { replyText: editReplyText.trim() },
+      );
 
       if (response.data?.success) {
-        setReviews(prevReviews =>
-          prevReviews.map(review => {
+        setReviews((prevReviews) =>
+          prevReviews.map((review) => {
             if (review._id === reviewId) {
-              const updatedReplies = 
-           setReviews(prev =>
-  prev.map(r =>
-    r._id === reviewId
-      ? {
-          ...r,
-          repliedBy: {
-            ...r.repliedBy,
-            replyText: editReplyText.trim()
-          }
-        }
-      : r
-  )
-);
+              const updatedReplies = setReviews((prev) =>
+                prev.map((r) =>
+                  r._id === reviewId
+                    ? {
+                        ...r,
+                        repliedBy: {
+                          ...r.repliedBy,
+                          replyText: editReplyText.trim(),
+                        },
+                      }
+                    : r,
+                ),
+              );
               return { ...review, replies: updatedReplies };
             }
             return review;
-          })
+          }),
         );
-        
+
         setEditingReply(null);
         setEditReplyText("");
         alert("Reply updated successfully!");
@@ -197,19 +195,19 @@ function ProductInformation() {
       setDeletingReply(replyId);
       await axiosInstance.delete(`/review/delete-reply/${reviewId}`);
 
-      setReviews(prevReviews =>
-  prevReviews.map(review => {
-    if (review._id === reviewId) {
-      return {
-        ...review,
-        repliedBy: null,
-        adminReplied: false
-      };
-    }
-    return review;
-  })
-);
-      
+      setReviews((prevReviews) =>
+        prevReviews.map((review) => {
+          if (review._id === reviewId) {
+            return {
+              ...review,
+              repliedBy: null,
+              adminReplied: false,
+            };
+          }
+          return review;
+        }),
+      );
+
       alert("Reply deleted successfully!");
     } catch (err) {
       console.error("Error deleting reply:", err);
@@ -260,9 +258,12 @@ function ProductInformation() {
   }, [searchData]);
 
   // Calculate average rating
-const avgRating = useMemo(() => {
+  const avgRating = useMemo(() => {
     if (!reviews || reviews.length === 0) return 0;
-    const total = reviews.reduce((sum, review) => sum + (review.rating || 0), 0);
+    const total = reviews.reduce(
+      (sum, review) => sum + (review.rating || 0),
+      0,
+    );
     return total / reviews.length;
   }, [reviews]);
 
@@ -351,56 +352,16 @@ const avgRating = useMemo(() => {
           <div className="flex flex-col gap-3 flex-1 overflow-y-auto pr-1">
             {/* MAIN PRODUCT */}
             {(!debouncedSearch || mainProductMatch) && defaultVariant && (
-              // <div
-              //   onClick={() => {
-              //     setSelectedType("product");
-              //     setSelectedVariant(null);
-              //   }}
-              //   className={`flex items-center gap-4 bg-[#F5F8FA] border rounded-xl p-3 hover:border-gray-400 cursor-pointer transition ${
-              //     selectedType === "product"
-              //       ? "bg-blue-50 border-blue-400"
-              //       : "bg-blue-50 border-blue-400"
-              //   }`}
-              // >
-              //   <img
-              //     className="w-10 h-10 rounded-md object-cover"
-              //     src={
-              //       defaultVariant?.variantImage?.[0]?.url || "/placeholder.png"
-              //     }
-              //     alt={product.productTittle}
-              //   />
-
-              //   <div className="flex-1">
-              //     <div className="flex justify-between text-sm font-medium">
-              //       <p>{defaultVariant?.variantSkuId || "N/A"}</p>
-              //       <p>₹ {defaultVariant?.variantSellingPrice || 0}</p>
-              //     </div>
-
-              //     <div className="flex justify-between text-xs text-gray-600 mt-0.5">
-              //       <div className="flex gap-2">
-              //         {defaultVariant?.variantColor && (
-              //           <p className="border border-[#495F75] px-1 rounded-md">
-              //             {defaultVariant.variantColor}
-              //           </p>
-              //         )}
-              //         <p className="border border-[#495F75] px-1 rounded-md">
-              //           20×20
-              //         </p>
-              //       </div>
-              //       <p>{defaultVariant?.variantAvailableStock || 0} in stock</p>
-              //     </div>
-              //   </div>
-              // </div>
-              // <></>
               <div
                 onClick={() => {
                   setSelectedType("product");
                   setSelectedVariant(null);
                 }}
-                className={`flex items-center gap-4 bg-[#F5F8FA] border rounded-xl p-3 hover:border-gray-400 cursor-pointer transition ${selectedType === "product"
-                  ? "bg-blue-50 border-blue-400"
-                  : "bg-blue-50 border-blue-400"
-                  }`}
+                className={`flex items-center gap-4 bg-[#F5F8FA] border rounded-xl p-3 hover:border-gray-400 cursor-pointer transition ${
+                  selectedType === "product"
+                    ? "bg-blue-50 border-blue-400"
+                    : "bg-[#F5F8FA]"
+                }`}
               >
                 <img
                   className="w-10 h-10 rounded-md object-cover"
@@ -418,26 +379,27 @@ const avgRating = useMemo(() => {
 
                   <div className="flex justify-between text-xs text-gray-600 mt-0.5">
                     <div className="flex gap-2">
-                      {currentVariant?.variantColor && (
-                     <span className="border border-[#495F75] px-1 rounded-md">
-                      {currentVariant?.variantColor 
-                        ? `${currentVariant.variantColor}`
-                        : ""}
-                    </span>
+                      {defaultVariant?.variantColor && (
+                        <span className="border border-[#495F75] px-1 rounded-md">
+                          {defaultVariant.variantColor}
+                        </span>
                       )}
-                    {currentVariant?.variantName && (
-                     <span className="border border-[#495F75] px-1 rounded-md">
-                      {currentVariant?.variantName 
-                        ? `${currentVariant.variantName}`
-                        : ""}
-                    </span>
+
+                      {defaultVariant?.variantName && (
+                        <span className="border border-[#495F75] px-1 rounded-md">
+                          {defaultVariant.variantName}
+                        </span>
                       )}
-                    {currentVariant?.variantWeight && (
-                      <span className="border border-[#495F75] px-1 rounded-md">
-                      {`${currentVariant.variantWeight} ${currentVariant.variantWeightUnit || 'kg'}`}
-                    </span>
-                    )}
+
+                      {defaultVariant?.variantWeight && (
+                        <span className="border border-[#495F75] px-1 rounded-md">
+                          {`${defaultVariant.variantWeight} ${
+                            defaultVariant.variantWeightUnit || "kg"
+                          }`}
+                        </span>
+                      )}
                     </div>
+
                     <p>{defaultVariant?.variantAvailableStock || 0} in stock</p>
                   </div>
                 </div>
@@ -452,11 +414,12 @@ const avgRating = useMemo(() => {
                   setSelectedType("variant");
                   setSelectedVariant(item);
                 }}
-                className={`flex items-center gap-4 bg-[#F5F8FA] border rounded-xl p-3 hover:border-gray-400 cursor-pointer transition${selectedType === "variant" &&
+                className={`flex items-center gap-4 bg-[#F5F8FA] border rounded-xl p-3 hover:border-gray-400 cursor-pointer transition ${
+                  selectedType === "variant" &&
                   selectedVariant?._id === item._id
-                  ? "bg-blue-50 border-blue-400"
-                  : "bg-[#F5F8FA]"
-                  }`}
+                    ? "bg-blue-50 border-blue-400"
+                    : "bg-[#F5F8FA]"
+                }`}
               >
                 <img
                   className="w-10 h-10 rounded-md object-cover"
@@ -472,16 +435,21 @@ const avgRating = useMemo(() => {
 
                   <div className="flex justify-between text-xs text-gray-600 mt-0.5">
                     <div className="flex gap-2">
-                      {/* {item.variantColor && (
-                        <p className="border border-[#495F75] px-1 rounded-md">
+                      {item.variantColor && (
+                        <span className="border border-[#495F75] px-1 rounded-md">
                           {item.variantColor}
-                        </p>
-                      )} */}
+                        </span>
+                      )}
 
-                      {/* <p className="border border-[#495F75] px-1 rounded-md">
-                        20×20
-                      </p> */}
+                      {item.variantWeight && (
+                        <span className="border border-[#495F75] px-1 rounded-md">
+                          {`${item.variantWeight} ${
+                            item.variantWeightUnit || "kg"
+                          }`}
+                        </span>
+                      )}
                     </div>
+
                     <p>{item.variantAvailableStock || 0} in stock</p>
                   </div>
                 </div>
@@ -513,21 +481,28 @@ const avgRating = useMemo(() => {
             <div>
               <p className="">Product Name</p>
               <span className="text-[#686868] text-sm">
-                {/* {selectedType === "product"
-                  ? product.productTittle
-                  : selectedVariant?.variantName || "-"} */}
-                  {product.productTittle || "-"}
+                {product.productTittle || "-"}
               </span>
             </div>
-            <div className="mb-4">
+            <div className="mb-4 max-w-[900px] break-words">
               <p className="text-md font-medium mb-1">Description</p>
-             <p className={`text-[#2C2C2C] text-sm leading-relaxed break-words whitespace-pre-line ${expanded ? "" : "clamped-text"}`}>
-  {product.description || "No description available"}
-</p>
-{product.description && (
-  <button onClick={() => setExpanded(!expanded)} className="text-blue-600 text-xs mt-1">{expanded ? "Show less" : "Show more"}</button>
-)}
 
+              <p
+                className={`text-[#2C2C2C] text-sm leading-relaxed break-words whitespace-pre-line transition-all duration-300 ${
+                  expanded ? "" : "line-clamp-4"
+                }`}
+              >
+                {product.description || "No description available"}
+              </p>
+
+              {product.description && product.description.length > 120 && (
+                <button
+                  onClick={() => setExpanded(!expanded)}
+                  className="text-blue-600 text-xs mt-1 hover:underline"
+                >
+                  {expanded ? "Show less" : "Show more"}g
+                </button>
+              )}
             </div>
           </div>
 
@@ -577,14 +552,14 @@ const avgRating = useMemo(() => {
                     </span>
                   </div> */}
                   {currentVariant?.variantColor && (
-                  <div>
-                    <p className="text-sm text-[#686868] font-medium">
-                      Product Color
-                    </p>
-                    <span className="text-base text-[#2C2C2C] font-medium">
-                      {currentVariant?.variantColor}
-                    </span>
-                  </div>
+                    <div>
+                      <p className="text-sm text-[#686868] font-medium">
+                        Product Color
+                      </p>
+                      <span className="text-base text-[#2C2C2C] font-medium">
+                        {currentVariant?.variantColor}
+                      </span>
+                    </div>
                   )}
                 </div>
                 <div className="flex flex-col flex-wrap  justify-start space-y-[10px]">
@@ -614,14 +589,14 @@ const avgRating = useMemo(() => {
                     </span>
                   </div>
                   {currentVariant?.variantName && (
-                  <div>
-                    <p className="text-sm text-[#686868] font-medium">
-                      Variant Name
-                    </p>
-                    <span className="text-base text-[#2C2C2C] font-medium">
-                      {currentVariant?.variantName || ""}
-                    </span>
-                  </div>
+                    <div>
+                      <p className="text-sm text-[#686868] font-medium">
+                        Variant Name
+                      </p>
+                      <span className="text-base text-[#2C2C2C] font-medium">
+                        {currentVariant?.variantName || ""}
+                      </span>
+                    </div>
                   )}
                   {/* <div>
                     <p className="text-sm text-[#686868] font-medium">
@@ -648,6 +623,19 @@ const avgRating = useMemo(() => {
                       {product.category?.name || "N/A"}
                     </span>
                   </div>
+
+                  {currentVariant?.variantWeight && (
+                    <div>
+                      <p className="text-sm text-[#686868] font-medium">
+                        Weight
+                      </p>
+                      <span className="text-base text-[#2C2C2C] font-medium">
+                        {`${currentVariant.variantWeight} ${
+                          currentVariant.variantWeightUnit || "kg"
+                        }`}
+                      </span>
+                    </div>
+                  )}
                   {/* <div className="">
                     <p className="text-sm  text-[#686868] font-medium">
                       Material
@@ -806,8 +794,8 @@ const avgRating = useMemo(() => {
           </div>
         )}
       </div> */}
-       {/* Customer Reviews */}
-     {/* Customer Reviews with Reply Feature */}
+      {/* Customer Reviews */}
+      {/* Customer Reviews with Reply Feature */}
       {/* <div className="mt-6 bg-white rounded-xl p-4">
         <h2 className="text-lg font-medium mb-2">Rating & Reviews</h2>
 
@@ -944,7 +932,7 @@ const avgRating = useMemo(() => {
           </div>
         )}
       </div> */}
-       <div className="mt-6 bg-white rounded-xl p-4">
+      <div className="mt-6 bg-white rounded-xl p-4">
         <h2 className="text-lg font-medium mb-2">Rating & Reviews</h2>
 
         {reviewsLoading ? (
@@ -962,7 +950,9 @@ const avgRating = useMemo(() => {
                   <div className="flex gap-4">
                     <div className="w-11 h-11 rounded-full bg-gray-400 flex items-center justify-center text-white font-bold">
                       <h1 className="text-white">
-                        {(review.reviewerName || review.user || "U").charAt(0).toUpperCase()}
+                        {(review.reviewerName || review.user || "U")
+                          .charAt(0)
+                          .toUpperCase()}
                       </h1>
                     </div>
                     <div className="flex flex-col">
@@ -972,14 +962,18 @@ const avgRating = useMemo(() => {
                         </h1>
                         <Ratings reviews={reviews} avgRating={review.rating} />
                         <span className="text-xs text-gray-400">
-                          {new Intl.DateTimeFormat('en-US', { dateStyle: 'medium' }).format(new Date(review.createdAt))}
+                          {new Intl.DateTimeFormat("en-US", {
+                            dateStyle: "medium",
+                          }).format(new Date(review.createdAt))}
                         </span>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                <p className="text-sm text-gray-700">{review.reviewText || review.comment || "No comment"}</p>
+                <p className="text-sm text-gray-700">
+                  {review.reviewText || review.comment || "No comment"}
+                </p>
 
                 {review.reviewImages && review.reviewImages.length > 0 && (
                   <div className="flex gap-3">
@@ -999,90 +993,99 @@ const avgRating = useMemo(() => {
 
                 {/* Admin Replies with Edit/Delete */}
                 {/* Admin Replies */}
-{/* Admin Reply (Single) */}
-{review.repliedBy && (
-  <div className="ml-10 mt-3">
-    <div className="bg-[#EEF2FF] border border-[#D9E1FF] p-3 rounded-lg">
-      
-      {editingReply === review._id ? (
-        // ✏️ EDIT MODE
-        <div>
-          <textarea
-            value={editReplyText}
-            onChange={(e) => setEditReplyText(e.target.value)}
-            className="w-full p-2 border rounded-md text-sm"
-            rows={3}
-          />
+                {/* Admin Reply (Single) */}
+                {review.repliedBy && (
+                  <div className="ml-10 mt-3">
+                    <div className="bg-[#EEF2FF] border border-[#D9E1FF] p-3 rounded-lg">
+                      {editingReply === review._id ? (
+                        // ✏️ EDIT MODE
+                        <div>
+                          <textarea
+                            value={editReplyText}
+                            onChange={(e) => setEditReplyText(e.target.value)}
+                            className="w-full p-2 border rounded-md text-sm"
+                            rows={3}
+                          />
 
-          <div className="flex justify-end gap-2 mt-2">
-            <button
-              onClick={() => {
-                setEditingReply(null);
-                setEditReplyText("");
-              }}
-              className="px-3 py-1 text-sm border rounded-md"
-            >
-              Cancel
-            </button>
+                          <div className="flex justify-end gap-2 mt-2">
+                            <button
+                              onClick={() => {
+                                setEditingReply(null);
+                                setEditReplyText("");
+                              }}
+                              className="px-3 py-1 text-sm border rounded-md"
+                            >
+                              Cancel
+                            </button>
 
-            <button
-              onClick={() =>
-                handleEditReply(review._id, review.repliedBy._id)
-              }
-              className="px-3 py-1 text-sm bg-[#1C3753] text-white rounded-md"
-            >
-              Save
-            </button>
-          </div>
-        </div>
-      ) : (
-        // 👁 VIEW MODE
-        <>
-          <div className="flex justify-between items-center mb-1">
-            <span className="text-sm font-medium text-[#1C3753]">
-              Admin Reply
-            </span>
+                            <button
+                              onClick={() =>
+                                handleEditReply(
+                                  review._id,
+                                  review.repliedBy._id,
+                                )
+                              }
+                              className="px-3 py-1 text-sm bg-[#1C3753] text-white rounded-md"
+                            >
+                              Save
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        // 👁 VIEW MODE
+                        <>
+                          <div className="flex justify-between items-center mb-1">
+                            <span className="text-sm font-medium text-[#1C3753]">
+                              Admin Reply
+                            </span>
 
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-gray-400">
-                {new Date(review.updatedAt).toLocaleDateString()}
-              </span>
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs text-gray-400">
+                                {new Date(
+                                  review.updatedAt,
+                                ).toLocaleDateString()}
+                              </span>
 
-              {/* EDIT */}
-              <button
-                onClick={() => {
-                  setEditingReply(review._id);
-                  setEditReplyText(review.repliedBy.replyText);
-                }}
-              >
-                ✏️
-              </button>
+                              {/* EDIT */}
+                              <button
+                                onClick={() => {
+                                  setEditingReply(review._id);
+                                  setEditReplyText(review.repliedBy.replyText);
+                                }}
+                              >
+                                ✏️
+                              </button>
 
-              {/* DELETE */}
-              <button
-                onClick={() =>
-                  handleDeleteReply(review._id, review.repliedBy._id)
-                }
-              >
-                🗑
-              </button>
-            </div>
-          </div>
+                              {/* DELETE */}
+                              <button
+                                onClick={() =>
+                                  handleDeleteReply(
+                                    review._id,
+                                    review.repliedBy._id,
+                                  )
+                                }
+                              >
+                                🗑
+                              </button>
+                            </div>
+                          </div>
 
-          <p className="text-sm text-gray-700">
-            {review.repliedBy.replyText}
-          </p>
-        </>
-      )}
-    </div>
-  </div>
-)}
+                          <p className="text-sm text-gray-700">
+                            {review.repliedBy.replyText}
+                          </p>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                )}
 
                 {/* Reply button */}
                 <div className="flex items-center justify-between mt-3">
                   <button
                     onClick={() =>
-                      setReplyingTo(replyingTo === review._id ? null : review._id)
+                      setReplyingTo(
+                        replyingTo === review._id ? null : review._id,
+                      )
                     }
                     className="text-sm text-gray-600 hover:text-[#1C3753] flex items-center gap-1"
                   >
@@ -1094,7 +1097,9 @@ const avgRating = useMemo(() => {
                 {/* Reply input form */}
                 {replyingTo === review._id && (
                   <div className="mt-3 border rounded-xl bg-[#F9FAFB] p-3">
-                    <label className="text-sm text-gray-600 mb-1 block">Reply</label>
+                    <label className="text-sm text-gray-600 mb-1 block">
+                      Reply
+                    </label>
 
                     <textarea
                       value={replyText}
@@ -1139,9 +1144,7 @@ const avgRating = useMemo(() => {
           </div>
         )}
       </div>
-
     </div>
-
   );
 }
 

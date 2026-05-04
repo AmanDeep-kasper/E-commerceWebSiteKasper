@@ -6,6 +6,16 @@ import { useEffect, useState } from "react";
 import { useAnimation, motion, easeInOut } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import BannerVideo from "../../assets/TopBannerImg/BannerVideo.mp4";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Autoplay, FreeMode } from "swiper/modules";
+import "swiper/css";
+
+import img1 from "../../assets/img/img1.png";
+import img2 from "../../assets/img/img2.png";
+import img3 from "../../assets/img/img3.png";
+import img4 from "../../assets/img/img4.png";
+import img5 from "../../assets/img/img4.png";
+import img6 from "../../assets/img/img4.png";
 
 function Design() {
   const [isHovered, setIsHovered] = useState(false);
@@ -63,6 +73,8 @@ function Design() {
 
     return () => clearInterval(interval);
   }, [controls, isHovered3]);
+
+  const images = [img1, img2, img3, img4, img5, img6];
 
   //   useEffect(() => {
 
@@ -177,43 +189,37 @@ function Design() {
       {/* </div>
         </div>
       </div> */}
-      <div className="relative w-full min-h-[300px] sm:min-h-[400px] md:min-h-[800px] overflow-hidden  ">
-        {/* Video */}
-        <video
-          className="w-full h-full absolute inset-0 object-cover"
-          src={BannerVideo}
-          autoPlay
-          loop
-          muted
-          playsInline
-        />
-
-        {/* Optional dark overlay */}
-        {/* <div className="absolute inset-0 bg-black/35" /> */}
-
-        {/* <div className="absolute inset-0 z-10 flex items-center">
-          <div className="px-4 sm:px-6 md:px-10 lg:px-12 w-full max-w-[100%]">
-            <h1
-              className="font-montez w-full 
-          text-[28px] sm:text-[40px] md:text-[64px] lg:text-[96px]
-          leading-[1.1] tracking-wide
-          bg-gradient-to-r from-[#FD0019] via-[#0900FF] to-[#FD0019]
-          bg-clip-text text-transparent
-        "
+      <div className="relative w-full min-h-[220px] sm:min-h-[300px] md:min-h-[350px] overflow-hidden">
+        <Swiper
+          modules={[Autoplay]}
+          slidesPerView="auto"
+          spaceBetween={12}
+          loop={true}
+          autoplay={{
+            delay: 0,
+            disableOnInteraction: false,
+          }}
+          speed={6000}
+          allowTouchMove={false}
+          onSwiper={(swiper) => {
+            swiper.wrapperEl.style.transitionTimingFunction = "linear";
+          }}
+        >
+          {[...images, ...images].map((img, i) => (
+            <SwiperSlide
+              key={i}
+              className="!w-[80%] sm:!w-[60%] md:!w-[680px]" // ✅ responsive width
             >
-              Craft Your Own Masterpieces <br />
-              with Premium Resin
-            </h1>
-
-            <p className="mt-4 text-[14px] sm:text-[20px] text-white/90 max-w-[800px] leading-6 font-light">
-              Welcome to Happy Art Supplies, your trusted destination for
-              premium resin art materials in Bangalore and across India. We are
-              passionate about empowering artists, hobbyists, and small business
-              owners with high-quality resin supplies that inspire creativity
-              and bring artistic visions to life.
-            </p>
-          </div>
-        </div> */}
+              <div className="h-[200px] sm:h-[260px] md:h-[358px] rounded-md overflow-hidden">
+                <img
+                  src={img}
+                  className="w-full h-full object-cover"
+                  alt="banner"
+                />
+              </div>
+            </SwiperSlide>
+          ))}
+        </Swiper>
       </div>
     </section>
   );
