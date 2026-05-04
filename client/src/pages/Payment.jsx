@@ -401,7 +401,6 @@ function Payment() {
             </div>
           </div>
 
-          
           <PriceDetails
             totalItems={cartItems?.length || totalItems}
             sellingPrice={checkoutSummary?.mrpTotal}
