@@ -549,7 +549,6 @@ function ProductDetails() {
           <div className="lg:sticky top-20 flex md:gap-8 gap-4 max-md:flex-col-reverse max-lg:w-full">
             {/* Thumbnails Swiper */}
             <div className="flex flex-col max-md:flex-row md:gap-4 max-md:justify-between rounded-lg">
-              
               <Swiper
                 modules={[Navigation]}
                 navigation={{
@@ -599,8 +598,8 @@ function ProductDetails() {
                   </SwiperSlide>
                 ))}
                 <button className="thumb-prev absolute top-0 left-1/2 -translate-x-1/2 z-10 bg-white shadow-md p-1 rounded-full">
-                <ChevronUp size={18} />
-              </button>
+                  <ChevronUp size={18} />
+                </button>
               </Swiper>
             </div>
 
@@ -1006,13 +1005,15 @@ function ProductDetails() {
               <h3 className="font-medium">Product Description</h3>
 
               {product.bulletPoints && product.bulletPoints.length > 0 ? (
-                <ul className="list-disc list-inside text-[#6C6B6B] mt-2 space-y-1">
+                <ul className="list-disc pl-5 text-sm sm:text-base text-[#6C6B6B] mt-2 space-y-1 break-words">
                   {product.bulletPoints.map((point, idx) => (
                     <li key={idx}>{point}</li>
                   ))}
                 </ul>
               ) : (
-                <p className="text-[#1C1C1C] mt-2">{product.description}</p>
+                <p className="text-sm sm:text-base text-[#1C1C1C] mt-2 break-words">
+                  {product.description}
+                </p>
               )}
             </div>
           </div>
