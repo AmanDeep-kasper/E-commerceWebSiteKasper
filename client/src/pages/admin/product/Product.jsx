@@ -248,9 +248,6 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import axiosInstance from "../../../api/axiosInstance";
 import productData from "../../../data/products.json";
 import { data } from "framer-motion/m";
-// import axiosInstance from "../../../api/axiosInstance";
-// import kpiCards from "./KpiCardProductlist";
-// import Active_product from "../../../assets/icons/Icon.png";
 
 const Products = () => {
   const [product, setProduct] = useState([]);
@@ -258,7 +255,7 @@ const Products = () => {
   const [error, setError] = useState(null);
   const { uuid } = useParams();
 
-  const [currentPage, setCurrentPage] = useState(1); // ✅ MOVE HERE
+  const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
 
@@ -268,9 +265,9 @@ const Products = () => {
   const [selectedStatus, setSelectedStatus] = useState("Status");
   const [selectedCategory, setSelectedCategory] = useState("Category");
   const [isFirstLoad, setIsFirstLoad] = useState(true);
-   const [allCategories, setAllCategories] = useState([]);
+  const [allCategories, setAllCategories] = useState([]);
   const [loadingCategories, setLoadingCategories] = useState(false);
-    const [originalStats, setOriginalStats] = useState({
+  const [originalStats, setOriginalStats] = useState({
     total: 0,
     active: 0,
     inactive: 0,
@@ -341,14 +338,17 @@ const Products = () => {
   // fetch original unfiltered stats  on component mount
   const fetchOriginalStats = async () => {
     try {
-      const response = await axiosInstance.get(`/product/admin/get-all-products`, {
-         params: {
-          page: 1,
-          limit: 1,
-          status: undefined, // No status filter
-          category: undefined, // No category filter
+      const response = await axiosInstance.get(
+        `/product/admin/get-all-products`,
+        {
+          params: {
+            page: 1,
+            limit: 1,
+            status: undefined, // No status filter
+            category: undefined, // No category filter
+          },
         },
-      })
+      );
       if (response.data?.success && response.data?.stats) {
         setOriginalStats({
           total: response.data.stats.total || 0,
@@ -367,7 +367,7 @@ const Products = () => {
 
   useEffect(() => {
     fetchOriginalStats();
-  },[]);
+  }, []);
 
   // const Editproduct = useMemo(() => {
   //   if (!uuid || !productData?.length) return null;
@@ -430,62 +430,69 @@ const Products = () => {
 
   const [selectedSort, setSelectedSort] = useState("Latest First");
 
-   // ✅ Fetch all categories from database (not from filtered products)
-const fetchAllCategories = async () => {
-  try {
-    setLoadingCategories(true);
-    
-    // Fetch all categories
-    const categoriesResponse = await axiosInstance.get('/category/admin/all-categories-filter');
-    const allCategoriesData = categoriesResponse.data?.data || [];
-    
-    // Fetch products to know which categories have products
-    const productsResponse = await axiosInstance.get(`/product/admin/get-all-products`, {
-      params: {
-        page: 1,
-        limit: 1000,
-      },
-    });
-    
-    const allProducts = productsResponse.data?.data || [];
-    
-    // Get unique category names from products
-    const categoryNamesWithProducts = new Set();
-    allProducts.forEach(product => {
-      const catName = product.categoryName || product.category?.name;
-      if (catName) {
-        categoryNamesWithProducts.add(catName);
-      }
-    });
-    
-    // Filter categories to only those with products
-    const filteredCategories = allCategoriesData
-      .filter(cat => categoryNamesWithProducts.has(cat.name))
-      .map(cat => cat.name);
-    
-    setAllCategories(filteredCategories);
-    
-  } catch (error) {
-    console.error("Error fetching categories:", error);
-    fetchCategoriesFromProducts(); // fallback
-  } finally {
-    setLoadingCategories(false);
-  }
-};
+  // ✅ Fetch all categories from database (not from filtered products)
+  const fetchAllCategories = async () => {
+    try {
+      setLoadingCategories(true);
+
+      // Fetch all categories
+      const categoriesResponse = await axiosInstance.get(
+        "/category/admin/all-categories-filter",
+      );
+      const allCategoriesData = categoriesResponse.data?.data || [];
+
+      // Fetch products to know which categories have products
+      const productsResponse = await axiosInstance.get(
+        `/product/admin/get-all-products`,
+        {
+          params: {
+            page: 1,
+            limit: 1000,
+          },
+        },
+      );
+
+      const allProducts = productsResponse.data?.data || [];
+
+      // Get unique category names from products
+      const categoryNamesWithProducts = new Set();
+      allProducts.forEach((product) => {
+        const catName = product.categoryName || product.category?.name;
+        if (catName) {
+          categoryNamesWithProducts.add(catName);
+        }
+      });
+
+      // Filter categories to only those with products
+      const filteredCategories = allCategoriesData
+        .filter((cat) => categoryNamesWithProducts.has(cat.name))
+        .map((cat) => cat.name);
+
+      setAllCategories(filteredCategories);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+      fetchCategoriesFromProducts(); // fallback
+    } finally {
+      setLoadingCategories(false);
+    }
+  };
 
   // ✅ Fallback: Fetch from all products (without pagination)
   const fetchCategoriesFromProducts = async () => {
     try {
-      const response = await axiosInstance.get(`/product/admin/get-all-products`, {
-        params: {
-          page: 1,
-          limit: 1000, // Large limit to get all products
+      const response = await axiosInstance.get(
+        `/product/admin/get-all-products`,
+        {
+          params: {
+            page: 1,
+            limit: 1000, // Large limit to get all products
+          },
         },
-      });
-      
+      );
+
       const allProducts = response.data?.data || [];
       const uniqueCategories = new Set();
-      allProducts.forEach(product => {
+      allProducts.forEach((product) => {
         const catName = product.categoryName || product.category?.name;
         if (catName) {
           uniqueCategories.add(catName);
@@ -501,7 +508,6 @@ const fetchAllCategories = async () => {
   useEffect(() => {
     fetchAllCategories();
   }, []);
-
 
   // // extract unique categories from actual product data
   // const categories = useMemo(() => {
@@ -527,14 +533,13 @@ const fetchAllCategories = async () => {
   // Apply sorting
   const sortedProducts = [...product];
   if (selectedSort === "Latest First") {
-  // Sort by createdAt date - newest first
-  sortedProducts.sort((a, b) => {
-    const dateA = new Date(a.createdAt || a.created_at || a.date || 0);
-    const dateB = new Date(b.createdAt || b.created_at || b.date || 0);
-    return dateB - dateA; // Descending order (newest first)
-  });
-}
- else if (selectedSort === "Price: Low → High") {
+    // Sort by createdAt date - newest first
+    sortedProducts.sort((a, b) => {
+      const dateA = new Date(a.createdAt || a.created_at || a.date || 0);
+      const dateB = new Date(b.createdAt || b.created_at || b.date || 0);
+      return dateB - dateA; // Descending order (newest first)
+    });
+  } else if (selectedSort === "Price: Low → High") {
     sortedProducts.sort(
       (a, b) => (a.defaultPrice || 0) - (b.defaultPrice || 0),
     );
@@ -655,7 +660,7 @@ const fetchAllCategories = async () => {
   //   );
   // }
 
-    const SkeletonRow = () => {
+  const SkeletonRow = () => {
     return (
       <tr className="animate-pulse border-t">
         <td className="px-4 py-3">
@@ -673,7 +678,7 @@ const fetchAllCategories = async () => {
         <td className="px-4 py-3 text-center">
           <div className="h-6 w-16 bg-gray-200 rounded mx-auto"></div>
         </td>
-         <td className="px-4 py-3 text-center">
+        <td className="px-4 py-3 text-center">
           <div className="h-6 w-20 bg-gray-200 rounded mx-auto"></div>
         </td>
         <td className="px-4 py-3 text-center">
@@ -837,38 +842,44 @@ const fetchAllCategories = async () => {
               {activeFilter === "category" && (
                 <div className="absolute left-40 top-11 ml-2 w-64 z-30">
                   <ul className="bg-white border rounded-lg shadow max-h-60 overflow-auto">
-                     {/* Add "All Categories" option */}
-          <li
-            onClick={() => {
-              setSelectedCategory("Category");
-              setActiveFilter(null);
-              setCurrentPage(1);
-            }}
-            className="px-4 py-2 cursor-pointer hover:bg-[#F5F8FA] font-medium border-b"
-          >
-            All Categories
-          </li>
-          {loadingCategories ? (
-            <li className="px-4 py-2 text-gray-500 text-center">Loading...</li>
-          ) : allCategories.length === 0 ? (
-            <li className="px-4 py-2 text-gray-500 text-center">No categories found</li>
-          ) : (
-            allCategories.map((cat) => (
-              <li
-                key={cat}
-                onClick={() => {
-                  setSelectedCategory(cat);
-                  setActiveFilter(null);
-                  setCurrentPage(1); // Reset to first page when filtering
-                }}
-                className={`px-4 py-2 cursor-pointer hover:bg-[#F5F8FA] ${
-                  selectedCategory === cat ? "bg-[#E0F4DE] text-[#00A63E]" : ""
-                }`}
-              >
-                {cat}
-              </li>
-                    ))
-                  )}
+                    {/* Add "All Categories" option */}
+                    <li
+                      onClick={() => {
+                        setSelectedCategory("Category");
+                        setActiveFilter(null);
+                        setCurrentPage(1);
+                      }}
+                      className="px-4 py-2 cursor-pointer hover:bg-[#F5F8FA] font-medium border-b"
+                    >
+                      All Categories
+                    </li>
+                    {loadingCategories ? (
+                      <li className="px-4 py-2 text-gray-500 text-center">
+                        Loading...
+                      </li>
+                    ) : allCategories.length === 0 ? (
+                      <li className="px-4 py-2 text-gray-500 text-center">
+                        No categories found
+                      </li>
+                    ) : (
+                      allCategories.map((cat) => (
+                        <li
+                          key={cat}
+                          onClick={() => {
+                            setSelectedCategory(cat);
+                            setActiveFilter(null);
+                            setCurrentPage(1); // Reset to first page when filtering
+                          }}
+                          className={`px-4 py-2 cursor-pointer hover:bg-[#F5F8FA] ${
+                            selectedCategory === cat
+                              ? "bg-[#E0F4DE] text-[#00A63E]"
+                              : ""
+                          }`}
+                        >
+                          {cat}
+                        </li>
+                      ))
+                    )}
                   </ul>
                 </div>
               )}
@@ -984,61 +995,63 @@ const fetchAllCategories = async () => {
                     </td>
                   </tr>
                 ) : (
-                sortedProducts.map((item) => (
-                  <tr
-                    key={item._id}
-                    className={`border-t hover:bg-gray-50 transition ${
-                      selectedItems.includes(item._id) ? "bg-red-50" : ""
-                    }`}
-                    onClick={() =>
-                      item.isDraft
-                        ? navigate(`/admin/add-product/${item._id}`)
-                        : navigate(
-                            `/admin/product-info/${item.slug || item._id}`,
-                          )
-                    }
-                  >
-                    <td className="px-0 py-4">
-                      <div className="flex items-center justify-start gap-2">
-                        <div className="h-[50px] w-[50px] ml-2 bg-[#EFEFEF] p-1 rounded-md overflow-hidden">
-                          <img
-                            className="h-full w-full object-cover object-center"
-                            src={
-                              item.image ||
-                              "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTF8fHByb2R1Y3R8ZW58MHx8MHx8fDA%3D"
-                            }
-                            alt={item.name || item.productTittle}
-                            onError={(e) => {
-                              e.target.src =
-                                "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTF8fHByb2R1Y3R8ZW58MHx8MHx8fDA%3D";
-                            }}
-                          />
-                        </div>
+                  sortedProducts.map((item) => (
+                    <tr
+                      key={item._id}
+                      className={`border-t hover:bg-gray-50 transition ${
+                        selectedItems.includes(item._id) ? "bg-red-50" : ""
+                      }`}
+                      onClick={() =>
+                        item.isDraft
+                          ? navigate(`/admin/add-product/${item._id}`)
+                          : navigate(
+                              `/admin/product-info/${item.slug || item._id}`,
+                            )
+                      }
+                    >
+                      <td className="px-0 py-4">
+                        <div className="flex items-center justify-start gap-2">
+                          <div className="h-[50px] w-[50px] ml-2 bg-[#EFEFEF] p-1 rounded-md overflow-hidden">
+                            <img
+                              className="h-full w-full object-cover object-center"
+                              src={
+                                item.image ||
+                                "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTF8fHByb2R1Y3R8ZW58MHx8MHx8fDA%3D"
+                              }
+                              alt={item.name || item.productTittle}
+                              onError={(e) => {
+                                e.target.src =
+                                  "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTF8fHByb2R1Y3R8ZW58MHx8MHx8fDA%3D";
+                              }}
+                            />
+                          </div>
 
-                        <div>
-                          <span className="text-[#1F2937]  text-[16px] font-medium cursor-pointer">
-                            {item.name && item.name.split(" ").length > 3
-                              ? item.name.split(" ").slice(0, 3).join(" ") +
-                                "..."
-                              : item.name ||
-                                item.productTittle ||
-                                "Untitled Product"}
-                          </span>
+                          <div>
+                            <span className="text-[#1F2937]  text-[16px] font-medium cursor-pointer">
+                              {item.name && item.name.split(" ").length > 3
+                                ? item.name.split(" ").slice(0, 3).join(" ") +
+                                  "..."
+                                : item.name ||
+                                  item.productTittle ||
+                                  "Untitled Product"}
+                            </span>
+                          </div>
                         </div>
-                      </div>
-                    </td>
+                      </td>
 
-                    <td className="px-4 py-3 text-[16px] text-[#1F2937]">
-                      {/* {item.variants?.[0]?.variantSkuId || "N/A"} */}
-                      {item.skuId || item.variants?.[0]?.variantSkuId || "N/A"}
-                    </td>
-                    <td className="px-4 py-3 text-[16px] text-[#1F2937]">
-                      {item.categoryName || item.category?.name || "N/A"}
-                    </td>
-                    <td className="px-4 py-3 text-[16px] text-[#1F2937]">
-                      ₹{item.defaultPrice || 0}
-                    </td>
-                    {/* <td className="px-4 py-3 text-[16px] text-[#1F2937]">
+                      <td className="px-4 py-3 text-[16px] text-[#1F2937]">
+                        {/* {item.variants?.[0]?.variantSkuId || "N/A"} */}
+                        {item.skuId ||
+                          item.variants?.[0]?.variantSkuId ||
+                          "N/A"}
+                      </td>
+                      <td className="px-4 py-3 text-[16px] text-[#1F2937]">
+                        {item.categoryName || item.category?.name || "N/A"}
+                      </td>
+                      <td className="px-4 py-3 text-[16px] text-[#1F2937]">
+                        ₹{item.defaultPrice || 0}
+                      </td>
+                      {/* <td className="px-4 py-3 text-[16px] text-[#1F2937]">
                       {item.sellingPrice === 0 ? (
                         <div className="text-red-500 font-semibold">
                           Out of Stock
@@ -1053,10 +1066,10 @@ const fetchAllCategories = async () => {
                         </div>
                       )}
                     </td> */}
-                    <td className="px-4 py-3 text-[16px] text-[#1F2937] text-center">
-                      {item.variantCount || item.variants?.length || 1}
-                    </td>
-                    {/* <td className="px-4 py-3 text-[16px] text-[#1F2937]">
+                      <td className="px-4 py-3 text-[16px] text-[#1F2937] text-center">
+                        {item.variantCount || item.variants?.length || 1}
+                      </td>
+                      {/* <td className="px-4 py-3 text-[16px] text-[#1F2937]">
                       {item.status === "Active" ? (
                         <div className="flex items-center justify-center gap-2 bg-[#E0F4DE] py-1.5 px-2 rounded-lg text-sm text-[#00A63E]">
                           <Circle
@@ -1090,67 +1103,67 @@ const fetchAllCategories = async () => {
                       )}
                     </td> */}
 
-                    <td className="px-4 py-3 text-center">
-                      {item.isDraft ? (
-                        <div className="flex items-center justify-center gap-2 bg-[#EFEFEF] py-1.5 px-3 rounded-lg text-sm text-[#686868]">
-                          <Circle
-                            fill="#686868"
-                            color="#686868"
-                            size={"12px"}
-                          />
-                          Draft
-                        </div>
-                      ) : item.isActive ? (
-                        <div className="flex items-center justify-center gap-2 bg-[#E0F4DE] py-1.5 px-2 rounded-lg text-sm text-[#00A63E]">
-                          <Circle
-                            fill="#00A63E"
-                            color="#00A63E"
-                            size={"12px"}
-                          />
-                          Active
-                        </div>
-                      ) : (
-                        <div className="flex items-center justify-center gap-2 bg-[#FFFBEB] py-1.5 px-3 rounded-lg text-sm text-[#F8A14A]">
-                          <Circle
-                            fill="#F8A14A"
-                            color="#F8A14A"
-                            size={"12px"}
-                          />
-                          Inactive
-                        </div>
-                      )}
-                    </td>
+                      <td className="px-4 py-3 text-center">
+                        {item.isDraft ? (
+                          <div className="flex items-center justify-center gap-2 bg-[#EFEFEF] py-1.5 px-3 rounded-lg text-sm text-[#686868]">
+                            <Circle
+                              fill="#686868"
+                              color="#686868"
+                              size={"12px"}
+                            />
+                            Draft
+                          </div>
+                        ) : item.isActive ? (
+                          <div className="flex items-center justify-center gap-2 bg-[#E0F4DE] py-1.5 px-2 rounded-lg text-sm text-[#00A63E]">
+                            <Circle
+                              fill="#00A63E"
+                              color="#00A63E"
+                              size={"12px"}
+                            />
+                            Active
+                          </div>
+                        ) : (
+                          <div className="flex items-center justify-center gap-2 bg-[#FFFBEB] py-1.5 px-3 rounded-lg text-sm text-[#F8A14A]">
+                            <Circle
+                              fill="#F8A14A"
+                              color="#F8A14A"
+                              size={"12px"}
+                            />
+                            Inactive
+                          </div>
+                        )}
+                      </td>
 
-                    {/* <td className="px-4 py-3 text-[16px] text-[#1F2937]">
+                      {/* <td className="px-4 py-3 text-[16px] text-[#1F2937]">
                       ₹{item.sellingPrice}
                     </td>
                     <td className="px-4 py-3 text-[16px] text-[#1F2937]">
                       ₹{item.costPrice}
                     </td> */}
 
-                    {/* Centered action icons (hidden until hover) */}
-                    <td className="px-0 py-3 text-center">
-                      <div className="flex items-center justify-center gap-2 ">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
+                      {/* Centered action icons (hidden until hover) */}
+                      <td className="px-0 py-3 text-center">
+                        <div className="flex items-center justify-center gap-2 ">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
 
-                            if (item.isDraft) {
-                              navigate(`/admin/add-product/${item._id}`);
-                            } else {
-                              navigate(
-                                `/admin/product-info/${item.slug || item._id}`,
-                              );
-                            }
-                          }}
-                          className="relative p-2 rounded group text-[#2C87E2] hover:underline"
-                        >
-                          {item.isDraft ? "Edit" : "View"}
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
+                              if (item.isDraft) {
+                                navigate(`/admin/add-product/${item._id}`);
+                              } else {
+                                navigate(
+                                  `/admin/product-info/${item.slug || item._id}`,
+                                );
+                              }
+                            }}
+                            className="relative p-2 rounded group text-[#2C87E2] hover:underline"
+                          >
+                            {item.isDraft ? "Edit" : "View"}
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
                 )}
               </tbody>
             </table>

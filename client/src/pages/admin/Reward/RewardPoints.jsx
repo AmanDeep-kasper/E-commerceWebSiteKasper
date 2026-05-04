@@ -551,7 +551,8 @@ function RewardPoints() {
             <div className="flex flex-col gap-1">
               <span className="text-[#0E101A] text-[14px] font-normal">
                 ⚡ Customer earn {selectedCard?.earn?.rules?.points || 1} points
-                for every ₹ {selectedCard?.earn?.rules?.PriceForPoints || 500} spent.
+                for every ₹ {selectedCard?.earn?.rules?.PriceForPoints || 500}{" "}
+                spent.
               </span>
               <span className="text-[#0E101A] text-[14px] font-normal">
                 💰 Points are applicable only on purchases above ₹
@@ -600,7 +601,10 @@ function RewardPoints() {
 
       {/* <====================------------------------- success popup -------------------======================> */}
       {showConfirm && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-3 sm:p-6">
+        <div
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-3 sm:p-6"
+          onClick={() => setShowConfirm(false)} // ✅ always close on overlay click
+        >
           <div
             style={{
               width: "100%",
@@ -612,6 +616,7 @@ function RewardPoints() {
             }}
           >
             <div
+              onClick={(e) => e.stopPropagation()} // ✅ prevent closing when clicking inside
               style={{
                 width: "532px",
                 height: "auto",

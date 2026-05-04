@@ -311,7 +311,7 @@ const GeneralSettingsForm = () => {
               </p>
             </div>
 
-            {/* <div className="w-full max-w-[330px]">
+            <div className="w-full max-w-[330px]">
               <input
                 type="text"
                 name="secondaryPhone"
@@ -319,7 +319,7 @@ const GeneralSettingsForm = () => {
                 onChange={handleChange}
                 className="w-full h-[42px] rounded-[6px] border border-[#D1D5DB] px-3 text-[14px] text-[#222222] outline-none focus:border-[#2563EB]"
               />
-            </div> */}
+            </div>
           </div>
         </div>
       </div>
