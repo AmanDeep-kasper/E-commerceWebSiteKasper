@@ -47,7 +47,6 @@ const ForgotPassword = () => {
     }
   };
 
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#1C3753] to-[#1C3753]">
       <div className="w-full h-screen flex bg-white">
@@ -135,9 +134,7 @@ const ForgotPassword = () => {
                   )} */}
                 </div>
                 {errors.email ? (
-                  <p className="text-xs text-red-500 mt-2">
-                    {errors.email}
-                  </p>
+                  <p className="text-xs text-red-500 mt-2">{errors.email}</p>
                 ) : (
                   <p className="text-xs text-gray-500 mt-2">
                     Enter the email address associated with your account
@@ -168,11 +165,14 @@ const ForgotPassword = () => {
               <div className="text-center mt-8 pt-6 border-t border-gray-200">
                 <p className="text-gray-600 text-sm">
                   Need help?
-                  <span
+                  <a
+                    href="https://wa.me/919886894723"
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="text-amber-600 hover:text-amber-700 font-medium"
-                  >(+91) 98868 94723
-                  </span>
-
+                  >
+                    (+91) 98868 94723
+                  </a>
                 </p>
               </div>
 

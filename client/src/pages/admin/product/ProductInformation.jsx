@@ -500,7 +500,7 @@ function ProductInformation() {
                   onClick={() => setExpanded(!expanded)}
                   className="text-blue-600 text-xs mt-1 hover:underline"
                 >
-                  {expanded ? "Show less" : "Show more"}
+                  {expanded ? "Show less" : "Show more"}g
                 </button>
               )}
             </div>
