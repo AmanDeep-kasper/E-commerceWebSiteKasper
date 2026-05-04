@@ -7,26 +7,52 @@ import { toast } from "react-toastify";
 const BannersSettings = () => {
   const [selectedBanner, setSelectedBanner] = useState(null);
   const [fileError, setFileError] = useState("");
-  const [videoPreview, setVideoPreview] = useState(null);
-  
+  const [removedImages, setRemovedImages] = useState([]);
+
   // Premium Features State
   const [features, setFeatures] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editingFeature, setEditingFeature] = useState(null);
   const [isAddingNew, setIsAddingNew] = useState(false);
-  const [newFeature, setNewFeature] = useState({ text: '' });
+  const [newFeature, setNewFeature] = useState({ text: "" });
 
   const banners = [
     { id: 1, name: "Banner 1" },
-    { id: 2, name: "Banner 2" },
+    // { id: 2, name: "Banner 2" },
   ];
+
+  const handleSaveBanner = async () => {
+    try {
+      const formData = new FormData();
+
+      formData.append("sectionType", selectedBanner.type);
+
+      // send new images
+      selectedBanner.images.forEach((img) => {
+        if (img instanceof File) {
+          formData.append("images", img);
+        }
+      });
+
+      // send removed images
+      formData.append("removedImages", JSON.stringify(removedImages));
+
+      await axiosInstance.post("/banners/update", formData);
+
+      toast.success("Banner updated");
+      setSelectedBanner(null);
+      setRemovedImages([]);
+    } catch (err) {
+      toast.error("Failed to update banner");
+    }
+  };
 
   // Fetch features on mount
   useEffect(() => {
     fetchFeatures();
   }, []);
 
-const fetchFeatures = async () => {
+  const fetchFeatures = async () => {
     try {
       setLoading(true);
       const response = await axiosInstance.get("/settings/homepage-features");
@@ -50,10 +76,13 @@ const fetchFeatures = async () => {
     }
 
     try {
-      const response = await axiosInstance.post("/settings/homepage-features", newFeature);
+      const response = await axiosInstance.post(
+        "/settings/homepage-features",
+        newFeature,
+      );
       if (response.data.success) {
         toast.success("Feature added successfully");
-        setNewFeature({ text: '' });
+        setNewFeature({ text: "" });
         setIsAddingNew(false);
         fetchFeatures();
       }
@@ -65,11 +94,13 @@ const fetchFeatures = async () => {
 
   const handleUpdateFeature = async (feature) => {
     try {
-      const updatedFeatures = features.map(f => 
-        f._id === feature._id ? feature : f
+      const updatedFeatures = features.map((f) =>
+        f._id === feature._id ? feature : f,
       );
-      
-      const response = await axiosInstance.put("/settings/homepage-features", { features: updatedFeatures });
+
+      const response = await axiosInstance.put("/settings/homepage-features", {
+        features: updatedFeatures,
+      });
       if (response.data.success) {
         toast.success("Feature updated successfully");
         setEditingFeature(null);
@@ -83,7 +114,9 @@ const fetchFeatures = async () => {
 
   const handleDeleteFeature = async (featureId) => {
     try {
-      const response = await axiosInstance.delete(`/settings/homepage-features/${featureId}`);
+      const response = await axiosInstance.delete(
+        `/settings/homepage-features/${featureId}`,
+      );
       if (response.data.success) {
         toast.success("Feature deleted successfully");
         fetchFeatures();
@@ -157,7 +190,7 @@ const fetchFeatures = async () => {
                     onClick={() => setSelectedBanner(banner)}
                     className="text-[#2563EB] text-[14px] font-medium hover:underline"
                   >
-                    Edit Banner
+                    +Add Banner
                   </button>
                 </td>
               </tr>
@@ -170,9 +203,12 @@ const fetchFeatures = async () => {
       <div className="mt-8">
         <div className="flex items-center justify-between mb-5">
           <div>
-            <h1 className="font-semibold text-[20px] mb-2">Premium Text Features</h1>
+            <h1 className="font-semibold text-[20px] mb-2">
+              Premium Text Features
+            </h1>
             <span className="text-[#686868] text-[14px]">
-              Manage the premium text features displayed on the customer homepage.
+              Manage the premium text features displayed on the customer
+              homepage.
             </span>
           </div>
           <button
@@ -215,7 +251,7 @@ const fetchFeatures = async () => {
                 <button
                   onClick={() => {
                     setIsAddingNew(false);
-                    setNewFeature({ text: '' });
+                    setNewFeature({ text: "" });
                   }}
                   className="border border-[#94A3B8] text-[#183B63] text-[14px] font-medium px-5 py-2 rounded-[6px]"
                 >
@@ -259,7 +295,12 @@ const fetchFeatures = async () => {
                         <input
                           type="text"
                           value={editingFeature.text}
-                          onChange={(e) => setEditingFeature({ ...editingFeature, text: e.target.value })}
+                          onChange={(e) =>
+                            setEditingFeature({
+                              ...editingFeature,
+                              text: e.target.value,
+                            })
+                          }
                           className="border rounded px-2 py-1 w-full"
                         />
                       ) : (
@@ -271,7 +312,9 @@ const fetchFeatures = async () => {
                         {editingFeature?._id === feature._id ? (
                           <>
                             <button
-                              onClick={() => handleUpdateFeature(editingFeature)}
+                              onClick={() =>
+                                handleUpdateFeature(editingFeature)
+                              }
                               className="text-green-600 hover:text-green-800"
                             >
                               <Check size={18} />
@@ -321,72 +364,137 @@ const fetchFeatures = async () => {
       {selectedBanner && (
         <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50 px-4">
           <div className="w-full max-w-[460px] bg-white rounded-[8px] shadow-lg p-4">
+            {/* Heading */}
             <h2 className="text-[16px] font-semibold text-[#111827] mb-3">
-              {selectedBanner.name}
+              Banner Settings
             </h2>
 
-            <div>
-              {!videoPreview ? (
-                <label className="w-[60px] h-[60px] border border-gray-300 rounded-md flex items-center justify-center cursor-pointer hover:bg-gray-100">
-                  <input
-                    type="file"
-                    accept="video/*"
-                    className="hidden"
-                    onChange={handleVideoUpload}
-                  />
-                  <MdOutlineFileUpload className="text-2xl text-gray-500" />
-                </label>
-              ) : (
-                <div className="relative w-[120px] h-[80px]">
-                  <video
-                    src={videoPreview}
+            {/* ✅ Radio Buttons */}
+            <div className="flex gap-4 mb-4">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="bannerType"
+                  value="hero"
+                  checked={selectedBanner.type === "hero"}
+                  onChange={() =>
+                    setSelectedBanner({
+                      ...selectedBanner,
+                      type: "hero",
+                      images: [],
+                    })
+                  }
+                />
+                <span className="text-sm">Hero</span>
+              </label>
+
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="bannerType"
+                  value="carousel"
+                  checked={selectedBanner.type === "carousel"}
+                  onChange={() =>
+                    setSelectedBanner({
+                      ...selectedBanner,
+                      type: "carousel",
+                      images: [],
+                    })
+                  }
+                />
+                <span className="text-sm">Carousel</span>
+              </label>
+            </div>
+
+            {/* ✅ Image Upload */}
+            <div className="flex flex-wrap gap-3">
+              {selectedBanner.images?.map((img, i) => (
+                <div key={i} className="relative w-[80px] h-[80px]">
+                  <img
+                    src={img}
                     className="w-full h-full object-cover rounded-md"
                   />
                   <button
-                    onClick={handleRemoveVideo}
-                    className="absolute top-1 right-1 bg-black/60 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center hover:bg-black"
+                    onClick={() => {
+                      const removedImg = selectedBanner.images[i];
+
+                      const updated = selectedBanner.images.filter(
+                        (_, index) => index !== i,
+                      );
+
+                      setSelectedBanner({ ...selectedBanner, images: updated });
+
+                      // track removed image (IMPORTANT)
+                      setRemovedImages((prev) => [...prev, removedImg]);
+                    }}
+                    className="absolute top-1 right-1 bg-black/60 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center"
                   >
-                    <X size={14} className="text-black" />
+                    ✕
                   </button>
                 </div>
+              ))}
+
+              {/* Upload Button */}
+              {(!selectedBanner.images ||
+                selectedBanner.images.length <
+                  (selectedBanner.type === "hero" ? 6 : 8)) && (
+                <label className="w-[80px] h-[80px] border border-gray-300 rounded-md flex items-center justify-center cursor-pointer hover:bg-gray-100">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files[0];
+                      if (!file) return;
+
+                      const url = URL.createObjectURL(file);
+
+                      setSelectedBanner((prev) => ({
+                        ...prev,
+                        images: [...(prev.images || []), url],
+                      }));
+                    }}
+                  />
+                  <span className="text-xl text-gray-500">+</span>
+                </label>
               )}
+            </div>
 
-              <span
-                className={`text-[12px] ${fileError ? "text-red-500" : "text-[#686868]"
-                  }`}
+            {/* Info */}
+            <p className="text-xs text-gray-500 mt-2">
+              {selectedBanner.type === "hero"
+                ? "Upload up to 6 images, each image should be 1920x800px"
+                : "Upload up to 8 images "}
+            </p>
+
+            {/* <div className="py-2">
+              <label className="text-sm font-medium block mb-1">
+                Select Order
+              </label>
+
+              <select
+                value={selectedBanner.order || ""}
+                onChange={(e) =>
+                  setSelectedBanner({
+                    ...selectedBanner,
+                    order: Number(e.target.value),
+                  })
+                }
+                className="w-full border rounded-md px-2 py-2 text-sm"
               >
-                {fileError
-                  ? fileError
-                  : "*Recommended 1920x800px size with 4-8Mb video size only in MP4"}
-              </span>
-            </div>
+                <option value="">Select order</option>
 
-            <div className="mt-3">
-              <label className="block text-[14px] text-[#374151] mb-1">
-                Title <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                placeholder="Write a title"
-                className="w-full h-[42px] rounded-[6px] border border-[#D1D5DB] bg-[#F8FBFC] px-3 text-[14px] outline-none focus:border-[#2563EB]"
-                value={selectedBanner.title}
-                onChange={(e) => setSelectedBanner({ ...selectedBanner, title: e.target.value })}
-              />
-            </div>
+                {Array.from({
+                  length: selectedBanner.type === "hero" ? 6 : 8,
+                }).map((_, i) => (
+                  <option key={i} value={i + 1}>
+                    {i + 1}
+                  </option>
+                ))}
+              </select>
+            </div> */}
 
-            <div className="mt-3">
-              <label className="block text-[14px] text-[#374151] mb-1">
-                Description <span className="text-red-500">*</span>
-              </label>
-              <textarea
-                placeholder="Write a description"
-                rows={4}
-                className="w-full bg-[#F8FBFC] rounded-[6px] border border-[#D1D5DB] px-3 py-3 text-[14px] outline-none resize-none focus:border-[#2563EB]"
-                value={selectedBanner.description}
-                onChange={(e) => setSelectedBanner({ ...selectedBanner, description: e.target.value })}
-              />
-            </div>
-
+            {/* Buttons */}
             <div className="flex items-center gap-3 mt-4">
               <button className="bg-[#183B63] hover:bg-[#163556] text-white text-[14px] font-medium px-5 py-2 rounded-[6px]">
                 Save
@@ -406,6 +514,7 @@ const fetchFeatures = async () => {
 };
 
 export default BannersSettings;
+
 // import React, { useState } from "react";
 // import { MdOutlineFileUpload } from "react-icons/md";
 // import { X } from "lucide-react";
@@ -434,7 +543,6 @@ export default BannersSettings;
 //     setVideoPreview(videoURL); // ✅ SAVE IT
 //   };
 
-
 //   const generateThumbnail = (file) => {
 //     const video = document.createElement("video");
 //     video.src = URL.createObjectURL(file);
@@ -455,7 +563,6 @@ export default BannersSettings;
 //   const handleRemoveVideo = () => {
 //     setVideoPreview(null);
 //   };
-
 
 //   const banners = [
 //     { id: 1, name: "Banner 1" },
@@ -528,13 +635,13 @@ export default BannersSettings;
 //         </table>
 //       </div>
 //       {/* for premium text form start */}
-      
+
 //       {/* for premium text form end */}
 
 //       {/* Banner 1,2,3 Form */}
 //       {/* {selectedBanner && selectedBanner.id !== 4 && (
 //         <div className="mt-6 bg-white rounded-[8px] border border-[#E5E7EB] p-4 max-w-[600px]">
-          
+
 //           <h2 className="text-[16px] font-semibold text-[#111827] mb-4">
 //             {selectedBanner.name}
 //           </h2>
