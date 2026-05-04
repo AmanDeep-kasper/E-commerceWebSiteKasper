@@ -26,4 +26,5 @@ export default {
   },
 
   plugins: [mtConfig],
+  plugins: [require("@tailwindcss/line-clamp")],
 };
