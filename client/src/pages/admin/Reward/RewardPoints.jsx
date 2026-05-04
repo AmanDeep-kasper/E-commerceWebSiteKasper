@@ -97,13 +97,15 @@ function RewardPoints() {
         <span className="text-[#1C1C1C] font-medium text-[16px] sm:text-[18px] lg:text-[20px]">
           Reward Points
         </span>
-        <button
-          className="flex items-center gap-2 px-4 py-2 bg-[#0B3142] text-white font-semibold text-[16px] border border-[#0B3142] rounded-lg"
-          onClick={() => setShowReward(true)}
-        >
-          <MdOutlineAdd size={20} />
-          Create Reward & Points
-        </button>
+        {rewardCard.length === 0 && (
+          <button
+            className="flex items-center gap-2 px-4 py-2 bg-[#0B3142] text-white font-semibold text-[16px] border border-[#0B3142] rounded-lg"
+            onClick={() => setShowReward(true)}
+          >
+            <MdOutlineAdd size={20} />
+            Create Reward & Points
+          </button>
+        )}
       </div>
 
       {/* <--------------------------------------- CARD GRID -----------------------------------> */}
