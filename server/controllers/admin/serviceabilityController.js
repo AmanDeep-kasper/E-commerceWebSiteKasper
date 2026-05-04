@@ -20,7 +20,6 @@ export const createServiceability = asyncHandler(async (req, res) => {
 
   const existingConfig = await ServiceabilityConfig.findOne({
     value,
-    type,
     warehouse: warehouseId,
     isActive: true,
   });

@@ -7,8 +7,6 @@ const FILE_TYPES = [
   "image/png",
   "image/jpg",
   "image/webp",
-  "video/mp4",
-  "video/webm",
   "application/pdf",
 ];
 
