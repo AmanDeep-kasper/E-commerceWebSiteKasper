@@ -30,11 +30,11 @@ function Hero() {
   useEffect(() => {
     const fetchBanners = async () => {
       try {
-        const res = await axiosInstance.get("/banner/get-all-banners", {
-          params: { sectionType: "hero" },
-        });
+        const res = await axiosInstance.get(
+          "/dashboard/banner/get-active-banners?sectionType=hero",
+        );
 
-        console.log(res)
+        console.log(res);
 
         const banners = res.data?.data || [];
 
