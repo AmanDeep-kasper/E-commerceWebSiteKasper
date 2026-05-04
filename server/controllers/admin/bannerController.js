@@ -202,6 +202,52 @@ export const getAllBanners = asyncHandler(async (req, res) => {
   });
 });
 
+export const getActiveBanners = asyncHandler(async (req, res) => {
+  const { sectionType } = req.query;
+
+  const filter = {
+    "items.isActive": true,
+  };
+
+  if (sectionType && !["hero", "carousel"].includes(sectionType)) {
+    throw AppError.badRequest("Invalid sectionType filter", "INVALID_FILTER");
+  }
+
+  if (sectionType) {
+    filter.sectionType = sectionType;
+  }
+
+  const banners = await Banner.find(filter).lean();
+
+  // transform data
+  const formatted = banners.map((banner) => {
+    let items = banner.items || [];
+
+    // hero → sort by order
+    if (banner.sectionType === "hero") {
+      items = items.sort((a, b) => a.order - b.order);
+    }
+
+    // carousel → no strict order (but optional sort if exists)
+    if (banner.sectionType === "carousel") {
+      items = items.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+    }
+
+    return {
+      _id: banner._id,
+      sectionType: banner.sectionType,
+      title: banner.title,
+      items,
+    };
+  });
+
+  res.status(200).json({
+    success: true,
+    message: "Banners fetched successfully",
+    data: formatted,
+  });
+});
+
 export const toggleBannerStatus = asyncHandler(async (req, res) => {
   const { bannerId } = req.params;
   const { publicId } = req.body;

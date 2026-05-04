@@ -3,6 +3,7 @@ import { authenticate, authorize } from "../../middlewares/authMiddleware.js";
 import { upload } from "../../middlewares/multer.js";
 import {
   deleteBannerItem,
+  getActiveBanners,
   getAllBanners,
   toggleBannerStatus,
   updateBannerItem,
@@ -20,6 +21,7 @@ router.post(
 );
 
 router.get("/get-all-banners", authenticate, getAllBanners);
+router.get("/get-active-banners", getActiveBanners);
 
 router.patch(
   "/update-banner/:bannerId",
