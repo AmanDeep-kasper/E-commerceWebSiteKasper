@@ -724,8 +724,8 @@ export const userGetAllProducts = asyncHandler(async (req, res) => {
   const skip = (pageNum - 1) * limitNum;
 
   const filter = {
-    isActive:true, 
-    isDraft:{$ne:true} 
+    isActive: true,
+    isDraft: { $ne: true },
   };
 
   // ✅ CATEGORY FILTER (by ID or by name from URL)

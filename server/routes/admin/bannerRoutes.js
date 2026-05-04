@@ -16,7 +16,7 @@ router.post(
   "/upload-banner",
   authenticate,
   authorize("admin"),
-  upload.single("banner"),
+  upload.array("banner", 8),
   uploadBanner,
 );
 
@@ -27,7 +27,7 @@ router.patch(
   "/update-banner/:bannerId",
   authenticate,
   authorize("admin"),
-  upload.single("banner"),
+  upload.array("banner", 8),
   updateBannerItem,
 );
 

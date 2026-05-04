@@ -7,54 +7,54 @@ import {
 } from "../../utils/uploader.js";
 
 export const uploadBanner = asyncHandler(async (req, res) => {
-  const { sectionType, title, redirectUrl, order } = req.body;
+  const { sectionType, title, redirectUrl } = req.body;
 
-  if (!req.file) {
+  if (!req.files || req.files.length === 0) {
     throw AppError.badRequest("Media file is required");
   }
 
-  // STEP 1: find existing banner FIRST
   let banner = await Banner.findOne({ sectionType });
 
-  // STEP 2: limit check BEFORE upload
-  if (banner) {
-    if (sectionType === "hero" && banner.items.length >= 6) {
-      throw AppError.badRequest("Hero max 6 items", "HERO_LIMIT_REACHED");
-    }
+  const incomingCount = req.files.length;
+  const existingCount = banner?.items.length || 0;
 
-    if (sectionType === "carousel" && banner.items.length >= 8) {
-      throw AppError.badRequest(
-        "Carousel max 8 items",
-        "CAROUSEL_LIMIT_REACHED",
-      );
-    }
+  // ✅ correct limit check
+  if (sectionType === "hero" && existingCount + incomingCount > 6) {
+    throw AppError.badRequest("Hero max 6 items", "HERO_LIMIT_REACHED");
   }
 
-  // STEP 3: now upload (safe)
-  const uploaded = await uploadToCloudinary(
-    req.file.buffer,
-    req.fileType,
-    "banners",
-    req.file.originalname,
+  if (sectionType === "carousel" && existingCount + incomingCount > 8) {
+    throw AppError.badRequest("Carousel max 8 items", "CAROUSEL_LIMIT_REACHED");
+  }
+
+  // ✅ upload
+  const uploaded = await Promise.all(
+    req.files.map((file) =>
+      uploadToCloudinary(
+        file.buffer,
+        file.mimetype.startsWith("video") ? "video" : "image",
+        "banners",
+        file.originalname,
+      ),
+    ),
   );
 
-  const newItem = {
-    url: uploaded.url,
-    publicId: uploaded.publicId,
+  const newItems = uploaded.map((file) => ({
+    url: file.url,
+    publicId: file.publicId,
     redirectUrl: redirectUrl || "",
-    order: order ?? null,
     isActive: true,
-  };
+  }));
 
-  // STEP 4: create or update
+  // ✅ create or update
   if (!banner) {
     banner = await Banner.create({
       sectionType,
       title: title || "",
-      items: [newItem],
+      items: newItems,
     });
   } else {
-    banner.items.push(newItem);
+    banner.items.push(...newItems);
     await banner.save();
   }
 
