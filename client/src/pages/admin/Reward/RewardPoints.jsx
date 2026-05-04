@@ -2,6 +2,9 @@ import React, { useState, useEffect } from "react";
 import axiosInstance from "../../../api/axiosInstance.js";
 import axios from "axios";
 
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 /* <=========--------- icons --------=========> */
 import { MdOutlineAdd } from "react-icons/md";
 import { MdEdit } from "react-icons/md";
@@ -407,72 +410,61 @@ function RewardPoints() {
               ) : (
                 <button
                   className="px-2.5 py-2 bg-[#1C3753] text-white rounded-md"
-                  onClick={async () => {
-                    // console.log("SAVE CLICKED");
+                  onClick={() => {
+                    const validity = Number(formData.validityDays) || 30;
 
-                    try {
-                      // let validity = 30;
-
-                      // if (formData.date) {
-                      //   const today = new Date();
-                      //   const selected = new Date(formData.date);
-
-                      //   validity = Math.ceil(
-                      //     (selected - today) / (1000 * 60 * 60 * 24),
-                      //   );
-                      // }
-                      const validity = Number(formData.validityDays) || 30;
-
-                      await axiosInstance.post(
-                        "/dashboard/reward/createOrUpdate",
-                        {
-                          _id: isEditMode ? selectedCard?._id : undefined,
-                          name: formData.name,
-
-                          earn: {
-                            minOrderValue: Number(formData.minOrderValue),
-                            rules: {
-                              PriceForPoints: Number(formData.Points), // Use formData.Points for earning rules
-                              points: 1,
-                            },
+                    const apiPromise = axiosInstance.post(
+                      "/dashboard/reward/createOrUpdate",
+                      {
+                        _id: isEditMode ? selectedCard?._id : undefined,
+                        name: formData.name,
+                        earn: {
+                          minOrderValue: Number(formData.minOrderValue),
+                          rules: {
+                            PriceForPoints: Number(formData.Points),
+                            points: 1,
                           },
-
-                          minOrderValueForRedeem: Number(
-                            formData.minOrderValueForRedeem,
-                          ),
-
-                          pointValue: Number(formData.PriceForPoints), // Redemption value
-
-                          validity: validity,
-                          isActive: true,
                         },
-                      );
+                        minOrderValueForRedeem: Number(
+                          formData.minOrderValueForRedeem,
+                        ),
+                        pointValue: Number(formData.PriceForPoints),
+                        validity: validity,
+                        isActive: true,
+                      },
+                    );
 
-                      // refresh data
-                      await fetchRewards();
+                    toast.promise(apiPromise, {
+                      pending: "Saving reward...",
+                      success: "Reward created successfully 🎉",
+                      error: "Something went wrong ❌",
+                    });
 
-                      // UI updates
-                      setShowReward(false);
-                      setTimeout(() => setShowConfirm(true), 200);
+                    apiPromise
+                      .then(async () => {
+                        await fetchRewards();
 
-                      // reset form
-                      setFormData({
-                        name: "",
-                        price: "",
-                        Points: "",
-                        PriceForPoints: "",
-                        minOrderValue: "",
-                        minOrderValueForRedeem: "",
-                        validityDays: "",
+                        setShowReward(false);
+                        setShowConfirm(true);
+
+                        setFormData({
+                          name: "",
+                          price: "",
+                          Points: "",
+                          PriceForPoints: "",
+                          minOrderValue: "",
+                          minOrderValueForRedeem: "",
+                          validityDays: "",
+                        });
+
+                        setActiveTab("reward");
+                      })
+                      .catch((error) => {
+                        console.error(
+                          "Create Reward Error:",
+                          error.response?.data || error.message,
+                        );
                       });
-
-                      setActiveTab("reward");
-                    } catch (error) {
-                      console.error(
-                        "Create Reward Error:",
-                        error.response?.data || error.message,
-                      );
-                    }
                   }}
                 >
                   Save
