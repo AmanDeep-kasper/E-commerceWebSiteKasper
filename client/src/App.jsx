@@ -33,8 +33,8 @@ function App() {
   return (
     <>
       <ToastContainer
-        position="top-right"
-        autoClose={3000}
+        position="top-center"
+        autoClose={2000}
         hideProgressBar
         closeButton={false}
         pauseOnHover
