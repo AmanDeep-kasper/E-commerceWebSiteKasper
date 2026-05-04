@@ -8,6 +8,7 @@ import Payment from "../models/Payment.js";
 import Reward from "../models/admin/RewardConfig.js";
 import RewardLedger from "../models/RewardLedger.js";
 import User from "../models/User.js";
+import Serviceability from "../models/admin/serviceabilityConfig.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import AppError from "../utils/AppError.js";
 import env from "../config/env.js";
@@ -139,6 +140,35 @@ const calculateOrderSummary = ({
   };
 };
 
+const checkPincodeServiceability = async (pincode) => {
+  const pin = String(pincode);
+
+  const prefixes = [pin.slice(0, 4), pin.slice(0, 3), pin.slice(0, 2)];
+
+  const configs = await Serviceability.find({
+    isActive: true,
+    $or: [
+      { type: "exact", value: pin },
+      { type: "prefix", value: { $in: prefixes } },
+    ],
+  })
+    .sort({ type: -1, value: -1 }) // exact > prefix
+    .lean();
+
+  if (!configs.length) return false;
+
+  return configs[0].isServiceable;
+};
+
+// const verifySignature = (body, signature) => {
+//   const expected = crypto
+//     .createHmac("sha256", env.RAZORPAY_WEBHOOK_SECRET)
+//     .update(body)
+//     .digest("hex");
+
+//   return expected === signature;
+// };
+
 // user controllers
 export const checkoutSummary = asyncHandler(async (req, res) => {
   const userId = req.user?.userId;
@@ -220,6 +250,21 @@ export const checkout = asyncHandler(async (req, res) => {
     throw AppError.badRequest(
       "Complete shipping address required",
       "ADDRESS_REQUIRED",
+    );
+  }
+
+  if (!shippingAddress?.pinCode || !/^\d{6}$/.test(shippingAddress.pinCode)) {
+    throw AppError.badRequest("Valid pincode is required", "INVALID_PINCODE");
+  }
+
+  const isServiceable = await checkPincodeServiceability(
+    shippingAddress.pinCode,
+  );
+
+  if (!isServiceable) {
+    throw AppError.badRequest(
+      "Delivery is not available at this pincode",
+      "NOT_SERVICEABLE",
     );
   }
 
@@ -625,6 +670,66 @@ export const verifyPayment = asyncHandler(async (req, res) => {
     throw err;
   }
 });
+
+// export const webhookPayment = asyncHandler(async (req, res) => {
+//   const signature = req.headers["x-razorpay-signature"];
+
+//   // 🔴 VERY IMPORTANT → raw body
+//   const rawBody = req.rawBody;
+
+//   if (!verifySignature(rawBody, signature)) {
+//     throw AppError.badRequest("Invalid webhook signature", "INVALID_SIGNATURE");
+//   }
+
+//   const event = req.body;
+
+//   // we only care about captured payments
+//   if (event.event !== "payment.captured") {
+//     return res.status(200).json({ success: true });
+//   }
+
+//   const paymentEntity = event.payload.payment.entity;
+
+//   const razorpayOrderId = paymentEntity.order_id;
+//   const razorpayPaymentId = paymentEntity.id;
+
+//   const payment = await Payment.findOne({ razorpayOrderId });
+
+//   if (!payment) {
+//     return res.status(200).json({ success: true }); 
+//   }
+
+//   // ✅ IDEMPOTENCY (VERY IMPORTANT)
+//   if (payment.status === "captured") {
+//     return res.status(200).json({ success: true });
+//   }
+
+//   const order = await Order.findById(payment.order);
+
+//   if (!order) {
+//     return res.status(200).json({ success: true });
+//   }
+
+
+//   // 🔥 UPDATE ONLY (NO HEAVY LOGIC)
+//   payment.status = "captured";
+//   payment.razorpayPaymentId = razorpayPaymentId;
+//   payment.capturedAt = new Date();
+//   payment.method = paymentEntity.method;
+
+//   order.paymentStatus = "paid";
+
+//   if (order.status === "placed") {
+    
+//   }
+
+//   await Promise.all([payment.save(), order.save()]);
+
+//   return res.status(200).json({
+//     success: true,
+//     message: "Webhook processed",
+//   });
+// });
 
 export const paymentFailed = asyncHandler(async (req, res) => {
   const { razorpayPaymentId, razorpayOrderId, error } = req.body;
