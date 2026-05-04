@@ -36,7 +36,6 @@ function Product() {
     });
   };
 
-
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -46,7 +45,7 @@ function Product() {
         const res = await axiosInstance.get("/product/all");
 
         let fetchedProducts = [];
- if (res.data?.success && res.data?.data) {
+        if (res.data?.success && res.data?.data) {
           fetchedProducts = res.data.data;
         } else if (Array.isArray(res.data)) {
           fetchedProducts = res.data;
@@ -62,7 +61,7 @@ function Product() {
         if (categoryName) {
           const decodedCategory =
             decodeURIComponent(categoryName).toLowerCase();
-            // console.log("Looking for category:", decodedCategory);
+          // console.log("Looking for category:", decodedCategory);
           filteredProducts = fetchedProducts.filter((p) => {
             const productCategory = (
               p.categoryName ||
@@ -72,7 +71,7 @@ function Product() {
             //  console.log(`Product "${p.name}" category:`, productCategory);
             return productCategory === decodedCategory;
           });
-        //  console.log(`Found ${filteredProducts.length} products in category "${decodedCategory}"`);
+          //  console.log(`Found ${filteredProducts.length} products in category "${decodedCategory}"`);
         }
 
         if (subcategoryName && filteredProducts.length > 0) {
@@ -89,8 +88,11 @@ function Product() {
           // console.log(`Found ${filteredProducts.length} products in subcategory "${decodedSubcategory}"`);
         }
 
- // Apply subcategory filter (client-side)
-      filteredProducts = applySubcategoryFilter(filteredProducts, selectedSubcategory);
+        // Apply subcategory filter (client-side)
+        filteredProducts = applySubcategoryFilter(
+          filteredProducts,
+          selectedSubcategory,
+        );
 
         setItems(filteredProducts);
         setOriginalItems(filteredProducts);
@@ -212,37 +214,45 @@ function Product() {
     ? decodeURIComponent(subcategoryName)
     : "";
 
-//  console .log("breadcrumbssds34rer", displayCategory);
-//   console.log("displaysubcategorysder44", displaySubcategory);
+  //  console .log("breadcrumbssds34rer", displayCategory);
+  //   console.log("displaysubcategorysder44", displaySubcategory);
 
   return (
     <>
       <Navbar />
 
-      <Breadcrumbs
-        category={displayCategory}
-        subcategory={displaySubcategory}
-      />
+      <div className="hidden sm:block">
+        <Breadcrumbs
+          category={displayCategory}
+          subcategory={displaySubcategory}
+        />
+      </div>
 
-
-      <div className=" flex flex-col lg:px-20 md:px-[60px] px-4 pb-[23px] lg:flex gap-4 bg-gray-50">
-        <div className="mt-5">
-          <span className="text-xl font-semibold capitalize font-marcellus text-[#1800AC]">
+      <div className="flex flex-col lg:px-20 md:px-[60px] px-4 pb-[23px] gap-4 bg-gray-50 mt-14 sm:mt-0">
+        {/* Heading */}
+        <div className="mt-14 sm:mt-0">
+          <span className="text-lg md:text-xl font-semibold capitalize font-marcellus text-[#1800AC]">
             {state?.category || displayCategory || "All Products"}
           </span>
         </div>
-        <div className="flex gap-4">
-          <Filter
-            setParam={setParam}
-            val={val}
-            colors={colors}
-            setColor={setColor}
-            sort={sort}
-            selectedSubcategory={selectedSubcategory}
-            setSelectedSubcategory={setSelectedSubcategory}
-          />
 
-          <div className="flex-1 lg:gap-6 items-start">
+        {/* Layout */}
+        <div className="flex flex-col lg:flex-row gap-4">
+          {/* Filter */}
+          <div className="w-full lg:w-[280px]">
+            <Filter
+              setParam={setParam}
+              val={val}
+              colors={colors}
+              setColor={setColor}
+              sort={sort}
+              selectedSubcategory={selectedSubcategory}
+              setSelectedSubcategory={setSelectedSubcategory}
+            />
+          </div>
+
+          {/* Products */}
+          <div className="flex-1">
             {loading ? (
               <p>Loading products...</p>
             ) : error ? (
@@ -250,7 +260,7 @@ function Product() {
             ) : filteredArts.length === 0 ? (
               <EmptyState
                 heading="No Products Found"
-                description="We couldn’t find any products matching your filters. Try adjusting your search or explore all products."
+                description="We couldn’t find any products matching your filters."
                 icon={PackageOpen}
                 ctaLabel="Reset Filters"
                 onClick={() => {

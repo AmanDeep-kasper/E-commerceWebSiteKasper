@@ -332,7 +332,7 @@ function Payment() {
                 <p>No delivery address selected.</p>
                 <button
                   onClick={() => navigate("/checkout/delivery")}
-                  className="mt-2 px-4 py-2 bg-amber-600 text-white rounded-full hover:bg-amber-700 text-sm"
+                  className="mt-2 px-4 py-2 bg-[#0C0057] text-white rounded-md text-sm"
                 >
                   Add Address
                 </button>
@@ -401,6 +401,7 @@ function Payment() {
             </div>
           </div>
 
+          
           <PriceDetails
             totalItems={cartItems?.length || totalItems}
             sellingPrice={checkoutSummary?.mrpTotal}
@@ -419,6 +420,8 @@ function Payment() {
             rewardConfig={rewardConfig}
             onApplyPoints={handleApplyPoints}
             appliedPoints={checkoutSummary?.discount || 0}
+            showPlaceOrder={selected === "Razorpay"}
+            selected={selected}
           />
         </div>
       </section>

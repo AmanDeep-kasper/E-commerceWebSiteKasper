@@ -131,7 +131,7 @@ function Navbar() {
     if (state.user.isAuthenticated) {
       return state.cart.totalItems;
     } else {
-      const guestCart = JSON.parse(localStorage.getItem("cart") || "[]");
+      const guestCart = JSON.parse(localStorage.getItem("cart") || "[]");                               
       return guestCart.reduce((sum, i) => sum + (i.quantity || 0), 0);
     }
   });
@@ -559,7 +559,7 @@ function Navbar() {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
               className="fixed inset-0 bg-black/50 z-40 lg:hidden"
-              onClick={() => setDropdown(false)}
+              onClick={() => setIsMobileMenuOpen(false)}
             />
 
             {/* Mobile menu */}
@@ -643,14 +643,14 @@ function Navbar() {
                     >
                       <span>{item.name}</span>
 
-                      {item.name?.length > 0 && (
+                      {/* {item.name?.length > 0 && (
                         <ChevronDown
                           size={16}
                           className={`text-gray-400 transition-transform duration-300 ${
                             subDropdown === index ? "rotate-180" : ""
                           }`}
                         />
-                      )}
+                      )} */}
                     </div>
 
                     {item.subcategories?.length > 0 && (

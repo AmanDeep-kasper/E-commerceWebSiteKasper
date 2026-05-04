@@ -194,15 +194,13 @@ export const adminGetAllProducts = asyncHandler(async (req, res) => {
   if (status === "active") {
     filter.isActive = true;
     filter.isDraft = { $ne: true }; // Exclude drafts from active
-  } 
-  else if (status === "inactive") {
+  } else if (status === "inactive") {
     filter.isActive = false;
     filter.isDraft = { $ne: true }; // Exclude drafts from inactive
-  } 
-  else if (status === "draft") {
+  } else if (status === "draft") {
     filter.isDraft = true;
   }
-    // If no status filter, show all products (including drafts? usually you want to exclude drafts)
+  // If no status filter, show all products (including drafts? usually you want to exclude drafts)
   // Default: exclude drafts unless specifically requested
   else {
     filter.isDraft = { $ne: true };
@@ -230,11 +228,13 @@ export const adminGetAllProducts = asyncHandler(async (req, res) => {
   // ✅ CATEGORY FILTER - IMPROVED (handles both ID and name, single or multiple)
   if (category) {
     // Split by comma if multiple categories
-    const categoryIds = category.split(',');
-    
+    const categoryIds = category.split(",");
+
     // Check if all are valid ObjectIds
-    const allValidIds = categoryIds.every(id => mongoose.Types.ObjectId.isValid(id));
-    
+    const allValidIds = categoryIds.every((id) =>
+      mongoose.Types.ObjectId.isValid(id),
+    );
+
     if (allValidIds && categoryIds.length > 0) {
       // Filter by multiple category IDs
       filter.category = { $in: categoryIds };
@@ -250,7 +250,9 @@ export const adminGetAllProducts = asyncHandler(async (req, res) => {
   }
 
   // ✅ SORT OPTIONS
-  let sort = {};
+  let sort = {
+    createdAt: -1,
+  };
   switch (sortBy) {
     case "latest":
       sort = { createdAt: -1 };
@@ -286,7 +288,7 @@ export const adminGetAllProducts = asyncHandler(async (req, res) => {
     Product.countDocuments(filter),
   ]);
 
-     // ✅ STATS COUNTS - independent counts for stats display
+  // ✅ STATS COUNTS - independent counts for stats display
   // These should count ALL products regardless of category/search filter
   const [activeCount, inactiveCount, draftCount] = await Promise.all([
     Product.countDocuments({ isActive: true, isDraft: { $ne: true } }),

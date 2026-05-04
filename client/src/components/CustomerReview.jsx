@@ -92,6 +92,7 @@ function CustomerReview({ reviews = [], id, allReviews = false }) {
               createdAt,
               replyText,
               replyDate,
+              repliedBy,
             },
             index,
           ) => (
@@ -153,23 +154,34 @@ function CustomerReview({ reviews = [], id, allReviews = false }) {
               <p className="text-sm text-[#3A3A3A] mt-3 leading-6">
                 {reviewText}
               </p>
-              {replyText ? (
-                <div className="bg-[#F0EEFF] px-[10px] py-[12px] rounded-md">
-                  <div className="flex items-center justify-start gap-2">
+              {console.log(repliedBy)}
+              {/* admin reply */}
+              {repliedBy && (
+                <div className="bg-[#F0EEFF] px-[10px] py-[12px] rounded-md mt-3">
+                  <div className="flex items-center gap-2">
                     <img
-                      className="w-[24px] h-[24px] rounded-full"
-                      src={hardCompanylogo}
-                      alt=""
+                      className="w-[24px] h-[24px] rounded-full object-cover"
+                      src={
+                        repliedBy?.bussinessLogo ||
+                        repliedBy?.businessLogo ||
+                        "/placeholder.png"
+                      }
+                      alt="logo"
                     />
-                    <span className="text-[16px]">Happy Art Supplies</span>
-                    <span className="text-[14px] text-[#686868]">
-                      {replyText ? "Replied:" : ""}
+
+                    <span className="text-[14px] font-semibold text-[#1C1C1C]">
+                      {repliedBy?.businessName || "Seller"}
+                    </span>
+
+                    <span className="text-[12px] text-[#686868]">
+                      • Seller Response
                     </span>
                   </div>
-                  <p className="mt-2">{reviewText}</p>
+
+                  <p className="mt-2 text-sm text-[#3A3A3A] leading-5">
+                    {repliedBy?.replyText}
+                  </p>
                 </div>
-              ) : (
-                ""
               )}
             </div>
           ),
@@ -191,15 +203,3 @@ function CustomerReview({ reviews = [], id, allReviews = false }) {
 }
 
 export default CustomerReview;
-
-//  {reviews.length > moreReview && !allReviews && (
-//         <Link to={"/rating"}>
-//           <button
-//             type="button"
-//             className="py-2 mt-3 font-medium text-[#1C3753]"
-//             onClick={() => navigate(`/all-reviews/${id}`)}
-//           >
-//             See more reviews &#8250;
-//           </button>
-//         </Link>
-//       )}

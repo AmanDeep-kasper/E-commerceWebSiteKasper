@@ -88,48 +88,48 @@ function ProductDetails() {
 
   // FETCH PRODUCT + SIMILAR PRODUCTS
   useEffect(() => {
-  const fetchProduct = async () => {
-    setIsLoading(true);
-    try {
-      console.log("Fetching product with ID:", id);
-      const res = await axiosInstance.get(`/api/products/product/${id}`);
-      
-      console.log("=== API DEBUG ===");
-      console.log("Status:", res.status);
-      console.log("Headers:", res.headers);
-      console.log("Full response:", res);
-      console.log("Response data:", res.data);
-      console.log("Data structure:", Object.keys(res.data || {}));
-      
-      // Try different possible response structures
-      const found = res.data?.data?.product || 
-                   res.data?.data || 
-                   res.data?.product || 
-                   res.data;
-      
-      console.log("Extracted product:", found);
-      
-      if (found) {
-        console.log("Product properties:", Object.keys(found));
-        console.log("Product variants:", found.variants);
-        console.log("Product images:", found.images);
-      }
-      
-      setProduct(found);
-      setSelectedVariant(found?.variants?.[0] || null);
-      
-    } catch (err) {
-      console.log("Product fetch error:", err);
-      console.log("Error response:", err.response);
-      console.log("Error message:", err.message);
-      setProduct(null);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    const fetchProduct = async () => {
+      setIsLoading(true);
+      try {
+        console.log("Fetching product with ID:", id);
+        const res = await axiosInstance.get(`/api/products/product/${id}`);
 
-  if (id) fetchProduct();
-}, [id]);
+        console.log("=== API DEBUG ===");
+        console.log("Status:", res.status);
+        console.log("Headers:", res.headers);
+        console.log("Full response:", res);
+        console.log("Response data:", res.data);
+        console.log("Data structure:", Object.keys(res.data || {}));
+
+        // Try different possible response structures
+        const found =
+          res.data?.data?.product ||
+          res.data?.data ||
+          res.data?.product ||
+          res.data;
+
+        console.log("Extracted product:", found);
+
+        if (found) {
+          console.log("Product properties:", Object.keys(found));
+          console.log("Product variants:", found.variants);
+          console.log("Product images:", found.images);
+        }
+
+        setProduct(found);
+        setSelectedVariant(found?.variants?.[0] || null);
+      } catch (err) {
+        console.log("Product fetch error:", err);
+        console.log("Error response:", err.response);
+        console.log("Error message:", err.message);
+        setProduct(null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (id) fetchProduct();
+  }, [id]);
   // HOOK: inCart
 
   // const [inCart, setInCart] = useState(
@@ -243,8 +243,6 @@ function ProductDetails() {
     // Case 3: Server-stored images (uploads/image.png)
     return `http://localhost:5000${img}`;
   };
-
-
 
   const colorVariants = product.variants.filter(
     (v) => v.variantName === "Color",
@@ -461,7 +459,6 @@ function ProductDetails() {
                   </span>
                   <span className="text-gray-500 text-sm">/5</span>
                 </div>
-
                 <div className="flex flex-col gap-1">
                   <Ratings size={20} avgRating={avgRating} />
                   <span className="text-sm text-gray-500">
@@ -470,9 +467,7 @@ function ProductDetails() {
                     {product?.reviews?.length === 1 ? "review" : "reviews"}
                   </span>
                 </div>
-
-                <div className="h-6 w-px bg-gray-300"></div>
-x
+                <div className="h-6 w-px bg-gray-300"></div>x
                 <button
                   className="text-sm font-medium text-[#1C3753] hover:text-[#1C3753] transition-colors underline"
                   onClick={() =>
@@ -508,8 +503,6 @@ x
               <span className="text-[#686868] text-xs">
                 inclusive of all taxes
               </span>
-
-              
             </div>
 
             {/* Color Options */}

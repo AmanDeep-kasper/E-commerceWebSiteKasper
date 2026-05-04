@@ -97,20 +97,20 @@ function Order() {
       iconbg: "bg-[#FFFBEB]",
       iconColor: "text-[#F8A14A]",
     },
-    {
-      name: "Cancelled",
-      data: stats.cancelledOrders || 0,
-      icon: <Ban />,
-      iconbg: "bg-[#FFFBEB]",
-      iconColor: "text-[#F8A14A]",
-    },
+    // {
+    //   name: "Cancelled",
+    //   data: stats.cancelledOrders || 0,
+    //   icon: <Ban />,
+    //   iconbg: "bg-[#FFFBEB]",
+    //   iconColor: "text-[#F8A14A]",
+    // },
   ];
 
   return (
     <div className="p-[24px] bg-[#F6F8F9] min-h-screen">
       <h2 className="text-[20px] font-semibold text-gray-800">Manage Orders</h2>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 py-6">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 py-6">
         {kpicardData.map((item, index) => (
           <div
             key={index}

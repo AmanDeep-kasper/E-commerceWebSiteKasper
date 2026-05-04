@@ -450,25 +450,23 @@ const OrderDetail = () => {
       )}
       {/* Header */}
 
-      <div className="border-b pb-4 mb-6 flex items-start justify-between">
+      <div className="border-b pb-4 mb-6 flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
         <div>
           <h1 className="flex items-center gap-2 text-lg sm:text-xl font-semibold text-gray-800">
             <Link to="/accounts/order-history">
-              {" "}
-              <ChevronLeft className="w-8 h-8" />{" "}
-            </Link>{" "}
+              <ChevronLeft className="w-8 h-8" />
+            </Link>
             Order Details
           </h1>
 
-          <div className="text-gray-600 mt-1 flex gap-2">
+          <div className="text-gray-600 mt-1 flex flex-col lg:flex-row lg:gap-2">
             <span>Order Placed on {formatDate(order.placedAt)}</span>
-            <span>|</span>
-            <span>{order.orderNumber}</span>
+            <span className="hidden lg:inline">|</span>
+            <span>Order ID:- {order.orderNumber}</span>
           </div>
         </div>
         {/* <button
-          onClick={() => generateInvoice(order)}
-          className=" text-[#1C3753] px-6 py-2 border border-[#1C3753] rounded-lg text-sm hover:bg-[#1C3753] hover:text-white transition-colors"
+          onClick={() => generateInvoice(order)} er-[#1C3753] rounded-lg text-sm hover:bg-[#1C3753] hover:text-white transition-colors"
         >
           Download Invoice
         </button> */}
@@ -484,7 +482,7 @@ const OrderDetail = () => {
             }
           }}
           // onClick={() => generateInvoice(order)}
-          className=" text-[#1C3753] px-6 py-2 border border-[#1C3753] rounded-lg text-sm hover:bg-[#1C3753] hover:text-white transition-colors flex items-center gap-2"
+          className="text-white px-4 py-2 md:px-6 md:py-2 border border-[#1C3753] rounded-lg text-sm bg-[#0C0057] transition-colors flex items-center justify-center gap-2 w-full lg:w-auto"
         >
           Download Invoice <Download size={18} />
         </a>
@@ -532,60 +530,76 @@ const OrderDetail = () => {
       </div> */}
 
       {/* Customer & Shipping */}
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-8 mb-8 pb-4 border-b">
-        <div>
-          <h2 className="font-medium text-lg mb-3">Delivery Address</h2>
-          <p className="text-gray-800">{order.shippingAddress.address}</p>
-          <p className="text-gray-600">
-            {order.shippingAddress.city}, {order.shippingAddress.state},
-            {order.shippingAddress.pinCode},{order.shippingAddress.country}
-          </p>
-          {/* {order.
-shippingAddress.landmark && (
-            <p className="text-gray-500">
-              Landmark: {order.shippingAddress.landmark}
-            </p>
-          )} */}
-        </div>
-        {/* Payment */}
-        <div className="mb-8">
-          <h2 className="font-medium text-lg mb-3">Payment Information</h2>
-          <p>Method: {order.paymentMethod.toUpperCase()}</p>
-          <p>Status: {order.paymentStatus}</p>
-        </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8 pb-4 border-b">
 
-        <div>
-          <h2 className="font-medium text-lg mb-3">Payment Summary </h2>
-          <div className="flex items-start justify-between mb-4">
-            <div>
-              <ul className="space-y-2">
-                <li>Items:</li>
-                <li className="text-[#00A63E]">Discounts:</li>
-                <li>Platform Fee:</li>
-                <li>Delivery Charges:</li>
-                <li className="text-[#00A63E]">Applied Points:</li>
-              </ul>
-            </div>
-            <div>
-              <ul className="space-y-2">
-                <li>{order.mrpTotal ? order.mrpTotal : "--"}</li>
-                <li className="text-[#00A63E]">
-                  {order.totalDiscount ? order.totalDiscount : "--"}
-                </li>
-                <li>{order.platformFee ? order.platformFee : "--"}</li>
-                <li>{order.shippingCharge ? order.shippingCharge : "--"}</li>
-                <li className="text-[#00A63E]">
-                  -{order.discount ? order.discount : "--"}
-                </li>
-              </ul>
-            </div>
-          </div>
-          <div className="flex items-center justify-between border-t pt-3 text-[16px] font-medium">
-            <p>Total Amount</p>
-            <span>{order.grandTotal ? order.grandTotal : "--"}</span>
-          </div>
-        </div>
+  {/* Delivery Address */}
+  <div>
+    <h2 className="font-medium text-base md:text-lg mb-3">
+      Delivery Address
+    </h2>
+    <p className="text-gray-800 text-sm md:text-base">
+      {order.shippingAddress.address}
+    </p>
+    <p className="text-gray-600 text-sm md:text-base">
+      {order.shippingAddress.city}, {order.shippingAddress.state},{" "}
+      {order.shippingAddress.pinCode},{" "}
+      {order.shippingAddress.country}
+    </p>
+  </div>
+
+  {/* Payment Info */}
+  <div>
+    <h2 className="font-medium text-base md:text-lg mb-3">
+      Payment Information
+    </h2>
+    <p className="text-sm md:text-base">
+      Method: {order.paymentMethod.toUpperCase()}
+    </p>
+    <p className="text-sm md:text-base">
+      Status: {order.paymentStatus}
+    </p>
+  </div>
+
+  {/* Payment Summary */}
+  <div>
+    <h2 className="font-medium text-base md:text-lg mb-3">
+      Payment Summary
+    </h2>
+
+    <div className="space-y-2 text-sm md:text-base">
+
+      <div className="flex justify-between">
+        <span>Items:</span>
+        <span>{order.mrpTotal || "--"}</span>
       </div>
+
+      <div className="flex justify-between text-[#00A63E]">
+        <span>Discounts:</span>
+        <span>{order.totalDiscount || "--"}</span>
+      </div>
+
+      <div className="flex justify-between">
+        <span>Platform Fee:</span>
+        <span>{order.platformFee || "--"}</span>
+      </div>
+
+      <div className="flex justify-between">
+        <span>Delivery Charges:</span>
+        <span>{order.shippingCharge || "--"}</span>
+      </div>
+
+      <div className="flex justify-between text-[#00A63E]">
+        <span>Applied Points:</span>
+        <span>-{order.discount || "--"}</span>
+      </div>
+    </div>
+
+    <div className="flex items-center justify-between border-t pt-3 mt-3 text-sm md:text-base font-medium">
+      <p>Total Amount</p>
+      <span>{order.grandTotal || "--"}</span>
+    </div>
+  </div>
+</div>
 
       {/* Items */}
       <div className="border p-3 rounded-lg">
@@ -704,39 +718,45 @@ shippingAddress.landmark && (
 
       {/* Status Tracker */}
 
-      <div className="flex items-center gap-4 text-sm mt-4">
-        {["placed", "processing", "shipped", "delivered"].map((step, i) => (
-          <div key={i} className="flex items-center">
-            <span
-              className={`w-4 h-4 rounded-full mr-2 
-            ${
-              currentStatus === "cancelled"
-                ? "bg-red-600"
-                : currentStatus === step ||
-                    (currentStatus === "delivered" &&
-                      ["placed", "processing", "shipped", "delivered"].includes(
-                        step,
-                      ))
-                  ? "bg-green-600"
-                  : "bg-gray-300"
-            }
-          `}
-            ></span>
+      <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm mt-4">
 
-            <span
-              className={`${
-                currentStatus === step
-                  ? "font-medium text-gray-900"
-                  : "text-gray-500"
-              }`}
-            >
-              {step.charAt(0).toUpperCase() + step.slice(1)}
-            </span>
+  {["placed", "processing", "shipped", "delivered"].map((step, i) => (
+    <div key={i} className="flex items-center">
 
-            {i < 3 && <span className="mx-3 text-gray-400">→</span>}
-          </div>
-        ))}
-      </div>
+      {/* Dot */}
+      <span
+        className={`w-3 h-3 sm:w-4 sm:h-4 rounded-full mr-2
+        ${
+          currentStatus === "cancelled"
+            ? "bg-red-600"
+            : currentStatus === step ||
+              (currentStatus === "delivered" &&
+                ["placed", "processing", "shipped", "delivered"].includes(step))
+            ? "bg-green-600"
+            : "bg-gray-300"
+        }`}
+      />
+
+      {/* Label */}
+      <span
+        className={`whitespace-nowrap ${
+          currentStatus === step
+            ? "font-medium text-gray-900"
+            : "text-gray-500"
+        }`}
+      >
+        {step.charAt(0).toUpperCase() + step.slice(1)}
+      </span>
+
+      {/* Arrow */}
+      {i < 3 && (
+        <span className="mx-2 sm:mx-3 text-gray-400 text-xs sm:text-base">
+          →
+        </span>
+      )}
+    </div>
+  ))}
+</div>
 
       {/* Tracking Info */}
       {currentStatus !== "delivered" && (

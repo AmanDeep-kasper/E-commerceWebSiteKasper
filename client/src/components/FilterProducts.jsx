@@ -14,10 +14,9 @@ const options = [
 
 function FilterProducts({ text = "Best Selling Products", sort }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [selected, setSelected] = useState(options[0]); // object
+  const [selected, setSelected] = useState(options[0]);
   const dropdownRef = useRef(null);
 
-  // close on outside click
   useEffect(() => {
     const handler = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -29,41 +28,50 @@ function FilterProducts({ text = "Best Selling Products", sort }) {
   }, []);
 
   return (
-    <div className="flex justify-between items-center w-full mb-5 p-2">
-      <div className="flex md:gap-[160px] max-md:hidden">
-        <p className="text-xl font-marcellus font-medium text-[#1800AC]">{text}</p>
+    <div className="flex flex-col md:flex-row md:justify-between md:items-center w-full mb-5 gap-3 ">
+
+      {/* Heading */}
+      <div className="block md:block">
+        <p className="text-lg md:text-xl font-marcellus font-medium text-[#1800AC]">
+          {text}
+        </p>
       </div>
 
-      {/* Make this relative so absolute dropdown positions correctly */}
+      {/* Sort */}
       <div
         ref={dropdownRef}
-        className="relative flex max-md:justify-between gap-2  items-center z-30 max-sm:text-xs max-md:w-full border border-[#DEDEDE] rounded-[5px] bg-[#FFFFFF] px-2"
+        className="relative flex justify-between md:justify-start items-center gap-2 w-full md:w-auto border border-[#DEDEDE] rounded-[5px] bg-[#FFFFFF] px-3 py-2"
       >
-        <span className="text-[#686868]">Sort by:</span>
+        <span className="text-[#686868] text-sm md:text-base">
+          Sort by:
+        </span>
 
         <button
           type="button"
-          className="md:w-[200px] max-sm:text-xs h-10  flex justify-between items-center px-2"
+          className="flex justify-between items-center w-full md:w-[200px]"
           onClick={() => setIsOpen((prev) => !prev)}
         >
-          <span className="text-[#3A3A3A]">{selected.label}</span>
+          <span className="text-[#3A3A3A] text-sm md:text-base">
+            {selected.label}
+          </span>
+
           <ChevronDown
-            className={`max-sm:h-4 transition-transform ${
+            className={`h-4 w-4 transition-transform ${
               isOpen ? "rotate-180" : ""
             }`}
           />
         </button>
 
         {isOpen && (
-          <div className="absolute top-12 right-0 bg-white w-[280px] border border-[#DEDEDE] rounded-[5px] overflow-hidden">
+          <div className="absolute top-full mt-2 right-0 w-full md:w-[280px] bg-white border border-[#DEDEDE] rounded-[5px] overflow-hidden shadow-md z-50">
             {options.map((opt) => (
               <button
                 type="button"
                 key={opt.value}
-                className="w-full text-left hover:bg-[#F0EEFF]  border-[#7C7C7C] last:border-b-0 px-[15px] py-2"
+                className="w-full text-left hover:bg-[#F0EEFF] px-4 py-2 text-sm"
                 onClick={() => {
                   setSelected(opt);
-                  sort?.(opt.value); // safe call
+                  sort?.(opt.value);
                   setIsOpen(false);
                 }}
               >
