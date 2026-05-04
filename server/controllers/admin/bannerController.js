@@ -248,29 +248,29 @@ export const getActiveBanners = asyncHandler(async (req, res) => {
   });
 });
 
-export const toggleBannerStatus = asyncHandler(async (req, res) => {
-  const { bannerId } = req.params;
-  const { publicId } = req.body;
+// export const toggleBannerStatus = asyncHandler(async (req, res) => {
+//   const { bannerId } = req.params;
+//   const { publicId } = req.body;
 
-  const banner = await Banner.findById(bannerId);
+//   const banner = await Banner.findById(bannerId);
 
-  if (!banner) {
-    throw AppError.notFound("Banner not found", "NOT_FOUND");
-  }
+//   if (!banner) {
+//     throw AppError.notFound("Banner not found", "NOT_FOUND");
+//   }
 
-  const itemIndex = banner.items.findIndex(
-    (item) => item.publicId === publicId,
-  );
+//   const itemIndex = banner.items.findIndex(
+//     (item) => item.publicId === publicId,
+//   );
 
-  if (itemIndex === -1) {
-    throw AppError.notFound("Item not found", "ITEM_NOT_FOUND");
-  }
+//   if (itemIndex === -1) {
+//     throw AppError.notFound("Item not found", "ITEM_NOT_FOUND");
+//   }
 
-  banner.items[itemIndex].isActive = !banner.items[itemIndex].isActive;
-  await banner.save();
+//   banner.items[itemIndex].isActive = !banner.items[itemIndex].isActive;
+//   await banner.save();
 
-  res.status(200).json({
-    success: true,
-    message: `Banner ${banner.items[itemIndex]?.isActive ? "activated" : "deactivated"} successfully`,
-  });
-});
+//   res.status(200).json({
+//     success: true,
+//     message: `Banner ${banner.items[itemIndex]?.isActive ? "activated" : "deactivated"} successfully`,
+//   });
+// });

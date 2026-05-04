@@ -5,7 +5,6 @@ import {
   deleteBannerItem,
   getActiveBanners,
   getAllBanners,
-  toggleBannerStatus,
   updateBannerItem,
   uploadBanner,
 } from "../../controllers/admin/bannerController.js";
@@ -38,11 +37,11 @@ router.delete(
   deleteBannerItem,
 );
 
-router.patch(
-  "/toggle-banner/:bannerId",
-  authenticate,
-  authorize("admin"),
-  toggleBannerStatus,
-);
+// router.patch(
+//   "/toggle-banner/:bannerId",
+//   authenticate,
+//   authorize("admin"),
+//   toggleBannerStatus,
+// );
 
 export default router;
