@@ -328,10 +328,7 @@ export const kpiCardController = asyncHandler(async (req, res) => {
 // });
 
 export const salesOverviewController = asyncHandler(async (req, res) => {
-  const {
-    type = "orders",
-    range = "weekly",
-  } = req.query;
+  const { type = "orders", range = "weekly" } = req.query;
 
   if (!["orders", "revenue"].includes(type)) {
     throw AppError.badRequest("Invalid type", "INVALID_TYPE");
@@ -343,10 +340,7 @@ export const salesOverviewController = asyncHandler(async (req, res) => {
 
   const Model = type === "orders" ? Order : Payment;
 
-  const baseMatch =
-    type === "orders"
-      ? {}
-      : { status: "captured" };
+  const baseMatch = type === "orders" ? {} : { status: "captured" };
 
   let groupStage;
   let labels = [];
@@ -406,8 +400,18 @@ export const salesOverviewController = asyncHandler(async (req, res) => {
   // ✅ YEARLY
   if (range === "yearly") {
     labels = [
-      "Jan","Feb","Mar","Apr","May","Jun",
-      "Jul","Aug","Sep","Oct","Nov","Dec"
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
     ];
 
     totalLabel = type === "orders" ? "Total Order" : "Total Revenue";
@@ -476,7 +480,6 @@ export const salesOverviewController = asyncHandler(async (req, res) => {
     },
   });
 });
-
 
 export const dashboardSummaryController = asyncHandler(async (req, res) => {
   const now = new Date();
@@ -582,49 +585,18 @@ export const dashboardSummaryController = asyncHandler(async (req, res) => {
         $group: {
           _id: null,
 
+          // ✅ total variants count
           totalStock: {
-            $sum: {
-              $cond: [
-                {
-                  $and: [
-                    { $eq: ["$isActive", true] },
-                    {
-                      $gt: [
-                        "$variants.variantAvailableStock",
-                        0, // ✅ in stock condition
-                      ],
-                    },
-                  ],
-                },
-                1, // ✅ count 1 product (not quantity)
-                0,
-              ],
-            },
+            $sum: 1,
           },
 
-          inStock: {
-            $sum: {
-              $cond: [
-                {
-                  $gt: [
-                    "$variants.variantAvailableStock",
-                    "$variants.variantLowStockAlertStock",
-                  ],
-                },
-                1, // ✅ count 1 product
-                0,
-              ],
-            },
-          },
-
+          // ✅ low stock count (NOT quantity)
           lowStock: {
             $sum: {
               $cond: [
                 {
                   $and: [
-                    {
-                      $gt: ["$variants.variantAvailableStock", 0],
-                    },
+                    { $gt: ["$variants.variantAvailableStock", 0] },
                     {
                       $lte: [
                         "$variants.variantAvailableStock",
@@ -633,22 +605,29 @@ export const dashboardSummaryController = asyncHandler(async (req, res) => {
                     },
                   ],
                 },
-                "$variants.variantAvailableStock",
+                1,
                 0,
               ],
             },
           },
 
+          // ✅ out of stock count
           outOfStock: {
             $sum: {
-              $cond: [
-                {
-                  $eq: ["$variants.variantAvailableStock", 0],
-                },
-                1,
-                0,
-              ],
+              $cond: [{ $eq: ["$variants.variantAvailableStock", 0] }, 1, 0],
             },
+          },
+        },
+      },
+      {
+        $project: {
+          totalStock: 1,
+          lowStock: 1,
+          outOfStock: 1,
+
+          // ✅ derived inStock
+          inStock: {
+            $subtract: ["$totalStock", { $add: ["$lowStock", "$outOfStock"] }],
           },
         },
       },
